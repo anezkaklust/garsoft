@@ -13,8 +13,8 @@
 #include <iostream>
 
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
-#include "larcore/Geometry/ChannelMapAlg.h"
-#include "larcore/Geometry/GeoObjectSorterStandard.h"
+#include "Geometry/ChannelMapAlg.h"
+#include "Geometry/GeoObjectSorterStandard.h"
 #include "fhiclcpp/ParameterSet.h"
 
 namespace geo{
