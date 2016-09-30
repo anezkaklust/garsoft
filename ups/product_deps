@@ -1,0 +1,54 @@
+# The parent line must be the first non-comment line in the file
+# This line defines the product name and version
+parent	garsoft	v00_00_00
+defaultqual	e10
+
+# These optional lines define the installed directories where
+# headers, libraries, and executables will be found
+# Use them only if your product does not conform to the defaults
+# Format: directory_type directory_path directory_name
+# The only recognized values of the first field are fcldir, incdir, libdir, and bindir
+# The only recognized values of the second field are product_dir, fq_dir, and -
+# The third field is not constrained.
+# Defaults:
+# incdir  product_dir  include
+# fcldir  product_dir  fcl
+# libdir  fq_dir       lib
+# bindir  fq_dir       bin
+
+fcldir  product_dir fcl
+gdmldir product_dir
+#
+# we list geant4 explicitly because we are going to set GDML_SCHEMA_DIR 
+# Defining GDML_SCHEMA_DIR here is a temporary hack
+product         version
+nutools         v2_03_01
+# dk2nu should be brought in by nutools ... but isn't
+# must be consistent w/ GENIE build
+dk2nu           v01_04_01
+nusimdata       v1_05_02
+
+cetbuildtools	v5_02_02	-	only_for_build
+end_product_list
+
+  
+# e10  - with gcc 4.9.3 and -std=c++14
+qualifier     nutools    nusimdata dk2nu        
+e10:debug     e10:debug  e10:debug e10:r6:debug 
+e10:opt       e10:opt    e10:opt   e10:r6:opt   
+e10:prof      e10:prof   e10:prof  e10:r6:prof
+end_qualifier_list
+
+# table fragment to set FW_SEARCH_PATH needed 
+# to find gdml files:
+table_fragment_begin
+
+pathPrepend(FW_SEARCH_PATH, ${UPS_PROD_DIR}/gdml)
+
+table_fragment_end
+
+# Preserve tabs and formatting in emacs and vi / vim:
+
+### Local Variables:
+### tab-width: 8
+### End:
