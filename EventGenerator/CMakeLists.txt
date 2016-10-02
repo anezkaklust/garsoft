@@ -1,25 +1,6 @@
 
-art_make( 
-          LIB_LIBRARIES
-                        nusimdata_SimulationBase
-                        art_Persistency_Provenance canvas_Persistency_Provenance
-                        ${ART_FRAMEWORK_CORE}
-                        ${MF_MESSAGELOGGER}
-                        ${MF_UTILITIES}
-                        ${CETLIB}
-                        ${ROOT_BASIC_LIB_LIST}
-                        ${FHICLCPP}
-                        ${CLHEP}
-			${Boost_FILESYSTEM_LIBRARY}
-			${Boost_SYSTEM_LIBRARY}
-          MODULE_LIBRARIES larsim_PhotonPropagation
-                           larsim_PhotonPropagation_PhotonVisibilityService_service
-                           larsim_Simulation larsimobj_Simulation
-                           larcoreobj_SummaryData
-                           larcore_Geometry
-                           larcore_Geometry_Geometry_service
-                           larsim_RandomUtils_LArSeedService_service
-                           larsim_EventGenerator
+art_make( MODULE_LIBRARIES Geometry_Geometry
+                           Geometry_Geometry_Geometry_service
                            nusimdata_SimulationBase
                            ${ART_FRAMEWORK_CORE}
                            ${ART_FRAMEWORK_PRINCIPAL}
@@ -40,14 +21,13 @@ art_make(
         )
 
 simple_plugin( GeneratedEventTimestamp "plugin"
-                                       ${ART_FRAMEWORK_CORE}
-                                       art_Persistency_Provenance canvas_Persistency_Provenance
-                                       ${MF_MESSAGELOGGER}
-                                       ${MF_UTILITIES}
-                                       ${CETLIB}
-				       ${Boost_FILESYSTEM_LIBRARY}
+               ${ART_FRAMEWORK_CORE}
+               art_Persistency_Provenance canvas_Persistency_Provenance
+               ${MF_MESSAGELOGGER}
+               ${MF_UTILITIES}
+               ${CETLIB}
+               ${Boost_FILESYSTEM_LIBRARY}
 				       ${Boost_SYSTEM_LIBRARY}
-               
              )
 
 install_headers()
@@ -56,9 +36,3 @@ install_source()
 
 add_subdirectory(CRY)
 add_subdirectory(GENIE)
-add_subdirectory(MuonPropagation) 
-add_subdirectory(CORSIKA)
-
-# See ubooneoffline repository for a functioning NuWro implementation. 
-# Leave it commented out here, as below.
-##add_subdirectory(NuWro)
