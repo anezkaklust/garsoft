@@ -19,51 +19,53 @@
 
 // Declaration
 //
-namespace geo
+namespace gar
 {
-  /**
-   * @brief Simple implementation of channel mapping
-   *
-   * This ExptGeoHelperInterface implementation serves a ChannelMapStandardAlg
-   * for experiments that are known to work well with it.
-   */
-  class StandardGeometryHelper : public ExptGeoHelperInterface
+  namespace geo
   {
-  public:
-    
-    /// Constructor; follows the standard art service signature
-    StandardGeometryHelper
+    /**
+     * @brief Simple implementation of channel mapping
+     *
+     * This ExptGeoHelperInterface implementation serves a ChannelMapStandardAlg
+     * for experiments that are known to work well with it.
+     */
+    class StandardGeometryHelper : public ExptGeoHelperInterface
+    {
+    public:
+      
+        /// Constructor; follows the standard art service signature
+      StandardGeometryHelper
       ( fhicl::ParameterSet const & pset, art::ActivityRegistry &reg );
-    
-    /*
-      Public interface for ExptGeoHelperInterface (for reference purposes)
       
-      Configure, initialize and return the channel map:
+      /*
+       Public interface for ExptGeoHelperInterface (for reference purposes)
+       
+       Configure, initialize and return the channel map:
+       
+       void ConfigureChannelMapAlg
+       (fhicl::ParameterSet const& sortingParameters, geo::GeometryCore* geom);
+       
+       Returns null pointer if the initialization failed:
+       
+       ChannelMapAlgPtr_t GetChannelMapAlg() const;
+       */
       
-      void ConfigureChannelMapAlg
-        (fhicl::ParameterSet const& sortingParameters, geo::GeometryCore* geom);
+    private:
       
-      Returns null pointer if the initialization failed:
-      
-      ChannelMapAlgPtr_t GetChannelMapAlg() const;
-    */
-    
-  private:
-    
-    virtual void doConfigureChannelMapAlg
+      virtual void doConfigureChannelMapAlg
       (fhicl::ParameterSet const& sortingParameters, geo::GeometryCore* geom)
       override;
-    virtual ChannelMapAlgPtr_t doGetChannelMapAlg() const override;
+      virtual ChannelMapAlgPtr_t doGetChannelMapAlg() const override;
+      
+      
+      fhicl::ParameterSet fPset; ///< copy of configuration parameter set
+      std::shared_ptr<geo::ChannelMapAlg> fChannelMap; ///< channel map algorithm
+      
+    };
     
-    
-    fhicl::ParameterSet fPset; ///< copy of configuration parameter set
-    std::shared_ptr<geo::ChannelMapAlg> fChannelMap; ///< channel map algorithm
-    
-  };
+  }
+} // end gar
 
-}
-DECLARE_ART_SERVICE_INTERFACE_IMPL(
-  geo::StandardGeometryHelper, geo::ExptGeoHelperInterface, LEGACY
-  )
-
+DECLARE_ART_SERVICE_INTERFACE_IMPL(gar::geo::StandardGeometryHelper, gar::geo::ExptGeoHelperInterface, LEGACY)
+  
 #endif // GEO_StandardGeometryHelper_h

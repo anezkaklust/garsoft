@@ -67,166 +67,174 @@
 
 #include "TLorentzVector.h"
 
-#include "larcore/Geometry/Geometry.h"
-#include "larcoreobj/SummaryData/RunData.h"
+#include "Geometry/Geometry.h"
+#include "SummaryData/RunData.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 
-namespace evgen {
-  class TextFileGen;
-}
-
-class evgen::TextFileGen : public art::EDProducer {
-public:
-  explicit TextFileGen(fhicl::ParameterSet const & p);
-  virtual ~TextFileGen();
-
-  void produce(art::Event & e)                    override;
-  void beginJob()               		  override;
-  void beginRun(art::Run & run) 		  override;
-  void reconfigure(fhicl::ParameterSet const & p) override;
-
-private:
-
-  std::ifstream* fInputFile;
-  std::string    fInputFileName; ///< Name of text file containing events to simulate
-  double fMoveY; ///< Project particles to a new y plane.
-};
-
-//------------------------------------------------------------------------------
-evgen::TextFileGen::TextFileGen(fhicl::ParameterSet const & p)
+namespace gar {
+  namespace evgen {
+    class TextFileGen;
+  }
+  
+  class evgen::TextFileGen : public art::EDProducer {
+  public:
+    explicit TextFileGen(fhicl::ParameterSet const & p);
+    virtual ~TextFileGen();
+    
+    void produce(art::Event & e)                    override;
+    void beginJob()               		              override;
+    void beginRun(art::Run & run) 		              override;
+    void reconfigure(fhicl::ParameterSet const & p) override;
+    
+  private:
+    
+    std::ifstream* fInputFile;     ///< pointer to input text file
+    std::string    fInputFileName; ///< Name of text file containing events to simulate
+    double         fMoveY;         ///< Project particles to a new y plane.
+  };
+  
+  //------------------------------------------------------------------------------
+  evgen::TextFileGen::TextFileGen(fhicl::ParameterSet const & p)
   : fInputFile(0)
-{
-  this->reconfigure(p);
-
-  produces< std::vector<simb::MCTruth>   >();
-  produces< sumdata::RunData, art::InRun >();
-}
-
-//------------------------------------------------------------------------------
-evgen::TextFileGen::~TextFileGen()
-{
-}
-
-//------------------------------------------------------------------------------
-void evgen::TextFileGen::beginJob()
-{
-  fInputFile = new std::ifstream(fInputFileName.c_str());
-
-  // check that the file is a good one
-  if( !fInputFile->good() )
-    throw cet::exception("TextFileGen") << "input text file "
-					<< fInputFileName
-					<< " cannot be read.\n";
-
-  return;
-}
-
-//------------------------------------------------------------------------------
-void evgen::TextFileGen::beginRun(art::Run& run)
-{
-
-    // grab the geometry object to see what geometry we are using
-    art::ServiceHandle<geo::Geometry> geo;
-    std::unique_ptr<sumdata::RunData> runcol(new sumdata::RunData(geo->DetectorName()));
-
-    run.put(std::move(runcol));
-
+  {
+    this->reconfigure(p);
+    
+    produces< std::vector<simb::MCTruth>   >();
+    produces< sumdata::RunData, art::InRun >();
+  }
+  
+  //------------------------------------------------------------------------------
+  evgen::TextFileGen::~TextFileGen()
+  {
+  }
+  
+  //------------------------------------------------------------------------------
+  void evgen::TextFileGen::beginJob()
+  {
+    fInputFile = new std::ifstream(fInputFileName.c_str());
+    
+    // check that the file is a good one
+    if( !fInputFile->good() )
+      throw cet::exception("TextFileGen")
+      << "input text file "
+      << fInputFileName
+      << " cannot be read.";
+    
     return;
   }
-
-//------------------------------------------------------------------------------
-void evgen::TextFileGen::produce(art::Event & e)
-{
-  // check that the file is still good
-  if( !fInputFile->good() )
-    throw cet::exception("TextFileGen") << "input text file "
-					<< fInputFileName
-					<< " cannot be read in produce().\n";
-
-
-  std::unique_ptr< std::vector<simb::MCTruth> > truthcol(new std::vector<simb::MCTruth>);
-  simb::MCTruth truth;  
-
-  // declare the variables for reading in the event record
-  int            event          = 0;
-  unsigned short nParticles 	= 0;
-  int            status         = 0; 
-  int 	 	 pdg            = 0; 
-  int 	 	 firstMother    = 0; 
-  int 	 	 secondMother   = 0; 
-  int 	 	 firstDaughter  = 0; 
-  int 	 	 secondDaughter = 0; 
-  double 	 xMomentum      = 0.;
-  double 	 yMomentum   	= 0.;
-  double 	 zMomentum   	= 0.;
-  double 	 energy      	= 0.;
-  double 	 mass        	= 0.;
-  double 	 xPosition   	= 0.;
-  double 	 yPosition   	= 0.;
-  double 	 zPosition   	= 0.;
-  double 	 time        	= 0.;
-
-  // read in line to get event number and number of particles
-  std::string oneLine;
-  std::getline(*fInputFile, oneLine);
-  std::istringstream inputLine;
-  inputLine.str(oneLine);
-
-  inputLine >> event >> nParticles;
-
-  // now read in all the lines for the particles 
-  // in this interaction. only particles with 
-  // status = 1 get tracked in Geant4.
-  for(unsigned short i = 0; i < nParticles; ++i){
+  
+    //------------------------------------------------------------------------------
+  void evgen::TextFileGen::beginRun(art::Run& run)
+  {
+    
+    // grab the geometry object to see what geometry we are using
+    art::ServiceHandle<gar::geo::Geometry> geo;
+    std::unique_ptr<gar::sumdata::RunData> runcol(new gar::sumdata::RunData(geo->DetectorName()));
+    
+    run.put(std::move(runcol));
+    
+    return;
+  }
+  
+  //------------------------------------------------------------------------------
+  void evgen::TextFileGen::produce(art::Event & e)
+  {
+    // check that the file is still good
+    if( !fInputFile->good() )
+      throw cet::exception("TextFileGen")
+      << "input text file "
+      << fInputFileName
+      << " cannot be read in produce().";
+    
+    
+    std::unique_ptr< std::vector<simb::MCTruth> > truthcol(new std::vector<simb::MCTruth>);
+    simb::MCTruth truth;
+    
+    // declare the variables for reading in the event record
+    int            event          = 0;
+    unsigned short nParticles     = 0;
+    int            status         = 0;
+    int 	 	       pdg            = 0;
+    int 	 	       firstMother    = 0;
+    int 	 	       secondMother   = 0;
+    int 	 	       firstDaughter  = 0;
+    int 	 	       secondDaughter = 0;
+    double 	       xMomentum      = 0.;
+    double 	       yMomentum     	= 0.;
+    double 	       zMomentum    	= 0.;
+    double 	       energy       	= 0.;
+    double 	       mass         	= 0.;
+    double 	       xPosition    	= 0.;
+    double 	       yPosition    	= 0.;
+    double 	       zPosition    	= 0.;
+    double 	       time         	= 0.;
+    
+    // read in line to get event number and number of particles
+    std::string oneLine;
     std::getline(*fInputFile, oneLine);
-    inputLine.clear();
+    std::istringstream inputLine;
     inputLine.str(oneLine);
-
-    inputLine >> status      >> pdg 
-	      >> firstMother >> secondMother >> firstDaughter >> secondDaughter
-	      >> xMomentum   >> yMomentum    >> zMomentum     >> energy >> mass
-	      >> xPosition   >> yPosition    >> zPosition     >> time;
-
-    //Project the particle to a new y plane
-    if (fMoveY>-1e8){
-      double totmom = sqrt(pow(xMomentum,2)+pow(yMomentum,2)+pow(zMomentum,2));
-      double kx = xMomentum/totmom;
-      double ky = yMomentum/totmom;
-      double kz = zMomentum/totmom;
-      if (ky){
-	double l = (fMoveY-yPosition)/ky;
-	xPosition += kx*l;
-	yPosition += ky*l;
-	zPosition += kz*l;
+    
+    inputLine >> event >> nParticles;
+    
+    // now read in all the lines for the particles
+    // in this interaction. only particles with
+    // status = 1 get tracked in Geant4.
+    for(unsigned short i = 0; i < nParticles; ++i){
+      std::getline(*fInputFile, oneLine);
+      inputLine.clear();
+      inputLine.str(oneLine);
+      
+      inputLine >> status      >> pdg
+      >> firstMother >> secondMother >> firstDaughter >> secondDaughter
+      >> xMomentum   >> yMomentum    >> zMomentum     >> energy >> mass
+      >> xPosition   >> yPosition    >> zPosition     >> time;
+      
+        //Project the particle to a new y plane
+      if (fMoveY>-1e8){
+        double totmom = sqrt(pow(xMomentum,2)+pow(yMomentum,2)+pow(zMomentum,2));
+        double kx = xMomentum/totmom;
+        double ky = yMomentum/totmom;
+        double kz = zMomentum/totmom;
+        if (ky){
+          double l = (fMoveY-yPosition)/ky;
+          xPosition += kx*l;
+          yPosition += ky*l;
+          zPosition += kz*l;
+        }
       }
+      
+      TLorentzVector pos(xPosition, yPosition, zPosition, time);
+      TLorentzVector mom(xMomentum, yMomentum, zMomentum, energy);
+      
+      simb::MCParticle part(i, pdg, "primary", firstMother, mass, status);
+      part.AddTrajectoryPoint(pos, mom);
+      
+      truth.Add(part);
     }
     
-    TLorentzVector pos(xPosition, yPosition, zPosition, time);
-    TLorentzVector mom(xMomentum, yMomentum, zMomentum, energy);
-
-    simb::MCParticle part(i, pdg, "primary", firstMother, mass, status);
-    part.AddTrajectoryPoint(pos, mom);
-
-    truth.Add(part);
+    truthcol->push_back(truth);
+    
+    e.put(std::move(truthcol));
+    
+    return;
   }
-
-  truthcol->push_back(truth);
-
-  e.put(std::move(truthcol));
-
-  return;
-}
-
-//------------------------------------------------------------------------------
-void evgen::TextFileGen::reconfigure(fhicl::ParameterSet const & p)
-{
-  fInputFileName = p.get<std::string>("InputFileName");
-  fMoveY         = p.get<double>("MoveY", -1e9);
-  if (fMoveY>-1e8){
-    mf::LogWarning("TextFileGen")<<"Particles will be moved to a new plane y = "<<fMoveY<<" cm.\n";
+  
+  //------------------------------------------------------------------------------
+  void evgen::TextFileGen::reconfigure(fhicl::ParameterSet const & p)
+  {
+    fInputFileName = p.get<std::string>("InputFileName");
+    fMoveY         = p.get<double>("MoveY", -1e9);
+    if (fMoveY>-1e8){
+      LOG_WARNING("TextFileGen")
+      << "Particles will be moved to a new plane y = "
+      << fMoveY
+      << " cm.";
+    }
+    return;
   }
-  return;
-}
+  
+  DEFINE_ART_MODULE(evgen::TextFileGen)
 
-DEFINE_ART_MODULE(evgen::TextFileGen)
+}// namespace gar
