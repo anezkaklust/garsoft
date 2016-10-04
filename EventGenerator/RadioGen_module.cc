@@ -46,7 +46,7 @@
 
 // gar includes
 #include "Geometry/Geometry.h"
-#include "SummaryData/RunData.h"
+#include "SummaryDataProducts/RunData.h"
 
 // root includes
 

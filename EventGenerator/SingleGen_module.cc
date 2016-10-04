@@ -43,7 +43,7 @@
 
 // gar includes
 #include "Geometry/Geometry.h"
-#include "SummaryData/RunData.h"
+#include "SummaryDataProducts/RunData.h"
 
 #include "TVector3.h"
 #include "TDatabasePDG.h"

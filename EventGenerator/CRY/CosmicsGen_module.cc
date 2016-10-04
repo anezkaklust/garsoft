@@ -34,7 +34,7 @@
 #include "nutools/EventGeneratorBase/evgenbase.h"
 #include "nutools/EventGeneratorBase/CRY/CRYHelper.h"
 #include "Geometry/Geometry.h"
-#include "SummaryData/RunData.h"
+#include "SummaryDataProducts/RunData.h"
 
 namespace gar{
   namespace evgen {

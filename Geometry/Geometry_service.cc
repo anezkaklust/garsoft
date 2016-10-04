@@ -10,7 +10,7 @@
 
 // lar includes
 #include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
-#include "larcoreobj/SummaryData/RunData.h"
+#include "larcoreobj/SummaryDataProducts/RunData.h"
 #include "Geometry/ExptGeoHelperInterface.h"
 
 // Framework includes

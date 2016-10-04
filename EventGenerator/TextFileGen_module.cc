@@ -68,7 +68,7 @@
 #include "TLorentzVector.h"
 
 #include "Geometry/Geometry.h"
-#include "SummaryData/RunData.h"
+#include "SummaryDataProducts/RunData.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 

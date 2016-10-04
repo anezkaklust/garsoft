@@ -46,8 +46,8 @@
 #include "nusimdata/SimulationBase/MCFlux.h"
 #include "nusimdata/SimulationBase/GTruth.h"
 #include "Geometry/Geometry.h"
-#include "SummaryData/RunData.h"
-#include "SummaryData/POTSummary.h"
+#include "SummaryDataProducts/RunData.h"
+#include "SummaryDataProducts/POTSummary.h"
 #include "nutools/EventGeneratorBase/GENIE/GENIEHelper.h"
 #include "Utilities/AssociationUtil.h"
 
