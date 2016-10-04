@@ -20,7 +20,7 @@
 #include "Utilities/AssociationUtil.h"
 #include "ReconstructionDataProducts/Hit.h"
 #include "ReconstructionDataProducts/SpacePoint.h"
-#include "nutools/Simulation/EmEveIdCalculator.h"
+#include "nutools/ParticleNavigation/EmEveIdCalculator.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 
 namespace gar{

@@ -17,8 +17,8 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 
 #include "nusimdata/SimulationBase/MCParticle.h"
-#include "nutools/Simulation/ParticleList.h"
-#include "nutools/Simulation/EveIdCalculator.h"
+#include "nutools/ParticleNavigation/ParticleList.h"
+#include "nutools/ParticleNavigation/EveIdCalculator.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
 
 #include "SimulationDataProduct/SimChannel.h"
