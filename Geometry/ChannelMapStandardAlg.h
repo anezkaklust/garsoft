@@ -32,9 +32,6 @@ namespace gar{
     private:
       
       unsigned int                  fNChannels;      ///< number of channels in the detector
-      raw::ChannelID_t              fTopChannel;     ///< book keeping highest channel #
-      geo::GeoObjectSorterStandard  fSorter;         ///< class to sort geo objects
-      
       
     };
     
