@@ -14,7 +14,5 @@
 #include "nusimdata/SimulationBase/MCTruth.h"
 
 // Simulation includes
-#include "larsimobj/Simulation/SimChannel.h"
-#include "larsimobj/Simulation/SimPhotons.h"
-#include "larsimobj/Simulation/BeamGateInfo.h"
-#include "larsimobj/Simulation/AuxDetSimChannel.h"
+#include "SimulationDataProducts/SimChannel.h"
+#include "SimulationDataProducts/BeamGateInfo.h"

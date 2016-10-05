@@ -19,19 +19,20 @@
 #include "TRandom3.h"
 
 ///Monte Carlo Simulation
-namespace sim{ 
-
-  unsigned int GetRandomNumberSeed();
-
-  // any track id method returns sim::Particle:NoParticleId, it means the
-  // associated particle was too low-energy to be written by the
-  // detector Monte Carlo.
-  static const int NoParticleId = std::numeric_limits<int>::min();
+namespace gar {
+  namespace sim{
+    
+    unsigned int GetRandomNumberSeed();
+    
+    // any track id method returns sim::Particle:NoParticleId, it means the
+    // associated particle was too low-energy to be written by the
+    // detector Monte Carlo.
+    static const int NoParticleId = std::numeric_limits<int>::min();
+    
+  }
   
-}
-
-inline unsigned int sim::GetRandomNumberSeed(){
-
+  inline unsigned int sim::GetRandomNumberSeed(){
+    
     // the maximum allowed seed for the art::RandomNumberGenerator
     // is 900000000. Use TRandom3 to get the seed value in that range.
     // Instantiating TRandom3 with a 0 means that its seed is set based
@@ -39,7 +40,7 @@ inline unsigned int sim::GetRandomNumberSeed(){
     // same machine
     TRandom3 rand(0);
     return rand.Integer(900000000);
-}
-
+  }
+}// gar
 
 #endif// SIM_H
