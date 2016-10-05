@@ -11,31 +11,33 @@
 
 #include <string>
 
-namespace sumdata {
-
-  class RunData{
-
-  public:
-
-    RunData(); // Default constructor
-
-  private:
-
-    std::string  fDetName; ///< detector name
+namespace gar {
+  namespace sumdata {
+    
+    class RunData{
+      
+    public:
+      
+      RunData(); // Default constructor
+      
+    private:
+      
+      std::string  fDetName; ///< detector name
 #ifndef __GCCXML__
-
-  public:
-    explicit           RunData(std::string detectorName);
-    std::string const& DetName() const;
-
+      
+    public:
+      explicit           RunData(std::string detectorName);
+      std::string const& DetName() const;
+      
 #endif
-
-  };
-}
+      
+    };
+  }
+} // gar
 
 #ifndef __GCCXML__
 
-inline std::string const& sumdata::RunData::DetName() const { return fDetName; }
+inline std::string const& gar::sumdata::RunData::DetName() const { return fDetName; }
 
 #endif
 

@@ -11,27 +11,29 @@
 
 #include <iostream>
 
-namespace sumdata {
-
-  class POTSummary {
-  public: 
-    POTSummary();
-
-    double totpot;
-    double totgoodpot;
-
-    int totspills;
-    int goodspills;
-
+namespace gar{
+  namespace sumdata {
+    
+    class POTSummary {
+    public:
+      POTSummary();
+      
+      double totpot;
+      double totgoodpot;
+      
+      int totspills;
+      int goodspills;
+      
 #ifndef __GCCXML__
-
-    friend std::ostream& operator<< (std::ostream& o, POTSummary const& a);
-
+      
+      friend std::ostream& operator<< (std::ostream& o, POTSummary const& a);
+      
 #endif
-
-  };
-
-}
+      
+    };
+    
+  }
+} // gar
 #endif //POTSUM_H
      
 

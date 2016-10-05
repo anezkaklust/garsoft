@@ -239,13 +239,14 @@ include_directories ( /opt/X11/include )
 
 # source
 #add_subdirectory (EventDisplay)
-add_subdirectory (EventGenerator)
+add_subdirectory  (EventGenerator)
 #add_subdirectory (GArG4)
-add_subdirectory (Geometry)
-add_subdirectory (MCCheater)
+add_subdirectory  (Geometry)
+add_subdirectory  (MCCheater)
 #add_subdirectory (ReconstructionDataProducts)
 #add_subdirectory (SimulationDataProducts)
-add_subdirectory (Utilities)
+add_subdirectory  (SummaryDataProducts)
+add_subdirectory  (Utilities)
 
 # ups - table and config files
 add_subdirectory(ups)

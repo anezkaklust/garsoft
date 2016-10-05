@@ -9,18 +9,20 @@
 
 #include "SummaryDataProducts/RunData.h"
 
-namespace sumdata {
-
-  //---------------------------------------------------------
-  RunData::RunData() 
-  : fDetName("nodetectorname")
-  {
+namespace gar {
+  namespace sumdata {
+    
+      //---------------------------------------------------------
+    RunData::RunData()
+    : fDetName("nodetectorname")
+    {
+    }
+    
+      //---------------------------------------------------------
+    RunData::RunData(std::string detectorName)
+    : fDetName(detectorName)
+    {
+    }
+    
   }
-
-  //---------------------------------------------------------
-  RunData::RunData(std::string detectorName) 
-  : fDetName(detectorName)
-  {
-  }
-
-}  
+}

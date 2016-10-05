@@ -1,0 +1,25 @@
+<!--                                                                                  -->
+<!--  Include art::Wrapper lines for objects that we would like to put into the event -->
+<!--  Include the non-wrapper lines for all objects on the art::Wrapper lines and     -->
+<!--  for all objects that are data members of those objects.                         -->
+<!--                                                                                  -->
+
+
+<lcgdict>
+ <class name="raw::BeamInfo       " ClassVersion="10"           >
+ </class>
+ <class name="raw::RawDigit   	  " ClassVersion="10"           >
+ </class>
+ <class name="raw::Trigger" ClassVersion="10"                   >
+ </class>
+ <class name="std::vector<raw::BeamInfo>       "                />
+ <class name="std::vector<raw::RawDigit>       "                />
+ <class name="std::vector<raw::Trigger>        "                />
+ <class name="std::pair<std::string,std::vector<double> >"      />
+ <class name="std::map<std::string,std::vector<double> >"       />
+ <class name="art::Wrapper< raw::BeamInfo                     >"/>
+ <class name="art::Wrapper< std::vector<raw::BeamInfo>        >"/>
+ <class name="art::Wrapper< std::vector<raw::RawDigit>        >"/>
+ <class name="art::Wrapper< std::vector<raw::Trigger>         >"/>
+
+</lcgdict>
