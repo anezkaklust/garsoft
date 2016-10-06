@@ -15,13 +15,12 @@ namespace gar {
     
     //----------------------------------------------------------------------------
     ChannelMapStandardAlg::ChannelMapStandardAlg(fhicl::ParameterSet const& p)
-    : fSorter(geo::GeoObjectSorterStandard(p))
-    , fNChannels(std::numeric_limits<unsigned int>::max())
+    : fNChannels(std::numeric_limits<unsigned int>::max())
     {
     }
     
     //----------------------------------------------------------------------------
-    void ChannelMapStandardAlg::Initialize( GeometryData_t& geodata )
+    void ChannelMapStandardAlg::Initialize()
     {
       // start over:
       Uninitialize();
@@ -35,7 +34,7 @@ namespace gar {
     }
     
     //----------------------------------------------------------------------------
-    raw::ChannelID_t ChannelMapStandardAlg::NChannels() const
+    unsigned int ChannelMapStandardAlg::Nchannels() const
     {
       return fNChannels;
     }

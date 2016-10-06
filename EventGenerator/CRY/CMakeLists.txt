@@ -1,8 +1,9 @@
 
 include_directories ( $ENV{CRYHOME}/src )
 
-art_make(MODULE_LIBRARIES Geometry_Geometry
-                          Geometry_Geometry_Geometry_service
+art_make(MODULE_LIBRARIES Geometry
+                          Geometry_Geometry_service
+                          SummaryDataProducts
                           nutools_EventGeneratorBase_CRY
                           ${CRY}
                           nusimdata_SimulationBase

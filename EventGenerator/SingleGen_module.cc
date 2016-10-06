@@ -34,7 +34,6 @@
 #include "cetlib/exception.h"
 
 // art extensions
-#include "larsim/RandomUtils/LArSeedService.h"
 
 // nutools includes
 #include "nusimdata/SimulationBase/MCTruth.h"
@@ -71,9 +70,9 @@ namespace gar{
       
     private:
       
-      void SampleOne(unsigned int   i,
-                     simb::MCTruth &mct);
-      void Sample(simb::MCTruth &mct);
+      void SampleOne(unsigned int         i,
+                     simb::MCTruth & mct);
+      void Sample(simb::MCTruth & mct);
       void printVecs(std::vector<std::string> const& list);
       bool PadVector(std::vector<double> &vec);
       
@@ -108,9 +107,6 @@ namespace gar{
       int                 fAngleDist;      ///< How to distribute angles (gaus, uniform)
       
     };
-  }
-  
-  namespace evgen{
     
     //____________________________________________________________________________
     SingleGen::SingleGen(fhicl::ParameterSet const& pset)
@@ -118,10 +114,12 @@ namespace gar{
       
       this->reconfigure(pset);
       
-      // create a default random engine; obtain the random seed from LArSeedService,
+      // create a default random engine; obtain the random seed
       // unless overridden in configuration with key "Seed"
-      art::ServiceHandle<sim::LArSeedService>()->createEngine(*this, pset, "Seed");
+      int seed = pset.get< unsigned int >("Seed", evgb::GetRandomNumberSeed());
       
+      createEngine( seed );
+
       produces< std::vector<simb::MCTruth> >();
       produces< sumdata::RunData, art::InRun >();
       
@@ -243,7 +241,8 @@ namespace gar{
       
       // grab the geometry object to see what geometry we are using
       art::ServiceHandle<gar::geo::Geometry> geo;
-      std::unique_ptr<gar::sumdata::RunData> runcol(new gar::sumdata::RunData(geo->DetectorName()));
+      std::string name(geo->DetectorName());
+      std::unique_ptr<gar::sumdata::RunData> runcol(new gar::sumdata::RunData(name));
       
       run.put(std::move(runcol));
       
@@ -273,7 +272,8 @@ namespace gar{
     //____________________________________________________________________________
     // Draw the type, momentum and position of a single particle from the
     // FCIHL description
-    void SingleGen::SampleOne(unsigned int i, simb::MCTruth &mct){
+    void SingleGen::SampleOne(unsigned int    i,
+                              simb::MCTruth & mct){
       
       // get the random number generator service and make some CLHEP generators
       art::ServiceHandle<art::RandomNumberGenerator> rng;
@@ -366,7 +366,7 @@ namespace gar{
     }
     
     //____________________________________________________________________________
-    void SingleGen::Sample(simb::MCTruth &mct)
+    void SingleGen::Sample(simb::MCTruth & mct)
     {
       
       switch (fMode) {

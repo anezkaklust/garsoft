@@ -54,14 +54,12 @@ endif ( ${VMAJ} EQUAL 2 AND ${VMIN} LESS 9 )
 message(STATUS "GENIE version ${GENIE_VERSION} major ${VMAJ} minor ${VMIN} ${GRSSPELLING}")
 cet_find_library( GREINSEHGAL NAMES ${GRSSPELLING} PATHS ENV GENIE_LIB NO_DEFAULT_PATH )
 
-art_make( 
-          MODULE_LIBRARIES 
-                        larsim_Simulation larsimobj_Simulation
+art_make( MODULE_LIBRARIES
+                        SimulationDataProducts
                         nusimdata_SimulationBase
-                        larcoreobj_SummaryData
-                        larcore_Geometry
-                        larcore_Geometry_Geometry_service
-                        larsim_RandomUtils_LArSeedService_service
+                        SummaryDataProducts
+                        Geometry
+                        Geometry_Geometry_service
                         nutools_EventGeneratorBase_GENIE
                         ${ART_FRAMEWORK_CORE}
                         ${ART_FRAMEWORK_PRINCIPAL}

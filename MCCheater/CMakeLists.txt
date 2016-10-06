@@ -1,6 +1,6 @@
 
 simple_plugin(BackTracker "service"
-	            Geometry_Geometry
+	            Geometry
 	            Geometry_Geometry_service
               nusimdata_SimulationBase
               ${ART_FRAMEWORK_CORE}

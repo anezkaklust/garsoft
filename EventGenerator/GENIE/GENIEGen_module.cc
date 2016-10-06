@@ -41,13 +41,16 @@
 #include "art/Framework/Core/EDProducer.h"
 
 
-// LArSoft includes
+// GArSoft includes
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCFlux.h"
 #include "nusimdata/SimulationBase/GTruth.h"
 #include "Geometry/Geometry.h"
 #include "SummaryDataProducts/RunData.h"
 #include "SummaryDataProducts/POTSummary.h"
+#include "SimulationDataProducts/BeamTypes.h"
+#include "SimulationDataProducts/BeamGateInfo.h"
+#include "SimulationDataProducts/sim.h"
 #include "nutools/EventGeneratorBase/GENIE/GENIEHelper.h"
 #include "Utilities/AssociationUtil.h"
 
@@ -108,7 +111,7 @@ namespace gar {
       
       double fGlobalTimeOffset;             /// The start of a simulated "beam gate".
       double fRandomTimeOffset;             /// The width of a simulated "beam gate".
-      ::sim::BeamType_t fBeamType;          /// The type of beam
+      gar::sim::BeamType_t fBeamType;       /// The type of beam
       
       TH1F* fGenerated[6];  ///< Spectra as generated
       
@@ -151,7 +154,7 @@ namespace gar {
     , fPassEmptySpills (pset.get< bool   >("PassEmptySpills"))
     , fGlobalTimeOffset(pset.get< double >("GlobalTimeOffset",0))
     , fRandomTimeOffset(pset.get< double >("RandomTimeOffset",1600.)) // BNB default value
-    , fBeamType(::sim::kBNB)
+    , fBeamType(gar::sim::kBNB)
     {
       fStopwatch.Start();
       
@@ -162,16 +165,16 @@ namespace gar {
       produces< sumdata::POTSummary, art::InSubRun >();
       produces< art::Assns<simb::MCTruth, simb::MCFlux> >();
       produces< art::Assns<simb::MCTruth, simb::GTruth> >();
-      produces< std::vector<sim::BeamGateInfo> >();
+      produces< std::vector<gar::sim::BeamGateInfo> >();
       
       std::string beam_type_name = pset.get<std::string>("BeamName");
       
       if(beam_type_name == "numi")
-        fBeamType = ::sim::kNuMI;
+        fBeamType = gar::sim::kNuMI;
       else if(beam_type_name == "booster")
-        fBeamType = ::sim::kBNB;
+        fBeamType = gar::sim::kBNB;
       else
-        fBeamType = ::sim::kUnknown;
+        fBeamType = gar::sim::kUnknown;
       
       art::ServiceHandle<geo::Geometry> geo;
       
@@ -184,8 +187,11 @@ namespace gar {
         // unless overridden in configuration with key "Seed"
         
         unsigned int seed;
-        if (!GENIEconfig.get_if_present("Seed", seed))
-          seed = art::ServiceHandle<sim::LArSeedService>()->getSeed();
+        if (!GENIEconfig.get_if_present("Seed", seed)){
+          int seed = pset.get< unsigned int >("Seed", sim::GetRandomNumberSeed());
+          
+          createEngine( seed );
+        }
         
         // The seed is not passed to RandomNumberGenerator,
         // since GENIE uses a TRandom generator that is owned by the GENIEHelper.

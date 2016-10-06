@@ -8,9 +8,8 @@
 // class header
 #include "Geometry/Geometry.h"
 
-// lar includes
-#include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
-#include "larcoreobj/SummaryDataProducts/RunData.h"
+// gar includes
+#include "SummaryDataProducts/RunData.h"
 #include "Geometry/ExptGeoHelperInterface.h"
 
 // Framework includes
@@ -32,7 +31,6 @@ namespace gar {
                        art::ActivityRegistry      & reg)
     : GeometryCore(pset)
     , fRelPath          (pset.get< std::string       >("RelativePath",     ""   ))
-    , fDisableWiresInG4 (pset.get< bool              >("DisableWiresInG4", false))
     , fForceUseFCLOnly  (pset.get< bool              >("ForceUseFCLOnly" , false))
     , fSortingParameters(pset.get<fhicl::ParameterSet>("SortingParameters", fhicl::ParameterSet() ))
     {
@@ -118,10 +116,6 @@ namespace gar {
       // add the base file names
       ROOTFileName.append(gdmlfile);
       GDMLFileName.append(gdmlfile);
-      
-      // special for GDML if geometry with no wires is used for Geant4 simulation
-      if(fDisableWiresInG4)
-        GDMLFileName.insert(GDMLFileName.find(".gdml"), "_nowires");
       
       // Search all reasonable locations for the GDML file that contains
       // the detector geometry.

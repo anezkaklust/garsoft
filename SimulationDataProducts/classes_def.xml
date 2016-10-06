@@ -9,22 +9,24 @@
 
 
 <lcgdict>
- <class name="sim::SimChannel"               ClassVersion="10"              	 >
+ <class name="gar::sim::SimChannel"               ClassVersion="10"         	 >
+  <version ClassVersion="10" checksum="728235420"/>
  </class>
- <class name="sim::IDE"                      ClassVersion="10"                   >
+ <class name="gar::sim::IDE"                      ClassVersion="10"            >
+  <version ClassVersion="10" checksum="3233229872"/>
  </class>
- <class name="sim::BeamGateInfo"             ClassVersion="10"              	 >
+ <class name="gar::sim::TDCIDE"                   ClassVersion="10"            >
+  <version ClassVersion="10" checksum="437101621"/>
  </class>
- <enum name="sim::BeamType_t"                                                    />
-<!-- vector<int> is defined in libart_Persistency_WrappedStdDictionaries_dict.so -->
-<!-- <class name="std::vector<int>"                                             	 /> -->
-<!--  <class name="art::Wrapper< std::vector<int>               >"		         /> -->
- <class name="std::vector<sim::SimChannel  >"                		    	 />
- <class name="std::vector<sim::IDE>"                                        	 />
- <class name="std::vector<sim::BeamGateInfo>" 	    		    	         />
- <class name="std::pair<unsigned short, std::vector<sim::IDE> >"            	 />
- <class name="std::map<unsigned short, std::vector<sim::IDE> >"             	 />
- <class name="art::Wrapper< std::vector<sim::SimChannel>   >"		    	 />
- <class name="art::Wrapper< std::vector<sim::BeamGateInfo> >"		    	 />
+ <class name="gar::sim::BeamGateInfo"             ClassVersion="10"         	 >
+  <version ClassVersion="10" checksum="3349524943"/>
+ </class>
+ <enum name="gar::sim::BeamType_t"                                            />
+ <class name="std::vector<gar::sim::SimChannel  >"                		    	  />
+ <class name="std::vector<gar::sim::IDE>"                                     />
+ <class name="std::vector<gar::sim::TDCIDE>"                                  />
+ <class name="std::vector<gar::sim::BeamGateInfo>" 	    		    	            />
+ <class name="art::Wrapper< std::vector<gar::sim::SimChannel>   >"		    	  />
+ <class name="art::Wrapper< std::vector<gar::sim::BeamGateInfo> >"		    	  />
 
 </lcgdict>

@@ -1,6 +1,7 @@
 
-art_make( MODULE_LIBRARIES Geometry_Geometry
-                           Geometry_Geometry_Geometry_service
+art_make(MODULE_LIBRARIES Geometry
+                           Geometry_Geometry_service
+                           SummaryDataProducts
                            nusimdata_SimulationBase
                            ${ART_FRAMEWORK_CORE}
                            ${ART_FRAMEWORK_PRINCIPAL}
@@ -8,9 +9,9 @@ art_make( MODULE_LIBRARIES Geometry_Geometry
                            ${ART_FRAMEWORK_SERVICES_OPTIONAL}
                            ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
                            ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
-                           art_Persistency_Common canvas_Persistency_Common
+                           art_Persistency_Common     canvas_Persistency_Common
                            art_Persistency_Provenance canvas_Persistency_Provenance
-                           art_Utilities canvas_Utilities
+                           art_Utilities              canvas_Utilities
                            ${MF_MESSAGELOGGER}
                            ${MF_UTILITIES}
                            ${FHICLCPP}
@@ -18,6 +19,7 @@ art_make( MODULE_LIBRARIES Geometry_Geometry
                            ${CLHEP}
                            ${ROOT_BASIC_LIB_LIST}
                            ${ROOT_EG}
+         EXCLUDE GeneratedEventTimestamp_plugin.cc
         )
 
 simple_plugin( GeneratedEventTimestamp "plugin"

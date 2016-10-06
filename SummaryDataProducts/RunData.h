@@ -26,7 +26,7 @@ namespace gar {
 #ifndef __GCCXML__
       
     public:
-      explicit           RunData(std::string detectorName);
+      explicit           RunData(std::string const& detectorName);
       std::string const& DetName() const;
       
 #endif

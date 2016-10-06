@@ -8,7 +8,7 @@ cet_make( LIBRARIES nusimdata_SimulationBase
                     ${ROOT_BASIC_LIB_LIST}
           NO_DICTIONARY )
 
-art_dictionary( DICTIONARY_LIBRARIES larsimobj_Simulation )
+art_dictionary( DICTIONARY_LIBRARIES SimulationDataProducts )
 
 install_headers()
 install_fhicl()

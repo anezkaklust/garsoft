@@ -22,7 +22,7 @@ gdmldir product_dir
 # we list geant4 explicitly because we are going to set GDML_SCHEMA_DIR 
 # Defining GDML_SCHEMA_DIR here is a temporary hack
 product         version
-nutools         v2_05_00
+nutools         v2_06_00
 # dk2nu should be brought in by nutools ... but isn't
 # must be consistent w/ GENIE build
 dk2nu           v01_04_01b

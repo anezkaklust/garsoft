@@ -37,7 +37,6 @@
 #include "cetlib/search_path.h"
 
 // art extensions
-#include "larsim/RandomUtils/LArSeedService.h"
 
 // nutools includes
 #include "nusimdata/SimulationBase/MCTruth.h"
@@ -137,9 +136,9 @@ namespace gar {
       
       this->reconfigure(pset);
       
-      // create a default random engine; obtain the random seed from LArSeedService,
-      // unless overridden in configuration with key "Seed"
-      art::ServiceHandle<sim::LArSeedService>()->createEngine(*this, pset, "Seed");
+      int seed = pset.get< unsigned int >("Seed", evgb::GetRandomNumberSeed());
+      
+      createEngine( seed );
       
       produces< std::vector<simb::MCTruth> >();
       produces< sumdata::RunData, art::InRun >();

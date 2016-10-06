@@ -15,18 +15,15 @@
 
 #include <string>
 #include <vector>
-#include <map>
+#include <set>
 #include <stdint.h>
-
-#include "larcoreobj/SimpleTypesAndConstants/geo_types.h"
-#include "larcoreobj/SimpleTypesAndConstants/RawTypes.h" // raw::ChannelID_t
 
 namespace gar {
   namespace sim {
     
     
     struct TrackIDE{
-      int trackID;      ///< Geant4 supplied trackID
+      int   trackID;    ///< Geant4 supplied trackID
       float energyFrac; ///< fraction of hit energy from the particle with this trackID
       float energy;     ///< energy from the particle with this trackID
       TrackIDE() {}
@@ -38,8 +35,24 @@ namespace gar {
       
       IDE();
       
+#ifndef __GCCXML__
       //constructor for IDEs applying G4 offset...
       IDE(IDE const&, int);
+      IDE(int   id,
+          float numE,
+          float xpos,
+          float ypos,
+          float zpos,
+          float e)
+      : trackID     (id)
+      , numElectrons(numE)
+      , energy      (e)
+      , x           (xpos)
+      , y           (ypos)
+      , z           (zpos)
+      {}
+      
+#endif
       
       int   trackID;      ///< Geant4 supplied track ID
       float numElectrons; ///< total number of electrons for this track ID and time
@@ -47,6 +60,14 @@ namespace gar {
       float x;            ///< x position of ionization
       float y;            ///< y position of ionization
       float z;            ///< z position of ionization
+    };
+    
+    struct TDCIDE
+    {
+      unsigned short             fTDC;  ///< TDC tick
+      std::vector<gar::sim::IDE> fIDEs; ///< IDEs for this TDC
+      
+      bool operator<(TDCIDE const& other) const;
     };
     
     class SimChannel
@@ -58,14 +79,17 @@ namespace gar {
       
     private:
       
-      raw::ChannelID_t                                         fChannel; ///< electronics channel associated with these gar::sim::Electrons
-      std::map< unsigned short, std::vector< gar::sim::IDE > > fTDCIDEs; ///< vector of IDE structs for each TDC with signal
+      unsigned int               fChannel; ///< electronics channel associated with these gar::sim::Electrons
+      std::set<gar::sim::TDCIDE> fTDCIDEs; ///< set of TDCIDE structs
       
       
 #ifndef __GCCXML__
+      
+      TDCIDE const& FindTDCIDE(unsigned short tdc) const;
+      
     public:
       
-      explicit SimChannel(raw::ChannelID_t channel);
+      explicit SimChannel(unsigned int channel);
       
       // method to add ionization electrons and energy to this channel
       void AddIonizationElectrons(int trackID,
@@ -76,14 +100,14 @@ namespace gar {
       
       
       
-      raw::ChannelID_t Channel() const;
+      unsigned int Channel() const;
       
       // method to return a collection of IDE structs for all geant4
       // track ids represented between startTDC and endTDC
       std::vector<gar::sim::IDE> TrackIDsAndEnergies(unsigned int startTDC,
-                                                unsigned int endTDC) const;
+                                                     unsigned int endTDC) const;
       
-      const std::map<unsigned short, std::vector<gar::sim::IDE> >& TDCIDEMap() const;
+      const std::set<gar::sim::TDCIDE>& TDCIDEs() const;
       
       // The number of ionization electrons associated with this channel for the
       // specified TDC.
@@ -92,7 +116,7 @@ namespace gar {
       
       // A vector of TrackIDEs for a range of TDCs
       std::vector<gar::sim::TrackIDE> TrackIDEs(unsigned int startTDC,
-                                           unsigned int endTDC) const;
+                                                unsigned int endTDC) const;
       
       bool operator<  (const SimChannel& other)     const;
       bool operator== (const SimChannel& other)     const;
@@ -108,9 +132,12 @@ namespace gar {
        * @param indent_first indentation for the first line (default: as indent)
        */
       template <class OSTREAM>
-      void Dump(OSTREAM& out, std::string indent, std::string first_indent) const;
+      void Dump(OSTREAM          & out,
+                std::string const& indent,
+                std::string const& first_indent) const;
       template <class OSTREAM>
-      void Dump(OSTREAM& out, std::string indent = "") const { Dump(out, indent, indent); }
+      void Dump(OSTREAM          & out,
+                std::string const& indent = "") const { Dump(out, indent, indent); }
       //@}
       
 #endif
@@ -122,43 +149,88 @@ namespace gar {
 
 #ifndef __GCCXML__
 
-inline bool gar::sim::SimChannel::operator<  (const gar::sim::SimChannel& other)                      const { return fChannel < other.Channel(); }
-inline bool gar::sim::SimChannel::operator== (const gar::sim::SimChannel& other)                      const { return fChannel == other.Channel(); }
-inline const std::map<unsigned short, std::vector<gar::sim::IDE> >& gar::sim::SimChannel::TDCIDEMap() const { return fTDCIDEs; }
-inline raw::ChannelID_t gar::sim::SimChannel::Channel()                                               const { return fChannel; }
+inline bool                              gar::sim::SimChannel::operator<  (const gar::sim::SimChannel& other) const { return fChannel < other.Channel();  }
+inline bool                              gar::sim::SimChannel::operator== (const gar::sim::SimChannel& other) const { return fChannel == other.Channel(); }
+inline const std::set<gar::sim::TDCIDE>& gar::sim::SimChannel::TDCIDEs()                                      const { return fTDCIDEs; }
+inline unsigned int                      gar::sim::SimChannel::Channel()                                      const { return fChannel; }
 
 
 // -----------------------------------------------------------------------------
 // ---  template implementation
 // ---
 template <class OSTREAM>
-void gar::sim::SimChannel::Dump
-  (OSTREAM& out, std::string indent, std::string first_indent) const
+void gar::sim::SimChannel::Dump(OSTREAM          & out,
+                                std::string const& indent,
+                                std::string const& first_indent) const
 {
-  out << first_indent << "channel #" << Channel() << " read " << fTDCIDEs.size()
-    << " TDCs:\n";
-  double channel_energy = 0., channel_charge = 0.;
-  for (const auto& TDCinfo: fTDCIDEs) {
-    unsigned short int tdc = TDCinfo.first;
-    out << indent << "  TDC #" << tdc
-      << " with " << TDCinfo.second.size() << " IDEs\n";
+  out
+  << first_indent
+  << "channel #"
+  << Channel()
+  << " read "
+  << fTDCIDEs.size()
+  << " TDCs:\n";
+  
+  double         channel_energy = 0.;
+  double         channel_charge = 0.;
+  unsigned short tdc            = 0;
+  for(auto const& TDCinfo: fTDCIDEs) {
+    tdc = TDCinfo.fTDC;
+    
+    out
+    << indent
+    << "  TDC #"
+    << tdc
+    << " with "
+    << TDCinfo.fIDEs.size()
+    << " IDEs\n";
+    
     double tdc_energy = 0., tdc_charge = 0.;
-    for (const gar::sim::IDE& ide: TDCinfo.second) {
-      out << indent
-        << "    (" << ide.x << ", " << ide.y << ", " << ide.z << ") "
-        << ide.numElectrons << " electrons, " << ide.energy << " MeV (trkID="
-        << ide.trackID << ")\n";
+    for (auto const& ide: TDCinfo.fIDEs) {
+      out
+      << indent
+      << "    ("
+      << ide.x
+      << ", "
+      << ide.y
+      << ", "
+      << ide.z << ") "
+      << ide.numElectrons
+      << " electrons, "
+      << ide.energy
+      << " MeV (trkID="
+      << ide.trackID
+      << ")\n";
+      
       tdc_energy += ide.energy;
       tdc_charge += ide.numElectrons;
     } // for IDEs
-    out << indent << "    => TDC #" << tdc << " CH #" << Channel()
-      << " collected " << tdc_energy << " electrons and " << tdc_energy
-      << " MeV\n";
+    
+    out
+    << indent
+    << "    => TDC #"
+    << tdc
+    << " CH #"
+    << Channel()
+    << " collected "
+    << tdc_energy
+    << " electrons and "
+    << tdc_energy
+    << " MeV\n";
+    
     channel_energy += tdc_energy;
     channel_charge += tdc_charge;
   } // for TDCs
-  out << indent << "  => channel #" << Channel() << " collected "
-    << channel_charge << " electrons and " << channel_energy << " MeV\n";
+  
+  out
+  << indent
+  << "  => channel #"
+  << Channel()
+  << " collected "
+  << channel_charge
+  << " electrons and "
+  << channel_energy
+  << " MeV\n";
 } // gar::sim::SimChannel::Dump<>()
 
 #endif

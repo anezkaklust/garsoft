@@ -96,9 +96,6 @@ namespace gar{
     CosmicsGen::CosmicsGen(fhicl::ParameterSet const& pset)
     : fCRYHelp(0)
     {
-      // create a default random engine; obtain the random seed from LArSeedService,
-      // unless overridden in configuration with key "Seed"
-      art::ServiceHandle<sim::LArSeedService>()->createEngine(*this, pset, "Seed");
       
       //the buffer box bounds specified here will extend on the cryostat boundaries
       fbuffbox = pset.get< std::vector<double> >("BufferBox",{0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
@@ -208,17 +205,11 @@ namespace gar{
         int allPhotons   = 0;
         int allElectrons = 0;
         int allMuons     = 0;
-        int tpcPhotons   = 0;
-        int tpcElectrons = 0;
-        int tpcMuons     = 0;
         
           // loop over particles in the truth object
         for(int i = 0; i < pretruth.NParticles(); ++i){
           simb::MCParticle particle = pretruth.GetParticle(i);
-          const TLorentzVector& v4 = particle.Position();
           const TLorentzVector& p4 = particle.Momentum();
-          double x0[3] = {v4.X(),  v4.Y(),  v4.Z() };
-          double dx[3] = {p4.Px(), p4.Py(), p4.Pz()};
           
           if      (std::abs(particle.PdgCode())==13) ++allMuons;
           else if (std::abs(particle.PdgCode())==22) ++allPhotons;

@@ -12,14 +12,14 @@
 namespace gar {
   namespace sumdata {
     
-      //---------------------------------------------------------
+    //---------------------------------------------------------
     RunData::RunData()
     : fDetName("nodetectorname")
     {
     }
     
-      //---------------------------------------------------------
-    RunData::RunData(std::string detectorName)
+    //---------------------------------------------------------
+    RunData::RunData(std::string const& detectorName)
     : fDetName(detectorName)
     {
     }

@@ -13,7 +13,6 @@
 #include <iostream>
 
 #include "Geometry/ChannelMapAlg.h"
-#include "Geometry/GeoObjectSorterStandard.h"
 #include "fhiclcpp/ParameterSet.h"
 
 namespace gar{
@@ -25,13 +24,13 @@ namespace gar{
       
       ChannelMapStandardAlg(fhicl::ParameterSet const& p);
       
-      void         Initialize( GeometryData_t& geodata ) override;
+      void         Initialize() override;
       void         Uninitialize();
-      unsigned int NChannels() const;
+      unsigned int Nchannels() const;
       
     private:
       
-      unsigned int                  fNChannels;      ///< number of channels in the detector
+      unsigned int fNChannels; ///< number of channels in the detector
       
     };
     

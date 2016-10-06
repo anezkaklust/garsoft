@@ -36,6 +36,8 @@
 namespace gar {
   namespace raw {
     
+    typedef unsigned int Channel_t;
+    
     /**
      * @brief Collection of charge vs time digitized from a single readout channel
      *

@@ -47,9 +47,9 @@ namespace gar{
       
       virtual ~ChannelMapAlg() = default;
       
-      virtual void          Initialize(GeometryData_t& geodata) = 0;
-      virtual void          Uninitialize()                      = 0;
-      virtual unsigned int  NChannels()                   const = 0;
+      virtual void          Initialize()         = 0;
+      virtual void          Uninitialize()       = 0;
+      virtual unsigned int  Nchannels()    const = 0;
       
     protected:
       

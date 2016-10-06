@@ -43,6 +43,7 @@
 
 
 // GArSoft libraries
+#include "Geometry/GeometryCore.h"
 #include "Geometry/ChannelMapAlg.h"
 
 // Framework and infrastructure libraries
@@ -72,6 +73,7 @@ class TGeoMaterial;
 namespace gar {
   namespace geo {
     
+    class GeometryCore;
     
     //
     // iterators
@@ -100,7 +102,7 @@ namespace gar {
       public:
         
         /// Constructor: associates with the specified geometry
-        geometry_iterator_base(geo::GeometryCore const* geom): pGeo(geom) {}
+        geometry_iterator_base(const gar::geo::GeometryCore *geom): pGeo(geom) {}
         
       protected:
         /// Returns a pointer to the geometry
@@ -110,7 +112,7 @@ namespace gar {
         geometry_iterator_base() {}
         
       private:
-        GeometryCore const* pGeo = nullptr; ///< pointer to the geometry
+        const gar::geo::GeometryCore *pGeo = nullptr; ///< pointer to the geometry
         
       }; // class geometry_iterator_base
       
@@ -202,7 +204,7 @@ namespace gar {
         geometry_element_iterator() = default;
         
         /// Constructor: points to begin
-        geometry_element_iterator(geo::GeometryCore const* geom):
+        geometry_element_iterator(gar::geo::GeometryCore const* geom):
         id_iter(geom) {}
         
         //@{
@@ -213,19 +215,19 @@ namespace gar {
         
         /// Constructor: points to the specified geometry element
         geometry_element_iterator
-        (geo::GeometryCore const* geom, GeoID_t const& start_from):
+        (gar::geo::GeometryCore const* geom, GeoID_t const& start_from):
         id_iter(geom, start_from)
         {}
         
         /// Constructor: points to beginning
         geometry_element_iterator
-        (geo::GeometryCore const* geom, BeginPos_t const pos):
+        (gar::geo::GeometryCore const* geom, BeginPos_t const pos):
         id_iter(geom, pos)
         {}
         
         /// Constructor: points to end
         geometry_element_iterator
-        (geo::GeometryCore const* geom, EndPos_t const pos):
+        (gar::geo::GeometryCore const* geom, EndPos_t const pos):
         id_iter(geom, pos)
         {}
         
@@ -489,7 +491,7 @@ namespace gar {
        * @todo what happens if none?
        * @todo Unify the coordinates type
        */
-      const std::string VolumeName(TVector3 point);
+      const std::string VolumeName(TVector3 const& point);
       
       
       /**
@@ -526,7 +528,7 @@ namespace gar {
        * @todo remove return value constantness (or make it a reference)
        * @todo Unify the coordinates type
        */
-      const std::string MaterialName(TVector3 point);
+      const std::string MaterialName(TVector3 const& point);
       
       
       /// Returns the material at the specified position
@@ -581,6 +583,7 @@ namespace gar {
       double DetLength() const { return fDetLength; }
       //@}
       
+      unsigned int Nchannels() const;
       
       //@{
       /**
@@ -603,7 +606,7 @@ namespace gar {
        * This information is used by Geant4 simulation
        *
        */
-      std::string GetLArTPCVolumeName() const;
+      std::string GetGArTPCVolumeName() const;
       //@}
       
       //
@@ -621,9 +624,9 @@ namespace gar {
        * @todo remove the integers version
        * @todo Verify the raw::InvalidChannelID part
        */
-      raw::ChannelID_t  NearestChannel(const double worldLoc[3]) const;
-      raw::ChannelID_t  NearestChannel(std::vector<double> const& worldLoc) const;
-      raw::ChannelID_t  NearestChannel(const TVector3& worldLoc) const;
+      unsigned int NearestChannel(const double worldLoc[3]) const;
+      unsigned int NearestChannel(std::vector<double> const& worldLoc) const;
+      unsigned int NearestChannel(const TVector3& worldLoc) const;
       //@}
       
       //
@@ -712,9 +715,8 @@ namespace gar {
       /// Deletes the detector geometry structures
       void ClearGeometry();
       
+      bool PointInWorld(TVector3 const& point) const;
       
-      
-      GeometryData_t fGeoData;        ///< The detector description data
       
       double         fSurfaceY;       ///< The point where air meets earth for this detector.
       std::string    fDetectorName;   ///< Name of the detector.
@@ -723,6 +725,9 @@ namespace gar {
       double         fMinWireZDist;   ///< Minimum distance in Z from a point in which
                                       ///< to look for the closest wire
       double         fPositionWiggle; ///< accounting for rounding errors when testing positions
+      double         fDetHalfHeight;  ///< half height of the TPC
+      double         fDetHalfWidth;   ///< half width of the TPC
+      double         fDetLength;      ///< length of the TPC
       
       typedef std::shared_ptr<const gar::geo::ChannelMapAlg> ChannelMapPtr;
       ChannelMapPtr  fChannelMapAlg;  ///< Object containing the channel to wire mapping
@@ -796,14 +801,14 @@ namespace gar {
 // comparison operators between ID iterators and element iterators
 //
 template <typename GEOIDITER>
-bool geo::details::operator==
+bool gar::geo::details::operator==
   (geometry_element_iterator<GEOIDITER> const& iter, GEOIDITER const& id_iter)
 {
   return iter.id_iterator() == id_iter;
 } // operator==(iterator_t, id_iterator_t)
 
 template <typename GEOIDITER>
-bool geo::details::operator!=
+bool gar::geo::details::operator!=
   (geometry_element_iterator<GEOIDITER> const& iter, GEOIDITER const& id_iter)
 {
   return iter.id_iterator() != id_iter;

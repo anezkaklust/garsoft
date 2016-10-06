@@ -9,7 +9,7 @@ art_make(LIB_LIBRARIES      ${MF_MESSAGELOGGER}
                             ${ROOT_XMLIO}
                             ${ROOT_GDML}
                             ${ROOT_EG}
-          SERVICE_LIBRARIES Geometry_Geometry
+          SERVICE_LIBRARIES Geometry
                             ${ART_FRAMEWORK_CORE}
                             ${ART_FRAMEWORK_IO_SOURCES}
                             ${ART_FRAMEWORK_PRINCIPAL}

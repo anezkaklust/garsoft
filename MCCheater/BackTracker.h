@@ -21,7 +21,7 @@
 #include "nutools/ParticleNavigation/EveIdCalculator.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
 
-#include "SimulationDataProduct/SimChannel.h"
+#include "SimulationDataProducts/SimChannel.h"
 
 ///code to link reconstructed objects back to the MC truth information
 namespace gar{
