@@ -57,8 +57,8 @@ namespace gar {
     inline const float* Track::End()      const { return fEnd;      }
     inline const float* Track::VtxDir()   const { return fVtxDir;   }
     inline const float* Track::EndDir()   const { return fEndDir;   }
-    inline float float& Track::Length()   const { return fLength;   }
-    inline float float& Track::Momentum() const { return fMomentum; }
+    inline float const& Track::Length()   const { return fLength;   }
+    inline float const& Track::Momentum() const { return fMomentum; }
     
   } // rec
 } // gar

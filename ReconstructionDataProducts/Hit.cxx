@@ -23,8 +23,12 @@ namespace gar {
              float       *pos)
     : fChannel (chan)
     , fSignal  (sig )
-    , fPosition(pos )
     {
+      
+      fPosition[0] = pos[0];
+      fPosition[1] = pos[1];
+      fPosition[2] = pos[2];
+      
       return;
     }
 

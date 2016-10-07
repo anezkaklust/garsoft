@@ -22,9 +22,15 @@ namespace gar {
                    float *vtx,
                    float *vtxDir)
     : fEnergy  (energy  )
-    , fVertex  (vtx     )
-    , fVtxDir  (vtxDir  )
     {
+      fVertex[0] = vtx[0];
+      fVertex[1] = vtx[1];
+      fVertex[2] = vtx[2];
+      
+      fVtxDir[0] = vtxDir[0];
+      fVtxDir[1] = vtxDir[1];
+      fVtxDir[2] = vtxDir[2];
+      
       return;
     }
     

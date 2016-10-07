@@ -42,9 +42,9 @@ namespace gar {
       
     };
     
-    inline unsigned int Hit::Channel()  const { return fChannel;  }
-    inline const float* Hit::Position() const { return fPosition; }
-    inline float float& Hit::Signal()   const { return fSignal;   }
+    inline unsigned int Hit::Channel()  const { return fChannel;      }
+    inline const float* Hit::Position() const { return &fPosition[0]; }
+    inline float const& Hit::Signal()   const { return fSignal;       }
     
   } // rec
 } // gar

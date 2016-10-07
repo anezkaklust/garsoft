@@ -19,7 +19,6 @@
 #include "Geometry/Geometry.h"
 #include "Utilities/AssociationUtil.h"
 #include "ReconstructionDataProducts/Hit.h"
-#include "ReconstructionDataProducts/SpacePoint.h"
 #include "nutools/ParticleNavigation/EmEveIdCalculator.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 

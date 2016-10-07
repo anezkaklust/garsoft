@@ -46,7 +46,7 @@ namespace gar {
     
     inline const float* Shower::Vertex() const { return fVertex; }
     inline const float* Shower::VtxDir() const { return fVtxDir; }
-    inline float float& Shower::Energy() const { return fEnergy; }
+    inline float const& Shower::Energy() const { return fEnergy; }
     
   } // rec
 } // gar
