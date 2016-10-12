@@ -14,7 +14,7 @@ typedef struct _drawopt {
   int         color;
 } drawopt;
 
-void geoVis(TString volName="volCryostat"){
+void geoVis(TString volName="volWorld"){
   
   gSystem->Load("libGeom");
   gSystem->Load("libGdml");
@@ -58,7 +58,7 @@ void geoVis(TString volName="volCryostat"){
   gGeoManager->SetMaxVisNodes(70000);
 
   //gGeoManager->GetTopVolume()->Draw();
-  //gGeoManager->FindVolumeFast(volName)->Draw();
+  gGeoManager->FindVolumeFast(volName)->Draw();
 
   TFile *tf = new TFile("generic_detector.root", "RECREATE");
   gGeoManager->Write();

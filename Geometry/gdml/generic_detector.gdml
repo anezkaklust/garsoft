@@ -77,15 +77,6 @@
     <position name="volAuxDetTOFDS_14ing4blpos" x="-118.61546" y="-3.35788" z="800.59022" unit="cm"/>
     <position name="volAuxDetTOFDS_14inWorldpos" x="28.5526" y="-1.05156" z="-55.3669" unit="cm"/>
     <rotation name="volAuxDetTOFDS_14ing4blrot" x="-3" y="1.83613095409e-16" z="-90" unit="deg"/>
-    <position name="volAuxDetSensitivePunchUL_0involAuxDetPunchPaddlespos" x="14.5" y="0" z="0.5" unit="cm"/>
-    <position name="volAuxDetSensitivePunchLR_1involAuxDetPunchPaddlespos" x="-14.5" y="0" z="-0.5" unit="cm"/>
-    <position name="volAuxDetSensitivePunchUR_2involAuxDetPunchPaddlespos" x="0" y="14.5" z="1.5" unit="cm"/>
-    <rotation name="volAuxDetSensitivePunchUR_2involAuxDetPunchPaddlesrot" x="0" y="-0" z="-90" unit="deg"/>
-    <position name="volAuxDetSensitivePunchLL_3involAuxDetPunchPaddlespos" x="0" y="-14.5" z="2" unit="cm"/>
-    <rotation name="volAuxDetSensitivePunchLL_3involAuxDetPunchPaddlesrot" x="0" y="-0" z="-90" unit="deg"/>
-    <position name="volAuxDetPunchPaddles_15ing4blpos" x="-126.49876" y="1.68402" z="1065.14176" unit="cm"/>
-    <position name="volAuxDetPunchPaddles_15inWorldpos" x="20.6693" y="3.99034" z="209.185" unit="cm"/>
-    <rotation name="volAuxDetPunchPaddles_15ing4blrot" x="-2.12228989587" y="2.12083546764" z="-45.0392878524" unit="deg"/>
     <position name="MuShort0_0involAuxDetMuonRangeStackpos" x="0" y="0" z="-59.61507" unit="cm"/>
     <position name="volAuxDetSensitiveMuScint0_1involAuxDetMuonRangeStackpos" x="0" y="-24.765" z="-56.91632" unit="cm"/>
     <position name="volAuxDetSensitiveMuScint1_2involAuxDetMuonRangeStackpos" x="0" y="-9.525" z="-56.91632" unit="cm"/>
@@ -878,7 +869,6 @@
     <box name="volAuxDetDet" x="12.8" y="12.8" z="2.5" lunit="cm"/>
     <box name="volAuxDetHalo0" x="39" y="38" z="1" lunit="cm"/>
     <box name="volAuxDetTOFDS0x1" x="11.8" y="60.96" z="5.08" lunit="cm"/>
-    <box name="PunchPaddles" x="31" y="101" z="5" lunit="cm"/>
     <box name="volAuxDetPunch" x="31" y="101" z="1" lunit="cm"/>
     <box name="MuonRangeStack" x="66.04" y="64.77" z="121.77014" lunit="cm"/>
     <box name="MuRSShort" x="66.04" y="64.77" z="2.54" lunit="cm"/>
@@ -903,7 +893,7 @@
       <solidref ref="TubBottom"/>
     </volume>
     <volume name="volArgon_cap_L">
-      <materialref ref="LAr"/>
+      <materialref ref="GAr"/>
       <solidref ref="Argon_cap_L"/>
     </volume>
     <volume name="volPMTHmmWindow_e">
@@ -927,7 +917,7 @@
       <solidref ref="PMTHmmBrutto"/>
     </volume>
     <volume name="volArgon_cap_front">
-      <materialref ref="LAr"/>
+      <materialref ref="GAr"/>
       <solidref ref="Argon_cap_front"/>
     </volume>
     <volume name="volOuterSteelTube">
@@ -939,11 +929,11 @@
       <solidref ref="InnerSteelTube"/>
     </volume>
     <volume name="volArgonTubeMinusTPC">
-      <materialref ref="LAr"/>
+      <materialref ref="GAr"/>
       <solidref ref="ArgonTubeMinusTPC"/>
     </volume>
     <volume name="volTPCActive">
-      <materialref ref="LAr"/>
+      <materialref ref="GAr"/>
       <solidref ref="TPCActive"/>
     </volume>
     <volume name="volTPCWidthFace">
@@ -1195,28 +1185,6 @@
     <volume name="volAuxDetSensitivePunchLL">
       <materialref ref="POLYSTYRENE0x1"/>
       <solidref ref="volAuxDetPunch"/>
-    </volume>
-    <volume name="volAuxDetPunchPaddles">
-      <materialref ref="Vacuum"/>
-      <solidref ref="PunchPaddles"/>
-      <physvol>
-        <volumeref ref="volAuxDetSensitivePunchUL"/>
-        <positionref ref="volAuxDetSensitivePunchUL_0involAuxDetPunchPaddlespos"/>
-      </physvol>
-      <physvol>
-        <volumeref ref="volAuxDetSensitivePunchLR"/>
-        <positionref ref="volAuxDetSensitivePunchLR_1involAuxDetPunchPaddlespos"/>
-      </physvol>
-      <physvol>
-        <volumeref ref="volAuxDetSensitivePunchUR"/>
-        <positionref ref="volAuxDetSensitivePunchUR_2involAuxDetPunchPaddlespos"/>
-        <rotationref ref="volAuxDetSensitivePunchUR_2involAuxDetPunchPaddlesrot"/>
-      </physvol>
-      <physvol>
-        <volumeref ref="volAuxDetSensitivePunchLL"/>
-        <positionref ref="volAuxDetSensitivePunchLL_3involAuxDetPunchPaddlespos"/>
-        <rotationref ref="volAuxDetSensitivePunchLL_3involAuxDetPunchPaddlesrot"/>
-      </physvol>
     </volume>
     <volume name="MuShort0">
       <materialref ref="Vacuum"/>
@@ -1501,11 +1469,6 @@
         <volumeref ref="volAuxDetTOFDS"/>
         <positionref ref="volAuxDetTOFDS_14inWorldpos"/>
         <rotationref ref="volAuxDetTOFDS_14ing4blrot"/>
-      </physvol>
-      <physvol>
-        <volumeref ref="volAuxDetPunchPaddles"/>
-        <positionref ref="volAuxDetPunchPaddles_15inWorldpos"/>
-        <rotationref ref="volAuxDetPunchPaddles_15ing4blrot"/>
       </physvol>
       <physvol>
         <volumeref ref="volAuxDetMuonRangeStack"/>
