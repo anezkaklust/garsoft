@@ -22,11 +22,9 @@ void geoVis(TString volName="volWorld"){
   TGeoManager::Import("generic_detector.gdml");
   
   drawopt opt[] = {
-      //   {"volWorld",                 0},
-      //   {"volDetEnclosure",          kWhite},
-      //   {"volCryostat",              kOrange},
-      //   {"volTPCWirePlaneLengthSide", kCyan+3},
-      //   {"volTPCWirePlaneWidthSide", kRed},
+    {"volWorld",           0},
+    {"volDetEnclosure",    kWhite},
+    {"volCryostat",        kOrange},
     {"volTPCWidthFace",    kRed},
     {"volTPCLengthFace",   kCyan+5},
     {"volTPCBottomFace",   kOrange},
@@ -46,9 +44,9 @@ void geoVis(TString volName="volWorld"){
    gGeoManager->FindVolumeFast(opt[i].volume)->SetLineColor(opt[i].color);
    }*/
   
-//  TList* mat = gGeoManager->GetListOfMaterials();
-//  TIter next(mat);
-//  TObject *obj;
+  // TList* mat = gGeoManager->GetListOfMaterials();
+  // TIter next(mat);
+  // TObject *obj;
   // while (obj = next()) {
   //  obj->Print();
   // }
