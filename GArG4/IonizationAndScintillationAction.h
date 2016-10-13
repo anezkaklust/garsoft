@@ -26,12 +26,12 @@ namespace gar {
     class IonizationAndScintillationAction : public g4b::UserAction
     {
     public:
-        // Standard constructors and destructors;
+      // Standard constructors and destructors;
       IonizationAndScintillationAction();
       virtual ~IonizationAndScintillationAction();
       
-        // UserActions method that we'll override, to obtain access to
-        // Geant4's steps
+      // UserActions method that we'll override, to obtain access to
+      // Geant4's steps
       virtual void SteppingAction    (const G4Step*);
       
     private:

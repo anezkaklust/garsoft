@@ -35,8 +35,8 @@ namespace gar {
       
     private:
       
-      NestAlg* fNest;     ///< the fast optical simulation process
-      double   fStepSize; ///< maximum step to take
+      NestAlg* fNest;                  ///< the fast optical simulation process
+      double   fStepSize;              ///< maximum step to take
       CLHEP::HepRandomEngine& fEngine; ///< random engine
     };
   }

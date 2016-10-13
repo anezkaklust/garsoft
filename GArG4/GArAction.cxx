@@ -56,62 +56,64 @@ namespace gar {
     // With every step, add to the particle's trajectory.
     void GArAction::SteppingAction(const G4Step* step)
     {
-        //mf::LogInfo("GArAction") << "GArAction::SteppingAction";
+      //mf::LogInfo("GArAction") << "GArAction::SteppingAction";
       
-        /// Get the pointer to the track
+      // Get the pointer to the track
       G4Track *track = step->GetTrack();
       
+      const CLHEP::Hep3Vector &start = step->GetPreStepPoint()->GetPosition();
+      const CLHEP::Hep3Vector &stop  = track->GetPosition();
+      const CLHEP::Hep3Vector &mom   = track->GetMomentum();
       
-      const CLHEP::Hep3Vector &pos0 = step->GetPreStepPoint()->GetPosition(); // Start of the step
-      const CLHEP::Hep3Vector &pos  = track->GetPosition();                   // End of the step
-      const CLHEP::Hep3Vector &mom  = track->GetMomentum();
+      LOG_DEBUG("GArAction")
+      << "step momentum = "
+      << mom.x()
+      << " "
+      << mom.y()
+      << " "
+      << mom.z()
+      << " "
+      << mom.mag();
       
-      LOG_DEBUG("GArAction") << "flshits momentum = "
-				  << mom.x() << " " << mom.y() << " " << mom.z()
-				  << " " << mom.mag();
+      double tpos0[3] = {start.x()/CLHEP::cm, start.y()/CLHEP::cm, start.z()/CLHEP::cm};
+      double tpos1[3] = {stop .x()/CLHEP::cm, stop .y()/CLHEP::cm, stop .z()/CLHEP::cm};
+      double tpos2[3] = {0.};
       
-      double tpos0[3] = {pos0.x()/CLHEP::cm, pos0.y()/CLHEP::cm, pos0.z()/CLHEP::cm}; ///< Start of the step
-      double tpos1[3] = {pos.x()/CLHEP::cm , pos.y()/CLHEP::cm , pos.z()/CLHEP::cm};  ///< End of the step
-      double tpos2[3] = {0.};                                    ///< Some temporary vector that we'll make use of
-      
-      // If it's a null step, don't use it. Otherwise it may induce an additional
-      // FLSHit, which is wrong
+      // If it's a null step, don't use it.
       if(tpos0[0] == tpos1[0] &&
          tpos0[1] == tpos1[1] &&
          tpos0[2] == tpos1[2]  ) return;
       
-      //check that we are in the correct material to record a hit - ie scintillator
+      //check that we are in the correct material to record a hit
       std::string material = track->GetMaterial()->GetName();
-      if(material.compare("Scintillator") != 0 ) {
+      if(material.compare("GAr") != 0 ) {
         return;
       }
       
-      //check if the current cell pointer is empty, that means
-      //this is the first step for this track
-      double dcos[3]  = {mom.x()/mom.mag(), mom.y()/mom.mag(), mom.z()/mom.mag()};
+      double dcos[3]  = {mom.x()/mom.mag(),
+                         mom.y()/mom.mag(),
+                         mom.z()/mom.mag()};
       
       /// Get density for Birks' Law calculation
       TGeoManager *geomanager = fGeo->ROOTGeoManager();
       if ( ! geomanager ) {
         throw cet::exception("NoTGeoManager")
         << "GArAction: no TGeoManager given by fGeo.  "
-        << "I need this to get the scintillator density.  Failing.\n"
+        << "I need this to get the density.  Failing.\n"
         << __FILE__ << ":" << __LINE__ << "\n";
         return;
       }
-      TGeoMaterial *mat = geomanager->GetMaterial("Scintillator");
+      TGeoMaterial *mat = geomanager->GetMaterial("GAr");
       if ( ! mat ) {
         throw cet::exception("NoTGeoMaterial")
-        << "GArAction: no TGeoMaterial names 'Scintillator' found.  "
-        << "I need this to get the scintillator density.  Failing.\n"
+        << "GArAction: no TGeoMaterial names 'GAr' found.  "
+        << "I need this to get the density.  Failing.\n"
         << __FILE__ << ":" << __LINE__ << "\n";
         return;
       }
       
       /// Getting Energy depositions
-      const double edep      = step->GetTotalEnergyDeposit()/CLHEP::GeV;
-      fNovaG4EmSaturation.SetChouConstant(fChouConstant);
-      const double edepBirks = fNovaG4EmSaturation.VisibleEnergyDeposition(step)/CLHEP::GeV;
+      const double edep = step->GetTotalEnergyDeposit()/CLHEP::GeV;
       
       
         fFLSHit->AddEdep( edep );

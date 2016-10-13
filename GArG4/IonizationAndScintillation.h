@@ -22,7 +22,7 @@ namespace CLHEP { class HepRandomEngine; }
 namespace gar {
   namespace garg4 {
     
-      // The Ionization and Scintillation singleton
+    // The Ionization and Scintillation singleton
     class IonizationAndScintillation
     {
     public:
@@ -30,8 +30,8 @@ namespace gar {
       static IonizationAndScintillation* CreateInstance(CLHEP::HepRandomEngine& engine);
       static IonizationAndScintillation* Instance();
       
-        // Method to reset the internal variables held in the ISCalculation
-        // This method should be called at the start of any G4Step
+      // Method to reset the internal variables held in the ISCalculation
+      // This method should be called at the start of any G4Step
       void Reset(const G4Step* step);
       
       double EnergyDeposit()              const { return fISCalc->EnergyDeposit();              }
