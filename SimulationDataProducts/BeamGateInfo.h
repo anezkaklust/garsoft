@@ -9,7 +9,7 @@
 #include "SimulationDataProducts/BeamTypes.h"
 
 namespace gar {
-  namespace sim {
+  namespace sdp {
     
     class BeamGateInfo
     {
@@ -63,7 +63,7 @@ namespace gar {
     }
 #endif
     
-  } // namespace sim
+  } // namespace sdp
 }// gar
 
 #ifndef __GCCXML__
@@ -71,10 +71,10 @@ namespace gar {
 // case we want (for example) a std::set<BeamGateInfo*>.
 namespace std {
   template <> 
-  class less<gar::sim::BeamGateInfo*>
+  class less<gar::sdp::BeamGateInfo*>
   {
   public:
-    bool operator()( const gar::sim::BeamGateInfo* lhs, const gar::sim::BeamGateInfo* rhs )
+    bool operator()( const gar::sdp::BeamGateInfo* lhs, const gar::sdp::BeamGateInfo* rhs )
     {
       return (*lhs) < (*rhs);
     }

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  MuNuclearSplittingProcessXSecBias.h
 ///
-/// \version $Id: LArG4.h,v 1.11 2010/06/04 21:47:27 bjpjones Exp $
+/// \version $Id: GArG4.h,v 1.11 2010/06/04 21:47:27 bjpjones Exp $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 

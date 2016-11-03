@@ -19,6 +19,7 @@
 
 // GArSoft includes
 #include "Geometry/Geometry.h"
+#include "SimulationDataProducts/SimChannel.h"
 
 //ART includes
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -38,7 +39,7 @@ namespace gar {
     public:
       
       // Standard constructors and destructors;
-      GArAction();
+      explicit GArAction(fhicl::ParameterSet const& pset);
       virtual ~GArAction();
       
       void reconfigure(fhicl::ParameterSet const& pset);
@@ -52,11 +53,11 @@ namespace gar {
       void SteppingAction    (const G4Step*);
       
       //  Returns the FLSHitList accumulated during the current event.
-      std::vector<sim::FLSHit> const& GArIDEList() const { return fIDEList; }
+      std::vector<gar::sdp::IDE> const& GArIDEList() const { return fIDEList; }
       
     private:
-      std::vector<sim::IDE>             fIDEList;    ///< The accumulated information for hits in the event.
-      G4double                          fEnergyCut;  ///< The minimum energy in GeV for a particle to
+      std::vector<gar::sdp::IDE>        fIDEList;    ///< The accumulated information for hits in the event.
+      double                            fEnergyCut;  ///< The minimum energy in GeV for a particle to
                                                      ///< be included in the list.
       art::ServiceHandle<geo::Geometry> fGeo;        ///< handle to geometry service
       

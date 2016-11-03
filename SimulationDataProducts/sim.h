@@ -18,9 +18,9 @@
 #include <limits>
 #include "TRandom3.h"
 
-///Monte Carlo Simulation
+///Monte Carlo sdpulation
 namespace gar {
-  namespace sim{
+  namespace sdp{
     
     unsigned int GetRandomNumberSeed();
     
@@ -31,7 +31,7 @@ namespace gar {
     
   }
   
-  inline unsigned int sim::GetRandomNumberSeed(){
+  inline unsigned int sdp::GetRandomNumberSeed(){
     
     // the maximum allowed seed for the art::RandomNumberGenerator
     // is 900000000. Use TRandom3 to get the seed value in that range.

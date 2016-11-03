@@ -4,11 +4,11 @@
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
-// lar includes
+// gar includes
+#include "GArG4/G4SimulationParameters.h"
 #include "GArG4/IonizationAndScintillation.h"
 #include "GArG4/ISCalculationNEST.h"
 #include "GArG4/ISCalculationSeparate.h"
-#include "larsim/Simulation/LArG4Parameters.h"
 
 // ROOT includes
 
@@ -27,14 +27,13 @@ namespace gar {
     static IonizationAndScintillation* gInstance = nullptr;
     
     //......................................................................
-    IonizationAndScintillation* IonizationAndScintillation::CreateInstance
-    (CLHEP::HepRandomEngine& engine)
+    IonizationAndScintillation* IonizationAndScintillation::CreateInstance(CLHEP::HepRandomEngine& engine)
     {
       if(!gInstance) gInstance = new IonizationAndScintillation(engine);
       return gInstance;
     }
     
-      //......................................................................
+    //......................................................................
     IonizationAndScintillation* IonizationAndScintillation::Instance()
     {
       // the instance must have been created already by CreateInstance()
@@ -45,10 +44,9 @@ namespace gar {
       return gInstance;
     }
     
-      //......................................................................
-      // Constructor.
-    IonizationAndScintillation::IonizationAndScintillation
-    (CLHEP::HepRandomEngine& engine)
+    //......................................................................
+    // Constructor.
+    IonizationAndScintillation::IonizationAndScintillation(CLHEP::HepRandomEngine& engine)
     : fISCalc(0)
     , fStep(0)
     , fElectronsPerStep(0)
@@ -58,8 +56,8 @@ namespace gar {
     , fElectronsVsPhotons(0)
     , fEngine(engine)
     {
-      art::ServiceHandle<sim::LArG4Parameters> lgp;
-      fISCalculator = lgp->IonAndScintCalculator();
+      
+      fISCalculator = gar::garg4::G4SimulationParameters::Instance()->IonAndScintCalculator();
       
       if(fISCalculator.compare("NEST") == 0)
         fISCalc = new garg4::ISCalculationNEST(fEngine);
@@ -68,17 +66,18 @@ namespace gar {
       else
         mf::LogWarning("IonizationAndScintillation") << "No ISCalculation set, this can't be good.";
       
-        // Reset the values for the electrons, photons, and energy to 0
-        // in the calculator
+      // Reset the values for the electrons, photons, and energy to 0
+      // in the calculator
       fISCalc->Reset();
-        //set the current track and step number values to bogus so that it will run the first reset:
-      fStepNumber=-1;
-      fTrkID=-1;
       
-        // initialize the calculator
+      //set the current track and step number values to bogus so that it will run the first reset:
+      fStepNumber = -1;
+      fTrkID      = -1;
+      
+      // initialize the calculator
       fISCalc->Initialize();
       
-        // make the histograms
+      // make the histograms
       art::ServiceHandle< art::TFileService> tfs;
       
       fElectronsPerStep   = tfs->make<TH1F>("electronsPerStep", ";Electrons;Steps",
@@ -104,38 +103,40 @@ namespace gar {
       return;
     }
     
-      //......................................................................
+    //......................................................................
     IonizationAndScintillation::~IonizationAndScintillation()
     {
       if(fISCalc) delete fISCalc;
     }
     
     
-      //......................................................................
+    //......................................................................
     void IonizationAndScintillation::Reset(const G4Step* step)
     {
       
-      if(fStepNumber==step->GetTrack()->GetCurrentStepNumber() && fTrkID==step->GetTrack()->GetTrackID())
+      if(fStepNumber == step->GetTrack()->GetCurrentStepNumber() &&
+         fTrkID      == step->GetTrack()->GetTrackID())
         return;
       
-      fStepNumber=step->GetTrack()->GetCurrentStepNumber();
-      fTrkID=step->GetTrack()->GetTrackID();
+      fStepNumber = step->GetTrack()->GetCurrentStepNumber();
+      fTrkID      = step->GetTrack()->GetTrackID();
       
       fStep = step;
       
-        // reset the calculator
+      // reset the calculator
       fISCalc->Reset();
       
-        // check the material for this step and be sure it is LAr
-      if(step->GetTrack()->GetMaterial()->GetName() != "LAr") return;
+      // check the material for this step and be sure it is LAr
+      if(step->GetTrack()->GetMaterial()->GetName() != "GAr") return;
       
-        // double check that the energy deposit is non-zero
-        // then do the calculation if it is
+      // double check that the energy deposit is non-zero
+      // then do the calculation if it is
       if( step->GetTotalEnergyDeposit() > 0 ){
         
         fISCalc->CalculateIonizationAndScintillation(fStep);
         
-        LOG_DEBUG("IonizationAndScintillation") << "Step Size: "   << fStep->GetStepLength()/CLHEP::cm
+        LOG_DEBUG("IonizationAndScintillation")
+        << "Step Size: "   << fStep->GetStepLength()/CLHEP::cm
         << "\nEnergy: "    << fISCalc->EnergyDeposit()
         << "\nElectrons: " << fISCalc->NumberIonizationElectrons()
         << "\nPhotons: "   << fISCalc->NumberScintillationPhotons();
@@ -143,17 +144,17 @@ namespace gar {
         G4ThreeVector totstep = fStep->GetPostStepPoint()->GetPosition();
         totstep -= fStep->GetPreStepPoint()->GetPosition();
         
-          // Fill the histograms
+        // Fill the histograms
         fStepSize          ->Fill(totstep.mag()/CLHEP::cm);
         fEnergyPerStep     ->Fill(fISCalc->EnergyDeposit());
         fElectronsPerStep  ->Fill(fISCalc->NumberIonizationElectrons());
         fPhotonsPerStep    ->Fill(fISCalc->NumberScintillationPhotons());
         fElectronsVsPhotons->Fill(fISCalc->NumberScintillationPhotons(), 
                                   fISCalc->NumberIonizationElectrons());
-        fElectronsPerLength->Fill(fISCalc->NumberIonizationElectrons()*1.e-3/(totstep.mag()/CLHEP::cm));
-        fPhotonsPerLength  ->Fill(fISCalc->NumberScintillationPhotons()*1.e-3/(totstep.mag()/CLHEP::cm));
-        fElectronsPerEDep  ->Fill(fISCalc->NumberIonizationElectrons()*1.e-3/fISCalc->EnergyDeposit());
-        fPhotonsPerEDep    ->Fill(fISCalc->NumberScintillationPhotons()*1.e-3/fISCalc->EnergyDeposit());
+        fElectronsPerLength->Fill(fISCalc->NumberIonizationElectrons()  * 1.e-3 / (totstep.mag() / CLHEP::cm));
+        fPhotonsPerLength  ->Fill(fISCalc->NumberScintillationPhotons() * 1.e-3 / (totstep.mag() / CLHEP::cm));
+        fElectronsPerEDep  ->Fill(fISCalc->NumberIonizationElectrons()  * 1.e-3 / fISCalc->EnergyDeposit()   );
+        fPhotonsPerEDep    ->Fill(fISCalc->NumberScintillationPhotons() * 1.e-3 / fISCalc->EnergyDeposit()   );
         
       } // end if the energy deposition is non-zero
       

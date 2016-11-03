@@ -19,7 +19,7 @@
 #include <stdint.h>
 
 namespace gar {
-  namespace sim {
+  namespace sdp {
     
     
     struct TrackIDE{
@@ -64,8 +64,8 @@ namespace gar {
     
     struct TDCIDE
     {
-      unsigned short             fTDC;  ///< TDC tick
-      std::vector<gar::sim::IDE> fIDEs; ///< IDEs for this TDC
+      unsigned short        fTDC;  ///< TDC tick
+      std::vector<sdp::IDE> fIDEs; ///< IDEs for this TDC
       
       bool operator<(TDCIDE const& other) const;
     };
@@ -79,8 +79,8 @@ namespace gar {
       
     private:
       
-      unsigned int               fChannel; ///< electronics channel associated with these gar::sim::Electrons
-      std::set<gar::sim::TDCIDE> fTDCIDEs; ///< set of TDCIDE structs
+      unsigned int          fChannel; ///< electronics channel associated with these gar::sdp::Electrons
+      std::set<sdp::TDCIDE> fTDCIDEs; ///< set of TDCIDE structs
       
       
 #ifndef __GCCXML__
@@ -104,10 +104,10 @@ namespace gar {
       
       // method to return a collection of IDE structs for all geant4
       // track ids represented between startTDC and endTDC
-      std::vector<gar::sim::IDE> TrackIDsAndEnergies(unsigned int startTDC,
+      std::vector<sdp::IDE> TrackIDsAndEnergies(unsigned int startTDC,
                                                      unsigned int endTDC) const;
       
-      const std::set<gar::sim::TDCIDE>& TDCIDEs() const;
+      const std::set<sdp::TDCIDE>& TDCIDEs() const;
       
       // The number of ionization electrons associated with this channel for the
       // specified TDC.
@@ -115,11 +115,11 @@ namespace gar {
       double Energy(unsigned int tdc) const;
       
       // A vector of TrackIDEs for a range of TDCs
-      std::vector<gar::sim::TrackIDE> TrackIDEs(unsigned int startTDC,
-                                                unsigned int endTDC) const;
+      std::vector<sdp::TrackIDE> TrackIDEs(unsigned int startTDC,
+                                           unsigned int endTDC) const;
       
-      bool operator<  (const SimChannel& other)     const;
-      bool operator== (const SimChannel& other)     const;
+      bool operator<  (const SimChannel& other) const;
+      bool operator== (const SimChannel& other) const;
       
       std::pair<int,int> MergeSimChannel(const SimChannel&, int);
       
@@ -144,22 +144,22 @@ namespace gar {
       
     };
     
-  } // namespace sim
+  } // namespace sdp
 } // gar
 
 #ifndef __GCCXML__
 
-inline bool                              gar::sim::SimChannel::operator<  (const gar::sim::SimChannel& other) const { return fChannel < other.Channel();  }
-inline bool                              gar::sim::SimChannel::operator== (const gar::sim::SimChannel& other) const { return fChannel == other.Channel(); }
-inline const std::set<gar::sim::TDCIDE>& gar::sim::SimChannel::TDCIDEs()                                      const { return fTDCIDEs; }
-inline unsigned int                      gar::sim::SimChannel::Channel()                                      const { return fChannel; }
+inline bool                              gar::sdp::SimChannel::operator<  (const sdp::SimChannel& other) const { return fChannel < other.Channel();  }
+inline bool                              gar::sdp::SimChannel::operator== (const sdp::SimChannel& other) const { return fChannel == other.Channel(); }
+inline std::set<gar::sdp::TDCIDE> const& gar::sdp::SimChannel::TDCIDEs()                                 const { return fTDCIDEs; }
+inline unsigned int                      gar::sdp::SimChannel::Channel()                                 const { return fChannel; }
 
 
 // -----------------------------------------------------------------------------
 // ---  template implementation
 // ---
 template <class OSTREAM>
-void gar::sim::SimChannel::Dump(OSTREAM          & out,
+void gar::sdp::SimChannel::Dump(OSTREAM          & out,
                                 std::string const& indent,
                                 std::string const& first_indent) const
 {
@@ -231,10 +231,10 @@ void gar::sim::SimChannel::Dump(OSTREAM          & out,
   << " electrons and "
   << channel_energy
   << " MeV\n";
-} // gar::sim::SimChannel::Dump<>()
+} // gar::sdp::SimChannel::Dump<>()
 
 #endif
 
-#endif // SIM_SIMCHANNEL_H
+#endif // sdp_SIMCHANNEL_H
 
 ////////////////////////////////////////////////////////////////////////

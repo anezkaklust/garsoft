@@ -17,11 +17,11 @@
 #ifndef GARG4ParticleListAction_h
 #define GARG4ParticleListAction_h
 
-#include "GArG4/ParticleFilters.h" // garg4::PositionInVolumeFilter
-#include "nutools/ParticleNavigation/ParticleList.h" // garg4::PositionInVolumeFilter
+#include "GArG4/ParticleFilters.h"
 
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "nutools/G4Base/UserAction.h"
+#include "nutools/ParticleNavigation/ParticleList.h"
 
 #include "Geant4/globals.hh"
 #include <map>
@@ -46,52 +46,54 @@ namespace gar {
         simb::MCParticle* particle = nullptr;  ///< simple structure representing particle
         bool              keep = false;        ///< if there was decision to keep
         
-          /// Resets the information (does not release memory it does not own)
+        /// Resets the information (does not release memory it does not own)
         void clear() { particle = nullptr; keep = false; }
         
-          /// Returns whether there is a particle
+        /// Returns whether there is a particle
         bool hasParticle() const { return particle; }
         
-          /// Rerturns whether there is a particle known to be kept
+        /// Rerturns whether there is a particle known to be kept
         bool keepParticle() const { return hasParticle() && keep; }
         
       }; // ParticleInfo_t
       
-        // Standard constructors and destructors;
-      ParticleListAction(double energyCut, bool storeTrajectories=false, bool keepEMShowerDaughters=false);
+      // Standard constructors and destructors;
+      ParticleListAction(double energyCut,
+                         bool   storeTrajectories     = false,
+                         bool   keepEMShowerDaughters = false);
       virtual ~ParticleListAction();
       
-        // UserActions method that we'll override, to obtain access to
-        // Geant4's particle tracks and trajectories.
-      virtual void             BeginOfEventAction(const G4Event*);
+      // UserActions method that we'll override, to obtain access to
+      // Geant4's particle tracks and trajectories.
+      virtual void           BeginOfEventAction(const G4Event*);
       virtual void     	     EndOfEventAction  (const G4Event*);
       virtual void     	     PreTrackingAction (const G4Track*);
       virtual void     	     PostTrackingAction(const G4Track*);
       virtual void     	     SteppingAction    (const G4Step* );
       
-        /// Grabs a particle filter
+      /// Grabs a particle filter
       void ParticleFilter(std::unique_ptr<PositionInVolumeFilter>&& filter)
       { fFilter = std::move(filter); }
       
       
-        // TrackID of the current particle, EveID if the particle is from an EM shower
-      static int               GetCurrentTrackID() { return fCurrentTrackID; }
+      // TrackID of the current particle, EveID if the particle is from an EM shower
+      static int              GetCurrentTrackID()  { return fCurrentTrackID; }
+    
+      void                    ResetTrackIDOffset() { fTrackIDOffset = 0;     }
       
-      void                     ResetTrackIDOffset() { fTrackIDOffset = 0;     }
-      
-        // Returns the ParticleList accumulated during the current event.
+      // Returns the ParticleList accumulated during the current event.
       const sim::ParticleList* GetList() const;
       
-        // Yields the ParticleList accumulated during the current event.
+      // Yields the ParticleList accumulated during the current event.
       sim::ParticleList&& YieldList();
       
-        /// returns whether the specified particle has been marked as dropped
+      /// returns whether the specified particle has been marked as dropped
       static bool isDropped(simb::MCParticle const* p);
       
     private:
       
-        // this method will loop over the fParentIDMap to get the
-        // parentage of the provided trackid
+      // this method will loop over the fParentIDMap to get the
+      // parentage of the provided trackid
       int               	     GetParentage(int trackid) const;
       
       G4double                 fenergyCut;             ///< The minimum energy for a particle to
@@ -110,7 +112,7 @@ namespace gar {
       
       std::unique_ptr<PositionInVolumeFilter> fFilter; ///< filter for particles to be kept
       
-        /// Adds a trajectory point to the current particle, and runs the filter
+      /// Adds a trajectory point to the current particle, and runs the filter
       void AddPointToCurrentParticle(TLorentzVector const& pos,
                                      TLorentzVector const& mom,
                                      std::string    const& process);

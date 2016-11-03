@@ -16,7 +16,7 @@
 // for each available physics module, and can provide the list of their names and
 // the constructor for each to the physics list.
 //
-// This means new physics modules can be enabled via the LArG4.xml file with no change to
+// This means new physics modules can be enabled via the GArG4.xml file with no change to
 // the physics list code
 //
 // See CustomPhysicsFactory.hh and CustomPhysicsFactory.cxx for more details.

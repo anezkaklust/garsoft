@@ -11,8 +11,6 @@
 
 
 #include "GArG4/MaterialPropertyLoader.h"
-#include "lardata/DetectorInfoServices/LArPropertiesService.h"
-#include "lardata/DetectorInfoServices/DetectorPropertiesService.h"
 #include "Geant4/G4Material.hh"
 #include "Geant4/G4MaterialPropertiesTable.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -20,119 +18,132 @@
 namespace gar {
   namespace garg4 {
     
-      //----------------------------------------------
-    void MaterialPropertyLoader::SetMaterialProperty(std::string Material,
-                                                     std::string Property,
-                                                     std::map<double, double> PropertyVector,
-                                                     double Unit)
+    //----------------------------------------------
+    void MaterialPropertyLoader::SetMaterialProperty(std::string              const& Material,
+                                                     std::string              const& Property,
+                                                     std::map<double, double> const& PropertyVector,
+                                                     double                          Unit)
     {
       std::map<double,double> PropVectorWithUnit;
-      for(std::map<double,double>::const_iterator it=PropertyVector.begin();
-          it!=PropertyVector.end();
-          it++)
-      {
-        PropVectorWithUnit[it->first*CLHEP::eV]=it->second*Unit;
+      for(auto const& itr : PropertyVector){
+        PropVectorWithUnit[itr.first * CLHEP::eV] = itr.second * Unit;
       }
-      fPropertyList[Material][Property]=PropVectorWithUnit;
-      mf::LogInfo("MaterialPropertyLoader")<<"Added property "
-					 << Material<< "  "
-					 << Property;
+
+      fPropertyList[Material][Property] = PropVectorWithUnit;
+ 
+      LOG_INFO("MaterialPropertyLoader")
+      <<"Added property "
+      << Material<< "  "
+		  << Property;
     }
     
-      //----------------------------------------------
-    void MaterialPropertyLoader::SetMaterialConstProperty(std::string Material,
-                                                          std::string Property,
-                                                          double PropertyValue,
-                                                          double Unit)
+    //----------------------------------------------
+    void MaterialPropertyLoader::SetMaterialConstProperty(std::string const& Material,
+                                                          std::string const& Property,
+                                                          double             PropertyValue,
+                                                          double             Unit)
     {
       fConstPropertyList[Material][Property]=PropertyValue*Unit;
-      mf::LogInfo("MaterialPropertyLoader") << "Added const property "
-      << Material << "  "
-      << Property << " = " << PropertyValue;
+      
+      LOG_INFO("MaterialPropertyLoader")
+      << "Added const property "
+      << Material
+      << "  "
+      << Property
+      << " = "
+      << PropertyValue;
     }
     
-      //----------------------------------------------
-    void MaterialPropertyLoader::SetBirksConstant(std::string Material,
-                                                  double PropertyValue,
-                                                  double Unit)
+    //----------------------------------------------
+    void MaterialPropertyLoader::SetBirksConstant(std::string const& Material,
+                                                  double             PropertyValue,
+                                                  double             Unit)
     {
-      fBirksConstants[Material]=PropertyValue*Unit;
-      mf::LogInfo("MaterialPropertyLoader") << "Set Birks constant "
+      fBirksConstants[Material] = PropertyValue * Unit;
+      LOG_INFO("MaterialPropertyLoader")
+      << "Set Birks constant "
       << Material;
     }
     
-      //----------------------------------------------
+    //----------------------------------------------
     void MaterialPropertyLoader::UpdateGeometry(G4LogicalVolumeStore * lvs)
     {
       std::map<std::string,G4MaterialPropertiesTable*> MaterialTables;
       std::map<std::string,bool> MaterialsSet;
       
-      mf::LogInfo("MaterialPropertyLoader") << "UPDATING GEOMETRY";
+      LOG_INFO("MaterialPropertyLoader")
+      << "UPDATING GEOMETRY";
       
-        // Loop over each material with a property vector and create a new material table for it
-      for(std::map<std::string,std::map<std::string,std::map<double,double> > >::const_iterator i=fPropertyList.begin(); i!=fPropertyList.end(); i++){
-        std::string Material=i->first;
-        MaterialsSet[Material]=true;
-        MaterialTables[Material]=new G4MaterialPropertiesTable;
+      // Loop over each material with a property vector and create a new material table for it
+      for(auto const& itr : fPropertyList) {
+        std::string Material     = itr.first;
+        MaterialsSet[Material]   = true;
+        MaterialTables[Material] = new G4MaterialPropertiesTable;
       }
       
-        // Loop over each material with a const property,
-        // if material table does not exist, create one
-      for(std::map<std::string,std::map<std::string,double> >::const_iterator i=fConstPropertyList.begin(); i!=fConstPropertyList.end(); i++){
-        std::string Material=i->first;
+      // Loop over each material with a const property,
+      // if material table does not exist, create one
+      for(auto const& itr : fPropertyList){
+        std::string Material = itr.first;
         if(!MaterialsSet[Material]){
-          MaterialsSet[Material]=true;
-          MaterialTables[Material]=new G4MaterialPropertiesTable;
+          MaterialsSet[Material]   = true;
+          MaterialTables[Material] = new G4MaterialPropertiesTable;
         }
       }
       
-        // For each property vector, convert to an array of g4doubles and
-        // feed to materials table Lots of firsts and seconds!  See annotation
-        // in MaterialPropertyLoader.h to follow what each element is
+      // For each property vector, convert to an array of g4doubles and
+      // feed to materials table Lots of firsts and seconds!  See annotation
+      // in MaterialPropertyLoader.h to follow what each element is
       
-      for(std::map<std::string,std::map<std::string,std::map<double,double> > >::const_iterator i=fPropertyList.begin(); i!=fPropertyList.end(); i++){
-        std::string Material=i->first;
-        for(std::map<std::string,std::map<double,double> >::const_iterator j = i->second.begin(); j!=i->second.end(); j++){
-          std::string Property=j->first;
+      for(auto const& itr : fPropertyList){
+        std::string Material = itr.first;
+        for(auto const& jitr : itr.second){
+          std::string Property = jitr.first;
           std::vector<G4double> g4MomentumVector;
           std::vector<G4double> g4PropertyVector;
           
-          for(std::map<double,double>::const_iterator k=j->second.begin(); k!=j->second.end(); k++){
-            g4MomentumVector.push_back(k->first);
-            g4PropertyVector.push_back(k->second);
+          for(auto const& kitr : jitr.second){
+            g4MomentumVector.push_back(kitr.first);
+            g4PropertyVector.push_back(kitr.second);
           }
-          int NoOfElements=g4MomentumVector.size();
-          MaterialTables[Material]->AddProperty(Property.c_str(),&g4MomentumVector[0], &g4PropertyVector[0],NoOfElements);
-          mf::LogInfo("MaterialPropertyLoader") << "Added property "
-          <<Property
-          <<" to material table "
+          int NoOfElements = g4MomentumVector.size();
+          MaterialTables[Material]->AddProperty(Property.c_str(),
+                                                &g4MomentumVector[0],
+                                                &g4PropertyVector[0],
+                                                NoOfElements);
+          LOG_INFO("MaterialPropertyLoader")
+          << "Added property "
+          << Property
+          << " to material table "
           << Material;
         }
       }
       
-        //Add each const property element
-      for(std::map<std::string,std::map<std::string,double > >::const_iterator i = fConstPropertyList.begin(); i!=fConstPropertyList.end(); i++){
-        std::string Material=i->first;
-        for(std::map<std::string,double>::const_iterator j = i->second.begin(); j!=i->second.end(); j++){
-          std::string Property=j->first;
-          G4double PropertyValue=j->second;
+      //Add each const property element
+      for(auto const& itr : fConstPropertyList){
+        std::string Material = itr.first;
+        for(auto const& jitr : itr.second){
+          std::string Property   = jitr.first;
+          G4double PropertyValue = jitr.second;
           MaterialTables[Material]->AddConstProperty(Property.c_str(), PropertyValue);
-          mf::LogInfo("MaterialPropertyLoader") << "Added const property "
-          <<Property
-          <<" to material table "
+
+          LOG_INFO("MaterialPropertyLoader")
+          << "Added const property "
+          << Property
+          << " to material table "
           << Material;
         }
       }
       
-        //Loop through geometry elements and apply relevant material table where materials match
+      //Loop through geometry elements and apply relevant material table where materials match
       for ( G4LogicalVolumeStore::iterator i = lvs->begin(); i != lvs->end(); ++i ){
         G4LogicalVolume* volume = (*i);
         G4Material* TheMaterial = volume->GetMaterial();
         std::string Material = TheMaterial->GetName();
-        for(std::map<std::string,G4MaterialPropertiesTable*>::const_iterator j=MaterialTables.begin(); j!=MaterialTables.end(); j++){
-          if(Material==j->first){
-            TheMaterial->SetMaterialPropertiesTable(j->second);
-              //Birks Constant, for some reason, must be set separately
+        for(auto const& jitr : MaterialTables){
+          if(Material == jitr.first){
+            TheMaterial->SetMaterialPropertiesTable(jitr.second);
+            //Birks Constant, for some reason, must be set separately
             if(fBirksConstants[Material]!=0)
               TheMaterial->GetIonisation()->SetBirksConstant(fBirksConstants[Material]);
             volume->SetMaterial(TheMaterial);
@@ -141,91 +152,84 @@ namespace gar {
       }
     }
     
-    
-    void MaterialPropertyLoader::SetReflectances(std::string /*Material*/, std::map<std::string,std::map<double, double> > Reflectances,  std::map<std::string,std::map<double, double> >  DiffuseFractions)
+    //--------------------------------------------------------------------------
+    void MaterialPropertyLoader::SetReflectances(std::string                                     const& /*Material*/,
+                                                 std::map<std::string,std::map<double, double> > const& Reflectances,
+                                                 std::map<std::string,std::map<double, double> > const& DiffuseFractions)
     {
       std::map<double, double> ReflectanceToStore;
       std::map<double, double> DiffuseToStore;
       
-      for(std::map<std::string,std::map<double,double> >::const_iterator itMat=Reflectances.begin();
-          itMat!=Reflectances.end();
-          ++itMat)
-      {
-        std::string ReflectancePropName = std::string("REFLECTANCE_") + itMat->first;
+      for(auto const& itMat : Reflectances){
+        std::string ReflectancePropName = std::string("REFLECTANCE_") + itMat.first;
         ReflectanceToStore.clear();
-        for(std::map<double,double>::const_iterator itEn=itMat->second.begin();
-            itEn!=itMat->second.end();
-            ++itEn)
-        {
-          ReflectanceToStore[itEn->first]=itEn->second;
+        for(auto const& itEn : itMat.second){
+          ReflectanceToStore[itEn.first] = itEn.second;
         }
-        SetMaterialProperty("LAr", ReflectancePropName, ReflectanceToStore,1);
+        SetMaterialProperty("GAr", ReflectancePropName, ReflectanceToStore,1);
       }
       
-      for(std::map<std::string,std::map<double,double> >::const_iterator itMat=DiffuseFractions.begin();
-          itMat!=DiffuseFractions.end();
-          ++itMat)
-      {
-        std::string DiffusePropName = std::string("DIFFUSE_REFLECTANCE_FRACTION_") + itMat->first;
+      for(auto const& itMat : DiffuseFractions){
+        std::string DiffusePropName = std::string("DIFFUSE_REFLECTANCE_FRACTION_") + itMat.first;
         DiffuseToStore.clear();
-        for(std::map<double,double>::const_iterator itEn=itMat->second.begin();
-            itEn!=itMat->second.end();
-            ++itEn)
-        {
-          DiffuseToStore[itEn->first]=itEn->second;
+        for(auto const& itEn : itMat.second){
+          DiffuseToStore[itEn.first] = itEn.second;
         }
-        SetMaterialProperty("LAr", DiffusePropName, DiffuseToStore,1);
+        SetMaterialProperty("GAr",
+                            DiffusePropName,
+                            DiffuseToStore,
+                            1);
       }
       
     }
     
-    
+    //--------------------------------------------------------------------------
     void MaterialPropertyLoader::GetPropertiesFromServices()
     {
-      const detinfo::LArProperties* LarProp = lar::providerFrom<detinfo::LArPropertiesService>();
-      const detinfo::DetectorProperties* DetProp = lar::providerFrom<detinfo::DetectorPropertiesService>();
-      
-        // wavelength dependent quantities
-      
-      SetMaterialProperty( "LAr", "FASTCOMPONENT", LarProp->FastScintSpectrum(), 1  );
-      SetMaterialProperty( "LAr", "SLOWCOMPONENT", LarProp->SlowScintSpectrum(), 1  );
-      SetMaterialProperty( "LAr", "RINDEX",        LarProp->RIndexSpectrum(),    1  );
-      SetMaterialProperty( "LAr", "ABSLENGTH",     LarProp->AbsLengthSpectrum(), CLHEP::cm );
-      SetMaterialProperty( "LAr", "RAYLEIGH",      LarProp->RayleighSpectrum(),  CLHEP::cm );
-      
-      
-        // scalar properties
-      
-      SetMaterialConstProperty("LAr", "SCINTILLATIONYIELD",  LarProp->ScintYield(true),       1/CLHEP::MeV ); // true = scaled down by prescale in larproperties
-      SetMaterialConstProperty("LAr", "RESOLUTIONSCALE",     LarProp->ScintResolutionScale(), 1);
-      SetMaterialConstProperty("LAr", "FASTTIMECONSTANT",    LarProp->ScintFastTimeConst(),   CLHEP::ns);
-      SetMaterialConstProperty("LAr", "SLOWTIMECONSTANT",    LarProp->ScintSlowTimeConst(),   CLHEP::ns);
-      SetMaterialConstProperty("LAr", "YIELDRATIO",          LarProp->ScintYieldRatio(),      1);
-      SetMaterialConstProperty("LAr", "ELECTRICFIELD",       DetProp->Efield(),               CLHEP::kilovolt/CLHEP::cm);
-      
-      SetBirksConstant("LAr",LarProp->ScintBirksConstant(), CLHEP::cm/CLHEP::MeV);
-      
-      SetReflectances("LAr", LarProp->SurfaceReflectances(), LarProp->SurfaceReflectanceDiffuseFractions());
-      
-      
-        // If we are using scint by particle type, load these
-      
-      if(LarProp->ScintByParticleType())
-      {
-          // true = scaled down by prescale in larproperties
-        SetMaterialConstProperty("LAr", "PROTONSCINTILLATIONYIELD",  LarProp->ProtonScintYield(true),    1./CLHEP::MeV );
-        SetMaterialConstProperty("LAr", "PROTONYIELDRATIO",          LarProp->ProtonScintYieldRatio(),   1.);
-        SetMaterialConstProperty("LAr", "MUONSCINTILLATIONYIELD",    LarProp->MuonScintYield(true),      1./CLHEP::MeV );
-        SetMaterialConstProperty("LAr", "MUONYIELDRATIO",            LarProp->MuonScintYieldRatio(),     1.);
-        SetMaterialConstProperty("LAr", "KAONSCINTILLATIONYIELD",    LarProp->KaonScintYield(true),      1./CLHEP::MeV );
-        SetMaterialConstProperty("LAr", "KAONYIELDRATIO",            LarProp->KaonScintYieldRatio(),     1.);
-        SetMaterialConstProperty("LAr", "PIONSCINTILLATIONYIELD",    LarProp->PionScintYield(true),      1./CLHEP::MeV );
-        SetMaterialConstProperty("LAr", "PIONYIELDRATIO",            LarProp->PionScintYieldRatio(),     1.);
-        SetMaterialConstProperty("LAr", "ELECTRONSCINTILLATIONYIELD",LarProp->ElectronScintYield(true),  1./CLHEP::MeV );
-        SetMaterialConstProperty("LAr", "ELECTRONYIELDRATIO",        LarProp->ElectronScintYieldRatio(), 1.);
-        SetMaterialConstProperty("LAr", "ALPHASCINTILLATIONYIELD",   LarProp->AlphaScintYield(true),     1./CLHEP::MeV );
-        SetMaterialConstProperty("LAr", "ALPHAYIELDRATIO",           LarProp->AlphaScintYieldRatio(),    1.);
-      }
+//      const detinfo::LArProperties* LarProp = lar::providerFrom<detinfo::LArPropertiesService>();
+//      const detinfo::DetectorProperties* DetProp = lar::providerFrom<detinfo::DetectorPropertiesService>();
+//      
+//        // wavelength dependent quantities
+//      
+//      SetMaterialProperty( "LAr", "FASTCOMPONENT", LarProp->FastScintSpectrum(), 1  );
+//      SetMaterialProperty( "LAr", "SLOWCOMPONENT", LarProp->SlowScintSpectrum(), 1  );
+//      SetMaterialProperty( "LAr", "RINDEX",        LarProp->RIndexSpectrum(),    1  );
+//      SetMaterialProperty( "LAr", "ABSLENGTH",     LarProp->AbsLengthSpectrum(), CLHEP::cm );
+//      SetMaterialProperty( "LAr", "RAYLEIGH",      LarProp->RayleighSpectrum(),  CLHEP::cm );
+//      
+//      
+//        // scalar properties
+//      
+//      SetMaterialConstProperty("LAr", "SCINTILLATIONYIELD",  LarProp->ScintYield(true),       1/CLHEP::MeV ); // true = scaled down by prescale in larproperties
+//      SetMaterialConstProperty("LAr", "RESOLUTIONSCALE",     LarProp->ScintResolutionScale(), 1);
+//      SetMaterialConstProperty("LAr", "FASTTIMECONSTANT",    LarProp->ScintFastTimeConst(),   CLHEP::ns);
+//      SetMaterialConstProperty("LAr", "SLOWTIMECONSTANT",    LarProp->ScintSlowTimeConst(),   CLHEP::ns);
+//      SetMaterialConstProperty("LAr", "YIELDRATIO",          LarProp->ScintYieldRatio(),      1);
+//      SetMaterialConstProperty("LAr", "ELECTRICFIELD",       DetProp->Efield(),               CLHEP::kilovolt/CLHEP::cm);
+//      
+//      SetBirksConstant("LAr",LarProp->ScintBirksConstant(), CLHEP::cm/CLHEP::MeV);
+//      
+//      SetReflectances("LAr", LarProp->SurfaceReflectances(), LarProp->SurfaceReflectanceDiffuseFractions());
+//      
+//      
+//        // If we are using scint by particle type, load these
+//      
+//      if(LarProp->ScintByParticleType())
+//      {
+//          // true = scaled down by prescale in larproperties
+//        SetMaterialConstProperty("LAr", "PROTONSCINTILLATIONYIELD",  LarProp->ProtonScintYield(true),    1./CLHEP::MeV );
+//        SetMaterialConstProperty("LAr", "PROTONYIELDRATIO",          LarProp->ProtonScintYieldRatio(),   1.);
+//        SetMaterialConstProperty("LAr", "MUONSCINTILLATIONYIELD",    LarProp->MuonScintYield(true),      1./CLHEP::MeV );
+//        SetMaterialConstProperty("LAr", "MUONYIELDRATIO",            LarProp->MuonScintYieldRatio(),     1.);
+//        SetMaterialConstProperty("LAr", "KAONSCINTILLATIONYIELD",    LarProp->KaonScintYield(true),      1./CLHEP::MeV );
+//        SetMaterialConstProperty("LAr", "KAONYIELDRATIO",            LarProp->KaonScintYieldRatio(),     1.);
+//        SetMaterialConstProperty("LAr", "PIONSCINTILLATIONYIELD",    LarProp->PionScintYield(true),      1./CLHEP::MeV );
+//        SetMaterialConstProperty("LAr", "PIONYIELDRATIO",            LarProp->PionScintYieldRatio(),     1.);
+//        SetMaterialConstProperty("LAr", "ELECTRONSCINTILLATIONYIELD",LarProp->ElectronScintYield(true),  1./CLHEP::MeV );
+//        SetMaterialConstProperty("LAr", "ELECTRONYIELDRATIO",        LarProp->ElectronScintYieldRatio(), 1.);
+//        SetMaterialConstProperty("LAr", "ALPHASCINTILLATIONYIELD",   LarProp->AlphaScintYield(true),     1./CLHEP::MeV );
+//        SetMaterialConstProperty("LAr", "ALPHAYIELDRATIO",           LarProp->AlphaScintYieldRatio(),    1.);
+//      }
     }
     
   } // garg4

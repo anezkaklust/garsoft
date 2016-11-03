@@ -156,8 +156,8 @@ namespace gar{
                     std::vector<T>   const&a,
                     art::Ptr<U>      const&b,
                     art::Assns<U,T>       &assn,
-                    std::string           a_instance,
-                    size_t                indx=UINT_MAX
+                    std::string            a_instance,
+                    size_t                 indx=UINT_MAX
                     );
     
     /**

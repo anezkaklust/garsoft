@@ -32,8 +32,8 @@
 #include "Geant4/G4OpticalPhoton.hh"
 #include "Geant4/G4VProcess.hh"
 
-#include "LArG4/NestAlg.h"
-#include "LArG4/G4ThermalElectron.hh"
+#include "GArG4/NestAlg.h"
+#include "GArG4/G4ThermalElectron.hh"
 
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandFlat.h"

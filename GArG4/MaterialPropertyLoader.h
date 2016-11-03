@@ -28,33 +28,45 @@ namespace gar {
       
     public:
       
-        //Accessors
-      std::map<double,double> GetMaterialProperty(std::string Material,std::string Property)
+      //Accessors
+      std::map<double,double> GetMaterialProperty(std::string const& Material,
+                                                  std::string const& Property)
       {return fPropertyList[Material][Property];}
       
-      double GetMaterialConstProperty(std::string Material, std::string Property)
+      double GetMaterialConstProperty(std::string const& Material,
+                                      std::string const& Property)
       {return fConstPropertyList[Material][Property];}
       
-      std::map<std::string,double> GetMaterialConstProperties(std::string Material)
+      std::map<std::string,double> GetMaterialConstProperties(std::string const& Material)
       {return fConstPropertyList[Material];}
       
-      std::map<std::string,std::map<double,double> >  GetMaterialProperties(std::string Material)
+      std::map<std::string,std::map<double,double> >  GetMaterialProperties(std::string const& Material)
       {return fPropertyList[Material];}
       
       
-        // Methods to set material properties
-      void SetMaterialProperty(       std::string Material, std::string Property, std::map<double,double> Values, double Unit);
-      void SetMaterialConstProperty(  std::string Material, std::string Property, double Value,                   double Unit);
+      // Methods to set material properties
+      void SetMaterialProperty(std::string             const& Material,
+                               std::string             const& Property,
+                               std::map<double,double> const& Values,
+                               double                         Unit);
+      void SetMaterialConstProperty(std::string const& Material,
+                                    std::string const& Property,
+                                    double             Value,
+                                    double             Unit);
       
-        // Method to set LArG4 Birks constant
-      void SetBirksConstant( std::string, double, double );
+      // Method to set GArG4 Birks constant
+      void SetBirksConstant(std::string const&,
+                            double,
+                            double);
       
-      void SetReflectances( std::string, std::map<std::string, std::map<double,double> >, std::map<std::string, std::map<double, double> >);
+      void SetReflectances(std::string                                      const&,
+                           std::map<std::string, std::map<double, double> > const&,
+                           std::map<std::string, std::map<double, double> > const&);
       
-        // Set material properties supplied from services
+      // Set material properties supplied from services
       void GetPropertiesFromServices();
       
-        // Geometry updater.  Generate Geant4 material property tables and attach to detector geometry
+      // Geometry updater.  Generate Geant4 material property tables and attach to detector geometry
       void UpdateGeometry( G4LogicalVolumeStore* );
       
       

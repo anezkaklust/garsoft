@@ -1,12 +1,12 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  LArG4.cxx
+/// \file  GArG4.cxx
 /// \brief Use Geant4 to run the LArSoft detector simulation
 ///
-/// \version $Id: LArG4.cxx,v 1.22 2010/07/20 06:08:30 bjpjones Exp $
+/// \version $Id: GArG4.cxx,v 1.22 2010/07/20 06:08:30 bjpjones Exp $
 /// \author  seligman@nevis.columbia.edu
 ////////////////////////////////////////////////////////////////////////
-#ifndef GARG4LARG4ANA_H
-#define GARG4LARG4ANA_H 
+#ifndef GARG4GArG4ANA_H
+#define GARG4GArG4ANA_H 
 
 /// Framework includes
 #include "art/Framework/Core/ModuleMacros.h"
@@ -26,7 +26,7 @@
 
 // LArSoft Includes
 #include "MCCheater/BackTracker.h"
-#include "Simulation/ParticleList.h"
+#include "nutools/ParticleNavigation/ParticleList.h"
 #include "SimulationDataProducts/sim.h"
 #include "Geometry/Geometry.h"
 
@@ -54,12 +54,12 @@ namespace sim{
 namespace gar {
   namespace garg4 {
     
-    class LArG4Ana : public art::EDAnalyzer{
+    class GArG4Ana : public art::EDAnalyzer{
     public:
       
         /// Standard constructor and destructor for an FMWK module.
-      explicit LArG4Ana(fhicl::ParameterSet const& pset);
-      virtual ~LArG4Ana();
+      explicit GArG4Ana(fhicl::ParameterSet const& pset);
+      virtual ~GArG4Ana();
       
       void analyze (const art::Event& evt);
       void beginJob();
@@ -117,7 +117,7 @@ namespace gar {
     
       //-----------------------------------------------------------------------
       // Constructor
-    LArG4Ana::LArG4Ana(fhicl::ParameterSet const& pset)
+    GArG4Ana::GArG4Ana(fhicl::ParameterSet const& pset)
     : EDAnalyzer(pset)
     {
       this->reconfigure(pset);
@@ -125,12 +125,12 @@ namespace gar {
     
       //-----------------------------------------------------------------------
       // Destructor
-    LArG4Ana::~LArG4Ana()
+    GArG4Ana::~GArG4Ana()
     {
     }
     
       //-----------------------------------------------------------------------
-    void LArG4Ana::beginJob()
+    void GArG4Ana::beginJob()
     {
       art::ServiceHandle<art::TFileService> tfs;
       art::ServiceHandle<geo::Geometry> geo;
@@ -205,7 +205,7 @@ namespace gar {
     }
     
       //-----------------------------------------------------------------------
-    void LArG4Ana::reconfigure(fhicl::ParameterSet const& p)
+    void GArG4Ana::reconfigure(fhicl::ParameterSet const& p)
     {
       fG4ModuleLabel    = p.get< std::string >("GeantModuleLabel");
       fTNdsOriginal     = p.get< int         >("Ndaughters"      );
@@ -216,7 +216,7 @@ namespace gar {
     }
     
       //-----------------------------------------------------------------------
-    void LArG4Ana::analyze(const art::Event& evt)
+    void GArG4Ana::analyze(const art::Event& evt)
     {
       
         //get the list of particles from this event
@@ -226,7 +226,7 @@ namespace gar {
       
         // loop over all sim::SimChannels in the event and make sure there are no
         // sim::IDEs with trackID values that are not in the sim::ParticleList
-      std::vector<const sim::SimChannel*> sccol;
+      std::vector<const sdp::SimChannel*> sccol;
       evt.getView(fG4ModuleLabel, sccol);
       
       double totalCharge=0.0;
@@ -236,18 +236,21 @@ namespace gar {
         double numIDEs=0.0;
         double scCharge=0.0;
         double scEnergy=0.0;
-        const auto & tdcidemap = sccol[sc]->TDCIDEMap();
-        for(auto mapitr = tdcidemap.begin(); mapitr != tdcidemap.end(); mapitr++){
-          const std::vector<sim::IDE> idevec = (*mapitr).second;
+        const auto & tdcidemap = sccol[sc]->TDCIDEs();
+        for(auto const& mapitr : tdcidemap){
+          const std::vector<sdp::IDE> idevec = mapitr.fIDEs;
           numIDEs += idevec.size();
-          for(size_t iv = 0; iv < idevec.size(); ++iv){
-            if(plist.find( idevec[iv].trackID ) == plist.end()
-               && idevec[iv].trackID != sim::NoParticleId)
-              mf::LogWarning("LArG4Ana") << idevec[iv].trackID << " is not in particle list";
-            totalCharge +=idevec[iv].numElectrons;
-            scCharge += idevec[iv].numElectrons;
-            totalEnergy +=idevec[iv].energy;
-            scEnergy += idevec[iv].energy;
+          for(auto const& ide : idevec){
+            if(plist.find( ide.trackID ) == plist.end() &&
+               ide.trackID != sdp::NoParticleId)
+              LOG_WARNING("GArG4Ana")
+              << ide.trackID
+              << " is not in particle list";
+            
+            totalCharge += ide.numElectrons;
+            scCharge    += ide.numElectrons;
+            totalEnergy += ide.energy;
+            scEnergy    += ide.energy;
           }
         }
         fnumIDEs->Fill(sc,numIDEs);
@@ -274,7 +277,11 @@ namespace gar {
         if(pvec[i]->Mother() == pi0loc+1 &&
            pi0loc > 0 &&
            pvec[i]->PdgCode() == 22){
-          mf::LogInfo("LArG4Ana") << pvec[i]->E() << " gamma energy ";
+
+          LOG_DEBUG("GArG4Ana")
+          << pvec[i]->E()
+          << " gamma energy ";
+          
           ++numpi0gamma;
         }
         
@@ -359,7 +366,7 @@ namespace gar {
         
       } // end loop on particles in list 
       if(numpi0gamma == 2 && pi0loc > 0){
-        mf::LogInfo("LArG4Ana") << pvec[pi0loc]->E();
+        mf::LogInfo("GArG4Ana") << pvec[pi0loc]->E();
         fPi0Momentum->Fill(pvec[pi0loc]->E());
       }
       
@@ -372,7 +379,7 @@ namespace gar {
   
   namespace garg4 {
     
-    DEFINE_ART_MODULE(LArG4Ana)
+    DEFINE_ART_MODULE(GArG4Ana)
     
   } // namespace garg4
   

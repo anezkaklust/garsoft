@@ -111,7 +111,7 @@ namespace gar {
       
       double fGlobalTimeOffset;             /// The start of a simulated "beam gate".
       double fRandomTimeOffset;             /// The width of a simulated "beam gate".
-      gar::sim::BeamType_t fBeamType;       /// The type of beam
+      gar::sdp::BeamType_t fBeamType;       /// The type of beam
       
       TH1F* fGenerated[6];  ///< Spectra as generated
       
@@ -154,7 +154,7 @@ namespace gar {
     , fPassEmptySpills (pset.get< bool   >("PassEmptySpills"))
     , fGlobalTimeOffset(pset.get< double >("GlobalTimeOffset",0))
     , fRandomTimeOffset(pset.get< double >("RandomTimeOffset",1600.)) // BNB default value
-    , fBeamType(gar::sim::kBNB)
+    , fBeamType(gar::sdp::kBNB)
     {
       fStopwatch.Start();
       
@@ -165,16 +165,16 @@ namespace gar {
       produces< sumdata::POTSummary, art::InSubRun >();
       produces< art::Assns<simb::MCTruth, simb::MCFlux> >();
       produces< art::Assns<simb::MCTruth, simb::GTruth> >();
-      produces< std::vector<gar::sim::BeamGateInfo> >();
+      produces< std::vector<gar::sdp::BeamGateInfo> >();
       
       std::string beam_type_name = pset.get<std::string>("BeamName");
       
       if(beam_type_name == "numi")
-        fBeamType = gar::sim::kNuMI;
+        fBeamType = gar::sdp::kNuMI;
       else if(beam_type_name == "booster")
-        fBeamType = gar::sim::kBNB;
+        fBeamType = gar::sdp::kBNB;
       else
-        fBeamType = gar::sim::kUnknown;
+        fBeamType = gar::sdp::kUnknown;
       
       art::ServiceHandle<geo::Geometry> geo;
       
@@ -188,7 +188,7 @@ namespace gar {
         
         unsigned int seed;
         if (!GENIEconfig.get_if_present("Seed", seed)){
-          int seed = pset.get< unsigned int >("Seed", sim::GetRandomNumberSeed());
+          int seed = pset.get< unsigned int >("Seed", sdp::GetRandomNumberSeed());
           
           createEngine( seed );
         }
@@ -312,7 +312,7 @@ namespace gar {
       std::unique_ptr< std::vector<simb::GTruth>  > gtruthcol (new std::vector<simb::GTruth >);
       std::unique_ptr< art::Assns<simb::MCTruth, simb::MCFlux> > tfassn(new art::Assns<simb::MCTruth, simb::MCFlux>);
       std::unique_ptr< art::Assns<simb::MCTruth, simb::GTruth> > tgtassn(new art::Assns<simb::MCTruth, simb::GTruth>);
-      std::unique_ptr< std::vector<sim::BeamGateInfo> > gateCollection(new std::vector<sim::BeamGateInfo>);
+      std::unique_ptr< std::vector<sdp::BeamGateInfo> > gateCollection(new std::vector<sdp::BeamGateInfo>);
       
       while(truthcol->size() < 1){
         while(!fGENIEHelp->Stop()){
@@ -351,7 +351,7 @@ namespace gar {
       // We're creating a vector of these because, in a
       // distant-but-possible future, we may be generating more than one
       // beam gate within a simulated time window.
-      gateCollection->push_back(sim::BeamGateInfo( fGlobalTimeOffset, fRandomTimeOffset, fBeamType ));
+      gateCollection->push_back(sdp::BeamGateInfo( fGlobalTimeOffset, fRandomTimeOffset, fBeamType ));
       
       // put the collections in the event
       evt.put(std::move(truthcol));

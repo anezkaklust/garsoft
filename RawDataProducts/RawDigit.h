@@ -28,9 +28,6 @@
 #include <vector>
 // #include <bitset>
 
-// LArSoft libraries
-#include "larcoreobj/SimpleTypesAndConstants/RawTypes.h" // raw::Compress_t, raw::Channel_t
-
 
 /// Raw data description and utilities
 namespace gar {
@@ -105,7 +102,7 @@ namespace gar {
        * Data from the adclist is copied into the raw digits.
        * Pedestal is set to 0 by default.
        */
-      RawDigit(ChannelID_t        channel,
+      RawDigit(Channel_t          channel,
                unsigned short     samples,
                ADCvector_t const& adclist);
       
@@ -119,7 +116,7 @@ namespace gar {
        * Data from the adclist is moved into the raw digits.
        * Pedestal is set to 0 by default.
        */
-      RawDigit(ChannelID_t        channel,
+      RawDigit(Channel_t          channel,
                unsigned short     samples,
                ADCvector_t&&      adclist);
       
@@ -139,7 +136,7 @@ namespace gar {
       short           ADC(int i)    const;
       
       /// DAQ channel this raw data was read from
-      ChannelID_t     Channel()     const;
+      Channel_t       Channel()     const;
       
       /// Number of samples in the uncompressed ADC data
       unsigned short  Samples()     const;
@@ -159,7 +156,7 @@ namespace gar {
     private:
       std::vector<short> fADC;      ///< ADC readout per tick, before pedestal subtraction
       
-      ChannelID_t        fChannel;  ///< channel number in the readout
+      Channel_t          fChannel;  ///< channel number in the readout
       unsigned short     fSamples;  ///< number of ticks of the clock
       
       float              fPedestal; ///< pedestal for this channel
@@ -177,9 +174,9 @@ namespace gar {
 #ifndef __GCCXML__
 
 inline size_t           gar::raw::RawDigit::NADC()        const { return fADC.size();  }
-inline short            gar:: raw::RawDigit::ADC(int i)   const { return fADC.at(i);   }
+inline short            gar::raw::RawDigit::ADC(int i)    const { return fADC.at(i);   }
 inline const gar::raw::RawDigit::ADCvector_t& gar::raw::RawDigit::ADCs() const { return fADC; }
-inline raw::ChannelID_t gar::raw::RawDigit::Channel()     const { return fChannel;     }
+inline gar::raw::Channel_t gar::raw::RawDigit::Channel()     const { return fChannel;     }
 inline unsigned short   gar::raw::RawDigit::Samples()     const { return fSamples;     }
 inline float            gar::raw::RawDigit::GetPedestal() const { return fPedestal;    }
 inline float            gar::raw::RawDigit::GetSigma()    const { return fSigma;       }

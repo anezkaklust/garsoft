@@ -21,6 +21,7 @@
 #include "ReconstructionDataProducts/Hit.h"
 #include "nutools/ParticleNavigation/EmEveIdCalculator.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
+#include "SimulationDataProducts/sim.h"
 
 namespace gar{
   namespace cheat{
@@ -47,7 +48,7 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    void BackTracker::Rebuild(const art::Event& evt)
+    void BackTracker::Rebuild(art::Event const& evt)
     {
       // do nothing if this is data
       if(evt.isRealData()) return;
@@ -172,22 +173,22 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    std::vector<sim::IDE> BackTracker::TrackIDToSimIDE(int const& id) const
+    std::vector<sdp::IDE> BackTracker::TrackIDToSimIDE(int const& id) const
     {
-      std::vector<sim::IDE> ides;
+      std::vector<sdp::IDE> ides;
       
       // loop over all sim::SimChannels and fill a vector
       // of sim::IDE objects for the given track id
-      for(auto sc fSimChannels){
-        const auto & tdcidemap = sc->TDCIDEMap();
+      for(auto sc : fSimChannels){
+        const auto & tdcidemap = sc->TDCIDEs();
         
         // loop over the IDEMAP
-        for(auto const& mapitr){
+        for(auto const& mapitr : tdcidemap){
           
           // loop over the vector of IDE objects.
-          auto const& idevec = mapitr.second;
+          auto const& idevec = mapitr.fIDEs;
           for(auto const& ide : idevec){
-            if( std::abs(ide.trackID) == id) ides.push_back(idevec[iv]);
+            if( std::abs(ide.trackID) == id) ides.push_back(ide);
           }
           
         } // end loop over map from sim::SimChannel
@@ -217,12 +218,12 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    std::vector<sim::TrackIDE> BackTracker::HitToTrackID(art::Ptr<recob::Hit> const& hit)
+    std::vector<sdp::TrackIDE> BackTracker::HitToTrackID(art::Ptr<gar::rec::Hit> const& hit)
     {
-      std::vector<sim::TrackIDE> trackIDEs;
+      std::vector<sdp::TrackIDE> trackIDEs;
       
-      const double start = hit->PeakTimeMinusRMS();
-      const double end   = hit->PeakTimePlusRMS();
+      const double start = hit->StartTime();
+      const double end   = hit->EndTime();
       
       this->ChannelToTrackID(trackIDEs, hit->Channel(), start, end);
       
@@ -230,7 +231,7 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    const std::vector<std::vector<art::Ptr<recob::Hit>>> BackTracker::TrackIDsToHits(std::vector<art::Ptr<recob::Hit>> const& allhits,
+    const std::vector<std::vector<art::Ptr<gar::rec::Hit>>> BackTracker::TrackIDsToHits(std::vector<art::Ptr<gar::rec::Hit>> const& allhits,
                                                                                      std::vector<int>                  const& tkIDs)
     {
       // returns a subset of the hits in the allhits collection that are matched
@@ -238,12 +239,15 @@ namespace gar{
       
       // temporary vector of TrackIDs and Ptrs to hits so only one
       // loop through the (possibly large) allhits collection is needed
-      std::vector<std::pair<int, art::Ptr<recob::Hit>>> hitList;
-      std::vector<sim::TrackIDE> tids;
+      std::vector<std::pair<int, art::Ptr<gar::rec::Hit>>> hitList;
+      std::vector<sdp::TrackIDE> tids;
       for(auto hit : allhits){
         tids.clear();
 
-        this->ChannelToTrackID(tids, hit->Channel(), hit->PeakTimeMinusRMS(), hit->PeakTimePlusRMS());
+        this->ChannelToTrackID(tids,
+                               hit->Channel(),
+                               hit->StartTime(),
+                               hit->EndTime());
         
         for(auto const& tid : tids) {
           for(auto const& itkid : tkIDs) {
@@ -256,10 +260,10 @@ namespace gar{
       } // itr
       
       // now build the truHits vector that will be returned to the caller
-      std::vector<std::vector<art::Ptr<recob::Hit>>> truHits;
+      std::vector<std::vector<art::Ptr<gar::rec::Hit>>> truHits;
       
       // temporary vector containing hits assigned to one MC particle
-      std::vector<art::Ptr<recob::Hit>> tmpHits;
+      std::vector<art::Ptr<gar::rec::Hit>> tmpHits;
       for(auto const& itkid : tkIDs) {
         tmpHits.clear();
         
@@ -276,9 +280,9 @@ namespace gar{
     // plist is assumed to have adopted the appropriate EveIdCalculator prior to
     // having been passed to this method. It is likely that the EmEveIdCalculator is
     // the one you always want to use
-    std::vector<sim::TrackIDE> BackTracker::HitToEveID(art::Ptr<recob::Hit> const& hit)
+    std::vector<sdp::TrackIDE> BackTracker::HitToEveID(art::Ptr<gar::rec::Hit> const& hit)
     {
-      std::vector<sim::TrackIDE> trackides = this->HitToTrackID(hit);
+      std::vector<sdp::TrackIDE> trackides = this->HitToTrackID(hit);
       
       // make a map of evd ID values and fraction of energy represented by
       // that eve id in this hit
@@ -291,10 +295,10 @@ namespace gar{
       }
       
       // now fill the eveides vector from the map
-      std::vector<sim::TrackIDE> eveides;
+      std::vector<sdp::TrackIDE> eveides;
       eveides.reserve(eveToE.size());
       for(auto itr : eveToE){
-        sim::TrackIDE temp;
+        sdp::TrackIDE temp;
         temp.trackID    = itr.first;
         temp.energyFrac = itr.second/totalE;
         temp.energy     = itr.second;
@@ -323,24 +327,24 @@ namespace gar{
     //----------------------------------------------------------------------
     std::set<int> BackTracker::GetSetOfTrackIDs()
     {
-        // fParticleList::value_type is a pair (track, particle pointer)
+      // fParticleList::value_type is a pair (track, particle pointer)
       std::set<int> trackIDs;
-      for (const sim::ParticleList::value_type& pl: fParticleList)
+      for (auto const& pl : fParticleList)
         trackIDs.insert(pl.first);
       
       return trackIDs;
     }
     
     //----------------------------------------------------------------------
-    std::set<int> BackTracker::GetSetOfEveIDs(std::vector< art::Ptr<recob::Hit> > const& hits)
+    std::set<int> BackTracker::GetSetOfEveIDs(std::vector< art::Ptr<gar::rec::Hit> > const& hits)
     {
       std::set<int> eveIDs;
       
-      std::vector< art::Ptr<recob::Hit> >::const_iterator itr = hits.begin();
+      std::vector< art::Ptr<gar::rec::Hit> >::const_iterator itr = hits.begin();
       for(auto itr : hits){
         
         // get the eve ids corresponding to this hit
-        const std::vector<sim::TrackIDE> ides = HitToEveID(itr);
+        const std::vector<sdp::TrackIDE> ides = HitToEveID(itr);
         
         // loop over the ides and extract the track ids
         for(auto const& ide : ides) eveIDs.insert(ide.trackID);
@@ -351,20 +355,23 @@ namespace gar{
     }
     
       //----------------------------------------------------------------------
-    std::set<int> BackTracker::GetSetOfTrackIDs(std::vector< art::Ptr<recob::Hit> > const& hits)
+    std::set<int> BackTracker::GetSetOfTrackIDs(std::vector< art::Ptr<gar::rec::Hit> > const& hits)
     {
       std::set<int> trackIDs;
-      std::vector<sim::TrackIDE> trackIDEs;
+      std::vector<sdp::TrackIDE> trackIDEs;
       
       for(auto itr : hits ){
         
         trackIDEs.clear();
         
         // get the track ids corresponding to this hit
-        const double start = itr->PeakTimeMinusRMS();
-        const double end   = itr->PeakTimePlusRMS();
+        const double start = itr->StartTime();
+        const double end   = itr->EndTime();
         
-        this->ChannelToTrackID(trackIDEs, itr->Channel(), start, end);
+        this->ChannelToTrackID(trackIDEs,
+                               itr->Channel(),
+                               start,
+                               end);
         
         // loop over the ides and extract the track ids
         for(auto const& tid : trackIDEs) {
@@ -377,7 +384,7 @@ namespace gar{
     
     //----------------------------------------------------------------------
     double BackTracker::HitCollectionPurity(std::set<int>                              trackIDs,
-                                            std::vector< art::Ptr<recob::Hit> > const& hits,
+                                            std::vector< art::Ptr<gar::rec::Hit> > const& hits,
                                             bool                                       weightByCharge)
     {
       // get the list of EveIDs that correspond to the hits in this collection
@@ -391,9 +398,9 @@ namespace gar{
       // the correct view by definition then.
       for(auto hit : hits){
         
-        weight = (weightByCharge) ? hit->Integral() : 1.;
+        weight = (weightByCharge) ? hit->Signal() : 1.;
         
-        std::vector<sim::TrackIDE> hitTrackIDs = this->HitToTrackID(hit);
+        std::vector<sdp::TrackIDE> hitTrackIDs = this->HitToTrackID(hit);
         
         total += weight;
         
@@ -418,10 +425,9 @@ namespace gar{
     
     //----------------------------------------------------------------------
     double BackTracker::HitCollectionEfficiency(std::set<int>                              trackIDs,
-                                                std::vector< art::Ptr<recob::Hit> > const& hits,
-                                                std::vector< art::Ptr<recob::Hit> > const& allhits,
-                                                geo::View_t                         const& view,
-                                                bool                                       weightByCharge)
+                                                std::vector< art::Ptr<gar::rec::Hit> > const& hits,
+                                                std::vector< art::Ptr<gar::rec::Hit> > const& allhits,
+                                                bool                                          weightByCharge)
     {
       // get the list of EveIDs that correspond to the hits in this collection
       // and the energy associated with the desired trackID
@@ -434,9 +440,9 @@ namespace gar{
       // the correct view by definition then.
       for(auto hit : hits){
         
-        std::vector<sim::TrackIDE> hitTrackIDs = this->HitToTrackID(hit);
+        std::vector<sdp::TrackIDE> hitTrackIDs = this->HitToTrackID(hit);
 
-        weight = (weightByCharge) ? hit->Integra() : 1.;
+        weight = (weightByCharge) ? hit->Signal() : 1.;
         
         // don't worry about hits where the energy fraction for the chosen
         // trackID is < 0.1
@@ -454,13 +460,9 @@ namespace gar{
       // now figure out how many hits in the whole collection are associated with this id
       for(auto hit : allhits){
         
-        // check that we are looking at the appropriate view here
-        // in the case of 3D objects we take all hits
-        if(hit->View() != view && view != geo::k3D ) continue;
-        
-        weight = (weightByCharge) ? hit->Integra() : 1.;
+        weight = (weightByCharge) ? hit->Signal() : 1.;
 
-        std::vector<sim::TrackIDE> hitTrackIDs = this->HitToTrackID(hit);
+        std::vector<sdp::TrackIDE> hitTrackIDs = this->HitToTrackID(hit);
         
         for(auto const& tid : hitTrackIDs){
           // don't worry about hits where the energy fraction for the chosen
@@ -483,9 +485,9 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    const sim::SimChannel* BackTracker::FindSimChannel(raw::ChannelID_t const& channel) const
+    const sdp::SimChannel* BackTracker::FindSimChannel(raw::Channel_t const& channel) const
     {
-      const sim::SimChannel* chan = nullptr;
+      const sdp::SimChannel* chan = nullptr;
       
       for(auto sc : fSimChannels){
         if(sc->Channel() == channel) chan = sc;
@@ -501,17 +503,17 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    void BackTracker::ChannelToTrackID(std::vector<sim::TrackIDE>      & trackIDEs,
-                                       raw::ChannelID_t           const& channel,
-                                       double                     const  hit_start_time,
-                                       double                     const  hit_end_time)
+    void BackTracker::ChannelToTrackID(std::vector<sdp::TrackIDE>      & trackIDEs,
+                                       raw::Channel_t             const& channel,
+                                       double                            hit_start_time,
+                                       double                            hit_end_time)
     {
       trackIDEs.clear();
       
       double totalE = 0.;
       
       try{
-        const sim::SimChannel* schannel = this->FindSimChannel(channel);
+        const sdp::SimChannel* schannel = this->FindSimChannel(channel);
         
         // loop over the electrons in the channel and grab those that are in time
         // with the identified hit start and stop times
@@ -520,7 +522,7 @@ namespace gar{
         int end_tdc   = ts->TPCTick2TDC( hit_end_time   );
         if(start_tdc<0) start_tdc = 0;
         if(end_tdc<0) end_tdc = 0;
-        std::vector<sim::IDE> simides = schannel->TrackIDsAndEnergies(start_tdc, end_tdc);
+        std::vector<sdp::IDE> simides = schannel->TrackIDsAndEnergies(start_tdc, end_tdc);
         
         // first get the total energy represented by all track ids for
         // this channel and range of tdc values
@@ -533,9 +535,9 @@ namespace gar{
         
         for(auto const& ide : simides){
           
-          if(ide.trackID == sim::NoParticleId) continue;
+          if(ide.trackID == gar::sdp::NoParticleId) continue;
           
-          sim::TrackIDE info;
+          sdp::TrackIDE info;
           info.trackID    = ide.trackID;
           info.energyFrac = ide.energy/totalE;
           info.energy     = ide.energy;
@@ -554,14 +556,14 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    void BackTracker::HitToSimIDEs(recob::Hit           const& hit,
-                                   std::vector<sim::IDE>     & ides) const
+    void BackTracker::HitToSimIDEs(gar::rec::Hit           const& hit,
+                                   std::vector<sdp::IDE>     & ides) const
     {
       // Get services.
       const detinfo::DetectorClocks* ts = lar::providerFrom<detinfo::DetectorClocksService>();
       
-      int start_tdc = ts->TPCTick2TDC( hit.PeakTimeMinusRMS() );
-      int end_tdc   = ts->TPCTick2TDC( hit.PeakTimePlusRMS()   );
+      int start_tdc = ts->TPCTick2TDC( hit.StartTime() );
+      int end_tdc   = ts->TPCTick2TDC( hit.EndTime()   );
       if(start_tdc<0) start_tdc = 0;
       if(end_tdc<0) end_tdc = 0;
       
@@ -569,7 +571,7 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    std::vector<double> BackTracker::SimIDEsToXYZ(std::vector<sim::IDE> const& ides)
+    std::vector<double> BackTracker::SimIDEsToXYZ(std::vector<sdp::IDE> const& ides)
     {
       std::vector<double> xyz(3, std::numeric_limits<double>::min());
       
@@ -606,9 +608,9 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    std::vector<double> BackTracker::HitToXYZ(art::Ptr<recob::Hit> const& hit)
+    std::vector<double> BackTracker::HitToXYZ(art::Ptr<gar::rec::Hit> const& hit)
     {
-      std::vector<sim::IDE> ides;
+      std::vector<sdp::IDE> ides;
       HitToSimIDEs(hit, ides);
       return SimIDEsToXYZ(ides);
     }

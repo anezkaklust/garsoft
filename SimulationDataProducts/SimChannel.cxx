@@ -17,7 +17,7 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace gar {
-  namespace sim{
+  namespace sdp{
     
     //--------------------------------------------------------------------------
     bool TDCIDE::operator<(TDCIDE const& other) const
@@ -36,7 +36,7 @@ namespace gar {
     {}
     
     //-------------------------------------------------
-    IDE::IDE(sim::IDE const& ide,
+    IDE::IDE(sdp::IDE const& ide,
              int             offset)
     : trackID     (ide.trackID+offset)
     , numElectrons(ide.numElectrons)
@@ -84,7 +84,7 @@ namespace gar {
         return;
       } // if no energy or no electrons
       
-      gar::sim::TDCIDE temp;
+      gar::sdp::TDCIDE temp;
       temp.fTDC = tdc;
       
       auto const& itr = fTDCIDEs.find(temp);
@@ -114,7 +114,7 @@ namespace gar {
       } // if this tdc value is in the set
       else{
         // if we never found the tdc, add a TDCIDE to the vector
-        sim::TDCIDE tdcide;
+        sdp::TDCIDE tdcide;
         tdcide.fTDC = tdc;
         tdcide.fIDEs.emplace_back(trackID,
                                   numberElectrons,
@@ -130,9 +130,9 @@ namespace gar {
     }
     
     //-------------------------------------------------
-    gar::sim::TDCIDE const& SimChannel::FindTDCIDE(unsigned short tdc) const
+    gar::sdp::TDCIDE const& SimChannel::FindTDCIDE(unsigned short tdc) const
     {
-      gar::sim::TDCIDE test;
+      gar::sdp::TDCIDE test;
       test.fTDC = tdc;
       
       auto const& found = fTDCIDEs.find(test);
@@ -189,13 +189,13 @@ namespace gar {
     
     //-----------------------------------------------------------------------
     // the start and end tdc values are assumed to be inclusive
-    std::vector<sim::IDE> SimChannel::TrackIDsAndEnergies(unsigned int startTDC,
+    std::vector<sdp::IDE> SimChannel::TrackIDsAndEnergies(unsigned int startTDC,
                                                           unsigned int endTDC) const
     {
-      // make a map of track ID values to sim::IDE objects
-      std::map<int, sim::IDE> idToIDE;
+      // make a map of track ID values to sdp::IDE objects
+      std::map<int, sdp::IDE> idToIDE;
       
-      std::vector<sim::IDE> ides;
+      std::vector<sdp::IDE> ides;
       
       if(startTDC > endTDC ){
         mf::LogWarning("SimChannel") << "requested tdc range is bogus: "
@@ -204,8 +204,8 @@ namespace gar {
         return ides;
       }
       
-      gar::sim::TDCIDE start;
-      gar::sim::TDCIDE end;
+      gar::sdp::TDCIDE start;
+      gar::sdp::TDCIDE end;
       start.fTDC = startTDC;
       end  .fTDC = endTDC;
       
@@ -236,7 +236,7 @@ namespace gar {
             idToIDE[ide.trackID].energy       = energy;
           } // end if the track id for this one is found
           else{
-            sim::IDE temp(ide);
+            sdp::IDE temp(ide);
             idToIDE[ide.trackID] = temp;
           }
         } // end loop over vector
@@ -252,11 +252,11 @@ namespace gar {
     
     //-----------------------------------------------------------------------
     // the start and end tdc values are assumed to be inclusive
-    std::vector<sim::TrackIDE>  SimChannel::TrackIDEs(unsigned int startTDC,
+    std::vector<sdp::TrackIDE>  SimChannel::TrackIDEs(unsigned int startTDC,
                                                       unsigned int endTDC) const
     {
       
-      std::vector<sim::TrackIDE> trackIDEs;
+      std::vector<sdp::TrackIDE> trackIDEs;
       
       if(startTDC > endTDC ){
         LOG_WARNING("SimChannel::TrackIDEs")
@@ -267,7 +267,7 @@ namespace gar {
       }
       
       double totalE = 0.;
-      const std::vector<sim::IDE> ides = TrackIDsAndEnergies(startTDC,endTDC);
+      const std::vector<sdp::IDE> ides = TrackIDsAndEnergies(startTDC,endTDC);
       for (auto const& ide : ides)
         totalE += ide.energy;
       
@@ -276,7 +276,7 @@ namespace gar {
       
       // loop over the entries in the map and fill the input vectors
       for (auto const& ide : ides){
-        if(ide.trackID == sim::NoParticleId) continue;
+        if(ide.trackID == sdp::NoParticleId) continue;
         trackIDEs.emplace_back(ide.trackID,ide.energy/totalE,ide.energy);
       }
       
@@ -296,7 +296,7 @@ namespace gar {
       std::pair<int,int> range_trackID(std::numeric_limits<int>::max(),
                                        std::numeric_limits<int>::min());
       
-      gar::sim::TDCIDE tdcide;
+      gar::sdp::TDCIDE tdcide;
       
       for(auto const& tdc : channel.TDCIDEs()){
         tdcide.fIDEs.clear();
@@ -320,5 +320,5 @@ namespace gar {
       
     }
     
-  } // sim
+  } // sdp
 }// gar

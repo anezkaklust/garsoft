@@ -4,9 +4,9 @@
 #define BEAMTYPES_H
 
 namespace gar {
-  namespace sim {
+  namespace sdp {
     
-      /// Defines category of beams to be stored in sim::BeamGateInfo
+      /// Defines category of beams to be stored in sdp::BeamGateInfo
     enum BeamType_t {
       kUnknown=0,  ///< Unknown beam type
       kBNB,        ///< BNB

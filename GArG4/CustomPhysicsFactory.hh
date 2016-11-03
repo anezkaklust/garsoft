@@ -48,8 +48,11 @@ namespace gar {
       bool verbose;
     };
   }
-#include "LArG4/CustomPhysicsTable.hh"
-  
+}
+
+#include "GArG4/CustomPhysicsTable.hh"
+
+namespace gar {
   namespace garg4 {
     
     template<class T> G4VPhysicsConstructor * CustomPhysicsFactory<T>::Build()

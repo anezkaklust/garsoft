@@ -39,17 +39,17 @@ namespace gar {
       
     private:
       
-      double                fStepSize;            ///< maximum step to take
-      double 	   	 fEfield;              ///< value of electric field from LArProperties service
-      double 	   	 fGeVToElectrons;      ///< conversion factor from LArProperties service
-      double 	   	 fRecombA;             ///< from LArG4Parameters service
-      double 	   	 fRecombk;             ///< from LArG4Parameters service
-      double 	   	 fModBoxA;             ///< from LArG4Parameters service
-      double 	   	 fModBoxB;             ///< from LArG4Parameters service
-      bool   	   	 fUseModBoxRecomb;     ///< from LArG4Parameters service
-      bool   	   	 fScintByParticleType; ///< from LArProperties service
-      double 	   	 fScintYieldFactor;    ///< scintillation yield factor
-      G4EmSaturation* 	 fEMSaturation;        ///< pointer to EM saturation
+      double          fStepSize;            ///< maximum step to take
+      double 	   	    fEfield;              ///< value of electric field from LArProperties service
+      double 	   	    fGeVToElectrons;      ///< conversion factor from LArProperties service
+      double 	   	    fRecombA;             ///< from GArG4Parameters service
+      double 	   	    fRecombk;             ///< from GArG4Parameters service
+      double 	   	    fModBoxA;             ///< from GArG4Parameters service
+      double 	   	    fModBoxB;             ///< from GArG4Parameters service
+      bool   	   	    fUseModBoxRecomb;     ///< from GArG4Parameters service
+      bool   	   	    fScintByParticleType; ///< from LArProperties service
+      double 	   	    fScintYieldFactor;    ///< scintillation yield factor
+      G4EmSaturation* fEMSaturation;        ///< pointer to EM saturation
       
     };
   }

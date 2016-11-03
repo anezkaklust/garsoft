@@ -32,7 +32,7 @@
 #include "Geant4/G4EmLivermorePhysics.hh"
 #include "Geant4/G4ChargeExchangePhysics.hh"
 
-#include "LArG4/CustomPhysicsFactory.hh"
+#include "GArG4/CustomPhysicsFactory.hh"
 
 namespace gar {
   namespace garg4 {

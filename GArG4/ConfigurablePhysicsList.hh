@@ -15,7 +15,7 @@
 // the relevant particles and interactions.  Then add the builder to the
 // GetPhysicsBuilders and GetDefaultSettings functions in this class,
 // using the name by which the builder will be referenced in the config
-// file.  Physics builders to be enabled are specified in the LArG4 config.
+// file.  Physics builders to be enabled are specified in the GArG4 config.
 //
 //
 
@@ -50,13 +50,14 @@ namespace gar {
     };
     
   }
-  
-  #include "LArG4/ConfigurablePhysicsList.icc"
-  
+} // gar
+
+#include "GArG4/ConfigurablePhysicsList.icc"
+
+namespace gar {
   namespace garg4 {
     typedef TConfigurablePhysicsList<G4VModularPhysicsList> ConfigurablePhysicsList;
   }
-  
 } // gar
 
 #endif

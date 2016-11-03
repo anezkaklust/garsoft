@@ -43,7 +43,6 @@
 
 
 // GArSoft libraries
-#include "Geometry/GeometryCore.h"
 #include "Geometry/ChannelMapAlg.h"
 
 // Framework and infrastructure libraries

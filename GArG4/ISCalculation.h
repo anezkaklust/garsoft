@@ -11,8 +11,6 @@
 #include "Geant4/G4Step.hh"
 #include "Geant4/G4UserLimits.hh"
 
-#include "GArG4/OpFastScintillation.hh"
-
 namespace gar {
   namespace garg4{
     

@@ -6,6 +6,23 @@
 //  Copyright © 2016 Brian Rebel. All rights reserved.
 //
 
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
+#include "TGeoManager.h"
+#include "TGeoMaterial.h"
+
+// G4 includes
+#include "Geant4/G4Event.hh"
+#include "Geant4/G4Track.hh"
+#include "Geant4/G4ThreeVector.hh"
+#include "Geant4/G4ParticleDefinition.hh"
+#include "Geant4/G4PrimaryParticle.hh"
+#include "Geant4/G4DynamicParticle.hh"
+#include "Geant4/G4VUserPrimaryParticleInformation.hh"
+#include "Geant4/G4Step.hh"
+#include "Geant4/G4StepPoint.hh"
+#include "Geant4/G4VProcess.hh"
+
 #include "GArG4/GArAction.h"
 
 namespace gar {
@@ -16,7 +33,7 @@ namespace gar {
     // Constructor.
     GArAction::GArAction(fhicl::ParameterSet const& pset)
     {
-      this->reconfigure();
+      this->reconfigure(pset);
     }
     
     //-------------------------------------------------------------
@@ -77,7 +94,6 @@ namespace gar {
       
       double tpos0[3] = {start.x()/CLHEP::cm, start.y()/CLHEP::cm, start.z()/CLHEP::cm};
       double tpos1[3] = {stop .x()/CLHEP::cm, stop .y()/CLHEP::cm, stop .z()/CLHEP::cm};
-      double tpos2[3] = {0.};
       
       // If it's a null step, don't use it.
       if(tpos0[0] == tpos1[0] &&
@@ -90,9 +106,9 @@ namespace gar {
         return;
       }
       
-      double dcos[3]  = {mom.x()/mom.mag(),
-                         mom.y()/mom.mag(),
-                         mom.z()/mom.mag()};
+//      double dcos[3]  = {mom.x()/mom.mag(),
+//                         mom.y()/mom.mag(),
+//                         mom.z()/mom.mag()};
       
       /// Get density for Birks' Law calculation
       TGeoManager *geomanager = fGeo->ROOTGeoManager();
@@ -113,18 +129,18 @@ namespace gar {
       }
       
       /// Getting Energy depositions
-      const double edep = step->GetTotalEnergyDeposit()/CLHEP::GeV;
+      //const double edep = step->GetTotalEnergyDeposit()/CLHEP::GeV;
       
       
-        fFLSHit->AddEdep( edep );
-
-        // Get the position and time the particle first enters
-          // the volume, as well as the pdg code.  that information is
-          // obtained from the G4Track object that corresponds to this step
-          // account for the fact that we use cm, ns, GeV rather than the G4 defaults
-        fFLSHit->SetPDG    ( track->GetDefinition()->GetPDGEncoding() );
-        fFLSHit->SetTrackId( ParticleListAction::GetCurrentTrackID()  );
-        
+//        fFLSHit->AddEdep( edep );
+//
+//        // Get the position and time the particle first enters
+//          // the volume, as well as the pdg code.  that information is
+//          // obtained from the G4Track object that corresponds to this step
+//          // account for the fact that we use cm, ns, GeV rather than the G4 defaults
+//        fFLSHit->SetPDG    ( track->GetDefinition()->GetPDGEncoding() );
+//        fFLSHit->SetTrackId( ParticleListAction::GetCurrentTrackID()  );
+      
       
     }// end of GArAction::SteppingAction
     

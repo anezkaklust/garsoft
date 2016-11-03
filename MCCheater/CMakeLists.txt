@@ -1,8 +1,14 @@
 
+include_directories( $ENV{NUTOOLS_DIR}/include )
+
 simple_plugin(BackTracker "service"
 	            Geometry
 	            Geometry_Geometry_service
               nusimdata_SimulationBase
+              nutools_ParticleNavigation
+              ReconstructionDataProducts
+              RawDataProducts
+              SimulationDataProducts
               ${ART_FRAMEWORK_CORE}
 			        ${ART_FRAMEWORK_PRINCIPAL}
 			        ${ART_FRAMEWORK_SERVICES_REGISTRY}
