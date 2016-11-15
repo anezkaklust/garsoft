@@ -22,12 +22,12 @@ namespace gar {
 
 namespace gar{
   
-  class cheat::BackTrackerLoader : public art::EDProducer {
+  class cheat::BackTrackerLoader : public ::art::EDProducer {
   public:
     explicit BackTrackerLoader(fhicl::ParameterSet const & p);
     virtual ~BackTrackerLoader();
     
-    virtual void produce(art::Event & e);
+    virtual void produce(::art::Event & e);
     
     
   private:
@@ -54,9 +54,9 @@ namespace gar{
   // modules have run in the job, and only in jobs that create the simulation and
   // then make use of the BackTracker in either cheating reconstruction modules
   // or analyzers
-  void cheat::BackTrackerLoader::produce(art::Event & e)
+  void cheat::BackTrackerLoader::produce(::art::Event & e)
   {
-    art::ServiceHandle<cheat::BackTracker> bt;
+    ::art::ServiceHandle<cheat::BackTracker> bt;
     bt->Rebuild(e);
     
     return;

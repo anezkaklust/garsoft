@@ -77,14 +77,14 @@ namespace gar {
     class TextFileGen;
   }
   
-  class evgen::TextFileGen : public art::EDProducer {
+  class evgen::TextFileGen : public ::art::EDProducer {
   public:
     explicit TextFileGen(fhicl::ParameterSet const & p);
     virtual ~TextFileGen();
     
-    void produce(art::Event & e)                    override;
+    void produce(::art::Event & e)                    override;
     void beginJob()               		              override;
-    void beginRun(art::Run & run) 		              override;
+    void beginRun(::art::Run & run) 		              override;
     void reconfigure(fhicl::ParameterSet const & p) override;
     
   private:
@@ -101,7 +101,7 @@ namespace gar {
     this->reconfigure(p);
     
     produces< std::vector<simb::MCTruth>   >();
-    produces< sumdata::RunData, art::InRun >();
+    produces< sumdata::RunData, ::art::InRun >();
   }
   
   //------------------------------------------------------------------------------
@@ -125,11 +125,11 @@ namespace gar {
   }
   
     //------------------------------------------------------------------------------
-  void evgen::TextFileGen::beginRun(art::Run& run)
+  void evgen::TextFileGen::beginRun(::art::Run& run)
   {
     
     // grab the geometry object to see what geometry we are using
-    art::ServiceHandle<gar::geo::Geometry> geo;
+    ::art::ServiceHandle<gar::geo::Geometry> geo;
     std::unique_ptr<gar::sumdata::RunData> runcol(new gar::sumdata::RunData(geo->DetectorName()));
     
     run.put(std::move(runcol));
@@ -138,7 +138,7 @@ namespace gar {
   }
   
   //------------------------------------------------------------------------------
-  void evgen::TextFileGen::produce(art::Event & e)
+  void evgen::TextFileGen::produce(::art::Event & e)
   {
     // check that the file is still good
     if( !fInputFile->good() )

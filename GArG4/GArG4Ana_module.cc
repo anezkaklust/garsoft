@@ -54,14 +54,14 @@ namespace sim{
 namespace gar {
   namespace garg4 {
     
-    class GArG4Ana : public art::EDAnalyzer{
+    class GArG4Ana : public ::art::EDAnalyzer{
     public:
       
         /// Standard constructor and destructor for an FMWK module.
       explicit GArG4Ana(fhicl::ParameterSet const& pset);
       virtual ~GArG4Ana();
       
-      void analyze (const art::Event& evt);
+      void analyze (const ::art::Event& evt);
       void beginJob();
       void reconfigure(fhicl::ParameterSet const& pset);
       
@@ -132,8 +132,8 @@ namespace gar {
       //-----------------------------------------------------------------------
     void GArG4Ana::beginJob()
     {
-      art::ServiceHandle<art::TFileService> tfs;
-      art::ServiceHandle<geo::Geometry> geo;
+      ::art::ServiceHandle<::art::TFileService> tfs;
+      ::art::ServiceHandle<geo::Geometry> geo;
       
       fPDGCodes    = tfs->make<TH1D>("pdgcodes", ";PDG Code;",               5000, -2500, 2500);
       fPi0Momentum = tfs->make<TH1D>("pi0mom",   ";#pi^{0} Momentum (GeV);", 1000, 0.,    1000.);
@@ -216,13 +216,13 @@ namespace gar {
     }
     
       //-----------------------------------------------------------------------
-    void GArG4Ana::analyze(const art::Event& evt)
+    void GArG4Ana::analyze(const ::art::Event& evt)
     {
       
         //get the list of particles from this event
-      art::ServiceHandle<cheat::BackTracker> bt;
+      ::art::ServiceHandle<cheat::BackTracker> bt;
       const sim::ParticleList& plist = bt->ParticleList();
-      art::ServiceHandle<geo::Geometry> geom;
+      ::art::ServiceHandle<geo::Geometry> geom;
       
         // loop over all sim::SimChannels in the event and make sure there are no
         // sim::IDEs with trackID values that are not in the sim::ParticleList

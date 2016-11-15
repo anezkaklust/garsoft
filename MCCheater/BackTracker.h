@@ -26,9 +26,6 @@
 #include "RawDataProducts/RawDigit.h"
 
 ///code to link reconstructed objects back to the MC truth information
-namespace art {
-  class Event;
-}
 
 namespace sim {
   class ParticleList;
@@ -38,13 +35,12 @@ namespace sim {
 namespace gar{
   namespace cheat{
     
-    class BackTracker
-    {
+    class BackTracker {
       
     public:
       
       BackTracker(fhicl::ParameterSet   const& pset,
-                  art::ActivityRegistry      & reg);
+                  ::art::ActivityRegistry      & reg);
       ~BackTracker();
       
       void reconfigure(fhicl::ParameterSet const& pset);
@@ -55,7 +51,7 @@ namespace gar{
       // products are put into the event in LArG4.  This is the least bad way of ensuring the
       // BackTracker works in jobs that combine MC production and reconstruction analysis based
       // on MC truth.  Don't copy this design pattern without talking to brebel@fnal.gov first
-      void Rebuild(art::Event const& evt);
+      void Rebuild(::art::Event const& evt);
       
       // Get a reference to the ParticleList
       sim::ParticleList const&             ParticleList()  const { return fParticleList; }
@@ -70,29 +66,29 @@ namespace gar{
       
       std::vector<sdp::IDE>                TrackIDToSimIDE(int const& id)         const;
       
-      // Get art::Ptr<> to simb::MCTruth and related information
-      const art::Ptr<simb::MCTruth>&       TrackIDToMCTruth(int const& id)                        const;
-      const art::Ptr<simb::MCTruth>&       ParticleToMCTruth(const simb::MCParticle* p)           const;
-      std::vector<const simb::MCParticle*> MCTruthToParticles(art::Ptr<simb::MCTruth> const& mct) const;
-      const std::vector< art::Ptr<simb::MCTruth> >& MCTruthVector() const { return fMCTruthList; }
+      // Get ::art::Ptr<> to simb::MCTruth and related information
+      const ::art::Ptr<simb::MCTruth>&       TrackIDToMCTruth(int const& id)                        const;
+      const ::art::Ptr<simb::MCTruth>&       ParticleToMCTruth(const simb::MCParticle* p)           const;
+      std::vector<const simb::MCParticle*> MCTruthToParticles(::art::Ptr<simb::MCTruth> const& mct) const;
+      const std::vector< ::art::Ptr<simb::MCTruth> >& MCTruthVector() const { return fMCTruthList; }
       
       // this method will return the Geant4 track IDs of
       // the particles contributing ionization electrons to the identified hit
-      std::vector<sdp::TrackIDE>           HitToTrackID(art::Ptr<gar::rec::Hit> const& hit);
+      std::vector<sdp::TrackIDE>           HitToTrackID(::art::Ptr<gar::rec::Hit> const& hit);
       
       // method to return a subset of allhits that are matched to a list of TrackIDs
-      const std::vector<std::vector<art::Ptr<gar::rec::Hit>>> TrackIDsToHits(std::vector<art::Ptr<gar::rec::Hit>> const& allhits,
+      const std::vector<std::vector<::art::Ptr<gar::rec::Hit>>> TrackIDsToHits(std::vector<::art::Ptr<gar::rec::Hit>> const& allhits,
                                                                              std::vector<int> const& tkIDs);
       
       // method to return the EveIDs of particles contributing ionization
       // electrons to the identified hit
-      std::vector<sdp::TrackIDE>            HitToEveID(art::Ptr<gar::rec::Hit> const& hit);
+      std::vector<sdp::TrackIDE>            HitToEveID(::art::Ptr<gar::rec::Hit> const& hit);
       
       //@{
       // method to return sim::IDE objects associated with a given hit
       void                                  HitToSimIDEs(gar::rec::Hit const& hit,
                                                          std::vector<sdp::IDE>&      ides) const;
-      void                                  HitToSimIDEs(art::Ptr<gar::rec::Hit> const& hit,
+      void                                  HitToSimIDEs(::art::Ptr<gar::rec::Hit> const& hit,
                                                          std::vector<sdp::IDE>&      ides) const { HitToSimIDEs(*hit, ides); }
         //@}
       
@@ -100,18 +96,18 @@ namespace gar{
       std::vector<double>                   SimIDEsToXYZ(std::vector<gar::sdp::IDE> const& ides);
       
       // method to return the XYZ position of the weighted average energy deposition for a given hit
-      std::vector<double>                   HitToXYZ(art::Ptr<gar::rec::Hit> const& hit);
+      std::vector<double>                   HitToXYZ(::art::Ptr<gar::rec::Hit> const& hit);
       
       // method to return the fraction of hits in a collection that come from the specified Geant4 track ids
       double                                HitCollectionPurity(std::set<int>                                 trackIDs,
-                                                                std::vector< art::Ptr<gar::rec::Hit> > const& hits,
+                                                                std::vector< ::art::Ptr<gar::rec::Hit> > const& hits,
                                                                 bool                                          weightByCharge=false);
       
       // method to return the fraction of all hits in an event from a specific set of Geant4 track IDs that are
       // represented in a collection of hits
       double                                HitCollectionEfficiency(std::set<int>                                 trackIDs,
-                                                                    std::vector< art::Ptr<gar::rec::Hit> > const& hits,
-                                                                    std::vector< art::Ptr<gar::rec::Hit> > const& allhits,
+                                                                    std::vector< ::art::Ptr<gar::rec::Hit> > const& hits,
+                                                                    std::vector< ::art::Ptr<gar::rec::Hit> > const& allhits,
                                                                     bool                                          weightByCharge=false);
       
       // method to return all EveIDs corresponding to the current sim::ParticleList
@@ -121,10 +117,10 @@ namespace gar{
       std::set<int>                         GetSetOfTrackIDs();
       
       // method to return all EveIDs corresponding to the given list of hits
-      std::set<int>                         GetSetOfEveIDs(std::vector< art::Ptr<gar::rec::Hit> > const& hits);
+      std::set<int>                         GetSetOfEveIDs(std::vector< ::art::Ptr<gar::rec::Hit> > const& hits);
       
       // method to return all TrackIDs corresponding to the given list of hits
-      std::set<int>                         GetSetOfTrackIDs(std::vector< art::Ptr<gar::rec::Hit> > const& hits);
+      std::set<int>                         GetSetOfTrackIDs(std::vector< ::art::Ptr<gar::rec::Hit> > const& hits);
       
       std::vector<const sdp::SimChannel*> const& SimChannels() const { return fSimChannels; }
       
@@ -138,7 +134,7 @@ namespace gar{
       const sdp::SimChannel* FindSimChannel(raw::Channel_t const& channel) const;
       
       sim::ParticleList                      fParticleList;          ///< ParticleList to map track ID to sim::Particle
-      std::vector< art::Ptr<simb::MCTruth> > fMCTruthList;           ///< all the MCTruths for the event
+      std::vector< ::art::Ptr<simb::MCTruth> > fMCTruthList;           ///< all the MCTruths for the event
       std::vector<const sdp::SimChannel*>    fSimChannels;           ///< all the SimChannels for the event
       std::map<int, int>                     fTrackIDToMCTruthIndex; ///< map of track ids to MCTruthList entry
       std::string                            fG4ModuleLabel;         ///< label for geant4 module
@@ -148,7 +144,7 @@ namespace gar{
                                                                      ///< based on hit collections
     };
   } // namespace
-} // namespace gar
+}
 
 DECLARE_ART_SERVICE(gar::cheat::BackTracker, LEGACY)
 

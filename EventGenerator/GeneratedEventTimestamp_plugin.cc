@@ -22,12 +22,12 @@ namespace gar{
     
     /**
      * @brief Plugin to assign an empty event a time stamp from the clock
-     * @see art::EmptyEventTimestampPlugin
+     * @see ::art::EmptyEventTimestampPlugin
      *
      * The plug in returns a time stamp that is taken from the current time
      * on the execution node, in nanoseconds.
      */
-    class GeneratedEventTimestamp: public art::EmptyEventTimestampPlugin {
+    class GeneratedEventTimestamp: public ::art::EmptyEventTimestampPlugin {
     public:
       
       /// Constructor: nothing specific
@@ -35,7 +35,7 @@ namespace gar{
       
       
       /// Returns the time stamp for the specified event
-      virtual art::Timestamp eventTimestamp(art::EventID const&) override;
+      virtual ::art::Timestamp eventTimestamp(::art::EventID const&) override;
       
       /// Resets the status; since this plug in is stateless, this is a no-op
       virtual void rewind() override {}
@@ -116,7 +116,7 @@ namespace gar{
   
   //------------------------------------------------------------------------------
   evgen::GeneratedEventTimestamp::GeneratedEventTimestamp(fhicl::ParameterSet const& pset)
-  : art::EmptyEventTimestampPlugin(pset)
+  : ::art::EmptyEventTimestampPlugin(pset)
   {
     LOG_INFO("GeneratedEventTimestamp")
     << "Timestamp plugin: timestamp from local clock time in nanoseconds.";
@@ -124,7 +124,7 @@ namespace gar{
   
   
   //------------------------------------------------------------------------------
-  art::Timestamp evgen::GeneratedEventTimestamp::eventTimestamp(art::EventID const&)
+  ::art::Timestamp evgen::GeneratedEventTimestamp::eventTimestamp(::art::EventID const&)
   {
     // obtain from the high resolution clock the current time, from the "epoch",
     // in nanoseconds; if the clock is less precise than the nanosecond,
@@ -136,7 +136,7 @@ namespace gar{
     const long long int now_ns = get_time();
     
       // convert into a timestamp
-    art::Timestamp ts(now_ns);
+    ::art::Timestamp ts(now_ns);
     
     LOG_DEBUG("GeneratedEventTimestamp")
     << "Generated time stamp: "

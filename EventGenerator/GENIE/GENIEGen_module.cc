@@ -40,18 +40,19 @@
 #include "canvas/Persistency/Common/Assns.h"
 #include "art/Framework/Core/EDProducer.h"
 
-
-// GArSoft includes
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCFlux.h"
 #include "nusimdata/SimulationBase/GTruth.h"
+#include "nutools/EventGeneratorBase/GENIE/GENIEHelper.h"
+#include "nutools/RandomUtils/NuRandomService.h"
+
+// GArSoft includes
 #include "Geometry/Geometry.h"
 #include "SummaryDataProducts/RunData.h"
 #include "SummaryDataProducts/POTSummary.h"
 #include "SimulationDataProducts/BeamTypes.h"
 #include "SimulationDataProducts/BeamGateInfo.h"
 #include "SimulationDataProducts/sim.h"
-#include "nutools/EventGeneratorBase/GENIE/GENIEHelper.h"
 #include "Utilities/AssociationUtil.h"
 
 ///Event Generation using GENIE, cosmics or single particles
@@ -72,7 +73,7 @@ namespace gar {
      * *RandomSeed* configuration parameter. This and all the other parameters
      * are inherited from the art module (that is, `GENIEGen`) configuration.
      * LArSoft meddles with this mechanism to provide support for the standard
-     * "Seed" parameter and LArSeedService service.
+     * "Seed" parameter and NuRandomService service.
      *
      * Configuration parameters
      * -------------------------
@@ -85,18 +86,18 @@ namespace gar {
      *   a configuration error)
      *
      * As custom, if the random seed is not provided by the configuration, one is
-     * fetched from `LArSeedService` (if available), with the behaviour in
-     * lar::util::FetchRandomSeed().
+     * fetched from `NuRandomService` (if available), with the behaviour in
+     * gar::rndm::FetchRandomSeed().
      */
-    class GENIEGen : public art::EDProducer {
+    class GENIEGen : public ::art::EDProducer {
     public:
       explicit GENIEGen(fhicl::ParameterSet const &pset);
       virtual ~GENIEGen();
       
-      void produce(art::Event& evt);
+      void produce(::art::Event& evt);
       void beginJob();
-      void beginRun(art::Run& run);
-      void endSubRun(art::SubRun& sr);
+      void beginRun(::art::Run& run);
+      void endSubRun(::art::SubRun& sr);
       
     private:
       
@@ -161,37 +162,29 @@ namespace gar {
       produces< std::vector<simb::MCTruth> >();
       produces< std::vector<simb::MCFlux>  >();
       produces< std::vector<simb::GTruth>  >();
-      produces< sumdata::RunData, art::InRun >();
-      produces< sumdata::POTSummary, art::InSubRun >();
-      produces< art::Assns<simb::MCTruth, simb::MCFlux> >();
-      produces< art::Assns<simb::MCTruth, simb::GTruth> >();
+      produces< sumdata::RunData, ::art::InRun >();
+      produces< sumdata::POTSummary, ::art::InSubRun >();
+      produces< ::art::Assns<simb::MCTruth, simb::MCFlux> >();
+      produces< ::art::Assns<simb::MCTruth, simb::GTruth> >();
       produces< std::vector<gar::sdp::BeamGateInfo> >();
       
       std::string beam_type_name = pset.get<std::string>("BeamName");
       
-      if(beam_type_name == "numi")
-        fBeamType = gar::sdp::kNuMI;
-      else if(beam_type_name == "booster")
-        fBeamType = gar::sdp::kBNB;
-      else
-        fBeamType = gar::sdp::kUnknown;
+      if     (beam_type_name == "numi"   ) fBeamType = gar::sdp::kNuMI;
+      else if(beam_type_name == "booster") fBeamType = gar::sdp::kBNB;
+      else                                 fBeamType = gar::sdp::kUnknown;
       
-      art::ServiceHandle<geo::Geometry> geo;
+      ::art::ServiceHandle<geo::Geometry> geo;
       
-      signed int temp_seed; // the seed read by GENIEHelper is a signed integer...
       fhicl::ParameterSet GENIEconfig(pset);
-      if (!GENIEconfig.get_if_present("RandomSeed", temp_seed)) {
-        // TODO: use has_key() when it becomes available
+      if (!GENIEconfig.has_key("RandomSeed")) {
         // no RandomSeed specified; check for the LArSoft-style "Seed" instead:
         // obtain the random seed from a service,
         // unless overridden in configuration with key "Seed"
         
         unsigned int seed;
-        if (!GENIEconfig.get_if_present("Seed", seed)){
-          int seed = pset.get< unsigned int >("Seed", sdp::GetRandomNumberSeed());
-          
-          createEngine( seed );
-        }
+        if (!GENIEconfig.has_key("Seed"))
+          seed = ::art::ServiceHandle<rndm::NuRandomService>()->getSeed();
         
         // The seed is not passed to RandomNumberGenerator,
         // since GENIE uses a TRandom generator that is owned by the GENIEHelper.
@@ -219,7 +212,7 @@ namespace gar {
       fGENIEHelp->Initialize();
       
       // Get access to the TFile service.
-      art::ServiceHandle<art::TFileService> tfs;
+      ::art::ServiceHandle<::art::TFileService> tfs;
       
       fGenerated[0] = tfs->make<TH1F>("fGenerated_necc","",  100, 0.0, 20.0);
       fGenerated[1] = tfs->make<TH1F>("fGenerated_nebcc","", 100, 0.0, 20.0);
@@ -259,7 +252,7 @@ namespace gar {
       fDeltaE = tfs->make<TH1F>("fDeltaE", ";#Delta E_{#nu} (GeV);", 200, -1., 1.);
       fECons  = tfs->make<TH1F>("fECons", ";#Delta E(#nu,lepton);", 500, -5., 5.);
       
-      art::ServiceHandle<geo::Geometry> geo;
+      ::art::ServiceHandle<geo::Geometry> geo;
       double x = 2.1*geo->DetHalfWidth();
       double y = 2.1*geo->DetHalfHeight();
       double z = 2.*geo->DetLength();
@@ -278,11 +271,11 @@ namespace gar {
     }
     
     //____________________________________________________________________________
-    void GENIEGen::beginRun(art::Run& run)
+    void GENIEGen::beginRun(::art::Run& run)
     {
       
       // grab the geometry object to see what geometry we are using
-      art::ServiceHandle<geo::Geometry> geo;
+      ::art::ServiceHandle<geo::Geometry> geo;
       std::unique_ptr<sumdata::RunData> runcol(new sumdata::RunData(geo->DetectorName()));
       
       run.put(std::move(runcol));
@@ -291,7 +284,7 @@ namespace gar {
     }
     
     //____________________________________________________________________________
-    void GENIEGen::endSubRun(art::SubRun& sr)
+    void GENIEGen::endSubRun(::art::SubRun& sr)
     {
       
       std::unique_ptr<sumdata::POTSummary> p(new sumdata::POTSummary());
@@ -305,13 +298,13 @@ namespace gar {
     }
     
     //____________________________________________________________________________
-    void GENIEGen::produce(art::Event& evt)
+    void GENIEGen::produce(::art::Event& evt)
     {
       std::unique_ptr< std::vector<simb::MCTruth> > truthcol  (new std::vector<simb::MCTruth>);
       std::unique_ptr< std::vector<simb::MCFlux>  > fluxcol   (new std::vector<simb::MCFlux >);
       std::unique_ptr< std::vector<simb::GTruth>  > gtruthcol (new std::vector<simb::GTruth >);
-      std::unique_ptr< art::Assns<simb::MCTruth, simb::MCFlux> > tfassn(new art::Assns<simb::MCTruth, simb::MCFlux>);
-      std::unique_ptr< art::Assns<simb::MCTruth, simb::GTruth> > tgtassn(new art::Assns<simb::MCTruth, simb::GTruth>);
+      std::unique_ptr< ::art::Assns<simb::MCTruth, simb::MCFlux> > tfassn(new ::art::Assns<simb::MCTruth, simb::MCFlux>);
+      std::unique_ptr< ::art::Assns<simb::MCTruth, simb::GTruth> > tgtassn(new ::art::Assns<simb::MCTruth, simb::GTruth>);
       std::unique_ptr< std::vector<sdp::BeamGateInfo> > gateCollection(new std::vector<sdp::BeamGateInfo>);
       
       while(truthcol->size() < 1){

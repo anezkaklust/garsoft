@@ -40,15 +40,15 @@ namespace gar{
   namespace evgen {
     
     /// A module to check the results from the Monte Carlo generator
-    class CosmicsGen : public art::EDProducer {
+    class CosmicsGen : public ::art::EDProducer {
     public:
       explicit CosmicsGen(fhicl::ParameterSet const& pset);
       virtual ~CosmicsGen();
       
       
-      void produce(art::Event& evt);
+      void produce(::art::Event& evt);
       void beginJob();
-      void beginRun(art::Run& run);
+      void beginRun(::art::Run& run);
       void reconfigure(fhicl::ParameterSet const& p);
       
     private:
@@ -103,7 +103,7 @@ namespace gar{
       this->reconfigure(pset);
       
       produces< std::vector<simb::MCTruth> >();
-      produces< gar::sumdata::RunData, art::InRun >();
+      produces< gar::sumdata::RunData, ::art::InRun >();
     }
     
     //____________________________________________________________________________
@@ -121,10 +121,10 @@ namespace gar{
       }
       
       // get the random number generator service and make some CLHEP generators
-      art::ServiceHandle<art::RandomNumberGenerator> rng;
+      ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
       CLHEP::HepRandomEngine& engine = rng->getEngine();
       
-      art::ServiceHandle<gar::geo::Geometry> geo;
+      ::art::ServiceHandle<gar::geo::Geometry> geo;
       
       fCRYHelp = new evgb::CRYHelper(p, engine, geo->GetWorldVolumeName());
       
@@ -134,7 +134,7 @@ namespace gar{
     //____________________________________________________________________________
     void CosmicsGen::beginJob()
     {
-      art::ServiceHandle<art::TFileService> tfs;
+      ::art::ServiceHandle<::art::TFileService> tfs;
       
       fPhotonAngles       = tfs->make<TH2F>("fPhotonAngles",        ";#phi;cos#theta",           36,-180.0,180.0,50,-1.0,1.0);
       fPhotonAnglesLo     = tfs->make<TH2F>("fPhotonAnglesLo",      ";#phi;cos#theta",           36,-180.0,180.0,50,-1.0,1.0);
@@ -166,10 +166,10 @@ namespace gar{
     }
     
     //____________________________________________________________________________
-    void CosmicsGen::beginRun(art::Run& run)
+    void CosmicsGen::beginRun(::art::Run& run)
     {
       // grab the geometry object to see what geometry we are using
-      art::ServiceHandle<gar::geo::Geometry> geo;
+      ::art::ServiceHandle<gar::geo::Geometry> geo;
       
       std::unique_ptr<gar::sumdata::RunData> runcol(new gar::sumdata::RunData(geo->DetectorName()));
       
@@ -179,12 +179,12 @@ namespace gar{
     }
     
     //____________________________________________________________________________
-    void CosmicsGen::produce(art::Event& evt)
+    void CosmicsGen::produce(::art::Event& evt)
     {
       std::unique_ptr< std::vector<simb::MCTruth> > truthcol(new std::vector<simb::MCTruth>);
       
       // fill some histograms about this event
-      art::ServiceHandle<gar::geo::Geometry> geom;
+      ::art::ServiceHandle<gar::geo::Geometry> geom;
       
       int nCrossCryostat = 0;
       

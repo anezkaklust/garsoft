@@ -63,6 +63,8 @@ include(CetRootCint)
 # source
 #add_subdirectory(EventDisplay)
 add_subdirectory (EventGenerator)
+add_subdirectory (CoreUtils)
+add_subdirectory (DetectorInfo)
 add_subdirectory (GArG4)
 add_subdirectory (Geometry)
 add_subdirectory (MCCheater)

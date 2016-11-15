@@ -51,7 +51,7 @@ namespace gar {
   namespace garg4 {
     
     /// Base class for creation of raw signals on wires.
-    class GArSimChannelAna : public art::EDAnalyzer {
+    class GArSimChannelAna : public ::art::EDAnalyzer {
       
     public:
       
@@ -59,7 +59,7 @@ namespace gar {
       virtual ~GArSimChannelAna();
       
       /// read/write access to event
-      void analyze (const art::Event& evt);
+      void analyze (const ::art::Event& evt);
       void beginJob();
       void endJob();
       void reconfigure(fhicl::ParameterSet const& p);
@@ -123,15 +123,16 @@ namespace gar {
     void GArSimChannelAna::beginJob()
     {
       // get access to the TFile service
-      art::ServiceHandle<art::TFileService> tfs;
+      ::art::ServiceHandle<::art::TFileService> tfs;
 
       // geometry data.
-      art::ServiceHandle<gar::geo::Geometry> geom;
+      ::art::ServiceHandle<gar::geo::Geometry> geom;
       
       // get the dimensions of the detector
-      double width      = geom->DetHalfWidth() * 2.;
-      double halfHeight = geom->DetHalfHeight();
-      double length     = geom->DetLength();
+      double width       = geom->DetHalfWidth() * 2.;
+      double halfHeight  = geom->DetHalfHeight();
+      double length      = geom->DetLength();
+      int    timeSamples = 10000.;
       
       fChargeXpos      = tfs->make<TH1D>("hChargeXpos",
                                          "X charge depositions;X (cm);Events",
@@ -144,11 +145,10 @@ namespace gar {
                                          101, 0.0, length);
       fTDC             = tfs->make<TH1D>("hTDC",
                                          "Active TDC;TDCs;Events;",
-                                         detprop->NumberTimeSamples(), 0,
-                                         detprop->NumberTimeSamples());
+                                         timeSamples, 0, 1. * timeSamples);
       fTDCsPerChannel  = tfs->make<TH1D>("hTDCsPerChannel",
                                          "TDCs per channel entry;# TDCs;Events",
-                                         128, 0, detprop->NumberTimeSamples());
+                                         128, 0, 1. * timeSamples);
       fIDEsPerChannel  = tfs->make<TH1D>("hIDEsPerChannel",
                                          "IDE per channel entry;# IDEs;Events",
                                          100, 0, 20000);
@@ -178,14 +178,14 @@ namespace gar {
     void GArSimChannelAna::endJob() {}
     
     //-------------------------------------------------
-    void GArSimChannelAna::analyze(const art::Event& evt)
+    void GArSimChannelAna::analyze(const ::art::Event& evt)
     {
       
       if (evt.isRealData()) {
         throw cet::exception("GArSimChannelAna") << "Not for use on Data yet...\n";
       }
       
-      art::ServiceHandle<geo::Geometry> geom;
+      ::art::ServiceHandle<geo::Geometry> geom;
       
       auto chanHandle = evt.getValidHandle<std::vector<sdp::SimChannel> >(fGArG4ModuleLabel);
       std::vector<sdp::SimChannel> const& scVec(*chanHandle);

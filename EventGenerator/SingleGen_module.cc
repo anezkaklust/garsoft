@@ -57,15 +57,15 @@ namespace gar{
   namespace evgen {
     
       /// module to produce single or multiple specified particles in the detector
-    class SingleGen : public art::EDProducer {
+    class SingleGen : public ::art::EDProducer {
       
     public:
       explicit SingleGen(fhicl::ParameterSet const& pset);
       virtual ~SingleGen();
       
         // This is called for each event.
-      void produce(art::Event& evt);
-      void beginRun(art::Run& run);
+      void produce(::art::Event& evt);
+      void beginRun(::art::Run& run);
       void reconfigure(fhicl::ParameterSet const& p);
       
     private:
@@ -121,7 +121,7 @@ namespace gar{
       createEngine( seed );
 
       produces< std::vector<simb::MCTruth> >();
-      produces< sumdata::RunData, art::InRun >();
+      produces< sumdata::RunData, ::art::InRun >();
       
     }
     
@@ -236,11 +236,11 @@ namespace gar{
     }
     
     //____________________________________________________________________________
-    void SingleGen::beginRun(art::Run& run)
+    void SingleGen::beginRun(::art::Run& run)
     {
       
       // grab the geometry object to see what geometry we are using
-      art::ServiceHandle<gar::geo::Geometry> geo;
+      ::art::ServiceHandle<gar::geo::Geometry> geo;
       std::string name(geo->DetectorName());
       std::unique_ptr<gar::sumdata::RunData> runcol(new gar::sumdata::RunData(name));
       
@@ -250,10 +250,10 @@ namespace gar{
     }
     
     //____________________________________________________________________________
-    void SingleGen::produce(art::Event& evt)
+    void SingleGen::produce(::art::Event& evt)
     {
       
-      ///unique_ptr allows ownership to be transferred to the art::Event after the put statement
+      ///unique_ptr allows ownership to be transferred to the ::art::Event after the put statement
       std::unique_ptr< std::vector<simb::MCTruth> > truthcol(new std::vector<simb::MCTruth>);
       
       simb::MCTruth truth;
@@ -276,7 +276,7 @@ namespace gar{
                               simb::MCTruth & mct){
       
       // get the random number generator service and make some CLHEP generators
-      art::ServiceHandle<art::RandomNumberGenerator> rng;
+      ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
       CLHEP::HepRandomEngine &engine = rng->getEngine();
       CLHEP::RandFlat   flat(engine);
       CLHEP::RandGaussQ gauss(engine);
@@ -379,7 +379,7 @@ namespace gar{
         case 1: // Random selection mode: every event will exactly one particle
                 // selected randomly from the fPDG array
         {
-          art::ServiceHandle<art::RandomNumberGenerator> rng;
+          ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
           CLHEP::HepRandomEngine &engine = rng->getEngine();
           CLHEP::RandFlat flat(engine);
           

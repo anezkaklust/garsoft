@@ -3,8 +3,8 @@
 <!--  $Author:  $                                                                     -->
 <!--  $Date: 2010/04/12 18:12:28 $                                                    -->
 <!--                                                                                  -->
-<!--  Include art::Wrapper lines for objects that we would like to put into the event -->
-<!--  Include the non-wrapper lines for all objects on the art::Wrapper lines and     -->
+<!--  Include ::art::Wrapper lines for objects that we would like to put into the event -->
+<!--  Include the non-wrapper lines for all objects on the ::art::Wrapper lines and     -->
 <!--  for all objects that are data members of those objects.                         -->
 
 
@@ -30,7 +30,7 @@
  <class name="std::vector<gar::sdp::IDE>"                                     />
  <class name="std::vector<gar::sdp::TDCIDE>"                                  />
  <class name="std::vector<gar::sdp::BeamGateInfo>" 	    		    	            />
- <class name="art::Wrapper< std::vector<gar::sdp::sdpChannel>   >"		    	  />
- <class name="art::Wrapper< std::vector<gar::sdp::BeamGateInfo> >"		    	  />
+ <class name="::art::Wrapper< std::vector<gar::sdp::sdpChannel>   >"		    	  />
+ <class name="::art::Wrapper< std::vector<gar::sdp::BeamGateInfo> >"		    	  />
 
 </lcgdict>

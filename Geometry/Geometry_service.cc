@@ -28,7 +28,7 @@ namespace gar {
     //......................................................................
     // Constructor.
     Geometry::Geometry(fhicl::ParameterSet   const& pset,
-                       art::ActivityRegistry      & reg)
+                       ::art::ActivityRegistry      & reg)
     : GeometryCore(pset)
     , fRelPath          (pset.get< std::string       >("RelativePath",     ""   ))
     , fForceUseFCLOnly  (pset.get< bool              >("ForceUseFCLOnly" , false))
@@ -56,14 +56,14 @@ namespace gar {
     
 
     //------------------------------------------------------------------------
-    void Geometry::preBeginRun(art::Run const& run)
+    void Geometry::preBeginRun(::art::Run const& run)
     {
       // if we are requested to stick to the configured geometry, do nothing
       if (fForceUseFCLOnly) return;
       
       // check here to see if we need to load a new geometry.
       // get the detector id from the run object
-      std::vector< art::Handle<sumdata::RunData> > rdcol;
+      std::vector< ::art::Handle<sumdata::RunData> > rdcol;
       run.getManyByType(rdcol);
       if (rdcol.empty()) {
         mf::LogWarning("LoadNewGeometry") << "cannot find sumdata::RunData object to grab detector name\n"
@@ -96,7 +96,7 @@ namespace gar {
     {
       // the channel map is responsible of calling the channel map configuration
       // of the geometry
-      art::ServiceHandle<geo::ExptGeoHelperInterface>()->ConfigureChannelMapAlg(fSortingParameters, this);
+      ::art::ServiceHandle<geo::ExptGeoHelperInterface>()->ConfigureChannelMapAlg(fSortingParameters, this);
       
       if ( ! ChannelMap() ) {
         throw cet::exception("ChannelMapLoadFail")

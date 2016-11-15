@@ -14,7 +14,8 @@
 #include "art/Framework/Principal/View.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-// LArSoft includes
+// GArSoft includes
+#include "DetectorInfo/DetectorClocksService.h"
 #include "MCCheater/BackTracker.h"
 #include "Geometry/Geometry.h"
 #include "Utilities/AssociationUtil.h"
@@ -28,7 +29,7 @@ namespace gar{
     
     //----------------------------------------------------------------------
     BackTracker::BackTracker(fhicl::ParameterSet   const& pset,
-                             art::ActivityRegistry      & reg)
+                             ::art::ActivityRegistry      & reg)
     {
       reconfigure(pset);
       
@@ -48,7 +49,7 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    void BackTracker::Rebuild(art::Event const& evt)
+    void BackTracker::Rebuild(::art::Event const& evt)
     {
       // do nothing if this is data
       if(evt.isRealData()) return;
@@ -72,7 +73,7 @@ namespace gar{
       fMCTruthList .clear();
       fSimChannels .clear();
       
-      art::FindOneP<simb::MCTruth> fo(pHandle, evt, fG4ModuleLabel);
+      ::art::FindOneP<simb::MCTruth> fo(pHandle, evt, fG4ModuleLabel);
       
       if( fo.isValid() ){
         for(size_t p = 0; p < pHandle->size(); ++p){
@@ -82,13 +83,13 @@ namespace gar{
           
           // get the simb::MCTruth associated to this sim::ParticleList
           try{
-            art::Ptr<simb::MCTruth> mct = fo.at(p);
+            ::art::Ptr<simb::MCTruth> mct = fo.at(p);
             if(fMCTruthList.size() < 1) fMCTruthList.push_back(mct);
             else{
                 // check that we are not adding a simb::MCTruth twice to the collection
                 // we know that all the particles for a given simb::MCTruth are put into the
                 // collection of particles at the same time, so we can just check that the
-                // current art::Ptr has a different id than the last one put
+                // current ::art::Ptr has a different id than the last one put
               if(!(mct == fMCTruthList.back())) fMCTruthList.push_back(mct);
             }
             // fill the track id to mctruth index map
@@ -157,7 +158,7 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    const art::Ptr<simb::MCTruth>& BackTracker::TrackIDToMCTruth(int const& id) const
+    const ::art::Ptr<simb::MCTruth>& BackTracker::TrackIDToMCTruth(int const& id) const
     {
         // find the entry in the MCTruth collection for this track id
       size_t mct = fTrackIDToMCTruthIndex.find(std::abs(id))->second;
@@ -198,13 +199,13 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    const art::Ptr<simb::MCTruth>& BackTracker::ParticleToMCTruth(const simb::MCParticle* p) const
+    const ::art::Ptr<simb::MCTruth>& BackTracker::ParticleToMCTruth(const simb::MCParticle* p) const
     {
       return this->TrackIDToMCTruth(p->TrackId());
     }
     
     //----------------------------------------------------------------------
-    std::vector<const simb::MCParticle*> BackTracker::MCTruthToParticles(art::Ptr<simb::MCTruth> const& mct) const
+    std::vector<const simb::MCParticle*> BackTracker::MCTruthToParticles(::art::Ptr<simb::MCTruth> const& mct) const
     {
       std::vector<const simb::MCParticle*> ret;
       
@@ -218,7 +219,7 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    std::vector<sdp::TrackIDE> BackTracker::HitToTrackID(art::Ptr<gar::rec::Hit> const& hit)
+    std::vector<sdp::TrackIDE> BackTracker::HitToTrackID(::art::Ptr<gar::rec::Hit> const& hit)
     {
       std::vector<sdp::TrackIDE> trackIDEs;
       
@@ -231,7 +232,7 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    const std::vector<std::vector<art::Ptr<gar::rec::Hit>>> BackTracker::TrackIDsToHits(std::vector<art::Ptr<gar::rec::Hit>> const& allhits,
+    const std::vector<std::vector<::art::Ptr<gar::rec::Hit>>> BackTracker::TrackIDsToHits(std::vector<::art::Ptr<gar::rec::Hit>> const& allhits,
                                                                                      std::vector<int>                  const& tkIDs)
     {
       // returns a subset of the hits in the allhits collection that are matched
@@ -239,7 +240,7 @@ namespace gar{
       
       // temporary vector of TrackIDs and Ptrs to hits so only one
       // loop through the (possibly large) allhits collection is needed
-      std::vector<std::pair<int, art::Ptr<gar::rec::Hit>>> hitList;
+      std::vector<std::pair<int, ::art::Ptr<gar::rec::Hit>>> hitList;
       std::vector<sdp::TrackIDE> tids;
       for(auto hit : allhits){
         tids.clear();
@@ -260,10 +261,10 @@ namespace gar{
       } // itr
       
       // now build the truHits vector that will be returned to the caller
-      std::vector<std::vector<art::Ptr<gar::rec::Hit>>> truHits;
+      std::vector<std::vector<::art::Ptr<gar::rec::Hit>>> truHits;
       
       // temporary vector containing hits assigned to one MC particle
-      std::vector<art::Ptr<gar::rec::Hit>> tmpHits;
+      std::vector<::art::Ptr<gar::rec::Hit>> tmpHits;
       for(auto const& itkid : tkIDs) {
         tmpHits.clear();
         
@@ -280,7 +281,7 @@ namespace gar{
     // plist is assumed to have adopted the appropriate EveIdCalculator prior to
     // having been passed to this method. It is likely that the EmEveIdCalculator is
     // the one you always want to use
-    std::vector<sdp::TrackIDE> BackTracker::HitToEveID(art::Ptr<gar::rec::Hit> const& hit)
+    std::vector<sdp::TrackIDE> BackTracker::HitToEveID(::art::Ptr<gar::rec::Hit> const& hit)
     {
       std::vector<sdp::TrackIDE> trackides = this->HitToTrackID(hit);
       
@@ -336,11 +337,11 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    std::set<int> BackTracker::GetSetOfEveIDs(std::vector< art::Ptr<gar::rec::Hit> > const& hits)
+    std::set<int> BackTracker::GetSetOfEveIDs(std::vector< ::art::Ptr<gar::rec::Hit> > const& hits)
     {
       std::set<int> eveIDs;
       
-      std::vector< art::Ptr<gar::rec::Hit> >::const_iterator itr = hits.begin();
+      std::vector< ::art::Ptr<gar::rec::Hit> >::const_iterator itr = hits.begin();
       for(auto itr : hits){
         
         // get the eve ids corresponding to this hit
@@ -355,7 +356,7 @@ namespace gar{
     }
     
       //----------------------------------------------------------------------
-    std::set<int> BackTracker::GetSetOfTrackIDs(std::vector< art::Ptr<gar::rec::Hit> > const& hits)
+    std::set<int> BackTracker::GetSetOfTrackIDs(std::vector< ::art::Ptr<gar::rec::Hit> > const& hits)
     {
       std::set<int> trackIDs;
       std::vector<sdp::TrackIDE> trackIDEs;
@@ -384,7 +385,7 @@ namespace gar{
     
     //----------------------------------------------------------------------
     double BackTracker::HitCollectionPurity(std::set<int>                              trackIDs,
-                                            std::vector< art::Ptr<gar::rec::Hit> > const& hits,
+                                            std::vector< ::art::Ptr<gar::rec::Hit> > const& hits,
                                             bool                                       weightByCharge)
     {
       // get the list of EveIDs that correspond to the hits in this collection
@@ -425,8 +426,8 @@ namespace gar{
     
     //----------------------------------------------------------------------
     double BackTracker::HitCollectionEfficiency(std::set<int>                              trackIDs,
-                                                std::vector< art::Ptr<gar::rec::Hit> > const& hits,
-                                                std::vector< art::Ptr<gar::rec::Hit> > const& allhits,
+                                                std::vector< ::art::Ptr<gar::rec::Hit> > const& hits,
+                                                std::vector< ::art::Ptr<gar::rec::Hit> > const& allhits,
                                                 bool                                          weightByCharge)
     {
       // get the list of EveIDs that correspond to the hits in this collection
@@ -517,7 +518,7 @@ namespace gar{
         
         // loop over the electrons in the channel and grab those that are in time
         // with the identified hit start and stop times
-        const detinfo::DetectorClocks* ts = lar::providerFrom<detinfo::DetectorClocksService>();
+        const detinfo::DetectorClocks* ts = gar::providerFrom<detinfo::DetectorClocksService>();
         int start_tdc = ts->TPCTick2TDC( hit_start_time );
         int end_tdc   = ts->TPCTick2TDC( hit_end_time   );
         if(start_tdc<0) start_tdc = 0;
@@ -560,7 +561,7 @@ namespace gar{
                                    std::vector<sdp::IDE>     & ides) const
     {
       // Get services.
-      const detinfo::DetectorClocks* ts = lar::providerFrom<detinfo::DetectorClocksService>();
+      const detinfo::DetectorClocks* ts = gar::providerFrom<gar::detinfo::DetectorClocksService>();
       
       int start_tdc = ts->TPCTick2TDC( hit.StartTime() );
       int end_tdc   = ts->TPCTick2TDC( hit.EndTime()   );
@@ -608,7 +609,7 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    std::vector<double> BackTracker::HitToXYZ(art::Ptr<gar::rec::Hit> const& hit)
+    std::vector<double> BackTracker::HitToXYZ(::art::Ptr<gar::rec::Hit> const& hit)
     {
       std::vector<sdp::IDE> ides;
       HitToSimIDEs(hit, ides);

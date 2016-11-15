@@ -10,7 +10,8 @@
 #include "Geant4/G4ParticleTypes.hh"
 #include "Geant4/G4LossTableManager.hh"
 #include "Geant4/G4EmSaturation.hh"
-
+#include "DetectorInfo/DetectorPropertiesService.h"
+#include "DetectorInfo/GArPropertiesService.h"
 #include "GArG4/ISCalculationSeparate.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -32,17 +33,12 @@ namespace gar {
     //----------------------------------------------------------------------------
     void ISCalculationSeparate::Initialize()
     {
-//      art::ServiceHandle<sim::GArG4Parameters> lgpHandle;
-//      const detinfo::LArProperties* larp = lar::providerFrom<detinfo::LArPropertiesService>();
-//      const detinfo::DetectorProperties* detprop = lar::providerFrom<detinfo::DetectorPropertiesService>();
-//      
-//      double density       = detprop->Density(detprop->Temperature());
-//      fEfield              = detprop->Efield();
-//      fScintByParticleType = larp->ScintByParticleType();
-//      fGeVToElectrons      = lgpHandle->GeVToElectrons();
+      //const detinfo::GArProperties*      garp    = gar::providerFrom<detinfo::GArPropertiesService>();
+      const detinfo::DetectorProperties* detprop = gar::providerFrom<detinfo::DetectorPropertiesService>();
       
-      // \TODO: get scintillation yield from GArG4Parameters or GArProperties
-      fScintYieldFactor  = 1.;
+//      double density       = detprop->Density(detprop->Temperature());
+      fEfield              = detprop->Efield();
+//      fGeVToElectrons      = lgpHandle->GeVToElectrons();
       
       // the recombination coefficient is in g/(MeVcm^2), but
       // we report energy depositions in MeV/cm, need to divide
@@ -132,90 +128,8 @@ namespace gar {
         << " for this step! "
         << step->GetTrack()->GetMaterial();
       
-        // if not doing the scintillation by particle type, use the saturation
-      double scintYield = mpt->GetConstProperty("SCINTILLATIONYIELD");
-      
-      if(fScintByParticleType){
-        
-        LOG_DEBUG("ISCalculationSeparate") << "scintillating by particle type";
-        
-        // Get the definition of the current particle
-        G4ParticleDefinition *pDef = step->GetTrack()->GetDynamicParticle()->GetDefinition();
-        G4MaterialPropertyVector *Scint_Yield_Vector = NULL;
-        
-        // Obtain the G4MaterialPropertyVectory containing the
-        // scintillation light yield as a function of the deposited
-        // energy for the current particle type
-      
-        // Protons
-        if(pDef == G4Proton::ProtonDefinition()){
-          scintYield = mpt->GetConstProperty("PROTONSCINTILLATIONYIELD");
-        }
-        // Muons
-        else if(pDef == G4MuonPlus::MuonPlusDefinition() ||
-                pDef == G4MuonMinus::MuonMinusDefinition()){
-          scintYield = mpt->GetConstProperty("MUONSCINTILLATIONYIELD");
-        }
-        // Pions
-        else if(pDef == G4PionPlus::PionPlusDefinition() ||
-                pDef == G4PionMinus::PionMinusDefinition()){
-          scintYield = mpt->GetConstProperty("PIONSCINTILLATIONYIELD");
-        }
-        // Kaons
-        else if(pDef == G4KaonPlus::KaonPlusDefinition() ||
-                pDef == G4KaonMinus::KaonMinusDefinition()){
-          scintYield = mpt->GetConstProperty("KAONSCINTILLATIONYIELD");
-        }
-        // Alphas
-        else if(pDef == G4Alpha::AlphaDefinition()){
-          scintYield = mpt->GetConstProperty("ALPHASCINTILLATIONYIELD");
-        }
-        // Electrons (must also account for shell-binding energy
-        // attributed to gamma from standard PhotoElectricEffect)
-        else if(pDef == G4Electron::ElectronDefinition() ||
-                pDef == G4Gamma::GammaDefinition()){
-          scintYield = mpt->GetConstProperty("ELECTRONSCINTILLATIONYIELD");
-        }
-        // Default for particles not enumerated/listed above
-        else{
-          scintYield = mpt->GetConstProperty("ELECTRONSCINTILLATIONYIELD");
-        }
-        
-        // If the user has not specified yields for (p,d,t,a,carbon)
-        // then these unspecified particles will default to the
-        // electron's scintillation yield
-        if(!Scint_Yield_Vector){{
-          scintYield = mpt->GetConstProperty("ELECTRONSCINTILLATIONYIELD");
-        }
-        }
-        
-        // Throw an exception if no scintillation yield is found
-        if (!scintYield)
-          throw cet::exception("ISCalculationSeparate")
-          << "Request for scintillation yield for energy "
-          << "deposit and particle type without correct "
-          << "entry in MaterialPropertiesTable\n"
-          << "ScintillationByParticleType requires at "
-          << "minimum that ELECTRONSCINTILLATIONYIELD is "
-          << "set by the user\n";
-        
-        fNumScintPhotons =  scintYield * fEnergyDeposit;
-      }
-      else if(fEMSaturation){
-        // The default linear scintillation process
-        fNumScintPhotons = fScintYieldFactor * scintYield * fEMSaturation->VisibleEnergyDeposition(step);
-      }
-      else{
-        fNumScintPhotons = fScintYieldFactor * scintYield * fEnergyDeposit;
-      }
-      
-      LOG_DEBUG("ISCalculationSeparate")
-      << "number photons: " << fNumScintPhotons
-      << " energy: "        << fEnergyDeposit/CLHEP::MeV
-      << " saturation: " 
-      << fEMSaturation->VisibleEnergyDeposition(step)
-      << " step length: "   << step->GetStepLength()/CLHEP::cm;
-      
+      // TODO: fix this for gaseous argon
+      fNumScintPhotons = std::numeric_limits<float>::min();
       
       return;
     }

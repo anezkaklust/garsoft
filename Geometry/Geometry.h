@@ -55,7 +55,7 @@ namespace gar {
      *
      * The geometry initialization happens immediately on construction.
      * Optionally, the geometry is automatically reinitialized on each run based
-     * on the information contained in the art::Run object.
+     * on the information contained in the ::art::Run object.
      *
      * Configuration
      * ==============
@@ -104,10 +104,10 @@ namespace gar {
       
       using provider_type = GeometryCore; ///< type of service provider
       
-      Geometry(fhicl::ParameterSet const& pset, art::ActivityRegistry& reg);
+      Geometry(fhicl::ParameterSet const& pset, ::art::ActivityRegistry& reg);
       
       /// Updates the geometry if needed at the beginning of each new run
-      void preBeginRun(art::Run const& run);
+      void preBeginRun(::art::Run const& run);
       
       /// Returns a pointer to the geometry service provider
       provider_type const* provider() const { return static_cast<provider_type const*>(this); }

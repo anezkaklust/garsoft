@@ -21,7 +21,7 @@ namespace gar
     
     //----------------------------------------------------------------------------
     StandardGeometryHelper::StandardGeometryHelper(fhicl::ParameterSet const& pset,
-                                                   art::ActivityRegistry    &)
+                                                   ::art::ActivityRegistry    &)
     : fPset( pset )
     , fChannelMap()
     {}

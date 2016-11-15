@@ -48,7 +48,12 @@
 #include "cetlib/exception.h"
 #include "cetlib/search_path.h"
 
-// art extensions
+// nutools extensions
+#include "nusimdata/SimulationBase/MCTruth.h"
+#include "nutools/ParticleNavigation/ParticleList.h"
+#include "nutools/G4Base/DetectorConstruction.h"
+#include "nutools/G4Base/UserActionManager.h"
+#include "nutools/RandomUtils/NuRandomService.h"
 
 // GArSoft Includes
 #include "GArG4/PhysicsList.h"
@@ -56,13 +61,12 @@
 #include "GArG4/IonizationAndScintillationAction.h"
 #include "GArG4/MaterialPropertyLoader.h"
 #include "GArG4/ParticleFilters.h" // garg4::PositionInVolumeFilter
+#include "GArG4/G4SimulationParameters.h"
+#include "GArG4/IonizationAndScintillation.h"
 #include "Utilities/AssociationUtil.h"
-#include "nusimdata/SimulationBase/MCTruth.h"
-#include "nutools/ParticleNavigation/ParticleList.h"
 #include "SimulationDataProducts/SimChannel.h"
+#include "SimulationDataProducts/AuxDetSimChannel.h"
 #include "Geometry/Geometry.h"
-#include "nutools/G4Base/DetectorConstruction.h"
-#include "nutools/G4Base/UserActionManager.h"
 
 // G4 Includes
 #include "Geant4/G4RunManager.hh"
@@ -132,18 +136,18 @@ namespace gar {
      *     G4 macro file to pass to G4Helper for setting G4 command
      * - <b>Seed</b> (pset key, not defined by default): if defined, override the seed for
      *     random number generator used in Geant4 simulation (which is obtained from
-     *     LArSeedService by default)
+     *     NuRandomService by default)
      * - <b>PropagationSeed</b> (pset key, not defined by default): if defined,
      *     override the seed for the random generator used for electrons propagation
-     *     to the wire planes (obtained from the LArSeedService by default)
+     *     to the wire planes (obtained from the NuRandomService by default)
      * - <b>RadioSeed</b> (pset key, not defined by default): if defined,
      *     override the seed for the random generator used for radiological decay
-     *     (obtained from the LArSeedService by default)
+     *     (obtained from the NuRandomService by default)
      * - <b>InputLabels</b> (vector<string>, defualt unnecessary):
      *     optional list of generator labels which produce MCTruth;
      *     otherwise look for anything that has made MCTruth
      */
-    class GArG4 : public art::EDProducer{
+    class GArG4 : public ::art::EDProducer{
     public:
       
         /// Standard constructor and destructor for an FMWK module.
@@ -153,9 +157,9 @@ namespace gar {
         /// The main routine of this module: Fetch the primary particles
         /// from the event, simulate their evolution in the detctor, and
         /// produce the detector response.
-      void produce (art::Event& evt);
+      void produce (::art::Event& evt);
       void beginJob();
-      void beginRun(art::Run& run);
+      void beginRun(::art::Run& run);
       
     private:
       g4b::G4Helper*             fG4Help;             ///< G4 interface object
@@ -199,38 +203,33 @@ namespace gar {
     
     {
       LOG_DEBUG("GArG4") << "Debug: GArG4()";
-      art::ServiceHandle<art::RandomNumberGenerator> rng;
+      ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
       
       if (pset.has_key("Seed")) {
-        throw art::Exception(art::errors::Configuration)
+        throw ::art::Exception(::art::errors::Configuration)
         << "The configuration of GArG4 module has the discontinued 'Seed' parameter.\n"
         "Seeds are now controlled by three parameters: 'GEANTSeed', 'PropagationSeed' and 'RadioSeed'.";
       }
       
       // setup the random number service for Geant4, the "G4Engine" label is a
       // special tag setting up a global engine for use by Geant4/CLHEP;
-      // obtain the random seed from LArSeedService,
+      // obtain the random seed from NuRandomService,
       // unless overridden in configuration with key "Seed" or "GEANTSeed"
-      art::ServiceHandle<sim::LArSeedService>()
-      ->createEngine(*this, "G4Engine", "GEANT", pset, "GEANTSeed");
       // same thing for the propagation engine:
-      art::ServiceHandle<sim::LArSeedService>()
-      ->createEngine(*this, "HepJamesRandom", "propagation", pset, "PropagationSeed");
       // and again for radio decay
-      art::ServiceHandle<sim::LArSeedService>()
-      ->createEngine(*this, "HepJamesRandom", "radio", pset, "RadioSeed");
+      ::art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, "G4Engine",       "GEANT",       pset, "GEANTSeed");
+      ::art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, "HepJamesRandom", "propagation", pset, "PropagationSeed");
+      ::art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, "HepJamesRandom", "radio",       pset, "RadioSeed");
       
       //get a list of generators to use, otherwise, we'll end up looking for anything that's
       //made an MCTruth object
       bool useInputLabels = pset.get_if_present< std::vector<std::string> >("InputLabels", fInputLabels);
       if(!useInputLabels) fInputLabels.resize(0);
       
-      art::ServiceHandle<sim::GArG4Parameters> lgp;
-      
-      produces< std::vector<simb::MCParticle> >();
-      produces< std::vector<sdp::SimChannel>  >();
-      produces< std::vector<sdp::AuxDetSimChannel> >();
-      produces< art::Assns<simb::MCTruth, simb::MCParticle> >();
+      produces< std::vector<simb::MCParticle>               >();
+      produces< std::vector<sdp::SimChannel>                >();
+      produces< std::vector<sdp::AuxDetSimChannel>          >();
+      produces< ::art::Assns<simb::MCTruth, simb::MCParticle> >();
       
       // constructor decides if initialized value is a path or an environment variable
       cet::search_path sp("FW_SEARCH_PATH");
@@ -256,8 +255,8 @@ namespace gar {
     //----------------------------------------------------------------------
     void GArG4::beginJob()
     {
-      art::ServiceHandle<geo::Geometry> geom;
-      auto* rng = &*(art::ServiceHandle<art::RandomNumberGenerator>());
+      ::art::ServiceHandle<geo::Geometry> geom;
+      auto* rng = &*(::art::ServiceHandle<::art::RandomNumberGenerator>());
       
       fG4Help = new g4b::G4Helper(fG4MacroPath, fG4PhysListName);
       if(fCheckOverlaps) fG4Help->SetOverlapCheck(true);
@@ -280,31 +279,23 @@ namespace gar {
       // Use the UserActionManager to handle all the Geant4 user hooks.
       g4b::UserActionManager* uaManager = g4b::UserActionManager::Instance();
       
-      // User-action class for accumulating LAr voxels.
-      art::ServiceHandle<sim::GArG4Parameters> lgp;
-      
       // User-action class for accumulating particles and trajectories
       // produced in the detector.
-      fparticleListAction = new garg4::ParticleListAction(lgp->ParticleKineticEnergyCut(),
-                                                          lgp->StoreTrajectories(),
-                                                          lgp->KeepEMShowerDaughters());
+      auto g4SimPars = gar::garg4::G4SimulationParameters::Instance();
+      
+      fparticleListAction = new garg4::ParticleListAction(g4SimPars->KineticEnergyCut(),
+                                                          g4SimPars->StoreTrajectories(),
+                                                          g4SimPars->KeepEMShowerDaughters());
       uaManager->AddAndAdoptAction(fparticleListAction);
       
       // UserActionManager is now configured so continue G4 initialization
       fG4Help->SetUserAction();
       
-      // With an enormous detector with lots of rock
-      // we need to be smarter about stacking.
-      if (fSmartStacking>0){
-        G4UserStackingAction* stacking_action = new LArStackingAction(fSmartStacking);
-        fG4Help->GetRunManager()->SetUserAction(stacking_action);
-      }
-      
       return;
     }
 
     //--------------------------------------------------------------------------
-    void GArG4::beginRun(art::Run& run)
+    void GArG4::beginRun(::art::Run& run)
     {
       // prepare the filter object (null if no filtering)
       
@@ -321,7 +312,7 @@ namespace gar {
       // if we don't have favourite volumes, don't even bother creating a filter
       if (vol_names.empty()) return {};
       
-      auto const& geom = *art::ServiceHandle<geo::Geometry>();
+      auto const& geom = *::art::ServiceHandle<geo::Geometry>();
       
       std::vector<std::vector<TGeoNode const*>> node_paths = geom.FindAllVolumePaths(vol_names);
       
@@ -364,41 +355,39 @@ namespace gar {
     
     
     //--------------------------------------------------------------------------
-    void GArG4::produce(art::Event& evt)
+    void GArG4::produce(::art::Event& evt)
     {
       LOG_DEBUG("GArG4") << "produce()";
       
       // loop over the lists and put the particles and voxels into the event as collections
-      std::unique_ptr< std::vector<simb::MCParticle> > partCol  (new std::vector<simb::MCParticle  >);
-      std::unique_ptr< std::vector<sdp::SimChannel>  > scCol    (new std::vector<sdp::SimChannel>);
-      std::unique_ptr< art::Assns<simb::MCTruth, simb::MCParticle> > tpassn(new art::Assns<simb::MCTruth, simb::MCParticle>);
-      std::unique_ptr< std::vector< sdp::AuxDetSimChannel > > adCol (new  std::vector<sdp::AuxDetSimChannel> );
+      std::unique_ptr< std::vector<simb::MCParticle> >               partCol(new std::vector<simb::MCParticle>              );
+      std::unique_ptr< std::vector<sdp::SimChannel>  >               scCol  (new std::vector<sdp::SimChannel>               );
+      std::unique_ptr< ::art::Assns<simb::MCTruth, simb::MCParticle> > tpassn (new ::art::Assns<simb::MCTruth, simb::MCParticle>);
+      std::unique_ptr< std::vector< sdp::AuxDetSimChannel > >        adCol  (new std::vector<sdp::AuxDetSimChannel>         );
       
-      art::ServiceHandle<geo::Geometry> geom;
+      ::art::ServiceHandle<geo::Geometry> geom;
       
       // reset the track ID offset as we have a new collection of interactions
       fparticleListAction->ResetTrackIDOffset();
       
-      //look to see if there is any MCTruth information for this
-      //event
-      std::vector< art::Handle< std::vector<simb::MCTruth> > > mclists;
-      if(fInputLabels.size()==0)
+      // look to see if there is any MCTruth information for this
+      // event
+      std::vector< ::art::Handle< std::vector<simb::MCTruth> > > mclists;
+      if(fInputLabels.size() < 1)
         evt.getManyByType(mclists);
       else{
         mclists.resize(fInputLabels.size());
-        for(size_t i=0; i<fInputLabels.size(); i++)
-          evt.getByLabel(fInputLabels[i],mclists[i]);
+        for(size_t i = 0; i < fInputLabels.size(); ++i)
+          evt.getByLabel(fInputLabels[i], mclists[i]);
       }
       
       unsigned int nGeneratedParticles = 0;
       
       // Need to process Geant4 simulation for each interaction separately.
-      for(size_t mcl = 0; mcl < mclists.size(); ++mcl){
-        
-        art::Handle< std::vector<simb::MCTruth> > mclistHandle = mclists[mcl];
+      for(auto mclistHandle : mclists){
         
         for(size_t m = 0; m < mclistHandle->size(); ++m){
-          art::Ptr<simb::MCTruth> mct(mclistHandle, m);
+          ::art::Ptr<simb::MCTruth> mct(mclistHandle, m);
           
           LOG_DEBUG("GArG4") << *(mct.get());
           
@@ -408,7 +397,6 @@ namespace gar {
           // receive the particle list
           sim::ParticleList particleList = fparticleListAction->YieldList();
           
-          
           //for(auto const& partPair: particleList) {
           //  simb::MCParticle& p = *(partPair.second);
           auto iPartPair = particleList.begin();
@@ -416,13 +404,6 @@ namespace gar {
             simb::MCParticle& p = *(iPartPair->second);
             ++nGeneratedParticles;
             
-            // if the particle has been marked as dropped, we don't save it
-            // (as of LArSoft ~v5.6 this does not ever happen because
-            // ParticleListAction has already taken care of deleting them)
-            if (ParticleListAction::isDropped(&p)) {
-              ++iPartPair;
-              continue;
-            }
             partCol->push_back(std::move(p));
             util::CreateAssn(*this, evt, *partCol, mct, *tpassn);
             // FIXME workaround until https://cdcvs.fnal.gov/redmine/issues/12067
@@ -435,8 +416,10 @@ namespace gar {
           
           // Has the user request a detailed dump of the output objects?
           if (fdumpParticleList){
-            mf::LogInfo("GArG4") << "Dump sim::ParticleList; size()="
-            << particleList.size() << "\n"
+            LOG_INFO("GArG4")
+            << "Dump sim::ParticleList; size() = "
+            << particleList.size()
+            << "\n"
             << particleList;
           }
           
@@ -444,11 +427,7 @@ namespace gar {
         
       }// end loop over interactions
       
-      // get the electrons from the LArVoxelReadout sensitive detector
-      // Get the sensitive-detector manager.
-      G4SDManager* sdManager = G4SDManager::GetSDMpointer();
-      
-      // only put the sim::SimChannels into the event once, not once for every
+      // only put the sdp::SimChannels into the event once, not once for every
       // MCTruth in the event
       
       evt.put(std::move(scCol));

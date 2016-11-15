@@ -69,15 +69,15 @@ namespace gar {
       /// Module to generate particles created by radiological decay, patterend off of SingleGen
       /// Currently it generates only in rectangular prisms oriented along the x,y,z axes
     
-    class RadioGen : public art::EDProducer {
+    class RadioGen : public ::art::EDProducer {
       
     public:
       explicit RadioGen(fhicl::ParameterSet const& pset);
       virtual ~RadioGen();
       
         // This is called for each event.
-      void produce(art::Event& evt);
-      void beginRun(art::Run& run);
+      void produce(::art::Event& evt);
+      void beginRun(::art::Run& run);
       void reconfigure(fhicl::ParameterSet const& p);
       
     private:
@@ -141,7 +141,7 @@ namespace gar {
       createEngine( seed );
       
       produces< std::vector<simb::MCTruth> >();
-      produces< sumdata::RunData, art::InRun >();
+      produces< sumdata::RunData, ::art::InRun >();
       
     }
     
@@ -191,12 +191,12 @@ namespace gar {
     }
     
     //____________________________________________________________________________
-    void RadioGen::beginRun(art::Run& run)
+    void RadioGen::beginRun(::art::Run& run)
     {
       
         // grab the geometry object to see what geometry we are using
       
-      art::ServiceHandle<geo::Geometry> geo;
+      ::art::ServiceHandle<geo::Geometry> geo;
       std::unique_ptr<sumdata::RunData> runcol(new sumdata::RunData(geo->DetectorName()));
       run.put(std::move(runcol));
       
@@ -204,10 +204,10 @@ namespace gar {
     }
     
     //____________________________________________________________________________
-    void RadioGen::produce(art::Event& evt)
+    void RadioGen::produce(::art::Event& evt)
     {
       
-      ///unique_ptr allows ownership to be transferred to the art::Event after the put statement
+      ///unique_ptr allows ownership to be transferred to the ::art::Event after the put statement
       std::unique_ptr< std::vector<simb::MCTruth> > truthcol(new std::vector<simb::MCTruth>);
       
       simb::MCTruth truth;
@@ -229,7 +229,7 @@ namespace gar {
     void RadioGen::SampleOne(unsigned int i, simb::MCTruth &mct){
       
       // get the random number generator service and make some CLHEP generators
-      art::ServiceHandle<art::RandomNumberGenerator> rng;
+      ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
       CLHEP::HepRandomEngine &engine = rng->getEngine();
       CLHEP::RandFlat     flat(engine);
       CLHEP::RandPoisson  poisson(engine);
@@ -431,7 +431,7 @@ namespace gar {
     void RadioGen::samplespectrum(std::string nuclide, int &itype, double &t, double &m, double &p)
     {
       
-      art::ServiceHandle<art::RandomNumberGenerator> rng;
+      ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
       CLHEP::HepRandomEngine &engine = rng->getEngine();
       CLHEP::RandFlat  flat(engine);
       
@@ -495,7 +495,7 @@ namespace gar {
     // and a better handling of negative bin contents
     double RadioGen::samplefromth1d(TH1D *hist)
     {
-      art::ServiceHandle<art::RandomNumberGenerator> rng;
+      ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
       CLHEP::HepRandomEngine &engine = rng->getEngine();
       CLHEP::RandFlat  flat(engine);
       

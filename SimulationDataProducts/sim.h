@@ -33,7 +33,7 @@ namespace gar {
   
   inline unsigned int sdp::GetRandomNumberSeed(){
     
-    // the maximum allowed seed for the art::RandomNumberGenerator
+    // the maximum allowed seed for the ::art::RandomNumberGenerator
     // is 900000000. Use TRandom3 to get the seed value in that range.
     // Instantiating TRandom3 with a 0 means that its seed is set based
     // on the TUUID and should always be random, even for jobs running on the

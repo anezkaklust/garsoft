@@ -78,7 +78,7 @@ namespace gar {
       fISCalc->Initialize();
       
       // make the histograms
-      art::ServiceHandle< art::TFileService> tfs;
+      ::art::ServiceHandle< ::art::TFileService> tfs;
       
       fElectronsPerStep   = tfs->make<TH1F>("electronsPerStep", ";Electrons;Steps",
                                             500, 0., 5000.);

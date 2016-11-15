@@ -35,7 +35,7 @@ namespace gar
       
         /// Constructor; follows the standard art service signature
       StandardGeometryHelper
-      ( fhicl::ParameterSet const & pset, art::ActivityRegistry &reg );
+      ( fhicl::ParameterSet const & pset, ::art::ActivityRegistry &reg );
       
       /*
        Public interface for ExptGeoHelperInterface (for reference purposes)

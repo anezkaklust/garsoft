@@ -40,14 +40,14 @@ namespace gar {
     private:
       
       double          fStepSize;            ///< maximum step to take
-      double 	   	    fEfield;              ///< value of electric field from LArProperties service
-      double 	   	    fGeVToElectrons;      ///< conversion factor from LArProperties service
+      double 	   	    fEfield;              ///< value of electric field from GArProperties service
+      double 	   	    fGeVToElectrons;      ///< conversion factor from GArProperties service
       double 	   	    fRecombA;             ///< from GArG4Parameters service
       double 	   	    fRecombk;             ///< from GArG4Parameters service
       double 	   	    fModBoxA;             ///< from GArG4Parameters service
       double 	   	    fModBoxB;             ///< from GArG4Parameters service
       bool   	   	    fUseModBoxRecomb;     ///< from GArG4Parameters service
-      bool   	   	    fScintByParticleType; ///< from LArProperties service
+      bool   	   	    fScintByParticleType; ///< from GArProperties service
       double 	   	    fScintYieldFactor;    ///< scintillation yield factor
       G4EmSaturation* fEMSaturation;        ///< pointer to EM saturation
       

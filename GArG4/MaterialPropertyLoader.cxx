@@ -186,50 +186,8 @@ namespace gar {
     //--------------------------------------------------------------------------
     void MaterialPropertyLoader::GetPropertiesFromServices()
     {
-//      const detinfo::LArProperties* LarProp = lar::providerFrom<detinfo::LArPropertiesService>();
-//      const detinfo::DetectorProperties* DetProp = lar::providerFrom<detinfo::DetectorPropertiesService>();
-//      
-//        // wavelength dependent quantities
-//      
-//      SetMaterialProperty( "LAr", "FASTCOMPONENT", LarProp->FastScintSpectrum(), 1  );
-//      SetMaterialProperty( "LAr", "SLOWCOMPONENT", LarProp->SlowScintSpectrum(), 1  );
-//      SetMaterialProperty( "LAr", "RINDEX",        LarProp->RIndexSpectrum(),    1  );
-//      SetMaterialProperty( "LAr", "ABSLENGTH",     LarProp->AbsLengthSpectrum(), CLHEP::cm );
-//      SetMaterialProperty( "LAr", "RAYLEIGH",      LarProp->RayleighSpectrum(),  CLHEP::cm );
-//      
-//      
-//        // scalar properties
-//      
-//      SetMaterialConstProperty("LAr", "SCINTILLATIONYIELD",  LarProp->ScintYield(true),       1/CLHEP::MeV ); // true = scaled down by prescale in larproperties
-//      SetMaterialConstProperty("LAr", "RESOLUTIONSCALE",     LarProp->ScintResolutionScale(), 1);
-//      SetMaterialConstProperty("LAr", "FASTTIMECONSTANT",    LarProp->ScintFastTimeConst(),   CLHEP::ns);
-//      SetMaterialConstProperty("LAr", "SLOWTIMECONSTANT",    LarProp->ScintSlowTimeConst(),   CLHEP::ns);
-//      SetMaterialConstProperty("LAr", "YIELDRATIO",          LarProp->ScintYieldRatio(),      1);
-//      SetMaterialConstProperty("LAr", "ELECTRICFIELD",       DetProp->Efield(),               CLHEP::kilovolt/CLHEP::cm);
-//      
-//      SetBirksConstant("LAr",LarProp->ScintBirksConstant(), CLHEP::cm/CLHEP::MeV);
-//      
-//      SetReflectances("LAr", LarProp->SurfaceReflectances(), LarProp->SurfaceReflectanceDiffuseFractions());
-//      
-//      
-//        // If we are using scint by particle type, load these
-//      
-//      if(LarProp->ScintByParticleType())
-//      {
-//          // true = scaled down by prescale in larproperties
-//        SetMaterialConstProperty("LAr", "PROTONSCINTILLATIONYIELD",  LarProp->ProtonScintYield(true),    1./CLHEP::MeV );
-//        SetMaterialConstProperty("LAr", "PROTONYIELDRATIO",          LarProp->ProtonScintYieldRatio(),   1.);
-//        SetMaterialConstProperty("LAr", "MUONSCINTILLATIONYIELD",    LarProp->MuonScintYield(true),      1./CLHEP::MeV );
-//        SetMaterialConstProperty("LAr", "MUONYIELDRATIO",            LarProp->MuonScintYieldRatio(),     1.);
-//        SetMaterialConstProperty("LAr", "KAONSCINTILLATIONYIELD",    LarProp->KaonScintYield(true),      1./CLHEP::MeV );
-//        SetMaterialConstProperty("LAr", "KAONYIELDRATIO",            LarProp->KaonScintYieldRatio(),     1.);
-//        SetMaterialConstProperty("LAr", "PIONSCINTILLATIONYIELD",    LarProp->PionScintYield(true),      1./CLHEP::MeV );
-//        SetMaterialConstProperty("LAr", "PIONYIELDRATIO",            LarProp->PionScintYieldRatio(),     1.);
-//        SetMaterialConstProperty("LAr", "ELECTRONSCINTILLATIONYIELD",LarProp->ElectronScintYield(true),  1./CLHEP::MeV );
-//        SetMaterialConstProperty("LAr", "ELECTRONYIELDRATIO",        LarProp->ElectronScintYieldRatio(), 1.);
-//        SetMaterialConstProperty("LAr", "ALPHASCINTILLATIONYIELD",   LarProp->AlphaScintYield(true),     1./CLHEP::MeV );
-//        SetMaterialConstProperty("LAr", "ALPHAYIELDRATIO",           LarProp->AlphaScintYieldRatio(),    1.);
-//      }
+//      const detinfo::GArProperties*      GarProp = gar::providerFrom<detinfo::GArPropertiesService>();
+//      const detinfo::DetectorProperties* DetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
     }
     
   } // garg4

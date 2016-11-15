@@ -3,8 +3,8 @@
 <!--  $Author:  $                                                                     -->
 <!--  $Date: 2010/04/12 18:12:28 $                                                    -->
 <!--                                                                                  -->
-<!--  Include art::Wrapper lines for objects that we would like to put into the event -->
-<!--  Include the non-wrapper lines for all objects on the art::Wrapper lines and     -->
+<!--  Include ::art::Wrapper lines for objects that we would like to put into the event -->
+<!--  Include the non-wrapper lines for all objects on the ::art::Wrapper lines and     -->
 <!--  for all objects that are data members of those objects.                         -->
 
 
@@ -22,9 +22,9 @@
   <class name="std::vector<gar::rec::Hit   >"                		    	  />
   <class name="std::vector<gar::rec::Track >"                           />
   <class name="std::vector<gar::rec::Shower>"                           />
-  <class name="art::Wrapper< std::vector<gar::rec::Hit   > >"		    	  />
-  <class name="art::Wrapper< std::vector<gar::rec::Track > >"		    	  />
-  <class name="art::Wrapper< std::vector<gar::rec::Shower> >"		    	  />
+  <class name="::art::Wrapper< std::vector<gar::rec::Hit   > >"		    	  />
+  <class name="::art::Wrapper< std::vector<gar::rec::Track > >"		    	  />
+  <class name="::art::Wrapper< std::vector<gar::rec::Shower> >"		    	  />
 -->
 
 </lcgdict>

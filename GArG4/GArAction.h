@@ -59,7 +59,7 @@ namespace gar {
       std::vector<gar::sdp::IDE>        fIDEList;    ///< The accumulated information for hits in the event.
       double                            fEnergyCut;  ///< The minimum energy in GeV for a particle to
                                                      ///< be included in the list.
-      art::ServiceHandle<geo::Geometry> fGeo;        ///< handle to geometry service
+      ::art::ServiceHandle<geo::Geometry> fGeo;        ///< handle to geometry service
       
     };
     
