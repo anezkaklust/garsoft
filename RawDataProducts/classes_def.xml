@@ -6,20 +6,27 @@
 
 
 <lcgdict>
- <class name="raw::BeamInfo       " ClassVersion="10"           >
+ <class name="gar::raw::BeamInfo" ClassVersion="10"           >
+  <version ClassVersion="10" checksum="341596131"/>
  </class>
- <class name="raw::RawDigit   	  " ClassVersion="10"           >
+ <class name="gar::raw::RawDigit" ClassVersion="10"           >
+  <version ClassVersion="10" checksum="1136501152"/>
  </class>
- <class name="raw::Trigger" ClassVersion="10"                   >
+ <class name="gar::raw::Trigger"  ClassVersion="10"           >
+  <version ClassVersion="10" checksum="547058103"/>
  </class>
+
+
+<!--
  <class name="std::vector<raw::BeamInfo>       "                />
  <class name="std::vector<raw::RawDigit>       "                />
  <class name="std::vector<raw::Trigger>        "                />
  <class name="std::pair<std::string,std::vector<double> >"      />
- <class name="std::map<std::string,std::vector<double> >"       />
- <class name="::art::Wrapper< raw::BeamInfo                     >"/>
- <class name="::art::Wrapper< std::vector<raw::BeamInfo>        >"/>
- <class name="::art::Wrapper< std::vector<raw::RawDigit>        >"/>
- <class name="::art::Wrapper< std::vector<raw::Trigger>         >"/>
+ <class name="std::map<std::string, std::vector<double> >"      />
+ <class name="art::Wrapper< raw::BeamInfo                     >"/>
+ <class name="art::Wrapper< std::vector<raw::BeamInfo>        >"/>
+ <class name="art::Wrapper< std::vector<raw::RawDigit>        >"/>
+ <class name="art::Wrapper< std::vector<raw::Trigger>         >"/>
+-->
 
 </lcgdict>

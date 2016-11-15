@@ -30,7 +30,8 @@ namespace gar {
       
     }; // class DetectorClocksService
   } //namespace detinfo
-  DECLARE_ART_SERVICE_INTERFACE(detinfo::DetectorClocksService, LEGACY)
 } //gar
+
+DECLARE_ART_SERVICE_INTERFACE(gar::detinfo::DetectorClocksService, LEGACY)
 
 #endif // DETECTORCLOCKSSERVICE_H

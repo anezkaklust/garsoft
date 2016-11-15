@@ -8,6 +8,8 @@
  * 
  * ****************************************************************************/
 
+#include <limits>
+
 #include "RawDataProducts/RawDigit.h"
 
 // C/C++ standard libraries
@@ -18,15 +20,15 @@ namespace gar {
     //----------------------------------------------------------------------
     RawDigit::RawDigit()
     : fADC(0)
-    , fChannel(InvalidChannelID)
+    , fChannel(std::numeric_limits<unsigned int>::max())
     , fSamples(0)
     , fPedestal(0.)
     , fSigma(0.)
     {}
     
     
-      //----------------------------------------------------------------------
-    RawDigit::RawDigit(ChannelID_t                  channel,
+    //----------------------------------------------------------------------
+    RawDigit::RawDigit(Channel_t                    channel,
                        unsigned short               samples,
                        RawDigit::ADCvector_t const& adclist)
     : fADC(adclist)
@@ -38,7 +40,7 @@ namespace gar {
     
     
     //----------------------------------------------------------------------
-    RawDigit::RawDigit(ChannelID_t             channel,
+    RawDigit::RawDigit(Channel_t             channel,
                        unsigned short          samples,
                        RawDigit::ADCvector_t&& adclist)
     : fADC(std::move(adclist))

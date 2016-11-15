@@ -11,4 +11,4 @@
 
 #include "RawDataProducts/RawDigit.h"
 #include "RawDataProducts/BeamInfo.h"
-#include "RawDataProducts/TriggerData.h"
+#include "RawDataProducts/Trigger.h"

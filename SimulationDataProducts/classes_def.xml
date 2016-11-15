@@ -26,11 +26,14 @@
   <version ClassVersion="10" checksum="3349524943"/>
  </class>
  <enum name="gar::sdp::BeamType_t"                                            />
+
+<!--
  <class name="std::vector<gar::sdp::sdpChannel  >"                		    	  />
  <class name="std::vector<gar::sdp::IDE>"                                     />
  <class name="std::vector<gar::sdp::TDCIDE>"                                  />
  <class name="std::vector<gar::sdp::BeamGateInfo>" 	    		    	            />
- <class name="::art::Wrapper< std::vector<gar::sdp::sdpChannel>   >"		    	  />
- <class name="::art::Wrapper< std::vector<gar::sdp::BeamGateInfo> >"		    	  />
+ <class name="art::Wrapper< std::vector<gar::sdp::sdpChannel>   >"		    	  />
+ <class name="art::Wrapper< std::vector<gar::sdp::BeamGateInfo> >"		    	  />
+  -->
 
 </lcgdict>

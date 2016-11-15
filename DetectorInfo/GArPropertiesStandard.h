@@ -117,6 +117,10 @@ namespace gar {
       double fA;                ///< Ar atomic mass (g/mol)
       double fI;                ///< Ar mean excitation energy (eV)
       
+    public:
+      // expose the configuration object for framework service
+      using ConfigurationParameters_t = Configuration_t;
+      
     }; // class GArPropertiesStandard
   } //namespace detinfo
 } // gar

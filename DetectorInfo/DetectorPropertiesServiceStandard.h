@@ -97,7 +97,10 @@ namespace gar {
       
     }; // class DetectorPropertiesService
   } //namespace detinfo
-  DECLARE_ART_SERVICE_INTERFACE_IMPL(detinfo::DetectorPropertiesServiceStandard, detinfo::DetectorPropertiesService, LEGACY)
 }
+
+DECLARE_ART_SERVICE_INTERFACE_IMPL(gar::detinfo::DetectorPropertiesServiceStandard,
+                                   gar::detinfo::DetectorPropertiesService,
+                                   LEGACY)
 
 #endif // DETECTORPROPERTIESSERVICESTANDARD_H

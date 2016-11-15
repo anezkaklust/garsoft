@@ -24,7 +24,7 @@ namespace gar {
     public:
       
       // this enables art to print the configuration help:
-      using Parameters = ::art::ServiceTable<detinfo::GArPropertiesStandard::ConfigurationParameters_t>;
+      using Parameters = ::art::ServiceTable<gar::detinfo::GArPropertiesStandard::ConfigurationParameters_t>;
       
       GArPropertiesServiceStandard(fhicl::ParameterSet   const& pset,
                                    ::art::ActivityRegistry      & reg);
@@ -40,7 +40,10 @@ namespace gar {
       
     }; // class GArPropertiesServiceStandard
   } //namespace detinfo
-  DECLARE_ART_SERVICE_INTERFACE_IMPL(detinfo::GArPropertiesServiceStandard, detinfo::GArPropertiesService, LEGACY)
-  
 } // gar
+
+DECLARE_ART_SERVICE_INTERFACE_IMPL(gar::detinfo::GArPropertiesServiceStandard,
+                                   gar::detinfo::GArPropertiesService,
+                                   LEGACY)
+
 #endif // GArPropertiesSERVICESTANDARD_H

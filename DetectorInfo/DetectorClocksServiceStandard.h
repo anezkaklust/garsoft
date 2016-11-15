@@ -40,6 +40,10 @@ namespace gar {
       
     };
   } //namespace detinfo
-  DECLARE_ART_SERVICE_INTERFACE_IMPL(detinfo::DetectorClocksServiceStandard, detinfo::DetectorClocksService, LEGACY)
 } // gar
+
+DECLARE_ART_SERVICE_INTERFACE_IMPL(gar::detinfo::DetectorClocksServiceStandard,
+                                   gar::detinfo::DetectorClocksService,
+                                   LEGACY)
+
 #endif // DETECTORCLOCKSSERVICESTANDARD_H

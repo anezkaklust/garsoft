@@ -3,6 +3,7 @@
 #include "art/Persistency/RootDB/SQLite3Wrapper.h"
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/make_ParameterSet.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 //-----------------------------------------------------------------------------------------
 gar::detinfo::DetectorClocksServiceStandard::DetectorClocksServiceStandard(fhicl::ParameterSet   const& pset,
@@ -133,7 +134,7 @@ void gar::detinfo::DetectorClocksServiceStandard::postOpenFile(std::string const
         
         if(config_count.at(i) && cfgValue.at(i) != config_value.at(i)) {
           
-          LOG_INFO
+          LOG_INFO("DetectorClocksServiceStandard")
           << Form("\033[93mOverriding configuration parameter %s ... %g (fcl) => %g (data file)\033[00m",
                   cfgName.at(i).c_str(),
                   cfgValue.at(i),

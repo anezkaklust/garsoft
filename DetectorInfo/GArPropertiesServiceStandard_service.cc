@@ -44,4 +44,5 @@ void gar::detinfo::GArPropertiesServiceStandard::reconfigure(fhicl::ParameterSet
 }
 
 //------------------------------------------------
-DEFINE_ART_SERVICE_INTERFACE_IMPL(gar::detinfo::GArPropertiesServiceStandard, gar::detinfo::GArPropertiesService)
+DEFINE_ART_SERVICE_INTERFACE_IMPL(gar::detinfo::GArPropertiesServiceStandard,
+                                  gar::detinfo::GArPropertiesService)

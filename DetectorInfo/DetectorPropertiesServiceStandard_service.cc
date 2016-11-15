@@ -198,6 +198,8 @@ namespace gar {
     
   } // namespace detinfo
   
-  DEFINE_ART_SERVICE_INTERFACE_IMPL(detinfo::DetectorPropertiesServiceStandard, detinfo::DetectorPropertiesService)
-  
 } // gar
+
+DEFINE_ART_SERVICE_INTERFACE_IMPL(gar::detinfo::DetectorPropertiesServiceStandard,
+                                  gar::detinfo::DetectorPropertiesService)
+

@@ -30,6 +30,7 @@ namespace gar {
       
     }; // class GArPropertiesService
   } //namespace detinfo
-  DECLARE_ART_SERVICE_INTERFACE(detinfo::GArPropertiesService, LEGACY)
 } // gar
+
+DECLARE_ART_SERVICE_INTERFACE(gar::detinfo::GArPropertiesService, LEGACY)
 #endif // GArPropertiesSERVICE_H
