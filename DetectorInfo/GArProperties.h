@@ -21,22 +21,23 @@ namespace gar {
     class GArProperties {
     public:
       
-      GArProperties(const GArProperties &) = delete;
-      GArProperties(GArProperties &&) = delete;
+      GArProperties(const GArProperties &)              = delete;
+      GArProperties(GArProperties &&)                   = delete;
       GArProperties& operator = (const GArProperties &) = delete;
-      GArProperties& operator = (GArProperties &&) = delete;
-      virtual ~GArProperties() = default;
+      GArProperties& operator = (GArProperties &&)      = delete;
+      virtual ~GArProperties()                          = default;
       
-      virtual double RadiationLength()  	    const = 0;
-      virtual double Argon39DecayRate()             const = 0;
+      virtual double RadiationLength()  const = 0;
+      virtual double Argon39DecayRate() const = 0;
       
-        /// Atomic number of the liquid
-      virtual double AtomicNumber() const = 0;
-        /// Atomic mass of the liquid (g/mol)
-      virtual double AtomicMass() const = 0;
-        /// Mean excitation energy of the liquid (eV)
+      /// Atomic number of the gas
+      virtual double AtomicNumber()     const = 0;
+      /// Atomic mass of the gas (g/mol)
+      virtual double AtomicMass()       const = 0;
+      /// Mean excitation energy of the gas (eV)
       virtual double ExcitationEnergy() const = 0;
-      
+      /// Fano Factor for the gas
+      virtual double FanoFactor()       const = 0;
       
     protected:
       GArProperties() = default;
