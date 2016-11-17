@@ -36,12 +36,13 @@ namespace gar {
     
     // Initialize static members.
     int ParticleListAction::fCurrentTrackID = sdp::NoParticleId;
-    int ParticleListAction::fTrackIDOffset = 0;
+    int ParticleListAction::fTrackIDOffset  = 0;
     
     //----------------------------------------------------------------------------
     // Dropped particle test
     
-    bool ParticleListAction::isDropped(simb::MCParticle const* p) {
+    bool ParticleListAction::isDropped(simb::MCParticle const* p)
+    {
       return !p || p->Trajectory().empty();
     } // ParticleListAction::isDropped()
     
@@ -52,7 +53,7 @@ namespace gar {
                                            bool   storeTrajectories,
                                            bool   keepEMShowerDaughters)
     : fenergyCut            (energyCut * CLHEP::GeV)
-    , fparticleList         (new sim::ParticleList())
+    , fParticleList         (new sim::ParticleList())
     , fstoreTrajectories    (storeTrajectories)
     , fKeepEMShowerDaughters(keepEMShowerDaughters)
     {
@@ -64,7 +65,7 @@ namespace gar {
     ParticleListAction::~ParticleListAction()
     {
       // Delete anything that we created with "new'.
-      delete fparticleList;
+      delete fParticleList;
     }
     
     //----------------------------------------------------------------------------
@@ -73,8 +74,9 @@ namespace gar {
     {
       // Clear any previous particle information.
       fCurrentParticle.clear();
-      fparticleList->clear();
+      fParticleList->clear();
       fParentIDMap.clear();
+      fTrackIDToMCTruthIndex.clear();
       fCurrentTrackID = sdp::NoParticleId;
       
     }
@@ -116,11 +118,12 @@ namespace gar {
       
       // Get Geant4's ID number for this track.  This will be the same
       // ID number that we'll use in the ParticleList.
-      G4int trackID = track->GetTrackID() + fTrackIDOffset;
-      fCurrentTrackID = trackID;
+      G4int trackID       = track->GetTrackID() + fTrackIDOffset;
+      fCurrentTrackID     = trackID;
+      size_t mcTruthIndex = 0;
       
       // And the particle's parent:
-      G4int parentID = track->GetParentID();
+      G4int parentID = track->GetParentID() + fTrackIDOffset;
       
       std::string process_name = "unknown";
       
@@ -140,6 +143,8 @@ namespace gar {
           // primary particles should have parentID = 0, even if there
           // are multiple MCTruths for this event
           parentID = 0;
+          
+          mcTruthIndex = ppi->MCTruthIndex();
         } // end else no primary particle information
       } // Is there a G4PrimaryParticle?
       // If this is not a primary particle...
@@ -177,7 +182,7 @@ namespace gar {
           // isn't saved in the particle list because it is below the energy cut
           // which will put a bogus track id value into the sim::IDE object for
           // the sim::SimChannel if we don't check it.
-          if(!fparticleList->KnownParticle(fCurrentTrackID))
+          if(!fParticleList->KnownParticle(fCurrentTrackID))
             fCurrentTrackID = sdp::NoParticleId;
           
           // clear current particle as we are not stepping this particle and
@@ -206,7 +211,7 @@ namespace gar {
         // if not, then see if it is possible to walk up the fParentIDMap to find the
         // ultimate parent of this particle.  Use that ID as the parent ID for this
         // particle
-        if( !fparticleList->KnownParticle(parentID) ){
+        if( !fParticleList->KnownParticle(parentID) ){
           // do add the particle to the parent id map
           // just in case it makes a daughter that we have to track as well
           fParentIDMap[trackID] = parentID;
@@ -214,7 +219,7 @@ namespace gar {
           
           // if we still can't find the parent in the particle navigator,
           // we have to give up
-          if( !fparticleList->KnownParticle(pid) ){
+          if( !fParticleList->KnownParticle(pid) ){
             LOG_WARNING("ParticleListAction")
             << "can't find parent id: "
             << parentID
@@ -227,6 +232,21 @@ namespace gar {
             parentID = pid;
         }
         
+        // Attempt to find the MCTruth index corresponding to the
+        // current particle.  If the fCurrentTrackID is not in the
+        // map try the parent ID, if that is not there, throw an
+        // exception
+        if(fTrackIDToMCTruthIndex.count(fCurrentTrackID) > 0 )
+          mcTruthIndex = fTrackIDToMCTruthIndex.at(fCurrentTrackID);
+        else if(fTrackIDToMCTruthIndex.count(parentID) > 0 )
+          mcTruthIndex = fTrackIDToMCTruthIndex.at(parentID);
+        else
+          throw cet::exception("ParticleListAction")
+          << "Cannot find MCTruth index for track id "
+          << fCurrentTrackID
+          << " or "
+          << parentID;
+
       }// end if not a primary particle
       
       // This is probably the PDG mass, but just in case:
@@ -250,7 +270,18 @@ namespace gar {
                                                            polarization.z() ) );
       
       // Save the particle in the ParticleList.
-      fparticleList->Add( fCurrentParticle.particle );
+      fParticleList->Add( fCurrentParticle.particle );
+      
+      if(fTrackIDToMCTruthIndex.count(fCurrentTrackID) > 0)
+        LOG_WARNING("ParticleListAction")
+        << "attempting to put "
+        << fCurrentTrackID
+        << " into fTrackIDToMCTruthIndex map "
+        << " particle is\n"
+        << *(fCurrentParticle.particle);
+      
+      fTrackIDToMCTruthIndex[fCurrentTrackID] = mcTruthIndex;
+
     }
     
     //----------------------------------------------------------------------------
@@ -261,7 +292,7 @@ namespace gar {
       // if we have found no reason to keep it, drop it!
       // (we might still need parentage information though)
       if (!fCurrentParticle.keep) {
-        fparticleList->Archive(fCurrentParticle.particle);
+        fParticleList->Archive(fCurrentParticle.particle);
         // after the particle is archived, it is deleted
         fCurrentParticle.clear();
         return;
@@ -425,11 +456,11 @@ namespace gar {
       // "for_each" instead of the C++ "for loop" because it's supposed
       // to be faster.
       UpdateDaughterInformation updateDaughterInformation;
-      updateDaughterInformation.SetParticleList( fparticleList );
+      updateDaughterInformation.SetParticleList( fParticleList );
       
       // Update the daughter information for each particle in the list.
-      std::for_each(fparticleList->begin(),
-                    fparticleList->end(),
+      std::for_each(fParticleList->begin(),
+                    fParticleList->end(),
                     updateDaughterInformation);
     }
     
@@ -441,12 +472,12 @@ namespace gar {
       // so grab the highest track id value from it to
       // add to the fTrackIDOffset
       int highestID = 0;
-      for( auto pn = fparticleList->begin(); pn != fparticleList->end(); pn++)
+      for(auto pn = fParticleList->begin(); pn != fParticleList->end(); ++pn)
         if( (*pn).first > highestID ) highestID = (*pn).first;
       
       fTrackIDOffset = highestID + 1;
       
-      return fparticleList;
+      return fParticleList;
     }
     
     //----------------------------------------------------------------------------
@@ -457,15 +488,20 @@ namespace gar {
       // so grab the highest track id value from it to
       // add to the fTrackIDOffset
       int highestID = 0;
-      for( auto pn = fparticleList->begin(); pn != fparticleList->end(); pn++)
+      for(auto pn = fParticleList->begin(); pn != fParticleList->end(); ++pn)
         if( (*pn).first > highestID ) highestID = (*pn).first;
       
       fTrackIDOffset = highestID + 1;
       
-      return std::move(*fparticleList);
+      return std::move(*fParticleList);
     } // ParticleList&& ParticleListAction::YieldList()
     
-    
+    //-------------------------------------------------------------
+    std::map<int, size_t> ParticleListAction::TrackIDToMCTruthIndexMap() const
+    {
+      return fTrackIDToMCTruthIndex;
+    }
+
     //----------------------------------------------------------------------------
     void ParticleListAction::AddPointToCurrentParticle(TLorentzVector const& pos,
                                                        TLorentzVector const& mom,

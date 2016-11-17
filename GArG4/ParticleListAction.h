@@ -44,7 +44,7 @@ namespace gar {
       struct ParticleInfo_t {
         
         simb::MCParticle* particle = nullptr;  ///< simple structure representing particle
-        bool              keep = false;        ///< if there was decision to keep
+        bool              keep     = false;    ///< if there was decision to keep
         
         /// Resets the information (does not release memory it does not own)
         void clear() { particle = nullptr; keep = false; }
@@ -81,6 +81,8 @@ namespace gar {
     
       void                    ResetTrackIDOffset() { fTrackIDOffset = 0;     }
       
+      std::map<int, size_t>   TrackIDToMCTruthIndexMap() const;
+      
       // Returns the ParticleList accumulated during the current event.
       const sim::ParticleList* GetList() const;
       
@@ -100,10 +102,11 @@ namespace gar {
                                                        ///< be included in the list.
       ParticleInfo_t           fCurrentParticle;       ///< information about the particle currently being simulated
                                                        ///< for a single particle.
-      sim::ParticleList*       fparticleList;          ///< The accumulated particle information for
+      sim::ParticleList*       fParticleList;          ///< The accumulated particle information for
                                                        ///< all particles in the event.
       G4bool                   fstoreTrajectories;     ///< Whether to store particle trajectories with each particle.
       std::map<int, int>       fParentIDMap;           ///< key is current track ID, value is parent ID
+      std::map<int, size_t>    fTrackIDToMCTruthIndex; ///< map track ID to index of MCTruth in input list
       static int               fCurrentTrackID;        ///< track ID of the current particle, set to eve ID
                                                        ///< for EM shower particles
       static int               fTrackIDOffset;         ///< offset added to track ids when running over

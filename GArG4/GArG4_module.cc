@@ -163,9 +163,10 @@ namespace gar {
       
     private:
       g4b::G4Helper*             fG4Help;             ///< G4 interface object
-      garg4::LArVoxelListAction* flarVoxelListAction; ///< Geant4 user action to accumulate LAr voxel information.
-      garg4::ParticleListAction* fparticleListAction; ///< Geant4 user action to particle information.
+      garg4::LArVoxelListAction* fGArAction;          ///< Geant4 user action to handle GAr energy depositions
+      garg4::ParticleListAction* fParticleListAction; ///< Geant4 user action to particle information.
       
+      std::string                fGArVolumeName;      ///< Name of the volume containing gaseous argon
       std::string                fG4PhysListName;     ///< predefined physics list to use if not making a custom one
       std::string                fG4MacroPath;        ///< directory path for Geant4 macro file to be
                                                       ///< executed before main MC processing.
@@ -175,6 +176,7 @@ namespace gar {
       bool                       fUseLitePhotons;
       int                        fSmartStacking;      ///< Whether to instantiate and use class to
                                                       ///< dictate how tracks are put on stack.
+      float                      fMaxStepSize;        ///< maximum argon step size in cm
       std::vector<std::string>   fInputLabels;
       std::vector<std::string>   fKeepParticlesInVolumes; ///<Only write particles that have trajectories through these volumes
       
@@ -192,13 +194,15 @@ namespace gar {
     // Constructor
     GArG4::GArG4(fhicl::ParameterSet const& pset)
     : fG4Help                (0)
-    , flarVoxelListAction    (0)
-    , fparticleListAction    (0)
-    , fG4PhysListName        (pset.get< std::string >("G4PhysListName","garg4::PhysicsList"))
-    , fCheckOverlaps         (pset.get< bool        >("CheckOverlaps",false)                )
-    , fdumpParticleList      (pset.get< bool        >("DumpParticleList",false)             )
-    , fdumpSimChannels       (pset.get< bool        >("DumpSimChannels", false)             )
-    , fSmartStacking         (pset.get< int         >("SmartStacking",0)                    )
+    , fGArAction             (0)
+    , fParticleListAction    (0)
+    , fGArVolumeName         (pset.get< std::string >("GArVolumeName",    "volGAr")            )
+    , fG4PhysListName        (pset.get< std::string >("G4PhysListName",   "garg4::PhysicsList"))
+    , fCheckOverlaps         (pset.get< bool        >("CheckOverlaps",    false)               )
+    , fdumpParticleList      (pset.get< bool        >("DumpParticleList", false)               )
+    , fdumpSimChannels       (pset.get< bool        >("DumpSimChannels",  false)               )
+    , fSmartStacking         (pset.get< int         >("SmartStacking",    0)                   )
+    , fMaxStepSize           (pset.get< float       >("MaxStepSize",      0.2)                 )
     , fKeepParticlesInVolumes(pset.get< std::vector< std::string > >("KeepParticlesInVolumes",{}))
     
     {
@@ -226,9 +230,9 @@ namespace gar {
       bool useInputLabels = pset.get_if_present< std::vector<std::string> >("InputLabels", fInputLabels);
       if(!useInputLabels) fInputLabels.resize(0);
       
-      produces< std::vector<simb::MCParticle>               >();
-      produces< std::vector<sdp::SimChannel>                >();
-      produces< std::vector<sdp::AuxDetSimChannel>          >();
+      produces< std::vector<simb::MCParticle>                 >();
+      produces< std::vector<sdp::SimChannel>                  >();
+      produces< std::vector<sdp::AuxDetSimChannel>            >();
       produces< ::art::Assns<simb::MCTruth, simb::MCParticle> >();
       
       // constructor decides if initialized value is a path or an environment variable
@@ -272,6 +276,8 @@ namespace gar {
       // to create it in LArVoxelReadoutGeometry
       IonizationAndScintillation::CreateInstance(rng->getEngine("propagation"));
       
+        // Set the step size limits for the gaseous argon volume
+      fG4Help->SetVolumeStepLimit(fGArVolumeName, fMaxStepSize * CLHEP::cm);
       
       // Intialize G4 physics and primary generator action
       fG4Help->InitPhysics();
@@ -283,10 +289,10 @@ namespace gar {
       // produced in the detector.
       auto g4SimPars = gar::garg4::G4SimulationParameters::Instance();
       
-      fparticleListAction = new garg4::ParticleListAction(g4SimPars->KineticEnergyCut(),
+      fParticleListAction = new garg4::ParticleListAction(g4SimPars->KineticEnergyCut(),
                                                           g4SimPars->StoreTrajectories(),
                                                           g4SimPars->KeepEMShowerDaughters());
-      uaManager->AddAndAdoptAction(fparticleListAction);
+      uaManager->AddAndAdoptAction(fParticleListAction);
       
       // UserActionManager is now configured so continue G4 initialization
       fG4Help->SetUserAction();
@@ -300,7 +306,7 @@ namespace gar {
       // prepare the filter object (null if no filtering)
       
       std::set<std::string> volnameset(fKeepParticlesInVolumes.begin(), fKeepParticlesInVolumes.end());
-      fparticleListAction->ParticleFilter(CreateParticleVolumeFilter(volnameset));
+      fParticleListAction->ParticleFilter(CreateParticleVolumeFilter(volnameset));
 
       return;
     }
@@ -360,15 +366,15 @@ namespace gar {
       LOG_DEBUG("GArG4") << "produce()";
       
       // loop over the lists and put the particles and voxels into the event as collections
-      std::unique_ptr< std::vector<simb::MCParticle> >               partCol(new std::vector<simb::MCParticle>              );
-      std::unique_ptr< std::vector<sdp::SimChannel>  >               scCol  (new std::vector<sdp::SimChannel>               );
+      std::unique_ptr< std::vector<simb::MCParticle> >                 partCol(new std::vector<simb::MCParticle>              );
+      std::unique_ptr< std::vector<sdp::SimChannel>  >                 scCol  (new std::vector<sdp::SimChannel>               );
       std::unique_ptr< ::art::Assns<simb::MCTruth, simb::MCParticle> > tpassn (new ::art::Assns<simb::MCTruth, simb::MCParticle>);
-      std::unique_ptr< std::vector< sdp::AuxDetSimChannel > >        adCol  (new std::vector<sdp::AuxDetSimChannel>         );
+      std::unique_ptr< std::vector< sdp::AuxDetSimChannel > >          adCol  (new std::vector<sdp::AuxDetSimChannel>         );
       
       ::art::ServiceHandle<geo::Geometry> geom;
       
       // reset the track ID offset as we have a new collection of interactions
-      fparticleListAction->ResetTrackIDOffset();
+      fParticleListAction->ResetTrackIDOffset();
       
       // look to see if there is any MCTruth information for this
       // event
@@ -380,53 +386,69 @@ namespace gar {
         for(size_t i = 0; i < fInputLabels.size(); ++i)
           evt.getByLabel(fInputLabels[i], mclists[i]);
       }
+
+      // create a vector of art::Ptrs to MCTruths for use with the
+      // association creation and a vector of const* for use with
+      // G4Helper
+      std::vector< ::art::Ptr<simb::MCTruth> > mctPtrs;
+      std::vector< const simb::MCTruth*      > mcts;
       
-      unsigned int nGeneratedParticles = 0;
+      // Process Geant4 simulation for the mctruths
+      fG4Help->G4Run(mcts);
       
-      // Need to process Geant4 simulation for each interaction separately.
-      for(auto mclistHandle : mclists){
+      // receive the particle list
+      sim::ParticleList particleList = fParticleListAction->YieldList();
+      auto const        trackIDToMCT = fParticleListAction->TrackIDToMCTruthIndexMap();
+
+      int    trackID             = std::numeric_limits<int>::max();
+      size_t mctidx              = 0;
+      size_t nGeneratedParticles = 0;
+      
+      
+      auto iPartPair = particleList.begin();
+      while (iPartPair != particleList.end()) {
+        simb::MCParticle& p = *(iPartPair->second);
+     
+        trackID = p.TrackId();
         
-        for(size_t m = 0; m < mclistHandle->size(); ++m){
-          ::art::Ptr<simb::MCTruth> mct(mclistHandle, m);
+        partCol->push_back(std::move(p));
+        if( trackIDToMCT.count(trackID) > 0){
           
-          LOG_DEBUG("GArG4") << *(mct.get());
-          
-          // The following tells Geant4 to track the particles in this interaction.
-          fG4Help->G4Run(mct);
-          
-          // receive the particle list
-          sim::ParticleList particleList = fparticleListAction->YieldList();
-          
-          //for(auto const& partPair: particleList) {
-          //  simb::MCParticle& p = *(partPair.second);
-          auto iPartPair = particleList.begin();
-          while (iPartPair != particleList.end()) {
-            simb::MCParticle& p = *(iPartPair->second);
-            ++nGeneratedParticles;
-            
-            partCol->push_back(std::move(p));
-            util::CreateAssn(*this, evt, *partCol, mct, *tpassn);
-            // FIXME workaround until https://cdcvs.fnal.gov/redmine/issues/12067
-            // is solved and adopted in LArSoft, after which moving will suffice
-            // to avoid dramatic memory usage spikes;
-            // for now, we immediately disposed of used particles
-            iPartPair = particleList.erase(iPartPair);
-          } // while(particleList)
-          
-          
-          // Has the user request a detailed dump of the output objects?
-          if (fdumpParticleList){
-            LOG_INFO("GArG4")
-            << "Dump sim::ParticleList; size() = "
-            << particleList.size()
-            << "\n"
-            << particleList;
-          }
-          
+          mctidx = trackIDToMCT.find(trackID)->second;
+
+          util::CreateAssn(*this,
+                           evt,
+                           *partCol,
+                           mctPtrs[mctidx],
+                           *tpassn,
+                           nGeneratedParticles);
         }
+        else
+          throw cet::exception("GArG4")
+          << "Cannot find MCTruth for Track Id: "
+          << trackID
+          << " to create association between Particle and MCTruth";
+
+        // FIXME workaround until https://cdcvs.fnal.gov/redmine/issues/12067
+        // is solved and adopted in LArSoft, after which moving will suffice
+        // to avoid dramatic memory usage spikes;
+        // for now, we immediately disposed of used particles
+        iPartPair = particleList.erase(iPartPair);
         
-      }// end loop over interactions
+        ++nGeneratedParticles;
+      } // while(particleList)
       
+      
+      // Has the user request a detailed dump of the output objects?
+      if (fdumpParticleList){
+        LOG_INFO("GArG4")
+        << "Dump sim::ParticleList; size() = "
+        << particleList.size()
+        << "\n"
+        << particleList;
+      }
+      
+      // Now for the sdp::SimChannels
       // only put the sdp::SimChannels into the event once, not once for every
       // MCTruth in the event
       
