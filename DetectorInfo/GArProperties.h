@@ -36,8 +36,6 @@ namespace gar {
       virtual double AtomicMass()       const = 0;
       /// Mean excitation energy of the gas (eV)
       virtual double ExcitationEnergy() const = 0;
-      /// Fano Factor for the gas
-      virtual double FanoFactor()       const = 0;
       
     protected:
       GArProperties() = default;

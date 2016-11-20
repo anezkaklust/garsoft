@@ -7,6 +7,7 @@
 //
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "cetlib/exception.h"
 
 #include "TGeoManager.h"
 #include "TGeoMaterial.h"
@@ -24,6 +25,8 @@
 #include "Geant4/G4VProcess.hh"
 
 #include "GArG4/GArAction.h"
+#include "GArG4/ParticleListAction.h"
+#include "GArG4/IonizationAndScintillation.h"
 
 namespace gar {
 
@@ -32,6 +35,7 @@ namespace gar {
     //-------------------------------------------------------------
     // Constructor.
     GArAction::GArAction(fhicl::ParameterSet const& pset)
+    : fDriftAlg(nullptr)
     {
       this->reconfigure(pset);
     }
@@ -47,6 +51,14 @@ namespace gar {
     void GArAction::reconfigure(fhicl::ParameterSet const& pset )
     {
       fEnergyCut = pset.get<double>("EnergyCut") * CLHEP::GeV;
+      
+      auto driftAlgName = pset.get<std::string>("ElectronDriftAlg", "Standard");
+      
+      if(driftAlgName.compare("Standard") == 0)
+        fDriftAlg = std::make_unique<gar::garg4::ElectronDriftStandardAlg>();
+      else
+        throw cet::exception("GArAction")
+        << "Unable to determine which electron drift algorithm to use, bail"
 
       return;
     }
@@ -100,37 +112,25 @@ namespace gar {
          tpos0[1] == tpos1[1] &&
          tpos0[2] == tpos1[2]  ) return;
       
-      //check that we are in the correct material to record a hit
+      // check that we are in the correct material to record a hit
       std::string material = track->GetMaterial()->GetName();
       if(material.compare("GAr") != 0 ) {
         return;
       }
       
-//      double dcos[3]  = {mom.x()/mom.mag(),
-//                         mom.y()/mom.mag(),
-//                         mom.z()/mom.mag()};
       
-      /// Get density for Birks' Law calculation
-      TGeoManager *geomanager = fGeo->ROOTGeoManager();
-      if ( ! geomanager ) {
-        throw cet::exception("NoTGeoManager")
-        << "GArAction: no TGeoManager given by fGeo.  "
-        << "I need this to get the density.  Failing.\n"
-        << __FILE__ << ":" << __LINE__ << "\n";
-        return;
+      // Getting Energy depositions
+      const double edep = step->GetTotalEnergyDeposit()/CLHEP::GeV;
+      
+      // only worry about non-zero energy depositions.
+      if(edep > 0){
+        // reset the IonizationAndScintillation singleton
+        gar::garg4::IonizationAndScintillation::Instance()->Reset(step);
+        
+        auto ides = fDriftAlg->DriftElectronsToReadout(step);
+        
+      
       }
-      TGeoMaterial *mat = geomanager->GetMaterial("GAr");
-      if ( ! mat ) {
-        throw cet::exception("NoTGeoMaterial")
-        << "GArAction: no TGeoMaterial names 'GAr' found.  "
-        << "I need this to get the density.  Failing.\n"
-        << __FILE__ << ":" << __LINE__ << "\n";
-        return;
-      }
-      
-      /// Getting Energy depositions
-      //const double edep = step->GetTotalEnergyDeposit()/CLHEP::GeV;
-      
       
 //        fFLSHit->AddEdep( edep );
 //

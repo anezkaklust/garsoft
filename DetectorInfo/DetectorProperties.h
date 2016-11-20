@@ -73,31 +73,41 @@ namespace gar {
        * For unrestricted mean energy loss, set tcut = 0 (special case),
        * or tcut large.
        */
-      virtual double Eloss(double mom, double mass, double tcut) const = 0;
+      virtual double Eloss(double mom,
+                           double mass,
+                           double tcut)                   const = 0;
       
       /**
        * @brief Energy loss fluctuation (@f$ \sigma_{E}^2 / x @f$)
        * @param mom  momentum of incident particle in [GeV/c]
        * @return energy loss fluctuation in MeV^2/cm
        */
-      virtual double ElossVar(double mom, double mass) const = 0;
+      virtual double ElossVar(double mom,
+                              double mass)                 const = 0;
       
         /// Returns argon density at the temperature from Temperature()
       virtual double Density() const { return Density(Temperature()); }
       
-      virtual double       SamplingRate()      const = 0;
-      virtual double       ElectronsToADC()    const = 0;
-      virtual unsigned int NumberTimeSamples() const = 0;
-      virtual unsigned int ReadOutWindowSize() const = 0;
-      virtual int          TriggerOffset()     const = 0;
+      virtual double       SamplingRate()                  const = 0;
+      virtual double       ElectronsToADC()                const = 0;
+      virtual unsigned int NumberTimeSamples()             const = 0;
+      virtual unsigned int ReadOutWindowSize()             const = 0;
+      virtual int          TriggerOffset()                 const = 0;
       
-      virtual double       ConvertXToTicks(double X)     const = 0;
-      virtual double       ConvertTicksToX(double ticks) const = 0;
+      virtual double       ConvertXToTicks(double X)       const = 0;
+      virtual double       ConvertTicksToX(double ticks)   const = 0;
       
       // The following methods convert between TDC counts (SimChannel time) and
       // ticks (RawDigit time).
-      virtual double       ConvertTDCToTicks(double tdc) const = 0;
+      virtual double       ConvertTDCToTicks(double tdc)   const = 0;
       virtual double       ConvertTicksToTDC(double ticks) const = 0;
+      
+      /// Fano Factor for the gas
+      virtual double       FanoFactor()                    const = 0;
+      
+      /// Diffusion constants
+      virtual double       LongitudinalDiffusion()         const = 0;
+      virtual double       TransverseDiffusion()           const = 0;
       
     protected:
       DetectorProperties() = default;

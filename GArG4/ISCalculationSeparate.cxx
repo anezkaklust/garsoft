@@ -20,12 +20,12 @@
 namespace gar {
   namespace garg4{
     
-      //----------------------------------------------------------------------------
+    //----------------------------------------------------------------------------
     ISCalculationSeparate::ISCalculationSeparate(CLHEP::HepRandomEngine&)
     {
     }
     
-      //----------------------------------------------------------------------------
+    //----------------------------------------------------------------------------
     ISCalculationSeparate::~ISCalculationSeparate()
     {
     }
@@ -33,30 +33,22 @@ namespace gar {
     //----------------------------------------------------------------------------
     void ISCalculationSeparate::Initialize()
     {
-      //const detinfo::GArProperties*      garp    = gar::providerFrom<detinfo::GArPropertiesService>();
+      const detinfo::GArProperties*      garp    = gar::providerFrom<detinfo::GArPropertiesService>();
       const detinfo::DetectorProperties* detprop = gar::providerFrom<detinfo::DetectorPropertiesService>();
       
-//      double density       = detprop->Density(detprop->Temperature());
+      double density       = detprop->Density(detprop->Temperature());
       fEfield              = detprop->Efield();
-//      fGeVToElectrons      = lgpHandle->GeVToElectrons();
+      fGeVToElectrons      = garp->GeVToElectrons();
       
       // the recombination coefficient is in g/(MeVcm^2), but
       // we report energy depositions in MeV/cm, need to divide
       // Recombk from the GArG4Parameters service by the density
       // of the argon we got above.
-//      fRecombA             = lgpHandle->RecombA();
-//      fRecombk             = lgpHandle->Recombk()/density;
-//      fModBoxA             = lgpHandle->ModBoxA();
-//      fModBoxB             = lgpHandle->ModBoxB()/density;
-//      fUseModBoxRecomb     = lgpHandle->UseModBoxRecomb();
+      fRecombA = garp->RecombA();
+      fRecombk = garp->Recombk()/density;
       
       // Use Birks Correction in the Scintillation process
       fEMSaturation = G4LossTableManager::Instance()->EmSaturation();
-      
-      // TODO: make maxsize a configurable parameter
-      double maxsize = 1. * CLHEP::cm;
-      
-      fStepSize = 0.1 * maxsize;
       
       return;
     }
@@ -76,7 +68,7 @@ namespace gar {
     // fNumIonElectrons returns a value that is not corrected for life time effects
     void ISCalculationSeparate::CalculateIonizationAndScintillation(const G4Step* step)
     {
-      fEnergyDeposit = step->GetTotalEnergyDeposit()/CLHEP::MeV;
+      fEnergyDeposit = step->GetTotalEnergyDeposit() / CLHEP::MeV;
       
       // Get the recombination factor for this voxel - Nucl.Instrum.Meth.A523:275-286,2004
       // R = A/(1 + (dE/dx)*k)
@@ -87,30 +79,18 @@ namespace gar {
       // the dx depends on the trajectory of the step
       // k should be divided by the density as our dE/dx is in MeV/cm,
       // the division is handled in the constructor when we set fRecombk
-      // B.Baller: Add Modified Box recombination - ArgoNeuT result submitted to JINST
       
-      G4ThreeVector totstep = step->GetPostStepPoint()->GetPosition();
-      totstep -= step->GetPreStepPoint()->GetPosition();
+      G4ThreeVector totstep = (step->GetPostStepPoint()->GetPosition() -
+                               step->GetPreStepPoint()->GetPosition()   ) / CLHEP::cm;
       
-      double dx     = totstep.mag()/CLHEP::cm;
+      double dx     = totstep.mag();
       double recomb = 0.;
-      double dEdx   = fEnergyDeposit/dx;
+      double dEdx   = fEnergyDeposit / dx;
       
-      // Guard against spurious values of dE/dx. Note: assumes density of LAr
+      // Guard against spurious values of dE/dx. Note: assumes density of GAr
       if(dEdx < 1.) dEdx = 1.;
       
-      if(fUseModBoxRecomb) {
-        if (dx){
-          double Xi = fModBoxB * dEdx / fEfield;
-          recomb = log(fModBoxA + Xi) / Xi;
-        }
-        else
-          recomb = 0;
-      }
-      else{
-        recomb = fRecombA/(1. + dEdx * fRecombk / fEfield);
-      }
-      
+      recomb = fRecombA / (1. + dEdx * fRecombk / fEfield);
       
       // 1.e-3 converts fEnergyDeposit to GeV
       fNumIonElectrons = fGeVToElectrons * 1.e-3 * fEnergyDeposit * recomb;

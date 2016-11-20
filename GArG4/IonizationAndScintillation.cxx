@@ -47,8 +47,8 @@ namespace gar {
     //......................................................................
     // Constructor.
     IonizationAndScintillation::IonizationAndScintillation(CLHEP::HepRandomEngine& engine)
-    : fISCalc(0)
-    , fStep(0)
+    : fISCalc(nullptr)
+    , fStep(nullptr)
     , fElectronsPerStep(0)
     , fStepSize(0)
     , fPhotonsPerStep(0)
@@ -64,7 +64,8 @@ namespace gar {
       else if(fISCalculator.compare("Separate") == 0)
         fISCalc = new garg4::ISCalculationSeparate(fEngine);
       else
-        mf::LogWarning("IonizationAndScintillation") << "No ISCalculation set, this can't be good.";
+        LOG_WARNING("IonizationAndScintillation")
+        << "No ISCalculation set, this can't be good.";
       
       // Reset the values for the electrons, photons, and energy to 0
       // in the calculator

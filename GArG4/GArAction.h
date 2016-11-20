@@ -53,13 +53,14 @@ namespace gar {
       void SteppingAction    (const G4Step*);
       
       //  Returns the FLSHitList accumulated during the current event.
-      std::vector<gar::sdp::IDE> const& GArIDEList() const { return fIDEList; }
+      std::vector<gar::sdp::TDCIDE> const& GArIDEList() const { return fTDCIDEList; }
       
     private:
-      std::vector<gar::sdp::IDE>        fIDEList;    ///< The accumulated information for hits in the event.
-      double                            fEnergyCut;  ///< The minimum energy in GeV for a particle to
-                                                     ///< be included in the list.
-      ::art::ServiceHandle<geo::Geometry> fGeo;        ///< handle to geometry service
+      std::vector<gar::sdp::TDCIDE>                    fTDCIDEList;    ///< The accumulated information for hits in the event.
+      double                                        fEnergyCut;  ///< The minimum energy in GeV for a particle to
+                                                                 ///< be included in the list.
+      ::art::ServiceHandle<geo::Geometry>           fGeo;        ///< handle to geometry service
+      std::unique_ptr<gar::garg4::ElectronDriftAlg> fDriftAlg;   ///< algorithm to do the drifting
       
     };
     

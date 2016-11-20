@@ -132,22 +132,22 @@ namespace gar {
       if(p.has_key("InheritTriggerOffset"))
         throw cet::exception(__FUNCTION__) << "InheritTriggerOffset is a deprecated fcl parameter for DetectorPropertiesStandard!";
       
-      fEfield                   = p.get< std::vector<double> >("Efield");
-      fElectronlifetime         = p.get< double       >("Electronlifetime");
-      fTemperature              = p.get< double       >("Temperature");
-      fElectronsToADC    	      = p.get< double 	    >("ElectronsToADC"   );
-      fNumberTimeSamples 	      = p.get< unsigned int >("NumberTimeSamples");
-      fReadOutWindowSize 	      = p.get< unsigned int >("ReadOutWindowSize");
-      fTimeOffsetU       	      = p.get< double 	    >("TimeOffsetU"      );
-      fTimeOffsetV       	      = p.get< double 	    >("TimeOffsetV"      );
-      fTimeOffsetZ       	      = p.get< double 	    >("TimeOffsetZ"      );
-      fInheritNumberTimeSamples = p.get<bool          >("InheritNumberTimeSamples", false);
+      fEfield                     = p.get< std::vector<double> >("Efield");
+      fElectronlifetime           = p.get< double       >("Electronlifetime"               );
+      fTemperature                = p.get< double       >("Temperature"                    );
+      fElectronsToADC    	        = p.get< double 	    >("ElectronsToADC"                 );
+      fFanoFactor        	        = p.get< double 	    >("FanoFactor"                     );
+      fLongitudinalDiffusion      = p.get< double 	    >("LongitudinalDiffusion"          );
+      fTransverseDiffusion        = p.get< double 	    >("TransverseDiffusion"            );
+      fNumberTimeSamples 	        = p.get< unsigned int >("NumberTimeSamples"              );
+      fReadOutWindowSize 	        = p.get< unsigned int >("ReadOutWindowSize"              );
+      fInheritNumberTimeSamples   = p.get<bool          >("InheritNumberTimeSamples", false);
       
-      fSternheimerParameters.a    = p.get< double >("SternheimerA");
-      fSternheimerParameters.k    = p.get< double >("SternheimerK");
-      fSternheimerParameters.x0   = p.get< double >("SternheimerX0");
-      fSternheimerParameters.x1   = p.get< double >("SternheimerX1");
-      fSternheimerParameters.cbar = p.get< double >("SternheimerCbar");
+      fSternheimerParameters.a    = p.get< double       >("SternheimerA"                   );
+      fSternheimerParameters.k    = p.get< double       >("SternheimerK"                   );
+      fSternheimerParameters.x0   = p.get< double       >("SternheimerX0"                  );
+      fSternheimerParameters.x1   = p.get< double       >("SternheimerX1"                  );
+      fSternheimerParameters.cbar = p.get< double       >("SternheimerCbar"                );
       
       CalculateXTicksParams();
       

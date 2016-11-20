@@ -45,48 +45,6 @@ bool gar::detinfo::GArPropertiesStandard::Configure(fhicl::ParameterSet const& p
 
   this->SetArgon39DecayRate  (pset.get< double >("Argon39DecayRate"));
 
-  this->SetFastScintEnergies (pset.get< std::vector<double> >("FastScintEnergies"));
-  this->SetFastScintSpectrum (pset.get< std::vector<double> >("FastScintSpectrum"));
-  this->SetSlowScintEnergies (pset.get< std::vector<double> >("SlowScintEnergies"));
-  this->SetSlowScintSpectrum (pset.get< std::vector<double> >("SlowScintSpectrum"));
-  this->SetAbsLengthEnergies (pset.get< std::vector<double> >("AbsLengthEnergies"));
-  this->SetAbsLengthSpectrum (pset.get< std::vector<double> >("AbsLengthSpectrum"));
-  this->SetRIndexEnergies    (pset.get< std::vector<double> >("RIndexEnergies"   ));
-  this->SetRIndexSpectrum    (pset.get< std::vector<double> >("RIndexSpectrum"   ));
-  this->SetRayleighEnergies  (pset.get< std::vector<double> >("RayleighEnergies" ));
-  this->SetRayleighSpectrum  (pset.get< std::vector<double> >("RayleighSpectrum" ));
-
-  this->SetScintResolutionScale (pset.get<double>("ScintResolutionScale"));
-  this->SetScintFastTimeConst   (pset.get<double>("ScintFastTimeConst"));
-  this->SetScintSlowTimeConst   (pset.get<double>("ScintSlowTimeConst"));
-  this->SetScintBirksConstant   (pset.get<double>("ScintBirksConstant"));
-  this->SetScintByParticleType  (pset.get<bool>("ScintByParticleType"));
-  this->SetScintYield   (pset.get<double>("ScintYield"));
-  this->SetScintPreScale(pset.get<double>("ScintPreScale"));
-  this->SetScintYieldRatio      (pset.get<double>("ScintYieldRatio"));
-
-  if(ScintByParticleType()){
-    this->SetProtonScintYield(pset.get<double>("ProtonScintYield"));
-    this->SetProtonScintYieldRatio   (pset.get<double>("ProtonScintYieldRatio"));
-    this->SetMuonScintYield  (pset.get<double>("MuonScintYield"));
-    this->SetMuonScintYieldRatio     (pset.get<double>("MuonScintYieldRatio"));
-    this->SetPionScintYield  (pset.get<double>("PionScintYield"));
-    this->SetPionScintYieldRatio     (pset.get<double>("PionScintYieldRatio"));
-    this->SetKaonScintYield  (pset.get<double>("KaonScintYield"));
-    this->SetKaonScintYieldRatio     (pset.get<double>("KaonScintYieldRatio"));
-    this->SetElectronScintYield      (pset.get<double>("ElectronScintYield"));
-    this->SetElectronScintYieldRatio (pset.get<double>("ElectronScintYieldRatio"));
-    this->SetAlphaScintYield (pset.get<double>("AlphaScintYield"));
-    this->SetAlphaScintYieldRatio    (pset.get<double>("AlphaScintYieldRatio"));
-  }
-  
-  this->SetEnableCerenkovLight  (pset.get<bool>("EnableCerenkovLight"));
-  
-  this->SetReflectiveSurfaceNames(pset.get<std::vector<std::string> >("ReflectiveSurfaceNames"));
-  this->SetReflectiveSurfaceEnergies(pset.get<std::vector<double> >("ReflectiveSurfaceEnergies"));
-  this->SetReflectiveSurfaceReflectances(pset.get<std::vector<std::vector<double> > >("ReflectiveSurfaceReflectances"));
-  this->SetReflectiveSurfaceDiffuseFractions(pset.get<std::vector<std::vector<double> > >("ReflectiveSurfaceDiffuseFractions"));
-
   fIsConfigured = true;
 
 

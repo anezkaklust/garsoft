@@ -183,12 +183,16 @@ namespace gar {
       virtual double DriftVelocity(double efield=0.,
                                    double temperature=0.) const override;  ///< cm/us
       
-        /// dQ/dX in electrons/cm, returns dE/dX in MeV/cm.
+      /// dQ/dX in electrons/cm, returns dE/dX in MeV/cm.
       virtual double BirksCorrection(double dQdX) const override;
       virtual double ModBoxCorrection(double dQdX) const override;
       
-      virtual double ElectronLifetime() const override { return fElectronlifetime; }   //< microseconds
+      virtual double ElectronLifetime()      const override { return fElectronlifetime;     }   //< microseconds
       
+      virtual double FanoFactor()            const override { return fFanoFactor;            }
+      
+      virtual double LongitudinalDiffusion() const override { return fLongitudinalDiffusion; }
+      virtual double TransverseDiffusion()   const override { return fTransverseDiffusion;   }
       
       /**
        * @brief Returns argon density at a given temperature
@@ -272,22 +276,25 @@ namespace gar {
       const detinfo::DetectorClocks* fClocks;
       const geo::GeometryCore*       fGeo;
       
-      std::vector< double >          fEfield;            ///< kV/cm (per inter-plane volume)
-      double                         fElectronlifetime;  ///< microseconds
-      double                         fTemperature;       ///< kelvin
-      double                         fSamplingRate;      ///< in ns
-      double 	                       fElectronsToADC;    ///< conversion factor for # of ionization electrons to 1 ADC count
-      unsigned int                   fNumberTimeSamples; ///< number of clock ticks per event
-      unsigned int                   fReadOutWindowSize; ///< number of clock ticks per readout window
-      double                         fTimeOffsetU;       ///< time offset to convert spacepoint coordinates to hit times on view U
-      double                         fTimeOffsetV;       ///< time offset to convert spacepoint coordinates to hit times on view V
-      double                         fTimeOffsetZ;       ///< time offset to convert spacepoint coordinates to hit times on view Z
+      std::vector< double >          fEfield;                ///< kV/cm (per inter-plane volume)
+      double                         fElectronlifetime;      ///< microseconds
+      double                         fTemperature;           ///< kelvin
+      double                         fSamplingRate;          ///< in ns
+      double 	                       fElectronsToADC;        ///< conversion factor for # of ionization electrons to 1 ADC count
+      unsigned int                   fNumberTimeSamples;     ///< number of clock ticks per event
+      unsigned int                   fReadOutWindowSize;     ///< number of clock ticks per readout window
+      double                         fTimeOffsetU;           ///< time offset to convert spacepoint coordinates to hit times on view U
+      double                         fTimeOffsetV;           ///< time offset to convert spacepoint coordinates to hit times on view V
+      double                         fTimeOffsetZ;           ///< time offset to convert spacepoint coordinates to hit times on view Z
+      double                         fFanoFactor;
+      double                         fLongitudinalDiffusion; ///< amount of longitudinal diffusion
+      double                         fTransverseDiffusion;   ///< amount of longitudinal diffusion
       
       SternheimerParameters_t        fSternheimerParameters; ///< Sternheimer parameters
       
-      double                         fXTicksCoefficient; ///< Parameters for x<-->ticks
+      double                         fXTicksCoefficient;     ///< Parameters for x<-->ticks
       
-      detinfo::ElecClock             fTPCClock;          ///< TPC electronics clock
+      detinfo::ElecClock             fTPCClock;              ///< TPC electronics clock
     }; // class DetectorPropertiesStandard
   } //namespace detinfo
 } // gar

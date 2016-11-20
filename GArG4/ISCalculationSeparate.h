@@ -44,9 +44,6 @@ namespace gar {
       double 	   	    fGeVToElectrons;      ///< conversion factor from GArProperties service
       double 	   	    fRecombA;             ///< from GArG4Parameters service
       double 	   	    fRecombk;             ///< from GArG4Parameters service
-      double 	   	    fModBoxA;             ///< from GArG4Parameters service
-      double 	   	    fModBoxB;             ///< from GArG4Parameters service
-      bool   	   	    fUseModBoxRecomb;     ///< from GArG4Parameters service
       bool   	   	    fScintByParticleType; ///< from GArProperties service
       double 	   	    fScintYieldFactor;    ///< scintillation yield factor
       G4EmSaturation* fEMSaturation;        ///< pointer to EM saturation

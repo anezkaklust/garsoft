@@ -105,7 +105,7 @@ namespace gar {
       // method to return a collection of IDE structs for all geant4
       // track ids represented between startTDC and endTDC
       std::vector<sdp::IDE> TrackIDsAndEnergies(unsigned int startTDC,
-                                                     unsigned int endTDC) const;
+                                                unsigned int endTDC) const;
       
       const std::set<sdp::TDCIDE>& TDCIDEs() const;
       
