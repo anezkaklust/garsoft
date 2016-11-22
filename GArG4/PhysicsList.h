@@ -2,8 +2,6 @@
 /// \file  PhysicsList.h
 /// \brief Create the physics lists to be used by Geant4.
 ///
-/// \version $Id: PhysicsList.h,v 1.2 2009/09/15 18:33:43 t962cvs Exp $
-/// \author  seligman@nevis.columbia.edu
 ////////////////////////////////////////////////////////////////////////
 ///
 /// Without a physics list, Geant4 won't do anything.  G4 comes with a
@@ -51,22 +49,22 @@
 namespace gar {
   namespace garg4 {
     
-      // Under normal circumstances, there is no need to inherit a class
-      // from G4VModularPhysicsList.  It's necessary here because we have
-      // to modify one of its routines.
+    // Under normal circumstances, there is no need to inherit a class
+    // from G4VModularPhysicsList.  It's necessary here because we have
+    // to modify one of its routines.
     class ModularPhysicsList : public G4VModularPhysicsList
     {
     public:
-        // Constructor.
+      // Constructor.
       explicit ModularPhysicsList();
       virtual ~ModularPhysicsList();
       
-        // This is the one method we're overridding to include the code
-        // for the parallel geometry.
+      // This is the one method we're overridding to include the code
+      // for the parallel geometry.
       virtual void ConstructProcess();
       
-        // Non-virtual methods in G4VModularPhysicsList.  Just call the
-        // method with the same name in G4VModularPhysicsList.
+      // Non-virtual methods in G4VModularPhysicsList.  Just call the
+      // method with the same name in G4VModularPhysicsList.
       void RegisterPhysics(G4VPhysicsConstructor* g)
       {
         G4VModularPhysicsList::RegisterPhysics(g);
@@ -82,9 +80,9 @@ namespace gar {
       
     };
     
-      /// This typedef is what defines the name "garg4::PhysicsList" in
-      /// any class that includes this header.  Compare this with the
-      /// contents of $G4INSTALL/include/QGSP_BERT.hh.
+    /// This typedef is what defines the name "garg4::PhysicsList" in
+    /// any class that includes this header.  Compare this with the
+    /// contents of $G4INSTALL/include/QGSP_BERT.hh.
     typedef TConfigurablePhysicsList<ModularPhysicsList> PhysicsList;
     
   } // namespace garg4

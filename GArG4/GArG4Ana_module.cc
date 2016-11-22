@@ -57,7 +57,7 @@ namespace gar {
     class GArG4Ana : public ::art::EDAnalyzer{
     public:
       
-        /// Standard constructor and destructor for an FMWK module.
+      /// Standard constructor and destructor for an FMWK module.
       explicit GArG4Ana(fhicl::ParameterSet const& pset);
       virtual ~GArG4Ana();
       
@@ -75,14 +75,12 @@ namespace gar {
       TH1D *fPi0Momentum;
       TH1D *fnEnergy;
       TH1D *fnDist;
-      TH1D *fnumChannels; ///< The number of channels recieving charge per event
-      TProfile *fnumIDEs; ///< Number of drift electrons per channel.
-      TH1D *fEventCharge; ///< Charge collected per event
-      TH1D *fEventEnergy; ///< Energy collected per event
+      TH1D *fnumChannels;       ///< The number of channels recieving charge per event
+      TProfile *fnumIDEs;       ///< Number of drift electrons per channel.
+      TH1D *fEventCharge;       ///< Charge collected per event
+      TH1D *fEventEnergy;       ///< Energy collected per event
       TProfile *fChannelCharge; ///< Charge per channel.
       TProfile *fChannelEnergy; ///< Energy per channel.
-      
-        //    Int_t stringDim = 35;
       
       TTree *fTree;
       Int_t fTEvt;
@@ -219,13 +217,13 @@ namespace gar {
     void GArG4Ana::analyze(const ::art::Event& evt)
     {
       
-        //get the list of particles from this event
+      //get the list of particles from this event
       ::art::ServiceHandle<cheat::BackTracker> bt;
       const sim::ParticleList& plist = bt->ParticleList();
       ::art::ServiceHandle<geo::Geometry> geom;
       
-        // loop over all sim::SimChannels in the event and make sure there are no
-        // sim::IDEs with trackID values that are not in the sim::ParticleList
+      // loop over all sim::SimChannels in the event and make sure there are no
+      // sim::IDEs with trackID values that are not in the sim::ParticleList
       std::vector<const sdp::SimChannel*> sccol;
       evt.getView(fG4ModuleLabel, sccol);
       
@@ -270,7 +268,7 @@ namespace gar {
       fEventCharge->Fill(totalCharge);
       fEventEnergy->Fill(totalEnergy);
       
-        // get the particles from the back tracker
+      // get the particles from the back tracker
       const sim::ParticleList& Particles = bt->ParticleList();
       std::vector<const simb::MCParticle*> pvec;
       pvec.reserve(Particles.size());
@@ -279,7 +277,7 @@ namespace gar {
         fPDGCodes->Fill(PartPair.second->PdgCode());
       }
       
-        // now look for pi0's that decay to 2 gammas
+      // now look for pi0's that decay to 2 gammas
       int pi0loc = -1;
       int numpi0gamma = 0;
       for(unsigned int i = 0; i < pvec.size(); ++i){
@@ -295,7 +293,7 @@ namespace gar {
           ++numpi0gamma;
         }
         
-          // n,Lambda,K0s,K0L,K0
+        // n,Lambda,K0s,K0L,K0
         if (pvec[i]->PdgCode() == 2112 ||
             pvec[i]->PdgCode() == 3122 ||
             pvec[i]->PdgCode() == 130  ||
@@ -307,7 +305,7 @@ namespace gar {
         
         fTPdg = pvec[i]->PdgCode();
         fTID = pvec[i]->TrackId();
-          // 0 out strings, else there may be cruft in here from prev evt.
+        // 0 out strings, else there may be cruft in here from prev evt.
         for (unsigned int s = 0; s < 35; ++s){
           *(fTProcess+s)  = 0;
           *(fTProcess+s)  = 0;
@@ -342,7 +340,7 @@ namespace gar {
         for( int d = 0; d < fTNds; d++ ){
           daughter = pvec[i]->Daughter(d);
           fTDID[d] = daughter; 
-            // zero it out.
+          // zero it out.
           for (unsigned int s = 0; s < 35; ++s) *(fTDProcess[d]+s) = 0; 
           
           for(unsigned int jj = i; jj < pvec.size(); ++jj){ // Don't look below i.

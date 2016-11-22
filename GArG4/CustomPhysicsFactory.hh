@@ -1,8 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file CustomPhysicsFactory.h
 //
-/// \version $Id: PrimaryParticleInformation.cxx,v 1.3 2009/10/05 23:21:51 t962cvs Exp $
-/// \author  seligman@nevis.columbia.edu
 ////////////////////////////////////////////////////////////////////////
 #ifndef CUSTOMPHYSICSFACTORY_hh
 #define CUSTOMPHYSICSFACTORY_hh
@@ -63,7 +61,7 @@ namespace gar {
     template<class T> CustomPhysicsFactory<T>::CustomPhysicsFactory(std::string Name)
     {
       
-        // For debugging.
+      // For debugging.
       verbose=true;
       
       if(Name!="")
@@ -71,9 +69,9 @@ namespace gar {
       else
         std::cerr<<"CustomPhysicsFactory Error : Physics registered with no name!"<<std::endl;
       
-        // register self in physics table - note, factory is actually registered
-        // in static TheCustomPhysicsTable, not the instance created below
-        // which just acts to pass information along
+      // register self in physics table - note, factory is actually registered
+      // in static TheCustomPhysicsTable, not the instance created below
+      // which just acts to pass information along
       new CustomPhysicsTable(this);
       registered=true;
     }

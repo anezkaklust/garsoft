@@ -1,7 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file CustomPhysicsTable.cxx
 //
-/// \author  bjpjones@mit.edu
 ////////////////////////////////////////////////////////////////////////
 // See header file for full description
 
@@ -17,7 +16,7 @@ namespace gar {
     
     static CustomPhysicsTable * TheCustomPhysicsTable;
     
-      //-----------------------------------------------------------------
+    //-----------------------------------------------------------------
     CustomPhysicsTable::CustomPhysicsTable(CustomPhysicsFactoryBase * Factory)
     {
       if(!TheCustomPhysicsTable){
@@ -29,7 +28,7 @@ namespace gar {
       }
     }
     
-      //-----------------------------------------------------------------
+    //-----------------------------------------------------------------
     std::vector<std::string> CustomPhysicsTable::GetAvailablePhysicsList()
     {
       std::vector<std::string> ReturnVector;
@@ -62,7 +61,7 @@ namespace gar {
       
     }
     
-      //-----------------------------------------------------------------
+    //-----------------------------------------------------------------
     void CustomPhysicsTable::AddPhysics(CustomPhysicsFactoryBase * Factory)
     {
       

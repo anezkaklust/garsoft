@@ -460,6 +460,8 @@ namespace gar {
       // Now for the sdp::SimChannels
       for(auto const& sc : fGArAction->SimChannels()) scCol->emplace_back(sc);
       
+      // And finally the AuxDetSimChannels
+      
       evt.put(std::move(scCol));
       evt.put(std::move(adCol));
       evt.put(std::move(partCol));
