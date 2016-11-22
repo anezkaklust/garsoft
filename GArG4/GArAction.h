@@ -19,10 +19,13 @@
 
 // GArSoft includes
 #include "Geometry/Geometry.h"
+#include "GArG4/ElectronDriftAlg.h"
 #include "SimulationDataProducts/SimChannel.h"
 
 //ART includes
 #include "art/Framework/Services/Registry/ServiceHandle.h"
+
+#include "CLHEP/Random/RandGauss.h"
 
 // Forward declarations.
 class G4Event;
@@ -39,7 +42,8 @@ namespace gar {
     public:
       
       // Standard constructors and destructors;
-      explicit GArAction(fhicl::ParameterSet const& pset);
+      GArAction(CLHEP::HepRandomEngine*        engine,
+                fhicl::ParameterSet     const& pset);
       virtual ~GArAction();
       
       void reconfigure(fhicl::ParameterSet const& pset);
@@ -50,18 +54,18 @@ namespace gar {
       void EndOfEventAction  (const G4Event*);
       void PreTrackingAction (const G4Track*);
       void PostTrackingAction(const G4Track*);
-      void SteppingAction    (const G4Step*);
+      void SteppingAction    (const G4Step* );
       
-      //  Returns the FLSHitList accumulated during the current event.
-      std::vector<gar::sdp::TDCIDE> const& GArIDEList() const { return fTDCIDEList; }
+      //  Returns the SimChannel set accumulated during the current event.
+      std::set<gar::sdp::SimChannel> const& SimChannels() const { return fDriftAlg->SimChannels(); }
       
     private:
-      std::vector<gar::sdp::TDCIDE>                    fTDCIDEList;    ///< The accumulated information for hits in the event.
-      double                                        fEnergyCut;  ///< The minimum energy in GeV for a particle to
-                                                                 ///< be included in the list.
-      ::art::ServiceHandle<geo::Geometry>           fGeo;        ///< handle to geometry service
-      std::unique_ptr<gar::garg4::ElectronDriftAlg> fDriftAlg;   ///< algorithm to do the drifting
-      
+      std::set<gar::sdp::SimChannel>                fSimChannels; ///< The accumulated information for hits in the event.
+      double                                        fEnergyCut;   ///< The minimum energy in GeV for a particle to
+                                                                  ///< be included in the list.
+      ::art::ServiceHandle<geo::Geometry>           fGeo;         ///< handle to geometry service
+      std::unique_ptr<gar::garg4::ElectronDriftAlg> fDriftAlg;    ///< algorithm to do the drifting
+      CLHEP::HepRandomEngine*                       fEngine;      ///< random number engine
     };
     
   } // garg4

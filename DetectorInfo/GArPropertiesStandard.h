@@ -74,15 +74,13 @@ namespace gar {
       virtual double AtomicMass()       const override { return fA; }
       /// Ar mean excitation energy (eV)
       virtual double ExcitationEnergy() const override { return fI; }
-      /// Ar gas Fano factor
-      virtual double FanoFactor()       const override { return fF; }
       
       void SetRadiationLength(double rl)     { fRadiationLength  = rl; }
       void SetArgon39DecayRate(double r)     { fArgon39DecayRate = r;  }
       void SetAtomicNumber(double z)         { fZ = z; }
       void SetAtomicMass(double a)           { fA = a; }
       void SetMeanExcitationEnergy(double e) { fI = e; }
-      void SetFanoFactor(double f)           { fF = f; }
+
     private:
     protected:
       

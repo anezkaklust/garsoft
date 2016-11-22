@@ -11,6 +11,7 @@
 #include "Geant4/G4LossTableManager.hh"
 #include "Geant4/G4EmSaturation.hh"
 #include "DetectorInfo/DetectorPropertiesService.h"
+#include "DetectorInfo/DetectorProperties.h"
 #include "DetectorInfo/GArPropertiesService.h"
 #include "GArG4/ISCalculationSeparate.h"
 
@@ -33,19 +34,18 @@ namespace gar {
     //----------------------------------------------------------------------------
     void ISCalculationSeparate::Initialize()
     {
-      const detinfo::GArProperties*      garp    = gar::providerFrom<detinfo::GArPropertiesService>();
       const detinfo::DetectorProperties* detprop = gar::providerFrom<detinfo::DetectorPropertiesService>();
       
       double density       = detprop->Density(detprop->Temperature());
       fEfield              = detprop->Efield();
-      fGeVToElectrons      = garp->GeVToElectrons();
+      fGeVToElectrons      = gar::detinfo::kGeVToElectrons;
       
       // the recombination coefficient is in g/(MeVcm^2), but
       // we report energy depositions in MeV/cm, need to divide
       // Recombk from the GArG4Parameters service by the density
       // of the argon we got above.
-      fRecombA = garp->RecombA();
-      fRecombk = garp->Recombk()/density;
+      fRecombA = gar::detinfo::kRecombA;
+      fRecombk = gar::detinfo::kRecombk / density;
       
       // Use Birks Correction in the Scintillation process
       fEMSaturation = G4LossTableManager::Instance()->EmSaturation();

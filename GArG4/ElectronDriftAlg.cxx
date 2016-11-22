@@ -6,8 +6,8 @@
 //  Copyright © 2016 Brian Rebel. All rights reserved.
 //
 
+#include "DetectorInfo/DetectorPropertiesService.h"
 #include "GArG4/ElectronDriftAlg.h"
-#include "DetectorInfo/GArPropertiesService.h"
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"
@@ -20,7 +20,7 @@ namespace gar {
     // beyond what is available from either DetectorPropertiesService or
     // GArPropertiesService.
     ElectronDriftAlg::ElectronDriftAlg(CLHEP::HepRandomEngine      & engine,
-                                       fhicl::ParameterSEt    const& /*pset*/)
+                                       fhicl::ParameterSet    const& /*pset*/)
     : fEngine(engine)
     {
       // get the corrections and constants from the necessary places
@@ -28,7 +28,7 @@ namespace gar {
       
       fDriftVelocity         = detProp->DriftVelocity(detProp->Efield(),
                                                       detProp->Temperature());
-      fLifetimeCorrection    = -1000. * detProp->ElectronLifeTime();
+      fLifetimeCorrection    = -1000. * detProp->ElectronLifetime();
       fLongitudinalDiffusion = detProp->LongitudinalDiffusion();
       fTransverseDiffusion   = detProp->TransverseDiffusion();
       fFanoFactor            = detProp->FanoFactor();

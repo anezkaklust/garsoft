@@ -115,21 +115,21 @@ namespace gar {
   
   namespace garg4 {
     
-      //-----------------------------------------------------------------------
-      // Constructor
+    //-----------------------------------------------------------------------
+    // Constructor
     GArG4Ana::GArG4Ana(fhicl::ParameterSet const& pset)
     : EDAnalyzer(pset)
     {
       this->reconfigure(pset);
     }
     
-      //-----------------------------------------------------------------------
-      // Destructor
+    //-----------------------------------------------------------------------
+    // Destructor
     GArG4Ana::~GArG4Ana()
     {
     }
     
-      //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
     void GArG4Ana::beginJob()
     {
       ::art::ServiceHandle<::art::TFileService> tfs;
@@ -204,7 +204,7 @@ namespace gar {
       
     }
     
-      //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
     void GArG4Ana::reconfigure(fhicl::ParameterSet const& p)
     {
       fG4ModuleLabel    = p.get< std::string >("GeantModuleLabel");
@@ -215,7 +215,7 @@ namespace gar {
       return;
     }
     
-      //-----------------------------------------------------------------------
+    //-----------------------------------------------------------------------
     void GArG4Ana::analyze(const ::art::Event& evt)
     {
       
@@ -229,18 +229,26 @@ namespace gar {
       std::vector<const sdp::SimChannel*> sccol;
       evt.getView(fG4ModuleLabel, sccol);
       
-      double totalCharge=0.0;
-      double totalEnergy=0.0;
+      double totalCharge = 0.0;
+      double totalEnergy = 0.0;
+
       fnumChannels->Fill(sccol.size());
-      for(size_t sc = 0; sc < sccol.size(); ++sc){
-        double numIDEs=0.0;
-        double scCharge=0.0;
-        double scEnergy=0.0;
-        const auto & tdcidemap = sccol[sc]->TDCIDEs();
+      
+      for(auto sc : sccol){
+        double numIDEs  = 0.0;
+        double scCharge = 0.0;
+        double scEnergy = 0.0;
+        
+        const auto & tdcidemap = sc->TDCIDEs();
+        
         for(auto const& mapitr : tdcidemap){
-          const std::vector<sdp::IDE> idevec = mapitr.fIDEs;
+          
+          auto const& idevec = mapitr.fIDEs;
+          
           numIDEs += idevec.size();
+          
           for(auto const& ide : idevec){
+
             if(plist.find( ide.trackID ) == plist.end() &&
                ide.trackID != sdp::NoParticleId)
               LOG_WARNING("GArG4Ana")
@@ -253,9 +261,11 @@ namespace gar {
             scEnergy    += ide.energy;
           }
         }
-        fnumIDEs->Fill(sc,numIDEs);
-        fChannelCharge->Fill(sc,scCharge);
-        fChannelEnergy->Fill(sc,scEnergy);
+        
+        fnumIDEs      ->Fill(sc->Channel(), numIDEs);
+        fChannelCharge->Fill(sc->Channel(), scCharge);
+        fChannelEnergy->Fill(sc->Channel(), scEnergy);
+        
       }
       fEventCharge->Fill(totalCharge);
       fEventEnergy->Fill(totalEnergy);

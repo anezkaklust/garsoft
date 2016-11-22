@@ -20,11 +20,11 @@ namespace gar {
   namespace sdp{
     
     //--------------------------------------------------------------------------
-    bool TDCIDE::operator<(TDCIDE const& other) const
+    bool gar::sdp::TDCIDE::operator<(gar::sdp::TDCIDE const& other) const
     {
-      return this->fTDC < other.fTDC;
+      return fTDC < other.fTDC;
     }
-    
+
     //-------------------------------------------------
     IDE::IDE()
     : trackID     (std::numeric_limits<int>::min())
@@ -46,6 +46,36 @@ namespace gar {
     , z           (ide.z)
     {}
     
+    //-------------------------------------------------
+    void gar::sdp::IDE::operator+=(gar::sdp::IDE const& b)
+    {
+      if(this->trackID != b.trackID){
+        LOG_WARNING("SimChannel")
+        << "attempting to add IDEs with different trackIDs: "
+        << this->trackID
+        << "; "
+        << b.trackID
+        << " bail";
+        return;
+      }
+      
+      double totElectrons = this->numElectrons + b.numElectrons;
+      this->energy       += b.energy;
+      this->x             = (this->x * this->numElectrons + b.x * b.numElectrons) / totElectrons;
+      this->y             = (this->y * this->numElectrons + b.y * b.numElectrons) / totElectrons;
+      this->z             = (this->z * this->numElectrons + b.z * b.numElectrons) / totElectrons;
+      this->numElectrons += b.numElectrons;
+      
+      return;
+    }
+
+    //-------------------------------------------------
+    bool gar::sdp::IDE::operator<(gar::sdp::IDE const& b) const
+    {
+      return trackID < b.trackID;
+    }
+
+    
     // Default constructor
     //-------------------------------------------------
     SimChannel::SimChannel()
@@ -56,6 +86,46 @@ namespace gar {
     SimChannel::SimChannel(unsigned int channel)
     : fChannel(channel)
     {}
+    
+    //-------------------------------------------------
+    void SimChannel::AddIonizationElectrons(unsigned int   tdc,
+                                            gar::sdp::IDE &ide)
+    {
+      gar::sdp::TDCIDE temp;
+      temp.fTDC = tdc;
+      
+      auto itr = fTDCIDEs.find(temp);
+      if(itr != fTDCIDEs.end()){
+        
+        temp.fIDEs = itr->fIDEs;
+        
+        // find the IDE for this track ID
+        auto ideitr = temp.fIDEs.find(ide);
+        if( ideitr != itr->fIDEs.end() ){
+          ide += *ideitr;
+          
+          // remove the current IDE so we can replace it with
+          // the summed new one below
+          temp.fIDEs.erase(ideitr);
+        }
+
+        temp.fIDEs.insert(std::move(ide));
+        
+        // we need to replace the current TDCIDE with the
+        // adjusted one, so erase the one we found, below
+        // we will just put in the temp TDCIDE into the set
+        fTDCIDEs.erase(itr);
+      } // if this tdc value is in the set
+      else
+        // there was no TDCIDE for this tdc, so we need to start the
+        // IDE set as well
+        temp.fIDEs.insert(ide);
+
+      // insert the temp TDCIDE into the set for the channel
+      fTDCIDEs.insert(temp);
+      
+      return;
+    }
     
     //-------------------------------------------------
     void SimChannel::AddIonizationElectrons(int          trackID,
@@ -84,49 +154,14 @@ namespace gar {
         return;
       } // if no energy or no electrons
       
-      gar::sdp::TDCIDE temp;
-      temp.fTDC = tdc;
+      gar::sdp::IDE tempIDE(trackID,
+                            numberElectrons,
+                            energy,
+                            xyz[0],
+                            xyz[1],
+                            xyz[2]);
       
-      auto const& itr = fTDCIDEs.find(temp);
-      if(itr != fTDCIDEs.end()){
-        
-        // loop over the IDE vector for this tdc and add the electrons
-        // to the entry with the same track id
-        for(auto & ide : itr->fIDEs){
-          
-          if( ide.trackID == trackID ){
-            // make a weighted average for the location information
-            double weight    = ide.numElectrons + numberElectrons;
-            temp.fIDEs.emplace_back(trackID,
-                                    weight,
-                                    ide.energy + energy,
-                                    (ide.x * ide.numElectrons + xyz[0] * numberElectrons) / weight,
-                                    (ide.y * ide.numElectrons + xyz[1] * numberElectrons) / weight,
-                                    (ide.z * ide.numElectrons + xyz[2] * numberElectrons) / weight);
-          }
-          else temp.fIDEs.push_back(ide);
-        } // loop over the IDEs for this tdc
-
-        // now remove the TDCIDE from the set and replace it with the updated one
-        fTDCIDEs.erase(itr);
-        fTDCIDEs.insert(std::move(temp));
-        
-      } // if this tdc value is in the set
-      else{
-        // if we never found the tdc, add a TDCIDE to the vector
-        sdp::TDCIDE tdcide;
-        tdcide.fTDC = tdc;
-        tdcide.fIDEs.emplace_back(trackID,
-                                  numberElectrons,
-                                  energy,
-                                  xyz[0],
-                                  xyz[1],
-                                  xyz[2]);
-        
-        fTDCIDEs.insert(tdcide);
-      }
-      
-      return;
+      return this->AddIonizationElectrons(tdc, tempIDE);
     }
     
     //-------------------------------------------------
@@ -304,12 +339,12 @@ namespace gar {
 
         for(auto const& ide : tdc.fIDEs){
           
-          tdcide.fIDEs.emplace_back(ide, offset);
+          tdcide.fIDEs.emplace(ide, offset);
 
-          if(ide.trackID+offset  < range_trackID.first)
-            range_trackID.first  = ide.trackID+offset;
-          if(ide.trackID+offset  > range_trackID.second)
-            range_trackID.second = ide.trackID+offset;
+          if(ide.trackID + offset  < range_trackID.first)
+            range_trackID.first  = ide.trackID + offset;
+          if(ide.trackID + offset  > range_trackID.second)
+            range_trackID.second = ide.trackID + offset;
           
         }//end loop over IDEs
         

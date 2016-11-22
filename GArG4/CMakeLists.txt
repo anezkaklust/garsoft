@@ -46,6 +46,7 @@ art_make(LIB_LIBRARIES      nutools_ParticleNavigation
                             nutools_G4Base
                             nusimdata_SimulationBase
                             Geometry
+                            SimulationDataProducts
                             ${ART_FRAMEWORK_PRINCIPAL}
                             ${ART_FRAMEWORK_SERVICES_REGISTRY}
                             ${ART_FRAMEWORK_SERVICES_OPTIONAL}

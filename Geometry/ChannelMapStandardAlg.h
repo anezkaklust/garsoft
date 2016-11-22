@@ -24,9 +24,10 @@ namespace gar{
       
       ChannelMapStandardAlg(fhicl::ParameterSet const& p);
       
-      void         Initialize() override;
-      void         Uninitialize();
-      unsigned int Nchannels() const;
+      void         Initialize()                             override;
+      void         Uninitialize()                           override;
+      unsigned int Nchannels()                        const override;
+      unsigned int NearestChannel(float const xyz[3]) const override;
       
     private:
       

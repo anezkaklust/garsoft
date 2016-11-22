@@ -39,6 +39,17 @@ namespace gar {
       return fNChannels;
     }
     
+    //----------------------------------------------------------------------------
+    unsigned int ChannelMapStandardAlg::NearestChannel(float const xyz[3]) const
+    {
+      unsigned int channel = std::numeric_limits<unsigned int>::max();
+      
+      // insert code here to calculate the nearest channel based on the
+      // supplied position.  If the position is outside the bounds for channels
+      // throw an exception.
+      
+      return channel;
+    }
     
   } // namespace
 } // namespace gar

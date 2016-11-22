@@ -17,7 +17,8 @@
   <version ClassVersion="11" checksum="418422604"/>
   <version ClassVersion="10" checksum="3233229872"/>
  </class>
- <class name="gar::sdp::TDCIDE"                   ClassVersion="11"            >
+ <class name="gar::sdp::TDCIDE"                   ClassVersion="12"            >
+  <version ClassVersion="12" checksum="3882670512"/>
   <version ClassVersion="11" checksum="393308477"/>
   <version ClassVersion="10" checksum="437101621"/>
  </class>

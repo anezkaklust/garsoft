@@ -52,6 +52,9 @@ namespace gar {
       , z           (zpos)
       {}
       
+      void operator +=(gar::sdp::IDE const& b);
+      bool operator  <(gar::sdp::IDE const& b) const;
+      
 #endif
       
       int   trackID;      ///< Geant4 supplied track ID
@@ -64,10 +67,12 @@ namespace gar {
     
     struct TDCIDE
     {
-      unsigned short        fTDC;  ///< TDC tick
-      std::vector<sdp::IDE> fIDEs; ///< IDEs for this TDC
+      unsigned short     fTDC;  ///< TDC tick
+      std::set<sdp::IDE> fIDEs; ///< IDEs for this TDC
       
+#ifndef __GCCXML__
       bool operator<(TDCIDE const& other) const;
+#endif
     };
     
     class SimChannel
@@ -97,7 +102,9 @@ namespace gar {
                                   double numberElectrons,
                                   double *xyz,
                                   double energy);
-      
+
+      void AddIonizationElectrons(unsigned int   tdc,
+                                  gar::sdp::IDE &ide);
       
       
       unsigned int Channel() const;
@@ -119,7 +126,6 @@ namespace gar {
                                            unsigned int endTDC) const;
       
       bool operator<  (const SimChannel& other) const;
-      bool operator== (const SimChannel& other) const;
       
       std::pair<int,int> MergeSimChannel(const SimChannel&, int);
       
@@ -149,8 +155,7 @@ namespace gar {
 
 #ifndef __GCCXML__
 
-inline bool                              gar::sdp::SimChannel::operator<  (const sdp::SimChannel& other) const { return fChannel < other.Channel();  }
-inline bool                              gar::sdp::SimChannel::operator== (const sdp::SimChannel& other) const { return fChannel == other.Channel(); }
+inline bool                              gar::sdp::SimChannel::operator<  (sdp::SimChannel const& other) const { return fChannel < other.Channel();  }
 inline std::set<gar::sdp::TDCIDE> const& gar::sdp::SimChannel::TDCIDEs()                                 const { return fTDCIDEs; }
 inline unsigned int                      gar::sdp::SimChannel::Channel()                                 const { return fChannel; }
 

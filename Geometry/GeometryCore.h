@@ -623,9 +623,9 @@ namespace gar {
        * @todo remove the integers version
        * @todo Verify the raw::InvalidChannelID part
        */
-      unsigned int NearestChannel(const double worldLoc[3]) const;
-      unsigned int NearestChannel(std::vector<double> const& worldLoc) const;
-      unsigned int NearestChannel(const TVector3& worldLoc) const;
+      unsigned int NearestChannel(float              const  worldLoc[3]) const;
+      unsigned int NearestChannel(std::vector<float> const& worldLoc)    const;
+      unsigned int NearestChannel(TVector3           const& worldLoc)    const;
       //@}
       
       //

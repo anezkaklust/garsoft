@@ -68,7 +68,6 @@ bool gar::detinfo::GArPropertiesStandard::Configure(fhicl::ParameterSet   const&
   SetAtomicMass           (config.AtomicMass()          );
   SetMeanExcitationEnergy (config.MeanExcitationEnergy());
   SetArgon39DecayRate     (config.Argon39DecayRate()    );
-  SetFanoFactor           (config.FanoFactor()          );
   fIsConfigured = true;
 
   return true;

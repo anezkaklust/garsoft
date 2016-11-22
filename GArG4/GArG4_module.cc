@@ -56,9 +56,9 @@
 #include "nutools/RandomUtils/NuRandomService.h"
 
 // GArSoft Includes
+#include "GArG4/GArAction.h"
 #include "GArG4/PhysicsList.h"
 #include "GArG4/ParticleListAction.h"
-#include "GArG4/IonizationAndScintillationAction.h"
 #include "GArG4/MaterialPropertyLoader.h"
 #include "GArG4/ParticleFilters.h" // garg4::PositionInVolumeFilter
 #include "GArG4/G4SimulationParameters.h"
@@ -163,9 +163,9 @@ namespace gar {
       
     private:
       g4b::G4Helper*             fG4Help;             ///< G4 interface object
-      garg4::LArVoxelListAction* fGArAction;          ///< Geant4 user action to handle GAr energy depositions
+      garg4::GArAction*          fGArAction;          ///< Geant4 user action to handle GAr energy depositions
       garg4::ParticleListAction* fParticleListAction; ///< Geant4 user action to particle information.
-      
+      fhicl::ParameterSet        fGArActionPSet;      ///< configuration for GArAction
       std::string                fGArVolumeName;      ///< Name of the volume containing gaseous argon
       std::string                fG4PhysListName;     ///< predefined physics list to use if not making a custom one
       std::string                fG4MacroPath;        ///< directory path for Geant4 macro file to be
@@ -180,7 +180,7 @@ namespace gar {
       std::vector<std::string>   fInputLabels;
       std::vector<std::string>   fKeepParticlesInVolumes; ///<Only write particles that have trajectories through these volumes
       
-        /// Configures and returns a particle filter
+      /// Configures and returns a particle filter
       std::unique_ptr<PositionInVolumeFilter> CreateParticleVolumeFilter
       (std::set<std::string> const& vol_names) const;
       
@@ -193,16 +193,17 @@ namespace gar {
     //----------------------------------------------------------------------
     // Constructor
     GArG4::GArG4(fhicl::ParameterSet const& pset)
-    : fG4Help                (0)
-    , fGArAction             (0)
-    , fParticleListAction    (0)
-    , fGArVolumeName         (pset.get< std::string >("GArVolumeName",    "volGAr")            )
-    , fG4PhysListName        (pset.get< std::string >("G4PhysListName",   "garg4::PhysicsList"))
-    , fCheckOverlaps         (pset.get< bool        >("CheckOverlaps",    false)               )
-    , fdumpParticleList      (pset.get< bool        >("DumpParticleList", false)               )
-    , fdumpSimChannels       (pset.get< bool        >("DumpSimChannels",  false)               )
-    , fSmartStacking         (pset.get< int         >("SmartStacking",    0)                   )
-    , fMaxStepSize           (pset.get< float       >("MaxStepSize",      0.2)                 )
+    : fG4Help                (nullptr)
+    , fGArAction             (nullptr)
+    , fParticleListAction    (nullptr)
+    , fGArActionPSet         (pset.get<fhicl::ParameterSet>("GArActionPSet")                         )
+    , fGArVolumeName         (pset.get< std::string       >("GArVolumeName",    "volGAr")            )
+    , fG4PhysListName        (pset.get< std::string       >("G4PhysListName",   "garg4::PhysicsList"))
+    , fCheckOverlaps         (pset.get< bool              >("CheckOverlaps",    false)               )
+    , fdumpParticleList      (pset.get< bool              >("DumpParticleList", false)               )
+    , fdumpSimChannels       (pset.get< bool              >("DumpSimChannels",  false)               )
+    , fSmartStacking         (pset.get< int               >("SmartStacking",    0)                   )
+    , fMaxStepSize           (pset.get< float             >("MaxStepSize",      0.2)                 )
     , fKeepParticlesInVolumes(pset.get< std::vector< std::string > >("KeepParticlesInVolumes",{}))
     
     {
@@ -292,7 +293,15 @@ namespace gar {
       fParticleListAction = new garg4::ParticleListAction(g4SimPars->KineticEnergyCut(),
                                                           g4SimPars->StoreTrajectories(),
                                                           g4SimPars->KeepEMShowerDaughters());
+      
       uaManager->AddAndAdoptAction(fParticleListAction);
+      
+      
+      // add UserAction for handling steps in gaseous argon
+      fGArAction = new garg4::GArAction(&rng->getEngine("propagation"),
+                                        fGArActionPSet);
+      uaManager->AddAndAdoptAction(fGArAction);
+      
       
       // UserActionManager is now configured so continue G4 initialization
       fG4Help->SetUserAction();
@@ -449,8 +458,7 @@ namespace gar {
       }
       
       // Now for the sdp::SimChannels
-      // only put the sdp::SimChannels into the event once, not once for every
-      // MCTruth in the event
+      for(auto const& sc : fGArAction->SimChannels()) scCol->emplace_back(sc);
       
       evt.put(std::move(scCol));
       evt.put(std::move(adCol));

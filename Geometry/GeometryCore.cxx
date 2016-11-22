@@ -296,37 +296,6 @@ namespace gar {
       return name;
     }
     
-//    //......................................................................
-//    void GeometryCore::FindCryostat(std::vector<const TGeoNode*>& path,
-//                                    unsigned int depth)
-//    {
-//      const char* nm = path[depth]->GetName();
-//      if( (strncmp(nm, "volCryostat", 11) == 0) ){
-//        this->MakeCryostat(path, depth);
-//        return;
-//      }
-//      
-//        //explore the next layer down
-//      unsigned int deeper = depth+1;
-//      if(deeper >= path.size()){
-//        throw cet::exception("GeometryCore") << "exceeded maximum TGeoNode depth\n";
-//      }
-//      
-//      const TGeoVolume *v = path[depth]->GetVolume();
-//      int nd = v->GetNdaughters();
-//      for(int i = 0; i < nd; ++i){
-//        path[deeper] = v->GetNode(i);
-//        this->FindCryostat(path, deeper);
-//      }
-//      
-//    }
-//    
-//      //......................................................................
-//    void GeometryCore::MakeCryostat(std::vector<const TGeoNode*>& path, int depth)
-//    {
-//      Cryostats().push_back(new CryostatGeo(path, depth));
-//    }
-    
     //......................................................................
     //
     // Return the total mass of the detector
@@ -386,12 +355,38 @@ namespace gar {
       //now you are in the same volume as the last point, but not at that point.
       //get the distance between the current point and the last one
       const double *current = gGeoManager->GetCurrentPoint();
-      length = std::sqrt( sqr(p2[0]-current[0])
-                         + sqr(p2[1]-current[1])
-                         + sqr(p2[2]-current[2]));
+      length = std::sqrt(sqr(p2[0]-current[0]) +
+                         sqr(p2[1]-current[1]) +
+                         sqr(p2[2]-current[2]));
       columnD += length*node->GetMedium()->GetMaterial()->GetDensity();
       
       return columnD;
+    }
+    
+    //--------------------------------------------------------------------
+    unsigned int GeometryCore::NearestChannel(const float worldLoc[3]) const
+    {
+      return fChannelMapAlg->NearestChannel(worldLoc);
+    }
+
+    //--------------------------------------------------------------------
+    unsigned int GeometryCore::NearestChannel(std::vector<float> const& worldLoc) const
+    {
+      float loc[3] = {worldLoc[0],
+                      worldLoc[1],
+                      worldLoc[2]};
+      
+      return this->NearestChannel(loc);
+    }
+
+    //--------------------------------------------------------------------
+    unsigned int GeometryCore::NearestChannel(TVector3 const& worldLoc) const
+    {
+      float loc[3] = {(float)worldLoc[0],
+                      (float)worldLoc[1],
+                      (float)worldLoc[2]};
+      
+      return this->NearestChannel(loc);
     }
     
     //--------------------------------------------------------------------

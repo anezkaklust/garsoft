@@ -27,6 +27,7 @@
 #include "GArG4/GArAction.h"
 #include "GArG4/ParticleListAction.h"
 #include "GArG4/IonizationAndScintillation.h"
+#include "GArG4/ElectronDriftStandardAlg.h"
 
 namespace gar {
 
@@ -34,8 +35,10 @@ namespace gar {
     
     //-------------------------------------------------------------
     // Constructor.
-    GArAction::GArAction(fhicl::ParameterSet const& pset)
+    GArAction::GArAction(CLHEP::HepRandomEngine*    engine,
+                         fhicl::ParameterSet const& pset)
     : fDriftAlg(nullptr)
+    , fEngine(engine)
     {
       this->reconfigure(pset);
     }
@@ -48,17 +51,17 @@ namespace gar {
     }
     
     //-------------------------------------------------------------
-    void GArAction::reconfigure(fhicl::ParameterSet const& pset )
+    void GArAction::reconfigure(fhicl::ParameterSet const& pset)
     {
       fEnergyCut = pset.get<double>("EnergyCut") * CLHEP::GeV;
       
       auto driftAlgName = pset.get<std::string>("ElectronDriftAlg", "Standard");
       
       if(driftAlgName.compare("Standard") == 0)
-        fDriftAlg = std::make_unique<gar::garg4::ElectronDriftStandardAlg>();
+        fDriftAlg = std::make_unique<gar::garg4::ElectronDriftStandardAlg>(*fEngine, pset);
       else
         throw cet::exception("GArAction")
-        << "Unable to determine which electron drift algorithm to use, bail"
+        << "Unable to determine which electron drift algorithm to use, bail";
 
       return;
     }
@@ -67,7 +70,8 @@ namespace gar {
     void GArAction::BeginOfEventAction(const G4Event*)
     {
       // Clear any previous particle information.
-      fIDEList.clear();
+      fSimChannels.clear();
+      fDriftAlg->Reset();
     }
     
     //-------------------------------------------------------------
@@ -85,7 +89,8 @@ namespace gar {
     // With every step, add to the particle's trajectory.
     void GArAction::SteppingAction(const G4Step* step)
     {
-      //mf::LogInfo("GArAction") << "GArAction::SteppingAction";
+      LOG_DEBUG("GArAction")
+      << "GArAction::SteppingAction";
       
       // Get the pointer to the track
       G4Track *track = step->GetTrack();
@@ -118,29 +123,16 @@ namespace gar {
         return;
       }
       
-      
-      // Getting Energy depositions
-      const double edep = step->GetTotalEnergyDeposit()/CLHEP::GeV;
-      
-      // only worry about non-zero energy depositions.
-      if(edep > 0){
-        // reset the IonizationAndScintillation singleton
-        gar::garg4::IonizationAndScintillation::Instance()->Reset(step);
+      // only worry about energy depositions larger than the minimum required
+      if(step->GetTotalEnergyDeposit() > fEnergyCut){
         
-        auto ides = fDriftAlg->DriftElectronsToReadout(step);
+        // drift the ionization electrons to the readout
+        fDriftAlg->DriftElectronsToReadout(step);
         
-      
-      }
-      
-//        fFLSHit->AddEdep( edep );
-//
-//        // Get the position and time the particle first enters
-//          // the volume, as well as the pdg code.  that information is
-//          // obtained from the G4Track object that corresponds to this step
-//          // account for the fact that we use cm, ns, GeV rather than the G4 defaults
-//        fFLSHit->SetPDG    ( track->GetDefinition()->GetPDGEncoding() );
-//        fFLSHit->SetTrackId( ParticleListAction::GetCurrentTrackID()  );
-      
+        // here is where we would also call an algorithm to figure out how much
+        // scintillation light was produced
+        
+      } // end if enough energy to worry about this step
       
     }// end of GArAction::SteppingAction
     

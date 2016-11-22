@@ -10,9 +10,13 @@
 #ifndef ElectronDriftStandardAlg_h
 #define ElectronDriftStandardAlg_h
 
+#include "DetectorInfo/DetectorPropertiesService.h"
+#include "DetectorInfo/DetectorClocksService.h"
+#include "Geometry/Geometry.h"
 #include "GArG4/ElectronDriftAlg.h"
 
 namespace gar {
+  
   namespace garg4{
     
     class ElectronDriftStandardAlg : public ElectronDriftAlg {
@@ -23,12 +27,14 @@ namespace gar {
                                fhicl::ParameterSet    const& pset);
       virtual ~ElectronDriftStandardAlg();
       
-      std::vector<sdp::TDCIDE> DriftElectronsToReadout(const G4Step* step);
+      void DriftElectronsToReadout(const G4Step* step);
       
     private:
       
-      int fElectronsPerCluster;     ///< Number of electrons to drift in a cluster
-      int fMinimumElectronClusters; ///< Minimum number of clusters to drift
+      int                                 fElectronsPerCluster; ///< Number of electrons to drift in a cluster
+      gar::detinfo::ElecClock             fClock;               ///< electronics clock
+      const gar::detinfo::DetectorClocks* fTime;                ///< electronics clock
+      const gar::geo::GeometryCore*       fGeo;                 ///< Geometry
       
     };
     

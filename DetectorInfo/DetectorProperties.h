@@ -16,6 +16,21 @@
 namespace gar {
   namespace detinfo{
     
+    // Recombination factor coefficients come from Nucl.Instrum.Meth.A523:275-286, 2004
+    // R = A/(1 + (dE/dx)*k/Efield)
+    // dE/dx is given by the voxel energy deposition, but have to convert it to MeV/cm
+    // from GeV/voxel width
+    // A = 0.800 +/- 0.003
+    // k = 0.0486           needs to be scaled with Electric field.
+    // Efield in kV/cm
+    constexpr double kRecombA        = 0.8;      ///< see Nucl.Instrum.Meth.A523:275-286,2004
+    constexpr double kRecombk        = 0.0486;   ///< in g/(MeVcm^{2})*kV/cm
+    constexpr double kModBoxA        = 0.930;    ///< Modified Box Alpha (ArgoNeuT JINST)
+    constexpr double kModBoxB        = 0.212;    ///< in g/(MeVcm^{2})*kV/cm
+    
+    // Conversion for energy deposited in GeV to number of ionization electrons produced
+    constexpr double kGeVToElectrons = 4.237e7;  ///< 23.6eV per ion pair, 1e9 eV/GeV
+    
     class DetectorProperties {
     public:
       
