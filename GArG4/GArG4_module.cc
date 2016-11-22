@@ -56,6 +56,7 @@
 #include "nutools/RandomUtils/NuRandomService.h"
 
 // GArSoft Includes
+#include "GArG4/AuxDetAction.h"
 #include "GArG4/GArAction.h"
 #include "GArG4/PhysicsList.h"
 #include "GArG4/ParticleListAction.h"
@@ -164,6 +165,7 @@ namespace gar {
     private:
       g4b::G4Helper*             fG4Help;             ///< G4 interface object
       garg4::GArAction*          fGArAction;          ///< Geant4 user action to handle GAr energy depositions
+      garg4::AuxDetAction*       fAuxDetAction;       ///< Geant4 user action to handle GAr energy depositions
       garg4::ParticleListAction* fParticleListAction; ///< Geant4 user action to particle information.
       fhicl::ParameterSet        fGArActionPSet;      ///< configuration for GArAction
       std::string                fGArVolumeName;      ///< Name of the volume containing gaseous argon
@@ -195,6 +197,7 @@ namespace gar {
     GArG4::GArG4(fhicl::ParameterSet const& pset)
     : fG4Help                (nullptr)
     , fGArAction             (nullptr)
+    , fAuxDetAction          (nullptr)
     , fParticleListAction    (nullptr)
     , fGArActionPSet         (pset.get<fhicl::ParameterSet>("GArActionPSet")                         )
     , fGArVolumeName         (pset.get< std::string       >("GArVolumeName",    "volGAr")            )
@@ -301,7 +304,12 @@ namespace gar {
       fGArAction = new garg4::GArAction(&rng->getEngine("propagation"),
                                         fGArActionPSet);
       uaManager->AddAndAdoptAction(fGArAction);
-      
+
+      // add UserAction for handling steps in auxiliary detectors
+      fAuxDetAction = new garg4::AuxDetAction(&rng->getEngine("propagation"),
+                                              fGArActionPSet);
+      uaManager->AddAndAdoptAction(fAuxDetAction);
+
       
       // UserActionManager is now configured so continue G4 initialization
       fG4Help->SetUserAction();
@@ -461,6 +469,7 @@ namespace gar {
       for(auto const& sc : fGArAction->SimChannels()) scCol->emplace_back(sc);
       
       // And finally the AuxDetSimChannels
+      for(auto const& ad : fAuxDetAction->AuxDetSimChannels()) adCol->emplace_back(ad);
       
       evt.put(std::move(scCol));
       evt.put(std::move(adCol));

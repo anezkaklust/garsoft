@@ -12,8 +12,6 @@
 #ifndef GArAction_hpp
 #define GArAction_hpp
 
-#include <stdio.h>
-
 // NuTools includes
 #include "nutools/G4Base/UserAction.h"
 
@@ -60,10 +58,8 @@ namespace gar {
       std::set<gar::sdp::SimChannel> const& SimChannels() const { return fDriftAlg->SimChannels(); }
       
     private:
-      std::set<gar::sdp::SimChannel>                fSimChannels; ///< The accumulated information for hits in the event.
       double                                        fEnergyCut;   ///< The minimum energy in GeV for a particle to
                                                                   ///< be included in the list.
-      ::art::ServiceHandle<geo::Geometry>           fGeo;         ///< handle to geometry service
       std::unique_ptr<gar::garg4::ElectronDriftAlg> fDriftAlg;    ///< algorithm to do the drifting
       CLHEP::HepRandomEngine*                       fEngine;      ///< random number engine
     };

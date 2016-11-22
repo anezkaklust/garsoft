@@ -1,8 +1,7 @@
 //
-//  GArAction.cpp
-//  garsoft-mrb
+//  AuxDetAction.cxx
 //
-//  Created by Brian Rebel on 10/12/16.
+//  Created by Brian Rebel on 11/22/16.
 //  Copyright © 2016 Brian Rebel. All rights reserved.
 //
 
@@ -12,7 +11,7 @@
 #include "TGeoManager.h"
 #include "TGeoMaterial.h"
 
-// G4 includes
+  // G4 includes
 #include "Geant4/G4Event.hh"
 #include "Geant4/G4Track.hh"
 #include "Geant4/G4ThreeVector.hh"
@@ -24,71 +23,63 @@
 #include "Geant4/G4StepPoint.hh"
 #include "Geant4/G4VProcess.hh"
 
-#include "GArG4/GArAction.h"
-#include "GArG4/ParticleListAction.h"
-#include "GArG4/IonizationAndScintillation.h"
-#include "GArG4/ElectronDriftStandardAlg.h"
+#include "GArG4/AuxDetAction.h"
+#include "Geometry/Geometry.h"
+#include "CoreUtils/ServiceUtil.h"
 
 namespace gar {
-
+  
   namespace garg4 {
     
     //-------------------------------------------------------------
     // Constructor.
-    GArAction::GArAction(CLHEP::HepRandomEngine*    engine,
-                         fhicl::ParameterSet const& pset)
-    : fDriftAlg(nullptr)
-    , fEngine(engine)
+    AuxDetAction::AuxDetAction(CLHEP::HepRandomEngine*    engine,
+                               fhicl::ParameterSet const& pset)
+    : fEngine(engine)
     {
+      fGeo = gar::providerFrom<geo::Geometry>();
+
       this->reconfigure(pset);
     }
     
     //-------------------------------------------------------------
     // Destructor.
-    GArAction::~GArAction()
+    AuxDetAction::~AuxDetAction()
     {
       // Delete anything that we created with "new'.
     }
     
     //-------------------------------------------------------------
-    void GArAction::reconfigure(fhicl::ParameterSet const& pset)
+    void AuxDetAction::reconfigure(fhicl::ParameterSet const& pset)
     {
       fEnergyCut = pset.get<double>("EnergyCut") * CLHEP::GeV;
       
-      auto driftAlgName = pset.get<std::string>("ElectronDriftAlg", "Standard");
-      
-      if(driftAlgName.compare("Standard") == 0)
-        fDriftAlg = std::make_unique<gar::garg4::ElectronDriftStandardAlg>(*fEngine, pset);
-      else
-        throw cet::exception("GArAction")
-        << "Unable to determine which electron drift algorithm to use, bail";
-
       return;
     }
     
     //-------------------------------------------------------------
-    void GArAction::BeginOfEventAction(const G4Event*)
+    void AuxDetAction::BeginOfEventAction(const G4Event*)
     {
       // Clear any previous information.
-      fDriftAlg->Reset();
+      fAuxDetSimChannels.clear();
     }
     
     //-------------------------------------------------------------
-    void GArAction::PreTrackingAction(const G4Track* track)
+    void AuxDetAction::PreTrackingAction(const G4Track* track)
     {
     }
     
     //-------------------------------------------------------------
-    void GArAction::PostTrackingAction( const G4Track* /*track*/)
+    void AuxDetAction::PostTrackingAction( const G4Track* /*track*/)
     {
     }
     
     //-------------------------------------------------------------
-    // With every step, handle energy deposition in gaseous argon
-    void GArAction::SteppingAction(const G4Step* step)
+    // With every step, check and see if we are in an auxdet and save the energy
+    void AuxDetAction::SteppingAction(const G4Step* step)
     {
-      LOG_DEBUG("GArAction")
-      << "GArAction::SteppingAction";
+      LOG_DEBUG("AuxDetAction")
+      << "AuxDetAction::SteppingAction";
       
       // Get the pointer to the track
       G4Track *track = step->GetTrack();
@@ -97,7 +88,7 @@ namespace gar {
       const CLHEP::Hep3Vector &stop  = track->GetPosition();
       const CLHEP::Hep3Vector &mom   = track->GetMomentum();
       
-      LOG_DEBUG("GArAction")
+      LOG_DEBUG("AuxDetAction")
       << "step momentum = "
       << mom.x()
       << " "
@@ -116,27 +107,27 @@ namespace gar {
          tpos0[2] == tpos1[2]  ) return;
       
       // check that we are in the correct material to record a hit
-      std::string material = track->GetMaterial()->GetName();
-      if(material.compare("GAr") != 0 ) {
+      std::string volname = track->GetVolume()->GetName();
+      if(volname.find("AuxDet") == std::string::npos ) {
         return;
       }
       
       // only worry about energy depositions larger than the minimum required
       if(step->GetTotalEnergyDeposit() > fEnergyCut){
         
-        // drift the ionization electrons to the readout
-        fDriftAlg->DriftElectronsToReadout(step);
+        // look for the nearest AuxDetChannel to the energy deposition
         
-        // here is where we would also call an algorithm to figure out how much
-        // scintillation light was produced
+        // find that object in the fAuxDetSimChannels collection
+        
+        //  Add this step to the collected IDEs for the AuxDetSimChannel 
         
       } // end if enough energy to worry about this step
       
-    }// end of GArAction::SteppingAction
+    }// end of AuxDetAction::SteppingAction
     
     
     //------------------------------------------------------------------------------
-    void GArAction::EndOfEventAction(const G4Event*)
+    void AuxDetAction::EndOfEventAction(const G4Event*)
     {
       
     }
