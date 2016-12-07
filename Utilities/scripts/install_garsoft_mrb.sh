@@ -106,7 +106,7 @@ echo " setup ninja v1_6_0b #optional if using ninja to build the code, requires 
 echo " source ${GARDIR}/localProducts_${MRB_PROJECT}/setup"
 echo " cd ${MRB_BUILDDIR}"
 echo " mrbsetenv"
-echo " echo now in ${PWD} "
+echo " echo ready to build in ${PWD} "
 echo "}"
 
 echo " "
@@ -129,6 +129,6 @@ echo " #setup the garsoft ups product"
 echo " setup garsoft develop -q ${QUALS}:${BUILDTYPE}"
 echo " cd ${GARDIR}"
 echo " "
-echo " ready to run gar in ${GARDIR} "
+echo " echo ready to run gar in ${GARDIR} "
 echo "}"
 
