@@ -44,7 +44,7 @@ fi
 # check the product directory to see if we are wanting to use the gpvm node
 # product installation or not
 
-if [ "${PRODDIR" != "*fermiapp/products/*"] ; then
+if [ "${PRODDIR}" != "*fermiapp/products*"] ; then
   cd ${PRODDIR}
   curl -O http://scisoft.fnal.gov/scisoft/bundles/tools/pullProducts
   chmod +x pullProducts
@@ -124,9 +124,9 @@ echo "  #voms-proxy-init --rfc --voms=fermilab:/fermilab/gar/Role=Analysis --nor
 echo "  #export X509_USER_PROXY=/tmp/x509up_u`id -u`"
 echo " "
 echo " #setup the garsoft ups product"
-echo " setup garsoft develop -q ${QUALS}:${BUILDTYPE}
+echo " setup garsoft develop -q ${QUALS}:${BUILDTYPE}"
 echo " cd ${GARDIR}"
 echo " "
-echo " ready to run gar in ${PWD} "
+echo " ready to run gar in ${GARDIR} "
 echo "}"
 
