@@ -79,12 +79,14 @@ mv localProducts_${MRB_PROJECT}_develop_${BUNDLEQUALS}_${BUILDTYPE} localProduct
 
 sed -i~ 's/localProducts_'"${MRB_PROJECT}"'_develop_'"${BUNDLEQUALS}_${BUILDTYPE}"'/localProducts_'"${MRB_PROJECT}"'/g' localProducts_${MRB_PROJECT}/setup
 
+rm localProducts_${MRB_PROJECT}/*~
+
 source localProducts_${MRB_PROJECT}/setup
 
 echo "checking out the garsoft code"
 
 cd ${MRB_SOURCE}
-mrb g garsoft-garsoft
+mrb g -d garsoft garsoft-garsoft
 mrb uc
 
 echo "set the build environment"
