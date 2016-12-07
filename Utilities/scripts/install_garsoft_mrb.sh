@@ -5,9 +5,10 @@
 #  Created by Brian Rebel on 9/15/16.
 
 if [ "$#" -ne 5 ]; then
-  echo "Usage: install_garsoft_mrb.sh <external ups destination directory> <garsoft base version> <garsoft qualifiers> <buildtype> <garsoft destination directory>"
+  echo "Usage: install_garsoft_mrb.sh <external ups directory> <garsoft base version> <garsoft qualifiers> <buildtype> <garsoft destination directory>"
   echo " For example: install_garsoft_ups.sh $HOME/gar/products vXX_YY_ZZ sJJ:eII <debug | prof> $HOME/gar/"
   echo " the lastest version of the garsoft bundle can be found at http://scisoft.fnal.gov/scisoft/bundles/garsoft/"
+  echo " If running on Fermilab dunegpvm nodes, set the <external ups directory> to be /grid/fermiapp/products/larsoft/"
   exit
 fi
 
@@ -40,10 +41,17 @@ else
   exit 1
 fi
 
-cd ${PRODDIR}
-curl -O http://scisoft.fnal.gov/scisoft/bundles/tools/pullProducts
-chmod +x pullProducts
-./pullProducts ${PRODDIR} ${flvr} garsoft-${BASEV} ${BUNDLEQUALS} ${BUILDTYPE}
+# check the product directory to see if we are wanting to use the gpvm node
+# product installation or not
+
+if [ "${PRODDIR" != "*fermiapp/products/*"] ; then
+  cd ${PRODDIR}
+  curl -O http://scisoft.fnal.gov/scisoft/bundles/tools/pullProducts
+  chmod +x pullProducts
+  ./pullProducts ${PRODDIR} ${flvr} garsoft-${BASEV} ${BUNDLEQUALS} ${BUILDTYPE}
+
+  echo "NB the bundle may not yet be available. If that is the case, try developing on the dunegpvm nodes at FNAL"
+fi
 
 # source the ups products setup
 source ${PRODDIR}/setup
