@@ -19,6 +19,8 @@
 #include <map>
 #include <set>
 
+#include "Geometry/GeometryCore.h"
+
 namespace gar{
   namespace geo{
     
@@ -47,7 +49,7 @@ namespace gar{
       
       virtual ~ChannelMapAlg() = default;
       
-      virtual void          Initialize()                             = 0;
+      virtual void          Initialize(gar::geo::GeometryCore & geo)           = 0;
       virtual void          Uninitialize()                           = 0;
       virtual unsigned int  Nchannels()                        const = 0;
       virtual unsigned int  NearestChannel(float const xyz[3]) const = 0;

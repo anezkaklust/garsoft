@@ -43,7 +43,6 @@
 
 
 // GArSoft libraries
-#include "Geometry/ChannelMapAlg.h"
 
 // Framework and infrastructure libraries
 #include "fhiclcpp/ParameterSet.h"
@@ -73,6 +72,7 @@ namespace gar {
   namespace geo {
     
     class GeometryCore;
+    class ChannelMapAlg;
     
     //
     // iterators
@@ -697,7 +697,7 @@ namespace gar {
        * This method needs to be called after LoadGeometryFile() to complete the
        * geometry initialization.
        */
-      void ApplyChannelMap(std::shared_ptr<geo::ChannelMapAlg> pChannelMap);
+      void ApplyChannelMap(std::shared_ptr<gar::geo::ChannelMapAlg> pChannelMap);
       /// @}
       
       
@@ -707,7 +707,7 @@ namespace gar {
       void SetDetectorName(std::string new_name) { fDetectorName = new_name; }
       
       /// Returns the object handling the channel map
-      geo::ChannelMapAlg const* ChannelMap() const { return fChannelMapAlg.get(); }
+      gar::geo::ChannelMapAlg const* ChannelMap() const { return fChannelMapAlg.get(); }
       
     private:
       

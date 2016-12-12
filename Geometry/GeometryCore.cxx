@@ -8,6 +8,7 @@
 
 // class header
 #include "Geometry/GeometryCore.h"
+#include "Geometry/ChannelMapAlg.h"
 
 // Framework includes
 #include "cetlib/exception.h"
@@ -61,7 +62,7 @@ namespace gar {
     //......................................................................
     void GeometryCore::ApplyChannelMap(std::shared_ptr<geo::ChannelMapAlg> pChannelMap)
     {
-      pChannelMap->Initialize();
+      pChannelMap->Initialize(*this);
       fChannelMapAlg = pChannelMap;
     } // GeometryCore::ApplyChannelMap()
     

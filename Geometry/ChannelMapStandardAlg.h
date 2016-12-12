@@ -24,15 +24,18 @@ namespace gar{
       
       ChannelMapStandardAlg(fhicl::ParameterSet const& p);
       
-      void         Initialize()                             override;
+      void         Initialize(GeometryCore & geo)           override;
       void         Uninitialize()                           override;
       unsigned int Nchannels()                        const override;
       unsigned int NearestChannel(float const xyz[3]) const override;
       
     private:
       
-      unsigned int fNChannels; ///< number of channels in the detector
-      
+      unsigned int fNumPixelsZ;      ///< number of pixels in the z direction
+      unsigned int fNumPixelsY;      ///< number of pixels in the y direction
+      float        fPixelActiveSize; ///< active size of a pixel on an edge
+      float        fPixelPitch;      ///< distance between pixel centers
+      float        fPixelSize;       ///< total size of a pixel on an edge
     };
     
     

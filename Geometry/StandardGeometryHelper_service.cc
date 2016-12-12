@@ -32,21 +32,9 @@ namespace gar
     {
       fChannelMap.reset();
       
-      std::string const detectorName = geom->DetectorName();
+      fChannelMap = std::make_shared<geo::ChannelMapStandardAlg>(sortingParameters);
       
-      // Migration note:
-      // Should just create ChannelMapStandardAlg with no decision-making after transition
-      // detector names in this code must be all lower case
-      if((detectorName.find("argoneut")   != std::string::npos) ||
-         (detectorName.find("microboone") != std::string::npos) ||
-         (detectorName.find("bo")         != std::string::npos)
-        ){
-        fChannelMap = std::make_shared<geo::ChannelMapStandardAlg>(sortingParameters);
-      }
-      
-      if ( fChannelMap ){
-        geom->ApplyChannelMap(fChannelMap);
-      }
+      if(fChannelMap) geom->ApplyChannelMap(fChannelMap);
     
       return;
       
