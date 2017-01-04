@@ -448,9 +448,9 @@ namespace gar {
        * @todo Replace it with a TPC boundaries style thing?
        * @todo Unify the coordinates type
        */
-      void WorldBox(double* xlo, double* xhi,
-                    double* ylo, double* yhi,
-                    double* zlo, double* zhi) const;
+      void WorldBox(float* xlo, float* xhi,
+                    float* ylo, float* yhi,
+                    float* zlo, float* zhi) const;
       
       /**
        * @brief The position of the detector respect to earth surface
@@ -490,7 +490,7 @@ namespace gar {
        * @todo what happens if none?
        * @todo Unify the coordinates type
        */
-      const std::string VolumeName(TVector3 const& point);
+      const std::string VolumeName(TVector3 const& point) const;
       
       
       /**
@@ -563,7 +563,7 @@ namespace gar {
        * @brief Returns the half width of the TPC (x direction)
        * @return the value of the half width of the specified TPC
        */
-      double DetHalfWidth() const { return fDetHalfWidth; }
+      float DetHalfWidth() const { return fDetHalfWidth; }
       //@}
       
       //@{
@@ -571,7 +571,7 @@ namespace gar {
        * @brief Returns the half height of the TPC (y direction)
        * @return the value of the half height of the specified TPC
        */
-      double DetHalfHeight() const { return fDetHalfHeight; }
+      float DetHalfHeight() const { return fDetHalfHeight; }
       //@}
       
       //@{
@@ -579,7 +579,7 @@ namespace gar {
        * @brief Returns the length of the TPC (z direction)
        * @return the value of the length of the specified TPC
        */
-      double DetLength() const { return fDetLength; }
+      float DetLength() const { return fDetLength; }
       //@}
       
       unsigned int Nchannels() const;
@@ -724,9 +724,9 @@ namespace gar {
       double         fMinWireZDist;   ///< Minimum distance in Z from a point in which
                                       ///< to look for the closest wire
       double         fPositionWiggle; ///< accounting for rounding errors when testing positions
-      double         fDetHalfHeight;  ///< half height of the TPC
-      double         fDetHalfWidth;   ///< half width of the TPC
-      double         fDetLength;      ///< length of the TPC
+      float          fDetHalfHeight;  ///< half height of the TPC
+      float          fDetHalfWidth;   ///< half width of the TPC
+      float          fDetLength;      ///< length of the TPC
       
       typedef std::shared_ptr<const gar::geo::ChannelMapAlg> ChannelMapPtr;
       ChannelMapPtr  fChannelMapAlg;  ///< Object containing the channel to wire mapping

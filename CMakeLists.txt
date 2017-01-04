@@ -72,7 +72,11 @@ add_subdirectory (RawDataProducts)
 add_subdirectory (ReconstructionDataProducts)
 add_subdirectory (SimulationDataProducts)
 add_subdirectory (SummaryDataProducts)
+add_subdirectory (TestUtils)
 add_subdirectory (Utilities)
+
+# tests
+add_subdirectory (test)
 
 # ups - table and config files
 add_subdirectory(ups)

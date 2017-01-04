@@ -223,9 +223,9 @@ namespace gar {
     // \param zlo : On return, lower bound on z positions
     // \param zhi : On return, upper bound on z positions
     //
-    void GeometryCore::WorldBox(double* xlo, double* xhi,
-                                double* ylo, double* yhi,
-                                double* zlo, double* zhi) const
+    void GeometryCore::WorldBox(float* xlo, float* xhi,
+                                float* ylo, float* yhi,
+                                float* zlo, float* zhi) const
     {
       const TGeoShape* s = gGeoManager->GetVolume("volWorld")->GetShape();
       if(!s)
@@ -250,9 +250,9 @@ namespace gar {
     {
       // check that the given point is in the World volume at least
       TGeoVolume *volWorld = gGeoManager->FindVolumeFast(this->GetWorldVolumeName().c_str());
-      double halflength = ((TGeoBBox*)volWorld->GetShape())->GetDZ();
-      double halfheight = ((TGeoBBox*)volWorld->GetShape())->GetDY();
-      double halfwidth  = ((TGeoBBox*)volWorld->GetShape())->GetDX();
+      float halflength = ((TGeoBBox*)volWorld->GetShape())->GetDZ();
+      float halfheight = ((TGeoBBox*)volWorld->GetShape())->GetDY();
+      float halfwidth  = ((TGeoBBox*)volWorld->GetShape())->GetDX();
       if(std::abs(point.x()) > halfwidth  ||
          std::abs(point.y()) > halfheight ||
          std::abs(point.z()) > halflength){
@@ -272,7 +272,7 @@ namespace gar {
     }
 
     //......................................................................
-    const std::string GeometryCore::VolumeName(TVector3 const& point)
+    const std::string GeometryCore::VolumeName(TVector3 const& point) const
     {
       if( !this->PointInWorld(point) ){
         const std::string unknown("unknownVolume");

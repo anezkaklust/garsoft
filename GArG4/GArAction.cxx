@@ -95,25 +95,11 @@ namespace gar {
       
       const CLHEP::Hep3Vector &start = step->GetPreStepPoint()->GetPosition();
       const CLHEP::Hep3Vector &stop  = track->GetPosition();
-      const CLHEP::Hep3Vector &mom   = track->GetMomentum();
-      
-      LOG_DEBUG("GArAction")
-      << "step momentum = "
-      << mom.x()
-      << " "
-      << mom.y()
-      << " "
-      << mom.z()
-      << " "
-      << mom.mag();
-      
-      double tpos0[3] = {start.x()/CLHEP::cm, start.y()/CLHEP::cm, start.z()/CLHEP::cm};
-      double tpos1[3] = {stop .x()/CLHEP::cm, stop .y()/CLHEP::cm, stop .z()/CLHEP::cm};
       
       // If it's a null step, don't use it.
-      if(tpos0[0] == tpos1[0] &&
-         tpos0[1] == tpos1[1] &&
-         tpos0[2] == tpos1[2]  ) return;
+      if(start[0] == stop[0] &&
+         start[1] == stop[1] &&
+         start[2] == stop[2]  ) return;
       
       // check that we are in the correct material to record a hit
       std::string material = track->GetMaterial()->GetName();
