@@ -582,16 +582,7 @@ namespace gar {
       float DetLength() const { return fDetLength; }
       //@}
       
-      unsigned int Nchannels() const;
-      
-      //@{
-      /**
-       * @brief Returns the centre of side of the detector facing the beam
-       * @return a vector of the position of centre of TPC face toward the beam
-       */
-      TVector3 GetTPCFrontFaceCenter() const;
-      //@}
-      
+      unsigned int NChannels() const;
       
       //
       // object description
@@ -605,7 +596,7 @@ namespace gar {
        * This information is used by Geant4 simulation
        *
        */
-      std::string GetGArTPCVolumeName() const;
+      std::string GetGArTPCVolumeName() const {return "volTPCActive"; }
       //@}
       
       //

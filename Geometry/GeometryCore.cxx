@@ -151,7 +151,7 @@ namespace gar {
     }
     
     //......................................................................
-    unsigned int GeometryCore::Nchannels() const
+    unsigned int GeometryCore::NChannels() const
     {
       return fChannelMapAlg->Nchannels();
     }
