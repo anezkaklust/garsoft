@@ -10,7 +10,7 @@ standard_geo:
  }
  RelativePath:      ""
  GDML:              "generic_detector.gdml"
- ROOT:              ""
+ ROOT:              "generic_detector.gdml"
  SurfaceY:          0.          # cm
  Name:              "standard"
  PositionEpsilon:   1.e-4

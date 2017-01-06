@@ -131,29 +131,29 @@ namespace gar{
     GeometryTestAlg::GeometryTestAlg(fhicl::ParameterSet const& pset)
     : geom(nullptr)
     {
-        // initialize the list of non-fatal exceptions
+      // initialize the list of non-fatal exceptions
       std::vector<std::string> NonFatalErrors(pset.get<std::vector<std::string>>
                                               ("ForgiveExceptions", std::vector<std::string>()));
       std::copy(NonFatalErrors.begin(), NonFatalErrors.end(),
                 std::inserter(fNonFatalExceptions, fNonFatalExceptions.end()));
       
-        // initialize the list of tests to be run
-        //
-        // our name selector accepts everything by default;
-        // the default set skips the following:
+      // initialize the list of tests to be run
+      //
+      // our name selector accepts everything by default;
+      // the default set skips the following:
       fRunTests.AddToDefinition("default",
                                 "-CheckOverlaps",
-                                "-ThoroughCheck",
-                                "-PrintWires");
+                                "-ThoroughCheck");
+      
       fRunTests.ParseNames("@default"); // let's start from default
       
-        // read and parse the test list from the configuration parameters (if any)
+      // read and parse the test list from the configuration parameters (if any)
       fRunTests.Parse(pset.get<std::vector<std::string>>("RunTests", {}));
       
       std::ostringstream sstr;
       fRunTests.PrintConfiguration(sstr);
       
-      mf::LogInfo("GeometryTestAlg") << "Test selection:" << sstr.str();
+      LOG_INFO("GeometryTestAlg") << "Test selection:" << sstr.str();
       
     } // GeometryTestAlg::GeometryTestAlg()
     
@@ -168,20 +168,15 @@ namespace gar{
       
       unsigned int nErrors = 0; // currently unused
       
-        // change the printed version number when changing the "GeometryTest" output
+      // change the printed version number when changing the "GeometryTest" output
       LOG_VERBATIM("GeometryTest")
       << "GeometryTest version 1.0";
       
-      mf::LogInfo("GeometryTestInfo")
-      << "Running on detector: '"
-      << geom->DetectorName()
-      << "'";
-      
       LOG_VERBATIM("GeometryTest")
-      << "  Running on detector: '"
+      << "\tRunning on detector: '"
       << geom->DetectorName()
       << "'"
-      << "\nGeometry file: "
+      << "\n\tGeometry file: "
       << geom->ROOTFile();
       
       try{
@@ -409,24 +404,31 @@ namespace gar{
       posWorld[2] = 0.5 * geom->DetLength();
 
       try{
-        
-        // The float[] version tested here is used by the TVector3 version, so this test both.
-        unsigned int nearest = geom->NearestChannel(posWorld);
-        
-        // We also want to test the std::vector<duoble> version
-        std::array<float, 3> posWorldV;
-        for (int i = 0; i < 3; ++i) posWorldV[i] = posWorld[i] + 0.001;
 
-        nearest = geom->NearestChannel(posWorldV.data());
-        
         LOG_VERBATIM("GeometryTestAlg")
-        << " nearest channel to point ("
+        << " find nearest channel to point ("
         << posWorld[0]
         << ", "
         << posWorld[1]
         << ", "
         << posWorld[2]
-        << ")  is "
+        << ")";
+        
+        // The float[] version tested here is used by the TVector3 version, so this test both.
+        unsigned int nearest = geom->NearestChannel(posWorld);
+
+        LOG_VERBATIM("GeometryTestAlg")
+        << "\t ...nearest channel to point: "
+        << nearest;
+
+        // We also want to test the std::vector<float> version
+        std::array<float, 3> posWorldV;
+        for (int i = 0; i < 3; ++i) posWorldV[i] = posWorld[i];
+
+        nearest = geom->NearestChannel(posWorldV.data());
+        
+        LOG_VERBATIM("GeometryTestAlg")
+        << "\t ...nearest channel to point: "
         << nearest;
         
       }
@@ -457,6 +459,7 @@ namespace gar{
       }
       catch(const cet::exception& e){
         LOG_WARNING("GeoTestCaughtException")
+        << "caught execpetion: "
         << e;
         hasThrown = true;
       }
@@ -473,18 +476,6 @@ namespace gar{
         << nearest_to_what
         << " instead.\n This is normally considered a failure.";
       }
-      else {
-        throw cet::exception("GeoTestErrorNearestChannel")
-        << "GeometryCore::NearestChannel() did not raise an exception on out-of-world position ("
-        << posWorld[0]
-        << "; "
-        << posWorld[1]
-        << "; "
-        << posWorld[2]
-        << "), and returned "
-        << nearest_to_what
-        << " instead\n";
-      }
       
       return;
     }
@@ -496,12 +487,13 @@ namespace gar{
       // Test stepping.
       //
       double xyz[3]  = {0.};
-      double dxyz[3] = {0.};
+      double dxyz[3] = {0., 0., 1.};
       
       
       LOG_VERBATIM("GeometryTest")
-      << "\n\t" << xyz[0]  << "\t" << xyz[1]  << "\t" << xyz[2]
-      << "\t"   << dxyz[0] << "\t" << dxyz[1] << "\t" << dxyz[2];
+      << "initial"
+      << "\n\tposition:"  << xyz[0]  << "\t" << xyz[1]  << "\t" << xyz[2]
+      << "\n\tdirection:" << dxyz[0] << "\t" << dxyz[1] << "\t" << dxyz[2];
       
       gGeoManager->InitTrack(xyz, dxyz);
       for (int i=0; i<10; ++i) {

@@ -4,7 +4,7 @@
 # Version: 1.1
 #
 
-#include "geometry.fcl"
+#include "geometry_standard.fcl"
 
 process_name: testGeo
 
@@ -17,7 +17,7 @@ services: {
     destinations: {
       LogDebugFile: { 
         type:       "file"
-        filename:   "geometry_lartpcdetector.txt"
+        filename:   "geometry_gartpcdetector.txt"
         append:     false
         threshold:  "INFO"
         categories:{
@@ -60,9 +60,7 @@ physics: {
       module_type: "GeometryTest"
       RunTests: [
         # run the default test suite (actually unnecessary):
-        "@default",
-        # in addition (overriding the default): print wires
-        "+PrintWires"
+        "@default"
       ]
     } # geotest
   }

@@ -716,6 +716,9 @@ namespace gar {
       
       bool PointInWorld(TVector3 const& point) const;
       
+      void FindActiveTPCVolume(std::vector<const TGeoNode*> & path,
+                               size_t                         depth);
+      
       
       double         fSurfaceY;       ///< The point where air meets earth for this detector.
       std::string    fDetectorName;   ///< Name of the detector.

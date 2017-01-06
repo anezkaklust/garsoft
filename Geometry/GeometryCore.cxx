@@ -15,13 +15,12 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 // ROOT includes
-#include <TGeoManager.h>
-#include <TGeoNode.h>
-#include <TGeoVolume.h>
-#include <TGeoMatrix.h>
-#include <TGeoBBox.h>
-#include <TGeoVolume.h>
-// #include <Rtypes.h>
+#include "TGeoManager.h"
+#include "TGeoNode.h"
+#include "TGeoVolume.h"
+#include "TGeoMatrix.h"
+#include "TGeoBBox.h"
+#include "TGeoVolume.h"
 
 // C/C++ includes
 #include <cstddef> // size_t
@@ -92,9 +91,6 @@ namespace gar {
         gGeoManager->LockGeometry();
       }
       
-      std::vector<const TGeoNode*> path(8);
-      path[0] = gGeoManager->GetTopNode();
-      
       fGDMLfile = gdmlfile;
       fROOTfile = rootfile;
       
@@ -102,9 +98,45 @@ namespace gar {
       << "New detector geometry loaded from "
       << "\n\t" << fROOTfile
       << "\n\t" << fGDMLfile;
+
+      std::vector<const TGeoNode*> path(8);
+      path[0] = gGeoManager->GetTopNode();
+
+      this->FindActiveTPCVolume(path, 0);
       
     } // GeometryCore::LoadGeometryFile()
     
+    //......................................................................
+    void GeometryCore::FindActiveTPCVolume(std::vector<const TGeoNode*> & path,
+                                           size_t                         depth)
+    {
+      // check if the current level of the detector is the active TPC volume, if
+      // not, then dig a bit deeper
+      
+      const char* nm = path[depth]->GetName();
+      if( (strncmp(nm, "volTPCActive", 12) == 0) ){
+        TGeoVolume *activeVol = path[depth]->GetVolume();
+        fDetHalfWidth  =       ((TGeoBBox*)activeVol->GetShape())->GetDX();
+        fDetHalfHeight =       ((TGeoBBox*)activeVol->GetShape())->GetDY();
+        fDetLength     = 2.0 * ((TGeoBBox*)activeVol->GetShape())->GetDZ();
+        return;
+      }
+
+      size_t deeper = depth + 1;
+      if(deeper > path.size() - 1)
+        throw cet::exception("GeometryCore")
+        << "exceeded maximum TGeoNode depth\n";
+
+      const TGeoVolume *v = path[depth]->GetVolume();
+      auto  nDaughters    = v->GetNdaughters();
+      for(int d = 0; d < nDaughters; ++d){
+        path[deeper] = v->GetNode(d);
+        this->FindActiveTPCVolume(path, deeper);
+      }
+      
+      return;
+    }
+
     //......................................................................
     void GeometryCore::ClearGeometry() {
 
