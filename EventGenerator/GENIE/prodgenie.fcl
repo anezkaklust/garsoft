@@ -1,18 +1,28 @@
-#include "geometry_standard.fcl"
-#include "genie.fcl"
-#include "gargeantmodules.fcl"
-#include "detsimmodules.fcl"
+#Services
+#include "DetectorClocks.fcl"
+#include "DetectorProperties.fcl"
+#include "GArProperties.fcl"
+#include "Geometry.fcl"
+#include "RunHistory.fcl"
+
+#Plugins
+#include "SingleGen.fcl"
+#include "GArG4.fcl"
 
 process_name: GenieGen
 
 services:
 {
-  # Load the service that manages root files for histograms.
-  TFileService:  { fileName: "genie_hist.root" }
-  TimeTracker:   {}
-  MemoryTracker: {}
-  RandomNumberGenerator: {} #ART native random number generator
-  @table::standard_geo
+ # Load the service that manages root files for histograms.
+ TFileService:           { fileName: "single_hist.root" }
+ TimeTracker:            {}
+ RandomNumberGenerator:  {} #ART native random number generator
+ Geometry:               @local::standard_geo
+ ExptGeoHelperInterface: @local::standard_geometry_helper
+ DetectorClocks:         @local::standard_clocks
+ DetectorProperties:     @local::standard_detproperties
+ GArProperties:          @local::standard_detproperties
+ RunHistory:             @local::standard_runhistory
 }
 
 #Start each new event with an empty event.
@@ -33,9 +43,8 @@ physics:
 
  producers:
  {
-   generator: @local::argoneut_genie_simple_neutrino
-   geant:     @local::argoneut_largeant
-#  daq:       @local::argoneut_simwire
+   generator: @local::standard_genie
+   geant:     @local::standard_geant
    rns:       { module_type: "RandomNumberSaver" }
  }
 
