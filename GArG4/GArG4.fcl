@@ -16,7 +16,7 @@ standard_garg4:
  DumpSimChannels:        false
  SmartStacking:          0
  MaxStepSize:            0.2 # cm
- KeepParticlesInVolumes: {}
+ KeepParticlesInVolumes: []
 }
 
 END_PROLOG
