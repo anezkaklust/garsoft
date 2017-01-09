@@ -2,11 +2,17 @@
 /// \file  AuxDetChannelMapAlg.h
 /// \brief Interface to algorithm class for a specific detector channel mapping
 ///
+/// This is a virtual base class, it is expected that each experiment will
+/// create their own derived class which will own a dervied version of the
+/// AuxDetGeoObjectSorter
+///
 /// \version $Id:  $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef GEO_AUXDETCHANNELMAPALG_H
 #define GEO_AUXDETCHANNELMAPALG_H
+
+#include "Geometry/AuxDetGeoObjectSorter.h"
 
 // Framework libraries
 #include "cetlib/exception.h"
@@ -39,14 +45,14 @@ namespace gar {
       
       // method returns the entry in the sorted AuxDetGeo vector so that the
       // Geometry in turn can return that object
-      virtual size_t  NearestAuxDet          (const double*                       point,
-                                              std::vector<geo::AuxDetGeo*> const& auxDets) const;
-      virtual size_t  NearestSensitiveAuxDet (const double*                       point,
-                                              std::vector<geo::AuxDetGeo*> const& auxDets,
-                                              size_t                            & ad) const;
-      virtual size_t  ChannelToAuxDet        (std::vector<geo::AuxDetGeo*> const& auxDets,
-                                              std::string                  const& detName,
-                                              uint32_t                     const& channel) const;
+      virtual size_t  NearestAuxDet         (const double*                       point,
+                                             std::vector<geo::AuxDetGeo*> const& auxDets) const;
+      virtual size_t  NearestSensitiveAuxDet(const double*                       point,
+                                             std::vector<geo::AuxDetGeo*> const& auxDets,
+                                             size_t                            & ad) const;
+      virtual size_t  ChannelToAuxDet       (std::vector<geo::AuxDetGeo*> const& auxDets,
+                                             std::string                  const& detName,
+                                             uint32_t                     const& channel) const;
       virtual std::pair<size_t, size_t>  ChannelToSensitiveAuxDet(std::vector<geo::AuxDetGeo*> const& auxDets,
                                                                   std::string                  const& detName,
                                                                   uint32_t                     const& channel) const;

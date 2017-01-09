@@ -57,9 +57,6 @@ namespace gar {
     //--------------------------------------------------------------------------
     void AuxDetGeometry::preBeginRun(art::Run const& run)
     {
-      // FIXME this seems utterly wrong: constructor loads geometry based on an
-      // explicit parameter, whereas here we load it by detector name
-      
       // if we are requested to stick to the configured geometry, do nothing
       if (fForceUseFCLOnly) return;
       
@@ -79,15 +76,9 @@ namespace gar {
       std::string newDetectorName = rdcol.front()->DetName();
       if (GetProvider().DetectorName() == newDetectorName) return;
       
-        // else {
-        //   // the detector name is specified in the RunData object
-        //   SetDetectorName(newDetectorName);
-        // }
+      LoadNewGeometry(GetProvider().DetectorName() + ".gdml",
+                      GetProvider().DetectorName() + ".gdml");
       
-      LoadNewGeometry(
-                      GetProvider().DetectorName() + ".gdml",
-                      GetProvider().DetectorName() + ".gdml"
-                      );
     } // Geometry::preBeginRun()
     
     
@@ -96,9 +87,9 @@ namespace gar {
     {
       // the channel map is responsible of calling the channel map configuration
       // of the geometry
-      art::ServiceHandle<geo::AuxDetExptGeoHelperInterface>()->ConfigureAuxDetChannelMapAlg(fSortingParameters, GetProviderPtr());
-      
-      if ( ! GetProvider().hasAuxDetChannelMap() ) {
+      art::ServiceHandle<geo::AuxDetExptGeoHelperInterface>()->ConfigureAuxDetChannelMapAlg(fSortingParameters,
+                                                                                            GetProviderPtr());
+      if ( !GetProvider().hasAuxDetChannelMap() ) {
         throw cet::exception("ChannelMapLoadFail") << " failed to load new channel map";
       }
       

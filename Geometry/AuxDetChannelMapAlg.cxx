@@ -11,7 +11,7 @@
 
 namespace gar {
   namespace geo{
-    
+
     //----------------------------------------------------------------------------
     size_t AuxDetChannelMapAlg::NearestAuxDet(const double* point,
                                               std::vector<geo::AuxDetGeo*> const& auxDets) const
@@ -36,7 +36,7 @@ namespace gar {
         
       }// for loop over AudDet a
       
-        // throw an exception because we couldn't find the sensitive volume
+      // throw an exception because we couldn't find the sensitive volume
       throw cet::exception("ChannelMapLArIAT") << "Can't find AuxDet for position ("
       << point[0] << ","
       << point[1] << ","
@@ -75,7 +75,7 @@ namespace gar {
            ) return a;
       }// for loop over AuxDetSensitive a
       
-        // throw an exception because we couldn't find the sensitive volume
+      // throw an exception because we couldn't find the sensitive volume
       throw cet::exception("Geometry") << "Can't find AuxDetSensitive for position ("
       << point[0] << ","
       << point[1] << ","
@@ -89,11 +89,10 @@ namespace gar {
                                                 std::string                  const& detName,
                                                 uint32_t                     const& /*channel*/) const
     {
-        // loop over the map of AuxDet names to Geo object numbers to determine which auxdet
-        // we have.  If no name in the map matches the provided string, throw an exception
+      // loop over the map of AuxDet names to Geo object numbers to determine which auxdet
+      // we have.  If no name in the map matches the provided string, throw an exception
       for(auto itr : fADGeoToName)
         if( itr.second.compare(detName) == 0 ) return itr.first;
-      
       
       throw cet::exception("Geometry") << "No AuxDetGeo matching name: " << detName;
       

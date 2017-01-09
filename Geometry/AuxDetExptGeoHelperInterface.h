@@ -34,8 +34,8 @@
 
 // prototypes of geometry classes
 namespace gar {
-  namespace geo
-  {
+  namespace geo{
+    
     class AuxDetChannelMapAlg;
     class AuxDetGeometryCore;
     

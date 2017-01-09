@@ -260,7 +260,7 @@ namespace gar{
     //......................................................................
     void GeometryTestAlg::printChannelSummary()
     {
-      uint32_t channels = geom->Nchannels();
+      uint32_t channels = geom->NChannels();
       LOG_VERBATIM("GeometryTest")
       << "there are "
       << channels

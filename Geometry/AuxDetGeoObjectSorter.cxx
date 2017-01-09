@@ -12,7 +12,7 @@ namespace gar {
   namespace geo{
     
     //----------------------------------------------------------------------------
-    AuxDetGeoObjectSorter::AuxDetGeoObjectSorter()
+    AuxDetGeoObjectSorter::AuxDetGeoObjectSorter(fhicl::ParameterSet const& /*p*/)
     {
     }
     

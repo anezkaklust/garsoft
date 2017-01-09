@@ -22,7 +22,7 @@ namespace gar {
       
     public:
       
-      AuxDetGeoObjectSorter();
+      explicit AuxDetGeoObjectSorter(fhicl::ParameterSet const& pset);
       ~AuxDetGeoObjectSorter();
       
       virtual void SortAuxDets        (std::vector<geo::AuxDetGeo*>          & adgeo)   const = 0;

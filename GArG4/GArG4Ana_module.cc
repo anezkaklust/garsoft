@@ -136,19 +136,19 @@ namespace gar {
       fPDGCodes    = tfs->make<TH1D>("pdgcodes", ";PDG Code;",               5000, -2500, 2500);
       fPi0Momentum = tfs->make<TH1D>("pi0mom",   ";#pi^{0} Momentum (GeV);", 1000, 0.,    1000.);
       
-      fTree = tfs->make<TTree>("MCTTree","MCTTree");
-      fnEnergy = tfs->make<TH1D>("nEnergy", ";n,#Lambda^{0},K^{0} Momentum (GeV);", 100, 0., 10.);
-      fnDist = tfs->make<TH1D>("nDistance", ";n,#Lambda^{0},K^{0} Distance (m);", 200, -30000.0, +30000.);
+      fTree    = tfs->make<TTree>("MCTTree", "MCTTree");
+      fnEnergy = tfs->make<TH1D> ("nEnergy",   ";n,#Lambda^{0},K^{0} Momentum (GeV);", 100, 0., 10.);
+      fnDist   = tfs->make<TH1D> ("nDistance", ";n,#Lambda^{0},K^{0} Distance (m);", 200, -30000.0, +30000.);
       
       
         // Some histograms relating to drift electrons, active detector
         // channels and charge/energy on channels
       fnumChannels = tfs->make<TH1D>("fnumChannels",
                                      "Active channels;Active channels;# events",
-                                     256, 0, geo->Nchannels());
+                                     256, 0, geo->NChannels());
       fnumIDEs = tfs->make<TProfile>("fnumIDEs",
                                      "Drift Electrons per channel;Channel;Drift electrons",
-                                     geo->Nchannels()+1, 0, geo->Nchannels(),
+                                     geo->NChannels()+1, 0, geo->NChannels(),
                                      0, 1e4);
       fEventCharge = tfs->make<TH1D>("fEventCharge",
                                      "Charge in event;Total charge per event;# events",
@@ -158,11 +158,11 @@ namespace gar {
                                      100, 0, 1e4);
       fChannelCharge = tfs->make<TProfile>("fChannelCharge",
                                            "Charge on channel;Channel;Total charge per channel",
-                                           geo->Nchannels()+1,0,geo->Nchannels(),
-                                           0,1e5);
+                                           geo->NChannels() + 1, 0, geo->NChannels(),
+                                           0, 1e5);
       fChannelEnergy = tfs->make<TProfile>("fChannelEnergy",
                                            "Energy on channel;Channel;Total energy per channel",
-                                           geo->Nchannels()+1,0,geo->Nchannels(),
+                                           geo->NChannels() + 1, 0, geo->NChannels(),
                                            0, 1e3);
       
       

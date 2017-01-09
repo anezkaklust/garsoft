@@ -21,6 +21,14 @@ standard_geometry_helper:
  service_provider: StandardGeometryHelper
 }
 
+standard_auxdet_geo:
+{
+ GDML:              "generic_detector.gdml"
+ RelativePath:      ""
+ ForceUseFCLOnly:   false
+ SortingParameters: {}
+}
+
 standard_auxdetgeometry_helper:
 {
  service_provider: StandardAuxDetGeometryHelper
