@@ -63,11 +63,14 @@ bool gar::detinfo::GArPropertiesStandard::Configure(fhicl::ParameterSet   const&
   fhicl::Table<Configuration_t> config_table { pset, gar::IgnorableProviderConfigKeys() };
   Configuration_t const& config = config_table();
   
-  SetRadiationLength      (config.RadiationLength()     );
-  SetAtomicNumber         (config.AtomicNumber()        );
-  SetAtomicMass           (config.AtomicMass()          );
-  SetMeanExcitationEnergy (config.MeanExcitationEnergy());
-  SetArgon39DecayRate     (config.Argon39DecayRate()    );
+  SetRadiationLength      (config.RadiationLength()      );
+  SetAtomicNumber         (config.AtomicNumber()         );
+  SetAtomicMass           (config.AtomicMass()           );
+  SetMeanExcitationEnergy (config.MeanExcitationEnergy() );
+  SetArgon39DecayRate     (config.Argon39DecayRate()     );
+  SetFanoFactor           (config.FanoFactor()           );
+  SetLongitudinalDiffusion(config.LongitudinalDiffusion());
+  SetTransverseDiffusion  (config.TransverseDiffusion()  );
   fIsConfigured = true;
 
   return true;

@@ -116,14 +116,7 @@ namespace gar {
       // ticks (RawDigit time).
       virtual double       ConvertTDCToTicks(double tdc)   const = 0;
       virtual double       ConvertTicksToTDC(double ticks) const = 0;
-      
-      /// Fano Factor for the gas
-      virtual double       FanoFactor()                    const = 0;
-      
-      /// Diffusion constants
-      virtual double       LongitudinalDiffusion()         const = 0;
-      virtual double       TransverseDiffusion()           const = 0;
-      
+            
     protected:
       DetectorProperties() = default;
       

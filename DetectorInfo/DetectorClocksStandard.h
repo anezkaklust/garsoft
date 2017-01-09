@@ -44,13 +44,13 @@ namespace gar {
       
       std::string TrigModuleName() const { return fTrigModuleName; }
       
-        /// Given Geant4 time [ns], returns relative time [us] w.r.t. electronics time T0
+      /// Given Geant4 time [ns], returns relative time [us] w.r.t. electronics time T0
       virtual double G4ToElecTime(double g4_time) const {return g4_time * 1.e-3 - fG4RefTime; }
       
-        /// Trigger electronics clock time in [us]
+      /// Trigger electronics clock time in [us]
       virtual double TriggerTime() const { return fTriggerTime; }
       
-        /// Beam gate electronics clock time in [us]
+      /// Beam gate electronics clock time in [us]
       virtual double BeamGateTime() const { return fBeamGateTime; }
       
       virtual std::vector<std::string> ConfigNames() const { return fConfigName; }
@@ -58,7 +58,7 @@ namespace gar {
       
       void SetConfigValue(size_t i, double val) { fConfigValue[i] = val; }
       
-        /// Setter for trigger times
+      /// Setter for trigger times
       virtual void SetTriggerTime(double trig_time, double beam_time)
       {
         fTriggerTime  = trig_time;
@@ -67,115 +67,124 @@ namespace gar {
         fTriggerClock.SetTime(trig_time);
       }
       
-        //
-        // Getters of TPC ElecClock
-        //
-        /// Borrow a const TPC clock with time set to Trigger time [us]
+      //
+      // Getters of TPC ElecClock
+      //
+      /// Borrow a const TPC clock with time set to Trigger time [us]
       virtual const ElecClock& TPCClock() const
       { return fTPCClock; }
       
-        /// Create a TPC clock for a given time [us] from clock counting start
+      /// Create a TPC clock for a given time [us] from clock counting start
       virtual ElecClock TPCClock(double time) const
       { return ElecClock(time,fTPCClock.FramePeriod(),fTPCClock.Frequency());}
       
-        /// Create a TPC clock for a given sample/frame number in TPC clock frequency
+      /// Create a TPC clock for a given sample/frame number in TPC clock frequency
       detinfo::ElecClock TPCClock(unsigned int sample,
                                   unsigned int frame) const
       { detinfo::ElecClock clock = TPCClock(); clock.SetTime(sample,frame); return clock; }
       
-        //
-        // Getters of Trigger ElecClock
-        //
-        /// Borrow a const Trigger clock with time set to Trigger time [us]
+      //
+      // Getters of Trigger ElecClock
+      //
+      /// Borrow a const Trigger clock with time set to Trigger time [us]
       virtual const detinfo::ElecClock& TriggerClock() const
       { return fTriggerClock; }
       
-        /// Create a Trigger clock for a given time [us] from clock counting start
+      /// Create a Trigger clock for a given time [us] from clock counting start
       virtual detinfo::ElecClock TriggerClock(double time) const
       { return detinfo::ElecClock(time,fTriggerClock.FramePeriod(),fTriggerClock.Frequency());}
       
-        /// Create a Trigger clock for a given sample/frame number in Trigger clock frequency
+      /// Create a Trigger clock for a given sample/frame number in Trigger clock frequency
       virtual detinfo::ElecClock TriggerClock(unsigned int sample,
                                               unsigned int frame) const
       { detinfo::ElecClock clock = TriggerClock(); clock.SetTime(sample,frame); return clock; }
       
-        //
-        // Getters of External ElecClock
-        //
-        /// Borrow a const Trigger clock with time set to External Time [us]
+      //
+      // Getters of External ElecClock
+      //
+      /// Borrow a const Trigger clock with time set to External Time [us]
       virtual const detinfo::ElecClock& ExternalClock() const
       { return fExternalClock; }
       
-        /// Create a External clock for a given time [us] from clock counting start
+      /// Create a External clock for a given time [us] from clock counting start
       virtual detinfo::ElecClock ExternalClock(double time) const
       { return detinfo::ElecClock(time,fExternalClock.FramePeriod(),fTriggerClock.Frequency());}
       
-        /// Create a External clock for a given sample/frame number in External clock frequency
+      /// Create a External clock for a given sample/frame number in External clock frequency
       virtual detinfo::ElecClock ExternalClock(unsigned int sample,
                                                unsigned int frame) const
       { detinfo::ElecClock clock = ExternalClock(); clock.SetTime(sample,frame); return clock; }
+    
+      //
+      // Getters for time [us] w.r.t. trigger given information from waveform
+      //
       
-        //
-        // Getters for time [us] w.r.t. trigger given information from waveform
-        //
       
-        /// Given TPC time-tick (waveform index), returns time [us] w.r.t. trigger time stamp
+      /// Given TPC time-tick (waveform index), returns time [us] w.r.t. trigger time stamp
       virtual double TPCTick2TrigTime(double tick) const
       { return fTPCClock.TickPeriod() * tick + TriggerOffsetTPC(); }
-        /// Given TPC time-tick (waveform index), returns time [us] w.r.t. beam gate time
+      
+      /// Given TPC time-tick (waveform index), returns time [us] w.r.t. beam gate time
       virtual double TPCTick2BeamTime(double tick) const
       { return fTPCClock.TickPeriod() * tick + TriggerOffsetTPC() + TriggerTime() - BeamGateTime(); }
-        /// Given External time-tick (waveform index), sample and frame number, returns time [us] w.r.t. trigger time stamp
+      
+      /// Given External time-tick (waveform index), sample and frame number, returns time [us] w.r.t. trigger time stamp
       virtual double ExternalTick2TrigTime(double tick, size_t sample, size_t frame) const
       { return fExternalClock.TickPeriod() * tick + fExternalClock.Time(sample,frame) - TriggerTime(); }
-        /// Given External time-tick (waveform index), sample and frame number, returns time [us] w.r.t. beam gate time stamp
+      
+      /// Given External time-tick (waveform index), sample and frame number, returns time [us] w.r.t. beam gate time stamp
       virtual double ExternalTick2BeamTime(double tick, size_t sample, size_t frame) const
       { return fExternalClock.TickPeriod() * tick + fExternalClock.Time(sample,frame) - BeamGateTime(); }
       
-        //
-        // Getters for time [tdc] (electronics clock counting ... in double precision)
-        //
+      //
+      // Getters for time [tdc] (electronics clock counting ... in double precision)
+      //
       
-        /// Given TPC time-tick (waveform index), returns electronics clock count [tdc]
+      /// Given TPC time-tick (waveform index), returns electronics clock count [tdc]
       virtual double TPCTick2TDC(double tick) const
       { return ( (TriggerTime() + TriggerOffsetTPC()) / fTPCClock.TickPeriod() + tick ); }
-        /// Given G4 time [ns], returns corresponding TPC electronics clock count [tdc]
+      
+      /// Given G4 time [ns], returns corresponding TPC electronics clock count [tdc]
       virtual double TPCG4Time2TDC(double g4time) const
       { return G4ToElecTime(g4time) / fTPCClock.TickPeriod(); }
-        /// Given External time-tick (waveform index), sample and frame number, returns time electronics clock count [tdc]
+      
+      /// Given External time-tick (waveform index), sample and frame number, returns time electronics clock count [tdc]
       virtual double ExternalTick2TDC(double tick, size_t sample, size_t frame) const
       { return fExternalClock.Ticks(sample,frame) + tick; }
-        /// Given G4 time [ns], returns corresponding External electronics clock count [tdc]
+      
+      /// Given G4 time [ns], returns corresponding External electronics clock count [tdc]
       virtual double ExternalG4Time2TDC(double g4time) const
       { return G4ToElecTime(g4time) / fExternalClock.TickPeriod(); }
       
-        //
-        // Getters for time [us] (electronics clock counting ... in double precision)
-        //
-        /// Given TPC time-tick (waveform index), returns electronics clock [us]
+      //
+      // Getters for time [us] (electronics clock counting ... in double precision)
+      //
+      /// Given TPC time-tick (waveform index), returns electronics clock [us]
       virtual double TPCTick2Time(double tick) const
       { return TriggerTime() + TriggerOffsetTPC() + tick * fTPCClock.TickPeriod(); }
-        /// Given External time-tick (waveform index), sample and frame number, returns electronics clock [us]
+      
+      /// Given External time-tick (waveform index), sample and frame number, returns electronics clock [us]
       virtual double ExternalTick2Time(double tick, size_t sample, size_t frame) const
       { return fExternalClock.Time(sample,frame) + tick * fExternalClock.TickPeriod(); }
       
-        //
-        // Getters for time [ticks] (waveform index number)
-        //
+      //
+      // Getters for time [ticks] (waveform index number)
+      //
       
-        /// Given electronics clock count [tdc] returns TPC time-tick
+      /// Given electronics clock count [tdc] returns TPC time-tick
       virtual double TPCTDC2Tick(double tdc) const
       { return ( tdc - (TriggerTime() + TriggerOffsetTPC()) / fTPCClock.TickPeriod() ); }
-        /// Given G4 time returns electronics clock count [tdc]
+      
+      /// Given G4 time returns electronics clock count [tdc]
       virtual double TPCG4Time2Tick(double g4time) const
       { return (G4ToElecTime(g4time) - (TriggerTime() + TriggerOffsetTPC())) / fTPCClock.TickPeriod(); }
       
       bool InheritClockConfig() { return fInheritClockConfig; }
       
-        /// Internal function to apply loaded parameters to member attributes
+      /// Internal function to apply loaded parameters to member attributes
       void ApplyParams();
       
-        /// Internal function used to search for the right configuration set in the data file
+      /// Internal function used to search for the right configuration set in the data file
       bool IsRightConfig(const fhicl::ParameterSet& ps) const;
       
     protected:

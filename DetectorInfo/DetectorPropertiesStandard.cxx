@@ -104,40 +104,6 @@ namespace gar {
       return fClocks->TPCTick2TDC(ticks);
     }
     
-#if 0
-    //--------------------------------------------------------------------
-    void DetectorPropertiesStandard::Configure(fhicl::ParameterSet const& p)
-    {
-        //fSamplingRate             = p.get< double        >("SamplingRate"     );
-      if(p.has_key("SamplingRate"))
-        throw cet::exception(__FUNCTION__) << "SamplingRate is a deprecated fcl parameter for DetectorPropertiesStandard!";
-      if(p.has_key("TriggerOffset"))
-        throw cet::exception(__FUNCTION__) << "TriggerOffset is a deprecated fcl parameter for DetectorPropertiesStandard!";
-      if(p.has_key("InheritTriggerOffset"))
-        throw cet::exception(__FUNCTION__) << "InheritTriggerOffset is a deprecated fcl parameter for DetectorPropertiesStandard!";
-      
-      fEfield                     = p.get< std::vector<double> >("Efield");
-      fElectronlifetime           = p.get< double       >("Electronlifetime"               );
-      fTemperature                = p.get< double       >("Temperature"                    );
-      fElectronsToADC    	        = p.get< double 	    >("ElectronsToADC"                 );
-      fFanoFactor        	        = p.get< double 	    >("FanoFactor"                     );
-      fLongitudinalDiffusion      = p.get< double 	    >("LongitudinalDiffusion"          );
-      fTransverseDiffusion        = p.get< double 	    >("TransverseDiffusion"            );
-      fNumberTimeSamples 	        = p.get< unsigned int >("NumberTimeSamples"              );
-      fReadOutWindowSize 	        = p.get< unsigned int >("ReadOutWindowSize"              );
-      fInheritNumberTimeSamples   = p.get<bool          >("InheritNumberTimeSamples", false);
-      
-      fSternheimerParameters.a    = p.get< double       >("SternheimerA"                   );
-      fSternheimerParameters.k    = p.get< double       >("SternheimerK"                   );
-      fSternheimerParameters.x0   = p.get< double       >("SternheimerX0"                  );
-      fSternheimerParameters.x1   = p.get< double       >("SternheimerX1"                  );
-      fSternheimerParameters.cbar = p.get< double       >("SternheimerCbar"                );
-      
-      CalculateXTicksParams();
-      
-      return;
-    }
-#endif // 0
     
     //--------------------------------------------------------------------
     void DetectorPropertiesStandard::Configure(Configuration_t const& config) {

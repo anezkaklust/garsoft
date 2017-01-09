@@ -19,7 +19,6 @@ namespace gar {
       kTriggerOffsetTPC,
       kFramePeriod,
       kClockSpeedTPC,
-      kClockSpeedOptical,
       kClockSpeedTrigger,
       kClockSpeedExternal,
       kDefaultTrigTime,

@@ -1,0 +1,19 @@
+BEGIN_PROLOG
+
+standard_clocks:
+{
+ service_provider:   "DetectorClockServiceStandard"
+ TrigModuleName:     ""
+ InheritClockConfig: true
+ G4RefTime:          0.      # G4 time [us] where electronics clock counting start
+ TriggerOffsetTPC:   0.      # Time [us] for TPC readout start w.r.t. trigger time
+ FramePeriod:        405.504 # Frame period [us] (2048 ticks * 198 ns)
+ ClockSpeedTPC:      5.0505  # TPC clock speed in MHz (1 / 198 ns)
+ ClockSpeedTrigger:  16.     # Trigger clock speed in MHz
+ ClockSpeedExternal: 31.25   # external clock speed in MHz
+ DefaultTrigTime:    0.      # Default trigger time [us].
+ DefaultBeamTime:    0.      # Default beam time [us].
+}
+
+
+END_PROLOG

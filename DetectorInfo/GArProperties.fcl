@@ -1,0 +1,18 @@
+BEGIN_PROLOG
+
+standard_garproperties:
+{
+service_provider: "GArPropertiesServiceStandard"
+RadiationLength:
+AtomicNumber:
+AtomicMass:
+ExcitationEnergy:
+Argon39DecayRate:
+FanoFactor:
+LongitudinalDiffusion: 6.2e-9          # cm^2/ns
+TransverseDiffusion:   16.3e-9         # cm^2/ns
+
+}
+
+
+END_PROLOG

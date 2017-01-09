@@ -19,15 +19,14 @@ namespace gar {
   , fBeamGateTime    (0)
   {
     
-    fConfigName.at(detinfo::kG4RefTime)         = "G4RefTime";
-    fConfigName.at(detinfo::kTriggerOffsetTPC)  = "TriggerOffsetTPC";
-    fConfigName.at(detinfo::kFramePeriod)       = "FramePeriod";
-    fConfigName.at(detinfo::kClockSpeedTPC)     = "ClockSpeedTPC";
-    fConfigName.at(detinfo::kClockSpeedOptical) = "ClockSpeedOptical";
-    fConfigName.at(detinfo::kClockSpeedTrigger) = "ClockSpeedTrigger";
+    fConfigName.at(detinfo::kG4RefTime)          = "G4RefTime";
+    fConfigName.at(detinfo::kTriggerOffsetTPC)   = "TriggerOffsetTPC";
+    fConfigName.at(detinfo::kFramePeriod)        = "FramePeriod";
+    fConfigName.at(detinfo::kClockSpeedTPC)      = "ClockSpeedTPC";
+    fConfigName.at(detinfo::kClockSpeedTrigger)  = "ClockSpeedTrigger";
     fConfigName.at(detinfo::kClockSpeedExternal) = "ClockSpeedExternal";
-    fConfigName.at(detinfo::kDefaultTrigTime)   = "DefaultTrigTime";
-    fConfigName.at(detinfo::kDefaultBeamTime)   = "DefaultBeamTime";
+    fConfigName.at(detinfo::kDefaultTrigTime)    = "DefaultTrigTime";
+    fConfigName.at(detinfo::kDefaultBeamTime)    = "DefaultBeamTime";
     
     fInheritClockConfig = false;
   }
@@ -55,20 +54,19 @@ namespace gar {
   bool detinfo::DetectorClocksStandard::Configure(fhicl::ParameterSet const& pset)
   {
     
-      // Read fcl parameters
-    fTrigModuleName                     = pset.get< std::string >( "TrigModuleName" );
-    fInheritClockConfig                 = pset.get< bool >( "InheritClockConfig" );
-    fConfigValue.at(kG4RefTime)         = pset.get< double >( fConfigName.at(kG4RefTime).c_str() );
-    fConfigValue.at(kFramePeriod)       = pset.get< double >( fConfigName.at(kFramePeriod).c_str() );
-    fConfigValue.at(kTriggerOffsetTPC)  = pset.get< double >( fConfigName.at(kTriggerOffsetTPC).c_str());
-    fConfigValue.at(kClockSpeedTPC)     = pset.get< double >( fConfigName.at(kClockSpeedTPC).c_str() );
-    fConfigValue.at(kClockSpeedOptical) = pset.get< double >( fConfigName.at(kClockSpeedOptical).c_str());
-    fConfigValue.at(kClockSpeedTrigger) = pset.get< double >( fConfigName.at(kClockSpeedTrigger).c_str() );
-    fConfigValue.at(kClockSpeedExternal)= pset.get< double >( fConfigName.at(kClockSpeedExternal).c_str());
-    fConfigValue.at(kDefaultTrigTime)    = pset.get< double >( fConfigName.at(kDefaultTrigTime).c_str() );
-    fConfigValue.at(kDefaultBeamTime)   = pset.get< double >( fConfigName.at(kDefaultBeamTime).c_str() );
+    // Read fcl parameters
+    fTrigModuleName                      = pset.get< std::string >( "TrigModuleName"                            );
+    fInheritClockConfig                  = pset.get< bool        >( "InheritClockConfig"                        );
+    fConfigValue.at(kG4RefTime)          = pset.get< double      >( fConfigName.at(kG4RefTime)         .c_str() );
+    fConfigValue.at(kFramePeriod)        = pset.get< double      >( fConfigName.at(kFramePeriod)       .c_str() );
+    fConfigValue.at(kTriggerOffsetTPC)   = pset.get< double      >( fConfigName.at(kTriggerOffsetTPC)  .c_str() );
+    fConfigValue.at(kClockSpeedTPC)      = pset.get< double      >( fConfigName.at(kClockSpeedTPC)     .c_str() );
+    fConfigValue.at(kClockSpeedTrigger)  = pset.get< double      >( fConfigName.at(kClockSpeedTrigger) .c_str() );
+    fConfigValue.at(kClockSpeedExternal) = pset.get< double      >( fConfigName.at(kClockSpeedExternal).c_str() );
+    fConfigValue.at(kDefaultTrigTime)    = pset.get< double      >( fConfigName.at(kDefaultTrigTime)   .c_str() );
+    fConfigValue.at(kDefaultBeamTime)    = pset.get< double      >( fConfigName.at(kDefaultBeamTime)   .c_str() );
     
-      // Save fcl parameters in a container to check for inheritance
+    // Save fcl parameters in a container to check for inheritance
     fBeamGateTime = fTriggerTime = 0;
     
     ApplyParams();

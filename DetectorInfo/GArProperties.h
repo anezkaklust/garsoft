@@ -27,15 +27,24 @@ namespace gar {
       GArProperties& operator = (GArProperties &&)      = delete;
       virtual ~GArProperties()                          = default;
       
-      virtual double RadiationLength()  const = 0;
-      virtual double Argon39DecayRate() const = 0;
+      virtual double RadiationLength()       const = 0;
+      virtual double Argon39DecayRate()      const = 0;
       
       /// Atomic number of the gas
-      virtual double AtomicNumber()     const = 0;
+      virtual double AtomicNumber()          const = 0;
+      
       /// Atomic mass of the gas (g/mol)
-      virtual double AtomicMass()       const = 0;
+      virtual double AtomicMass()            const = 0;
+
       /// Mean excitation energy of the gas (eV)
-      virtual double ExcitationEnergy() const = 0;
+      virtual double ExcitationEnergy()      const = 0;
+      
+      /// Fano Factor for the gas
+      virtual double FanoFactor()            const = 0;
+
+      /// Diffusion constants
+      virtual double LongitudinalDiffusion() const = 0;
+      virtual double TransverseDiffusion()   const = 0;
       
     protected:
       GArProperties() = default;

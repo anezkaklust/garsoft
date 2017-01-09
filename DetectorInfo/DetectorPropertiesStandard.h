@@ -43,61 +43,50 @@ namespace gar {
         using Name = fhicl::Name;
         using Comment = fhicl::Comment;
         
-        fhicl::Sequence<double> Efield { Name("Efield"), Comment(
-                                                                 "electric field in front of each wire plane (the last one is the big one!) [kV/cm]")
+        fhicl::Sequence<double> Efield{
+          Name   ("Efield"),
+          Comment("electric field in front of each wire plane (the last one is the big one!) [kV/cm]")
         };
         
-        fhicl::Atom<double      > Electronlifetime         {
-          Name("Electronlifetime"        ),
+        fhicl::Atom<double> Electronlifetime{
+          Name   ("Electronlifetime"),
           Comment("electron lifetime in liquid argon [us]")
         };
-        fhicl::Atom<double      > Temperature              {
-          Name("Temperature"             ),
+        fhicl::Atom<double> Temperature{
+          Name   ("Temperature"),
           Comment("argon temperature [K]")
         };
-        fhicl::Atom<double      > ElectronsToADC           {
-          Name("ElectronsToADC"          ),
+        fhicl::Atom<double> ElectronsToADC{
+          Name   ("ElectronsToADC"),
           Comment("conversion factor: (ADC counts)/(ionization electrons)")
         };
-        fhicl::Atom<unsigned int> NumberTimeSamples        {
-          Name("NumberTimeSamples"       ),
+        fhicl::Atom<unsigned int> NumberTimeSamples{
+          Name   ("NumberTimeSamples"),
           Comment("number of TPC readout TDC clock ticks per event")
         };
-        fhicl::Atom<unsigned int> ReadOutWindowSize        {
-          Name("ReadOutWindowSize"       ),
+        fhicl::Atom<unsigned int> ReadOutWindowSize{
+          Name   ("ReadOutWindowSize"),
           Comment("number of TPC readout TDC clock ticks per readout window")
         };
-        fhicl::Atom<double      > TimeOffsetU              {
-          Name("TimeOffsetU"             ),
-          Comment("tick offset subtracted to to convert spacepoint coordinates to hit times on view U")
-        };
-        fhicl::Atom<double      > TimeOffsetV              {
-          Name("TimeOffsetV"             ),
-          Comment("tick offset subtracted to to convert spacepoint coordinates to hit times on view V")
-        };
-        fhicl::Atom<double      > TimeOffsetZ              {
-          Name("TimeOffsetZ"             ),
-          Comment("tick offset subtracted to to convert spacepoint coordinates to hit times on view Z")
-        };
         
-        fhicl::Atom<double      > SternheimerA             {
-          Name("SternheimerA"),
+        fhicl::Atom<double> SternheimerA{
+          Name   ("SternheimerA"),
           Comment("parameter a of Sternheimer correction delta = 2log(10) x - cbar + { a (x1-x)^k } theta(x1-x), x = log10(p/m)")
         };
-        fhicl::Atom<double      > SternheimerK             {
-          Name("SternheimerK"),
+        fhicl::Atom<double> SternheimerK{
+          Name   ("SternheimerK"),
           Comment("parameter k of Sternheimer correction delta = 2log(10) x - cbar + { a (x_1-x)^k } theta(x1-x), x = log10(p/m)")
         };
-        fhicl::Atom<double      > SternheimerX0            {
-          Name("SternheimerX0"),
+        fhicl::Atom<double> SternheimerX0{
+          Name   ("SternheimerX0"),
           Comment("minimum x = log10(p/m) for the application of Sternheimer correction")
         };
-        fhicl::Atom<double      > SternheimerX1            {
-          Name("SternheimerX1"),
+        fhicl::Atom<double> SternheimerX1{
+          Name   ("SternheimerX1"),
           Comment("parameter x_1 of Sternheimer correction delta = 2log(10) x - cbar + { a (x_1-x)^k } theta(x1-x), x = log10(p/m)")
         };
-        fhicl::Atom<double      > SternheimerCbar             {
-          Name("SternheimerCbar"),
+        fhicl::Atom<double> SternheimerCbar{
+          Name   ("SternheimerCbar"),
           Comment("parameter cbar of Sternheimer correction delta = 2log(10) x - cbar + { a (x_1-x)^k } theta(x1-x), x = log10(p/m)")
         };
         
@@ -108,8 +97,7 @@ namespace gar {
                                  const geo::GeometryCore     *  geo,
                                  const detinfo::GArProperties*  gp,
                                  const detinfo::DetectorClocks* c,
-                                 std::set<std::string>   const& ignore_params = {}
-                                 );
+                                 std::set<std::string>   const& ignore_params = {});
       
       /**
        * @brief Constructs the provider and sets up the dependencies
@@ -189,11 +177,6 @@ namespace gar {
       
       virtual double ElectronLifetime()      const override { return fElectronlifetime;     }   //< microseconds
       
-      virtual double FanoFactor()            const override { return fFanoFactor;            }
-      
-      virtual double LongitudinalDiffusion() const override { return fLongitudinalDiffusion; }
-      virtual double TransverseDiffusion()   const override { return fTransverseDiffusion;   }
-      
       /**
        * @brief Returns argon density at a given temperature
        * @param temperature the temperature in kelvin
@@ -270,8 +253,8 @@ namespace gar {
       
       void         CalculateXTicksParams();
       
-        // service providers we depend on;
-        // in principle could be replaced by a single providerpacl_type.
+      // service providers we depend on;
+      // in principle could be replaced by a single providerpacl_type.
       const detinfo::GArProperties*  fGP;
       const detinfo::DetectorClocks* fClocks;
       const geo::GeometryCore*       fGeo;
@@ -283,12 +266,6 @@ namespace gar {
       double 	                       fElectronsToADC;        ///< conversion factor for # of ionization electrons to 1 ADC count
       unsigned int                   fNumberTimeSamples;     ///< number of clock ticks per event
       unsigned int                   fReadOutWindowSize;     ///< number of clock ticks per readout window
-      double                         fTimeOffsetU;           ///< time offset to convert spacepoint coordinates to hit times on view U
-      double                         fTimeOffsetV;           ///< time offset to convert spacepoint coordinates to hit times on view V
-      double                         fTimeOffsetZ;           ///< time offset to convert spacepoint coordinates to hit times on view Z
-      double                         fFanoFactor;
-      double                         fLongitudinalDiffusion; ///< amount of longitudinal diffusion
-      double                         fTransverseDiffusion;   ///< amount of longitudinal diffusion
       
       SternheimerParameters_t        fSternheimerParameters; ///< Sternheimer parameters
       

@@ -29,9 +29,9 @@ standard_auxdet_geo:
  SortingParameters: {}
 }
 
-standard_auxdetgeometry_helper:
+example_auxdetgeometry_helper:
 {
- service_provider: StandardAuxDetGeometryHelper
+ service_provider: AuxDetGeometryHelperExample
 }
 
 END_PROLOG
