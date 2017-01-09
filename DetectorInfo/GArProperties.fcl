@@ -2,15 +2,15 @@ BEGIN_PROLOG
 
 standard_garproperties:
 {
-service_provider: "GArPropertiesServiceStandard"
-RadiationLength:
-AtomicNumber:
-AtomicMass:
-ExcitationEnergy:
-Argon39DecayRate:
-FanoFactor:
-LongitudinalDiffusion: 6.2e-9          # cm^2/ns
-TransverseDiffusion:   16.3e-9         # cm^2/ns
+ service_provider:      "GArPropertiesServiceStandard"
+ RadiationLength:       19.55   # g/cm^2
+ AtomicNumber:          18
+ AtomicMass:            39.981  # g/mol
+ ExcitationEnergy:      188.    # mean in eV
+ Argon39DecayRate:      1.41e-3 # decays per cm^3 per second. Assumes 1.01 Bq/kg and a density of 1.396 g/cc
+ FanoFactor:            0.2     # in pure argon, from Kase, et al NIM 227 (1984) 311-317, number should depend on pressure
+ LongitudinalDiffusion: 6.2e-9  # cm^2/ns
+ TransverseDiffusion:   16.3e-9 # cm^2/ns
 
 }
 
