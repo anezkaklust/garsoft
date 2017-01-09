@@ -1,0 +1,12 @@
+BEGIN_PROLOG
+
+standard_garaction:
+{
+ EnergyCut:            0.001 # GeV
+ ElectronDriftAlgPars:
+ {
+  DriftAlgType: "Standard"
+ }
+}
+
+END_PROLOG

@@ -1,0 +1,11 @@
+BEGIN_PROLOG
+
+standard_garg4ana:
+{
+ module_type:      GArG4Ana
+ GeantModuleLabel: "geant"
+ Ndaughters:       100
+ TruthModuleLable: "generator"
+}
+
+END_PROLOG

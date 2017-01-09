@@ -1,0 +1,22 @@
+#include "GArAction.fcl"
+#include "AuxDetAction.fcl"
+#include "G4SimulationParameters.fcl"
+
+BEGIN_PROLOG
+
+standard_garg4:
+{
+ module_type:            GArG4
+ GArSimParsPSet:         @local::standard_g4simpars
+ GArActionPSet:          @local::standard_garaction
+ GArVolumeName:          "volGAr"
+ G4PhysListName:         "garg4::PhysicsList"
+ CheckOverlaps:          false
+ DumpParticleList:       false
+ DumpSimChannels:        false
+ SmartStacking:          0
+ MaxStepSize:            0.2 # cm
+ KeepParticlesInVolumes: {}
+}
+
+END_PROLOG

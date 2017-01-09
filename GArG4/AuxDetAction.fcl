@@ -1,0 +1,8 @@
+BEGIN_PROLOG
+
+standard_auxdetaction:
+{
+ EnergyCut: 0.001 # GeV
+}
+
+END_PROLOG

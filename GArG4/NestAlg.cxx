@@ -46,9 +46,9 @@ namespace gar {
   
   G4double biExc = 0.77; //for alpha particles (bi-excitonic collisions)
   
-    //----------------------------------------------------------------------------
-    // Default constructor will return no photons or electrons unless the set
-    // methods are called.
+  //----------------------------------------------------------------------------
+  // Default constructor will return no photons or electrons unless the set
+  // methods are called.
   NestAlg::NestAlg(CLHEP::HepRandomEngine& engine)
   : fYieldFactor(0)
   , fExcitationRatio(0)
@@ -64,7 +64,7 @@ namespace gar {
     fElementPropInit[54] = false;
   }
   
-    //----------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   NestAlg::NestAlg(double yieldFactor, CLHEP::HepRandomEngine& engine)
   : fYieldFactor(yieldFactor)
   , fExcitationRatio(0.)
@@ -80,7 +80,7 @@ namespace gar {
     fElementPropInit[54] = false;
   }
   
-    //----------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   const G4VParticleChange& NestAlg::CalculateIonizationAndScintillation(G4Track const& aTrack,
                                                                         G4Step  const& aStep)
   {
@@ -88,9 +88,9 @@ namespace gar {
     CLHEP::RandFlat  UniformGen(fEngine);
     
     
-      // reset the variables accessed by other objects
-      // make the energy deposit the energy in this step,
-      // set the number of electrons and photons to 0
+    // reset the variables accessed by other objects
+    // make the energy deposit the energy in this step,
+    // set the number of electrons and photons to 0
     fEnergyDep       = aStep.GetTotalEnergyDeposit();
     fNumIonElectrons = 0.;
     fNumScintPhotons = 0.;
@@ -123,11 +123,11 @@ namespace gar {
        aStep.GetTotalEnergyDeposit() <= 0)
       return fParticleChange;
     
-      // code for determining whether the present/next material is noble
-      // element, or, in other words, for checking if either is a valid NEST
-      // scintillating material, and save Z for later L calculation, or
-      // return if no valid scintillators are found on this step, which is
-      // protection against G4Exception or seg. fault/violation
+    // code for determining whether the present/next material is noble
+    // element, or, in other words, for checking if either is a valid NEST
+    // scintillating material, and save Z for later L calculation, or
+    // return if no valid scintillators are found on this step, which is
+    // protection against G4Exception or seg. fault/violation
     G4Element *ElementA = NULL, *ElementB = NULL;
     if (aMaterial) {
       const G4ElementVector* theElementVector1 =
@@ -144,9 +144,9 @@ namespace gar {
     if (ElementB) z2 = (G4int)(ElementB->GetZ()); else z2 = -1;
     if ( z1==2 || z1==10 || z1==18 || z1==36 || z1==54 ) {
       NobleNow = true;
-        //	  j = (G4int)aMaterial->GetMaterialPropertiesTable()->
-        //  GetConstProperty("TOTALNUM_INT_SITES"); //get current number
-        //if ( j < 0 ) {
+      //	  j = (G4int)aMaterial->GetMaterialPropertiesTable()->
+      //  GetConstProperty("TOTALNUM_INT_SITES"); //get current number
+      //if ( j < 0 ) {
       if ( aTrack.GetParentID() == 0 && !fElementPropInit[z1] ) {
         InitMatPropValues(aMaterial->GetMaterialPropertiesTable(), z1);
         j = 0; //no sites yet
@@ -154,9 +154,9 @@ namespace gar {
     } //end of atomic number check
     if ( z2==2 || z2==10 || z2==18 || z2==36 || z2==54 ) {
       NobleLater = true;
-        //	  j = (G4int)bMaterial->GetMaterialPropertiesTable()->
-        //  GetConstProperty("TOTALNUM_INT_SITES");
-        //if ( j < 0 ) {
+      //	  j = (G4int)bMaterial->GetMaterialPropertiesTable()->
+      //  GetConstProperty("TOTALNUM_INT_SITES");
+      //if ( j < 0 ) {
       if ( aTrack.GetParentID() == 0 && !fElementPropInit[z2] ) {
         InitMatPropValues(bMaterial->GetMaterialPropertiesTable(), z2);
         j = 0; //no sites yet
@@ -166,8 +166,8 @@ namespace gar {
     if ( !NobleNow && !NobleLater )
       return fParticleChange;
     
-      // retrieval of the particle's position, time, attributes at both the
-      // beginning and the end of the current step along its track
+    // retrieval of the particle's position, time, attributes at both the
+    // beginning and the end of the current step along its track
     G4StepPoint* pPreStepPoint  = aStep.GetPreStepPoint();
     G4StepPoint* pPostStepPoint = aStep.GetPostStepPoint();
     G4ThreeVector x1 = pPostStepPoint->GetPosition();
@@ -176,10 +176,10 @@ namespace gar {
     G4double      t0 = pPreStepPoint->GetLocalTime();
     G4double      t1 = pPostStepPoint->GetLocalTime();
     
-      // now check if we're entering a scintillating material (inside) or
-      // leaving one (outside), in order to determine (later on in the code,
-      // based on the booleans inside & outside) whether to add/subtract
-      // energy that can potentially be deposited from the system
+    // now check if we're entering a scintillating material (inside) or
+    // leaving one (outside), in order to determine (later on in the code,
+    // based on the booleans inside & outside) whether to add/subtract
+    // energy that can potentially be deposited from the system
     G4bool outside = false, inside = false, InsAndOuts = false;
     G4MaterialPropertiesTable* aMaterialPropertiesTable =
     aMaterial->GetMaterialPropertiesTable();
@@ -192,7 +192,7 @@ namespace gar {
         aMaterial->GetDensity() != bMaterial->GetDensity() )
       InsAndOuts = true;
     
-      // retrieve scintillation-related material properties
+    // retrieve scintillation-related material properties
     G4double Density = aMaterial->GetDensity()/(CLHEP::g/CLHEP::cm3);
     G4double nDensity = Density*AVO; //molar mass factor applied below
     G4int Phase = aMaterial->GetState(); //solid, liquid, or gas?
@@ -312,10 +312,10 @@ namespace gar {
                              //distance used to determine when one is at a new interaction site
           delta = 0.4*CLHEP::mm; //distance ~30 keV x-ray travels in LXe
           PhotMean = 6.97*CLHEP::eV; PhotWidth = 0.23*CLHEP::eV;
-            // 178+/-14nmFWHM, taken from Jortner JchPh 42 '65.
-            //these singlet and triplet times may not be the ones you're
-            //used to, but are the world average: Kubota 79, Hitachi 83 (2
-            //data sets), Teymourian 11, Morikawa 89, and Akimov '02
+          // 178+/-14nmFWHM, taken from Jortner JchPh 42 '65.
+          //these singlet and triplet times may not be the ones you're
+          //used to, but are the world average: Kubota 79, Hitachi 83 (2
+          //data sets), Teymourian 11, Morikawa 89, and Akimov '02
           tau1 = GaussGen.fire(3.1*CLHEP::ns,.7*CLHEP::ns); //err from wgted avg.
           tau3 = GaussGen.fire(24.*CLHEP::ns,1.*CLHEP::ns); //ibid.
         } //end liquid
@@ -346,7 +346,7 @@ namespace gar {
         } //solid Xe
     }
     
-      // log present and running tally of energy deposition in this section
+    // log present and running tally of energy deposition in this section
     G4double anExcitationEnergy = ((const G4Ions*)(pDef))->
     GetExcitationEnergy(); //grab nuclear energy level
     G4double TotalEnergyDeposit = //total energy deposited so far

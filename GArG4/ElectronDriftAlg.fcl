@@ -1,0 +1,9 @@
+BEGIN_PROLOG
+
+
+standard_electrondrift:
+{
+ ElectronsPerCluster: 50
+}
+
+END_PROLOG

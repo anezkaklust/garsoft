@@ -1,0 +1,10 @@
+BEGIN_PROLOG
+
+standard_g4simpars:
+{
+ EnabledPhysics: []
+ ISCalcName:     "Separate"
+}
+
+
+END_PROLOG

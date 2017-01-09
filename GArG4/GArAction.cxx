@@ -55,10 +55,12 @@ namespace gar {
     {
       fEnergyCut = pset.get<double>("EnergyCut") * CLHEP::GeV;
       
-      auto driftAlgName = pset.get<std::string>("ElectronDriftAlg", "Standard");
+      auto driftAlgPars = pset.get<fhicl::ParameterSet>("ElectronDriftAlgPars");
+      auto driftAlgName = driftAlgPars.get<std::string>("ElectronDriftAlg");
       
       if(driftAlgName.compare("Standard") == 0)
-        fDriftAlg = std::make_unique<gar::garg4::ElectronDriftStandardAlg>(*fEngine, pset);
+        fDriftAlg = std::make_unique<gar::garg4::ElectronDriftStandardAlg>(*fEngine,
+                                                                           driftAlgPars);
       else
         throw cet::exception("GArAction")
         << "Unable to determine which electron drift algorithm to use, bail";

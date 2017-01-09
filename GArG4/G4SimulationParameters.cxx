@@ -35,8 +35,11 @@ namespace gar {
     //--------------------------------------------------------------------------
     G4SimulationParameters::G4SimulationParameters(fhicl::ParameterSet const& pset)
     {
-      fEnabledPhysics = pset.get< std::vector<std::string> >("EnabledPhysics");
-      fISCalcName     = pset.get< std::string              >("ISCalcName"    );
+      fEnabledPhysics        = pset.get<std::vector<std::string> >("EnabledPhysics"              );
+      fISCalcName            = pset.get<std::string              >("ISCalcName"                  );
+      fKeepEMShowerDaughters = pset.get<bool                     >("KeepEMShowerDaughters", false);
+      fStoreTrajectories     = pset.get<bool                     >("StoreTrajectories",     false);
+      fKineticEnergyCut      = pset.get<float                    >("KineticEnergyCut",      1.e-4);
       
       return;
     }

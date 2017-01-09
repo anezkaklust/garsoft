@@ -210,6 +210,9 @@ namespace gar {
     , fKeepParticlesInVolumes(pset.get< std::vector< std::string > >("KeepParticlesInVolumes",{}))
     
     {
+      // initialize the GArSimulationParameters singleton
+      G4SimulationParameters::CreateInstance(pset.get<fhicl::ParameterSet>("GArSimParsPSet"));
+
       LOG_DEBUG("GArG4") << "Debug: GArG4()";
       ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
       
@@ -280,7 +283,7 @@ namespace gar {
       // to create it in LArVoxelReadoutGeometry
       IonizationAndScintillation::CreateInstance(rng->getEngine("propagation"));
       
-        // Set the step size limits for the gaseous argon volume
+      // Set the step size limits for the gaseous argon volume
       fG4Help->SetVolumeStepLimit(fGArVolumeName, fMaxStepSize * CLHEP::cm);
       
       // Intialize G4 physics and primary generator action
