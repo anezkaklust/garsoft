@@ -19,18 +19,7 @@ art_make(MODULE_LIBRARIES Geometry
                            ${CLHEP}
                            ${ROOT_BASIC_LIB_LIST}
                            ${ROOT_EG}
-         EXCLUDE GeneratedEventTimestamp_plugin.cc
         )
-
-simple_plugin( GeneratedEventTimestamp "plugin"
-               ${ART_FRAMEWORK_CORE}
-               art_Persistency_Provenance canvas_Persistency_Provenance
-               ${MF_MESSAGELOGGER}
-               ${MF_UTILITIES}
-               ${CETLIB}
-               ${Boost_FILESYSTEM_LIBRARY}
-				       ${Boost_SYSTEM_LIBRARY}
-             )
 
 install_headers()
 install_fhicl()
