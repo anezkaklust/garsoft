@@ -2,7 +2,7 @@ BEGIN_PROLOG
 
 standard_clocks:
 {
- service_provider:   "DetectorClockServiceStandard"
+ service_provider:   "DetectorClocksServiceStandard"
  TrigModuleName:     ""
  InheritClockConfig: true
  G4RefTime:          0.      # G4 time [us] where electronics clock counting start

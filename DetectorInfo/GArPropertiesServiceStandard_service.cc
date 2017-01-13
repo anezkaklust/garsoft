@@ -19,7 +19,8 @@
 #include "cetlib/exception.h"
 
 //-----------------------------------------------
-gar::detinfo::GArPropertiesServiceStandard::GArPropertiesServiceStandard(fhicl::ParameterSet const& pset, ::art::ActivityRegistry &reg)
+gar::detinfo::GArPropertiesServiceStandard::GArPropertiesServiceStandard(fhicl::ParameterSet const& pset,
+                                                                         ::art::ActivityRegistry &reg)
 {
   fProp.reset(new detinfo::GArPropertiesStandard());
 

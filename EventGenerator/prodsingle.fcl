@@ -6,7 +6,7 @@
 #include "RunHistory.fcl"
 
 #Plugins
-#include "GENIEGen.fcl"
+#include "SingleGen.fcl"
 #include "GArG4.fcl"
 
 # eventually will need to include configuration to simulate the electronics
@@ -23,8 +23,8 @@ services:
   ExptGeoHelperInterface: @local::standard_geometry_helper
   DetectorClocks:         @local::standard_clocks
   DetectorProperties:     @local::standard_detproperties
-  GArProperties:          @local::standard_detproperties
-  RunHistory:             @local::standard_runhistory
+  GArProperties:          @local::standard_garproperties
+#RunHistory:             @local::standard_runhistory
 }
 
 

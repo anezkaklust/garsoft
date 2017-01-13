@@ -22,7 +22,7 @@ services:
  ExptGeoHelperInterface: @local::standard_geometry_helper
  DetectorClocks:         @local::standard_clocks
  DetectorProperties:     @local::standard_detproperties
- GArProperties:          @local::standard_detproperties
+ GArProperties:          @local::standard_garproperties
  RunHistory:             @local::standard_runhistory
 }
 

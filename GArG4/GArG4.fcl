@@ -4,7 +4,7 @@
 
 BEGIN_PROLOG
 
-standard_garg4:
+standard_geant:
 {
  module_type:            GArG4
  GArSimParsPSet:         @local::standard_g4simpars
