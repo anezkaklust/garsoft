@@ -18,6 +18,8 @@ defaultqual	e10
 
 fcldir  product_dir fcl
 gdmldir product_dir
+fwdir   product_dir G4
+
 #
 # we list geant4 explicitly because we are going to set GDML_SCHEMA_DIR 
 # Defining GDML_SCHEMA_DIR here is a temporary hack

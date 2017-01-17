@@ -98,3 +98,7 @@ art_make(LIB_LIBRARIES      nutools_ParticleNavigation
 install_headers()
 install_fhicl()
 install_source()
+
+# install macro files in lib
+file(GLOB g4_macros *.mac )
+install_fw( LIST ${g4_macros} )

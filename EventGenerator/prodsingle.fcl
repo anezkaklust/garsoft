@@ -1,4 +1,5 @@
 #Services
+#include "seedservice.fcl"
 #include "DetectorClocks.fcl"
 #include "DetectorProperties.fcl"
 #include "GArProperties.fcl"
@@ -24,6 +25,7 @@ services:
   DetectorClocks:         @local::standard_clocks
   DetectorProperties:     @local::standard_detproperties
   GArProperties:          @local::standard_garproperties
+  NuRandomService:        @local::standard_NuRandomService
 #RunHistory:             @local::standard_runhistory
 }
 

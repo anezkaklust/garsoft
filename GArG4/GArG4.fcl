@@ -7,6 +7,7 @@ BEGIN_PROLOG
 standard_geant:
 {
  module_type:            GArG4
+ GeantCommandFile:       "GArG4.mac"
  GArSimParsPSet:         @local::standard_g4simpars
  GArActionPSet:          @local::standard_garaction
  GArVolumeName:          "volGAr"

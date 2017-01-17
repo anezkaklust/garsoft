@@ -1,7 +1,7 @@
 <!--  Include ::art::Wrapper lines for objects that we would like to put  -->
-<!--  into the event -->
+<!--  into the event                                                      -->
 <!--  Include the non-wrapper lines for all objects on the ::art::Wrapper --> 
-<!--  lines and for all objects that are data members of those objects.-->
+<!--  lines and for all objects that are data members of those objects.   -->
  
 <lcgdict>
   <class name="gar::sumdata::RunData"    ClassVersion="10">
@@ -11,9 +11,7 @@
    <version ClassVersion="10" checksum="3749078273"/>
   </class>
   
-<!--
   <class name="art::Wrapper<gar::sumdata::RunData>"       />
   <class name="art::Wrapper<gar::sumdata::POTSummary>"    />
--->
   
  </lcgdict>

@@ -1,11 +1,7 @@
-<!--                                                                                  -->
-<!--  $Id: classes_def.xml,v 1.10 2010/04/12 18:12:28  Exp $                          -->
-<!--  $Author:  $                                                                     -->
-<!--  $Date: 2010/04/12 18:12:28 $                                                    -->
-<!--                                                                                  -->
+<!--                                                                                    -->
 <!--  Include ::art::Wrapper lines for objects that we would like to put into the event -->
 <!--  Include the non-wrapper lines for all objects on the ::art::Wrapper lines and     -->
-<!--  for all objects that are data members of those objects.                         -->
+<!--  for all objects that are data members of those objects.                           -->
 
 
 <lcgdict>
@@ -26,15 +22,16 @@
   <version ClassVersion="11" checksum="774389439"/>
   <version ClassVersion="10" checksum="3349524943"/>
  </class>
+ <class name="gar::sdp::AuxDetSimChannel"         ClassVersion="10"         	 >
+  <version ClassVersion="10" checksum="276781867"/>
+ </class>
+ <class name="gar::sdp::AuxDetIDE"                ClassVersion="10"         	 >
+  <version ClassVersion="10" checksum="1916611417"/>
+ </class>
  <enum name="gar::sdp::BeamType_t"                                            />
 
-<!--
- <class name="std::vector<gar::sdp::sdpChannel  >"                		    	  />
- <class name="std::vector<gar::sdp::IDE>"                                     />
- <class name="std::vector<gar::sdp::TDCIDE>"                                  />
- <class name="std::vector<gar::sdp::BeamGateInfo>" 	    		    	            />
- <class name="art::Wrapper< std::vector<gar::sdp::sdpChannel>   >"		    	  />
- <class name="art::Wrapper< std::vector<gar::sdp::BeamGateInfo> >"		    	  />
-  -->
+ <class name="std::vector<gar::sdp::AuxDetIDE>"                               />
+ <class name="std::vector<gar::sdp::AuxDetSimChannel>"                        />
+ <class name="art::Wrapper<std::vector<gar::sdp::AuxDetSimChannel> > >"       />
 
 </lcgdict>
