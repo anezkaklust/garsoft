@@ -1,4 +1,8 @@
-#Services
+#NuTools Services
+#include "magfield.fcl"
+#include "seedservice.fcl"
+
+#GArSoft Services
 #include "DetectorClocks.fcl"
 #include "DetectorProperties.fcl"
 #include "GArProperties.fcl"
@@ -22,6 +26,8 @@ services:
  DetectorClocks:         @local::standard_clocks
  DetectorProperties:     @local::standard_detproperties
  GArProperties:          @local::standard_garproperties
+ NuRandomService:        @local::standard_NuRandomService
+ MagneticField:          @local::no_mag_larsoft            #larsoft uses the same volume naming as GArSoft
  RunHistory:             @local::standard_runhistory
 }
 

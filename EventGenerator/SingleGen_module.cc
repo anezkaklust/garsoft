@@ -337,18 +337,19 @@ namespace gar{
         
         thxz = fTheta0XZ[i] + fSigmaThetaXZ[i]*(2.0*flat.fire()-1.0);
         
-        thyzrads = std::asin(std::sin((M_PI/180.)*(fTheta0YZ[i]))); //Taking asin of sin gives value between -Pi/2 and Pi/2 regardless of user input
-        thyzradsplussigma = TMath::Min((thyzrads + ((M_PI/180.)*fabs(fSigmaThetaYZ[i]))), M_PI/2.);
+        //Taking asin of sin gives value between -Pi/2 and Pi/2 regardless of user input
+        thyzrads           = std::asin(std::sin((M_PI/180.)*(fTheta0YZ[i])));
+        thyzradsplussigma  = TMath::Min((thyzrads + ((M_PI/180.)*fabs(fSigmaThetaYZ[i]))), M_PI/2.);
         thyzradsminussigma = TMath::Max((thyzrads - ((M_PI/180.)*fabs(fSigmaThetaYZ[i]))), -M_PI/2.);
         
         double sinthyzmin = std::sin(thyzradsminussigma);
         double sinthyzmax = std::sin(thyzradsplussigma);
-        double sinthyz = sinthyzmin + flat.fire() * (sinthyzmax - sinthyzmin);
+        double sinthyz    = sinthyzmin + flat.fire() * (sinthyzmax - sinthyzmin);
         thyz = (180. / M_PI) * std::asin(sinthyz);
       }
       
-      double thxzrad=thxz*M_PI/180.0;
-      double thyzrad=thyz*M_PI/180.0;
+      double thxzrad = thxz*M_PI/180.0;
+      double thyzrad = thyz*M_PI/180.0;
       
       TLorentzVector pvec(p*std::cos(thyzrad)*std::sin(thxzrad),
                           p*std::sin(thyzrad),
@@ -356,7 +357,7 @@ namespace gar{
                           std::sqrt(p*p+m*m));
       
       // set track id to -i as these are all primary particles and have id <= 0
-      int trackid = -1*(i+1);
+      int trackid = -1 * (i + 1);
       std::string primary("primary");
       
       simb::MCParticle part(trackid, fPDG[i], primary);
@@ -441,7 +442,7 @@ namespace gar{
         
       }// end loop over vector names in list
       
-      mf::LogInfo("SingleGen") << values;
+      LOG_INFO("SingleGen") << values;
       
       return;
     }

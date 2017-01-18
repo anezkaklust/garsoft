@@ -30,8 +30,12 @@
  </class>
  <enum name="gar::sdp::BeamType_t"                                            />
 
+ <class name="std::vector<gar::sdp::SimChannel>"                              />
  <class name="std::vector<gar::sdp::AuxDetIDE>"                               />
  <class name="std::vector<gar::sdp::AuxDetSimChannel>"                        />
- <class name="art::Wrapper<std::vector<gar::sdp::AuxDetSimChannel> > >"       />
-
+ <class name="std::set<gar::sdp::IDE>"                                        />
+ <class name="std::set<gar::sdp::TDCIDE>"                                     />
+ <class name="art::Wrapper<std::vector<gar::sdp::SimChannel      > >"         />
+ <class name="art::Wrapper<std::vector<gar::sdp::AuxDetSimChannel> >"         />
+ 
 </lcgdict>

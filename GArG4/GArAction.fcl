@@ -1,12 +1,11 @@
+#include "ElectronDriftAlg.fcl"
+
 BEGIN_PROLOG
 
 standard_garaction:
 {
  EnergyCut:            0.001 # GeV
- ElectronDriftAlgPars:
- {
-  DriftAlgType: "Standard"
- }
+ ElectronDriftAlgPars: @local::standard_electrondrift
 }
 
 END_PROLOG

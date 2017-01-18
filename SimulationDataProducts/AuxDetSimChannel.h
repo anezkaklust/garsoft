@@ -7,8 +7,8 @@
 /// \author  miceli@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
-#ifndef SIM_AUXDETSIMCHANNEL_H
-#define SIM_AUXDETSIMCHANNEL_H
+#ifndef SDP_AUXDETSIMCHANNEL_H
+#define SDP_AUXDETSIMCHANNEL_H
 
 // C/C++ standard libraries
 #include <stdint.h> // C header (need to be compatible with Reflex)
@@ -117,6 +117,6 @@ inline uint32_t  gar::sdp::AuxDetSimChannel::AuxDetSensitiveID()          const 
 inline std::vector<gar::sdp::AuxDetIDE> const& gar::sdp::AuxDetSimChannel::AuxDetIDEs() const { return fAuxDetIDEs; }
 #endif
 
-#endif // SIM_AUXDETSIMCHANNEL_H
+#endif // SDP_AUXDETSIMCHANNEL_H
 
 ////////////////////////////////////////////////////////////////////////

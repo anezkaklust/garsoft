@@ -61,6 +61,15 @@ namespace gar {
       
       fTPCClock = fClocks->TPCClock();
       
+      LOG_WARNING("DetectorPropertiesStandard")
+      << "DetectorPropertiesStandard Warning!
+      << "\t The following functions need to be verified for gaseous argon:
+      << "\t\t BirksCorrection"
+      << "\t\t Denisity"
+      << "\t\t DriftVelocity"
+      << "\t\t EField";
+
+      
     }
     
     //--------------------------------------------------------------------
@@ -174,7 +183,7 @@ namespace gar {
       //------------------------------------------------
     double DetectorPropertiesStandard::Density(double temperature) const
     {
-        // Default temperature use internal value.
+      // Default temperature use internal value.
       if(temperature == 0.)
         temperature = Temperature();
       
@@ -301,7 +310,7 @@ namespace gar {
       if(temperature == 0.)
         temperature = Temperature();
       
-      if(temperature < 87.0 || temperature > 94.0)
+      if(temperature < 100.0)
         LOG_WARNING("DetectorPropertiesStandard")
         << "DriftVelocity Warning! : Temperature value of "
         << temperature

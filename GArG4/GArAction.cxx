@@ -56,7 +56,7 @@ namespace gar {
       fEnergyCut = pset.get<double>("EnergyCut") * CLHEP::GeV;
       
       auto driftAlgPars = pset.get<fhicl::ParameterSet>("ElectronDriftAlgPars");
-      auto driftAlgName = driftAlgPars.get<std::string>("ElectronDriftAlg");
+      auto driftAlgName = driftAlgPars.get<std::string>("DriftAlgType");
       
       if(driftAlgName.compare("Standard") == 0)
         fDriftAlg = std::make_unique<gar::garg4::ElectronDriftStandardAlg>(*fEngine,
