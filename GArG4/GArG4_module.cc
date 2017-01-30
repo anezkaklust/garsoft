@@ -63,7 +63,6 @@
 #include "GArG4/MaterialPropertyLoader.h"
 #include "GArG4/ParticleFilters.h" // garg4::PositionInVolumeFilter
 #include "GArG4/G4SimulationParameters.h"
-#include "GArG4/IonizationAndScintillation.h"
 #include "Utilities/AssociationUtil.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "SimulationDataProducts/AuxDetSimChannel.h"
@@ -271,11 +270,6 @@ namespace gar {
       garg4::MaterialPropertyLoader* MPL = new garg4::MaterialPropertyLoader();
       MPL->GetPropertiesFromServices();
       MPL->UpdateGeometry(G4LogicalVolumeStore::GetInstance());
-      
-      // create the ionization and scintillation calculator;
-      // this is a singleton (!) so it does not make sense
-      // to create it in LArVoxelReadoutGeometry
-      IonizationAndScintillation::CreateInstance(rng->getEngine("propagation"));
       
       // Set the step size limits for the gaseous argon volume
       fG4Help->SetVolumeStepLimit(fGArVolumeName, fMaxStepSize * CLHEP::cm);

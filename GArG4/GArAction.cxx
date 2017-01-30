@@ -26,8 +26,6 @@
 
 #include "GArG4/GArAction.h"
 #include "GArG4/ParticleListAction.h"
-#include "GArG4/IonizationAndScintillation.h"
-#include "GArG4/ElectronDriftStandardAlg.h"
 
 namespace gar {
 
