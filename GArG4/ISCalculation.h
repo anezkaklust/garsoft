@@ -8,11 +8,10 @@
 #ifndef GARG4ISCALCULATION_H
 #define GARG4ISCALCULATION_H
 
-#include "Geant4/G4Step.hh"
-#include "Geant4/G4UserLimits.hh"
+#include "SimulationDataProducts/EnergyDeposit.h"
 
 namespace gar {
-  namespace garg4{
+  namespace rosim{
     
     class ISCalculation{
       
@@ -23,7 +22,7 @@ namespace gar {
       
       virtual void   Initialize()                        = 0;
       virtual void   Reset()                             = 0;
-      virtual void   CalculateIonizationAndScintillation(const G4Step* step) = 0;
+      virtual void   CalculateIonizationAndScintillation(sdp::EnergyDeposit const& dep) = 0;
       virtual double EnergyDeposit()              const  = 0;
       virtual int    NumberIonizationElectrons()  const  = 0;
       virtual int    NumberScintillationPhotons() const  = 0;

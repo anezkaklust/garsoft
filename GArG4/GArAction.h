@@ -17,8 +17,7 @@
 
 // GArSoft includes
 #include "Geometry/Geometry.h"
-#include "GArG4/ElectronDriftAlg.h"
-#include "SimulationDataProducts/SimChannel.h"
+#include "SimulationDataProducts/EnergyDeposit.h"
 
 //ART includes
 #include "art/Framework/Services/Registry/ServiceHandle.h"
@@ -54,14 +53,17 @@ namespace gar {
       void PostTrackingAction(const G4Track*);
       void SteppingAction    (const G4Step* );
       
-      //  Returns the SimChannel set accumulated during the current event.
-      std::set<gar::sdp::SimChannel> const& SimChannels() const { return fDriftAlg->SimChannels(); }
+      //  Returns the EnergyDeposit set accumulated during the current event.
+      std::set<gar::sdp::EnergyDeposits> const& EnergyDeposits() const { return fDeposits; }
       
     private:
-      double                                        fEnergyCut;   ///< The minimum energy in GeV for a particle to
-                                                                  ///< be included in the list.
-      std::unique_ptr<gar::garg4::ElectronDriftAlg> fDriftAlg;    ///< algorithm to do the drifting
-      CLHEP::HepRandomEngine*                       fEngine;      ///< random number engine
+      
+      void AddEnergyDeposition(const G4Step* step);
+      
+      double                             fEnergyCut; ///< The minimum energy in GeV for a deposit to
+                                                     ///< be included in the list.
+      CLHEP::HepRandomEngine*            fEngine;    ///< random number engine
+      std::set<gar::sdp::EnergyDeposits> fDeposits;  ///< energy deposits
     };
     
   } // garg4

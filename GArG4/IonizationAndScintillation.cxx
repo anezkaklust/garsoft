@@ -6,9 +6,9 @@
 
 // gar includes
 #include "GArG4/G4SimulationParameters.h"
-#include "GArG4/IonizationAndScintillation.h"
-#include "GArG4/ISCalculationNEST.h"
-#include "GArG4/ISCalculationSeparate.h"
+#include "ReadoutSimulation/IonizationAndScintillation.h"
+#include "ReadoutSimulation/ISCalculationNEST.h"
+#include "ReadoutSimulation/ISCalculationSeparate.h"
 
 // ROOT includes
 
@@ -22,7 +22,7 @@
 // C/C++ standard libraries
 
 namespace gar {
-  namespace garg4 {
+  namespace rosim {
     
     static IonizationAndScintillation* gInstance = nullptr;
     
@@ -112,7 +112,7 @@ namespace gar {
     
     
     //......................................................................
-    void IonizationAndScintillation::Reset(const G4Step* step)
+    void IonizationAndScintillation::Reset(sdp::EnergyDeposit const& dep)
     {
       
       if(fStepNumber == step->GetTrack()->GetCurrentStepNumber() &&
@@ -122,38 +122,28 @@ namespace gar {
       fStepNumber = step->GetTrack()->GetCurrentStepNumber();
       fTrkID      = step->GetTrack()->GetTrackID();
       
-      fStep = step;
+      fEnergyDeposit = dep;
       
       // reset the calculator
       fISCalc->Reset();
       
-      // check the material for this step and be sure it is LAr
-      if(step->GetTrack()->GetMaterial()->GetName() != "GAr") return;
-      
       // double check that the energy deposit is non-zero
       // then do the calculation if it is
-      if( step->GetTotalEnergyDeposit() > 0 ){
+      if( dep.Energy() > 0 ){
         
-        fISCalc->CalculateIonizationAndScintillation(fStep);
+        fISCalc->CalculateIonizationAndScintillation(fEnergyDeposit);
         
         LOG_DEBUG("IonizationAndScintillation")
-        << "Step Size: "   << fStep->GetStepLength()/CLHEP::cm
         << "\nEnergy: "    << fISCalc->EnergyDeposit()
         << "\nElectrons: " << fISCalc->NumberIonizationElectrons()
         << "\nPhotons: "   << fISCalc->NumberScintillationPhotons();
         
-        G4ThreeVector totstep = fStep->GetPostStepPoint()->GetPosition();
-        totstep -= fStep->GetPreStepPoint()->GetPosition();
-        
         // Fill the histograms
-        fStepSize          ->Fill(totstep.mag()/CLHEP::cm);
         fEnergyPerStep     ->Fill(fISCalc->EnergyDeposit());
         fElectronsPerStep  ->Fill(fISCalc->NumberIonizationElectrons());
         fPhotonsPerStep    ->Fill(fISCalc->NumberScintillationPhotons());
         fElectronsVsPhotons->Fill(fISCalc->NumberScintillationPhotons(), 
                                   fISCalc->NumberIonizationElectrons());
-        fElectronsPerLength->Fill(fISCalc->NumberIonizationElectrons()  * 1.e-3 / (totstep.mag() / CLHEP::cm));
-        fPhotonsPerLength  ->Fill(fISCalc->NumberScintillationPhotons() * 1.e-3 / (totstep.mag() / CLHEP::cm));
         fElectronsPerEDep  ->Fill(fISCalc->NumberIonizationElectrons()  * 1.e-3 / fISCalc->EnergyDeposit()   );
         fPhotonsPerEDep    ->Fill(fISCalc->NumberScintillationPhotons() * 1.e-3 / fISCalc->EnergyDeposit()   );
         

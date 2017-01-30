@@ -10,12 +10,12 @@
 #include "Geant4/G4LossTableManager.hh"
 #include "Geant4/G4EmSaturation.hh"
 
-#include "GArG4/ISCalculationNEST.h"
+#include "ReadoutSimulation/ISCalculationNEST.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace gar {
-  namespace garg4{
+  namespace rosim{
     
     //----------------------------------------------------------------------------
     ISCalculationNEST::ISCalculationNEST(CLHEP::HepRandomEngine& engine)
@@ -59,7 +59,7 @@ namespace gar {
     }
     
     //----------------------------------------------------------------------------
-    void ISCalculationNEST::CalculateIonizationAndScintillation(const G4Step* step)
+    void ISCalculationNEST::CalculateIonizationAndScintillation(sdp::EnergyDeposit const& dep)
     {
       // get a const representation of the track for this step
       const G4Track track(*(step->GetTrack()));
@@ -67,15 +67,15 @@ namespace gar {
       fNest->CalculateIonizationAndScintillation(track, *step);
       
       // compare the energy deposition of this step to what is in the fNest object
-      if(fNest->EnergyDeposition() != step->GetTotalEnergyDeposit()/CLHEP::MeV)
+      if(fNest->EnergyDeposition() != dep.Energy / CLHEP::GeV)
         LOG_WARNING("ISCalculationNest")
         << "NEST and G4 step depositions do not agree!\n"
         << fNest->EnergyDeposition()
         << " vs "
-        << step->GetTotalEnergyDeposit() / CLHEP::MeV;
+        << dep.Energy() / CLHEP::GeV;
     
-      // Nest uses Geant units, LArSoft assumes energy is in units of MeV here
-      fEnergyDeposit   = fNest->EnergyDeposition()/CLHEP::MeV;
+      // Nest uses Geant units, GArSoft assumes energy is in units of GeV here
+      fEnergyDeposit   = fNest->EnergyDeposition() / CLHEP::GeV;
       fNumIonElectrons = fNest->NumberIonizationElectrons();
       fNumScintPhotons = fNest->NumberScintillationPhotons();
       

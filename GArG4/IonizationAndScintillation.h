@@ -10,9 +10,9 @@
 
 #include <cstring>
 
-#include "GArG4/ISCalculation.h"
+#include "ReadoutSimulation/ISCalculation.h"
+#include "SimulationDataProducts/EnergyDeposit.h"
 
-#include "Geant4/G4Step.hh"
 
 #include "TH1.h"
 #include "TH2.h"
@@ -20,7 +20,7 @@
 namespace CLHEP { class HepRandomEngine; }
 
 namespace gar {
-  namespace garg4 {
+  namespace rosim {
     
     // The Ionization and Scintillation singleton
     class IonizationAndScintillation
@@ -32,7 +32,7 @@ namespace gar {
       
       // Method to reset the internal variables held in the ISCalculation
       // This method should be called at the start of any G4Step
-      void Reset(const G4Step* step);
+      void Reset(sdp::EnergyDeposit const& dep);
       
       double EnergyDeposit()              const { return fISCalc->EnergyDeposit();              }
       int    NumberIonizationElectrons()  const { return fISCalc->NumberIonizationElectrons();  }
@@ -47,16 +47,13 @@ namespace gar {
       garg4::ISCalculation* fISCalc;             ///< object to calculate ionization and scintillation
                                                  ///< produced by an energy deposition
       std::string           fISCalculator;       ///< name of calculator to use, NEST or Separate
-      G4Step const*         fStep;               ///< pointer to the current G4 step
+      sdp::EnergyDeposit&   fEnergyDeposit;      ///< reference to the current energy deposit
       int                   fStepNumber;         ///< last StepNumber checked
       int                   fTrkID;              ///< last TrkID checked
       
       TH1F*                 fElectronsPerStep;   ///< histogram of electrons per step
-      TH1F*                 fStepSize;           ///< histogram of the step sizes
       TH1F*                 fPhotonsPerStep;     ///< histogram of the photons per step
       TH1F*                 fEnergyPerStep;      ///< histogram of the energy deposited per step
-      TH1F*                 fElectronsPerLength; ///< histogram of electrons per cm
-      TH1F*                 fPhotonsPerLength;   ///< histogram of photons per cm
       TH1F*                 fElectronsPerEDep;   ///< histogram of electrons per MeV deposited
       TH1F*                 fPhotonsPerEDep;     ///< histogram of photons per MeV deposited
       TH2F*                 fElectronsVsPhotons; ///< histogram of electrons vs photons per step

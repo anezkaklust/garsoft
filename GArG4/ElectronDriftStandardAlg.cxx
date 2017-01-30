@@ -10,14 +10,13 @@
 #include "Geant4/G4Step.hh"
 #include "CLHEP/Random/RandGauss.h"
 
-#include "GArG4/ElectronDriftStandardAlg.h"
-#include "GArG4/IonizationAndScintillation.h"
-#include "GArG4/ParticleListAction.h"
+#include "ReadoutSimulation/ElectronDriftStandardAlg.h"
+#include "ReadoutSimulation/IonizationAndScintillation.h"
 #include "DetectorInfo/DetectorProperties.h"
-#include "SimulationDataProducts/SimChannel.h"
+#include "SimulationDataProducts/EnergyDeposit.h"
 
 namespace gar {
-  namespace garg4 {
+  namespace rosim {
     
     //--------------------------------------------------------------------------
     ElectronDriftStandardAlg::ElectronDriftStandardAlg(CLHEP::HepRandomEngine      & engine,
@@ -39,10 +38,10 @@ namespace gar {
     }
 
     //--------------------------------------------------------------------------
-    void ElectronDriftStandardAlg::DriftElectronsToReadout(const G4Step* step)
+    void ElectronDriftStandardAlg::DriftElectronsToReadout(gar::sdp::EnergyDeposit const& dep)
     {
       // Reset the Ionization and Scintillation calculator for this step
-      gar::garg4::IonizationAndScintillation::Instance()->Reset(step);
+      gar::garg4::IonizationAndScintillation::Instance()->Reset(dep);
 
       // figure out how many electrons were ionized in the step
       // if none, just return the empty vector
@@ -56,10 +55,9 @@ namespace gar {
       // We need a random number thrower for the diffusion, etc
       CLHEP::RandGauss GaussRand(fEngine);
       
-      G4ThreeVector midPoint = 0.5 * (step->GetPreStepPoint()->GetPosition() +
-                                      step->GetPostStepPoint()->GetPosition() ) / CLHEP::cm;
+      G4ThreeVector midPoint(dep.X(), dep.Y(), dep.Z());
       
-      double g4time = step->GetPreStepPoint()->GetGlobalTime();
+      double g4time = dep.Time();
       
       // the XYZ position of the midpoint has to be drifted to the readout,
       // use the diffusion coefficients to decide where the electrons end up
@@ -83,7 +81,7 @@ namespace gar {
       std::vector<double> XDiff(nClusters);
       std::vector<double> YDiff(nClusters);
       std::vector<double> ZDiff(nClusters);
-      std::vector<int  > nElec(nClusters, fElectronsPerCluster);
+      std::vector<int   > nElec(nClusters, fElectronsPerCluster);
       
       // the last cluster may have fewer electrons than the configured amount
       nElec.back() = nElectrons - (nClusters - 1) * fElectronsPerCluster;
@@ -98,7 +96,7 @@ namespace gar {
       // We aren't getting the track ID from the step because we may
       // have had to add an offset to it if we have multiple neutrinos or
       // cosmic rays going through the detector in the same event
-      auto trackID = ParticleListAction::GetCurrentTrackID();
+      auto trackID =
       
       sdp::TDCIDE tdcIDE;
       auto        channel = std::numeric_limits<unsigned int>::max();

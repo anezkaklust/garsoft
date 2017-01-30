@@ -13,8 +13,6 @@
 #include <vector>
 
 #include "CLHEP/Random/RandGauss.h"
-#include "SimulationDataProducts/SimChannel.h"
-
 
 class G4Step;
 
@@ -24,7 +22,11 @@ namespace fhicl {
 
 namespace gar {
   
-  namespace garg4{
+  namespace sdp{
+    class EnergyDeposit;
+  }
+  
+  namespace rosim{
     
     class ElectronDriftAlg{
       
@@ -34,13 +36,9 @@ namespace gar {
                        fhicl::ParameterSet    const& pset);
       virtual ~ElectronDriftAlg();
       
-      // The user must call IonizationAndScintillation::Instance()->Reset(step)
+      // The user must call IonizationAndScintillation::Instance()->Reset(dep)
       // from within the implementation of this method in the derived class
-      virtual void DriftElectronsToReadout(const G4Step* step) = 0;
-      
-      void         Reset() { fChannels.clear(); }
-      
-      std::set<gar::sdp::SimChannel> const& SimChannels() const { return fChannels; }
+      virtual void DriftElectronsToReadout(gar::sdp::EnergyDeposit const& dep) = 0;
       
     protected:
       
@@ -53,7 +51,6 @@ namespace gar {
       double                         fTransDiffConst;        ///< stored for computational convenience
       double                         fFanoFactor;            ///< Fano factor
       CLHEP::HepRandomEngine&        fEngine;                ///< random number engine
-      std::set<gar::sdp::SimChannel> fChannels;              ///< SimChannels accumulated during the event
     };
     
   }

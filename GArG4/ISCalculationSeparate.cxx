@@ -13,13 +13,13 @@
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "DetectorInfo/DetectorProperties.h"
 #include "DetectorInfo/GArPropertiesService.h"
-#include "GArG4/ISCalculationSeparate.h"
+#include "ReadoutSimulation/ISCalculationSeparate.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "cetlib/exception.h"
 
 namespace gar {
-  namespace garg4{
+  namespace rosim{
     
     //----------------------------------------------------------------------------
     ISCalculationSeparate::ISCalculationSeparate(CLHEP::HepRandomEngine&)
@@ -66,11 +66,11 @@ namespace gar {
     
     //----------------------------------------------------------------------------
     // fNumIonElectrons returns a value that is not corrected for life time effects
-    void ISCalculationSeparate::CalculateIonizationAndScintillation(const G4Step* step)
+    void ISCalculationSeparate::CalculateIonizationAndScintillation(sdp::EnergyDeposit const& dep)
     {
-      fEnergyDeposit = step->GetTotalEnergyDeposit() / CLHEP::MeV;
+      fEnergyDeposit = dep.Energy();
       
-      // Get the recombination factor for this voxel - Nucl.Instrum.Meth.A523:275-286,2004
+      // Get the recombination factor for this deposit - Nucl.Instrum.Meth.A523:275-286,2004
       // R = A/(1 + (dE/dx)*k)
       // dE/dx is given by the voxel energy deposition, but have to convert it to MeV/cm
       // from GeV/voxel width
@@ -80,10 +80,7 @@ namespace gar {
       // k should be divided by the density as our dE/dx is in MeV/cm,
       // the division is handled in the constructor when we set fRecombk
       
-      G4ThreeVector totstep = (step->GetPostStepPoint()->GetPosition() -
-                               step->GetPreStepPoint()->GetPosition()   ) / CLHEP::cm;
-      
-      double dx     = totstep.mag();
+      double dx     = dep.dX();
       double recomb = 0.;
       double dEdx   = fEnergyDeposit / dx;
       
@@ -92,8 +89,7 @@ namespace gar {
       
       recomb = fRecombA / (1. + dEdx * fRecombk / fEfield);
       
-      // 1.e-3 converts fEnergyDeposit to GeV
-      fNumIonElectrons = fGeVToElectrons * 1.e-3 * fEnergyDeposit * recomb;
+      fNumIonElectrons = fGeVToElectrons * fEnergyDeposit * recomb;
       
       LOG_DEBUG("ISCalculationSeparate")
       << " Electrons produced for " << fEnergyDeposit
@@ -101,13 +97,6 @@ namespace gar {
       << " recombination: "         << fNumIonElectrons;
       
       // Now do the scintillation
-      G4MaterialPropertiesTable* mpt = step->GetTrack()->GetMaterial()->GetMaterialPropertiesTable();
-      if( !mpt)
-        throw cet::exception("ISCalculationSeparate")
-        << "Cannot find materials property table"
-        << " for this step! "
-        << step->GetTrack()->GetMaterial();
-      
       // TODO: fix this for gaseous argon
       fNumScintPhotons = std::numeric_limits<float>::min();
       

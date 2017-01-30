@@ -5,10 +5,10 @@
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
-#include "GArG4/ISCalculation.h"
+#include "ReadoutSimulation/ISCalculation.h"
 
 namespace gar {
-  namespace garg4 {
+  namespace rosom {
     
     //----------------------------------------------------------------------
     ISCalculation::ISCalculation()

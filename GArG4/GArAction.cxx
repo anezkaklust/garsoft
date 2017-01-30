@@ -37,8 +37,7 @@ namespace gar {
     // Constructor.
     GArAction::GArAction(CLHEP::HepRandomEngine*    engine,
                          fhicl::ParameterSet const& pset)
-    : fDriftAlg(nullptr)
-    , fEngine(engine)
+    : fEngine(engine)
     {
       this->reconfigure(pset);
     }
@@ -55,16 +54,6 @@ namespace gar {
     {
       fEnergyCut = pset.get<double>("EnergyCut") * CLHEP::GeV;
       
-      auto driftAlgPars = pset.get<fhicl::ParameterSet>("ElectronDriftAlgPars");
-      auto driftAlgName = driftAlgPars.get<std::string>("DriftAlgType");
-      
-      if(driftAlgName.compare("Standard") == 0)
-        fDriftAlg = std::make_unique<gar::garg4::ElectronDriftStandardAlg>(*fEngine,
-                                                                           driftAlgPars);
-      else
-        throw cet::exception("GArAction")
-        << "Unable to determine which electron drift algorithm to use, bail";
-
       return;
     }
     
@@ -72,11 +61,11 @@ namespace gar {
     void GArAction::BeginOfEventAction(const G4Event*)
     {
       // Clear any previous information.
-      fDriftAlg->Reset();
+      fDeposits.clear();
     }
     
     //-------------------------------------------------------------
-    void GArAction::PreTrackingAction(const G4Track* track)
+    void GArAction::PreTrackingAction(const G4Track* /*track*/)
     {
     }
     
@@ -110,22 +99,62 @@ namespace gar {
       }
       
       // only worry about energy depositions larger than the minimum required
-      if(step->GetTotalEnergyDeposit() > fEnergyCut){
+      if(step->GetTotalEnergyDeposit() / CLHEP::GeV > fEnergyCut){
         
-        // drift the ionization electrons to the readout
-        fDriftAlg->DriftElectronsToReadout(step);
-        
-        // here is where we would also call an algorithm to figure out how much
-        // scintillation light was produced
+        // save this deposition
+        this->AddEnergyDeposition(step);
         
       } // end if enough energy to worry about this step
       
     }// end of GArAction::SteppingAction
-    
+
+    //------------------------------------------------------------------------------
+    void GArAction::AddEnergyDeposition(const G4Step* step)
+    {
+      // get the track id for this step
+      auto trackID = step->GetTrack()->GetTrackID();
+      
+      // the step mid point
+      auto midPoint = 0.5 * (step->GetPreStepPoint()->GetPosition() +
+                             step->GetPostStepPoint()->GetPosition() );
+      
+      // now figure out the energy deposit
+      gar::sdp::EnergyDeposit dep(step->GetPreStepPoint()->GetGlobalTime(),
+                                  step->GetTotalEnergyDeposit() / CLHEP::GeV,
+                                  midPoint.x() / CLHEP::cm,
+                                  midPoint.y() / CLHEP::cm,
+                                  midPoint.z() / CLHEP::cm,
+                                  midPoint.mag() / CLHEP::cm);
+      
+      // try inserting a new EnergyDeposits into the fDeposits set, the return
+      // of the attemp is a pair whose first element is an iterator either to the
+      // new EnergyDeposits object or to the one that was already there
+      gar::sdp::EnergyDeposits edeps(trackID);
+      
+      std::set<gar::sdp::EnergyDeposits>::iterator itr = fDeposits.find(edeps);
+
+      // if we already have an object with that track ID, copy it and then
+      // erase the existing one. We are doing this because the EnergyDeposits
+      // object is the key in the set, so the set doesn't allow us to mess with
+      // it.  However, we can copy it out, erase the set member, and the do
+      // a new insert after adding our current energy deposition no problem.
+      if( itr != fDeposits.end() ){
+        edeps = *itr;
+        fDeposits.erase(itr);
+      }
+
+      edeps.AddEnergyDeposit(dep);
+      fDeposits.insert(edeps);
+      
+      return;
+    }
     
     //------------------------------------------------------------------------------
     void GArAction::EndOfEventAction(const G4Event*)
     {
+      
+      // sort the EnergyDeposit lists in each EnergyDeposits object
+      for(auto deps : fDeposits) deps.Sort();
       
     }
     

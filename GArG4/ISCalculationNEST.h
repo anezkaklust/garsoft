@@ -9,14 +9,14 @@
 #ifndef GARG4ISCALCULATIONNEST_H
 #define GARG4ISCALCULATIONNEST_H
 
-#include "GArG4/ISCalculation.h"
+#include "ReadoutSimulation/ISCalculation.h"
 #include "GArG4/NestAlg.h"
 
 // forward declaration
 namespace CLHEP { class HepRandomEngine; } 
 
 namespace gar {
-  namespace garg4 {
+  namespace rosim {
     
     class ISCalculationNEST : public ISCalculation {
       
@@ -27,7 +27,7 @@ namespace gar {
       
       void   Initialize();
       void   Reset();
-      void   CalculateIonizationAndScintillation(const G4Step* step);
+      void   CalculateIonizationAndScintillation(sdp::EnergyDeposit const& dep);
       double EnergyDeposit()              const { return fEnergyDeposit;   }
       int    NumberIonizationElectrons()  const { return fNumIonElectrons; }
       int    NumberScintillationPhotons() const { return fNumScintPhotons; }

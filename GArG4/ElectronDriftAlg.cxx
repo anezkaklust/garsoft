@@ -7,13 +7,13 @@
 
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "DetectorInfo/GArPropertiesService.h"
-#include "GArG4/ElectronDriftAlg.h"
+#include "ReadoutSimulation/ElectronDriftAlg.h"
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"
 
 namespace gar {
-  namespace garg4 {
+  namespace rosim {
    
     //--------------------------------------------------------------------------
     // The parameter set is in case a derived algorithm needs to be configured
@@ -49,4 +49,4 @@ namespace gar {
     
     
   }
-}
+} // rosim

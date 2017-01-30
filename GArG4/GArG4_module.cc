@@ -65,7 +65,7 @@
 #include "GArG4/G4SimulationParameters.h"
 #include "GArG4/IonizationAndScintillation.h"
 #include "Utilities/AssociationUtil.h"
-#include "SimulationDataProducts/SimChannel.h"
+#include "SimulationDataProducts/EnergyDeposit.h"
 #include "SimulationDataProducts/AuxDetSimChannel.h"
 #include "Geometry/Geometry.h"
 
@@ -102,7 +102,6 @@ namespace gar {
   namespace garg4 {
     
     // Forward declarations within namespace.
-    class LArVoxelListAction;
     class ParticleListAction;
     
     /**
@@ -127,8 +126,6 @@ namespace gar {
      *     whether to use the G4 overlap checker
      * - <b>DumpParticleList</b> (bool, default false):
      *     whether to print all MCParticles tracked
-     * - <b>DumpSimChannels</b> (bool, default false):
-     *     whether to print all depositions on each SimChannel
      * - <b>SmartStacking</b> (int, default 0):
      *     whether to use class to dictate how tracks are put on stack (nonzero is on)
      * - <b>KeepParticlesInVolumes</b> (vector<string>, default empty):
@@ -151,13 +148,13 @@ namespace gar {
     class GArG4 : public ::art::EDProducer{
     public:
       
-        /// Standard constructor and destructor for an FMWK module.
+      /// Standard constructor and destructor for an FMWK module.
       explicit GArG4(fhicl::ParameterSet const& pset);
       virtual ~GArG4();
       
-        /// The main routine of this module: Fetch the primary particles
-        /// from the event, simulate their evolution in the detctor, and
-        /// produce the detector response.
+      /// The main routine of this module: Fetch the primary particles
+      /// from the event, simulate their evolution in the detctor, and
+      /// produce the detector response.
       void produce (::art::Event& evt);
       void beginJob();
       void beginRun(::art::Run& run);
@@ -174,8 +171,6 @@ namespace gar {
                                                       ///< executed before main MC processing.
       bool                       fCheckOverlaps;      ///< Whether to use the G4 overlap checker
       bool                       fdumpParticleList;   ///< Whether each event's sim::ParticleList will be displayed.
-      bool                       fdumpSimChannels;    ///< Whether each event's sdp::Channel will be displayed.
-      bool                       fUseLitePhotons;
       int                        fSmartStacking;      ///< Whether to instantiate and use class to
                                                       ///< dictate how tracks are put on stack.
       float                      fMaxStepSize;        ///< maximum argon step size in cm
@@ -204,7 +199,6 @@ namespace gar {
     , fG4PhysListName        (pset.get< std::string       >("G4PhysListName",   "garg4::PhysicsList"))
     , fCheckOverlaps         (pset.get< bool              >("CheckOverlaps",    false)               )
     , fdumpParticleList      (pset.get< bool              >("DumpParticleList", false)               )
-    , fdumpSimChannels       (pset.get< bool              >("DumpSimChannels",  false)               )
     , fSmartStacking         (pset.get< int               >("SmartStacking",    0)                   )
     , fMaxStepSize           (pset.get< float             >("MaxStepSize",      0.2)                 )
     , fKeepParticlesInVolumes(pset.get< std::vector< std::string > >("KeepParticlesInVolumes",{}))
@@ -238,7 +232,7 @@ namespace gar {
       if(!useInputLabels) fInputLabels.resize(0);
       
       produces< std::vector<simb::MCParticle>                 >();
-      produces< std::vector<sdp::SimChannel>                  >();
+      produces< std::vector<sdp::EnergyDeposits>              >();
       produces< std::vector<sdp::AuxDetSimChannel>            >();
       produces< ::art::Assns<simb::MCTruth, simb::MCParticle> >();
       
@@ -386,10 +380,10 @@ namespace gar {
       LOG_DEBUG("GArG4") << "produce()";
       
       // loop over the lists and put the particles and voxels into the event as collections
-      std::unique_ptr< std::vector<simb::MCParticle> >                 partCol(new std::vector<simb::MCParticle>              );
-      std::unique_ptr< std::vector<sdp::SimChannel>  >                 scCol  (new std::vector<sdp::SimChannel>               );
+      std::unique_ptr< std::vector<simb::MCParticle> >                 partCol(new std::vector<simb::MCParticle>                );
+      std::unique_ptr< std::vector<sdp::EnergyDeposits>  >             edCol  (new std::vector<sdp::EnergyDeposits>             );
       std::unique_ptr< ::art::Assns<simb::MCTruth, simb::MCParticle> > tpassn (new ::art::Assns<simb::MCTruth, simb::MCParticle>);
-      std::unique_ptr< std::vector< sdp::AuxDetSimChannel > >          adCol  (new std::vector<sdp::AuxDetSimChannel>         );
+      std::unique_ptr< std::vector< sdp::AuxDetSimChannel > >          adCol  (new std::vector<sdp::AuxDetSimChannel>           );
       
       ::art::ServiceHandle<geo::Geometry> geom;
       
@@ -468,13 +462,13 @@ namespace gar {
         << particleList;
       }
       
-      // Now for the sdp::SimChannels
-      for(auto const& sc : fGArAction->SimChannels()) scCol->emplace_back(sc);
+      // Now for the sdp::EnergyDepositions
+      for(auto const& ed : fGArAction->EnergyDeposits()) edCol->emplace_back(ed);
       
       // And finally the AuxDetSimChannels
       for(auto const& ad : fAuxDetAction->AuxDetSimChannels()) adCol->emplace_back(ad);
       
-      evt.put(std::move(scCol));
+      evt.put(std::move(edCol));
       evt.put(std::move(adCol));
       evt.put(std::move(partCol));
       evt.put(std::move(tpassn));

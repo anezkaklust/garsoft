@@ -62,8 +62,8 @@ namespace gar {
       fTPCClock = fClocks->TPCClock();
       
       LOG_WARNING("DetectorPropertiesStandard")
-      << "DetectorPropertiesStandard Warning!
-      << "\t The following functions need to be verified for gaseous argon:
+      << "DetectorPropertiesStandard Warning!"
+      << "\t The following functions need to be verified for gaseous argon:"
       << "\t\t BirksCorrection"
       << "\t\t Denisity"
       << "\t\t DriftVelocity"

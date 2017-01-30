@@ -12,3 +12,4 @@
 #include "SimulationDataProducts/SimChannel.h"
 #include "SimulationDataProducts/AuxDetSimChannel.h"
 #include "SimulationDataProducts/BeamGateInfo.h"
+#include "SimulationDataProducts/EnergyDeposit.h"

@@ -13,11 +13,11 @@
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "DetectorInfo/DetectorClocksService.h"
 #include "Geometry/Geometry.h"
-#include "GArG4/ElectronDriftAlg.h"
+#include "ReadoutSimulation/ElectronDriftAlg.h"
 
 namespace gar {
   
-  namespace garg4{
+  namespace rosim{
     
     class ElectronDriftStandardAlg : public ElectronDriftAlg {
       
@@ -27,7 +27,7 @@ namespace gar {
                                fhicl::ParameterSet    const& pset);
       virtual ~ElectronDriftStandardAlg();
       
-      void DriftElectronsToReadout(const G4Step* step);
+      void DriftElectronsToReadout(gar::sdp::EnergyDeposition const& dep);
       
     private:
       

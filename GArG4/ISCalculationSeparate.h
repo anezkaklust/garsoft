@@ -12,15 +12,13 @@
 
 #include <map>
 
-#include "Geant4/G4EmSaturation.hh"
-
-#include "GArG4/ISCalculation.h"
+#include "ReadoutSimulation/ISCalculation.h"
 
 // forward declaration
 namespace CLHEP { class HepRandomEngine; }
 
 namespace gar {
-  namespace garg4 {
+  namespace rosim {
     
     class ISCalculationSeparate : public ISCalculation {
       
@@ -31,7 +29,7 @@ namespace gar {
       
       void   Initialize();
       void   Reset();
-      void   CalculateIonizationAndScintillation(const G4Step* step);
+      void   CalculateIonizationAndScintillation(sdp::EnergyDeposit const& dep);
       double EnergyDeposit()              const { return fEnergyDeposit;       }
       int    NumberIonizationElectrons()  const { return fNumIonElectrons;     }
       int    NumberScintillationPhotons() const { return fNumScintPhotons;     }
