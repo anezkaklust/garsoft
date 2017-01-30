@@ -5,8 +5,8 @@
 ///
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
-#ifndef GARG4IONIZATIONANDSCINTILLATION_H
-#define GARG4IONIZATIONANDSCINTILLATION_H
+#ifndef ROSIMIONIZATIONANDSCINTILLATION_H
+#define ROSIMIONIZATIONANDSCINTILLATION_H
 
 #include <cstring>
 
@@ -44,15 +44,18 @@ namespace gar {
       IonizationAndScintillation(CLHEP::HepRandomEngine& engine);
       ~IonizationAndScintillation();
       
-      garg4::ISCalculation* fISCalc;             ///< object to calculate ionization and scintillation
+      rosim::ISCalculation* fISCalc;             ///< object to calculate ionization and scintillation
                                                  ///< produced by an energy deposition
       std::string           fISCalculator;       ///< name of calculator to use, NEST or Separate
       sdp::EnergyDeposit&   fEnergyDeposit;      ///< reference to the current energy deposit
       int                   fStepNumber;         ///< last StepNumber checked
       int                   fTrkID;              ///< last TrkID checked
       
+      TH1F*                 fStepSize;           ///< histogram of the step sizes
       TH1F*                 fElectronsPerStep;   ///< histogram of electrons per step
       TH1F*                 fPhotonsPerStep;     ///< histogram of the photons per step
+      TH1F*                 fElectronsPerLength; ///< histogram of electrons per dX
+      TH1F*                 fPhotonsPerLength;   ///< histogram of the photons per dX
       TH1F*                 fEnergyPerStep;      ///< histogram of the energy deposited per step
       TH1F*                 fElectronsPerEDep;   ///< histogram of electrons per MeV deposited
       TH1F*                 fPhotonsPerEDep;     ///< histogram of photons per MeV deposited
@@ -60,8 +63,8 @@ namespace gar {
       CLHEP::HepRandomEngine& fEngine;           ///< random engine
     };
     
-  } // namespace garg4
+  } // namespace rosim
   
 } // gar
 
-#endif // GARG4IONIZATIONANDSCINTILLATION
+#endif // ROSIMIONIZATIONANDSCINTILLATION

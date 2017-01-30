@@ -47,22 +47,21 @@ namespace gar {
     //......................................................................
     // Constructor.
     IonizationAndScintillation::IonizationAndScintillation(CLHEP::HepRandomEngine& engine)
-    : fISCalc(nullptr)
-    , fStep(nullptr)
-    , fElectronsPerStep(0)
-    , fStepSize(0)
-    , fPhotonsPerStep(0)
-    , fEnergyPerStep(0)
-    , fElectronsVsPhotons(0)
-    , fEngine(engine)
+    : fISCalc            (nullptr)
+    , fStepSize          (nullptr)
+    , fElectronsPerStep  (nullptr)
+    , fPhotonsPerStep    (nullptr)
+    , fEnergyPerStep     (nullptr)
+    , fElectronsVsPhotons(nullptr)
+    , fEngine            (engine)
     {
       
       fISCalculator = gar::garg4::G4SimulationParameters::Instance()->IonAndScintCalculator();
       
       if(fISCalculator.compare("NEST") == 0)
-        fISCalc = new garg4::ISCalculationNEST(fEngine);
+        fISCalc = new rosim::ISCalculationNEST(fEngine);
       else if(fISCalculator.compare("Separate") == 0)
-        fISCalc = new garg4::ISCalculationSeparate(fEngine);
+        fISCalc = new rosim::ISCalculationSeparate(fEngine);
       else
         LOG_WARNING("IonizationAndScintillation")
         << "No ISCalculation set, this can't be good.";
@@ -114,13 +113,16 @@ namespace gar {
     //......................................................................
     void IonizationAndScintillation::Reset(sdp::EnergyDeposit const& dep)
     {
+
+      // TODO fix these lines, ie figure out how to do this with EDeps
+      // ===
+      //if(fStepNumber == step->GetTrack()->GetCurrentStepNumber() &&
+         //fTrkID      == step->GetTrack()->GetTrackID())
+          //return;
       
-      if(fStepNumber == step->GetTrack()->GetCurrentStepNumber() &&
-         fTrkID      == step->GetTrack()->GetTrackID())
-        return;
-      
-      fStepNumber = step->GetTrack()->GetCurrentStepNumber();
-      fTrkID      = step->GetTrack()->GetTrackID();
+        //fStepNumber = step->GetTrack()->GetCurrentStepNumber();
+        //fTrkID      = step->GetTrack()->GetTrackID();
+      // ===
       
       fEnergyDeposit = dep;
       

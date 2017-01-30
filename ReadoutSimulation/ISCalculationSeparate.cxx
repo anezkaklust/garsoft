@@ -7,9 +7,6 @@
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
-#include "Geant4/G4ParticleTypes.hh"
-#include "Geant4/G4LossTableManager.hh"
-#include "Geant4/G4EmSaturation.hh"
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "DetectorInfo/DetectorProperties.h"
 #include "DetectorInfo/GArPropertiesService.h"
@@ -42,13 +39,13 @@ namespace gar {
       
       // the recombination coefficient is in g/(MeVcm^2), but
       // we report energy depositions in MeV/cm, need to divide
-      // Recombk from the GArG4Parameters service by the density
+      // Recombk from the service by the density
       // of the argon we got above.
       fRecombA = gar::detinfo::kRecombA;
       fRecombk = gar::detinfo::kRecombk / density;
       
       // Use Birks Correction in the Scintillation process
-      fEMSaturation = G4LossTableManager::Instance()->EmSaturation();
+      //fEMSaturation = G4LossTableManager::Instance()->EmSaturation();
       
       return;
     }

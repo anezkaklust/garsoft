@@ -7,8 +7,8 @@
 /// \version $Id:  $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
-#ifndef GARG4ISCALCULATIONSEPARATE_H
-#define GARG4ISCALCULATIONSEPARATE_H
+#ifndef ROSIMISCALCULATIONSEPARATE_H
+#define ROSIMISCALCULATIONSEPARATE_H
 
 #include <map>
 
@@ -44,11 +44,11 @@ namespace gar {
       double 	   	    fRecombk;             ///< from GArG4Parameters service
       bool   	   	    fScintByParticleType; ///< from GArProperties service
       double 	   	    fScintYieldFactor;    ///< scintillation yield factor
-      G4EmSaturation* fEMSaturation;        ///< pointer to EM saturation
+    //G4EmSaturation* fEMSaturation;        ///< pointer to EM saturation
       
     };
   }
 } // gar
 
-#endif // GARG4ISCALCULATIONSEPARATE_H
+#endif // ROSIMISCALCULATIONSEPARATE_H
 

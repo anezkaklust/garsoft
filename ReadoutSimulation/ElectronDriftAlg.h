@@ -14,7 +14,6 @@
 
 #include "CLHEP/Random/RandGauss.h"
 
-class G4Step;
 
 namespace fhicl {
   class ParameterSet;

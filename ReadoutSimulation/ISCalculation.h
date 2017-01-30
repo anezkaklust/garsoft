@@ -5,8 +5,8 @@
 /// \version $Id:  $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
-#ifndef GARG4ISCALCULATION_H
-#define GARG4ISCALCULATION_H
+#ifndef ROSIMISCALCULATION_H
+#define ROSIMISCALCULATION_H
 
 #include "SimulationDataProducts/EnergyDeposit.h"
 
@@ -38,5 +38,5 @@ namespace gar {
   }
 } // gar
 
-#endif // GARG4ISCALCULATION_H
+#endif // ROSIMISCALCULATION_H
 

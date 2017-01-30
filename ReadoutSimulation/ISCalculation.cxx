@@ -8,7 +8,7 @@
 #include "ReadoutSimulation/ISCalculation.h"
 
 namespace gar {
-  namespace rosom {
+  namespace rosim {
     
     //----------------------------------------------------------------------
     ISCalculation::ISCalculation()

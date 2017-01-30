@@ -3,11 +3,10 @@
 /// \brief Interface to algorithm class for a specific calculation of 
 ///        ionization electrons and scintillation photons using NEST
 ///
-/// \version $Id:  $
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
-#ifndef GARG4ISCALCULATIONNEST_H
-#define GARG4ISCALCULATIONNEST_H
+#ifndef ROSIMISCALCULATIONNEST_H
+#define ROSIMISCALCULATIONNEST_H
 
 #include "ReadoutSimulation/ISCalculation.h"
 #include "GArG4/NestAlg.h"
@@ -42,5 +41,5 @@ namespace gar {
   }
 } // gar
 
-#endif // GARG4ISCALCULATIONNEST_H
+#endif // ROSIMISCALCULATIONNEST_H
 

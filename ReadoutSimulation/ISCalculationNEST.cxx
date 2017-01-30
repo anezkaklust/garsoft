@@ -7,9 +7,6 @@
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
-#include "Geant4/G4LossTableManager.hh"
-#include "Geant4/G4EmSaturation.hh"
-
 #include "ReadoutSimulation/ISCalculationNEST.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -62,12 +59,12 @@ namespace gar {
     void ISCalculationNEST::CalculateIonizationAndScintillation(sdp::EnergyDeposit const& dep)
     {
       // get a const representation of the track for this step
-      const G4Track track(*(step->GetTrack()));
+      //const G4Track track(*(step->GetTrack()));
       
-      fNest->CalculateIonizationAndScintillation(track, *step);
+        //fNest->CalculateIonizationAndScintillation(track, *step);
       
       // compare the energy deposition of this step to what is in the fNest object
-      if(fNest->EnergyDeposition() != dep.Energy / CLHEP::GeV)
+      if(fNest->EnergyDeposition() != dep.Energy() / CLHEP::GeV)
         LOG_WARNING("ISCalculationNest")
         << "NEST and G4 step depositions do not agree!\n"
         << fNest->EnergyDeposition()

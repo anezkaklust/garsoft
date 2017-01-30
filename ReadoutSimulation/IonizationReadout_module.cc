@@ -9,6 +9,7 @@
 #define GAR_READOUTSIMULATION_IONIZATIONREADOUT
 
 // C++ Includes
+#include <memory>
 #include <vector> // std::ostringstream
 #include <iostream>
 
@@ -32,6 +33,7 @@
 #include "nutools/RandomUtils/NuRandomService.h"
 
 // GArSoft Includes
+#include "GArG4/G4SimulationParameters.h"
 #include "ReadoutSimulation/IonizationAndScintillation.h"
 #include "ReadoutSimulation/ElectronDriftAlg.h"
 #include "ReadoutSimulation/ElectronDriftStandardAlg.h"
@@ -78,7 +80,7 @@ namespace gar {
       
     private:
       
-      ElectronDriftAlg *fDriftAlg;  ///< algorithm to drift ionization electrons
+      std::unique_ptr<ElectronDriftAlg> fDriftAlg;  ///< algorithm to drift ionization electrons
       
       
     };
@@ -92,7 +94,7 @@ namespace gar {
     IonizationReadout::IonizationReadout(fhicl::ParameterSet const& pset)
     {
       // initialize the GArSimulationParameters singleton
-      G4SimulationParameters::CreateInstance(pset.get<fhicl::ParameterSet>("GArSimParsPSet"));
+      garg4::G4SimulationParameters::CreateInstance(pset.get<fhicl::ParameterSet>("GArSimParsPSet"));
 
       LOG_DEBUG("IonizationReadout") << "Debug: IonizationReadout()";
       ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
@@ -110,14 +112,14 @@ namespace gar {
       auto driftAlgName = driftAlgPars.get<std::string>("DriftAlgType");
       
       if(driftAlgName.compare("Standard") == 0)
-        fDriftAlg = std::make_unique<gar::garg4::ElectronDriftStandardAlg>(*fEngine,
+        fDriftAlg = std::make_unique<gar::rosim::ElectronDriftStandardAlg>(rng->getEngine("propagation"),
                                                                            driftAlgPars);
       else
         throw cet::exception("IonizationReadout")
         << "Unable to determine which electron drift algorithm to use, bail";
       
-      produces< std::vector<raw::RawDigit>                       >();
-      produces< ::art::Assns<simb::EnergyDeposit, raw::RawDigit> >();
+      produces< std::vector<raw::RawDigit>                      >();
+      produces< ::art::Assns<sdp::EnergyDeposit, raw::RawDigit> >();
       
       return;
     }
@@ -158,7 +160,7 @@ namespace gar {
       std::unique_ptr< ::art::Assns<sdp::EnergyDeposits, raw::RawDigit> > erassn(new ::art::Assns<sdp::EnergyDeposits, raw::RawDigit>);
       
       // drift the ionization electrons to the readout
-      fDriftAlg->DriftElectronsToReadout(dep);
+      //fDriftAlg->DriftElectronsToReadout(dep);
       
       evt.put(std::move(rdCol));
       evt.put(std::move(erassn));

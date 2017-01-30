@@ -15,7 +15,12 @@
 #include "Geometry/Geometry.h"
 #include "ReadoutSimulation/ElectronDriftAlg.h"
 
+
 namespace gar {
+
+  namespace sdp{
+    class EnergyDeposit;
+  }
   
   namespace rosim{
     
@@ -27,7 +32,7 @@ namespace gar {
                                fhicl::ParameterSet    const& pset);
       virtual ~ElectronDriftStandardAlg();
       
-      void DriftElectronsToReadout(gar::sdp::EnergyDeposition const& dep);
+      void DriftElectronsToReadout(gar::sdp::EnergyDeposit const& dep);
       
     private:
       
