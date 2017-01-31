@@ -29,7 +29,7 @@ namespace gar {
       
       void   Initialize();
       void   Reset();
-      void   CalculateIonizationAndScintillation(sdp::EnergyDeposit const& dep);
+      void   CalculateIonizationAndScintillation(const gar::sdp::EnergyDeposit* dep);
       double EnergyDeposit()              const { return fEnergyDeposit;       }
       int    NumberIonizationElectrons()  const { return fNumIonElectrons;     }
       int    NumberScintillationPhotons() const { return fNumScintPhotons;     }

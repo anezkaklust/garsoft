@@ -56,7 +56,7 @@ namespace gar {
     }
     
     //----------------------------------------------------------------------------
-    void ISCalculationNEST::CalculateIonizationAndScintillation(sdp::EnergyDeposit const& dep)
+    void ISCalculationNEST::CalculateIonizationAndScintillation(const gar::sdp::EnergyDeposit* dep)
     {
       // get a const representation of the track for this step
       //const G4Track track(*(step->GetTrack()));
@@ -64,12 +64,12 @@ namespace gar {
         //fNest->CalculateIonizationAndScintillation(track, *step);
       
       // compare the energy deposition of this step to what is in the fNest object
-      if(fNest->EnergyDeposition() != dep.Energy() / CLHEP::GeV)
+      if(fNest->EnergyDeposition() != dep->Energy() / CLHEP::GeV)
         LOG_WARNING("ISCalculationNest")
         << "NEST and G4 step depositions do not agree!\n"
         << fNest->EnergyDeposition()
         << " vs "
-        << dep.Energy() / CLHEP::GeV;
+        << dep->Energy() / CLHEP::GeV;
     
       // Nest uses Geant units, GArSoft assumes energy is in units of GeV here
       fEnergyDeposit   = fNest->EnergyDeposition() / CLHEP::GeV;

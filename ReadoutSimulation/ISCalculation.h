@@ -22,7 +22,7 @@ namespace gar {
       
       virtual void   Initialize()                        = 0;
       virtual void   Reset()                             = 0;
-      virtual void   CalculateIonizationAndScintillation(sdp::EnergyDeposit const& dep) = 0;
+      virtual void   CalculateIonizationAndScintillation(const gar::sdp::EnergyDeposit* dep) = 0;
       virtual double EnergyDeposit()              const  = 0;
       virtual int    NumberIonizationElectrons()  const  = 0;
       virtual int    NumberScintillationPhotons() const  = 0;

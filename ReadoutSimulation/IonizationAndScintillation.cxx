@@ -48,6 +48,7 @@ namespace gar {
     // Constructor.
     IonizationAndScintillation::IonizationAndScintillation(CLHEP::HepRandomEngine& engine)
     : fISCalc            (nullptr)
+    , fEnergyDeposit     (nullptr)
     , fStepSize          (nullptr)
     , fElectronsPerStep  (nullptr)
     , fPhotonsPerStep    (nullptr)
@@ -111,7 +112,7 @@ namespace gar {
     
     
     //......................................................................
-    void IonizationAndScintillation::Reset(sdp::EnergyDeposit const& dep)
+    void IonizationAndScintillation::Reset(const gar::sdp::EnergyDeposit* dep)
     {
 
       // TODO fix these lines, ie figure out how to do this with EDeps
@@ -131,7 +132,7 @@ namespace gar {
       
       // double check that the energy deposit is non-zero
       // then do the calculation if it is
-      if( dep.Energy() > 0 ){
+      if( fEnergyDeposit->Energy() > 0 ){
         
         fISCalc->CalculateIonizationAndScintillation(fEnergyDeposit);
         

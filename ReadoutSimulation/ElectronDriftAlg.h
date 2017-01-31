@@ -27,6 +27,34 @@ namespace gar {
   
   namespace rosim{
     
+    class ElectronDriftInfo{
+      
+    public:
+      
+      ElectronDriftInfo();
+      
+      void Reset(std::vector<double> & xPos,
+                 std::vector<double> & yPos,
+                 std::vector<double> & zPos,
+                 std::vector<double> & time,
+                 std::vector<int   > & size);
+      
+      std::vector<double> const& ClusterXPos() const { return fClusterXPos; }
+      std::vector<double> const& ClusterYPos() const { return fClusterYPos; }
+      std::vector<double> const& ClusterZPos() const { return fClusterZPos; }
+      std::vector<double> const& ClusterTime() const { return fClusterTime; }
+      std::vector<int   > const& ClusterSize() const { return fClusterSize; }
+      
+    private:
+      
+      std::vector<double> fClusterXPos;  ///< x positions of each cluster drifted
+      std::vector<double> fClusterYPos;  ///< y positions of each cluster drifted
+      std::vector<double> fClusterZPos;  ///< z positions of each cluster drifted
+      std::vector<double> fClusterTime;  ///< arrival time of each cluster drifted
+      std::vector<int   > fClusterSize;  ///< size of each cluster drifted
+      
+    };
+    
     class ElectronDriftAlg{
       
     public:
@@ -37,7 +65,8 @@ namespace gar {
       
       // The user must call IonizationAndScintillation::Instance()->Reset(dep)
       // from within the implementation of this method in the derived class
-      virtual void DriftElectronsToReadout(gar::sdp::EnergyDeposit const& dep) = 0;
+      virtual void DriftElectronsToReadout(gar::sdp::EnergyDeposit       const& dep,
+                                           gar::rosim::ElectronDriftInfo      & driftInfo) = 0;
       
     protected:
       

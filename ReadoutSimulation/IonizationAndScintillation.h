@@ -32,7 +32,7 @@ namespace gar {
       
       // Method to reset the internal variables held in the ISCalculation
       // This method should be called at the start of any G4Step
-      void Reset(sdp::EnergyDeposit const& dep);
+      void Reset(const gar::sdp::EnergyDeposit* dep);
       
       double EnergyDeposit()              const { return fISCalc->EnergyDeposit();              }
       int    NumberIonizationElectrons()  const { return fISCalc->NumberIonizationElectrons();  }
@@ -47,7 +47,7 @@ namespace gar {
       rosim::ISCalculation* fISCalc;             ///< object to calculate ionization and scintillation
                                                  ///< produced by an energy deposition
       std::string           fISCalculator;       ///< name of calculator to use, NEST or Separate
-      sdp::EnergyDeposit&   fEnergyDeposit;      ///< reference to the current energy deposit
+      const gar::sdp::EnergyDeposit*   fEnergyDeposit;      ///< reference to the current energy deposit
       int                   fStepNumber;         ///< last StepNumber checked
       int                   fTrkID;              ///< last TrkID checked
       

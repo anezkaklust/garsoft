@@ -16,6 +16,47 @@ namespace gar {
   namespace rosim {
    
     //--------------------------------------------------------------------------
+    ElectronDriftInfo::ElectronDriftInfo()
+    {
+      return;
+    }
+    
+    //--------------------------------------------------------------------------
+    void ElectronDriftInfo::Reset(std::vector<double> & xPos,
+                                  std::vector<double> & yPos,
+                                  std::vector<double> & zPos,
+                                  std::vector<double> & time,
+                                  std::vector<int   > & size)
+    {
+      
+      fClusterXPos.swap(xPos);
+      fClusterYPos.swap(yPos);
+      fClusterZPos.swap(zPos);
+      fClusterTime.swap(time);
+      fClusterSize.swap(size);
+      
+      if(fClusterXPos.size() != fClusterYPos.size() ||
+         fClusterXPos.size() != fClusterZPos.size() ||
+         fClusterXPos.size() != fClusterTime.size() ||
+         fClusterXPos.size() != fClusterSize.size() )
+        throw cet::exception("ElectronDriftInfo")
+        << "ElectronDriftInfo vector sizes are not consistent: "
+        << "\n\tX:"
+        << fClusterXPos.size()
+        << "\n\tY:"
+        << fClusterYPos.size()
+        << "\n\tZ:"
+        << fClusterZPos.size()
+        << "\n\tT:"
+        << fClusterTime.size()
+        << "\n\tSize:"
+        << fClusterSize.size();
+        
+      return;
+    }
+
+    
+    //--------------------------------------------------------------------------
     // The parameter set is in case a derived algorithm needs to be configured
     // beyond what is available from either DetectorPropertiesService or
     // GArPropertiesService.

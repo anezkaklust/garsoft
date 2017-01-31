@@ -63,9 +63,9 @@ namespace gar {
     
     //----------------------------------------------------------------------------
     // fNumIonElectrons returns a value that is not corrected for life time effects
-    void ISCalculationSeparate::CalculateIonizationAndScintillation(sdp::EnergyDeposit const& dep)
+    void ISCalculationSeparate::CalculateIonizationAndScintillation(const gar::sdp::EnergyDeposit* dep)
     {
-      fEnergyDeposit = dep.Energy();
+      fEnergyDeposit = dep->Energy();
       
       // Get the recombination factor for this deposit - Nucl.Instrum.Meth.A523:275-286,2004
       // R = A/(1 + (dE/dx)*k)
@@ -77,7 +77,7 @@ namespace gar {
       // k should be divided by the density as our dE/dx is in MeV/cm,
       // the division is handled in the constructor when we set fRecombk
       
-      double dx     = dep.dX();
+      double dx     = dep->dX();
       double recomb = 0.;
       double dEdx   = fEnergyDeposit / dx;
       

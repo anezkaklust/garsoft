@@ -32,7 +32,8 @@ namespace gar {
                                fhicl::ParameterSet    const& pset);
       virtual ~ElectronDriftStandardAlg();
       
-      void DriftElectronsToReadout(gar::sdp::EnergyDeposit const& dep);
+      void DriftElectronsToReadout(gar::sdp::EnergyDeposit       const& dep,
+                                   gar::rosim::ElectronDriftInfo      & driftInfo);
       
     private:
       
