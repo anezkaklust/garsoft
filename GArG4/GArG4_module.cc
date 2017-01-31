@@ -401,6 +401,14 @@ namespace gar {
       std::vector< ::art::Ptr<simb::MCTruth> > mctPtrs;
       std::vector< const simb::MCTruth*      > mcts;
       
+      for(size_t mc = 0; mc < mclists.size(); ++mc){
+        for(size_t i = 0; i < mclists[mc]->size(); ++i){
+          art::Ptr<simb::MCTruth> ptr(mclists[mc], i);
+          mctPtrs.push_back(ptr);
+          mcts   .push_back(ptr.get());
+        }
+      }
+      
       // Process Geant4 simulation for the mctruths
       fG4Help->G4Run(mcts);
       
