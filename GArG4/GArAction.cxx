@@ -97,7 +97,7 @@ namespace gar {
       }
       
       // only worry about energy depositions larger than the minimum required
-      if(step->GetTotalEnergyDeposit() / CLHEP::GeV > fEnergyCut){
+      if(step->GetTotalEnergyDeposit() * CLHEP::GeV > fEnergyCut ){
         
         // save this deposition
         this->AddEnergyDeposition(step);
