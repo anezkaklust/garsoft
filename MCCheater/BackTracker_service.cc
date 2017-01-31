@@ -142,7 +142,7 @@ namespace gar{
         << id
         << " in sim::ParticleList returning null pointer";
         
-        return 0;
+        return nullptr;
       }
       
       return part_it->second;

@@ -73,6 +73,7 @@ art_make(LIB_LIBRARIES      nutools_ParticleNavigation
            MODULE_LIBRARIES Geometry
                             GArG4
                             SimulationDataProducts
+                            MCCheater_BackTracker_service
                             nusimdata_SimulationBase
                             nutools_G4Base
                             nutools_ParticleNavigation

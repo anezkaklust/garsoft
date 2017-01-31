@@ -12,6 +12,7 @@
 #Plugins
 #include "SingleGen.fcl"
 #include "GArG4.fcl"
+#include "GArG4Ana.fcl"
 
 # eventually will need to include configuration to simulate the electronics
 
@@ -57,7 +58,12 @@ physics:
    rns:       { module_type: "RandomNumberSaver" }
  }
 
- #define the producer and filter modules for this path, order matters, 
+ analyzers:
+ {
+   g4ana: @local::standard_garg4ana
+ }
+
+ #define the producer and filter modules for this path, order matters,
  #filters reject all following items.  see lines starting physics.producers below
  simulate: [ generator, geant, rns ]
  
