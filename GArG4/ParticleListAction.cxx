@@ -38,13 +38,11 @@ namespace gar {
     
     //----------------------------------------------------------------------------
     // Dropped particle test
-    
-    bool ParticleListAction::isDropped(simb::MCParticle const* p)
+    bool ParticleListAction::IsDropped(simb::MCParticle const* p)
     {
       return !p || p->Trajectory().empty();
     } // ParticleListAction::isDropped()
-    
-    
+
     //----------------------------------------------------------------------------
     // Constructor.
     ParticleListAction::ParticleListAction(double energyCut,
@@ -81,9 +79,8 @@ namespace gar {
     
     //-------------------------------------------------------------
     // figure out the ultimate parentage of the particle with track ID
-    // trackid
-    // assume that the current track id has already been added to
-    // the fParentIDMap
+    // trackid.  Assume assume that the current track id has already
+    // been added to the fParentIDMap
     int ParticleListAction::GetParentage(int trackid) const
     {
       int parentid = sdp::NoParticleId;
@@ -129,7 +126,7 @@ namespace gar {
       // have to go up a "chain" of information to find out:
       const G4DynamicParticle* dynamicParticle = track->GetDynamicParticle();
       const G4PrimaryParticle* primaryParticle = dynamicParticle->GetPrimaryParticle();
-      if ( primaryParticle != 0 ){
+      if ( primaryParticle ){
         const G4VUserPrimaryParticleInformation* gppi = primaryParticle->GetUserInformation();
         const g4b::PrimaryParticleInformation* ppi = dynamic_cast<const g4b::PrimaryParticleInformation*>(gppi);
         if ( ppi != 0 ){
@@ -171,15 +168,14 @@ namespace gar {
           // first add this track id and its parent to the fParentIDMap
           fParentIDMap[trackID] = parentID;
           
-          fCurrentTrackID = -1*this->GetParentage(trackID);
+          fCurrentTrackID = -1 * this->GetParentage(trackID);
           
           // check that fCurrentTrackID is in the particle list - it is possible
           // that this particle's parent is a particle that did not get tracked.
           // An example is a partent that was made due to muMinusCaptureAtRest
           // and the daughter was made by the phot process.  The parent likely
           // isn't saved in the particle list because it is below the energy cut
-          // which will put a bogus track id value into the sim::IDE object for
-          // the sim::SimChannel if we don't check it.
+          // which will put a bogus track id value into the list if we don't check it.
           if(!fParticleList->KnownParticle(fCurrentTrackID))
             fCurrentTrackID = sdp::NoParticleId;
           
@@ -200,7 +196,7 @@ namespace gar {
           // and set the current track id to be it's ultimate parent
           fParentIDMap[trackID] = parentID;
           
-          fCurrentTrackID = -1*this->GetParentage(trackID);
+          fCurrentTrackID = -1 * this->GetParentage(trackID);
           
           return;
         }
@@ -222,8 +218,11 @@ namespace gar {
             << "can't find parent id: "
             << parentID
             << " in the particle list, or fParentIDMap."
-            << " Make " << parentID << " the mother ID for"
-            << " track ID " << fCurrentTrackID
+            << " Make "
+            << parentID
+            << " the mother ID for"
+            << " track ID "
+            << fCurrentTrackID
             << " in the hope that it will aid debugging.";
           }
           else
@@ -263,12 +262,17 @@ namespace gar {
       
       // Polarization.
       const G4ThreeVector& polarization = track->GetPolarization();
-      fCurrentParticle.particle->SetPolarization( TVector3( polarization.x(),
+      fCurrentParticle.particle->SetPolarization( TVector3(polarization.x(),
                                                            polarization.y(),
-                                                           polarization.z() ) );
+                                                           polarization.z()) );
       
       // Save the particle in the ParticleList.
       fParticleList->Add( fCurrentParticle.particle );
+      
+      LOG_VERBATIM("ParticleListAction")
+      << "There are now "
+      << fParticleList->size()
+      << " particles in the list";
       
       if(fTrackIDToMCTruthIndex.count(fCurrentTrackID) > 0)
         LOG_WARNING("ParticleListAction")
@@ -290,6 +294,11 @@ namespace gar {
       // if we have found no reason to keep it, drop it!
       // (we might still need parentage information though)
       if (!fCurrentParticle.keep) {
+        
+        LOG_VERBATIM("ParticleListAction")
+        << "dropping particle with track id "
+        << fCurrentParticle.particle->TrackId();
+        
         fParticleList->Archive(fCurrentParticle.particle);
         // after the particle is archived, it is deleted
         fCurrentParticle.clear();
@@ -300,8 +309,6 @@ namespace gar {
         fCurrentParticle.particle->SetWeight(aTrack->GetWeight());
         G4String process = aTrack->GetStep()->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
         fCurrentParticle.particle->SetEndProcess(process);
-        
-        
       }
       
       return;
@@ -312,9 +319,7 @@ namespace gar {
     void ParticleListAction::SteppingAction(const G4Step* step)
     {
       
-      if ( !fCurrentParticle.hasParticle() ) {
-        return;
-      }
+      if ( !fCurrentParticle.hasParticle() ) return;
       
       // For the most part, we just want to add the post-step
       // information to the particle's trajectory.  There's one
@@ -347,27 +352,13 @@ namespace gar {
         
       } // end if this is the first step
       
-      // At this point, the particle is being transported through the
-      // simulation. This method is being called for every voxel that
-      // the track passes through, but we don't want to update the
-      // trajectory information if we're just updating voxels. To check
-      // for this, look at the process name for the step, and compare it
-      // against the voxelization process name (set in PhysicsList.cxx).
       G4String process = step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName();
-      G4bool ignoreProcess = process.contains("LArVoxel") || process.contains("OpDetReadout");
-      
-      LOG_DEBUG("ParticleListAction::SteppingAction")
-      << ": DEBUG - process='"
-      << process << "'"
-      << " ignoreProcess=" << ignoreProcess
-      << " fstoreTrajectories="
-      << fstoreTrajectories;
       
       // We store the initial creation point of the particle
       // and its final position (ie where it has no more energy, or at least < 1 eV) no matter
       // what, but whether we store the rest of the trajectory depends
       // on the process, and on a user switch.
-      if ( fstoreTrajectories  &&  !ignoreProcess ){
+      if ( fstoreTrajectories ){
         // Get the post-step information from the G4Step.
         const G4StepPoint* postStepPoint = step->GetPostStepPoint();
         
@@ -464,7 +455,7 @@ namespace gar {
     
     //----------------------------------------------------------------------------
     // Returns the ParticleList accumulated during the current event.
-    const sim::ParticleList* ParticleListAction::GetList() const
+    sim::ParticleList* ParticleListAction::GetList() const
     {
       // check if the ParticleNavigator has entries, and if
       // so grab the highest track id value from it to

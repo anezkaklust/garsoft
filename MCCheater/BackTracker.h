@@ -64,8 +64,6 @@ namespace gar{
       const simb::MCParticle*              TrackIDToParticle(int const& id)       const;
       const simb::MCParticle*              TrackIDToMotherParticle(int const& id) const;
       
-      std::vector<sdp::IDE>                TrackIDToSimIDE(int const& id)         const;
-      
       // Get ::art::Ptr<> to simb::MCTruth and related information
       const ::art::Ptr<simb::MCTruth>&       TrackIDToMCTruth(int const& id)                        const;
       const ::art::Ptr<simb::MCTruth>&       ParticleToMCTruth(const simb::MCParticle* p)           const;
@@ -84,19 +82,8 @@ namespace gar{
       // electrons to the identified hit
       std::vector<sdp::TrackIDE>            HitToEveID(::art::Ptr<gar::rec::Hit> const& hit);
       
-      //@{
-      // method to return sim::IDE objects associated with a given hit
-      void                                  HitToSimIDEs(gar::rec::Hit const& hit,
-                                                         std::vector<sdp::IDE>&      ides) const;
-      void                                  HitToSimIDEs(::art::Ptr<gar::rec::Hit> const& hit,
-                                                         std::vector<sdp::IDE>&      ides) const { HitToSimIDEs(*hit, ides); }
-        //@}
-      
       // method to return the XYZ position of the weighted average energy deposition for a given hit
-      std::vector<double>                   SimIDEsToXYZ(std::vector<gar::sdp::IDE> const& ides);
-      
-      // method to return the XYZ position of the weighted average energy deposition for a given hit
-      std::vector<double>                   HitToXYZ(::art::Ptr<gar::rec::Hit> const& hit);
+      //std::vector<double>                   HitToXYZ(::art::Ptr<gar::rec::Hit> const& hit);
       
       // method to return the fraction of hits in a collection that come from the specified Geant4 track ids
       double                                HitCollectionPurity(std::set<int>                                 trackIDs,
@@ -122,26 +109,21 @@ namespace gar{
       // method to return all TrackIDs corresponding to the given list of hits
       std::set<int>                         GetSetOfTrackIDs(std::vector< ::art::Ptr<gar::rec::Hit> > const& hits);
       
-      std::vector<const sdp::SimChannel*> const& SimChannels() const { return fSimChannels; }
-      
     private:
       
-      void                   ChannelToTrackID(std::vector<sdp::TrackIDE>      & trackIDEs,
-                                              gar::raw::Channel_t        const& channel,
-                                              const double                      hit_start_time,
-                                              const double                      hit_end_time);
+//      void                   ChannelToTrackID(std::vector<sdp::TrackIDE>      & trackIDEs,
+//                                              gar::raw::Channel_t        const& channel,
+//                                              const double                      hit_start_time,
+//                                              const double                      hit_end_time);
       
-      const sdp::SimChannel* FindSimChannel(raw::Channel_t const& channel) const;
-      
-      sim::ParticleList                      fParticleList;          ///< ParticleList to map track ID to sim::Particle
+      sim::ParticleList                        fParticleList;          ///< ParticleList to map track ID to sim::Particle
       std::vector< ::art::Ptr<simb::MCTruth> > fMCTruthList;           ///< all the MCTruths for the event
-      std::vector<const sdp::SimChannel*>    fSimChannels;           ///< all the SimChannels for the event
-      std::map<int, int>                     fTrackIDToMCTruthIndex; ///< map of track ids to MCTruthList entry
-      std::string                            fG4ModuleLabel;         ///< label for geant4 module
-      double                                 fMinHitEnergyFraction;  ///< minimum fraction of energy a track id has to 
-                                                                     ///< contribute to a hit to be counted in
-                                                                     ///< purity and efficiency calculations 
-                                                                     ///< based on hit collections
+      std::map<int, int>                       fTrackIDToMCTruthIndex; ///< map of track ids to MCTruthList entry
+      std::string                              fG4ModuleLabel;         ///< label for geant4 module
+      double                                   fMinHitEnergyFraction;  ///< minimum fraction of energy a track id has to
+                                                                       ///< contribute to a hit to be counted in
+                                                                       ///< purity and efficiency calculations
+                                                                       ///< based on hit collections
     };
   } // namespace
 }

@@ -110,8 +110,22 @@ namespace gar {
     void GArAction::AddEnergyDeposition(const G4Step* step)
     {
       // get the track id for this step
-      auto trackID = step->GetTrack()->GetTrackID();
+      auto trackID  = ParticleListAction::GetCurrentTrackID();
       
+      // first check that we are not dealing with ionization, ie delta rays
+      // if we have one of those, set the trackID to be the ID of the parent
+      //if(trackID < 0)
+      //  LOG_VERBATIM("GArAction")
+      //  << "TrackID "
+      //  << trackID
+      //  << " was created by process "
+      //  << step->GetTrack()->GetCreatorProcess()->GetProcessName();
+      //else
+      //  LOG_VERBATIM("GArAction")
+      //  << "TrackID "
+      //  << trackID
+      //  << " is a primary particle ";
+
       // the step mid point
       auto midPoint = 0.5 * (step->GetPreStepPoint()->GetPosition() +
                              step->GetPostStepPoint()->GetPosition() );
@@ -122,14 +136,15 @@ namespace gar {
                                   midPoint.x() / CLHEP::cm,
                                   midPoint.y() / CLHEP::cm,
                                   midPoint.z() / CLHEP::cm,
-                                  midPoint.mag() / CLHEP::cm);
+                                  midPoint.mag() / CLHEP::cm,
+                                  (trackID > 0));
       
       // try inserting a new EnergyDeposits into the fDeposits set, the return
       // of the attemp is a pair whose first element is an iterator either to the
       // new EnergyDeposits object or to the one that was already there
-      gar::sdp::EnergyDeposits edeps(trackID);
+      gar::sdp::EnergyDeposits edeps(std::abs(trackID));
       
-      std::set<gar::sdp::EnergyDeposits>::iterator itr = fDeposits.find(edeps);
+      auto itr = fDeposits.find(edeps);
 
       // if we already have an object with that track ID, copy it and then
       // erase the existing one. We are doing this because the EnergyDeposits
@@ -152,7 +167,12 @@ namespace gar {
     {
       
       // sort the EnergyDeposit lists in each EnergyDeposits object
-      for(auto deps : fDeposits) deps.Sort();
+      for(auto deps : fDeposits){
+        deps.Sort();
+        LOG_DEBUG("GArAction")
+        << "sorted deposits for track id "
+        << deps.TrackID();
+      }
       
     }
     

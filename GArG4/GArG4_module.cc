@@ -413,13 +413,21 @@ namespace gar {
       fG4Help->G4Run(mcts);
       
       // receive the particle list
-      sim::ParticleList particleList = fParticleListAction->YieldList();
-      auto const        trackIDToMCT = fParticleListAction->TrackIDToMCTruthIndexMap();
+      auto       particleList = fParticleListAction->YieldList();
+      auto const trackIDToMCT = fParticleListAction->TrackIDToMCTruthIndexMap();
 
       int    trackID             = std::numeric_limits<int>::max();
       size_t mctidx              = 0;
       size_t nGeneratedParticles = 0;
       
+      // Has the user request a detailed dump of the output objects?
+      if (fdumpParticleList){
+        LOG_INFO("GArG4")
+        << "Dump sim::ParticleList; size() = "
+        << particleList.size()
+        << "\n"
+        << particleList;
+      }
       
       auto iPartPair = particleList.begin();
       while (iPartPair != particleList.end()) {
@@ -455,17 +463,14 @@ namespace gar {
       } // while(particleList)
       
       
-      // Has the user request a detailed dump of the output objects?
-      if (fdumpParticleList){
-        LOG_INFO("GArG4")
-        << "Dump sim::ParticleList; size() = "
-        << particleList.size()
-        << "\n"
-        << particleList;
-      }
-      
       // Now for the sdp::EnergyDepositions
-      for(auto const& ed : fGArAction->EnergyDeposits()) edCol->emplace_back(ed);
+      for(auto const& ed : fGArAction->EnergyDeposits()){
+        LOG_VERBATIM("GArG4")
+        << "adding deposits for track id: "
+        << ed.TrackID();
+        
+        edCol->emplace_back(ed);
+      }
       
       // And finally the AuxDetSimChannels
       for(auto const& ad : fAuxDetAction->AuxDetSimChannels()) adCol->emplace_back(ad);

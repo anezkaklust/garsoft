@@ -4,7 +4,7 @@ standard_garg4ana:
 {
  module_type:      GArG4Ana
  GeantModuleLabel: "geant"
- TruthModuleLable: "generator"
+ TruthModuleLabel: "generator"
 }
 
 END_PROLOG

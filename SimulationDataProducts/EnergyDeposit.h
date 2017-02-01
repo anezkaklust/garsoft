@@ -24,21 +24,24 @@ namespace gar {
                     float  xpos,
                     float  ypos,
                     float  zpos,
-                    float  length)
-      : fTime   (t)
-      , fEnergy (e)
-      , fX      (xpos)
-      , fY      (ypos)
-      , fZ      (zpos)
-      , fdX     (length)
+                    float  length,
+                    bool   isPrimary)
+      : fTime     (t)
+      , fEnergy   (e)
+      , fX        (xpos)
+      , fY        (ypos)
+      , fZ        (zpos)
+      , fdX       (length)
+      , fIsPrimary(isPrimary)
       {}
       
-      double const& Time()   const { return fTime;   }
-      float  const& Energy() const { return fEnergy; }
-      float  const& X()      const { return fX;      }
-      float  const& Y()      const { return fY;      }
-      float  const& Z()      const { return fZ;      }
-      float  const& dX()     const { return fdX;     }
+      double const& Time()      const { return fTime;      }
+      float  const& Energy()    const { return fEnergy;    }
+      float  const& X()         const { return fX;         }
+      float  const& Y()         const { return fY;         }
+      float  const& Z()         const { return fZ;         }
+      float  const& dX()        const { return fdX;        }
+      bool          IsPrimary() const { return fIsPrimary; }
       
       bool operator  <(gar::sdp::EnergyDeposit const& b) const;
       
@@ -46,12 +49,13 @@ namespace gar {
       
     private:
       
-      double fTime;    ///< time of the energy deposit
-      float  fEnergy;  ///< energy deposited
-      float  fX;       ///< x position of the energy deposit
-      float  fY;       ///< y position of the energy deposit
-      float  fZ;       ///< z position of the energy deposit
-      float  fdX;      ///< the size of the step for this energy deposit
+      double fTime;      ///< time of the energy deposit
+      float  fEnergy;    ///< energy deposited
+      float  fX;         ///< x position of the energy deposit
+      float  fY;         ///< y position of the energy deposit
+      float  fZ;         ///< z position of the energy deposit
+      float  fdX;        ///< the size of the step for this energy deposit
+      bool   fIsPrimary; ///< is this from the primary particle, or a secondary (ie EM)
     };
     
 

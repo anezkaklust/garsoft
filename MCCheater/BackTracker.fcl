@@ -7,5 +7,9 @@ standard_backtracker:
                                    # counted in hit based efficiency and purity calculations
 }
 
+standard_backtrackerloader:
+{
+ module_type:            "BackTrackerLoader"
+}
 
 END_PROLOG

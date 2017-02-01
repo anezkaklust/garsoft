@@ -157,8 +157,13 @@ namespace gar {
       // loop over the energy deposition collections to fill the tree
       for(auto edeps : *edepsCol){
         
+        // get the MCParticle for this track ID
+        auto part = bt->TrackIDToParticle(edeps.TrackID());
+        
+        if( !part ) continue;
+        
         fEDep.trackID = edeps.TrackID();
-        fEDep.pdg     = bt->TrackIDToParticle(edeps.TrackID())->PdgCode();
+        fEDep.pdg     = part->PdgCode();
         
         for(auto edep : edeps.Deposits() ){
         

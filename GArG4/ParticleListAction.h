@@ -76,25 +76,26 @@ namespace gar {
       
       // TrackID of the current particle, EveID if the particle is from an EM shower
       static int              GetCurrentTrackID()  { return fCurrentTrackID; }
+      static int              GetTrackIDOffset()   { return fTrackIDOffset;  }
     
       void                    ResetTrackIDOffset() { fTrackIDOffset = 0;     }
       
       std::map<int, size_t>   TrackIDToMCTruthIndexMap() const;
       
       // Returns the ParticleList accumulated during the current event.
-      const sim::ParticleList* GetList() const;
+      sim::ParticleList* GetList() const;
       
       // Yields the ParticleList accumulated during the current event.
       sim::ParticleList&& YieldList();
       
       /// returns whether the specified particle has been marked as dropped
-      static bool isDropped(simb::MCParticle const* p);
-      
+      static bool IsDropped(simb::MCParticle const* p);
+
     private:
       
       // this method will loop over the fParentIDMap to get the
       // parentage of the provided trackid
-      int               	     GetParentage(int trackid) const;
+      int  GetParentage(int trackid) const;
       
       G4double                 fEnergyCut;             ///< The minimum energy for a particle to
                                                        ///< be included in the list.

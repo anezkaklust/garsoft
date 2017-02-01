@@ -12,7 +12,6 @@
 #Plugins
 #include "SingleGen.fcl"
 #include "GArG4.fcl"
-#include "GArG4Ana.fcl"
 
 # eventually will need to include configuration to simulate the electronics
 
@@ -58,11 +57,6 @@ physics:
    rns:       { module_type: "RandomNumberSaver" }
  }
 
- analyzers:
- {
-   g4ana: @local::standard_garg4ana
- }
-
  #define the producer and filter modules for this path, order matters,
  #filters reject all following items.  see lines starting physics.producers below
  simulate: [ generator, geant, rns ]
@@ -72,9 +66,11 @@ physics:
 
  #trigger_paths is a keyword and contains the paths that modify the ::art::event, 
  #ie filters and producers
- trigger_paths: [simulate] 
+ trigger_paths: [ simulate ]
 
 }
+
+physics.producers.geant.DumpParticleList: true
 
 #block to define where the output goes.  if you defined a filter in the physics
 #block and put it in the trigger_paths then you need to put a SelectEvents: {SelectEvents: [XXX]}
