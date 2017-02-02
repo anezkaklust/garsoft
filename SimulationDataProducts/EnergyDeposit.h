@@ -19,14 +19,16 @@ namespace gar {
       EnergyDeposit();
       
 #ifndef __GCCXML__
-      EnergyDeposit(double t,
+      EnergyDeposit(int    trackID,
+                    double t,
                     float  e,
                     float  xpos,
                     float  ypos,
                     float  zpos,
                     float  length,
                     bool   isPrimary)
-      : fTime     (t)
+      : fTrackID  (trackID)
+      , fTime     (t)
       , fEnergy   (e)
       , fX        (xpos)
       , fY        (ypos)
@@ -35,6 +37,7 @@ namespace gar {
       , fIsPrimary(isPrimary)
       {}
       
+      int    const& TrackID()   const { return fTrackID;   }
       double const& Time()      const { return fTime;      }
       float  const& Energy()    const { return fEnergy;    }
       float  const& X()         const { return fX;         }
@@ -49,6 +52,7 @@ namespace gar {
       
     private:
       
+      int    fTrackID;   ///< g4 track ID of particle making the deposit
       double fTime;      ///< time of the energy deposit
       float  fEnergy;    ///< energy deposited
       float  fX;         ///< x position of the energy deposit
@@ -59,37 +63,6 @@ namespace gar {
     };
     
 
-    class EnergyDeposits{
-      
-    public:
-      
-      EnergyDeposits();
-      
-#ifndef __GCCXML__
-      // Constructor specifying the track ID
-      EnergyDeposits(int trackID);
-      
-      // Copy constructor with an offset from the G4 ID
-      EnergyDeposits(EnergyDeposits const& deps,
-                     int                   offset);
-      
-      void AddEnergyDeposit(EnergyDeposit const& dep);
-      
-      int                      const& TrackID()  const { return fTrackID;          }
-      std::list<EnergyDeposit> const& Deposits() const { return fDeposits;         }
-      void                            Sort()           { fDeposits.sort(); return; }
-      
-      bool operator  <(gar::sdp::EnergyDeposits const& b) const;
-      
-#endif
-      
-    private:
-      
-      int                      fTrackID;  ///< the G4 track ID for the particle making the deposits
-      std::list<EnergyDeposit> fDeposits; ///< the collection of energy deposits, ordered by time
-      
-      
-    };
   } // sdp
 } // gar
 

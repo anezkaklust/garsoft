@@ -80,7 +80,10 @@ namespace gar {
       
     private:
       
-      std::unique_ptr<ElectronDriftAlg> fDriftAlg;  ///< algorithm to drift ionization electrons
+      void DriftElectronsToReadout(::art::Event& evt);
+      
+      std::string                       fG4Label;  ///< label of G4 module
+      std::unique_ptr<ElectronDriftAlg> fDriftAlg; ///< algorithm to drift ionization electrons
       
       
     };
@@ -101,18 +104,16 @@ namespace gar {
       
       // setup the random number service for Geant4, the "G4Engine" label is a
       // special tag setting up a global engine for use by Geant4/CLHEP;
-      // obtain the random seed from NuRandomService,
-      // unless overridden in configuration with key "Seed" or "GEANTSeed"
-      // same thing for the propagation engine:
-      // and again for radio decay
-      ::art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, "HepJamesRandom", "propagation", pset, "PropagationSeed");
+      // obtain the random seed from NuRandomService
+      ::art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, "HepJamesRandom", "ionization", pset, "IonizationSeed");
       
+      fG4Label = pset.get<std::string>("G4ModuleLabel", "geant");
       
       auto driftAlgPars = pset.get<fhicl::ParameterSet>("ElectronDriftAlgPars");
       auto driftAlgName = driftAlgPars.get<std::string>("DriftAlgType");
       
       if(driftAlgName.compare("Standard") == 0)
-        fDriftAlg = std::make_unique<gar::rosim::ElectronDriftStandardAlg>(rng->getEngine("propagation"),
+        fDriftAlg = std::make_unique<gar::rosim::ElectronDriftStandardAlg>(rng->getEngine("ionization"),
                                                                            driftAlgPars);
       else
         throw cet::exception("IonizationReadout")
@@ -133,13 +134,12 @@ namespace gar {
     //----------------------------------------------------------------------
     void IonizationReadout::beginJob()
     {
-      ::art::ServiceHandle<geo::Geometry> geom;
       auto* rng = &*(::art::ServiceHandle<::art::RandomNumberGenerator>());
       
       // create the ionization and scintillation calculator;
       // this is a singleton (!) so it does not make sense
       // to create it in LArVoxelReadoutGeometry
-      IonizationAndScintillation::CreateInstance(rng->getEngine("propagation"));
+      IonizationAndScintillation::CreateInstance(rng->getEngine("ionization"));
       
       return;
     }
@@ -156,17 +156,59 @@ namespace gar {
       LOG_DEBUG("IonizationReadout") << "produce()";
       
       // loop over the lists and put the particles and voxels into the event as collections
-      std::unique_ptr< std::vector<raw::RawDigit>                       > rdCol (new std::vector<raw::RawDigit>                      );
-      std::unique_ptr< ::art::Assns<sdp::EnergyDeposits, raw::RawDigit> > erassn(new ::art::Assns<sdp::EnergyDeposits, raw::RawDigit>);
+      std::unique_ptr< std::vector<raw::RawDigit>                      > rdCol (new std::vector<raw::RawDigit>                     );
+      std::unique_ptr< ::art::Assns<sdp::EnergyDeposit, raw::RawDigit> > erassn(new ::art::Assns<sdp::EnergyDeposit, raw::RawDigit>);
       
       // drift the ionization electrons to the readout
-      //fDriftAlg->DriftElectronsToReadout(dep);
+      this->DriftElectronsToReadout(evt);
       
       evt.put(std::move(rdCol));
       evt.put(std::move(erassn));
       
       return;
     } // IonizationReadout::produce()
+    
+    //--------------------------------------------------------------------------
+    void IonizationReadout::DriftElectronsToReadout(::art::Event& evt)
+    {
+      // first get the energy deposits from the event record
+      auto eDepCol = evt.getValidHandle< std::vector<sdp::EnergyDeposit> >(fG4Label);
+      
+      // now instantiate an ElectronDriftInfo object to keep track of the
+      // drifted locations of each electron cluster from each energy deposit
+      rosim::ElectronDriftInfo driftInfo;
+      
+      // loop over the energy deposits
+      for(auto const& dep : *eDepCol){
+        
+        // get the positions, arrival times, and electron cluster sizes
+        // for this energy deposition
+        fDriftAlg->DriftElectronsToReadout(dep, driftInfo);
+        
+        auto clusterXPos = driftInfo.ClusterXPos();
+        auto clusterYPos = driftInfo.ClusterYPos();
+        auto clusterZPos = driftInfo.ClusterZPos();
+        auto clusterTime = driftInfo.ClusterTime();
+        auto clusterSize = driftInfo.ClusterSize();
+        
+        // the vectors should all have the same size by the time we get them
+        // here (verified by the ElectronDriftInfo object when they are filled)
+        for(size_t c = 0; c < clusterXPos.size(); ++c){
+          
+            /// seems like here is where I would want to make something like
+            /// a collection of TDCIDEs and associate each one to the parent
+            /// energy depositions.  The uniquely identifying key for the TDCIDE
+            /// should be the pair of the readout channel number and the tdc value
+          
+        }
+        
+      } // end loop over deposit collections
+      
+      //fDriftAlg->DriftElectronsToReadout(dep);
+      
+
+      return;
+    }
     
   } // namespace rosim
   

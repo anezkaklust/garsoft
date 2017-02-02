@@ -231,7 +231,7 @@ namespace gar {
       if(!useInputLabels) fInputLabels.resize(0);
       
       produces< std::vector<simb::MCParticle>                 >();
-      produces< std::vector<sdp::EnergyDeposits>              >();
+      produces< std::vector<sdp::EnergyDeposit>               >();
       produces< std::vector<sdp::AuxDetSimChannel>            >();
       produces< ::art::Assns<simb::MCTruth, simb::MCParticle> >();
       
@@ -375,11 +375,9 @@ namespace gar {
       
       // loop over the lists and put the particles and voxels into the event as collections
       std::unique_ptr< std::vector<simb::MCParticle> >                 partCol(new std::vector<simb::MCParticle>                );
-      std::unique_ptr< std::vector<sdp::EnergyDeposits>  >             edCol  (new std::vector<sdp::EnergyDeposits>             );
+      std::unique_ptr< std::vector<sdp::EnergyDeposit>  >              edCol  (new std::vector<sdp::EnergyDeposit>              );
       std::unique_ptr< ::art::Assns<simb::MCTruth, simb::MCParticle> > tpassn (new ::art::Assns<simb::MCTruth, simb::MCParticle>);
       std::unique_ptr< std::vector< sdp::AuxDetSimChannel > >          adCol  (new std::vector<sdp::AuxDetSimChannel>           );
-      
-      ::art::ServiceHandle<geo::Geometry> geom;
       
       // reset the track ID offset as we have a new collection of interactions
       fParticleListAction->ResetTrackIDOffset();

@@ -146,7 +146,7 @@ namespace gar {
       ::art::ServiceHandle<cheat::BackTracker> bt;
 
       // get the energy depositions for this event
-      auto edepsCol = evt.getValidHandle<std::vector<gar::sdp::EnergyDeposits> >(fG4ModuleLabel);
+      auto edepsCol = evt.getValidHandle<std::vector<gar::sdp::EnergyDeposit> >(fG4ModuleLabel);
       
       if( edepsCol.failedToGet() ){
         LOG_VERBATIM("GArG4Ana")
@@ -155,43 +155,38 @@ namespace gar {
       }
 
       // loop over the energy deposition collections to fill the tree
-      for(auto edeps : *edepsCol){
+      for(auto edep : *edepsCol){
         
         // get the MCParticle for this track ID
-        auto part = bt->TrackIDToParticle(edeps.TrackID());
+        auto part = bt->TrackIDToParticle(edep.TrackID());
         
         if( !part ) continue;
         
-        fEDep.trackID = edeps.TrackID();
+        fEDep.trackID = edep.TrackID();
         fEDep.pdg     = part->PdgCode();
+        fEDep.x       = edep.X();
+        fEDep.y       = edep.Y();
+        fEDep.z       = edep.Z();
+        fEDep.dX      = edep.dX();
+        fEDep.t       = edep.Time();
+        fEDep.e       = edep.Energy();
         
-        for(auto edep : edeps.Deposits() ){
+        LOG_VERBATIM("GArG4Ana")
+        << "pos: ("
+        << fEDep.x
+        << ", "
+        << fEDep.y
+        << ", "
+        << fEDep.z
+        << ") e: "
+        << fEDep.e
+        << " t: "
+        << fEDep.t
+        << " dX: "
+        << fEDep.dX;
         
-          fEDep.x  = edep.X();
-          fEDep.y  = edep.Y();
-          fEDep.z  = edep.Z();
-          fEDep.dX = edep.dX();
-          fEDep.t  = edep.Time();
-          fEDep.e  = edep.Energy();
-          
-          LOG_VERBATIM("GArG4Ana")
-          << "pos: ("
-          << fEDep.x
-          << ", "
-          << fEDep.y
-          << ", "
-          << fEDep.z
-          << ") e: "
-          << fEDep.e
-          << " t: "
-          << fEDep.t
-          << " dX: "
-          << fEDep.dX;
-          
           // make the tree flat in terms of the energy depositions
-          fTree->Fill();
-          
-        } // end loop over EnergyDeposit objects in this EnergyDeposits object
+        fTree->Fill();
         
       } // end loop over collection of EnergyDeposits
       

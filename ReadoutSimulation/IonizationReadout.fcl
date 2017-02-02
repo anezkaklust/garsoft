@@ -1,0 +1,14 @@
+#include "ElectronDriftAlg.fcl"
+#include "G4SimulationParameters.fcl"
+
+#BEGIN_PROLOG
+
+standard_ionizationreadout:
+{
+ module_type:          "IonizationReadout"
+ G4ModuleLabel:        "geant"
+ GArSimParPSet:        @local::standard_g4simpars
+ ElectronDriftAlgPars: @local::standard_electrondrift
+}
+
+#END_PROLOG

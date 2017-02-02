@@ -86,15 +86,11 @@ namespace gar {
       const CLHEP::Hep3Vector &stop  = track->GetPosition();
       
       // If it's a null step, don't use it.
-      if(start[0] == stop[0] &&
-         start[1] == stop[1] &&
-         start[2] == stop[2]  ) return;
+      if(start == stop) return;
       
       // check that we are in the correct material to record a hit
       std::string material = track->GetMaterial()->GetName();
-      if(material.compare("GAr") != 0 ) {
-        return;
-      }
+      if(material.compare("GAr") != 0 ) return;
       
       // only worry about energy depositions larger than the minimum required
       if(step->GetTotalEnergyDeposit() * CLHEP::GeV > fEnergyCut ){
@@ -106,7 +102,7 @@ namespace gar {
       
     }// end of GArAction::SteppingAction
 
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     void GArAction::AddEnergyDeposition(const G4Step* step)
     {
       // get the track id for this step
@@ -126,54 +122,27 @@ namespace gar {
       //  << trackID
       //  << " is a primary particle ";
 
-      // the step mid point
+      // the step mid point is used for the position of the deposit
       auto midPoint = 0.5 * (step->GetPreStepPoint()->GetPosition() +
                              step->GetPostStepPoint()->GetPosition() );
       
-      // now figure out the energy deposit
-      gar::sdp::EnergyDeposit dep(step->GetPreStepPoint()->GetGlobalTime(),
-                                  step->GetTotalEnergyDeposit() / CLHEP::GeV,
-                                  midPoint.x() / CLHEP::cm,
-                                  midPoint.y() / CLHEP::cm,
-                                  midPoint.z() / CLHEP::cm,
-                                  step->GetStepLength() / CLHEP::cm,
-                                  (trackID > 0));
-      
-      // try inserting a new EnergyDeposits into the fDeposits set, the return
-      // of the attemp is a pair whose first element is an iterator either to the
-      // new EnergyDeposits object or to the one that was already there
-      gar::sdp::EnergyDeposits edeps(std::abs(trackID));
-      
-      auto itr = fDeposits.find(edeps);
-
-      // if we already have an object with that track ID, copy it and then
-      // erase the existing one. We are doing this because the EnergyDeposits
-      // object is the key in the set, so the set doesn't allow us to mess with
-      // it.  However, we can copy it out, erase the set member, and the do
-      // a new insert after adding our current energy deposition no problem.
-      if( itr != fDeposits.end() ){
-        edeps = *itr;
-        fDeposits.erase(itr);
-      }
-
-      edeps.AddEnergyDeposit(dep);
-      fDeposits.insert(edeps);
+      fDeposits.emplace_back(trackID,
+                             step->GetPreStepPoint()->GetGlobalTime(),
+                             step->GetTotalEnergyDeposit() / CLHEP::GeV,
+                             midPoint.x() / CLHEP::cm,
+                             midPoint.y() / CLHEP::cm,
+                             midPoint.z() / CLHEP::cm,
+                             step->GetStepLength() / CLHEP::cm,
+                             (trackID > 0));
       
       return;
     }
     
-    //------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     void GArAction::EndOfEventAction(const G4Event*)
     {
-      
       // sort the EnergyDeposit lists in each EnergyDeposits object
-      for(auto deps : fDeposits){
-        deps.Sort();
-        LOG_DEBUG("GArAction")
-        << "sorted deposits for track id "
-        << deps.TrackID();
-      }
-      
+      std::sort(fDeposits.begin(), fDeposits.end());
     }
     
     

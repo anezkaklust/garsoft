@@ -53,17 +53,17 @@ namespace gar {
       void PostTrackingAction(const G4Track*);
       void SteppingAction    (const G4Step* );
       
-      //  Returns the EnergyDeposit set accumulated during the current event.
-      std::set<gar::sdp::EnergyDeposits> const& EnergyDeposits() const { return fDeposits; }
+      //  Returns the EnergyDeposits accumulated during the current event.
+      std::vector<gar::sdp::EnergyDeposit> const& EnergyDeposits() const { return fDeposits; }
       
     private:
       
       void AddEnergyDeposition(const G4Step* step);
       
-      double                             fEnergyCut; ///< The minimum energy in GeV for a deposit to
-                                                     ///< be included in the list.
-      CLHEP::HepRandomEngine*            fEngine;    ///< random number engine
-      std::set<gar::sdp::EnergyDeposits> fDeposits;  ///< energy deposits
+      double                               fEnergyCut; ///< The minimum energy in GeV for a deposit to
+                                                       ///< be included in the list.
+      CLHEP::HepRandomEngine*              fEngine;    ///< random number engine
+      std::vector<gar::sdp::EnergyDeposit> fDeposits;  ///< energy deposits
     };
     
   } // garg4
