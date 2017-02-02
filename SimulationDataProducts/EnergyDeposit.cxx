@@ -30,12 +30,7 @@ namespace gar {
     // time, order them by z position in the detector
     bool gar::sdp::EnergyDeposit::operator<(gar::sdp::EnergyDeposit const& b) const
     {
-      if(fTime < b.Time() ) return true;
-      else if(fTime == b.Time()){
-        if(fZ < b.Z()) return true;
-      }
-      
-      return false;
+      return fTime < b.Time();
     }
     
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

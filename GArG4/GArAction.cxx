@@ -136,7 +136,7 @@ namespace gar {
                                   midPoint.x() / CLHEP::cm,
                                   midPoint.y() / CLHEP::cm,
                                   midPoint.z() / CLHEP::cm,
-                                  midPoint.mag() / CLHEP::cm,
+                                  step->GetStepLength() / CLHEP::cm,
                                   (trackID > 0));
       
       // try inserting a new EnergyDeposits into the fDeposits set, the return

@@ -465,7 +465,7 @@ namespace gar {
       
       // Now for the sdp::EnergyDepositions
       for(auto const& ed : fGArAction->EnergyDeposits()){
-        LOG_VERBATIM("GArG4")
+        LOG_DEBUG("GArG4")
         << "adding deposits for track id: "
         << ed.TrackID();
         

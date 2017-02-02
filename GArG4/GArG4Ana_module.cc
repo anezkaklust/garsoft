@@ -50,9 +50,9 @@ typedef struct{
   float  x;
   float  y;
   float  z;
-  double t;
   float  e;
   float  dX;
+  float  t;
 } EnergyDep;
 
 namespace simb{
@@ -118,7 +118,7 @@ namespace gar {
       
       fTree->Branch("info", &fEvt, description.c_str());
       
-      description = "trackID/I:pdg/I:x/F:y/F:z/F:t/D:e/F:dX/F";
+      description = "trackID/I:pdg/I:x/F:y/F:z/F:e/F:dX/F:t/F";
       
       fTree->Branch("edep", &fEDep, description.c_str());
       
@@ -170,10 +170,24 @@ namespace gar {
           fEDep.x  = edep.X();
           fEDep.y  = edep.Y();
           fEDep.z  = edep.Z();
-          fEDep.t  = edep.Time();
           fEDep.dX = edep.dX();
+          fEDep.t  = edep.Time();
           fEDep.e  = edep.Energy();
-
+          
+          LOG_VERBATIM("GArG4Ana")
+          << "pos: ("
+          << fEDep.x
+          << ", "
+          << fEDep.y
+          << ", "
+          << fEDep.z
+          << ") e: "
+          << fEDep.e
+          << " t: "
+          << fEDep.t
+          << " dX: "
+          << fEDep.dX;
+          
           // make the tree flat in terms of the energy depositions
           fTree->Fill();
           

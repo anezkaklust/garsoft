@@ -1430,8 +1430,6 @@
       <materialref ref="Air"/>
       <solidref ref="volMagnet2"/>
     </volume>
-    <assembly name="g4bl">
-    </assembly>
     <volume name="volWorld">
       <materialref ref="Air"/>
       <solidref ref="World"/>
@@ -1497,17 +1495,13 @@
       </physvol>
       <physvol>
         <volumeref ref="NDBmagnet1"/>
-	<positionref ref="NDB1_inWorldpos"/>
-	<rotationref ref="NDB1_inWorldrot"/>
+        <positionref ref="NDB1_inWorldpos"/>
+        <rotationref ref="NDB1_inWorldrot"/>
       </physvol>
       <physvol>
         <volumeref ref="NDBmagnet2"/>
-	<positionref ref="NDB2_inWorldpos"/>
-	<rotationref ref="NDB2_inWorldrot"/>
-      </physvol>
-      <physvol>
-        <volumeref ref="g4bl"/>
-        <positionref ref="g4bl_999involWorldpos"/>
+        <positionref ref="NDB2_inWorldpos"/>
+        <rotationref ref="NDB2_inWorldrot"/>
       </physvol>
     </volume>
   </structure>

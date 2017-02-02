@@ -269,7 +269,7 @@ namespace gar {
       // Save the particle in the ParticleList.
       fParticleList->Add( fCurrentParticle.particle );
       
-      LOG_VERBATIM("ParticleListAction")
+      LOG_DEBUG("ParticleListAction")
       << "There are now "
       << fParticleList->size()
       << " particles in the list";
