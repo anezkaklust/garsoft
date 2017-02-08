@@ -33,12 +33,14 @@
 #include "nutools/RandomUtils/NuRandomService.h"
 
 // GArSoft Includes
+#include "DetectorInfo/DetectorClocksService.h"
 #include "GArG4/G4SimulationParameters.h"
 #include "ReadoutSimulation/IonizationAndScintillation.h"
 #include "ReadoutSimulation/ElectronDriftAlg.h"
 #include "ReadoutSimulation/ElectronDriftStandardAlg.h"
 #include "Utilities/AssociationUtil.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
+#include "SimulationDataProducts/SimChannel.h"
 #include "RawDataProducts/RawDigit.h"
 #include "Geometry/Geometry.h"
 
@@ -82,9 +84,11 @@ namespace gar {
       
       void DriftElectronsToReadout(::art::Event& evt);
       
-      std::string                       fG4Label;  ///< label of G4 module
-      std::unique_ptr<ElectronDriftAlg> fDriftAlg; ///< algorithm to drift ionization electrons
-      
+      std::string                         fG4Label;  ///< label of G4 module
+      std::unique_ptr<ElectronDriftAlg>   fDriftAlg; ///< algorithm to drift ionization electrons
+      gar::detinfo::ElecClock             fClock;    ///< electronics clock
+      const gar::detinfo::DetectorClocks* fTime;     ///< electronics clock
+
       
     };
     
@@ -96,6 +100,9 @@ namespace gar {
     // Constructor
     IonizationReadout::IonizationReadout(fhicl::ParameterSet const& pset)
     {
+      fTime  = gar::providerFrom<detinfo::DetectorClocksService>();
+      fClock = fTime->TPCClock();
+      
       // initialize the GArSimulationParameters singleton
       garg4::G4SimulationParameters::CreateInstance(pset.get<fhicl::ParameterSet>("GArSimParsPSet"));
 
@@ -171,6 +178,8 @@ namespace gar {
     //--------------------------------------------------------------------------
     void IonizationReadout::DriftElectronsToReadout(::art::Event& evt)
     {
+      ::art::ServiceHandle<gar::geo::Geometry> geo;
+      
       // first get the energy deposits from the event record
       auto eDepCol = evt.getValidHandle< std::vector<sdp::EnergyDeposit> >(fG4Label);
       
@@ -178,12 +187,20 @@ namespace gar {
       // drifted locations of each electron cluster from each energy deposit
       rosim::ElectronDriftInfo driftInfo;
       
+      std::vector<std::vector<gar::sdp::IDE> > eDepToIDEs;
+      eDepToIDEs.resize(eDepCol->size());
+      
+      float          xyz[3] = {0.};
+      float          numEl  = 0.;
+      unsigned int   chan   = 0;
+      unsigned short tdc    = 0;
+      
       // loop over the energy deposits
-      for(auto const& dep : *eDepCol){
+      for(size_t e = 0; e < eDepCol->size(); ++e){
         
         // get the positions, arrival times, and electron cluster sizes
         // for this energy deposition
-        fDriftAlg->DriftElectronsToReadout(dep, driftInfo);
+        fDriftAlg->DriftElectronsToReadout((*eDepCol)[e], driftInfo);
         
         auto clusterXPos = driftInfo.ClusterXPos();
         auto clusterYPos = driftInfo.ClusterYPos();
@@ -195,17 +212,20 @@ namespace gar {
         // here (verified by the ElectronDriftInfo object when they are filled)
         for(size_t c = 0; c < clusterXPos.size(); ++c){
           
-            /// seems like here is where I would want to make something like
-            /// a collection of TDCIDEs and associate each one to the parent
-            /// energy depositions.  The uniquely identifying key for the TDCIDE
-            /// should be the pair of the readout channel number and the tdc value
+          xyz[0] = clusterXPos[c];
+          xyz[1] = clusterYPos[c];
+          xyz[2] = clusterZPos[c];
+          numEl  = clusterSize[c];
+          chan   = geo->NearestChannel(xyz);
+          tdc    = fClock.Ticks(fTime->G4ToElecTime(clusterTime[c]));
+          
+          eDepToIDEs[e].emplace_back((*eDepCol)[e].TrackID(), numEl, chan, tdc);
           
         }
-        
+
+        // sort the IDEs for this deposition
+        std::sort(eDepToIDEs[e].begin(), eDepToIDEs[e].end());
       } // end loop over deposit collections
-      
-      //fDriftAlg->DriftElectronsToReadout(dep);
-      
 
       return;
     }

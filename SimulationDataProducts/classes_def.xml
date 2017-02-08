@@ -5,18 +5,10 @@
 
 
 <lcgdict>
- <class name="gar::sdp::SimChannel"               ClassVersion="11"         	 >
-  <version ClassVersion="11" checksum="2208159252"/>
-  <version ClassVersion="10" checksum="728235420"/>
- </class>
- <class name="gar::sdp::IDE"                      ClassVersion="11"            >
+ <class name="gar::sdp::IDE"                      ClassVersion="12"            >
+  <version ClassVersion="12" checksum="3544549350"/>
   <version ClassVersion="11" checksum="418422604"/>
   <version ClassVersion="10" checksum="3233229872"/>
- </class>
- <class name="gar::sdp::TDCIDE"                   ClassVersion="12"            >
-  <version ClassVersion="12" checksum="3882670512"/>
-  <version ClassVersion="11" checksum="393308477"/>
-  <version ClassVersion="10" checksum="437101621"/>
  </class>
  <class name="gar::sdp::EnergyDeposit"            ClassVersion="12"            >
   <version ClassVersion="12" checksum="2958808861"/>
@@ -35,13 +27,10 @@
  </class>
  <enum name="gar::sdp::BeamType_t"                                            />
 
- <class name="std::vector<gar::sdp::SimChannel>"                              />
  <class name="std::vector<gar::sdp::AuxDetIDE>"                               />
  <class name="std::vector<gar::sdp::AuxDetSimChannel>"                        />
  <class name="std::vector<gar::sdp::EnergyDeposit>"                           />
  <class name="std::set<gar::sdp::IDE>"                                        />
- <class name="std::set<gar::sdp::TDCIDE>"                                     />
- <class name="art::Wrapper<std::vector<gar::sdp::SimChannel      > >"         />
  <class name="art::Wrapper<std::vector<gar::sdp::AuxDetSimChannel> >"         />
  <class name="art::Wrapper<std::vector<gar::sdp::EnergyDeposit   > >"         />
  

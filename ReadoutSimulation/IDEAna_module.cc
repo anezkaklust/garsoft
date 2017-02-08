@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 //
-// \file GArSimChannelAna_module.cc
+// \file IDEAna_module.cc
 //
 // \author dmckee@phys.ksu.edu
 //
@@ -41,22 +41,22 @@ extern "C" {
 #include "TGraph.h"
 #include "TH1.h"
 #include "TVector3.h"
-// LArSoft includes
+// GArSoft includes
 #include "Geometry/Geometry.h"
 #include "SimulationDataProducts/SimChannel.h"
 
 namespace gar {
   namespace geo { class Geometry; }
   
-  namespace garg4 {
+  namespace rosim {
     
     /// Base class for creation of raw signals on wires.
-    class GArSimChannelAna : public ::art::EDAnalyzer {
+    class IDEAna : public ::art::EDAnalyzer {
       
     public:
       
-      explicit GArSimChannelAna(fhicl::ParameterSet const& pset);
-      virtual ~GArSimChannelAna();
+      explicit IDEAna(fhicl::ParameterSet const& pset);
+      virtual ~IDEAna();
       
       /// read/write access to event
       void analyze (const ::art::Event& evt);
@@ -66,7 +66,7 @@ namespace gar {
       
     private:
       
-      std::string fGArG4ModuleLabel;
+      std::string fIonizationModuleLabel;
       
       TH1D * fChargeXpos;     ///< position of the MC Truth charge deposition
       TH1D * fChargeYpos;     ///< position of the MC Truth charge deposition
@@ -86,11 +86,11 @@ namespace gar {
       TH1D * fElectronsPerIDE;
       TH1D * fEnergyPerIDE;
       
-    }; // class GArSimChannelAna
+    }; // class IDEAna
     
     
     //-------------------------------------------------
-    GArSimChannelAna::GArSimChannelAna(fhicl::ParameterSet const& pset)
+    IDEAna::IDEAna(fhicl::ParameterSet const& pset)
     : EDAnalyzer(pset)
     , fChargeXpos()
     , fChargeYpos()
@@ -109,40 +109,24 @@ namespace gar {
     }
     
     //-------------------------------------------------
-    GArSimChannelAna::~GArSimChannelAna()
+    IDEAna::~IDEAna()
     {
     }
     
-    void GArSimChannelAna::reconfigure(fhicl::ParameterSet const& p)
+    void IDEAna::reconfigure(fhicl::ParameterSet const& p)
     {
-      fGArG4ModuleLabel = p.get< std::string >("GArGeantModuleLabel");
+      fIonizationModuleLabel = p.get< std::string >("IonizationModuleLabel");
       return;
     }
     
     //-------------------------------------------------
-    void GArSimChannelAna::beginJob()
+    void IDEAna::beginJob()
     {
       // get access to the TFile service
       ::art::ServiceHandle<::art::TFileService> tfs;
 
-      // geometry data.
-      ::art::ServiceHandle<gar::geo::Geometry> geom;
-      
-      // get the dimensions of the detector
-      double width       = geom->DetHalfWidth() * 2.;
-      double halfHeight  = geom->DetHalfHeight();
-      double length      = geom->DetLength();
       int    timeSamples = 10000.;
       
-      fChargeXpos      = tfs->make<TH1D>("hChargeXpos",
-                                         "X charge depositions;X (cm);Events",
-                                         101, 0.0, width);
-      fChargeYpos      = tfs->make<TH1D>("hChargeYpos",
-                                         "Y charge depositions;Y (cm);Events",
-                                         101, -halfHeight, halfHeight);
-      fChargeZpos      = tfs->make<TH1D>("hChargeZpos",
-                                         "Z charge depositions;Z (cm);Events",
-                                         101, 0.0, length);
       fTDC             = tfs->make<TH1D>("hTDC",
                                          "Active TDC;TDCs;Events;",
                                          timeSamples, 0, 1. * timeSamples);
@@ -155,90 +139,60 @@ namespace gar {
       fElectrons       = tfs->make<TH1D>("hElectrons",
                                          "Electrons per channel;Electrons;Events",
                                          100, 0, 2e7);
-      fEnergy          = tfs->make<TH1D>("hEnergy",
-                                         "Energy per channel;energy;Events",
-                                         100, 0, 2500);
       fElectronsPerIDE = tfs->make<TH1D>("hElectronsPerIDE",
                                          "Electrons per IDE;Electrons;Events",
                                          100, 0, 10000);
-      fEnergyPerIDE    = tfs->make<TH1D>("hEnergyPerIDE",
-                                         "Energy per IDE;energy;Events",
-                                         100, 0, 50);
       fElectronsPerTDC = tfs->make<TH1D>("hElectronsPerTDC",
                                          "Electrons per TDC;Electrons;Events",
                                          100, 0, 10000);
-      fEnergyPerTDC    = tfs->make<TH1D>("hEnergyPerTDC",
-                                         "Energy per YDC;energy;Events",
-                                         100, 0, 50);
       return;
       
     }
     
     //-------------------------------------------------
-    void GArSimChannelAna::endJob() {}
+    void IDEAna::endJob() {}
     
     //-------------------------------------------------
-    void GArSimChannelAna::analyze(const ::art::Event& evt)
+    void IDEAna::analyze(const ::art::Event& evt)
     {
       
       if (evt.isRealData()) {
-        throw cet::exception("GArSimChannelAna") << "Not for use on Data yet...\n";
+        throw cet::exception("IDEAna")
+        << "Not for use on Data\n";
       }
       
       ::art::ServiceHandle<geo::Geometry> geom;
       
-      auto chanHandle = evt.getValidHandle<std::vector<sdp::SimChannel> >(fGArG4ModuleLabel);
-      std::vector<sdp::SimChannel> const& scVec(*chanHandle);
+      auto ideCol = evt.getValidHandle<std::vector<sdp::IDE> >(fIonizationModuleLabel);
       
       //++++++++++
       // Loop over the Chnnels and fill histograms
       //++++++++++
-      unsigned int totalIDEs      = 0;
+      unsigned int totalIDEs      = ideCol->size();
       double       totalElectrons = 0;
-      double       totalEnergy    = 0;
+      double       tdcElectrons   = 0;
       
-      for(const auto& sc : scVec){
+      for(const auto& ide : *ideCol){
 
-        const auto & tdcidemap = sc.TDCIDEs();
-        fTDCsPerChannel->Fill(tdcidemap.size());
+        fTDC->Fill(ide.TDC());
+          
+        totalElectrons += ide.NumElectrons();
+        tdcElectrons   += ide.NumElectrons();
         
-        for(auto const& tdcide : tdcidemap){
-          unsigned int tdc          = tdcide.fTDC;
-          auto const&  ideVec       = tdcide.fIDEs;
-          double       tdcElectrons = 0.;
-          double       tdcEnergy    = 0.;
-
-          totalIDEs += ideVec.size();
-          
-          fTDC->Fill(tdc);
-          
-          for(auto const& ide : ideVec) {
-            totalElectrons += ide.numElectrons;
-            totalEnergy    += ide.energy;
-            tdcElectrons   += ide.numElectrons;
-            tdcEnergy      += ide.energy;
-            
-            fChargeXpos->Fill(ide.x);
-            fChargeYpos->Fill(ide.y);
-            fChargeZpos->Fill(ide.z);
-            fElectronsPerIDE->Fill(ide.numElectrons);
-            fEnergyPerIDE->Fill(ide.energy);
-          }
-          fElectronsPerTDC->Fill(tdcElectrons);
-          fEnergyPerTDC->Fill(tdcEnergy);
-          
-        } // end loop over TDCIDEs
-      } // end loop over sim channels
+        fElectronsPerIDE->Fill(ide.NumElectrons());
+        
+      } // end loop over IDEs
       
+      fTDCsPerChannel->Fill(std::numeric_limits<float>::max());
       fIDEsPerChannel->Fill(totalIDEs);
       fElectrons->Fill(totalElectrons);
-      fEnergy->Fill(totalEnergy);
+      fElectronsPerTDC->Fill(tdcElectrons);
 
       return;
     }//end analyze method
     
-    DEFINE_ART_MODULE(GArSimChannelAna)
+    DEFINE_ART_MODULE(IDEAna)
     
-  } // end of garg4 namespace
+  } // end of rosim namespace
 } // gar
 
