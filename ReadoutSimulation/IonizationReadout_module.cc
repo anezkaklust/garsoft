@@ -49,8 +49,47 @@
 ///Geant4 interface
 namespace gar {
   namespace rosim {
-    
-    // Forward declarations within namespace.
+
+    struct edepIDE {
+      
+      edepIDE();
+      edepIDE(int            trackID,
+              float          numE,
+              unsigned int   chan,
+              unsigned short tdc,
+              size_t         edepIdx)
+      : ide    (gar::sdp::IDE(trackID, numE, chan, tdc))
+      {
+        edepLocs.push_back(edepIdx);
+      }
+
+      edepIDE(gar::sdp::IDE       const& id,
+              std::vector<size_t> const& edepIdx)
+      : ide(gar::sdp::IDE(id))
+      {
+        for(auto const e : edepIdx) edepLocs.push_back(e);
+      }
+
+      void AddEDep(size_t edepLoc) { edepLocs.push_back(edepLoc); }
+      
+      bool operator <(edepIDE const& b) const
+      {
+        return (this->ide < b.ide);
+      }
+
+      void operator +=(edepIDE const& b) const
+      {
+        this->ide += b.ide;
+        
+        for(auto const e : b.edepLocs)
+          edepLocs.push_back(e);
+
+        return;
+      }
+
+      gar::sdp::IDE       ide;
+      std::vector<size_t> edepLocs;
+    };
     
     /**
      * @brief Runs Readout simulation including propagation of electrons and photons to readout
@@ -82,13 +121,17 @@ namespace gar {
       
     private:
       
-      void DriftElectronsToReadout(::art::Event& evt);
+      void DriftElectronsToReadout(std::vector<sdp::EnergyDeposit const& edepCol,
+                                   std::vector<edepIDE>                & edepIDEs);
+      void CombineIDEs(std::vector<edepIDE> & edepIDEs)
+      void IDEToRawDigits(std::vector<sdp::IDE>      const& ides,
+                          std::vector<raw::RawDigit>      & rawDigits);
       
       std::string                         fG4Label;  ///< label of G4 module
       std::unique_ptr<ElectronDriftAlg>   fDriftAlg; ///< algorithm to drift ionization electrons
       gar::detinfo::ElecClock             fClock;    ///< electronics clock
       const gar::detinfo::DetectorClocks* fTime;     ///< electronics clock
-
+      std::unique_ptr<TPCReadoutSimAlg>   fROSimAlg; ///< algorithm to simulate the electronics
       
     };
     
@@ -125,9 +168,23 @@ namespace gar {
       else
         throw cet::exception("IonizationReadout")
         << "Unable to determine which electron drift algorithm to use, bail";
+
+      auto tpcROAlgPars = pset.get<fhicl::ParameterSet>("TPCReadoutSimAlgPars");
+      auto tpcROAlgName = driftAlgPars.get<std::string>("TPCReadoutSimType");
+      
+      if(tpcROAlgName.compare("Standard") == 0)
+        fROSimAlg = std::make_unique<gar::rosim::TPCReadoutSimStandardAlg>(rng->getEngine("ionization"),
+                                                                           tpcROAlgPars);
+      else
+        throw cet::exception("IonizationReadout")
+        << "Unable to determine which TPC readout simulation algorithm to use, bail";
+
       
       produces< std::vector<raw::RawDigit>                      >();
+      produces< std::vector<sdp::IDE>                           >();
       produces< ::art::Assns<sdp::EnergyDeposit, raw::RawDigit> >();
+      produces< ::art::Assns<sdp::EnergyDeposit, sdp::IDE>      >();
+      
       
       return;
     }
@@ -164,37 +221,54 @@ namespace gar {
       
       // loop over the lists and put the particles and voxels into the event as collections
       std::unique_ptr< std::vector<raw::RawDigit>                      > rdCol (new std::vector<raw::RawDigit>                     );
-      std::unique_ptr< ::art::Assns<sdp::EnergyDeposit, raw::RawDigit> > erassn(new ::art::Assns<sdp::EnergyDeposit, raw::RawDigit>);
+      std::unique_ptr< std::vector<sdp::IDE>                           > ideCol(new std::vector<sdp::IDE>                          );
+      std::unique_ptr< ::art::Assns<raw::RawDigit, sdp::EnergyDeposit> > erassn(new ::art::Assns<raw::RawDigit, sdp::EnergyDeposit>);
+      std::unique_ptr< ::art::Assns<sdp::IDE,      sdp::EnergyDeposit> > eiassn(new ::art::Assns<sdp::IDE,      sdp::EnergyDeposit>);
       
-      // drift the ionization electrons to the readout
-      this->DriftElectronsToReadout(evt);
+      // first get the energy deposits from the event record
+      auto eDepCol = evt.getValidHandle< std::vector<sdp::EnergyDeposit> >(fG4Label);
+      std::vector<edepIDE> eDepIDEs;
+
+      // drift the ionization electrons to the readout and create sdp::IDE objects
+      this->DriftElectronsToReadout(*eDepCol, eDepIDEs);
+      
+      // make the IDE vector and set their associations to the energy deposits
+      for(auto edide : eDepIDEs){
+        ideCol->emplace_back(edide.ide);
+        
+        // loop over the locations in the eDepCol to make the associations
+        for(auto ed : edide.edepLocs){
+          util::CreateAssn(this, evt, *ideCol, art::Ptr<sdp::EnergyDeposit>(eDepCol, ed), *eiassn);
+        }
+        
+      } // end loop to fill IDE vector and make IDE/EnergyDeposit associations
+      
+      // now create the RawDigits using the IDEs
+      this->IDEToRawDigits(*ideCol, *rdCol);
       
       evt.put(std::move(rdCol));
+      evt.put(std::move(ideCol));
+      evt.put(std::move(eiassn));
       evt.put(std::move(erassn));
       
       return;
     } // IonizationReadout::produce()
     
     //--------------------------------------------------------------------------
-    void IonizationReadout::DriftElectronsToReadout(::art::Event& evt)
+    void IonizationReadout::DriftElectronsToReadout(std::vector<sdp::EnergyDeposit> const& edepCol,
+                                                    std::vector<edepIDE>                 & edepIDEs)
     {
       ::art::ServiceHandle<gar::geo::Geometry> geo;
-      
-      // first get the energy deposits from the event record
-      auto eDepCol = evt.getValidHandle< std::vector<sdp::EnergyDeposit> >(fG4Label);
-      
-      // now instantiate an ElectronDriftInfo object to keep track of the
-      // drifted locations of each electron cluster from each energy deposit
-      rosim::ElectronDriftInfo driftInfo;
-      
-      std::vector<std::vector<gar::sdp::IDE> > eDepToIDEs;
-      eDepToIDEs.resize(eDepCol->size());
       
       float          xyz[3] = {0.};
       float          numEl  = 0.;
       unsigned int   chan   = 0;
       unsigned short tdc    = 0;
-      
+
+      // now instantiate an ElectronDriftInfo object to keep track of the
+      // drifted locations of each electron cluster from each energy deposit
+      rosim::ElectronDriftInfo driftInfo;
+
       // loop over the energy deposits
       for(size_t e = 0; e < eDepCol->size(); ++e){
         
@@ -219,14 +293,72 @@ namespace gar {
           chan   = geo->NearestChannel(xyz);
           tdc    = fClock.Ticks(fTime->G4ToElecTime(clusterTime[c]));
           
-          eDepToIDEs[e].emplace_back((*eDepCol)[e].TrackID(), numEl, chan, tdc);
+          eDepIDEs.emplace_back((*eDepCol)[e].TrackID(), numEl, chan, tdc, e);
           
         }
 
-        // sort the IDEs for this deposition
-        std::sort(eDepToIDEs[e].begin(), eDepToIDEs[e].end());
       } // end loop over deposit collections
 
+      this->CombineIDEs(eDepIDEs);
+      
+      
+      return;
+    }
+    
+    //--------------------------------------------------------------------------
+    void IonizationReadout::CombineIDEs(std::vector<edepIDE> & edepIDEs)
+    {
+      std::vector<edepIDE> temp;
+      
+      // sort the edepIDE objects.  This is the sorting by IDEs because that is
+      // all the < operator of edepIDEs does
+      std::sort(eDepIDEs.begin(), eDepIDEs.end());
+      
+      unsigned int   chan     = 0;
+      unsigned int   prevChan = edepIDEs.front().ide.Channel();
+      unsigned short tdc      = 0;
+      unsigned short prevTDC  = edepIDEs.front().ide.TDC();
+      
+      edepIDE sum(edepIDEs.front());
+      
+      // now loop over the sorted vector and combine any edepIDEs
+      // with the same channel and tdc values for the IDEs
+      for(size_t e = 1; e < edepIDEs.size(); ++e){
+      
+        chan = edepIDEs[e].ide.Channel();
+        tdc  = edepIDEs[e].ide.TDC();
+        
+        if(chan != prevChan ||
+           tdc  != prevTDC){
+          
+          // put the summed edepIDE into the temp vector
+          temp.push_back(sum);
+          
+          // start over with a fresh sum
+          sum      = edepIDE(edepIDEs[e]);
+          prevChan = chan;
+          prevTDC  = tdc;
+          
+        }
+        else
+          sum += edepIDEs[e];
+        
+      } // end loop to sum edepIDEs with the same channel and tdc values
+      
+      // now swap the input vector with the temp vector
+      temp.swap(edepIDEs);
+      
+      return;
+    }
+    
+    //--------------------------------------------------------------------------
+    void IonizationReadout::IDEToRawDigit(std::vector<sdp::IDE>      const& ides,
+                                          std::vector<raw::RawDigit>      & rawDigits)
+    {
+      auto temp = fROSimAlg->IDEToRawDigits(ids);
+      
+      temp.swap(rawDigits);
+      
       return;
     }
     

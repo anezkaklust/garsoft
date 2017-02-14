@@ -1,0 +1,9 @@
+BEGIN_PROLOG
+
+standard_tpcreadoutsimalg:
+{
+ AddNoise: true
+}
+
+
+END_PROLOG

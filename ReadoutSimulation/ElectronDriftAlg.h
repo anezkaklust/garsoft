@@ -7,8 +7,8 @@
 //  Copyright © 2016 Brian Rebel. All rights reserved.
 //
 
-#ifndef ElectronDriftAlg_h
-#define ElectronDriftAlg_h
+#ifndef GAR_READOUTSIMULATION_ElectronDriftAlg_h
+#define GAR_READOUTSIMULATION_ElectronDriftAlg_h
 
 #include <vector>
 
@@ -84,4 +84,4 @@ namespace gar {
   }
 } // gar
 
-#endif /* ElectronDriftAlg_h */
+#endif /* GAR_READOUTSIMULATION_ElectronDriftAlg_h */

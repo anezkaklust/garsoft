@@ -11,6 +11,7 @@
   // Framework includes
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/View.h"
+#include "canvas/Persistency/Common/FindMany.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 // GArSoft includes
@@ -108,16 +109,12 @@ namespace gar{
       
       fParticleList.AdoptEveIdCalculator(new sim::EmEveIdCalculator);
 
-      // now get the IDEs that go into the readout simulation
-      auto geo = gar::providerFrom<geo::Geometry>();
-      for(auto vec : fChannelToIDEs) vec.clear();
-      fChannelToIDEs.resize(geo->NChannels());
-
-      auto ideCol = evt.getValidHandle<std::vector<sdp::IDE> >(fIonizationModuleLabel);
-      for(auto ide : *ideCol) fChannelToIDEs[ide.Channel()].push_back(ide);
+      // Get the collection of IDEs from the event
+      auto idecol = evt.getValidHandle<std::vector<sdp::IDE> >(fIonizationModuleLabel);
       
-      // sort the IDEs for each channel
-      for(auto vec : fChannelToIDEs) std::sort(vec.begin(), vec.end());
+      // fill the helper map of channel to start/stop index in the IDE collection
+      
+      ::art::FindMany<gar::sdp::EnergyDeposit> fmEnergyDep(idecol, evt, fIonizationModuleLabel);
       
 
       LOG_DEBUG("BackTracker")
@@ -159,7 +156,7 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    const ::art::Ptr<simb::MCTruth>& BackTracker::TrackIDToMCTruth(int const& id) const
+    ::art::Ptr<simb::MCTruth> const& BackTracker::TrackIDToMCTruth(int const& id) const
     {
         // find the entry in the MCTruth collection for this track id
       size_t mct = fTrackIDToMCTruthIndex.find(std::abs(id))->second;
@@ -175,7 +172,7 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    const ::art::Ptr<simb::MCTruth>& BackTracker::ParticleToMCTruth(const simb::MCParticle* p) const
+    ::art::Ptr<simb::MCTruth> const& BackTracker::ParticleToMCTruth(const simb::MCParticle* p) const
     {
       return this->TrackIDToMCTruth(p->TrackId());
     }
@@ -199,26 +196,16 @@ namespace gar{
     {
       std::vector<HitIDE> ides;
       
-      // loop over the electrons in the channel and grab those that are in time
-      // with the identified hit start and stop times
-      const detinfo::DetectorClocks* ts = gar::providerFrom<detinfo::DetectorClocksService>();
-      
-      // get the track ids corresponding to this hit
-      unsigned int start_tdc = ts->TPCTick2TDC( hit->StartTime() );
-      unsigned int end_tdc   = ts->TPCTick2TDC( hit->EndTime()   );
-      if(start_tdc < 0) start_tdc = 0;
-      if(end_tdc   < 0) end_tdc   = 0;
-
       this->ChannelToTrackID(ides,
                              hit->Channel(),
-                             start_tdc,
-                             end_tdc);
+                             hit->StartTime(),
+                             hit->EndTime());
       
       return ides;
     }
     
     //----------------------------------------------------------------------
-    const std::vector<std::vector<::art::Ptr<gar::rec::Hit>>> BackTracker::TrackIDsToHits(std::vector<::art::Ptr<gar::rec::Hit>> const& allhits,
+    std::vector<std::vector<::art::Ptr<gar::rec::Hit>>> const BackTracker::TrackIDsToHits(std::vector<::art::Ptr<gar::rec::Hit>> const& allhits,
                                                                                           std::vector<int>                       const& tkIDs)
     {
       // returns a subset of the hits in the allhits collection that are matched
@@ -343,27 +330,14 @@ namespace gar{
       std::set<int>       trackIDs;
       std::vector<HitIDE> ides;
       
-      // loop over the electrons in the channel and grab those that are in time
-      // with the identified hit start and stop times
-      const detinfo::DetectorClocks* ts = gar::providerFrom<detinfo::DetectorClocksService>();
-
-      unsigned int start_tdc = 0;
-      unsigned int end_tdc   = 0;
-      
       for(auto itr : hits ){
         
         ides.clear();
         
-        // get the track ids corresponding to this hit
-        start_tdc = ts->TPCTick2TDC( itr->StartTime() );
-        end_tdc   = ts->TPCTick2TDC( itr->EndTime()   );
-        if(start_tdc < 0) start_tdc = 0;
-        if(end_tdc   < 0) end_tdc   = 0;
-        
         this->ChannelToTrackID(ides,
                                itr->Channel(),
-                               start_tdc,
-                               end_tdc);
+                               itr->StartTime(),
+                               itr->EndTime());
         
         // loop over the ides and extract the track ids
         for(auto const& hid : ides) {
@@ -475,13 +449,24 @@ namespace gar{
       
       return efficiency;
     }
-    
+
     //----------------------------------------------------------------------
     void BackTracker::ChannelToTrackID(std::vector<HitIDE>      & hitIDEs,
                                        raw::Channel_t      const& channel,
-                                       unsigned short      const  start_tdc,
-                                       unsigned short      const  end_tdc)
+                                       double              const  start,
+                                       double              const  end)
     {
+
+      // loop over the electrons in the channel and grab those that are in time
+      // with the identified hit start and stop times
+      const detinfo::DetectorClocks* ts = gar::providerFrom<detinfo::DetectorClocksService>();
+      
+      // get the track ids corresponding to this hit
+      unsigned int start_tdc = ts->TPCTick2TDC( start );
+      unsigned int end_tdc   = ts->TPCTick2TDC( end   );
+      if(start_tdc < 0) start_tdc = 0;
+      if(end_tdc   < 0) end_tdc   = 0;
+
       hitIDEs.clear();
       
       double totalE = 0.;
@@ -548,10 +533,34 @@ namespace gar{
       return;
     }
     
-//    //----------------------------------------------------------------------
-//    std::vector<double> BackTracker::HitToXYZ(::art::Ptr<gar::rec::Hit> const& hit)
-//    {
-//    }
+    //----------------------------------------------------------------------
+    std::vector<float> BackTracker::HitToXYZ(::art::Ptr<gar::rec::Hit> const& hit)
+    {
+      std::vector<float> xyz;
+      
+      // There is a data member which is a vector of all IDEs for each channel
+      // in the event.  Let's look to see if the vector is non-empty for this one
+      // If it is empty, it could be a noise hit
+      if(fChannelToIDEs[hit->Channel()].size() < 1){
+        LOG_WARNING("BackTracker")
+        << "Attempting to back track a hit without any corresponding IDEs, "
+        << "return empty vector";
+        return xyz;
+      }
+      
+      // We know time extent of the hit, so that should allow us to narrow down
+      // the IDE
+      // Since multiple times correspond to a single hit, we need to
+      // average over all contributing positions
+      float avX    = 0.;
+      float avY    = 0.;
+      float avZ    = 0.;
+      float wgtSum = 0.;
+      for(auto const& ide : fChannelToIDEs[hit->Channel()]){
+        
+      }
+      
+    }
     
     DEFINE_ART_SERVICE(BackTracker)
 
