@@ -151,13 +151,13 @@ namespace gar{
      */
       // MARK CreateAssn_01
     template<class PRODUCER, class T, class U>
-    bool CreateAssn(PRODUCER const&        prod,
-                    ::art::Event            &evt,
-                    std::vector<T>   const&a,
-                    ::art::Ptr<U>      const&b,
-                    ::art::Assns<U,T>       &assn,
-                    std::string            a_instance,
-                    size_t                 indx=UINT_MAX
+    bool CreateAssn(PRODUCER          const& prod,
+                    ::art::Event           & evt,
+                    std::vector<T>    const& a,
+                    ::art::Ptr<U>     const& b,
+                    ::art::Assns<U,T>      & assn,
+                    std::string              a_instance,
+                    size_t                   indx=UINT_MAX
                     );
     
     /**
@@ -209,12 +209,12 @@ namespace gar{
      */
       // MARK CreateAssn_02
     template<class PRODUCER, class T, class U>
-    inline bool CreateAssn(PRODUCER const&        prod,
-                           ::art::Event            &evt,
-                           std::vector<T>   const&a,
-                           ::art::Ptr<U>      const&b,
-                           ::art::Assns<U,T>       &assn,
-                           size_t                indx=UINT_MAX)
+    inline bool CreateAssn(PRODUCER          const& prod,
+                           ::art::Event           & evt,
+                           std::vector<T>    const& a,
+                           ::art::Ptr<U>     const& b,
+                           ::art::Assns<U,T>      & assn,
+                           size_t                   indx=UINT_MAX)
     { return CreateAssn(prod, evt, a, b, assn, std::string(), indx); }
     
     
@@ -235,7 +235,7 @@ namespace gar{
       // MARK CreateAssn_03
     template<class PRODUCER, class T, class U>
     bool CreateAssn(
-                    PRODUCER        const& prod,
+                    PRODUCER          const& prod,
                     ::art::Event           & evt,
                     ::art::Ptr<T>     const& a,
                     ::art::Ptr<U>     const& b,
@@ -263,12 +263,12 @@ namespace gar{
       // MARK CreateAssn_04
     template<class PRODUCER, class T, class U>
     bool CreateAssn(
-                    PRODUCER          const& prod,
+                    PRODUCER            const& prod,
                     ::art::Event             & evt,
-                    std::vector<T>    const& a,
+                    std::vector<T>      const& a,
                     ::art::PtrVector<U> const& b,
                     ::art::Assns<T,U>        & assn,
-                    size_t                   indx = UINT_MAX
+                    size_t                     indx = UINT_MAX
                     );
     
     /**
@@ -293,7 +293,7 @@ namespace gar{
       // MARK CreateAssn_05
     template<class PRODUCER, class T, class U>
     bool CreateAssn(
-                    PRODUCER                 const& prod,
+                    PRODUCER                   const& prod,
                     ::art::Event                    & evt,
                     ::art::Ptr<T>              const& a,
                     std::vector<::art::Ptr<U>> const& b,
@@ -321,12 +321,12 @@ namespace gar{
       // MARK CreateAssn_06
     template<class PRODUCER, class T, class U>
     bool CreateAssn(
-                    PRODUCER                 const& prod,
+                    PRODUCER                   const& prod,
                     ::art::Event                    & evt,
-                    std::vector<T>           const& a,
+                    std::vector<T>             const& a,
                     std::vector<::art::Ptr<U>> const& b,
                     ::art::Assns<T,U>               & assn,
-                    size_t                          indx = UINT_MAX
+                    size_t                            indx = UINT_MAX
                     );
     
     /**
@@ -359,14 +359,14 @@ namespace gar{
       // MARK CreateAssn_07
     template<class PRODUCER, class T, class U>
     bool CreateAssn(
-                    PRODUCER        const& prod,
+                    PRODUCER          const& prod,
                     ::art::Event           & evt,
-                    std::vector<T>  const& a,
-                    std::vector<U>  const& b,
+                    std::vector<T>    const& a,
+                    std::vector<U>    const& b,
                     ::art::Assns<T,U>      & assn,
-                    size_t                 startU,
-                    size_t                 endU,
-                    size_t                 indx = UINT_MAX
+                    size_t                   startU,
+                    size_t                   endU,
+                    size_t                   indx = UINT_MAX
                     );
     
     /**
@@ -398,13 +398,13 @@ namespace gar{
       // MARK CreateAssn_07a
     template<class PRODUCER, class T, class U>
     bool CreateAssn(
-                    PRODUCER        const& prod,
-                    ::art::Event           & evt,
-                    std::vector<T>  const& a,
-                    std::vector<U>  const& b,
-                    ::art::Assns<T,U>      & assn,
+                    PRODUCER            const& prod,
+                    ::art::Event             & evt,
+                    std::vector<T>      const& a,
+                    std::vector<U>      const& b,
+                    ::art::Assns<T,U>        & assn,
                     std::vector<size_t> const& indices,
-                    size_t                 indx = UINT_MAX
+                    size_t                     indx = UINT_MAX
                     );
     
     /**
@@ -447,14 +447,12 @@ namespace gar{
      */
       // MARK CreateAssn_08
     template <typename PRODUCER, typename T, typename U, typename Iter>
-    bool CreateAssn(
-                    PRODUCER        const& prod,
+    bool CreateAssn(PRODUCER          const& prod,
                     ::art::Event           & evt,
                     ::art::Assns<T,U>      & assn,
-                    size_t                 first_index,
-                    Iter                   from_second_index,
-                    Iter                   to_second_index
-                    );
+                    size_t                  first_index,
+                    Iter                    from_second_index,
+                    Iter                    to_second_index);
     
       //@{
     /**
@@ -525,7 +523,7 @@ namespace gar{
       // MARK CreateAssnD_01b
     template <typename PRODUCER, typename T, typename U, typename D>
     bool CreateAssnD(
-                     PRODUCER                           const& prod,
+                     PRODUCER                             const& prod,
                      ::art::Event                              & evt,
                      ::art::Assns<T,U,D>                       & assn,
                      size_t                                    first_index,
@@ -535,51 +533,51 @@ namespace gar{
       //@}
     
     
-      // method to return all objects of type U that are not associated to
-      // objects of type T. Label is the module label that would have produced
-      // the associations and likely the objects of type T
-      // this method assumes there is a one to many relationship between T and U
-      // for example if you want to get all recob::Hits
-      // that are not associated to recob::Clusters
-      // std::vector<const recob::Hit*> hits = FindUNotAssociatedToU<recob::Cluster>(::art::Handle<recob::Hit>, ...);
-    template<class T, class U> static std::vector<const U*> FindUNotAssociatedToT(::art::Handle<U>     b,
-                                                                                  ::art::Event  const& evt,
-                                                                                  std::string const& label);
+    // method to return all objects of type U that are not associated to
+    // objects of type T. Label is the module label that would have produced
+    // the associations and likely the objects of type T
+    // this method assumes there is a one to many relationship between T and U
+    // for example if you want to get all recob::Hits
+    // that are not associated to recob::Clusters
+    // std::vector<const recob::Hit*> hits = FindUNotAssociatedToU<recob::Cluster>(::art::Handle<recob::Hit>, ...);
+    template<class T, class U> static std::vector<const U*> FindUNotAssociatedToT(::art::Handle<U>        b,
+                                                                                  ::art::Event     const& evt,
+                                                                                  std::string      const& label);
     
-      // method to return all objects of type U that are not associated to
-      // objects of type T. Label is the module label that would have produced
-      // the associations and likely the objects of type T
-      // this method assumes there is a one to many relationship between T and U
-      // for example if you want to get all recob::Hits
-      // that are not associated to recob::Clusters
-      // std::vector< ::art::Ptr<recob::Hit> > hits = FindUNotAssociatedToTP<recob::Cluster>(::art::Handle<recob::Hit>, ...);
-    template<class T, class U> static std::vector< ::art::Ptr<U> > FindUNotAssociatedToTP(::art::Handle<U>     b, 
-                                                                                        ::art::Event  const& evt,
-                                                                                        std::string const& label);
+    // method to return all objects of type U that are not associated to
+    // objects of type T. Label is the module label that would have produced
+    // the associations and likely the objects of type T
+    // this method assumes there is a one to many relationship between T and U
+    // for example if you want to get all recob::Hits
+    // that are not associated to recob::Clusters
+    // std::vector< ::art::Ptr<recob::Hit> > hits = FindUNotAssociatedToTP<recob::Cluster>(::art::Handle<recob::Hit>, ...);
+    template<class T, class U> static std::vector< ::art::Ptr<U> > FindUNotAssociatedToTP(::art::Handle<U>        b,
+                                                                                          ::art::Event     const& evt,
+                                                                                          std::string      const& label);
     
-      // Methods make getting simple ART-independent association information.
-      // --- GetAssociatedVectorOneI takes in a handle to an association, and a handle to a product on the event.
-      //     The ouput is a vector of with the same number of entries as the handle to the product, containing an index
-      //     to the location of one associated product in that product's collection.
-      // --- GetAssociatedVectorOneP takes in a handle to an association, and a handle to a product on the event.
-      //     The ouput is a vector of with the same number of entries as the handle to the product, containing a pointer
-      //     to one associated product.
-      // --- GetAssociatedVectorManyI takes in a handle to an association, and a handle to a product on the event.
-      //     The ouput is a vector of with the same number of entries as the handle to the product, containing a vector 
-      //     of indices that give the locations of all associated products in those products' collection.
-      // --- GetAssociatedVectorManyP takes in a handle to an association, and a handle to a product on the event.
-      //     The ouput is a vector of with the same number of entries as the handle to the product, containing a vector 
-      //     of pointers to all associated products.
+    // Methods make getting simple ART-independent association information.
+    // --- GetAssociatedVectorOneI takes in a handle to an association, and a handle to a product on the event.
+    //     The ouput is a vector of with the same number of entries as the handle to the product, containing an index
+    //     to the location of one associated product in that product's collection.
+    // --- GetAssociatedVectorOneP takes in a handle to an association, and a handle to a product on the event.
+    //     The ouput is a vector of with the same number of entries as the handle to the product, containing a pointer
+    //     to one associated product.
+    // --- GetAssociatedVectorManyI takes in a handle to an association, and a handle to a product on the event.
+    //     The ouput is a vector of with the same number of entries as the handle to the product, containing a vector
+    //     of indices that give the locations of all associated products in those products' collection.
+    // --- GetAssociatedVectorManyP takes in a handle to an association, and a handle to a product on the event.
+    //     The ouput is a vector of with the same number of entries as the handle to the product, containing a vector
+    //     of pointers to all associated products.
     
     template<class T,class U> static std::vector<size_t> GetAssociatedVectorOneI(::art::Handle< ::art::Assns<T,U> > h,
-                                                                                 ::art::Handle< std::vector<T> > index_p);
+                                                                                 ::art::Handle< std::vector<T> >    index_p);
     template<class T,class U> static std::vector<const U*> GetAssociatedVectorOneP(::art::Handle< ::art::Assns<T,U> > h,
-                                                                                   ::art::Handle< std::vector<T> > index_p);
+                                                                                   ::art::Handle< std::vector<T> >    index_p);
     
     template<class T,class U> static std::vector< std::vector<size_t> > GetAssociatedVectorManyI(::art::Handle< ::art::Assns<T,U> > h,
-                                                                                                 ::art::Handle< std::vector<T> > index_p);
+                                                                                                 ::art::Handle< std::vector<T> >    index_p);
     template<class T,class U> static std::vector< std::vector<const U*> > GetAssociatedVectorManyP(::art::Handle< ::art::Assns<T,U> > h,
-                                                                                                   ::art::Handle< std::vector<T> > index_p);
+                                                                                                   ::art::Handle< std::vector<T> >    index_p);
     
     
   }// end namespace
@@ -587,25 +585,25 @@ namespace gar{
 
 //----------------------------------------------------------------------
 // MARK CreateAssn_01
-template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER        const& prod,
+template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER          const& prod,
                                                                       ::art::Event           & evt,
-                                                                      std::vector<T>  const& a,
+                                                                      std::vector<T>    const& a,
                                                                       ::art::Ptr<U>     const& b,
                                                                       ::art::Assns<U,T>      & assn,
-                                                                      std::string            a_instance,
-                                                                      size_t                 indx /* = UINT_MAX */)
+                                                                      std::string              a_instance,
+                                                                      size_t                   indx /* = UINT_MAX */)
 {
   if (indx == UINT_MAX) indx = a.size()-1;
   
   try{
-    ::art::ProductID aid = prod.template getProductID< std::vector<T>>(evt, a_instance);
-    ::art::Ptr<T> aptr(aid, indx, evt.productGetter(aid));
+    ::art::ProductID aid = prod.template getProductID< std::vector<T> >(evt, a_instance);
+    ::art::Ptr<T>    aptr(aid, indx, evt.productGetter(aid));
     assn.addSingle(b, aptr);
     return true;
   }
   catch(cet::exception &e){
-    mf::LogWarning("AssociationUtil")
-      << "unable to create requested art:Assns, exception thrown: " << e;
+    LOG_WARNING("AssociationUtil")
+    << "unable to create requested art:Assns, exception thrown: " << e;
     return false;
   }
   
@@ -614,7 +612,7 @@ template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER  
 
 //----------------------------------------------------------------------
 // MARK CreateAssn_03
-template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER        const& /* prod */,
+template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER          const& /* prod */,
                                                                       ::art::Event           & /* evt */,
                                                                       ::art::Ptr<T>     const& a,
                                                                       ::art::Ptr<U>     const& b,
@@ -636,12 +634,12 @@ template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER  
 
 //----------------------------------------------------------------------
 // MARK CreateAssn_04
-template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER          const& prod,
+template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER            const& prod,
                                                                       ::art::Event             & evt,
-                                                                      std::vector<T>    const& a,
+                                                                      std::vector<T>      const& a,
                                                                       ::art::PtrVector<U> const& b,
                                                                       ::art::Assns<T,U>        & assn,
-                                                                      size_t                   indx /* = UINT_MAX */)
+                                                                      size_t                     indx /* = UINT_MAX */)
 {
   if(indx == UINT_MAX) indx = a.size() - 1;
   
@@ -661,7 +659,7 @@ template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER  
 
 //----------------------------------------------------------------------
 // MARK CreateAssn_05
-template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER                 const& /* prod */,
+template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER                   const& /* prod */,
                                                                       ::art::Event                    & /* evt */,
                                                                       ::art::Ptr<T>              const& a,
                                                                       std::vector<::art::Ptr<U>> const& b,
@@ -682,12 +680,12 @@ template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER  
 
 //----------------------------------------------------------------------
 // MARK CreateAssn_06
-template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER                 const& prod,
+template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER                   const& prod,
                                                                       ::art::Event                    & evt,
-                                                                      std::vector<T>           const& a,
+                                                                      std::vector<T>             const& a,
                                                                       std::vector<::art::Ptr<U>> const& b,
                                                                       ::art::Assns<T,U>               & assn,
-                                                                      size_t                          indx /* = UINT_MAX */)
+                                                                      size_t                            indx /* = UINT_MAX */)
 {
   
   if (indx == UINT_MAX) indx = a.size() - 1;
@@ -708,14 +706,14 @@ template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER  
 
 //----------------------------------------------------------------------
 // MARK CreateAssn_07
-template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER        const& prod,
+template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER          const& prod,
                                                                       ::art::Event           & evt,
-                                                                      std::vector<T>  const& a,
-                                                                      std::vector<U>  const& /* b */,
+                                                                      std::vector<T>    const& a,
+                                                                      std::vector<U>    const& /* b */,
                                                                       ::art::Assns<T,U>      & assn,
-                                                                      size_t                 startU,
-                                                                      size_t                 endU,
-                                                                      size_t                 indx /* = UINT_MAX */)
+                                                                      size_t                   startU,
+                                                                      size_t                   endU,
+                                                                      size_t                   indx /* = UINT_MAX */)
 {
   
   if(indx == UINT_MAX) indx = a.size() - 1;
@@ -741,13 +739,13 @@ template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER  
 
 //----------------------------------------------------------------------
 // MARK CreateAssn_07a
-template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER        const& prod,
-                                                                      ::art::Event           & evt,
-                                                                      std::vector<T>  const& a,
-                                                                      std::vector<U>  const& /* b */,
-                                                                      ::art::Assns<T,U>      & assn,
+template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER            const& prod,
+                                                                      ::art::Event             & evt,
+                                                                      std::vector<T>      const& a,
+                                                                      std::vector<U>      const& /* b */,
+                                                                      ::art::Assns<T,U>        & assn,
                                                                       std::vector<size_t> const& indices,
-                                                                      size_t                 indx /* = UINT_MAX */)
+                                                                      size_t                     indx /* = UINT_MAX */)
 {
   
   if(indx == UINT_MAX) indx = a.size() - 1;
@@ -773,7 +771,7 @@ template<class PRODUCER, class T, class U> bool gar::util::CreateAssn(PRODUCER  
 
 //----------------------------------------------------------------------
 // MARK CreateAssn_08
-template <typename PRODUCER, typename T, typename U, typename Iter> bool gar::util::CreateAssn(PRODUCER        const& prod,
+template <typename PRODUCER, typename T, typename U, typename Iter> bool gar::util::CreateAssn(PRODUCER          const& prod,
                                                                                                ::art::Event           & evt,
                                                                                                ::art::Assns<T,U>      & assn,
                                                                                                size_t                 first_index,
@@ -815,7 +813,7 @@ template <typename PRODUCER, typename T, typename U, typename Iter> bool gar::ut
 
 //----------------------------------------------------------------------
 // MARK CreateAssnD_01a
-template <typename PRODUCER, typename T, typename U, typename D> bool gar::util::CreateAssnD(PRODUCER                      const& prod,
+template <typename PRODUCER, typename T, typename U, typename D> bool gar::util::CreateAssnD(PRODUCER                        const& prod,
                                                                                              ::art::Event                         & evt,
                                                                                              ::art::Assns<T,U,D>                  & assn,
                                                                                              size_t                               first_index,
@@ -850,7 +848,7 @@ template <typename PRODUCER, typename T, typename U, typename D> bool gar::util:
   return true;
 } // util::CreateAssnD() [01a]
 
-template <typename PRODUCER, typename T, typename U, typename D> bool gar::util::CreateAssnD(PRODUCER                           const& prod,
+template <typename PRODUCER, typename T, typename U, typename D> bool gar::util::CreateAssnD(PRODUCER                             const& prod,
                                                                                              ::art::Event                              & evt,
                                                                                              ::art::Assns<T,U,D>                       & assn,
                                                                                              size_t                                    first_index,
@@ -887,9 +885,9 @@ template <typename PRODUCER, typename T, typename U, typename D> bool gar::util:
 
 
 //----------------------------------------------------------------------
-template<class T, class U> inline std::vector<const U*> gar::util::FindUNotAssociatedToT(::art::Handle<U>     b,
-                                                                                         ::art::Event  const& evt,
-                                                                                         std::string const& label)
+template<class T, class U> inline std::vector<const U*> gar::util::FindUNotAssociatedToT(::art::Handle<U>        b,
+                                                                                         ::art::Event     const& evt,
+                                                                                         std::string      const& label)
 {
 
   // Do a FindOne for type T for each object of type U
@@ -912,9 +910,9 @@ template<class T, class U> inline std::vector<const U*> gar::util::FindUNotAssoc
 }
 
 //----------------------------------------------------------------------
-template<class T, class U> inline std::vector< ::art::Ptr<U> > gar::util::FindUNotAssociatedToTP(::art::Handle<U>     b,
-                                                                                               ::art::Event  const& evt,
-                                                                                               std::string const& label)
+template<class T, class U> inline std::vector< ::art::Ptr<U> > gar::util::FindUNotAssociatedToTP(::art::Handle<U>        b,
+                                                                                                 ::art::Event     const& evt,
+                                                                                                 std::string      const& label)
 {
 
   // Do a FindOneP for type T for each object of type U
@@ -939,7 +937,7 @@ template<class T, class U> inline std::vector< ::art::Ptr<U> > gar::util::FindUN
 
 
 template<class T,class U> inline std::vector<size_t> gar::util::GetAssociatedVectorOneI(::art::Handle< ::art::Assns<T,U> > h,
-                                                                                        ::art::Handle< std::vector<T> > index_p)
+                                                                                        ::art::Handle< std::vector<T> >    index_p)
 {
   std::vector<size_t> associated_index(index_p->size());
   for(auto const& pair : *h)
@@ -948,7 +946,7 @@ template<class T,class U> inline std::vector<size_t> gar::util::GetAssociatedVec
 }
 
 template<class T,class U> inline std::vector<const U*> gar::util::GetAssociatedVectorOneP(::art::Handle< ::art::Assns<T,U> > h,
-                                                                                          ::art::Handle< std::vector<T> > index_p)
+                                                                                          ::art::Handle< std::vector<T> >    index_p)
 {
   std::vector<const U*> associated_pointer(index_p->size());
   for(auto const& pair : *h)
@@ -957,7 +955,7 @@ template<class T,class U> inline std::vector<const U*> gar::util::GetAssociatedV
 }
 
 template<class T,class U> inline std::vector< std::vector<size_t> > gar::util::GetAssociatedVectorManyI(::art::Handle< ::art::Assns<T,U> > h,
-                                                                                                        ::art::Handle< std::vector<T> > index_p)
+                                                                                                        ::art::Handle< std::vector<T> >    index_p)
 {
   std::vector< std::vector<size_t> > associated_indices(index_p->size());
   for(auto const& pair : *h)
@@ -966,7 +964,7 @@ template<class T,class U> inline std::vector< std::vector<size_t> > gar::util::G
 }
 
 template<class T,class U> inline std::vector< std::vector<const U*> > gar::util::GetAssociatedVectorManyP(::art::Handle< ::art::Assns<T,U> > h,
-                                                                                                          ::art::Handle< std::vector<T> > index_p)
+                                                                                                          ::art::Handle< std::vector<T> >    index_p)
 {
   std::vector< std::vector<const U*> > associated_pointers(index_p->size());
   for(auto const& pair : *h)

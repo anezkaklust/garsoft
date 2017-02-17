@@ -7,9 +7,14 @@
 #ifndef GAR_READOUTSIMULATION_TPCReadoutSimAlg_hpp
 #define GAR_READOUTSIMULATION_TPCReadoutSimAlg_hpp
 
+#include <vector>
+
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
 #include "CLHEP/Random/RandGauss.h"
 
 #include "RawDataProducts/RawDigit.h"
+#include "DetectorInfo/DetectorProperties.h"
 
 namespace fhicl {
   class ParameterSet;
@@ -17,12 +22,65 @@ namespace fhicl {
 
 namespace gar {
 
-  namespace sdp {
-    class IDE;
-  }
-  
   namespace rosim {
     
+    // helper struct for tracking the information needed to make raw digits
+    struct edepIDE {
+      
+      edepIDE();
+      edepIDE(float          numE,
+              unsigned int   chan,
+              unsigned short tdc,
+              size_t         edepIdx)
+      : NumElect(numE)
+      , Channel (chan)
+      , TDC     (tdc)
+      {
+        edepLocs.push_back(edepIdx);
+      }
+      
+      //------------------------------------------------------------------------
+      void AddEDep(size_t edepLoc) { edepLocs.push_back(edepLoc); }
+      
+      //------------------------------------------------------------------------
+      bool operator <(edepIDE const& b) const
+      {
+        if(Channel < b.Channel) return true;
+        else if(Channel == b.Channel){
+          if(TDC < b.TDC) return true;
+        }
+        
+        return false;
+      }
+      
+      //------------------------------------------------------------------------
+      void operator +=(edepIDE const& b)
+      {
+        if(TDC != b.TDC ){
+          LOG_WARNING("IonizationReadout")
+          << "Attempting to add edepIDE with different "
+          << "TDCs: "
+          << TDC
+          << " / "
+          << b.TDC
+          << " bail";
+          return;
+        }
+        
+        NumElect += b.NumElect;
+        
+        for(auto const e : b.edepLocs)
+          edepLocs.push_back(e);
+        
+        return;
+      }
+      
+      float               NumElect;
+      unsigned int        Channel;
+      unsigned short      TDC;
+      std::vector<size_t> edepLocs;
+    };
+
     class TPCReadoutSimAlg{
       
     public:
@@ -33,23 +91,23 @@ namespace gar {
       virtual ~TPCReadoutSimAlg();
       
       // Method to take IDEs and turn them into RawDigits
-      virtual std::vector<raw::RawDigit> CreateRawDigits(std::vector<gar::sdp::IDE> const& ides) = 0;
+      virtual raw::RawDigit CreateRawDigit(unsigned int              channel,
+                                           std::vector<float> const& electrons) = 0;
+      virtual void  CreateNoiseDigits(std::vector<raw::RawDigit> & digits)      = 0;
+
 
       virtual void reconfigure(fhicl::ParameterSet const& pset) = 0;
       
     protected:
       
-      CLHEP::HepRandomEngine & fEngine;   ///< random number engine
-      bool                     fAddNoise; ///< flag to add noise or not
+      CLHEP::HepRandomEngine &           fEngine;   ///< random number engine
+      bool                               fAddNoise; ///< flag to add noise or not
+      const detinfo::DetectorProperties* fDetProp;  ///< detector properties
       
-    private:
-      
-      // Methods to handle the noise simulation - CreateNoiseDigits is for
-      // channels without any signal on them, AddNoiseToSignalDigits is for
-      // channels where signal is also recorded.  Assume that the noise level
-      // is dependent on the amount of signal recorded
-      virtual std::vector<raw::RawDigit> CreateNoiseDigits()                     = 0;
-      virtual void                       AddNoiseToADCs(raw::ADCvector_t & adcs) = 0;
+      // AddNoiseToADCs is foradding noise to recorded signal.  Assume that the
+      // noise level is dependent on the amount of signal recorded
+      virtual void  AddNoiseToADCs(std::vector<short> & adcs) = 0;
+      virtual short ElectronsToADCs(float electrons)          = 0;
 
     };
     

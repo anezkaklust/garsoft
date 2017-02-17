@@ -15,7 +15,6 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 // GArSoft includes
-#include "DetectorInfo/DetectorClocksService.h"
 #include "MCCheater/BackTracker.h"
 #include "Geometry/Geometry.h"
 #include "Utilities/AssociationUtil.h"
@@ -30,6 +29,7 @@ namespace gar{
     //----------------------------------------------------------------------
     BackTracker::BackTracker(fhicl::ParameterSet   const& pset,
                              ::art::ActivityRegistry      & reg)
+    : fClocks(nullptr)
     {
       reconfigure(pset);
       
@@ -39,6 +39,14 @@ namespace gar{
     //----------------------------------------------------------------------
     BackTracker::~BackTracker()
     {
+    }
+
+    //----------------------------------------------------------------------
+    void BackTracker::beginJob()
+    {
+      fClocks = gar::providerFrom<detinfo::DetectorClocksService>();
+
+      return;
     }
     
     //----------------------------------------------------------------------
@@ -109,13 +117,35 @@ namespace gar{
       
       fParticleList.AdoptEveIdCalculator(new sim::EmEveIdCalculator);
 
-      // Get the collection of IDEs from the event
-      auto idecol = evt.getValidHandle<std::vector<sdp::IDE> >(fIonizationModuleLabel);
+      // get the RawDigit collection from the event and create a FindMany mapping
+      // between the digits and energy deposits.  Really just map between the
+      // Channel numbers and the energy deposits
+      auto geo = gar::providerFrom<geo::Geometry>();
+
+      auto rawDigits = evt.getValidHandle< std::vector<gar::raw::RawDigit> >(fIonizationModuleLabel);
+      ::art::FindMany<gar::sdp::EnergyDeposit> fmEnergyDep(rawDigits, evt, fIonizationModuleLabel);
+
+      if(!rawDigits  .isValid() ||
+         !fmEnergyDep.isValid() ){
+        throw cet::exception("BackTracker")
+        << "Unable to find valid collection of RawDigits "
+        << rawDigits.isValid()
+        << " or FindMany<EnergyDeposit> "
+        << fmEnergyDep.isValid()
+        << " this is a problem for backtracking";
+      }
       
-      // fill the helper map of channel to start/stop index in the IDE collection
+      // we have a new event, so clear the channel to EnergyDeposit collection
+      // and then re-fill it.
+      for(auto vec : fChannelToEDepCol) vec.clear();
+      fChannelToEDepCol.clear();
+      fChannelToEDepCol.resize(geo->NChannels());
+      std::vector<const gar::sdp::EnergyDeposit*> eDeps;
       
-      ::art::FindMany<gar::sdp::EnergyDeposit> fmEnergyDep(idecol, evt, fIonizationModuleLabel);
-      
+      for(size_t d = 0; d < rawDigits->size(); ++d){
+        fmEnergyDep.get(d, eDeps);
+        fChannelToEDepCol[ (*rawDigits)[d].Channel() ].swap(eDeps);
+      }
 
       LOG_DEBUG("BackTracker")
       << "BackTracker has "
@@ -459,11 +489,10 @@ namespace gar{
 
       // loop over the electrons in the channel and grab those that are in time
       // with the identified hit start and stop times
-      const detinfo::DetectorClocks* ts = gar::providerFrom<detinfo::DetectorClocksService>();
       
       // get the track ids corresponding to this hit
-      unsigned int start_tdc = ts->TPCTick2TDC( start );
-      unsigned int end_tdc   = ts->TPCTick2TDC( end   );
+      unsigned int start_tdc = (unsigned int)start;
+      unsigned int end_tdc   = (unsigned int)end;
       if(start_tdc < 0) start_tdc = 0;
       if(end_tdc   < 0) end_tdc   = 0;
 
@@ -471,55 +500,54 @@ namespace gar{
       
       double totalE = 0.;
       
-      auto chanIDEs = fChannelToIDEs[channel];
+      auto chanEDeps = fChannelToEDepCol[channel];
 
-      if( chanIDEs.size() < 1){
+      if( chanEDeps.size() < 1){
         LOG_WARNING("BackTracker")
-        << "No sdp::IDEs for selected channel: "
+        << "No sdp::EnergyDeposits for selected channel: "
         << channel
         << ". There is no way to backtrack the given hit, return"
         << " an empty vector.";
         return;
       }
       
-
       // first get the total energy represented by all track ids for
       // this channel and range of tdc values
-      unsigned short tdc          = 0;
-      int            prevTrackID  = chanIDEs.front().TrackID();
-      float          numElectrons = 0.;
+      unsigned short tdc         = 0;
+      int            prevTrackID = chanEDeps.front()->TrackID();
+      float          energy      = 0.;
       
-      for(auto const& ide : chanIDEs){
+      for(auto const& edep : chanEDeps){
         
-        if(ide.TrackID() == gar::sdp::NoParticleId) continue;
+        if(edep->TrackID() == gar::sdp::NoParticleId) continue;
 
-        tdc = ide.TDC();
+        tdc = fClocks->TPCG4Time2TDC( edep->Time() );
         
         // only worry about TDC values in the correct range, stop looking if
         // we go past the upper limit.  The IDEs are sorted by channel, then
         // TDC value, then track ID when fChannelToIDEs is filled.
         if     (tdc <  start_tdc) continue;
         else if(tdc == start_tdc){
-          prevTrackID  = ide.TrackID();
-          totalE       = 0.;
-          numElectrons = 0.;
+          prevTrackID = edep->TrackID();
+          totalE      = 0.;
+          energy      = 0.;
         }
         if(tdc > end_tdc  ) break;
         
-        if(prevTrackID != ide.TrackID()){
+        if(prevTrackID != edep->TrackID()){
           
           // we are on a new TrackID, so store the information for the
           // previous one.  For now set the total energy value to 0
           // and the fractional energy to be just the total electrons
           // for this TrackID
-          hitIDEs.emplace_back(prevTrackID, 0., numElectrons);
+          hitIDEs.emplace_back(prevTrackID, 0., energy);
           
-          prevTrackID  = ide.TrackID();
-          numElectrons = 0.;
+          prevTrackID = edep->TrackID();
+          energy      = 0.;
         }
 
-        totalE       += ide.NumElectrons();
-        numElectrons += ide.NumElectrons();
+        totalE += edep->Energy();
+        energy += edep->Energy();
       
       }
       
@@ -541,25 +569,56 @@ namespace gar{
       // There is a data member which is a vector of all IDEs for each channel
       // in the event.  Let's look to see if the vector is non-empty for this one
       // If it is empty, it could be a noise hit
-      if(fChannelToIDEs[hit->Channel()].size() < 1){
+      if(fChannelToEDepCol[hit->Channel()].size() < 1){
         LOG_WARNING("BackTracker")
-        << "Attempting to back track a hit without any corresponding IDEs, "
+        << "Attempting to back track a hit without any corresponding EnergyDeposits, "
         << "return empty vector";
         return xyz;
       }
       
       // We know time extent of the hit, so that should allow us to narrow down
-      // the IDE
+      // the EnergyDeposits
       // Since multiple times correspond to a single hit, we need to
       // average over all contributing positions
       float avX    = 0.;
       float avY    = 0.;
       float avZ    = 0.;
       float wgtSum = 0.;
-      for(auto const& ide : fChannelToIDEs[hit->Channel()]){
+      
+      unsigned int start = (unsigned int)hit->StartTime();
+      unsigned int tdc   = 0;
+      unsigned int end   = (unsigned int)hit->EndTime();
+      
+      for(auto const& edep : fChannelToEDepCol[hit->Channel()]){
         
+        // check the TDC value of the deposit to make sure it is in the
+        // correct range
+        // TODO: strictly speaking, the TDC retrieved this way may not be correct
+        // because we are getting a single TDC value for the EnergyDeposit, but
+        // the simulation breaks the deposits into clusters of electrons to
+        // account for diffusion.  This method is approximately correct
+        tdc = fClocks->TPCG4Time2TDC( edep->Time() );
+        if(tdc < start || tdc > end) continue;
+        
+        avX += edep->X() * edep->Energy();
+        avY += edep->Y() * edep->Energy();
+        avZ += edep->Z() * edep->Energy();
+
+        wgtSum += edep->Energy();
       }
       
+      if(wgtSum == 0.){
+        LOG_WARNING("BackTracker")
+        << "no energy recorded for any EnergyDeposit belonging to this hit,"
+        << " return an empty vector";
+        return xyz;
+      }
+      
+      xyz.push_back(avX / wgtSum);
+      xyz.push_back(avY / wgtSum);
+      xyz.push_back(avZ / wgtSum);
+      
+      return xyz;
     }
     
     DEFINE_ART_SERVICE(BackTracker)

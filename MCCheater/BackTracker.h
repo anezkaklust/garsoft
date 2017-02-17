@@ -22,6 +22,7 @@
 #include "nutools/ParticleNavigation/EveIdCalculator.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
 
+#include "DetectorInfo/DetectorClocksService.h"
 #include "SimulationDataProducts/SimChannel.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "ReconstructionDataProducts/Hit.h"
@@ -65,6 +66,7 @@ namespace gar{
       ~BackTracker();
       
       void reconfigure(fhicl::ParameterSet const& pset);
+      void beginJob();
       
       // The Rebuild function rebuilds the various maps we need to answer backtracking queries.
       // It is called automatically before each event is processed. For jobs involving
@@ -137,16 +139,17 @@ namespace gar{
                             double              const  start,
                             double              const  end);
 
-      sim::ParticleList                           fParticleList;          ///< ParticleList to map track ID to sim::Particle
-      std::vector<sdp::IDE>                       fIDECol;                ///< convenience collections of IDEs for each channel
-      std::vector< ::art::Ptr<simb::MCTruth> >    fMCTruthList;           ///< all the MCTruths for the event
-      std::map<int, int>                          fTrackIDToMCTruthIndex; ///< map of track ids to MCTruthList entry
-      std::string                                 fG4ModuleLabel;         ///< label for geant4 module
-      std::string                                 fIonizationModuleLabel; ///< label for geant4 module
-      double                                      fMinHitEnergyFraction;  ///< minimum fraction of energy a track id has to
-                                                                          ///< contribute to a hit to be counted in
-                                                                          ///< purity and efficiency calculations
-                                                                          ///< based on hit collections
+      const detinfo::DetectorClocks*                        fClocks;                ///< Detector clock information
+      sim::ParticleList                                     fParticleList;          ///< ParticleList to map track ID to sim::Particle
+      std::vector< std::vector<const sdp::EnergyDeposit*> > fChannelToEDepCol;      ///< convenience collections of EnergyDeposits for each channel
+      std::vector< ::art::Ptr<simb::MCTruth> >              fMCTruthList;           ///< all the MCTruths for the event
+      std::map<int, int>                                    fTrackIDToMCTruthIndex; ///< map of track ids to MCTruthList entry
+      std::string                                           fG4ModuleLabel;         ///< label for geant4 module
+      std::string                                           fIonizationModuleLabel; ///< label for geant4 module
+      double                                                fMinHitEnergyFraction;  ///< minimum fraction of energy a track id has to
+                                                                                    ///< contribute to a hit to be counted in
+                                                                                    ///< purity and efficiency calculations
+                                                                                    ///< based on hit collections
     };
   } // namespace
 }
