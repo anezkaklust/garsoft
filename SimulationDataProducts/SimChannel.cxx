@@ -12,7 +12,6 @@
 #include <stdexcept>
 
 #include "SimulationDataProducts/SimChannel.h"
-#include "SimulationDataProducts/sim.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
