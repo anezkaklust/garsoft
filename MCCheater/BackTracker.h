@@ -23,7 +23,6 @@
 #include "nusimdata/SimulationBase/MCTruth.h"
 
 #include "DetectorInfo/DetectorClocksService.h"
-#include "SimulationDataProducts/SimChannel.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "ReconstructionDataProducts/Hit.h"
 #include "RawDataProducts/RawDigit.h"

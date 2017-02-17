@@ -1,12 +1,12 @@
 ////////////////////////////////////////////////////////////////////////
-/// $Id: SimChannel.h,v 1.3 2010/03/26 20:08:36 brebel Exp $
+///
 ///
 /// \file  SimChannel.h
 ///
 /// \brief object containing MC truth information necessary for making RawDigits 
 /// and doing back tracking
 ///
-/// \author  seligman@nevis.columbia.edu
+/// \author  brebel@fnal.gov
 ///
 ////////////////////////////////////////////////////////////////////////
 

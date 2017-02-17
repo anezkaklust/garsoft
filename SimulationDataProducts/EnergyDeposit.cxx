@@ -7,9 +7,6 @@
 
 #include "SimulationDataProducts/EnergyDeposit.h"
 
-#include "SimulationDataProducts/SimChannel.h"
-#include "SimulationDataProducts/sim.h"
-
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace gar {
