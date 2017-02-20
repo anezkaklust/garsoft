@@ -60,10 +60,11 @@ namespace gar {
       
       void AddEnergyDeposition(const G4Step* step);
       
-      double                               fEnergyCut; ///< The minimum energy in GeV for a deposit to
-                                                       ///< be included in the list.
-      CLHEP::HepRandomEngine*              fEngine;    ///< random number engine
-      std::vector<gar::sdp::EnergyDeposit> fDeposits;  ///< energy deposits
+      double                               fEnergyCut;  ///< The minimum energy in GeV for a deposit to
+                                                        ///< be included in the list.
+      std::string                          fVolumeName; ///< volume we will record energy depositions in
+      CLHEP::HepRandomEngine*              fEngine;     ///< random number engine
+      std::vector<gar::sdp::EnergyDeposit> fDeposits;   ///< energy deposits
     };
     
   } // garg4

@@ -4,7 +4,8 @@ BEGIN_PROLOG
 
 standard_garaction:
 {
- EnergyCut:            0.001 # GeV
+ EnergyCut:     0.001 # GeV
+ GArVolumeName: "volTPCActive"
 }
 
 END_PROLOG

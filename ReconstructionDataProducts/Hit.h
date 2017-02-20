@@ -1,13 +1,11 @@
 //
-//  Hit.hpp
-//  garsoft-mrb
+//  Hit.h
 //
 //  Created by Brian Rebel on 10/6/16.
-//  Copyright © 2016 Brian Rebel. All rights reserved.
 //
 
-#ifndef Hit_hpp
-#define Hit_hpp
+#ifndef GAR_RECONSTRUCTIONDATAPRODUCTS_Hit_h
+#define GAR_RECONSTRUCTIONDATAPRODUCTS_Hit_h
 
 
 namespace gar {
@@ -27,7 +25,7 @@ namespace gar {
       float        fPosition[3]; ///< position of the hit
       double       fStartTime;   ///< start time of the hit
       double       fEndTime;     ///< end time of the hit
-      
+
 #ifndef __GCCXML__
       
     public:
@@ -56,4 +54,4 @@ namespace gar {
 } // gar
 
 
-#endif /* Hit_hpp */
+#endif /* GAR_RECONSTRUCTIONDATAPRODUCTS_Hit_h */

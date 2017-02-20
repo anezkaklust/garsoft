@@ -1,5 +1,4 @@
 ////////////////////////////////////////////////////////////////////////
-// $Id: BackTracker_service.cc,v 1.3 2011/12/13 05:57:02 bckhouse Exp $
 //
 //
 // \file: BackTracker_service.cc
@@ -8,7 +7,7 @@
 //
 ////////////////////////////////////////////////////////////////////////
 
-  // Framework includes
+// Framework includes
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/View.h"
 #include "canvas/Persistency/Common/FindMany.h"
@@ -27,7 +26,7 @@ namespace gar{
   namespace cheat{
     
     //----------------------------------------------------------------------
-    BackTracker::BackTracker(fhicl::ParameterSet   const& pset,
+    BackTracker::BackTracker(fhicl::ParameterSet     const& pset,
                              ::art::ActivityRegistry      & reg)
     : fClocks(nullptr)
     {
@@ -62,6 +61,10 @@ namespace gar{
       // do nothing if this is data
       if(evt.isRealData()) return;
       
+      // we have a new event, so clear the channel to EnergyDeposit collection
+      for(auto vec : fChannelToEDepCol) vec.clear();
+      fChannelToEDepCol.clear();
+
       // get the particles from the event
       auto pHandle = evt.getValidHandle<std::vector<simb::MCParticle> >(fG4ModuleLabel);
       
@@ -116,43 +119,50 @@ namespace gar{
       }// end if fo.isValid()
       
       fParticleList.AdoptEveIdCalculator(new sim::EmEveIdCalculator);
-
-      // get the RawDigit collection from the event and create a FindMany mapping
-      // between the digits and energy deposits.  Really just map between the
-      // Channel numbers and the energy deposits
-      auto geo = gar::providerFrom<geo::Geometry>();
-
-      auto rawDigits = evt.getValidHandle< std::vector<gar::raw::RawDigit> >(fIonizationModuleLabel);
-      ::art::FindMany<gar::sdp::EnergyDeposit> fmEnergyDep(rawDigits, evt, fIonizationModuleLabel);
-
-      if(!rawDigits  .isValid() ||
-         !fmEnergyDep.isValid() ){
-        throw cet::exception("BackTracker")
-        << "Unable to find valid collection of RawDigits "
-        << rawDigits.isValid()
-        << " or FindMany<EnergyDeposit> "
-        << fmEnergyDep.isValid()
-        << " this is a problem for backtracking";
-      }
       
-      // we have a new event, so clear the channel to EnergyDeposit collection
-      // and then re-fill it.
-      for(auto vec : fChannelToEDepCol) vec.clear();
-      fChannelToEDepCol.clear();
-      fChannelToEDepCol.resize(geo->NChannels());
-      std::vector<const gar::sdp::EnergyDeposit*> eDeps;
-      
-      for(size_t d = 0; d < rawDigits->size(); ++d){
-        fmEnergyDep.get(d, eDeps);
-        fChannelToEDepCol[ (*rawDigits)[d].Channel() ].swap(eDeps);
-      }
-
       LOG_DEBUG("BackTracker")
       << "BackTracker has "
       << GetSetOfTrackIDs().size()
       << " tracks.  The particles are:\n"
       << fParticleList;
+
+      // look for the RawDigit collection from the event and create a FindMany mapping
+      // between the digits and energy deposits if it exists.  Really just map between the
+      // Channel numbers and the energy deposits
+      art::Handle<std::vector<gar::raw::RawDigit> > digCol;
+      evt.getByLabel(fIonizationModuleLabel, digCol);
       
+      if( !digCol.isValid() ){
+        LOG_WARNING("BackTracker")
+        << "Unable to find valid collection of RawDigits, "
+        << "no backtracking of hits will be possible";
+        
+        return;
+      }
+
+      ::art::FindMany<gar::sdp::EnergyDeposit> fmEnergyDep(digCol, evt, fIonizationModuleLabel);
+      
+      if( !fmEnergyDep.isValid() ){
+        LOG_WARNING("BackTracker")
+        << "Unable to find valid association between RawDigits and "
+        << "energy deposits, no backtracking of hits will be possible";
+        
+        return;
+      }
+      
+      // figure out how large the channel to energy deposit collection should be
+      auto geo = gar::providerFrom<geo::Geometry>();
+      fChannelToEDepCol.resize(geo->NChannels());
+     
+      std::vector<const gar::sdp::EnergyDeposit*> eDeps;
+      
+      for(size_t d = 0; d < digCol->size(); ++d){
+        fmEnergyDep.get(d, eDeps);
+        if(eDeps.size() < 1) continue;
+        
+        fChannelToEDepCol[ (*digCol)[d].Channel() ].swap(eDeps);
+      }
+
 //      for(auto mc : fMCTruthList)
 //        LOG_DEBUG("BackTracker") << *(mc);
       
@@ -500,9 +510,20 @@ namespace gar{
       
       double totalE = 0.;
       
+      if(fChannelToEDepCol.size() < channel){
+        LOG_WARNING("BackTracker")
+        << "Attempting to find energy deposits for channel "
+        << channel
+        << " while there are only "
+        << fChannelToEDepCol.size()
+        << " channels available, return with empty result.";
+
+        return;
+      }
+      
       auto chanEDeps = fChannelToEDepCol[channel];
 
-      if( chanEDeps.size() < 1){
+      if(chanEDeps.size() < 1){
         LOG_WARNING("BackTracker")
         << "No sdp::EnergyDeposits for selected channel: "
         << channel
@@ -566,9 +587,20 @@ namespace gar{
     {
       std::vector<float> xyz;
       
-      // There is a data member which is a vector of all IDEs for each channel
+      // There is a data member which is a vector of all energy deposits for each channel
       // in the event.  Let's look to see if the vector is non-empty for this one
       // If it is empty, it could be a noise hit
+      if(fChannelToEDepCol.size() < hit->Channel()){
+        LOG_WARNING("BackTracker")
+        << "Attempting to back track a hit from a channel without any corresponding EnergyDeposits, "
+        << "return empty vector: "
+        << fChannelToEDepCol.size()
+        << "/"
+        << hit->Channel();
+
+        return xyz;
+      }
+
       if(fChannelToEDepCol[hit->Channel()].size() < 1){
         LOG_WARNING("BackTracker")
         << "Attempting to back track a hit without any corresponding EnergyDeposits, "

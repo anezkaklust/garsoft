@@ -194,7 +194,6 @@ namespace gar {
     , fAuxDetAction          (nullptr)
     , fParticleListAction    (nullptr)
     , fGArActionPSet         (pset.get<fhicl::ParameterSet>("GArActionPSet")                         )
-    , fGArVolumeName         (pset.get< std::string       >("GArVolumeName",    "volGAr")            )
     , fG4PhysListName        (pset.get< std::string       >("G4PhysListName",   "garg4::PhysicsList"))
     , fCheckOverlaps         (pset.get< bool              >("CheckOverlaps",    false)               )
     , fdumpParticleList      (pset.get< bool              >("DumpParticleList", false)               )
@@ -203,6 +202,9 @@ namespace gar {
     , fKeepParticlesInVolumes(pset.get< std::vector< std::string > >("KeepParticlesInVolumes",{}))
     
     {
+      // Set the volume for where we will record energy deposition in the GAr
+      fGArVolumeName = fGArActionPSet.get< std::string >("GArVolumeName",    "volTPCActive");
+
       // initialize the GArSimulationParameters singleton
       G4SimulationParameters::CreateInstance(pset.get<fhicl::ParameterSet>("GArSimParsPSet"));
 
@@ -272,6 +274,18 @@ namespace gar {
       MPL->UpdateGeometry(G4LogicalVolumeStore::GetInstance());
       
       // Set the step size limits for the gaseous argon volume
+      // get the logical volume for the desired volume name
+      G4LogicalVolume* logVol = G4LogicalVolumeStore::GetInstance()->GetVolume(fGArVolumeName);
+
+      LOG_DEBUG("GArG4")
+      << "setting step limit size to be "
+      << fMaxStepSize * CLHEP::cm
+      << " in volume "
+      << fGArVolumeName
+      << " volume has address "
+      << logVol;
+      
+      
       fG4Help->SetVolumeStepLimit(fGArVolumeName, fMaxStepSize * CLHEP::cm);
       
       // Intialize G4 physics and primary generator action

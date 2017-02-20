@@ -10,7 +10,6 @@ standard_geant:
  GeantCommandFile:       "GArG4.mac"
  GArSimParsPSet:         @local::standard_g4simpars
  GArActionPSet:          @local::standard_garaction
- GArVolumeName:          "volTPC"
  G4PhysListName:         "garg4::PhysicsList"
  CheckOverlaps:          false
  DumpParticleList:       false

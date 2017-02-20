@@ -50,7 +50,8 @@ namespace gar {
     //-------------------------------------------------------------
     void GArAction::reconfigure(fhicl::ParameterSet const& pset)
     {
-      fEnergyCut = pset.get<double>("EnergyCut") * CLHEP::GeV;
+      fEnergyCut  = pset.get<double     >("EnergyCut"    );
+      fVolumeName = pset.get<std::string>("GArVolumeName");
       
       return;
     }
@@ -89,8 +90,19 @@ namespace gar {
       if(start == stop) return;
       
       // check that we are in the correct material to record a hit
-      std::string material = track->GetMaterial()->GetName();
-      if(material.compare("GAr") != 0 ) return;
+      auto volume   = track->GetVolume()->GetName();
+      if(volume.find(fVolumeName) == std::string::npos) return;
+
+      LOG_DEBUG("GArAction")
+      << "In volume "
+      << fVolumeName
+      << " step size is "
+      << step->GetStepLength() / CLHEP::cm
+      << " and deposited "
+      << step->GetTotalEnergyDeposit() * CLHEP::GeV
+      << " GeV of energy with a minimum of "
+      << fEnergyCut
+      << " required.";
       
       // only worry about energy depositions larger than the minimum required
       if(step->GetTotalEnergyDeposit() * CLHEP::GeV > fEnergyCut ){

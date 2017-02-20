@@ -70,12 +70,10 @@ namespace gar {
       explicit IonizationReadout(fhicl::ParameterSet const& pset);
       virtual ~IonizationReadout();
       
-      /// The main routine of this module: Fetch the primary particles
-      /// from the event, simulate their evolution in the detctor, and
-      /// produce the detector response.
       void produce (::art::Event& evt);
       void beginJob();
       void beginRun(::art::Run& run);
+      void reconfigure(fhicl::ParameterSet const& pset);
       
     private:
       
@@ -85,7 +83,6 @@ namespace gar {
       
       std::string                         fG4Label;  ///< label of G4 module
       std::unique_ptr<ElectronDriftAlg>   fDriftAlg; ///< algorithm to drift ionization electrons
-      gar::detinfo::ElecClock             fClock;    ///< electronics clock
       const gar::detinfo::DetectorClocks* fTime;     ///< electronics clock
       std::unique_ptr<TPCReadoutSimAlg>   fROSimAlg; ///< algorithm to simulate the electronics
       
@@ -100,18 +97,32 @@ namespace gar {
     IonizationReadout::IonizationReadout(fhicl::ParameterSet const& pset)
     {
       fTime  = gar::providerFrom<detinfo::DetectorClocksService>();
-      fClock = fTime->TPCClock();
       
-      // initialize the GArSimulationParameters singleton
-      garg4::G4SimulationParameters::CreateInstance(pset.get<fhicl::ParameterSet>("GArSimParsPSet"));
-
-      LOG_DEBUG("IonizationReadout") << "Debug: IonizationReadout()";
-      ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
-      
-      // setup the random number service for Geant4, the "G4Engine" label is a
-      // special tag setting up a global engine for use by Geant4/CLHEP;
+      // setup the random number service
       // obtain the random seed from NuRandomService
       ::art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, "HepJamesRandom", "ionization", pset, "IonizationSeed");
+      
+      this->reconfigure(pset);
+      
+      produces< std::vector<raw::RawDigit>                      >();
+      produces< ::art::Assns<sdp::EnergyDeposit, raw::RawDigit> >();
+      
+      return;
+    }
+    
+    //----------------------------------------------------------------------
+    // Destructor
+    IonizationReadout::~IonizationReadout()
+    {
+    }
+
+    void IonizationReadout::reconfigure(fhicl::ParameterSet const& pset)
+    {
+      // initialize the GArSimulationParameters singleton
+      garg4::G4SimulationParameters::CreateInstance(pset.get<fhicl::ParameterSet>("GArSimParsPSet"));
+      
+      LOG_DEBUG("IonizationReadout") << "Debug: IonizationReadout()";
+      ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
       
       fG4Label = pset.get<std::string>("G4ModuleLabel", "geant");
       
@@ -124,7 +135,7 @@ namespace gar {
       else
         throw cet::exception("IonizationReadout")
         << "Unable to determine which electron drift algorithm to use, bail";
-
+      
       auto tpcROAlgPars = pset.get<fhicl::ParameterSet>("TPCReadoutSimAlgPars");
       auto tpcROAlgName = driftAlgPars.get<std::string>("TPCReadoutSimType");
       
@@ -135,16 +146,7 @@ namespace gar {
         throw cet::exception("IonizationReadout")
         << "Unable to determine which TPC readout simulation algorithm to use, bail";
       
-      produces< std::vector<raw::RawDigit>                      >();
-      produces< ::art::Assns<sdp::EnergyDeposit, raw::RawDigit> >();
-      
       return;
-    }
-    
-    //----------------------------------------------------------------------
-    // Destructor
-    IonizationReadout::~IonizationReadout()
-    {
     }
     
     //----------------------------------------------------------------------
