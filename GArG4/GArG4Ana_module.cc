@@ -170,7 +170,7 @@ namespace gar {
         fEDep.t       = edep.Time();
         fEDep.e       = edep.Energy();
         
-        LOG_VERBATIM("GArG4Ana")
+        LOG_DEBUG("GArG4Ana")
         << "pos: ("
         << fEDep.x
         << ", "
