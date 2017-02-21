@@ -193,7 +193,7 @@ namespace gar {
     , fEDepAction            (nullptr)
     , fAuxDetAction          (nullptr)
     , fParticleListAction    (nullptr)
-    , fEDepActionPSet         (pset.get<fhicl::ParameterSet>("GArActionPSet")                         )
+    , fEDepActionPSet        (pset.get<fhicl::ParameterSet>("EDepActionPSet")                        )
     , fG4PhysListName        (pset.get< std::string       >("G4PhysListName",   "garg4::PhysicsList"))
     , fCheckOverlaps         (pset.get< bool              >("CheckOverlaps",    false)               )
     , fdumpParticleList      (pset.get< bool              >("DumpParticleList", false)               )
