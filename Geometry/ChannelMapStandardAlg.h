@@ -27,7 +27,7 @@ namespace gar{
       void         Initialize(GeometryCore & geo)           override;
       void         Uninitialize()                           override;
       unsigned int Nchannels()                        const override;
-      unsigned int NearestChannel(float const xyz[3]) const override;
+      unsigned int NearestChannel(float const* xyz) const override;
       
     private:
       

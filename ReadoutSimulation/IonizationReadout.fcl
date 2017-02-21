@@ -1,5 +1,6 @@
+#include "IonizationAndScintillation.fcl"
 #include "ElectronDriftAlg.fcl"
-#include "G4SimulationParameters.fcl"
+#include "TPCReadoutSimAlg.fcl"
 
 #BEGIN_PROLOG
 
@@ -7,8 +8,9 @@ standard_ionizationreadout:
 {
  module_type:          "IonizationReadout"
  G4ModuleLabel:        "geant"
- GArSimParPSet:        @local::standard_g4simpars
+ ISCalcPars:           @local::standard_ionizationandscintillation
  ElectronDriftAlgPars: @local::standard_electrondrift
+ TPCReadoutSimAlgPars: @local::standard_tpcreadoutsimalg
 }
 
 #END_PROLOG

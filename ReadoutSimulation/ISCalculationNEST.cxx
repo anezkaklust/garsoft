@@ -16,7 +16,8 @@ namespace gar {
     
     //----------------------------------------------------------------------------
     ISCalculationNEST::ISCalculationNEST(CLHEP::HepRandomEngine& engine)
-    : fNest(0)
+    : ISCalculation()
+    , fNest(0)
     , fEngine(engine)
     {
       return;

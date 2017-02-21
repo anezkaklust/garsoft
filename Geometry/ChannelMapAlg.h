@@ -52,7 +52,7 @@ namespace gar{
       virtual void          Initialize(gar::geo::GeometryCore & geo)           = 0;
       virtual void          Uninitialize()                           = 0;
       virtual unsigned int  Nchannels()                        const = 0;
-      virtual unsigned int  NearestChannel(float const xyz[3]) const = 0;
+      virtual unsigned int  NearestChannel(float const* xyz) const = 0;
       
     protected:
       

@@ -20,6 +20,7 @@ namespace gar {
     
     //----------------------------------------------------------------------------
     ISCalculationSeparate::ISCalculationSeparate(CLHEP::HepRandomEngine&)
+    : ISCalculation()
     {
     }
     

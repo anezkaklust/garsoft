@@ -33,5 +33,14 @@
  <class name="std::set<gar::sdp::IDE>"                                        />
  <class name="art::Wrapper<std::vector<gar::sdp::AuxDetSimChannel> >"         />
  <class name="art::Wrapper<std::vector<gar::sdp::EnergyDeposit   > >"         />
+
+ <class name="std::pair< art::Ptr<gar::sdp::EnergyDeposit>, art::Ptr<gar::raw::RawDigit> >" />
+ <class name="std::pair< art::Ptr<gar::raw::RawDigit>,      art::Ptr<gar::sdp::EnergyDeposit>     >" />
+ 
+ <class name="art::Assns<gar::sdp::EnergyDeposit, gar::raw::RawDigit,      void>" />
+ <class name="art::Assns<gar::raw::RawDigit,      gar::sdp::EnergyDeposit, void>" />
+ 
+ <class name="art::Wrapper<art::Assns<gar::sdp::EnergyDeposit, gar::raw::RawDigit,      void> >" />
+ <class name="art::Wrapper<art::Assns<gar::raw::RawDigit,      gar::sdp::EnergyDeposit, void> >" />
  
 </lcgdict>

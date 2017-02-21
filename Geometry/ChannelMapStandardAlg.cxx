@@ -54,7 +54,7 @@ namespace gar {
     }
     
     //----------------------------------------------------------------------------
-    unsigned int ChannelMapStandardAlg::NearestChannel(float const xyz[3]) const
+    unsigned int ChannelMapStandardAlg::NearestChannel(float const* xyz) const
     {
       // place the pixels such that pixel 0 is at the bottom of the upstream end
       // and the pixels increase along the z direction.  The second row starts

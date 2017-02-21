@@ -1,0 +1,15 @@
+BEGIN_PROLOG
+
+
+standard_ionizationandscintillation:
+{
+ ISCalcName:     "Separate"
+}
+
+nest_ionizationandscintillation:
+{
+ ISCalcName:     "NEST"
+}
+
+
+END_PROLOG

@@ -34,7 +34,6 @@
 
 // GArSoft Includes
 #include "DetectorInfo/DetectorClocksService.h"
-#include "GArG4/G4SimulationParameters.h"
 #include "ReadoutSimulation/IonizationAndScintillation.h"
 #include "ReadoutSimulation/ElectronDriftStandardAlg.h"
 #include "ReadoutSimulation/TPCReadoutSimStandardAlg.h"
@@ -81,10 +80,11 @@ namespace gar {
                                    std::vector<edepIDE>                 & edepIDEs);
       void CombineIDEs(std::vector<edepIDE> & edepIDEs);
       
-      std::string                         fG4Label;  ///< label of G4 module
-      std::unique_ptr<ElectronDriftAlg>   fDriftAlg; ///< algorithm to drift ionization electrons
-      const gar::detinfo::DetectorClocks* fTime;     ///< electronics clock
-      std::unique_ptr<TPCReadoutSimAlg>   fROSimAlg; ///< algorithm to simulate the electronics
+      std::string                         fG4Label;    ///< label of G4 module
+      std::unique_ptr<ElectronDriftAlg>   fDriftAlg;   ///< algorithm to drift ionization electrons
+      const gar::detinfo::DetectorClocks* fTime;       ///< electronics clock
+      std::unique_ptr<TPCReadoutSimAlg>   fROSimAlg;   ///< algorithm to simulate the electronics
+      fhicl::ParameterSet                 fISCalcPars; ///< parameter set for the IS calculator
       
     };
     
@@ -116,15 +116,14 @@ namespace gar {
     {
     }
 
+    //----------------------------------------------------------------------
     void IonizationReadout::reconfigure(fhicl::ParameterSet const& pset)
     {
-      // initialize the GArSimulationParameters singleton
-      garg4::G4SimulationParameters::CreateInstance(pset.get<fhicl::ParameterSet>("GArSimParsPSet"));
-      
       LOG_DEBUG("IonizationReadout") << "Debug: IonizationReadout()";
       ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
       
-      fG4Label = pset.get<std::string>("G4ModuleLabel", "geant");
+      fISCalcPars = pset.get<fhicl::ParameterSet>("ISCalcPars"            );
+      fG4Label    = pset.get<std::string        >("G4ModuleLabel", "geant");
       
       auto driftAlgPars = pset.get<fhicl::ParameterSet>("ElectronDriftAlgPars");
       auto driftAlgName = driftAlgPars.get<std::string>("DriftAlgType");
@@ -137,7 +136,7 @@ namespace gar {
         << "Unable to determine which electron drift algorithm to use, bail";
       
       auto tpcROAlgPars = pset.get<fhicl::ParameterSet>("TPCReadoutSimAlgPars");
-      auto tpcROAlgName = driftAlgPars.get<std::string>("TPCReadoutSimType");
+      auto tpcROAlgName = tpcROAlgPars.get<std::string>("TPCReadoutSimType");
       
       if(tpcROAlgName.compare("Standard") == 0)
         fROSimAlg = std::make_unique<gar::rosim::TPCReadoutSimStandardAlg>(rng->getEngine("ionization"),
@@ -157,7 +156,8 @@ namespace gar {
       // create the ionization and scintillation calculator;
       // this is a singleton (!) so we just need to make the instance in one
       // location
-      IonizationAndScintillation::CreateInstance(rng->getEngine("ionization"));
+      IonizationAndScintillation::CreateInstance(rng->getEngine("ionization"),
+                                                 fISCalcPars);
       
       return;
     }
@@ -255,12 +255,20 @@ namespace gar {
         // the vectors should all have the same size by the time we get them
         // here (verified by the ElectronDriftInfo object when they are filled)
         for(size_t c = 0; c < clusterXPos.size(); ++c){
+
+          // see if this cluster of electrons can be mapped to a channel.
+          // if not, move on to the next one
+          try{
+            chan = geo->NearestChannel(xyz);
+          }
+          catch(cet::exception &e){
+            continue;
+          }
           
           xyz[0] = clusterXPos[c];
           xyz[1] = clusterYPos[c];
           xyz[2] = clusterZPos[c];
           numEl  = clusterSize[c];
-          chan   = geo->NearestChannel(xyz);
           tdc    = fTime->TPCG4Time2TDC(clusterTime[c]);
           
           edepIDEs.emplace_back(numEl, chan, tdc, e);
@@ -270,7 +278,6 @@ namespace gar {
       } // end loop over deposit collections
 
       this->CombineIDEs(edepIDEs);
-      
       
       return;
     }

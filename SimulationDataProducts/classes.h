@@ -13,3 +13,6 @@
 #include "SimulationDataProducts/AuxDetSimChannel.h"
 #include "SimulationDataProducts/BeamGateInfo.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
+
+// RawData includes
+#include "RawDataProducts/RawDigit.h"

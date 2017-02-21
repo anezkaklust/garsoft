@@ -5,7 +5,6 @@
 ////////////////////////////////////////////////////////////////////////
 
 // gar includes
-#include "GArG4/G4SimulationParameters.h"
 #include "ReadoutSimulation/IonizationAndScintillation.h"
 #include "ReadoutSimulation/ISCalculationNEST.h"
 #include "ReadoutSimulation/ISCalculationSeparate.h"
@@ -27,9 +26,13 @@ namespace gar {
     static IonizationAndScintillation* gInstance = nullptr;
     
     //......................................................................
-    IonizationAndScintillation* IonizationAndScintillation::CreateInstance(CLHEP::HepRandomEngine& engine)
+    IonizationAndScintillation* IonizationAndScintillation::CreateInstance(CLHEP::HepRandomEngine      & engine,
+                                                                           fhicl::ParameterSet    const& pset)
     {
       if(!gInstance) gInstance = new IonizationAndScintillation(engine);
+      
+      gInstance->reconfigure(pset);
+      
       return gInstance;
     }
     
@@ -57,26 +60,9 @@ namespace gar {
     , fEngine            (engine)
     {
       
-      fISCalculator = gar::garg4::G4SimulationParameters::Instance()->IonAndScintCalculator();
-      
-      if(fISCalculator.compare("NEST") == 0)
-        fISCalc = new rosim::ISCalculationNEST(fEngine);
-      else if(fISCalculator.compare("Separate") == 0)
-        fISCalc = new rosim::ISCalculationSeparate(fEngine);
-      else
-        LOG_WARNING("IonizationAndScintillation")
-        << "No ISCalculation set, this can't be good.";
-      
-      // Reset the values for the electrons, photons, and energy to 0
-      // in the calculator
-      fISCalc->Reset();
-      
       //set the current track and step number values to bogus so that it will run the first reset:
       fStepNumber = -1;
       fTrkID      = -1;
-      
-      // initialize the calculator
-      fISCalc->Initialize();
       
       // make the histograms
       ::art::ServiceHandle< ::art::TFileService> tfs;
@@ -107,9 +93,31 @@ namespace gar {
     //......................................................................
     IonizationAndScintillation::~IonizationAndScintillation()
     {
-      if(fISCalc) delete fISCalc;
     }
-    
+
+    //......................................................................
+    void IonizationAndScintillation::reconfigure(fhicl::ParameterSet const& pset)
+    {
+      if(fISCalc){
+        delete fISCalc;
+        fISCalc = nullptr;
+      }
+      
+      auto calcName = pset.get<std::string>("ISCalcName");
+      
+      if(calcName.compare("NEST") == 0)
+        fISCalc = new rosim::ISCalculationNEST(fEngine);
+      else if(calcName.compare("Separate") == 0)
+        fISCalc = new rosim::ISCalculationSeparate(fEngine);
+      else
+        LOG_WARNING("IonizationAndScintillation")
+        << "No ISCalculation set, this can't be good.";
+      
+      // initialize the calculator
+      fISCalc->Initialize();
+      
+      return;
+    }
     
     //......................................................................
     void IonizationAndScintillation::Reset(const gar::sdp::EnergyDeposit* dep)
