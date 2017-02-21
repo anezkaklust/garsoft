@@ -2,8 +2,7 @@
 /// \file  GArG4.cxx
 /// \brief Use Geant4 to run the LArSoft detector simulation
 ///
-/// \version $Id: GArG4.cxx,v 1.22 2010/07/20 06:08:30 bjpjones Exp $
-/// \author  seligman@nevis.columbia.edu
+/// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 #ifndef GARG4GArG4ANA_H
 #define GARG4GArG4ANA_H 

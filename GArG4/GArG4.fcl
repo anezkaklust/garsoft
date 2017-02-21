@@ -1,4 +1,4 @@
-#include "GArAction.fcl"
+#include "EnergyDepositAction.fcl"
 #include "AuxDetAction.fcl"
 #include "G4SimulationParameters.fcl"
 
@@ -9,7 +9,7 @@ standard_geant:
  module_type:            GArG4
  GeantCommandFile:       "GArG4.mac"
  GArSimParsPSet:         @local::standard_g4simpars
- GArActionPSet:          @local::standard_garaction
+ GArActionPSet:          @local::standard_energydepositaction
  G4PhysListName:         "garg4::PhysicsList"
  CheckOverlaps:          false
  DumpParticleList:       false

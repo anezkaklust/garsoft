@@ -1,9 +1,7 @@
 //
-//  GArAction.cpp
-//  garsoft-mrb
+//  EnergyDepositAction.cxx
 //
 //  Created by Brian Rebel on 10/12/16.
-//  Copyright © 2016 Brian Rebel. All rights reserved.
 //
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -24,7 +22,7 @@
 #include "Geant4/G4StepPoint.hh"
 #include "Geant4/G4VProcess.hh"
 
-#include "GArG4/GArAction.h"
+#include "GArG4/EnergyDepositAction.h"
 #include "GArG4/ParticleListAction.h"
 
 namespace gar {
@@ -33,7 +31,7 @@ namespace gar {
     
     //-------------------------------------------------------------
     // Constructor.
-    GArAction::GArAction(CLHEP::HepRandomEngine*    engine,
+    EnergyDepositAction::EnergyDepositAction(CLHEP::HepRandomEngine*    engine,
                          fhicl::ParameterSet const& pset)
     : fEngine(engine)
     {
@@ -42,13 +40,13 @@ namespace gar {
     
     //-------------------------------------------------------------
     // Destructor.
-    GArAction::~GArAction()
+    EnergyDepositAction::~EnergyDepositAction()
     {
       // Delete anything that we created with "new'.
     }
     
     //-------------------------------------------------------------
-    void GArAction::reconfigure(fhicl::ParameterSet const& pset)
+    void EnergyDepositAction::reconfigure(fhicl::ParameterSet const& pset)
     {
       fEnergyCut  = pset.get<double     >("EnergyCut"    );
       fVolumeName = pset.get<std::string>("GArVolumeName");
@@ -57,28 +55,28 @@ namespace gar {
     }
     
     //-------------------------------------------------------------
-    void GArAction::BeginOfEventAction(const G4Event*)
+    void EnergyDepositAction::BeginOfEventAction(const G4Event*)
     {
       // Clear any previous information.
       fDeposits.clear();
     }
     
     //-------------------------------------------------------------
-    void GArAction::PreTrackingAction(const G4Track* /*track*/)
+    void EnergyDepositAction::PreTrackingAction(const G4Track* /*track*/)
     {
     }
     
     //-------------------------------------------------------------
-    void GArAction::PostTrackingAction( const G4Track* /*track*/)
+    void EnergyDepositAction::PostTrackingAction( const G4Track* /*track*/)
     {
     }
     
     //-------------------------------------------------------------
     // With every step, handle energy deposition in gaseous argon
-    void GArAction::SteppingAction(const G4Step* step)
+    void EnergyDepositAction::SteppingAction(const G4Step* step)
     {
-      LOG_DEBUG("GArAction")
-      << "GArAction::SteppingAction";
+      LOG_DEBUG("EnergyDepositAction")
+      << "EnergyDepositAction::SteppingAction";
       
       // Get the pointer to the track
       G4Track *track = step->GetTrack();
@@ -93,7 +91,7 @@ namespace gar {
       auto volume   = track->GetVolume()->GetName();
       if(volume.find(fVolumeName) == std::string::npos) return;
 
-      LOG_DEBUG("GArAction")
+      LOG_DEBUG("EnergyDepositAction")
       << "In volume "
       << fVolumeName
       << " step size is "
@@ -112,10 +110,10 @@ namespace gar {
         
       } // end if enough energy to worry about this step
       
-    }// end of GArAction::SteppingAction
+    }// end of EnergyDepositAction::SteppingAction
 
     //--------------------------------------------------------------------------
-    void GArAction::AddEnergyDeposition(const G4Step* step)
+    void EnergyDepositAction::AddEnergyDeposition(const G4Step* step)
     {
       // get the track id for this step
       auto trackID  = ParticleListAction::GetCurrentTrackID();
@@ -123,13 +121,13 @@ namespace gar {
       // first check that we are not dealing with ionization, ie delta rays
       // if we have one of those, set the trackID to be the ID of the parent
       //if(trackID < 0)
-      //  LOG_VERBATIM("GArAction")
+      //  LOG_VERBATIM("EnergyDepositAction")
       //  << "TrackID "
       //  << trackID
       //  << " was created by process "
       //  << step->GetTrack()->GetCreatorProcess()->GetProcessName();
       //else
-      //  LOG_VERBATIM("GArAction")
+      //  LOG_VERBATIM("EnergyDepositAction")
       //  << "TrackID "
       //  << trackID
       //  << " is a primary particle ";
@@ -151,7 +149,7 @@ namespace gar {
     }
     
     //--------------------------------------------------------------------------
-    void GArAction::EndOfEventAction(const G4Event*)
+    void EnergyDepositAction::EndOfEventAction(const G4Event*)
     {
       // sort the EnergyDeposit lists in each EnergyDeposits object
       std::sort(fDeposits.begin(), fDeposits.end());

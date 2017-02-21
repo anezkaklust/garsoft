@@ -1,16 +1,14 @@
 //
-//  GArAction.hpp
-//  garsoft-mrb
+//  EnergyDepositAction.h
 //
 //  Created by Brian Rebel on 10/12/16.
-//  Copyright © 2016 Brian Rebel. All rights reserved.
 //
 /// This class implements the G4Base::UserAction interface in order to
 /// accumulate a list of hits in the gaseous argon modeled by Geant4.
 //
 
-#ifndef GArAction_hpp
-#define GArAction_hpp
+#ifndef GAR_EnergyDepositAction_h
+#define GAR_EnergyDepositAction_h
 
 // NuTools includes
 #include "nutools/G4Base/UserAction.h"
@@ -34,14 +32,14 @@ namespace gar {
   namespace garg4 {
     
     ///list of energy deposits from Geant4
-    class GArAction : public g4b::UserAction {
+    class EnergyDepositAction : public g4b::UserAction {
       
     public:
       
       // Standard constructors and destructors;
-      GArAction(CLHEP::HepRandomEngine*        engine,
+      EnergyDepositAction(CLHEP::HepRandomEngine*        engine,
                 fhicl::ParameterSet     const& pset);
-      virtual ~GArAction();
+      virtual ~EnergyDepositAction();
       
       void reconfigure(fhicl::ParameterSet const& pset);
       
@@ -70,4 +68,4 @@ namespace gar {
   } // garg4
 } // gar
 
-#endif /* GArAction_hpp */
+#endif /* GAR_EnergyDepositAction_h */

@@ -57,7 +57,7 @@
 
 // GArSoft Includes
 #include "GArG4/AuxDetAction.h"
-#include "GArG4/GArAction.h"
+#include "GArG4/EnergyDepositAction.h"
 #include "GArG4/PhysicsList.h"
 #include "GArG4/ParticleListAction.h"
 #include "GArG4/MaterialPropertyLoader.h"
@@ -159,22 +159,22 @@ namespace gar {
       void beginRun(::art::Run& run);
       
     private:
-      g4b::G4Helper*             fG4Help;             ///< G4 interface object
-      garg4::GArAction*          fGArAction;          ///< Geant4 user action to handle GAr energy depositions
-      garg4::AuxDetAction*       fAuxDetAction;       ///< Geant4 user action to handle GAr energy depositions
-      garg4::ParticleListAction* fParticleListAction; ///< Geant4 user action to particle information.
-      fhicl::ParameterSet        fGArActionPSet;      ///< configuration for GArAction
-      std::string                fGArVolumeName;      ///< Name of the volume containing gaseous argon
-      std::string                fG4PhysListName;     ///< predefined physics list to use if not making a custom one
-      std::string                fG4MacroPath;        ///< directory path for Geant4 macro file to be
-                                                      ///< executed before main MC processing.
-      bool                       fCheckOverlaps;      ///< Whether to use the G4 overlap checker
-      bool                       fdumpParticleList;   ///< Whether each event's sim::ParticleList will be displayed.
-      int                        fSmartStacking;      ///< Whether to instantiate and use class to
-                                                      ///< dictate how tracks are put on stack.
-      float                      fMaxStepSize;        ///< maximum argon step size in cm
-      std::vector<std::string>   fInputLabels;
-      std::vector<std::string>   fKeepParticlesInVolumes; ///<Only write particles that have trajectories through these volumes
+      g4b::G4Helper*              fG4Help;             ///< G4 interface object
+      garg4::EnergyDepositAction* fEDepAction;         ///< Geant4 user action to handle GAr energy depositions
+      garg4::AuxDetAction*        fAuxDetAction;       ///< Geant4 user action to handle GAr energy depositions
+      garg4::ParticleListAction*  fParticleListAction; ///< Geant4 user action to particle information.
+      fhicl::ParameterSet         fEDepActionPSet;     ///< configuration for GArAction
+      std::string                 fGArVolumeName;      ///< Name of the volume containing gaseous argon
+      std::string                 fG4PhysListName;     ///< predefined physics list to use if not making a custom one
+      std::string                 fG4MacroPath;        ///< directory path for Geant4 macro file to be
+                                                       ///< executed before main MC processing.
+      bool                        fCheckOverlaps;      ///< Whether to use the G4 overlap checker
+      bool                        fdumpParticleList;   ///< Whether each event's sim::ParticleList will be displayed.
+      int                         fSmartStacking;      ///< Whether to instantiate and use class to
+                                                       ///< dictate how tracks are put on stack.
+      float                       fMaxStepSize;        ///< maximum argon step size in cm
+      std::vector<std::string>    fInputLabels;
+      std::vector<std::string>    fKeepParticlesInVolumes; ///<Only write particles that have trajectories through these volumes
       
       /// Configures and returns a particle filter
       std::unique_ptr<PositionInVolumeFilter> CreateParticleVolumeFilter
@@ -190,10 +190,10 @@ namespace gar {
     // Constructor
     GArG4::GArG4(fhicl::ParameterSet const& pset)
     : fG4Help                (nullptr)
-    , fGArAction             (nullptr)
+    , fEDepAction            (nullptr)
     , fAuxDetAction          (nullptr)
     , fParticleListAction    (nullptr)
-    , fGArActionPSet         (pset.get<fhicl::ParameterSet>("GArActionPSet")                         )
+    , fEDepActionPSet         (pset.get<fhicl::ParameterSet>("GArActionPSet")                         )
     , fG4PhysListName        (pset.get< std::string       >("G4PhysListName",   "garg4::PhysicsList"))
     , fCheckOverlaps         (pset.get< bool              >("CheckOverlaps",    false)               )
     , fdumpParticleList      (pset.get< bool              >("DumpParticleList", false)               )
@@ -203,7 +203,7 @@ namespace gar {
     
     {
       // Set the volume for where we will record energy deposition in the GAr
-      fGArVolumeName = fGArActionPSet.get< std::string >("GArVolumeName",    "volTPCActive");
+      fGArVolumeName = fEDepActionPSet.get< std::string >("GArVolumeName",    "volTPCActive");
 
       // initialize the GArSimulationParameters singleton
       G4SimulationParameters::CreateInstance(pset.get<fhicl::ParameterSet>("GArSimParsPSet"));
@@ -306,13 +306,13 @@ namespace gar {
       
       
       // add UserAction for handling steps in gaseous argon
-      fGArAction = new garg4::GArAction(&rng->getEngine("propagation"),
-                                        fGArActionPSet);
-      uaManager->AddAndAdoptAction(fGArAction);
+      fEDepAction = new garg4::EnergyDepositAction(&rng->getEngine("propagation"),
+                                                   fEDepActionPSet);
+      uaManager->AddAndAdoptAction(fEDepAction);
 
       // add UserAction for handling steps in auxiliary detectors
       fAuxDetAction = new garg4::AuxDetAction(&rng->getEngine("propagation"),
-                                              fGArActionPSet);
+                                              fEDepActionPSet);
       uaManager->AddAndAdoptAction(fAuxDetAction);
 
       
@@ -476,7 +476,7 @@ namespace gar {
       
       
       // Now for the sdp::EnergyDepositions
-      for(auto const& ed : fGArAction->EnergyDeposits()){
+      for(auto const& ed : fEDepAction->EnergyDeposits()){
         LOG_DEBUG("GArG4")
         << "adding deposits for track id: "
         << ed.TrackID();

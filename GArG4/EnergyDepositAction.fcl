@@ -2,7 +2,7 @@
 
 BEGIN_PROLOG
 
-standard_garaction:
+standard_energydepositaction:
 {
  EnergyCut:     0.001 # GeV
  GArVolumeName: "volTPCActive"
