@@ -174,6 +174,7 @@ namespace gar {
       int                         fSmartStacking;      ///< Whether to instantiate and use class to
                                                        ///< dictate how tracks are put on stack.
       float                       fMaxStepSize;        ///< maximum argon step size in cm
+      float                       fProductionCut;      ///< G4 will check if a produced particle should travel this far and drop it if not
       std::vector<std::string>    fInputLabels;
       std::vector<std::string>    fKeepParticlesInVolumes; ///<Only write particles that have trajectories through these volumes
       
@@ -200,6 +201,7 @@ namespace gar {
     , fdumpParticleList      (pset.get< bool              >("DumpParticleList", false)               )
     , fSmartStacking         (pset.get< int               >("SmartStacking",    0)                   )
     , fMaxStepSize           (pset.get< float             >("MaxStepSize",      0.2)                 )
+    , fProductionCut         (pset.get< float             >("ProductionCut",    1.0)                 )
     , fKeepParticlesInVolumes(pset.get< std::vector< std::string > >("KeepParticlesInVolumes",{}))
     
     {
@@ -290,7 +292,7 @@ namespace gar {
       
       // Create some particle production cuts based on track length
       G4ProductionCuts* prodcuts = new G4ProductionCuts();
-      prodcuts->SetProductionCut(1.5 * CLHEP::cm); // For all particles
+      prodcuts->SetProductionCut(fProductionCut * CLHEP::cm); // For all particles
       G4Region* gas_region = new G4Region("GAS");
       gas_region->AddRootLogicalVolume(logVol);
       gas_region->SetProductionCuts(prodcuts);
