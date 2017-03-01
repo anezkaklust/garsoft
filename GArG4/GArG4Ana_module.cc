@@ -54,6 +54,13 @@ typedef struct{
   float  t;
 } EnergyDep;
 
+typedef struct{
+  int   trackID;
+  int   pdg;
+  float length;
+  float energy;
+} ParticleInfo;
+
 namespace simb{
   class MCTruth;
 }
@@ -82,9 +89,11 @@ namespace gar {
       std::string fG4ModuleLabel;    ///< module label for the Geant
       std::string fTruthModuleLabel; ///< module label for the Geant
       
-      TTree*      fTree;             ///< Tree to keep track of sanity check info
-      EventInfo   fEvt;              ///< Struct containing event identification
-      EnergyDep   fEDep;             ///< Struct containing energy deposition info
+      TTree*       fEDepTree;        ///< Tree to keep track of sanity check info
+      TTree*       fParticleTree;    ///< Tree to keep track of sanity check info
+      EventInfo    fEvt;             ///< Struct containing event identification
+      EnergyDep    fEDep;            ///< Struct containing energy deposition info
+      ParticleInfo fPartInfo;        ///< Struct containing particle info
     };
     
   } // namespace garg4
@@ -111,16 +120,21 @@ namespace gar {
       ::art::ServiceHandle<::art::TFileService> tfs;
       ::art::ServiceHandle<geo::Geometry> geo;
       
-      fTree    = tfs->make<TTree>("G4Tree", "G4Tree");
+      fEDepTree     = tfs->make<TTree>("EDepTree",     "EDepTree"   );
+      fParticleTree = tfs->make<TTree>("ParticleTree", "ParicleTree");
 
       std::string description("run/I:subrun/I:event/I");
       
-      fTree->Branch("info", &fEvt, description.c_str());
+      fEDepTree    ->Branch("info", &fEvt, description.c_str());
+      fParticleTree->Branch("info", &fEvt, description.c_str());
       
       description = "trackID/I:pdg/I:x/F:y/F:z/F:e/F:dX/F:t/F";
       
-      fTree->Branch("edep", &fEDep, description.c_str());
+      fEDepTree->Branch("edep", &fEDep, description.c_str());
       
+      description = "trackID/I:pdg/I:length/F:energy/F";
+      
+      fParticleTree->Branch("part", &fPartInfo, description.c_str());
       
     }
     
@@ -153,13 +167,36 @@ namespace gar {
         return;
       }
 
+      auto const& pList = bt->ParticleList();
+      
+      for(auto itr : pList){
+        auto part = itr.second;
+        if( !part ) continue;
+        
+        fPartInfo.trackID = part->TrackId();
+        fPartInfo.pdg     = part->PdgCode();
+        fPartInfo.energy  = part->E();
+        fPartInfo.length  = part->Trajectory().TotalLength();
+        
+        LOG_VERBATIM("GArG4Ana")
+        << part->TrackId()
+        << " "
+        << part->PdgCode()
+        << " "
+        << part->E()
+        << " "
+        << part->NumberTrajectoryPoints()
+        << " "
+        << part->Trajectory().TotalLength();
+        
+        fParticleTree->Fill();
+      }
+      
       // loop over the energy deposition collections to fill the tree
       for(auto edep : *edepsCol){
         
         // get the MCParticle for this track ID
         auto part = bt->TrackIDToParticle(edep.TrackID());
-        
-        if( !part ) continue;
         
         fEDep.trackID = edep.TrackID();
         fEDep.pdg     = part->PdgCode();
@@ -184,8 +221,8 @@ namespace gar {
         << " dX: "
         << fEDep.dX;
         
-          // make the tree flat in terms of the energy depositions
-        fTree->Fill();
+        // make the tree flat in terms of the energy depositions
+        fEDepTree->Fill();
         
       } // end loop over collection of EnergyDeposits
       

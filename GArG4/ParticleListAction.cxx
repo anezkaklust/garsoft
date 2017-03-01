@@ -149,19 +149,20 @@ namespace gar {
         // figure out what process is making this track - skip it if it is
         // one of pair production, compton scattering, photoelectric effect
         // bremstrahlung, annihilation, any ionization - who wants to save
-        // a buttload of electrons that arent from a CC interaction?
+        // a boatload of electrons that arent from a CC interaction?
         process_name = track->GetCreatorProcess()->GetProcessName();
         if( !fKeepEMShowerDaughters
-           && (process_name.find("conv")               != std::string::npos
-               || process_name.find("LowEnConversion") != std::string::npos
-               || process_name.find("Pair")            != std::string::npos
-               || process_name.find("compt")           != std::string::npos
-               || process_name.find("Compt")           != std::string::npos
-               || process_name.find("Brem")            != std::string::npos
-               || process_name.find("phot")            != std::string::npos
-               || process_name.find("Photo")           != std::string::npos
-               || process_name.find("Ion")             != std::string::npos
-               || process_name.find("annihil")         != std::string::npos)
+           && ( process_name.find("conv")            != std::string::npos  ||
+                process_name.find("LowEnConversion") != std::string::npos  ||
+                process_name.find("Pair")            != std::string::npos  ||
+                process_name.find("compt")           != std::string::npos  ||
+                process_name.find("Compt")           != std::string::npos  ||
+                process_name.find("Brem")            != std::string::npos  ||
+                process_name.find("phot")            != std::string::npos  ||
+                process_name.find("Photo")           != std::string::npos  ||
+               (process_name.find("Ion")             != std::string::npos  &&
+                process_name.find("mu")              != std::string::npos) ||
+                process_name.find("annihil")         != std::string::npos )
            ){
           
           // figure out the ultimate parentage of this particle

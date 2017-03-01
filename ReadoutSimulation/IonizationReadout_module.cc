@@ -230,10 +230,8 @@ namespace gar {
     {
       ::art::ServiceHandle<gar::geo::Geometry> geo;
       
-      float          xyz[3] = {0.};
-      float          numEl  = 0.;
-      unsigned int   chan   = 0;
-      unsigned short tdc    = 0;
+      float        xyz[3] = {0.};
+      unsigned int chan   = 0;
 
       // now instantiate an ElectronDriftInfo object to keep track of the
       // drifted locations of each electron cluster from each energy deposit
@@ -256,6 +254,10 @@ namespace gar {
         // here (verified by the ElectronDriftInfo object when they are filled)
         for(size_t c = 0; c < clusterXPos.size(); ++c){
 
+          xyz[0] = clusterXPos[c];
+          xyz[1] = clusterYPos[c];
+          xyz[2] = clusterZPos[c];
+          
           // see if this cluster of electrons can be mapped to a channel.
           // if not, move on to the next one
           try{
@@ -265,13 +267,10 @@ namespace gar {
             continue;
           }
           
-          xyz[0] = clusterXPos[c];
-          xyz[1] = clusterYPos[c];
-          xyz[2] = clusterZPos[c];
-          numEl  = clusterSize[c];
-          tdc    = fTime->TPCG4Time2TDC(clusterTime[c]);
-          
-          edepIDEs.emplace_back(numEl, chan, tdc, e);
+          edepIDEs.emplace_back(clusterSize[c],
+                                chan,
+                                fTime->TPCG4Time2TDC(clusterTime[c]),
+                                e);
           
         }
 

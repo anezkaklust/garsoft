@@ -86,5 +86,29 @@ namespace gar {
       return (yPix * fNumPixelsZ + zPix);      
     }
     
+    //----------------------------------------------------------------------------
+    void ChannelMapStandardAlg::ChannelToPosition(unsigned int chan,
+                                                  float*       xyz)  const
+    {
+      // figure out where this channel sits in the yz plane
+      // pixel 0 is at the bottom of the upstream end
+      // and the pixels increase along the z direction.
+      // The second row starts with pixel number 0 + numPixelsZ and so on
+ 
+      float row = 1. * (chan / fNumPixelsZ);
+      float col = 1. * (chan % fNumPixelsZ);
+      
+      // set the x position to be nonsense - our channels can't tell us what
+      // that is
+      xyz[0] = std::numeric_limits<float>::max();
+      
+      // now set the y and z using the pixel size
+      // the y position can be +/-, z is always positive
+      xyz[1] = fPixelSize * (row - 0.5 * fNumPixelsY);
+      xyz[2] = fPixelSize * col;
+      
+      return;
+    }
+    
   } // namespace
 } // namespace gar

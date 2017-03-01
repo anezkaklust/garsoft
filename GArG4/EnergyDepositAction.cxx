@@ -32,7 +32,7 @@ namespace gar {
     //-------------------------------------------------------------
     // Constructor.
     EnergyDepositAction::EnergyDepositAction(CLHEP::HepRandomEngine*    engine,
-                         fhicl::ParameterSet const& pset)
+                                             fhicl::ParameterSet const& pset)
     : fEngine(engine)
     {
       this->reconfigure(pset);

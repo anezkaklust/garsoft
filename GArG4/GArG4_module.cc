@@ -87,6 +87,7 @@
 #include "Geant4/G4SDManager.hh"
 #include "Geant4/G4VSensitiveDetector.hh"
 #include "Geant4/globals.hh"
+#include "Geant4/G4ProductionCuts.hh"
 
 // ROOT Includes
 #include "TGeoManager.h"
@@ -285,8 +286,14 @@ namespace gar {
       << " volume has address "
       << logVol;
       
-      
       fG4Help->SetVolumeStepLimit(fGArVolumeName, fMaxStepSize * CLHEP::cm);
+      
+      // Create some particle production cuts based on track length
+      G4ProductionCuts* prodcuts = new G4ProductionCuts();
+      prodcuts->SetProductionCut(1.5 * CLHEP::cm); // For all particles
+      G4Region* gas_region = new G4Region("GAS");
+      gas_region->AddRootLogicalVolume(logVol);
+      gas_region->SetProductionCuts(prodcuts);
       
       // Intialize G4 physics and primary generator action
       fG4Help->InitPhysics();

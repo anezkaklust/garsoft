@@ -38,7 +38,7 @@ namespace gar {
       
       // Standard constructors and destructors;
       EnergyDepositAction(CLHEP::HepRandomEngine*        engine,
-                fhicl::ParameterSet     const& pset);
+                          fhicl::ParameterSet     const& pset);
       virtual ~EnergyDepositAction();
       
       void reconfigure(fhicl::ParameterSet const& pset);
