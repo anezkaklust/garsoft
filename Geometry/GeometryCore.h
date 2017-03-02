@@ -618,6 +618,10 @@ namespace gar {
       unsigned int NearestChannel(std::vector<float> const& worldLoc)    const;
       unsigned int NearestChannel(TVector3           const& worldLoc)    const;
       //@}
+
+      void ChannelToPosition(unsigned int const channel,
+                             float*       const worldLoc) const;
+
       
       //
       // unsorted methods

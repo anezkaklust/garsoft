@@ -423,6 +423,13 @@ namespace gar {
     }
     
     //--------------------------------------------------------------------
+    void GeometryCore::ChannelToPosition(unsigned int const channel,
+                                         float*       const worldLoc) const
+    {
+      return fChannelMapAlg->ChannelToPosition(channel, worldLoc);
+    }
+    
+    //--------------------------------------------------------------------
     constexpr details::geometry_iterator_types::BeginPos_t
     details::geometry_iterator_types::begin_pos;
     constexpr details::geometry_iterator_types::EndPos_t

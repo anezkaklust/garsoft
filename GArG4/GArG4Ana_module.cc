@@ -10,8 +10,6 @@
 /// Framework includes
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Core/EDAnalyzer.h"
-
-// Framework includes
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
@@ -23,7 +21,7 @@
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "cetlib/exception.h"
 
-// LArSoft Includes
+// GArSoft Includes
 #include "MCCheater/BackTracker.h"
 #include "nutools/ParticleNavigation/ParticleList.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
@@ -86,14 +84,14 @@ namespace gar {
       
     private:
       
-      std::string fG4ModuleLabel;    ///< module label for the Geant
-      std::string fTruthModuleLabel; ///< module label for the Geant
+      std::string  fG4ModuleLabel;    ///< module label for the Geant
+      std::string  fTruthModuleLabel; ///< module label for the Geant
       
-      TTree*       fEDepTree;        ///< Tree to keep track of sanity check info
-      TTree*       fParticleTree;    ///< Tree to keep track of sanity check info
-      EventInfo    fEvt;             ///< Struct containing event identification
-      EnergyDep    fEDep;            ///< Struct containing energy deposition info
-      ParticleInfo fPartInfo;        ///< Struct containing particle info
+      TTree*       fEDepTree;         ///< Tree to keep track of sanity check info
+      TTree*       fParticleTree;     ///< Tree to keep track of sanity check info
+      EventInfo    fEvt;              ///< Struct containing event identification
+      EnergyDep    fEDep;             ///< Struct containing energy deposition info
+      ParticleInfo fPartInfo;         ///< Struct containing particle info
     };
     
   } // namespace garg4
@@ -151,7 +149,7 @@ namespace gar {
     void GArG4Ana::analyze(const ::art::Event& evt)
     {
       // set the event id info
-      fEvt.run = evt.run();
+      fEvt.run    = evt.run();
       fEvt.subrun = evt.subRun();
       fEvt.event  = evt.id().event();
       

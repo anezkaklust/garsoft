@@ -67,6 +67,7 @@ art_make(LIB_LIBRARIES nusimdata_SimulationBase
                        ReadoutSimulation
                        SimulationDataProducts
                        RawDataProducts
+                       MCCheater_BackTracker_service
                        nusimdata_SimulationBase
                        nutools_RandomUtils_NuRandomService_service
                        ${ART_FRAMEWORK_CORE}
