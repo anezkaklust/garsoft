@@ -1,0 +1,10 @@
+BEGIN_PROLOG
+
+standard_rawdigitana:
+{
+ module_type:        RawDigitAna
+ GeantModuleLabel:   "geant"
+ ReadoutModuleLabel: "daq"
+}
+
+END_PROLOG

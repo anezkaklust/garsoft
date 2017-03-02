@@ -2,7 +2,7 @@
 #include "ElectronDriftAlg.fcl"
 #include "TPCReadoutSimAlg.fcl"
 
-#BEGIN_PROLOG
+BEGIN_PROLOG
 
 standard_ionizationreadout:
 {
@@ -13,4 +13,4 @@ standard_ionizationreadout:
  TPCReadoutSimAlgPars: @local::standard_tpcreadoutsimalg
 }
 
-#END_PROLOG
+END_PROLOG
