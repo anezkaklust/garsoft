@@ -88,7 +88,7 @@ namespace gar {
       std::string  fReadoutModuleLabel; ///< module label for the Geant
       std::string  fG4ModuleLabel;      ///< module label for the Geant
       
-      TTree*       fEDepTree;          ///< Tree to keep track of sanity check info
+      TTree*       fChannelTree;       ///< Tree to keep track of sanity check info
       EventInfo    fEvt;               ///< Struct containing event identification
       EnergyDep    fEDep;              ///< Struct containing energy deposition info
       ChannelInfo  fChannelInfo;       ///< Struct containing channel info
@@ -118,19 +118,19 @@ namespace gar {
       ::art::ServiceHandle<::art::TFileService> tfs;
       ::art::ServiceHandle<geo::Geometry> geo;
       
-      fEDepTree = tfs->make<TTree>("EDepTree", "EDepTree");
+      fChannelTree = tfs->make<TTree>("ChannelTree", "ChannelTree");
       
       std::string description("run/I:subrun/I:event/I");
       
-      fEDepTree->Branch("info", &fEvt, description.c_str());
+      fChannelTree->Branch("info", &fEvt, description.c_str());
       
       description = "trackID/I:pdg/I:x/F:y/F:z/F:e/F:dX/F:t/F";
       
-      fEDepTree->Branch("edep", &fEDep, description.c_str());
+      fChannelTree->Branch("edep", &fEDep, description.c_str());
       
       description = "channel/I:x/F:y/F:z/F";
       
-      fEDepTree->Branch("chan", &fChannelInfo, description.c_str());
+      fChannelTree->Branch("chan", &fChannelInfo, description.c_str());
       
     }
     
@@ -194,38 +194,38 @@ namespace gar {
         fChannelInfo.z = xyz[2];
 
         // loop over the energy deposition collections to fill the tree
-        for(auto edep : edepsCol){
+//        for(auto edep : edepsCol){
+//        
+//          // get the MCParticle for this track ID
+//          auto part = bt->TrackIDToParticle(edep->TrackID());
+//          
+//          fEDep.trackID = edep->TrackID();
+//          fEDep.pdg     = part->PdgCode();
+//          fEDep.x       = edep->X();
+//          fEDep.y       = edep->Y();
+//          fEDep.z       = edep->Z();
+//          fEDep.dX      = edep->dX();
+//          fEDep.t       = edep->Time();
+//          fEDep.e       = edep->Energy();
+//          
+//          LOG_DEBUG("RawDigitAna")
+//          << "pos: ("
+//          << fEDep.x
+//          << ", "
+//          << fEDep.y
+//          << ", "
+//          << fEDep.z
+//          << ") e: "
+//          << fEDep.e
+//          << " t: "
+//          << fEDep.t
+//          << " dX: "
+//          << fEDep.dX;
         
-          // get the MCParticle for this track ID
-          auto part = bt->TrackIDToParticle(edep->TrackID());
-          
-          fEDep.trackID = edep->TrackID();
-          fEDep.pdg     = part->PdgCode();
-          fEDep.x       = edep->X();
-          fEDep.y       = edep->Y();
-          fEDep.z       = edep->Z();
-          fEDep.dX      = edep->dX();
-          fEDep.t       = edep->Time();
-          fEDep.e       = edep->Energy();
-          
-          LOG_DEBUG("RawDigitAna")
-          << "pos: ("
-          << fEDep.x
-          << ", "
-          << fEDep.y
-          << ", "
-          << fEDep.z
-          << ") e: "
-          << fEDep.e
-          << " t: "
-          << fEDep.t
-          << " dX: "
-          << fEDep.dX;
-          
           // make the tree flat in terms of the energy depositions
-          fEDepTree->Fill();
+          fChannelTree->Fill();
           
-        } // end loop over collection of EnergyDeposits
+//        } // end loop over collection of EnergyDeposits
       } // end loop over RawDigit collection
       
       return;

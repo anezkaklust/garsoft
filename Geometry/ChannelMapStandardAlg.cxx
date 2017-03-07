@@ -19,7 +19,6 @@ namespace gar {
     , fNumPixelsY     (std::numeric_limits<unsigned int>::max())
     , fPixelActiveSize(p.get<float>("PixelActiveSize",  0.3 )  )
     , fPixelPitch     (p.get<float>("PixelPitch",       0.35)  )
-    , fPixelSize      (fPixelActiveSize + fPixelPitch          )
     {
     }
     
@@ -36,8 +35,17 @@ namespace gar {
       // count up how many channels
       // for this channel map, we have square pixels of a size given by the
       // configuration as is the pitch between them
-      fNumPixelsZ = (unsigned int)std::floor(length / fPixelSize);
-      fNumPixelsY = (unsigned int)std::floor(height / fPixelSize);
+      fNumPixelsZ = (unsigned int)std::floor(length / fPixelPitch);
+      fNumPixelsY = (unsigned int)std::floor(height / fPixelPitch);
+      
+      // get the xyz center for each pixel
+      for(size_t y = 0; y < fNumPixelsY; ++y){
+        for(size_t z = 0; z < fNumPixelsZ; ++z){
+          fPixelCenters.emplace_back(std::numeric_limits<float>::max(),
+                                    (y + 0.5) * fPixelPitch - geo.DetHalfHeight(),
+                                    (z + 0.5) * fPixelPitch);
+        }
+      }
       
       return;
     }
@@ -50,7 +58,7 @@ namespace gar {
     //----------------------------------------------------------------------------
     unsigned int ChannelMapStandardAlg::Nchannels() const
     {
-      return (fNumPixelsZ + fNumPixelsY);
+      return (fNumPixelsZ * fNumPixelsY);
     }
     
     //----------------------------------------------------------------------------
@@ -60,8 +68,8 @@ namespace gar {
       // and the pixels increase along the z direction.  The second row starts
       // with pixel number 0 + numPixelsZ and so on
       
-      float maxZ = fNumPixelsZ * fPixelSize;
-      float maxY = 0.5 * (fNumPixelsY * fPixelSize);
+      float maxZ = fNumPixelsZ * fPixelPitch;
+      float maxY = 0.5 * (fNumPixelsY * fPixelPitch);
       
       // make sure the given position has a channel even associated with it
       if(std::abs(xyz[1]) > maxY ||
@@ -77,11 +85,11 @@ namespace gar {
         << ")";
       
       // now figure out which pixel we are dealing with
-      unsigned int zPix = (unsigned int)std::floor(xyz[2] / fPixelSize);
+      unsigned int zPix = (unsigned int)std::floor(xyz[2] / fPixelPitch);
       
       // for the y pixel number, we have to account for the fact that
       // the y position goes between -maxY < 0 < +maxY
-      unsigned int yPix = (unsigned int)std::floor((xyz[1] + maxY) / fPixelSize);
+      unsigned int yPix = (unsigned int)std::floor((xyz[1] + maxY) / fPixelPitch);
       
       return (yPix * fNumPixelsZ + zPix);      
     }
@@ -90,22 +98,10 @@ namespace gar {
     void ChannelMapStandardAlg::ChannelToPosition(unsigned int chan,
                                                   float*       xyz)  const
     {
-      // figure out where this channel sits in the yz plane
-      // pixel 0 is at the bottom of the upstream end
-      // and the pixels increase along the z direction.
-      // The second row starts with pixel number 0 + numPixelsZ and so on
- 
-      float row = 1. * (chan / fNumPixelsZ);
-      float col = 1. * (chan % fNumPixelsZ);
       
-      // set the x position to be nonsense - our channels can't tell us what
-      // that is
-      xyz[0] = std::numeric_limits<float>::max();
-      
-      // now set the y and z using the pixel size
-      // the y position can be +/-, z is always positive
-      xyz[1] = fPixelSize * (row - 0.5 * fNumPixelsY);
-      xyz[2] = fPixelSize * col;
+      xyz[0] = fPixelCenters[chan].x;
+      xyz[1] = fPixelCenters[chan].y;
+      xyz[2] = fPixelCenters[chan].z;
       
       return;
     }

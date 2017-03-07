@@ -18,6 +18,22 @@
 namespace gar{
   namespace geo{
     
+    struct XYZPos
+    {
+      XYZPos(float xPos,
+             float yPos,
+             float zPos)
+      : x(xPos)
+      , y(yPos)
+      , z(zPos)
+      {}
+      
+      float x;
+      float y;
+      float z;
+      
+    };
+    
     class ChannelMapStandardAlg : public ChannelMapAlg{
       
     public:
@@ -33,11 +49,11 @@ namespace gar{
       
     private:
       
-      unsigned int fNumPixelsZ;      ///< number of pixels in the z direction
-      unsigned int fNumPixelsY;      ///< number of pixels in the y direction
-      float        fPixelActiveSize; ///< active size of a pixel on an edge
-      float        fPixelPitch;      ///< distance between pixel centers
-      float        fPixelSize;       ///< total size of a pixel on an edge
+      unsigned int        fNumPixelsZ;      ///< number of pixels in the z direction
+      unsigned int        fNumPixelsY;      ///< number of pixels in the y direction
+      float               fPixelActiveSize; ///< active size of a pixel on an edge
+      float               fPixelPitch;      ///< distance between pixel centers
+      std::vector<XYZPos> fPixelCenters;    ///< x,y,z center of each pixel
     };
     
     
