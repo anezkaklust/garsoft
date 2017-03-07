@@ -35,14 +35,18 @@ namespace gar {
     raw::RawDigit TPCReadoutSimStandardAlg::CreateRawDigit(unsigned int              channel,
                                                            std::vector<float> const& electrons)
     {
-      // loop over the IDEs to figure out where the channel boundaries are
-      // then take them one channel at a time to convert the number of electrons
-      // drifted as a function of TDC value to ADC values
-      
-      // The IDEs should have been combined already so that there are no repeat
-      // TDC values for any channel
+      // make a vector to store the adc information
       auto numTicks = fDetProp->NumberTimeSamples();
       std::vector<short> adcs(numTicks, 0);
+      
+      
+      // check that the size of the electrons vector is the same as the
+      // adc vector, they better be
+      if(adcs.size() != electrons.size()){
+        throw cet::exception("TPCReadoutSimStandardAlg")
+        << "The vectors for adc and electrons have different sizes, no idea "
+        << "how to handle that, bail";
+      }
       
       for(size_t e = 0; e < electrons.size(); ++e){
         adcs[e] = this->ElectronsToADCs(electrons[e]);

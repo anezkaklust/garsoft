@@ -79,12 +79,20 @@ namespace gar {
       void DriftElectronsToReadout(std::vector<sdp::EnergyDeposit> const& edepCol,
                                    std::vector<edepIDE>                 & edepIDEs);
       void CombineIDEs(std::vector<edepIDE> & edepIDEs);
+      void CreateSignalDigit(unsigned int                                            channel,
+                             std::vector<float>                                    & electrons,
+                             std::set<size_t>                                      & eDepLocs,
+                             std::vector<raw::RawDigit>                            & digCol,
+                             ::art::ValidHandle< std::vector<sdp::EnergyDeposit> > & eDepCol,
+                             ::art::Assns<sdp::EnergyDeposit, raw::RawDigit>       & erassn,
+                             ::art::Event                                          & evt);
       
       std::string                         fG4Label;    ///< label of G4 module
       std::unique_ptr<ElectronDriftAlg>   fDriftAlg;   ///< algorithm to drift ionization electrons
       const gar::detinfo::DetectorClocks* fTime;       ///< electronics clock
       std::unique_ptr<TPCReadoutSimAlg>   fROSimAlg;   ///< algorithm to simulate the electronics
       fhicl::ParameterSet                 fISCalcPars; ///< parameter set for the IS calculator
+      size_t                              fNumTicks;   ///< number of TDC samples
       
     };
     
@@ -98,6 +106,8 @@ namespace gar {
     {
       fTime  = gar::providerFrom<detinfo::DetectorClocksService>();
       
+      fNumTicks = gar::providerFrom<detinfo::DetectorPropertiesService>()->NumberTimeSamples();
+
       // setup the random number service
       // obtain the random seed from NuRandomService
       ::art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, "HepJamesRandom", "ionization", pset, "IonizationSeed");
@@ -186,26 +196,36 @@ namespace gar {
       
       // The IDEs should have been combined already so that there are no repeat
       // TDC values for any channel
-      auto               numTicks = gar::providerFrom<detinfo::DetectorPropertiesService>()->NumberTimeSamples();
       unsigned int       prevChan = eDepIDEs.front().Channel;
       std::set<size_t>   digitEDepLocs;
-      std::vector<float> electrons(numTicks, 0.);
+      std::vector<float> electrons(fNumTicks, 0.);
 
       // make the signal raw digits and set their associations to the energy deposits
       for(auto edide : eDepIDEs){
         
-        if(edide.Channel != prevChan){
-          rdCol->emplace_back(fROSimAlg->CreateRawDigit(edide.Channel, electrons));
+        LOG_DEBUG("IonizationReadout")
+        << "Current eDepIDE channel is "
+        << edide.Channel
+        << " previous channel is "
+        << prevChan;
         
-          // loop over the locations in the eDepCol to make the associations
-          for(auto ed : digitEDepLocs){
-            auto const ptr = art::Ptr<sdp::EnergyDeposit>(eDepCol, ed);
-            util::CreateAssn(*this, evt, *rdCol, ptr, *erassn);
-          }
-
-          digitEDepLocs.clear();
-          electrons.clear();
-          electrons.resize(numTicks, 0);
+        if(edide.Channel != prevChan){
+          LOG_DEBUG("IonizationReadout")
+          << "There are  "
+          << digitEDepLocs.size()
+          << " locations for "
+          << edide.Channel
+          << " rdCol size is currently "
+          << rdCol->size();
+          
+          this->CreateSignalDigit(edide.Channel,
+                                  electrons,
+                                  digitEDepLocs,
+                                  *rdCol,
+                                  eDepCol,
+                                  *erassn,
+                                  evt);
+          
           prevChan = edide.Channel;
         }
 
@@ -215,6 +235,20 @@ namespace gar {
         
       } // end loop to fill signal raw digit vector and make EnergyDeposit associations
 
+      // still one more digit to make because we ran out of channels to compare against
+      this->CreateSignalDigit(eDepIDEs.back().Channel,
+                              electrons,
+                              digitEDepLocs,
+                              *rdCol,
+                              eDepCol,
+                              *erassn,
+                              evt);
+      
+      LOG_DEBUG("IonizationReadout")
+      << "Created "
+      << rdCol->size()
+      << " raw digits from signal";
+      
       // now make the noise digits
       fROSimAlg->CreateNoiseDigits(*rdCol);
       
@@ -284,48 +318,84 @@ namespace gar {
     //--------------------------------------------------------------------------
     void IonizationReadout::CombineIDEs(std::vector<edepIDE> & edepIDEs)
     {
+      LOG_DEBUG("IonizationReadout")
+      << "starting with "
+      << edepIDEs.size()
+      << " energy deposits";
+      
       std::vector<edepIDE> temp;
       
-      // sort the edepIDE objects.  This is the sorting by IDEs because that is
-      // all the < operator of edepIDEs does
+      // sort the edepIDE objects.  This is the sorting by channel and TDC
+      // because that is all the < operator of edepIDEs does
       std::sort(edepIDEs.begin(), edepIDEs.end());
       
-      unsigned int   chan     = 0;
-      unsigned int   prevChan = edepIDEs.front().Channel;
-      unsigned short tdc      = 0;
-      unsigned short prevTDC  = edepIDEs.front().TDC;
-      
+      edepIDE prev = edepIDEs.front();
       edepIDE sum(edepIDEs.front());
+      edepIDE cur(edepIDEs.front());
       
       // now loop over the sorted vector and combine any edepIDEs
       // with the same channel and tdc values for the IDEs
-      for(auto edepIDE : edepIDEs){
-      
-        chan = edepIDE.Channel;
-        tdc  = edepIDE.TDC;
+      // start with entry 1 as sum is already holding the information
+      // from entry 0
+      for(size_t e = 1; e < edepIDEs.size(); ++e){
+        cur = edepIDEs[e];
         
-        if(chan != prevChan ||
-           tdc  != prevTDC){
-          
+        if(cur != prev){
           // put the summed edepIDE into the temp vector
           temp.push_back(sum);
           
           // start over with a fresh sum
-          sum      = edepIDE;
-          prevChan = chan;
-          prevTDC  = tdc;
-          
+          sum = cur;
         }
-        else
-          sum += edepIDE;
+        else{
+          sum  += cur;
+          prev  = cur;
+        }
         
-      } // end loop to sum edepIDEs with the same channel and tdc values
+      } // end loop to sum edepIDEs
       
       // now swap the input vector with the temp vector
       temp.swap(edepIDEs);
+
+      LOG_DEBUG("IonizationReadout")
+      << "ending with "
+      << edepIDEs.size()
+      << " energy deposits";
+
+      return;
+    }
+    
+    //--------------------------------------------------------------------------
+    void IonizationReadout::CreateSignalDigit(unsigned int                                            channel,
+                                              std::vector<float>                                    & electrons,
+                                              std::set<size_t>                                      & eDepLocs,
+                                              std::vector<raw::RawDigit>                            & digCol,
+                                              ::art::ValidHandle< std::vector<sdp::EnergyDeposit> > & eDepCol,
+                                              ::art::Assns<sdp::EnergyDeposit, raw::RawDigit>       & erassn,
+                                              ::art::Event                                          & evt)
+    {
+      
+      digCol.emplace_back(fROSimAlg->CreateRawDigit(channel, electrons));
+      
+      LOG_DEBUG("IonizationReadout")
+      << "Associating "
+      << eDepLocs.size()
+      << " energy deposits to digit for channel "
+      << channel;
+      
+      // loop over the locations in the eDepCol to make the associations
+      for(auto ed : eDepLocs){
+        auto const ptr = art::Ptr<sdp::EnergyDeposit>(eDepCol, ed);
+        util::CreateAssn(*this, evt, digCol, ptr, erassn);
+      }
+      
+      eDepLocs.clear();
+      electrons.clear();
+      electrons.resize(fNumTicks, 0);
       
       return;
     }
+
     
   } // namespace rosim
   

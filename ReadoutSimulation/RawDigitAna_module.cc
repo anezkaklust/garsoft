@@ -86,12 +86,10 @@ namespace gar {
     private:
       
       std::string  fReadoutModuleLabel; ///< module label for the Geant
-      std::string  fG4ModuleLabel;      ///< module label for the Geant
-      
-      TTree*       fChannelTree;       ///< Tree to keep track of sanity check info
-      EventInfo    fEvt;               ///< Struct containing event identification
-      EnergyDep    fEDep;              ///< Struct containing energy deposition info
-      ChannelInfo  fChannelInfo;       ///< Struct containing channel info
+      TTree*       fChannelTree;        ///< Tree to keep track of sanity check info
+      EventInfo    fEvt;                ///< Struct containing event identification
+      EnergyDep    fEDep;               ///< Struct containing energy deposition info
+      ChannelInfo  fChannelInfo;        ///< Struct containing channel info
     };
     
   } // namespace rosim
@@ -137,7 +135,6 @@ namespace gar {
     //-----------------------------------------------------------------------
     void RawDigitAna::reconfigure(fhicl::ParameterSet const& p)
     {
-      fG4ModuleLabel      = p.get< std::string >("GeantModuleLabel"  );
       fReadoutModuleLabel = p.get< std::string >("ReadoutModuleLabel");
       
       return;
@@ -175,57 +172,61 @@ namespace gar {
       }
 
       auto geo = gar::providerFrom<geo::Geometry>();
-
-      std::vector<const gar::sdp::EnergyDeposit*> edepsCol;
-
+      
       float xyz[3] = {0.};
       
       for(size_t d = 0; d < digCol->size(); ++d){
+        std::vector<const gar::sdp::EnergyDeposit*> edepsCol;
         fmEnergyDep.get(d, edepsCol);
         if(edepsCol.size() < 1) continue;
         
-        // fill the channel information
-        fChannelInfo.channel = (*digCol)[d].Channel();
-
+        LOG_DEBUG("RawDigitAna")
+        << "There are "
+        << edepsCol.size()
+        << " energy depositions for channel "
+        << (*digCol)[d].Channel();
+        
         geo->ChannelToPosition((*digCol)[d].Channel(), xyz);
         
-        fChannelInfo.x = xyz[0];
-        fChannelInfo.y = xyz[1];
-        fChannelInfo.z = xyz[2];
+        // fill the channel information
+        fChannelInfo.channel = (int)(*digCol)[d].Channel();
+        fChannelInfo.x       = xyz[0];
+        fChannelInfo.y       = xyz[1];
+        fChannelInfo.z       = xyz[2];
 
         // loop over the energy deposition collections to fill the tree
-//        for(auto edep : edepsCol){
-//        
-//          // get the MCParticle for this track ID
-//          auto part = bt->TrackIDToParticle(edep->TrackID());
-//          
-//          fEDep.trackID = edep->TrackID();
-//          fEDep.pdg     = part->PdgCode();
-//          fEDep.x       = edep->X();
-//          fEDep.y       = edep->Y();
-//          fEDep.z       = edep->Z();
-//          fEDep.dX      = edep->dX();
-//          fEDep.t       = edep->Time();
-//          fEDep.e       = edep->Energy();
-//          
-//          LOG_DEBUG("RawDigitAna")
-//          << "pos: ("
-//          << fEDep.x
-//          << ", "
-//          << fEDep.y
-//          << ", "
-//          << fEDep.z
-//          << ") e: "
-//          << fEDep.e
-//          << " t: "
-//          << fEDep.t
-//          << " dX: "
-//          << fEDep.dX;
+        for(auto edep : edepsCol){
+        
+          // get the MCParticle for this track ID
+          auto part = bt->TrackIDToParticle(edep->TrackID());
+          
+          fEDep.trackID = edep->TrackID();
+          fEDep.pdg     = part->PdgCode();
+          fEDep.x       = edep->X();
+          fEDep.y       = edep->Y();
+          fEDep.z       = edep->Z();
+          fEDep.dX      = edep->dX();
+          fEDep.t       = edep->Time();
+          fEDep.e       = edep->Energy();
+          
+          LOG_DEBUG("RawDigitAna")
+          << "pos: ("
+          << fEDep.x
+          << ", "
+          << fEDep.y
+          << ", "
+          << fEDep.z
+          << ") e: "
+          << fEDep.e
+          << " t: "
+          << fEDep.t
+          << " dX: "
+          << fEDep.dX;
         
           // make the tree flat in terms of the energy depositions
           fChannelTree->Fill();
           
-//        } // end loop over collection of EnergyDeposits
+        } // end loop over collection of EnergyDeposits
       } // end loop over RawDigit collection
       
       return;

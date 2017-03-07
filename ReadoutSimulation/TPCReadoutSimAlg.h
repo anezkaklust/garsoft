@@ -52,7 +52,22 @@ namespace gar {
         
         return false;
       }
-      
+
+      //------------------------------------------------------------------------
+      bool operator ==(edepIDE const& b) const
+      {
+        if(Channel == b.Channel &&
+           TDC     == b.TDC     ) return true;
+        
+        return false;
+      }
+
+      //------------------------------------------------------------------------
+      bool operator !=(edepIDE const& b) const
+      {
+        return !(*this == b);
+      }
+
       //------------------------------------------------------------------------
       void operator +=(edepIDE const& b)
       {
