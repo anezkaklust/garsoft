@@ -5,8 +5,8 @@ standard_geo:
  ForceUseFCLOnly:   false
  SortingParameters:
  {
-  PixelActiveSize: 0.3  # cm
-  PixelPitch:      0.35 # cm
+  PixelActiveSize: 0.3      # cm
+  PixelPitch:      0.333333 # cm
  }
  RelativePath:      ""
  GDML:              "generic_detector.gdml"

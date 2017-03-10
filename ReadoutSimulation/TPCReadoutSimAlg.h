@@ -36,11 +36,8 @@ namespace gar {
       , Channel (chan)
       , TDC     (tdc)
       {
-        edepLocs.push_back(edepIdx);
+        edepLocs.insert(edepIdx);
       }
-      
-      //------------------------------------------------------------------------
-      void AddEDep(size_t edepLoc) { edepLocs.push_back(edepLoc); }
       
       //------------------------------------------------------------------------
       bool operator <(edepIDE const& b) const
@@ -71,10 +68,15 @@ namespace gar {
       //------------------------------------------------------------------------
       void operator +=(edepIDE const& b)
       {
-        if(TDC != b.TDC ){
+        if(Channel != b.Channel ||
+           TDC     != b.TDC ){
           LOG_WARNING("IonizationReadout")
           << "Attempting to add edepIDE with different "
-          << "TDCs: "
+          << "Channels: "
+          << Channel
+          << " / "
+          << b.Channel
+          << " or TDCs: "
           << TDC
           << " / "
           << b.TDC
@@ -85,15 +87,15 @@ namespace gar {
         NumElect += b.NumElect;
         
         for(auto const e : b.edepLocs)
-          edepLocs.push_back(e);
+          edepLocs.insert(e);
         
         return;
       }
       
-      float               NumElect;
-      unsigned int        Channel;
-      unsigned short      TDC;
-      std::vector<size_t> edepLocs;
+      float            NumElect;
+      unsigned int     Channel;
+      unsigned short   TDC;
+      std::set<size_t> edepLocs;
     };
 
     class TPCReadoutSimAlg{

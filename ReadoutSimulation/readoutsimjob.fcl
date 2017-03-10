@@ -49,7 +49,7 @@ physics:
  producers:
  {
   daq: @local::standard_ionizationreadout
-  rns:       { module_type: "RandomNumberSaver"}
+  rns: { module_type: "RandomNumberSaver"}
  }
  analyzers:
  {

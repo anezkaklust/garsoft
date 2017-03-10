@@ -172,8 +172,10 @@ namespace gar {
       }
 
       auto geo = gar::providerFrom<geo::Geometry>();
-      
-      float xyz[3] = {0.};
+
+      float        xyz[3]     = {0.};
+      float        xyzChan[3] = {0.};
+      unsigned int chan       = 0;
       
       for(size_t d = 0; d < digCol->size(); ++d){
         std::vector<const gar::sdp::EnergyDeposit*> edepsCol;
@@ -193,7 +195,7 @@ namespace gar {
         fChannelInfo.x       = xyz[0];
         fChannelInfo.y       = xyz[1];
         fChannelInfo.z       = xyz[2];
-
+        
         // loop over the energy deposition collections to fill the tree
         for(auto edep : edepsCol){
         
@@ -222,7 +224,49 @@ namespace gar {
           << fEDep.t
           << " dX: "
           << fEDep.dX;
-        
+          
+          // closure test for the channel map
+          xyz[0] = fEDep.x;
+          xyz[1] = fEDep.y;
+          xyz[2] = fEDep.z;
+          
+          chan = geo->NearestChannel(xyz);
+          geo->ChannelToPosition(chan, xyzChan);
+          
+          if(std::abs(xyz[1] - fChannelInfo.y) > 0.33)
+            LOG_VERBATIM("RawDigitAna")
+            << "Channel "
+            << fChannelInfo.channel
+            << " / "
+            << chan
+            << " is off from the energy deposit in y: ("
+            << fChannelInfo.y
+            << ", "
+            << fChannelInfo.z
+            << ") vs ("
+            << xyz[1]
+            << ", "
+            << xyz[2]
+            << ") "
+            << std::abs(xyz[1] - fChannelInfo.y);
+
+          if(std::abs(xyz[2] - fChannelInfo.z) > 10.33)
+            LOG_VERBATIM("RawDigitAna")
+            << "Channel "
+            << fChannelInfo.channel
+            << " / "
+            << chan
+            << " is off from the energy deposit in z: ("
+            << fChannelInfo.y
+            << ", "
+            << fChannelInfo.z
+            << ") vs ("
+            << xyz[1]
+            << ", "
+            << xyz[2]
+            << ") "
+            << std::abs(xyz[2] - fChannelInfo.z);
+
           // make the tree flat in terms of the energy depositions
           fChannelTree->Fill();
           

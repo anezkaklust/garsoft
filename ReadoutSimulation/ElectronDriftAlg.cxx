@@ -28,6 +28,11 @@ namespace gar {
                                   std::vector<double> & time,
                                   std::vector<int   > & size)
     {
+      fClusterXPos.clear();
+      fClusterYPos.clear();
+      fClusterZPos.clear();
+      fClusterTime.clear();
+      fClusterSize.clear();
       
       fClusterXPos.swap(xPos);
       fClusterYPos.swap(yPos);

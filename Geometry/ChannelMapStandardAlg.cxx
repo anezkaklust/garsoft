@@ -23,30 +23,64 @@ namespace gar {
     }
     
     //----------------------------------------------------------------------------
+    // place the pixels such that pixel 0 is at the bottom of the upstream end
+    // and the pixels increase along the z direction.  The second row starts
+    // with pixel number 0 + numPixelsZ and so on
     void ChannelMapStandardAlg::Initialize(GeometryCore &geo)
     {
       // start over:
       Uninitialize();
       
       // get the extent of the detector
-      auto height   = geo.DetHalfHeight() * 2.;
-      auto length   = geo.DetLength();
+      fHalfHeight = geo.DetHalfHeight();
+      auto length = geo.DetLength();
       
       // count up how many channels
       // for this channel map, we have square pixels of a size given by the
       // configuration as is the pitch between them
       fNumPixelsZ = (unsigned int)std::floor(length / fPixelPitch);
-      fNumPixelsY = (unsigned int)std::floor(height / fPixelPitch);
+      fNumPixelsY = (unsigned int)std::floor(2. * fHalfHeight / fPixelPitch);
       
       // get the xyz center for each pixel
       for(size_t y = 0; y < fNumPixelsY; ++y){
+        fPixRowBounds.insert((y + 1) * fPixelPitch - fHalfHeight);
         for(size_t z = 0; z < fNumPixelsZ; ++z){
+          if(y == 0) fPixColumnBounds.insert((z + 1) * fPixelPitch);
           fPixelCenters.emplace_back(std::numeric_limits<float>::max(),
-                                    (y + 0.5) * fPixelPitch - geo.DetHalfHeight(),
-                                    (z + 0.5) * fPixelPitch);
+                                     (y + 0.5) * fPixelPitch - geo.DetHalfHeight(),
+                                     (z + 0.5) * fPixelPitch);
         }
       }
       
+      LOG_DEBUG("ChannelMapStandardAlg")
+      << "There are "
+      << fPixRowBounds.size()
+      << " pixel rows and "
+      << fPixColumnBounds.size()
+      << " pixel columns";
+      
+//      int ctr = 0;
+//      for(auto y : fPixRowBounds){
+//        LOG_VERBATIM("ChannelMapStandardAlg")
+//        << "pixel "
+//        << ctr
+//        << " y bound: "
+//        << y;
+//
+//        ++ctr;
+//      }
+//      
+//      ctr = 0;
+//      for(auto z : fPixColumnBounds){
+//        LOG_VERBATIM("ChannelMapStandardAlg")
+//        << "pixel "
+//        << ctr
+//        << " z bound: "
+//        << z;
+//        
+//        ++ctr;
+//      }
+
       return;
     }
     
@@ -64,41 +98,40 @@ namespace gar {
     //----------------------------------------------------------------------------
     unsigned int ChannelMapStandardAlg::NearestChannel(float const* xyz) const
     {
-      // place the pixels such that pixel 0 is at the bottom of the upstream end
-      // and the pixels increase along the z direction.  The second row starts
-      // with pixel number 0 + numPixelsZ and so on
+      // use the bounds to determine the channel
+      auto yItr = fPixRowBounds.lower_bound(xyz[1]);
+      auto zItr = fPixColumnBounds.lower_bound(xyz[2]);
       
-      float maxZ = fNumPixelsZ * fPixelPitch;
-      float maxY = 0.5 * (fNumPixelsY * fPixelPitch);
-      
-      // make sure the given position has a channel even associated with it
-      if(std::abs(xyz[1]) > maxY ||
-         xyz[2]           < 0.   ||
-         xyz[2]           > maxZ)
-        throw cet::exception("ChannelMapStandard")
-        << "Closest channel requested for position outside of active volume: ("
-        << xyz[0]
-        << ", "
+      if(yItr == fPixRowBounds.end()    ||
+         zItr == fPixColumnBounds.end() ){
+        
+        throw cet::exception("NearestChannel")
+        << "y position: "
         << xyz[1]
-        << ", "
+        << " or z position: "
         << xyz[2]
-        << ")";
+        << " is out of bounds.  Max y: "
+        << *(fPixRowBounds.rbegin())
+        << " Max z: "
+        << *(fPixColumnBounds.rbegin());
+        
+      }
       
-      // now figure out which pixel we are dealing with
-      unsigned int zPix = (unsigned int)std::floor(xyz[2] / fPixelPitch);
+      int row = std::floor((*yItr + fHalfHeight) / fPixelPitch) - 1;
+      int col = std::floor((*zItr) / fPixelPitch) - 1;
       
-      // for the y pixel number, we have to account for the fact that
-      // the y position goes between -maxY < 0 < +maxY
-      unsigned int yPix = (unsigned int)std::floor((xyz[1] + maxY) / fPixelPitch);
+      // we can't have negative pixel rows
+      if(row < 0) row = 0;
       
-      return (yPix * fNumPixelsZ + zPix);      
+      unsigned int chan = (unsigned int)((row * fNumPixelsZ) + col);
+      
+      return chan;
     }
     
     //----------------------------------------------------------------------------
     void ChannelMapStandardAlg::ChannelToPosition(unsigned int chan,
                                                   float*       xyz)  const
     {
-      
       xyz[0] = fPixelCenters[chan].x;
       xyz[1] = fPixelCenters[chan].y;
       xyz[2] = fPixelCenters[chan].z;

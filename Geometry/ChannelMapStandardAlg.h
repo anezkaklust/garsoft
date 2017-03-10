@@ -53,7 +53,10 @@ namespace gar{
       unsigned int        fNumPixelsY;      ///< number of pixels in the y direction
       float               fPixelActiveSize; ///< active size of a pixel on an edge
       float               fPixelPitch;      ///< distance between pixel centers
+      float               fHalfHeight;      ///< half height of the detector
       std::vector<XYZPos> fPixelCenters;    ///< x,y,z center of each pixel
+      std::set<float>     fPixRowBounds;    ///< boundaries in y of each row of pixels
+      std::set<float>     fPixColumnBounds; ///< boundaries in z of each column of pixels
     };
     
     

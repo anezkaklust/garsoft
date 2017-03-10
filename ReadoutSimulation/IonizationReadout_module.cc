@@ -78,14 +78,18 @@ namespace gar {
       
       void DriftElectronsToReadout(std::vector<sdp::EnergyDeposit> const& edepCol,
                                    std::vector<edepIDE>                 & edepIDEs);
-      void CombineIDEs(std::vector<edepIDE> & edepIDEs);
-      void CreateSignalDigit(unsigned int                                            channel,
+      void CombineIDEs(std::vector<edepIDE>                 & edepIDEs,
+                       std::vector<sdp::EnergyDeposit> const& edepCol);
+      void CreateSignalDigit(unsigned int                                     const& channel,
                              std::vector<float>                                    & electrons,
                              std::set<size_t>                                      & eDepLocs,
                              std::vector<raw::RawDigit>                            & digCol,
                              ::art::ValidHandle< std::vector<sdp::EnergyDeposit> > & eDepCol,
                              ::art::Assns<sdp::EnergyDeposit, raw::RawDigit>       & erassn,
                              ::art::Event                                          & evt);
+      void CheckChannelToEnergyDepositMapping(unsigned int       const& channel,
+                                              sdp::EnergyDeposit const& edep,
+                                              std::string        const& id);
       
       std::string                         fG4Label;    ///< label of G4 module
       std::unique_ptr<ElectronDriftAlg>   fDriftAlg;   ///< algorithm to drift ionization electrons
@@ -93,7 +97,8 @@ namespace gar {
       std::unique_ptr<TPCReadoutSimAlg>   fROSimAlg;   ///< algorithm to simulate the electronics
       fhicl::ParameterSet                 fISCalcPars; ///< parameter set for the IS calculator
       size_t                              fNumTicks;   ///< number of TDC samples
-      
+      const gar::geo::GeometryCore*       fGeo;        ///< geometry information
+      bool                                fCheckChan;  ///< flag to check mapping of energy deposits to channels
     };
     
   } // namespace rosim
@@ -107,6 +112,8 @@ namespace gar {
       fTime  = gar::providerFrom<detinfo::DetectorClocksService>();
       
       fNumTicks = gar::providerFrom<detinfo::DetectorPropertiesService>()->NumberTimeSamples();
+      
+      fGeo = gar::providerFrom<geo::Geometry>();
 
       // setup the random number service
       // obtain the random seed from NuRandomService
@@ -132,8 +139,9 @@ namespace gar {
       LOG_DEBUG("IonizationReadout") << "Debug: IonizationReadout()";
       ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
       
-      fISCalcPars = pset.get<fhicl::ParameterSet>("ISCalcPars"            );
-      fG4Label    = pset.get<std::string        >("G4ModuleLabel", "geant");
+      fISCalcPars = pset.get<fhicl::ParameterSet>("ISCalcPars"                 );
+      fG4Label    = pset.get<std::string        >("G4ModuleLabel",      "geant");
+      fCheckChan  = pset.get<bool               >("CheckChannelMapping", false );
       
       auto driftAlgPars = pset.get<fhicl::ParameterSet>("ElectronDriftAlgPars");
       auto driftAlgName = driftAlgPars.get<std::string>("DriftAlgType");
@@ -218,7 +226,9 @@ namespace gar {
           << " rdCol size is currently "
           << rdCol->size();
           
-          this->CreateSignalDigit(edide.Channel,
+          // this method clears the electrons and digitEDepLocs collections
+          // after creating the RawDigit
+          this->CreateSignalDigit(prevChan,
                                   electrons,
                                   digitEDepLocs,
                                   *rdCol,
@@ -226,7 +236,9 @@ namespace gar {
                                   *erassn,
                                   evt);
           
+          // reset the previous channel info
           prevChan = edide.Channel;
+          
         }
 
         electrons[edide.TDC] = edide.NumElect;
@@ -297,7 +309,7 @@ namespace gar {
           try{
             chan = geo->NearestChannel(xyz);
           }
-          catch(cet::exception &e){
+          catch(cet::exception &except){
             continue;
           }
           
@@ -306,17 +318,22 @@ namespace gar {
                                 fTime->TPCG4Time2TDC(clusterTime[c]),
                                 e);
           
+          this->CheckChannelToEnergyDepositMapping(edepIDEs.back().Channel,
+                                                   edepCol[e],
+                                                   "DriftElectronsToReadout");
+
         }
 
       } // end loop over deposit collections
 
-      this->CombineIDEs(edepIDEs);
+      this->CombineIDEs(edepIDEs, edepCol);
       
       return;
     }
     
     //--------------------------------------------------------------------------
-    void IonizationReadout::CombineIDEs(std::vector<edepIDE> & edepIDEs)
+    void IonizationReadout::CombineIDEs(std::vector<edepIDE>                 & edepIDEs,
+                                        std::vector<sdp::EnergyDeposit> const& edepCol)
     {
       LOG_DEBUG("IonizationReadout")
       << "starting with "
@@ -329,6 +346,13 @@ namespace gar {
       // because that is all the < operator of edepIDEs does
       std::sort(edepIDEs.begin(), edepIDEs.end());
       
+      for(auto itr : edepIDEs){
+        for(auto edloc : itr.edepLocs)
+          this->CheckChannelToEnergyDepositMapping(itr.Channel,
+                                                   edepCol[edloc],
+                                                   "CombineIDEsAfterSort");
+      }
+      
       edepIDE prev = edepIDEs.front();
       edepIDE sum(edepIDEs.front());
       edepIDE cur(edepIDEs.front());
@@ -340,7 +364,25 @@ namespace gar {
       for(size_t e = 1; e < edepIDEs.size(); ++e){
         cur = edepIDEs[e];
         
+        LOG_DEBUG("IonizationReadout")
+        << "current edepIDE: "
+        << cur.NumElect
+        << " "
+        << cur.Channel
+        << " "
+        << cur.TDC
+        << " "
+        << cur.edepLocs.size();
+        
         if(cur != prev){
+          LOG_DEBUG("IonizationReadout")
+          << "storing edepIDE sum";
+
+          for(auto edloc : sum.edepLocs)
+            this->CheckChannelToEnergyDepositMapping(sum.Channel,
+                                                     edepCol[edloc],
+                                                     "CombineIDEsStore");
+          
           // put the summed edepIDE into the temp vector
           temp.push_back(sum);
           
@@ -348,6 +390,9 @@ namespace gar {
           sum = cur;
         }
         else{
+          LOG_DEBUG("IonizationReadout")
+          << "summing current edepIDE";
+          
           sum  += cur;
           prev  = cur;
         }
@@ -366,7 +411,7 @@ namespace gar {
     }
     
     //--------------------------------------------------------------------------
-    void IonizationReadout::CreateSignalDigit(unsigned int                                            channel,
+    void IonizationReadout::CreateSignalDigit(unsigned int                                     const& channel,
                                               std::vector<float>                                    & electrons,
                                               std::set<size_t>                                      & eDepLocs,
                                               std::vector<raw::RawDigit>                            & digCol,
@@ -374,6 +419,8 @@ namespace gar {
                                               ::art::Assns<sdp::EnergyDeposit, raw::RawDigit>       & erassn,
                                               ::art::Event                                          & evt)
     {
+      
+      
       
       digCol.emplace_back(fROSimAlg->CreateRawDigit(channel, electrons));
       
@@ -386,6 +433,11 @@ namespace gar {
       // loop over the locations in the eDepCol to make the associations
       for(auto ed : eDepLocs){
         auto const ptr = art::Ptr<sdp::EnergyDeposit>(eDepCol, ed);
+        
+        this->CheckChannelToEnergyDepositMapping(channel,
+                                                 *ptr,
+                                                 "CreateSignalDigit");
+        
         util::CreateAssn(*this, evt, digCol, ptr, erassn);
       }
       
@@ -396,7 +448,40 @@ namespace gar {
       return;
     }
 
-    
+    //--------------------------------------------------------------------------
+    void IonizationReadout::CheckChannelToEnergyDepositMapping(unsigned int       const& channel,
+                                                               sdp::EnergyDeposit const& edep,
+                                                               std::string        const& id)
+    {
+      if(!fCheckChan) return;
+      
+      // check that the channel for this cluster is close to what we expect
+      // for the energy deposit
+      
+      float xyz[3] = {0.};
+      fGeo->ChannelToPosition(channel, xyz);
+      
+      if(std::abs(edep.Y() - xyz[1]) > 1 ||
+         std::abs(edep.Z() - xyz[2]) > 1){
+        LOG_VERBATIM("IonizationReadout")
+        << "In function "
+        << id
+        << ": Channel "
+        << channel
+        << " is off from the energy deposit: ("
+        << xyz[1]
+        << ", "
+        << xyz[2]
+        << ") vs ("
+        << edep.Y()
+        << ", "
+        << edep.Z()
+        << ") ";
+      }
+
+      return;
+    }
+
   } // namespace rosim
   
   namespace rosim {

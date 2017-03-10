@@ -72,10 +72,10 @@ namespace gar {
 
       // drift them in sets.  The X(Y)(Z)Diff vectors contain the additional
       // distance to add to the step midpoint to account for diffusion.
-      std::vector<double> XDiff(nClusters);
-      std::vector<double> YDiff(nClusters);
-      std::vector<double> ZDiff(nClusters);
-      std::vector<double> TDiff(nClusters);
+      std::vector<double> XDiff(nClusters, 0.);
+      std::vector<double> YDiff(nClusters, 0.);
+      std::vector<double> ZDiff(nClusters, 0.);
+      std::vector<double> TDiff(nClusters, 0.);
       std::vector<int   > nElec(nClusters, fElectronsPerCluster);
       
       // the last cluster may have fewer electrons than the configured amount
