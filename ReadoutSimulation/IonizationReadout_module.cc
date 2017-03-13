@@ -41,6 +41,7 @@
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "RawDataProducts/RawDigit.h"
 #include "Geometry/Geometry.h"
+#include "CoreUtils/ServiceUtil.h"
 
 // Forward declarations
 
@@ -274,7 +275,7 @@ namespace gar {
     void IonizationReadout::DriftElectronsToReadout(std::vector<sdp::EnergyDeposit> const& edepCol,
                                                     std::vector<edepIDE>                 & edepIDEs)
     {
-      ::art::ServiceHandle<gar::geo::Geometry> geo;
+      auto geo = gar::providerFrom<geo::Geometry>();
       
       float        xyz[3] = {0.};
       unsigned int chan   = 0;

@@ -67,10 +67,12 @@
 
 #include "TLorentzVector.h"
 
-#include "Geometry/Geometry.h"
-#include "SummaryDataProducts/RunData.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
+
+#include "Geometry/Geometry.h"
+#include "SummaryDataProducts/RunData.h"
+#include "CoreUtils/ServiceUtil.h"
 
 namespace gar {
   namespace evgen {
@@ -129,7 +131,7 @@ namespace gar {
   {
     
     // grab the geometry object to see what geometry we are using
-    ::art::ServiceHandle<gar::geo::Geometry> geo;
+    auto geo = gar::providerFrom<geo::Geometry>();
     std::unique_ptr<gar::sumdata::RunData> runcol(new gar::sumdata::RunData(geo->DetectorName()));
     
     run.put(std::move(runcol));

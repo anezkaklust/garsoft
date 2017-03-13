@@ -46,6 +46,7 @@
 // gar includes
 #include "Geometry/Geometry.h"
 #include "SummaryDataProducts/RunData.h"
+#include "CoreUtils/ServiceUtil.h"
 
 // root includes
 
@@ -196,7 +197,7 @@ namespace gar {
       
         // grab the geometry object to see what geometry we are using
       
-      ::art::ServiceHandle<geo::Geometry> geo;
+      auto geo = gar::providerFrom<geo::Geometry>();
       std::unique_ptr<sumdata::RunData> runcol(new sumdata::RunData(geo->DetectorName()));
       run.put(std::move(runcol));
       

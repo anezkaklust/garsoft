@@ -11,6 +11,8 @@
 
 
 #include "GArG4/MaterialPropertyLoader.h"
+#include "CoreUtils/ServiceUtil.h"
+
 #include "Geant4/G4Material.hh"
 #include "Geant4/G4MaterialPropertiesTable.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"

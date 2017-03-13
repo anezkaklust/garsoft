@@ -1,5 +1,5 @@
 /**
- * @file   ServicePack.h
+ * @file   ServiceUtil.h
  * @brief  Utilities to manage ProviderPack objects with art
  * @author Gianluca Petrillo (petrillo@fnal.gov)
  * @date   November 22, 2015

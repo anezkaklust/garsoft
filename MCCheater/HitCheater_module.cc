@@ -35,6 +35,7 @@
 #include "RawDataProducts/RawDigit.h"
 #include "ReconstructionDataProducts/Hit.h"
 #include "Geometry/Geometry.h"
+#include "CoreUtils/ServiceUtil.h"
 
 // Forward declarations
 

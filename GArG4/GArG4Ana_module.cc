@@ -26,6 +26,7 @@
 #include "nutools/ParticleNavigation/ParticleList.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "Geometry/Geometry.h"
+#include "CoreUtils/ServiceUtil.h"
 
 // ROOT includes
 #include <TTree.h>
@@ -116,7 +117,6 @@ namespace gar {
     void GArG4Ana::beginJob()
     {
       ::art::ServiceHandle<::art::TFileService> tfs;
-      ::art::ServiceHandle<geo::Geometry> geo;
       
       fEDepTree     = tfs->make<TTree>("EDepTree",     "EDepTree"   );
       fParticleTree = tfs->make<TTree>("ParticleTree", "ParicleTree");

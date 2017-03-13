@@ -13,14 +13,16 @@
 #include "canvas/Persistency/Common/FindMany.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include "nutools/ParticleNavigation/EmEveIdCalculator.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
+
 // GArSoft includes
 #include "MCCheater/BackTracker.h"
 #include "Geometry/Geometry.h"
 #include "Utilities/AssociationUtil.h"
 #include "ReconstructionDataProducts/Hit.h"
-#include "nutools/ParticleNavigation/EmEveIdCalculator.h"
-#include "nusimdata/SimulationBase/MCParticle.h"
 #include "SimulationDataProducts/sim.h"
+#include "CoreUtils/ServiceUtil.h"
 
 namespace gar{
   namespace cheat{

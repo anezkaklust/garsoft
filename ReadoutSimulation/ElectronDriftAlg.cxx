@@ -8,6 +8,7 @@
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "DetectorInfo/GArPropertiesService.h"
 #include "ReadoutSimulation/ElectronDriftAlg.h"
+#include "CoreUtils/ServiceUtil.h"
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "fhiclcpp/ParameterSet.h"

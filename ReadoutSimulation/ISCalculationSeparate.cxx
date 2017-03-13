@@ -11,6 +11,7 @@
 #include "DetectorInfo/DetectorProperties.h"
 #include "DetectorInfo/GArPropertiesService.h"
 #include "ReadoutSimulation/ISCalculationSeparate.h"
+#include "CoreUtils/ServiceUtil.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "cetlib/exception.h"

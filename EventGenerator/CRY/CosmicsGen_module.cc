@@ -28,13 +28,15 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 
-// garsoft includes
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "nutools/EventGeneratorBase/evgenbase.h"
 #include "nutools/EventGeneratorBase/CRY/CRYHelper.h"
+
+// garsoft includes
 #include "Geometry/Geometry.h"
 #include "SummaryDataProducts/RunData.h"
+#include "CoreUtils/ServiceUtil.h"
 
 namespace gar{
   namespace evgen {
@@ -124,7 +126,7 @@ namespace gar{
       ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
       CLHEP::HepRandomEngine& engine = rng->getEngine();
       
-      ::art::ServiceHandle<gar::geo::Geometry> geo;
+      auto geo = gar::providerFrom<gar::geo::Geometry>();
       
       fCRYHelp = new evgb::CRYHelper(p, engine, geo->GetWorldVolumeName());
       
@@ -169,7 +171,7 @@ namespace gar{
     void CosmicsGen::beginRun(::art::Run& run)
     {
       // grab the geometry object to see what geometry we are using
-      ::art::ServiceHandle<gar::geo::Geometry> geo;
+      auto geo = gar::providerFrom<geo::Geometry>();
       
       std::unique_ptr<gar::sumdata::RunData> runcol(new gar::sumdata::RunData(geo->DetectorName()));
       
@@ -184,7 +186,7 @@ namespace gar{
       std::unique_ptr< std::vector<simb::MCTruth> > truthcol(new std::vector<simb::MCTruth>);
       
       // fill some histograms about this event
-      ::art::ServiceHandle<gar::geo::Geometry> geom;
+      auto geom = gar::providerFrom<geo::Geometry>();
       
       int nCrossCryostat = 0;
       

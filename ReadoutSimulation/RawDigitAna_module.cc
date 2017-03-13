@@ -28,6 +28,7 @@
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "Geometry/Geometry.h"
 #include "RawDataProducts/RawDigit.h"
+#include "CoreUtils/ServiceUtil.h"
 
 // ROOT includes
 #include <TTree.h>
@@ -114,7 +115,6 @@ namespace gar {
     void RawDigitAna::beginJob()
     {
       ::art::ServiceHandle<::art::TFileService> tfs;
-      ::art::ServiceHandle<geo::Geometry> geo;
       
       fChannelTree = tfs->make<TTree>("ChannelTree", "ChannelTree");
       

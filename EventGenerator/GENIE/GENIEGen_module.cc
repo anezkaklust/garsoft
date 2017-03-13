@@ -54,6 +54,7 @@
 #include "SimulationDataProducts/BeamGateInfo.h"
 #include "SimulationDataProducts/sim.h"
 #include "Utilities/AssociationUtil.h"
+#include "CoreUtils/ServiceUtil.h"
 
 ///Event Generation using GENIE, cosmics or single particles
 namespace gar {
@@ -174,7 +175,7 @@ namespace gar {
       else if(beam_type_name == "booster") fBeamType = gar::sdp::kBNB;
       else                                 fBeamType = gar::sdp::kUnknown;
       
-      ::art::ServiceHandle<geo::Geometry> geo;
+      auto geo = gar::providerFrom<geo::Geometry>();
       
       fhicl::ParameterSet GENIEconfig(pset);
       if (!GENIEconfig.has_key("RandomSeed")) {
@@ -252,7 +253,7 @@ namespace gar {
       fDeltaE = tfs->make<TH1F>("fDeltaE", ";#Delta E_{#nu} (GeV);", 200, -1., 1.);
       fECons  = tfs->make<TH1F>("fECons", ";#Delta E(#nu,lepton);", 500, -5., 5.);
       
-      ::art::ServiceHandle<geo::Geometry> geo;
+      auto geo = gar::providerFrom<geo::Geometry>();
       double x = 2.1*geo->DetHalfWidth();
       double y = 2.1*geo->DetHalfHeight();
       double z = 2.*geo->DetLength();
@@ -275,7 +276,7 @@ namespace gar {
     {
       
       // grab the geometry object to see what geometry we are using
-      ::art::ServiceHandle<geo::Geometry> geo;
+      auto geo = gar::providerFrom<geo::Geometry>();
       std::unique_ptr<sumdata::RunData> runcol(new sumdata::RunData(geo->DetectorName()));
       
       run.put(std::move(runcol));

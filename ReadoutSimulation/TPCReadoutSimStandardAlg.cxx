@@ -8,7 +8,7 @@
 
 #include "ReadoutSimulation/TPCReadoutSimStandardAlg.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
-
+#include "CoreUtils/ServiceUtil.h"
 
 namespace gar {
   namespace rosim{

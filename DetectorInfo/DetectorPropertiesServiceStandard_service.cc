@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////
 // Framework includes
 
-// LArSoft includes
+// GArSoft includes
 #include "DetectorInfo/DetectorPropertiesServiceStandard.h"
 #include "DetectorInfo/GArProperties.h"
 #include "Geometry/Geometry.h"

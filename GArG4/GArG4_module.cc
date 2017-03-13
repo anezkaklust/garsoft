@@ -67,6 +67,7 @@
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "SimulationDataProducts/AuxDetSimChannel.h"
 #include "Geometry/Geometry.h"
+#include "CoreUtils/ServiceUtil.h"
 
 // G4 Includes
 #include "Geant4/G4RunManager.hh"
@@ -264,12 +265,12 @@ namespace gar {
     //----------------------------------------------------------------------
     void GArG4::beginJob()
     {
-      ::art::ServiceHandle<geo::Geometry> geom;
+      auto geo = gar::providerFrom<geo::Geometry>();
       auto* rng = &*(::art::ServiceHandle<::art::RandomNumberGenerator>());
       
       fG4Help = new g4b::G4Helper(fG4MacroPath, fG4PhysListName);
       if(fCheckOverlaps) fG4Help->SetOverlapCheck(true);
-      fG4Help->ConstructDetector(geom->GDMLFile());
+      fG4Help->ConstructDetector(geo->GDMLFile());
       
       // Get the logical volume store and assign material properties
       garg4::MaterialPropertyLoader* MPL = new garg4::MaterialPropertyLoader();

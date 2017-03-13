@@ -43,6 +43,7 @@
 // gar includes
 #include "Geometry/Geometry.h"
 #include "SummaryDataProducts/RunData.h"
+#include "CoreUtils/ServiceUtil.h"
 
 #include "TVector3.h"
 #include "TDatabasePDG.h"
@@ -240,7 +241,7 @@ namespace gar{
     {
       
       // grab the geometry object to see what geometry we are using
-      ::art::ServiceHandle<gar::geo::Geometry> geo;
+      auto geo = gar::providerFrom<geo::Geometry>();
       std::string name(geo->DetectorName());
       std::unique_ptr<gar::sumdata::RunData> runcol(new gar::sumdata::RunData(name));
       
