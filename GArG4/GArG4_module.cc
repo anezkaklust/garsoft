@@ -350,9 +350,9 @@ namespace gar {
       // if we don't have favourite volumes, don't even bother creating a filter
       if (vol_names.empty()) return {};
       
-      auto const& geom = *::art::ServiceHandle<geo::Geometry>();
+      auto geom = providerFrom<geo::Geometry>();
       
-      std::vector<std::vector<TGeoNode const*>> node_paths = geom.FindAllVolumePaths(vol_names);
+      std::vector<std::vector<TGeoNode const*>> node_paths = geom->FindAllVolumePaths(vol_names);
       
       // collection of interesting volumes
       PositionInVolumeFilter::AllVolumeInfo_t GeoVolumePairs;

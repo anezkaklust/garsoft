@@ -149,7 +149,7 @@ namespace gar {
       fEvt.event  = evt.id().event();
       
       // get the list of particles from this event
-      ::art::ServiceHandle<cheat::BackTracker> bt;
+      auto bt = gar::providerFrom<cheat::BackTracker>();
       
       // get the raw digits for this event
       auto digCol = evt.getValidHandle<std::vector<gar::raw::RawDigit> >(fReadoutModuleLabel);

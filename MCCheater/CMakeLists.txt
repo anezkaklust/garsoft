@@ -1,11 +1,26 @@
 
 include_directories( $ENV{NUTOOLS_DIR}/include )
 
+art_make_library( LIBRARY_NAME MCCheater
+                  SOURCE       BackTrackerCore.cxx
+                  LIBRARIES    ReconstructionDataProducts
+                               SimulationDataProducts
+                               nusimdata_SimulationBase
+                               nutools_ParticleNavigation
+                               art_Persistency_Common     canvas_Persistency_Common
+                               art_Persistency_Provenance canvas_Persistency_Provenance
+                               art_Utilities canvas_Utilities
+                               ${MF_MESSAGELOGGER}
+                               ${MF_UTILITIES}
+                               ${FHICLCPP}
+                               ${CETLIB}
+                               ${Boost_SYSTEM_LIBRARY}
+                )
+
 simple_plugin(BackTracker "service"
+              MCCheater
 	            Geometry
 	            Geometry_Geometry_service
-              nusimdata_SimulationBase
-              nutools_ParticleNavigation
               ReconstructionDataProducts
               RawDataProducts
               SimulationDataProducts
