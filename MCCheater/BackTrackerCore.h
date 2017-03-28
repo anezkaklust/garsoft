@@ -74,6 +74,11 @@ namespace gar{
       std::vector<const simb::MCParticle*>            MCTruthToParticles(::art::Ptr<simb::MCTruth> const& mct) const;
       std::vector< ::art::Ptr<simb::MCTruth> > const& MCTruthVector() const { return fMCTruthList; }
       
+      // this method determines the appropriate EnergyDeposits for a given TDC
+      // on a channel
+      std::vector<const sdp::EnergyDeposit*> ChannelTDCToEnergyDeposit(unsigned int channel,
+                                                                       unsigned int tdc);
+      
       // this method will return the Geant4 track IDs of
       // the particles contributing ionization electrons to the identified hit
       std::vector<HitIDE> HitToTrackID(::art::Ptr<gar::rec::Hit> const& hit);
@@ -133,6 +138,8 @@ namespace gar{
                                                                                     ///< contribute to a hit to be counted in
                                                                                     ///< purity and efficiency calculations
                                                                                     ///< based on hit collections
+      double                                                fInverseVelocity;       ///< inverse drift velocity
+      double                                                fLongDiffConst;         ///< longitudinal diffusion constant
     };
   } // namespace
 }

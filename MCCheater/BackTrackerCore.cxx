@@ -359,6 +359,37 @@ namespace gar{
       return efficiency;
     }
     
+    //--------------------------------------------------------------------------
+    std::vector<const sdp::EnergyDeposit*> BackTrackerCore::ChannelTDCToEnergyDeposit(unsigned int channel,
+                                                                                      unsigned int tdc)
+    {
+      if(channel > fChannelToEDepCol.size())
+        throw cet::exception("BackTrackerCore")
+        << "Requested channel "
+        << channel
+        << " for backtracking TDCs is out of range, bail";
+      
+      std::vector<const sdp::EnergyDeposit*> edeps;
+      
+      // loop over all the energy deposits for this channel and get the +/- 3sigma
+      // range of TDC values for each time.  Keep those deposits that fall in that
+      // range
+      unsigned int centralTDC = 0.;
+      unsigned int tdc3Sigma  = 0.;
+
+      for(auto const* edep : fChannelToEDepCol[channel]){
+        centralTDC = (unsigned int)fClocks->TPCG4Time2TDC(edep->Time());
+        tdc3sigma  = (unsigned int)(std::sqrt(edep->X() * fInverseVelocity) * fLongDiffConst * 3.);
+        
+        if     (tdc > (centralTDC + tdc3sigma)                    ) continue;
+        else if(tdc < centralTDC && (centralTDC - tdc) > tdc3sigma) continue;
+        
+        edeps.push_back(edep);
+      }
+      
+      return edeps;
+    }
+    
     //----------------------------------------------------------------------
     void BackTrackerCore::ChannelToTrackID(std::vector<HitIDE>      & hitIDEs,
                                            raw::Channel_t      const& channel,

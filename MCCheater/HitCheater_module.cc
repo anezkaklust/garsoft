@@ -54,12 +54,15 @@ namespace gar {
       
     private:
       
-      void CreateHitsOnChannel(unsigned int                                  channel,
+      void CreateHitsOnChannel(raw::RawDigit                          const& rawDigit,
                                std::vector<rec::Hit>                       & chanHits,
                                std::vector<const sdp::EnergyDeposit*> const& edeps);
       
       std::string                         fReadoutLabel; ///< label of module creating raw digits
+      std::string                         fG4Label;      ///< label of module creating mc particles
       const gar::detinfo::DetectorClocks* fTime;         ///< electronics clock
+      unsigned int                        fTDCWindow;    ///< gap allowed between energy depositions
+                                                         ///< from the same G4 track for making hits
       
     };
     
@@ -90,8 +93,9 @@ namespace gar {
     //--------------------------------------------------------------------------
     void HitCheater::reconfigure(fhicl::ParameterSet const& pset)
     {
-      fReadoutLabel = pset.get<std::string>("ReadoutModuleLabel", "rawdata");
-      
+      fReadoutLabel = pset.get<std::string >("ReadoutModuleLabel", "daq"  );
+      fG4Label      = pset.get<std::string >("G4ModuleLabel",      "geant");
+      fTDCWindow    = pset.get<unsigned int>("TDCGapAllowed"              );
       return;
     }
     
@@ -120,43 +124,50 @@ namespace gar {
       std::unique_ptr< ::art::Assns<raw::RawDigit,    rec::Hit> > rdHitAssns(new ::art::Assns<raw::RawDigit,    rec::Hit> );
       std::unique_ptr< ::art::Assns<simb::MCParticle, rec::Hit> > pHitAssns (new ::art::Assns<simb::MCParticle, rec::Hit> );
       
+      // get the raw digits from the event
       auto digCol = evt.getValidHandle< std::vector<raw::RawDigit> >(fReadoutLabel);
       
       // get the FindMany for the digit to EnergyDeposit association
-      ::art::FindMany<sdp::EnergyDeposit>    fmed(hitCol, evt, fReadoutLabel);
-      std::vector<const sdp::EnergyDeposit*> edeps;
+      ::art::FindMany<sdp::EnergyDeposit>    fmed(digCol, evt, fReadoutLabel);
       
-      if(!digCol.isValid() ||
-         !fmed  .isValid() ){
+      // test that the FindMany is valid - don't worry about the digCol, the
+      // getValidHandle throws if it can't find a valid handle
+      if(!fmed.isValid() ){
         throw cet::exception("BackTracker")
-        << "Unable to find valid collection of RawDigits "
-        << digCol.isValid()
-        << " or FindMany<EnergyDeposit> "
+        << "Unable to find valid FindMany<EnergyDeposit> "
         << fmed.isValid()
         << " this is a problem for cheating";
       }
 
-      // make a container to store the hits for each channel
-      std::vector< std::vector<rec::Hit> > hitsByChannel;
-      hitsByChannel.resize(digCol->size());
+      // get the MCParticles from the event and make a vector of Ptrs of them
+      auto partCol = evt.getValidHandle< std::vector<simb::MCParticle> >(fG4Label);
+      std::vector<art::Ptr<simb::MCParticle> > partVec;
+      art::fill_ptr_vector(partVec, partCol);
+      std::map<unsigned int, size_t> idToPart;
+      for(size_t p = 0; p < partVec.size(); ++p) idToPart[partVec[p]->TrackId()] = p;
       
       // loop over the raw digits, ignore any that have no associated energy deposits
       // those digits are just noise
       unsigned int channel = 0;
-      std::vector<rec::Hit> hits;
+      std::vector<std::pair<unsigned int, rec::Hit> > hits;
+      std::vector<const sdp::EnergyDeposit*> edeps;
+      
       for(size_t rd = 0; rd < digCol->size(); ++rd){
         fmed.get(d, edeps);
         if(edeps.size() < 1) continue;
 
-        channel = (*digCol)[rd].Channel();
-        this->CreateHitsOnChannel(channel, hitsByChannel[channel], edeps);
+        this->CreateHitsOnChannel((*digCol)[rd], hits, edeps);
         
         // add the hits to the output collection and make the necessary associations
         for(auto hit : hits){
-          hitCol->push_back(hit);
+          hitCol->push_back(hit.second);
+
+          // make the digit to hit association
+          auto const digPtr = art::Ptr<raw::RawDigit>(digCol, rd);
+          util::CreateAssn(*this, evt, *hitCol, digPtr, *rdHitAssns);
           
-          auto const ptr = art::Ptr<raw::RawDigit>(digCol, rd);
-          util::CreateAssn(*this, evt, *hitCol, ptr, *rdHitAssns);
+          // make the hit to MCParticle association
+          util::CreateAssn(*this, evt, *hitCol, partPtrVec[idToPart[hit.first]], *pHitAssns);
 
         }
         
@@ -176,49 +187,20 @@ namespace gar {
     }
     
     //--------------------------------------------------------------------------
-    void HitCheater::CreateHitsOnChannel(unsigned int                                  channel,
-                                         std::vector<rec::Hit>                       & chanHits,
-                                         std::vector<const sdp::EnergyDeposit*> const& edeps)
+    void HitCheater::CreateHitsOnChannel(raw::RawDigit                                  const& rawDigit,
+                                         std::vector<std::pair<unsigned int, rec::Hit> >     & chanHits,
+                                         std::vector<const sdp::EnergyDeposit*>         const& edeps)
     {
       // make sure there are no left overs in the hit vector
       chanHits.clear();
       
-      // loop over the energy deposits and create a list for each track id
-      std::map<int, std::vector<const sdp::EnergyDeposit*> > trackIDToEDep;
+      // use the back tracker to get the energy deposits for each TDC value in
+      // this channel.  Create a map of TDC and TrackID to energy deposits.
+      // Then loop over the map to make hits out of deposits from the same
+      // TrackID in contiguous TDC values
       
-      for(auto const* edep : edeps) trackIDToEDep[std::abs(edep.TrackID())] = edep;
-
-      // now for each track ID identify hits as being those energy depositions
-      // that are within a contiguous block of TDC values
-      unsigned short prevTDC = 0;
-      unsigned short tdc     = 0;
+      auto bt = gar::providerFrom<cheat::BackTracker>();
       
-      std::vector<const sdp::EnergyDeposit*> subSet;
-      
-      for(auto const itr : trackIDToEDep){
-
-        auto edepCol = itr.second;
-        
-        std::sort(edepCol.begin(), edepCol.end(), sortEDepByTime);
-        prevTDC = fTime->TPCG4Time2TDC(edepCol.first()->Time());
-        subSet.clear();
-        
-        for(auto const* edep : edepCol){
-          
-          tdc = fTime->TPCG4Time2TDC(edep->Time());
-          
-          if(tdc > prevTDC + 1){
-            // make a new hit - use the weighted average position and summed
-            // energy
-            chanHits.emplace
-            
-            subSet.clear();
-          }
-
-          subSet.push_back(edep);
-        } // end loop over the energy deposits for this track ID
-        
-      } // end loop to make hits
       
       
       return;

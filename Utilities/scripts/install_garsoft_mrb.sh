@@ -9,7 +9,7 @@ if [ "$#" -ne 5 ]; then
   echo " For example: install_garsoft_ups.sh $HOME/gar/products vXX_YY_ZZ sJJ:eII <debug | prof> $HOME/gar/"
  #echo " the lastest version of the garsoft bundle can be found at http://scisoft.fnal.gov/scisoft/bundles/garsoft/"
   echo " use the lastest version of the larsoft bundle to get external products, the bundle can be found at http://scisoft.fnal.gov/scisoft/bundles/larsoft/"
-  echo " If running on Fermilab dunegpvm nodes, set the <external ups directory> to be /grid/fermiapp/products/larsoft/"
+  echo " If running on Fermilab dunegpvm nodes, set the <external ups directory> to be /cvmfs/fermilab.opensciencegrid.org/products/larsoft"
   exit
 fi
 
@@ -45,7 +45,7 @@ fi
 # check the product directory to see if we are wanting to use the gpvm node
 # product installation or not
 
-if [ "${PRODDIR}" != "*fermiapp/products*"] ; then
+if [ "${PRODDIR}" != "*fermilab*" ] ; then
   cd ${PRODDIR}
   curl -O http://scisoft.fnal.gov/scisoft/bundles/tools/pullProducts
   chmod +x pullProducts

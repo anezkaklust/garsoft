@@ -379,10 +379,11 @@ namespace gar {
           LOG_DEBUG("IonizationReadout")
           << "storing edepIDE sum";
 
-          for(auto edloc : sum.edepLocs)
-            this->CheckChannelToEnergyDepositMapping(sum.Channel,
-                                                     edepCol[edloc],
-                                                     "CombineIDEsStore");
+          if(fCheckChan)
+            for(auto edloc : sum.edepLocs)
+              this->CheckChannelToEnergyDepositMapping(sum.Channel,
+                                                       edepCol[edloc],
+                                                       "CombineIDEsStore");
           
           // put the summed edepIDE into the temp vector
           temp.push_back(sum);

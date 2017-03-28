@@ -156,6 +156,15 @@ namespace gar{
       //      for(auto mc : fMCTruthList)
       //        LOG_DEBUG("BackTracker") << *(mc);
       
+      
+      auto detProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
+      auto garProp = gar::providerFrom<detinfo::GArPropertiesService>();
+      
+      fInverseVelocity = 1. / detProp->DriftVelocity(detProp->Efield(),
+                                                     detProp->Temperature());
+      fLongDiffConst   = std::sqrt(2. * garProp->LongitudinalDiffusion());
+      
+      
       return;
     }
     
