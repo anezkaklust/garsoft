@@ -23,6 +23,8 @@ namespace gar {
       unsigned int fChannel;     ///< channel recording this hit
       float        fSignal;      ///< size of the signal for this hit
       float        fPosition[3]; ///< position of the hit
+      float        fStartTime;   ///< start time of the hit
+      float        fEndTime;     ///< end time of the hit
 
 #ifndef __GCCXML__
       
@@ -30,11 +32,15 @@ namespace gar {
       
       Hit(unsigned int chan,
           float        sig,
-          float       *pos);
+          float       *pos,
+          float        startT,
+          float        endT);
       
       const float*        Position()  const;
       float        const& Signal()    const;
       unsigned int        Channel()   const;
+      float               StartTime() const;
+      float               EndTime()   const;
       
 #endif
       
@@ -43,7 +49,8 @@ namespace gar {
     inline unsigned int  Hit::Channel()   const { return fChannel;      }
     inline const  float* Hit::Position()  const { return &fPosition[0]; }
     inline float  const& Hit::Signal()    const { return fSignal;       }
-    
+    inline float         Hit::StartTime() const { return fStartTime;    }
+    inline float         Hit::EndTime()   const { return fEndTime;      }
   } // rec
 } // gar
 

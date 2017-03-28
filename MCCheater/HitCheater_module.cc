@@ -54,9 +54,9 @@ namespace gar {
       
     private:
       
-      void CreateHitsOnChannel(raw::RawDigit                          const& rawDigit,
-                               std::vector<rec::Hit>                       & chanHits,
-                               std::vector<const sdp::EnergyDeposit*> const& edeps);
+      void CreateHitsOnChannel(gar::raw::RawDigit                                  const& rawDigit,
+                               std::vector<std::pair<unsigned int, gar::rec::Hit> >     & chanHits,
+                               std::vector<const gar::sdp::EnergyDeposit*>              & edeps);
       
       std::string                         fReadoutLabel; ///< label of module creating raw digits
       std::string                         fG4Label;      ///< label of module creating mc particles
@@ -125,7 +125,7 @@ namespace gar {
       std::unique_ptr< ::art::Assns<simb::MCParticle, rec::Hit> > pHitAssns (new ::art::Assns<simb::MCParticle, rec::Hit> );
       
       // get the raw digits from the event
-      auto digCol = evt.getValidHandle< std::vector<raw::RawDigit> >(fReadoutLabel);
+      auto digCol = evt.getValidHandle< std::vector<gar::raw::RawDigit> >(fReadoutLabel);
       
       // get the FindMany for the digit to EnergyDeposit association
       ::art::FindMany<sdp::EnergyDeposit>    fmed(digCol, evt, fReadoutLabel);
@@ -148,15 +148,15 @@ namespace gar {
       
       // loop over the raw digits, ignore any that have no associated energy deposits
       // those digits are just noise
-      unsigned int channel = 0;
       std::vector<std::pair<unsigned int, rec::Hit> > hits;
       std::vector<const sdp::EnergyDeposit*> edeps;
       
       for(size_t rd = 0; rd < digCol->size(); ++rd){
-        fmed.get(d, edeps);
+        fmed.get(rd, edeps);
         if(edeps.size() < 1) continue;
 
-        this->CreateHitsOnChannel((*digCol)[rd], hits, edeps);
+        auto const& dig = (*digCol)[rd];
+        this->CreateHitsOnChannel(dig, hits, edeps);
         
         // add the hits to the output collection and make the necessary associations
         for(auto hit : hits){
@@ -167,7 +167,7 @@ namespace gar {
           util::CreateAssn(*this, evt, *hitCol, digPtr, *rdHitAssns);
           
           // make the hit to MCParticle association
-          util::CreateAssn(*this, evt, *hitCol, partPtrVec[idToPart[hit.first]], *pHitAssns);
+          util::CreateAssn(*this, evt, *hitCol, partVec[idToPart[hit.first]], *pHitAssns);
 
         }
         
@@ -187,9 +187,9 @@ namespace gar {
     }
     
     //--------------------------------------------------------------------------
-    void HitCheater::CreateHitsOnChannel(raw::RawDigit                                  const& rawDigit,
-                                         std::vector<std::pair<unsigned int, rec::Hit> >     & chanHits,
-                                         std::vector<const sdp::EnergyDeposit*>         const& edeps)
+    void HitCheater::CreateHitsOnChannel(gar::raw::RawDigit                                  const& rawDigit,
+                                         std::vector<std::pair<unsigned int, gar::rec::Hit> >     & chanHits,
+                                         std::vector<const gar::sdp::EnergyDeposit*>              & edeps)
     {
       // make sure there are no left overs in the hit vector
       chanHits.clear();
@@ -199,7 +199,7 @@ namespace gar {
       // Then loop over the map to make hits out of deposits from the same
       // TrackID in contiguous TDC values
       
-      auto bt = gar::providerFrom<cheat::BackTracker>();
+      //auto bt = gar::providerFrom<cheat::BackTracker>();
       
       
       
@@ -213,7 +213,7 @@ namespace gar {
   
   namespace cheat {
       
-    DEFINE_ART_MODULE(IonizationReadout)
+    DEFINE_ART_MODULE(HitCheater)
     
   } // cheat
 } // gar

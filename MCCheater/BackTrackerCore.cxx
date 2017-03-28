@@ -379,10 +379,10 @@ namespace gar{
 
       for(auto const* edep : fChannelToEDepCol[channel]){
         centralTDC = (unsigned int)fClocks->TPCG4Time2TDC(edep->Time());
-        tdc3sigma  = (unsigned int)(std::sqrt(edep->X() * fInverseVelocity) * fLongDiffConst * 3.);
+        tdc3Sigma  = (unsigned int)(std::sqrt(edep->X() * fInverseVelocity) * fLongDiffConst * 3.);
         
-        if     (tdc > (centralTDC + tdc3sigma)                    ) continue;
-        else if(tdc < centralTDC && (centralTDC - tdc) > tdc3sigma) continue;
+        if     (tdc > (centralTDC + tdc3Sigma)                    ) continue;
+        else if(tdc < centralTDC && (centralTDC - tdc) > tdc3Sigma) continue;
         
         edeps.push_back(edep);
       }

@@ -20,9 +20,13 @@ namespace gar {
     //--------------------------------------------------------------------------
     Hit::Hit(unsigned int chan,
              float        sig,
-             float       *pos)
-    : fChannel (chan)
-    , fSignal  (sig )
+             float       *pos,
+             float        startT,
+             float        endT)
+    : fChannel  (chan  )
+    , fSignal   (sig   )
+    , fStartTime(startT)
+    , fEndTime  (endT  )
     {
       
       fPosition[0] = pos[0];

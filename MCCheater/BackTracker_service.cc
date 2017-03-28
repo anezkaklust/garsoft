@@ -20,6 +20,9 @@
 
 #include "nutools/ParticleNavigation/EmEveIdCalculator.h"
 
+#include "DetectorInfo/DetectorPropertiesService.h"
+#include "DetectorInfo/GArPropertiesService.h"
+
 namespace gar{
   namespace cheat{
     
