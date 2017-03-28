@@ -45,7 +45,7 @@ fi
 # check the product directory to see if we are wanting to use the gpvm node
 # product installation or not
 
-if [ "${PRODDIR}" != "*fermilab*" ] ; then
+if [[ ${PRODDIR} != *"fermilab"* ]] ; then
   cd ${PRODDIR}
   curl -O http://scisoft.fnal.gov/scisoft/bundles/tools/pullProducts
   chmod +x pullProducts
