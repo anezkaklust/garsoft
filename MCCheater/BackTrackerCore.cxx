@@ -102,7 +102,7 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    std::vector<HitIDE> BackTrackerCore::HitToTrackID(::art::Ptr<gar::rec::Hit> const& hit)
+    std::vector<HitIDE> BackTrackerCore::HitToTrackID(::art::Ptr<gar::rec::Hit> const& hit) const
     {
       std::vector<HitIDE> ides;
       
@@ -116,7 +116,7 @@ namespace gar{
     
     //----------------------------------------------------------------------
     std::vector<std::vector<::art::Ptr<gar::rec::Hit>>> const BackTrackerCore::TrackIDsToHits(std::vector<::art::Ptr<gar::rec::Hit>> const& allhits,
-                                                                                              std::vector<int>                       const& tkIDs)
+                                                                                              std::vector<int>                       const& tkIDs) const
     {
       // returns a subset of the hits in the allhits collection that are matched
       // to MC particles listed in tkIDs
@@ -164,7 +164,7 @@ namespace gar{
     // plist is assumed to have adopted the appropriate EveIdCalculator prior to
     // having been passed to this method. It is likely that the EmEveIdCalculator is
     // the one you always want to use
-    std::vector<HitIDE> BackTrackerCore::HitToEveID(::art::Ptr<gar::rec::Hit> const& hit)
+    std::vector<HitIDE> BackTrackerCore::HitToEveID(::art::Ptr<gar::rec::Hit> const& hit) const
     {
       std::vector<HitIDE> ides = this->HitToTrackID(hit);
       
@@ -189,7 +189,7 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    std::set<int> BackTrackerCore::GetSetOfEveIDs()
+    std::set<int> BackTrackerCore::GetSetOfEveIDs() const
     {
       std::set<int> eveIDs;
       
@@ -205,7 +205,7 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    std::set<int> BackTrackerCore::GetSetOfTrackIDs()
+    std::set<int> BackTrackerCore::GetSetOfTrackIDs() const
     {
       // fParticleList::value_type is a pair (track, particle pointer)
       std::set<int> trackIDs;
@@ -216,7 +216,7 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    std::set<int> BackTrackerCore::GetSetOfEveIDs(std::vector< ::art::Ptr<gar::rec::Hit> > const& hits)
+    std::set<int> BackTrackerCore::GetSetOfEveIDs(std::vector< ::art::Ptr<gar::rec::Hit> > const& hits) const
     {
       std::set<int> eveIDs;
       
@@ -235,7 +235,7 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    std::set<int> BackTrackerCore::GetSetOfTrackIDs(std::vector< ::art::Ptr<gar::rec::Hit> > const& hits)
+    std::set<int> BackTrackerCore::GetSetOfTrackIDs(std::vector< ::art::Ptr<gar::rec::Hit> > const& hits) const
     {
       std::set<int>       trackIDs;
       std::vector<HitIDE> ides;
@@ -261,7 +261,7 @@ namespace gar{
     //----------------------------------------------------------------------
     double BackTrackerCore::HitCollectionPurity(std::set<int>                                   trackIDs,
                                                 std::vector< ::art::Ptr<gar::rec::Hit> > const& hits,
-                                                bool                                            weightByCharge)
+                                                bool                                            weightByCharge) const
     {
       // get the list of EveIDs that correspond to the hits in this collection
       // if the EveID shows up in the input list of trackIDs, then it counts
@@ -302,7 +302,7 @@ namespace gar{
     double BackTrackerCore::HitCollectionEfficiency(std::set<int>                                   trackIDs,
                                                     std::vector< ::art::Ptr<gar::rec::Hit> > const& hits,
                                                     std::vector< ::art::Ptr<gar::rec::Hit> > const& allhits,
-                                                    bool                                            weightByCharge)
+                                                    bool                                            weightByCharge) const
     {
       // get the list of EveIDs that correspond to the hits in this collection
       // and the energy associated with the desired trackID
@@ -360,8 +360,8 @@ namespace gar{
     }
     
     //--------------------------------------------------------------------------
-    std::vector<const sdp::EnergyDeposit*> BackTrackerCore::ChannelTDCToEnergyDeposit(unsigned int channel,
-                                                                                      unsigned int tdc)
+    std::vector<const sdp::EnergyDeposit*> BackTrackerCore::ChannelTDCToEnergyDeposit(raw::Channel_t channel,
+                                                                                      unsigned int   tdc) const
     {
       if(channel > fChannelToEDepCol.size())
         throw cet::exception("BackTrackerCore")
@@ -394,7 +394,7 @@ namespace gar{
     void BackTrackerCore::ChannelToTrackID(std::vector<HitIDE>      & hitIDEs,
                                            raw::Channel_t      const& channel,
                                            double              const  start,
-                                           double              const  end)
+                                           double              const  end) const
     {
       
       // loop over the electrons in the channel and grab those that are in time
@@ -483,7 +483,7 @@ namespace gar{
     }
     
     //----------------------------------------------------------------------
-    std::vector<float> BackTrackerCore::HitToXYZ(::art::Ptr<gar::rec::Hit> const& hit)
+    std::vector<float> BackTrackerCore::HitToXYZ(::art::Ptr<gar::rec::Hit> const& hit) const
     {
       std::vector<float> xyz;
       
