@@ -25,7 +25,6 @@
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/FindMany.h"
 #include "cetlib/exception.h"
-#include "cetlib/search_path.h"
 
 // GArSoft Includes
 #include "MCCheater/BackTracker.h"
@@ -133,12 +132,12 @@ namespace gar {
       auto digCol = evt.getValidHandle< std::vector<gar::raw::RawDigit> >(fReadoutLabel);
       
       // get the FindMany for the digit to EnergyDeposit association
-      ::art::FindMany<sdp::EnergyDeposit>    fmed(digCol, evt, fReadoutLabel);
+      ::art::FindMany<sdp::EnergyDeposit> fmed(digCol, evt, fReadoutLabel);
       
       // test that the FindMany is valid - don't worry about the digCol, the
       // getValidHandle throws if it can't find a valid handle
       if(!fmed.isValid() ){
-        throw cet::exception("BackTracker")
+        throw cet::exception("HitCheater")
         << "Unable to find valid FindMany<EnergyDeposit> "
         << fmed.isValid()
         << " this is a problem for cheating";
@@ -151,8 +150,8 @@ namespace gar {
       std::map<int, size_t> idToPart;
       for(size_t p = 0; p < partVec.size(); ++p) idToPart[partVec[p]->TrackId()] = p;
       
-      // loop over the raw digits, ignore any that have no associated energy deposits
-      // those digits are just noise
+      // loop over the raw digits, ignore any that have no associated energy
+      // deposits those digits are just noise
       std::vector<std::pair<int, rec::Hit> > hits;
       std::vector<const sdp::EnergyDeposit*> edeps;
       
