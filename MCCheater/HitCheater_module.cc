@@ -186,12 +186,6 @@ namespace gar {
     }
     
     //--------------------------------------------------------------------------
-    bool sortEDepByTime(const sdp::EnergyDeposit* a, const sdp::EnergyDeposit* b)
-    {
-      return a->Time() < b->Time();
-    }
-    
-    //--------------------------------------------------------------------------
     void HitCheater::CreateHitsOnChannel(gar::raw::RawDigit                         const& rawDigit,
                                          std::vector<std::pair<int, gar::rec::Hit> >     & chanHits,
                                          std::vector<const gar::sdp::EnergyDeposit*>     & edeps)
