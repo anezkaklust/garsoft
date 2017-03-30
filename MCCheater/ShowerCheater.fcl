@@ -1,0 +1,10 @@
+BEGIN_PROLOG
+
+standard_showercheater:
+{
+ module_type:   ShowerCheater
+ HitLabel:      "hit"
+ G4ModuleLabel: "geant"
+}
+
+END_PROLOG

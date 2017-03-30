@@ -11,14 +11,14 @@
 #include "BackTracker.fcl"
 
 #Plugins
-#include "HitCheater.fcl"
+#include "TrackCheater.fcl"
 
-process_name: HitReco
+process_name: TrackReco
 
 services:
 {
  # Load the service that manages root files for histograms.
- TFileService:           { fileName: "hitcheat_hist.root" }
+ TFileService:           { fileName: "trackcheat_hist.root" }
  TimeTracker:            {}
  RandomNumberGenerator:  {} #ART native random number generator
  Geometry:               @local::standard_geo
@@ -47,7 +47,8 @@ physics:
 
  producers:
  {
-  hit: @local::standard_hitcheater
+  hit:   @local::standard_hitcheater
+  track: @local::standard_trackcheater
  }
  analyzers:
  {
@@ -55,7 +56,7 @@ physics:
 
  #define the producer and filter modules for this path, order matters,
  #filters reject all following items.  see lines starting physics.producers below
- reco: [ hit ]
+ reco: [ hit, track ]
 
  #define the output stream, there could be more than one if using filters
  stream1:  [ out1 ]
@@ -74,7 +75,7 @@ outputs:
  out1:
  {
   module_type: RootOutput
-  fileName:    "hitcheat.root" #default file name, can override from command line with -o or --output
+  fileName:    "trackcheat.root" #default file name, can override from command line with -o or --output
  }
 }
 
