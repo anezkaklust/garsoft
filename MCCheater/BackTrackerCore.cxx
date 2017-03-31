@@ -15,6 +15,7 @@
 #include "SimulationDataProducts/sim.h"
 #include "CoreUtils/ServiceUtil.h"
 #include "MCCheater/BackTrackerCore.h"
+#include "Geometry/Geometry.h"
 
 namespace gar{
   namespace cheat{
@@ -23,7 +24,11 @@ namespace gar{
     BackTrackerCore::BackTrackerCore(fhicl::ParameterSet const& pset)
     : fClocks(nullptr)
     {
+      fClocks = gar::providerFrom<detinfo::DetectorClocksService>();
+      
       this->reconfigure(pset);
+      
+      return;
     }
 
     //--------------------------------------------------------------------------
@@ -36,6 +41,7 @@ namespace gar{
     void BackTrackerCore::reconfigure(const fhicl::ParameterSet& pset)
     {
       fG4ModuleLabel        = pset.get<std::string>("G4ModuleLabel",           "geant");
+      fRawDataLabel         = pset.get<std::string>("RawDataLabel",            "daq");
       fMinHitEnergyFraction = pset.get<double     >("MinimumHitEnergyFraction", 0.1);
     }
     

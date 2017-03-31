@@ -26,6 +26,8 @@
 #include "canvas/Persistency/Common/FindMany.h"
 #include "cetlib/exception.h"
 
+#include "nusimdata/SimulationBase/MCParticle.h"
+
 // GArSoft Includes
 #include "MCCheater/BackTracker.h"
 #include "DetectorInfo/DetectorClocksService.h"
@@ -199,8 +201,8 @@ namespace gar {
       
       auto bt = gar::providerFrom<cheat::BackTracker>();
       
-      std::map<int, std::vector<float> > trackIDToTDCEDeps;
-      std::vector<float>                 totalTDCEDep(rawDigit.Samples(), 0.);
+      std::map<int, std::map<size_t, float> > trackIDToTDCEDeps;
+      std::vector<float>                      totalTDCEDep(rawDigit.Samples(), 0.);
       
       for(size_t tdc = 0; tdc < rawDigit.Samples(); ++tdc){
         auto tdcEDeps = bt->ChannelTDCToEnergyDeposit(rawDigit.Channel(), tdc);
@@ -226,7 +228,7 @@ namespace gar {
       
       for(auto itr : trackIDToTDCEDeps){
        
-        auto const& tdcVec = itr.second;
+        auto const& tdcMap = itr.second;
         // Loop over the vector of tdcs, make hits out of contiguous tdcs with
         // energy deposits.
         // Use the raw signal for the tdcs to sum up the total hit signal, then
@@ -238,23 +240,17 @@ namespace gar {
         trkEDep  = 0.;
         totEDep  = 0.;
         hitSig   = 0.;
-        for(size_t tdc = 0; tdc < tdcVec.size(); ++tdc){
+        for(auto tdcItr : tdcMap){
 
-          if(tdcVec[tdc] == 0.){
-            for(size_t t = startTDC; t < tdc; ++t){
-              wgtTDC  += tdcVec[t] * t;
-              hitSig  += 1. * rawDigit.ADC(t);
-              trkEDep += tdcVec[t];
-              totEDep += totalTDCEDep[t];
-            } // end loop over TDCs with signal
+          // We found a gap in time for the channel, make a hit
+          if(tdcItr.second == 0.){
             
-            // make the hit
             if(totEDep == 0.){
               LOG_WARNING("HitCheater")
               << "total energy deposited for tdc range "
               << startTDC
               << " : "
-              << tdc
+              << tdcItr.first
               << " is zero, that shouldn't be, do nothing with this range";
               continue;
             }
@@ -272,16 +268,21 @@ namespace gar {
                                                             hitSig,
                                                             pos,
                                                             startTDC,
-                                                            tdc - 1)
+                                                            tdcItr.first - 1)
                                               )
                                );
             
-            startTDC = tdc;
+            startTDC = tdcItr.first;
             hitSig   = 0.;
             trkEDep  = 0.;
             totEDep  = 0.;
             wgtTDC   = 0.;
           } // end if we have a gap in TDCs with signal
+          
+          hitSig  += 1. * rawDigit.ADC(tdcItr.first);
+          trkEDep += tdcItr.second;
+          totEDep += totalTDCEDep[tdcItr.first];
+          wgtTDC  += tdcItr.first * tdcItr.second;;
           
         } // end loop over TDCs
           

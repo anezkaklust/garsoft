@@ -42,7 +42,6 @@ namespace gar{
     //----------------------------------------------------------------------
     void BackTracker::beginJob()
     {
-      fClocks = gar::providerFrom<detinfo::DetectorClocksService>();
 
       return;
     }
@@ -123,17 +122,18 @@ namespace gar{
       // between the digits and energy deposits if it exists.  Really just map between the
       // Channel numbers and the energy deposits
       art::Handle<std::vector<gar::raw::RawDigit> > digCol;
-      evt.getByLabel(fIonizationModuleLabel, digCol);
+      evt.getByLabel(fRawDataLabel, digCol);
       
       if( !digCol.isValid() ){
         LOG_WARNING("BackTracker")
-        << "Unable to find valid collection of RawDigits, "
-        << "no backtracking of hits will be possible";
+        << "Unable to find valid collection of RawDigits in "
+        << fRawDataLabel
+        << " no backtracking of hits will be possible";
         
         return;
       }
       
-      ::art::FindMany<gar::sdp::EnergyDeposit> fmEnergyDep(digCol, evt, fIonizationModuleLabel);
+      ::art::FindMany<gar::sdp::EnergyDeposit> fmEnergyDep(digCol, evt, fRawDataLabel);
       
       if( !fmEnergyDep.isValid() ){
         LOG_WARNING("BackTracker")
@@ -146,6 +146,13 @@ namespace gar{
       // figure out how large the channel to energy deposit collection should be
       auto geo = gar::providerFrom<geo::Geometry>();
       fChannelToEDepCol.resize(geo->NChannels());
+      
+      LOG_DEBUG("BackTrackerServ")
+      << "There are "
+      << geo->NChannels()
+      << " "
+      << fChannelToEDepCol.size()
+      << " channels in the geometry";
       
       std::vector<const gar::sdp::EnergyDeposit*> eDeps;
       

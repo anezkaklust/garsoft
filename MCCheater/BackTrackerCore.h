@@ -133,7 +133,7 @@ namespace gar{
       std::vector< ::art::Ptr<simb::MCTruth> >              fMCTruthList;           ///< all the MCTruths for the event
       std::map<int, int>                                    fTrackIDToMCTruthIndex; ///< map of track ids to MCTruthList entry
       std::string                                           fG4ModuleLabel;         ///< label for geant4 module
-      std::string                                           fIonizationModuleLabel; ///< label for geant4 module
+      std::string                                           fRawDataLabel;          ///< label for geant4 module
       double                                                fMinHitEnergyFraction;  ///< minimum fraction of energy a track id has to
                                                                                     ///< contribute to a hit to be counted in
                                                                                     ///< purity and efficiency calculations

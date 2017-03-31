@@ -5,8 +5,11 @@ art_make_library( LIBRARY_NAME MCCheater
                   SOURCE       BackTrackerCore.cxx
                   LIBRARIES    ReconstructionDataProducts
                                SimulationDataProducts
+                               Geometry
+                               Geometry_Geometry_service
                                nusimdata_SimulationBase
                                nutools_ParticleNavigation
+                               ${ART_FRAMEWORK_SERVICES_REGISTRY}
                                art_Persistency_Common     canvas_Persistency_Common
                                art_Persistency_Provenance canvas_Persistency_Provenance
                                art_Utilities canvas_Utilities
@@ -45,7 +48,42 @@ simple_plugin(BackTrackerLoader "module"
 )
 
 simple_plugin(HitCheater "module"
+              ReconstructionDataProducts
+              Geometry
+              Geometry_Geometry_service
               MCCheater_BackTracker_service
+              ${ART_FRAMEWORK_SERVICES_REGISTRY}
+              ${ART_FRAMEWORK_PRINCIPAL}
+              ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+              art_Persistency_Common     canvas_Persistency_Common
+              art_Persistency_Provenance canvas_Persistency_Provenance
+              art_Utilities              canvas_Utilities
+              ${MF_MESSAGELOGGER}
+              ${MF_UTILITIES}
+              ${FHICLCPP}
+              ${CETLIB}
+              ${ROOT_BASIC_LIB_LIST}
+)
+
+simple_plugin(TrackCheater "module"
+              nusimdata_SimulationBase
+              ReconstructionDataProducts
+              ${ART_FRAMEWORK_SERVICES_REGISTRY}
+              ${ART_FRAMEWORK_PRINCIPAL}
+              ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+              art_Persistency_Common     canvas_Persistency_Common
+              art_Persistency_Provenance canvas_Persistency_Provenance
+              art_Utilities              canvas_Utilities
+              ${MF_MESSAGELOGGER}
+              ${MF_UTILITIES}
+              ${FHICLCPP}
+              ${CETLIB}
+              ${ROOT_BASIC_LIB_LIST}
+)
+
+simple_plugin(ShowerCheater "module"
+              nusimdata_SimulationBase
+              ReconstructionDataProducts
               ${ART_FRAMEWORK_SERVICES_REGISTRY}
               ${ART_FRAMEWORK_PRINCIPAL}
               ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}

@@ -26,6 +26,8 @@
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "cetlib/exception.h"
 
+#include "nusimdata/SimulationBase/MCParticle.h"
+
 // GArSoft Includes
 #include "Utilities/AssociationUtil.h"
 #include "ReconstructionDataProducts/Hit.h"
@@ -110,12 +112,12 @@ namespace gar {
       if(!fmphit.isValid() ){
         throw cet::exception("TrackCheater")
         << "Unable to find valid FindMany<Hit> "
-        << fmhit.isValid()
+        << fmphit.isValid()
         << " this is a problem for cheating";
       }
       
       std::vector< art::Ptr<rec::Hit> > hits;
-      simb::MCParticle const& part;
+      simb::MCParticle const* part      = nullptr;
       float                   length    = 0.;
       float                   momentum  = 0.;
       float                   vtx[3]    = {0.};
@@ -127,7 +129,7 @@ namespace gar {
         fmphit.get(p, hits);
         if(hits.size() < 1) continue;
         
-        part = *partVec[p];
+        part = partVec[p].get();
         
         // ignore if we have an EM shower
         if(std::abs(part->PdgCode()) == 11 ||

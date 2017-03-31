@@ -8,12 +8,12 @@
 #ifndef GAR_MCCHEATER_SHOWERCHEATER
 #define GAR_MCCHEATER_SHOWERCHEATER
 
-  // C++ Includes
+// C++ Includes
 #include <memory>
 #include <vector> // std::ostringstream
 #include <iostream>
 
-  // Framework includes
+// Framework includes
 #include "art/Framework/Core/EDProducer.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Principal/Event.h"
@@ -26,8 +26,10 @@
 #include "canvas/Persistency/Common/FindMany.h"
 #include "cetlib/exception.h"
 
-  // GArSoft Includes
-#include "MCCheater/BackShowerer.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
+
+// GArSoft Includes
+#include "MCCheater/BackTracker.h"
 #include "DetectorInfo/DetectorClocksService.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "Utilities/AssociationUtil.h"
@@ -38,7 +40,7 @@
 #include "Geometry/Geometry.h"
 #include "CoreUtils/ServiceUtil.h"
 
-  // Forward declarations
+// Forward declarations
 
 namespace gar {
   namespace cheat {
@@ -117,12 +119,12 @@ namespace gar {
       if(!fmphit.isValid() ){
         throw cet::exception("ShowerCheater")
         << "Unable to find valid FindMany<Hit> "
-        << fmhit.isValid()
+        << fmphit.isValid()
         << " this is a problem for cheating";
       }
       
       std::vector< art::Ptr<rec::Hit> > hits;
-      simb::MCParticle const& part;
+      simb::MCParticle const* part;
       float                   energy    = 0.;
       float                   vtx[3]    = {0.};
       float                   vtxDir[3] = {0.};
@@ -131,19 +133,19 @@ namespace gar {
         fmphit.get(p, hits);
         if(hits.size() < 1) continue;
         
-        part = *partVec[p];
+        part = partVec[p].get();
         
         // ignore if we don't have an EM shower
         if(std::abs(part->PdgCode()) != 11 ||
            std::abs(part->PdgCode()) != 111) continue;
         
-        momentum  = part->E();
+        energy    = part->E();
         vtx[0]    = part->Vx();
         vtx[1]    = part->Vx();
         vtx[2]    = part->Vx();
-        vtxDir[0] = part->Px() / momentum;
-        vtxDir[1] = part->Py() / momentum;
-        vtxDir[2] = part->Pz() / momentum;
+        vtxDir[0] = part->Px() / part->Momentum().Mag();
+        vtxDir[1] = part->Py() / part->Momentum().Mag();
+        vtxDir[2] = part->Pz() / part->Momentum().Mag();
         
         shwCol->emplace_back(energy,
                              vtx,
