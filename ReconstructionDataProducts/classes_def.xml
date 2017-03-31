@@ -20,13 +20,42 @@
   <class name="gar::rec::Shower"            ClassVersion="10"            >
    <version ClassVersion="10" checksum="884565487"/>
   </class>
-<!--
+
+
   <class name="std::vector<gar::rec::Hit   >"                		    	  />
   <class name="std::vector<gar::rec::Track >"                           />
   <class name="std::vector<gar::rec::Shower>"                           />
-  <class name="::art::Wrapper< std::vector<gar::rec::Hit   > >"		    	  />
-  <class name="::art::Wrapper< std::vector<gar::rec::Track > >"		    	  />
-  <class name="::art::Wrapper< std::vector<gar::rec::Shower> >"		    	  />
--->
+
+  <class name="art::Wrapper< std::vector<gar::rec::Hit   > >"		    	  />
+  <class name="art::Wrapper< std::vector<gar::rec::Track > >"		    	  />
+  <class name="art::Wrapper< std::vector<gar::rec::Shower> >"		    	  />
+
+  <class name="std::pair< art::Ptr<simb::MCParticle>, art::Ptr<gar::rec::Hit>      >"   />
+  <class name="std::pair< art::Ptr<gar::rec::Hit>,    art::Ptr<simb::MCParticle> >"     />
+  <class name="art::Assns<simb::MCParticle, gar::rec::Hit>"                             />
+  <class name="art::Assns<gar::rec::Hit,    simb::MCParticle>"                          />
+  <class name="art::Wrapper<art::Assns<simb::MCParticle, gar::rec::Hit> >"              />
+  <class name="art::Wrapper<art::Assns<gar::rec::Hit,    simb::MCParticle> >"           />
+
+  <class name="std::pair< art::Ptr<gar::raw::RawDigit>, art::Ptr<gar::rec::Hit>      >" />
+  <class name="std::pair< art::Ptr<gar::rec::Hit>,      art::Ptr<gar::raw::RawDigit> >" />
+  <class name="art::Assns<gar::raw::RawDigit, gar::rec::Hit>"                           />
+  <class name="art::Assns<gar::rec::Hit,      gar::raw::RawDigit>"                      />
+  <class name="art::Wrapper<art::Assns<gar::raw::RawDigit, gar::rec::Hit> >"            />
+  <class name="art::Wrapper<art::Assns<gar::rec::Hit,      gar::raw::RawDigit> >"       />
+
+  <class name="std::pair< art::Ptr<gar::rec::Hit>,   art::Ptr<gar::rec::Track> >"       />
+  <class name="std::pair< art::Ptr<gar::rec::Track>, art::Ptr<gar::rec::Hit>   >"       />
+  <class name="art::Assns<gar::rec::Hit,   gar::rec::Track>"                            />
+  <class name="art::Assns<gar::rec::Track, gar::rec::Hit>"                              />
+  <class name="art::Wrapper<art::Assns<gar::rec::Hit,   gar::rec::Track> >"             />
+  <class name="art::Wrapper<art::Assns<gar::rec::Track, gar::rec::Hit> >"               />
+
+  <class name="std::pair< art::Ptr<gar::rec::Hit>,    art::Ptr<gar::rec::Shower> >"     />
+  <class name="std::pair< art::Ptr<gar::rec::Shower>, art::Ptr<gar::rec::Hit>   >"      />
+  <class name="art::Assns<gar::rec::Hit,    gar::rec::Shower>"                          />
+  <class name="art::Assns<gar::rec::Shower, gar::rec::Hit>"                             />
+  <class name="art::Wrapper<art::Assns<gar::rec::Hit,    gar::rec::Shower> >"           />
+  <class name="art::Wrapper<art::Assns<gar::rec::Shower, gar::rec::Hit> >"              />
 
 </lcgdict>

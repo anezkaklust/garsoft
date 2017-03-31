@@ -2,7 +2,9 @@
 
 cet_make( LIBRARIES canvas_Persistency_Common NO_DICTIONARY )
 
-art_dictionary( DICTIONARY_LIBRARIES ReconstructionDataProducts )
+art_dictionary( DICTIONARY_LIBRARIES ReconstructionDataProducts
+                                     RawDataProducts
+                                     nusimdata_SimulationBase)
 
 install_headers()
 install_source()
