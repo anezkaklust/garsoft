@@ -59,11 +59,22 @@ namespace gar {
       void CreateHitsOnChannel(gar::raw::RawDigit                         const& rawDigit,
                                std::vector<std::pair<int, gar::rec::Hit> >     & chanHits,
                                std::vector<const gar::sdp::EnergyDeposit*>     & edeps);
+
+      std::pair<int, gar::rec::Hit> MakeTrackIDHitPair(int          trackId,
+                                                       unsigned int channel,
+                                                       float        signal,
+                                                       float        trackEDep,
+                                                       float        totalEDep,
+                                                       float        wgtTDC,
+                                                       float*       pos,
+                                                       unsigned int startTDC,
+                                                       unsigned int endTDC);
+                                                       
       
       std::string                         fReadoutLabel; ///< label of module creating raw digits
       std::string                         fG4Label;      ///< label of module creating mc particles
       const gar::detinfo::DetectorClocks* fTime;         ///< electronics clock
-      unsigned int                        fTDCWindow;    ///< gap allowed between energy depositions
+      unsigned int                        fTDCGap;       ///< gap allowed between energy depositions
                                                          ///< from the same G4 track for making hits
       const geo::GeometryCore*            fGeo;          ///< pointer to the geometry
       const detinfo::DetectorProperties*  fDetProp;      ///< detector properties
@@ -101,7 +112,7 @@ namespace gar {
     {
       fReadoutLabel = pset.get<std::string >("ReadoutModuleLabel", "daq"  );
       fG4Label      = pset.get<std::string >("G4ModuleLabel",      "geant");
-      fTDCWindow    = pset.get<unsigned int>("TDCGapAllowed"              );
+      fTDCGap       = pset.get<unsigned int>("TDCGapAllowed"              );
       return;
     }
     
@@ -158,14 +169,33 @@ namespace gar {
       std::vector<const sdp::EnergyDeposit*> edeps;
       
       for(size_t rd = 0; rd < digCol->size(); ++rd){
+        edeps.clear();
         fmed.get(rd, edeps);
         if(edeps.size() < 1) continue;
-
+        
         auto const& dig = (*digCol)[rd];
+        
+        LOG_DEBUG("HitCheater")
+        << "There are "
+        << edeps.size()
+        << " energy deposits for channel "
+        << dig.Channel();
+        
         this->CreateHitsOnChannel(dig, hits, edeps);
+        
+        if(hits.size() > 0)
+          LOG_VERBATIM("HitCheater")
+          << "There are "
+          << hits.size()
+          << " hits found for channel "
+          << dig.Channel();
         
         // add the hits to the output collection and make the necessary associations
         for(auto hit : hits){
+          
+          LOG_VERBATIM("HitCheater")
+          << hit.second;
+          
           hitCol->push_back(hit.second);
 
           // make the digit to hit association
@@ -214,90 +244,172 @@ namespace gar {
 
       } // end loop to sort the energy deposits
       
+      LOG_DEBUG("HitCheater")
+      << "There are "
+      << trackIDToTDCEDeps.size()
+      << " entries in the track ID to TDCEDeps map";
+      
       // now for each trackID, find the associated hits
-      size_t startTDC = 0;
-      float  hitSig   = 0.;
-      float  totEDep  = 0.;
-      float  trkEDep  = 0.;
-      float  wgtTDC   = 0.;
+      size_t       curTDC      = 0;
+      size_t       prevTDC     = 0;
+      size_t       startTDC    = 0;
+      size_t       endTDC      = 0;
+      int          trkId       = 0;
+      float        hitSig      = 0.;
+      float        totEDep     = 0.;
+      float        trkEDep     = 0.;
+      float        wgtTDC      = 0.;
+      unsigned int channel     = rawDigit.Channel();
       
       // get the YZ position for this hit, will calculate x based on the
       // time below
       float  pos[3]   = {0.};
-      fGeo->ChannelToPosition(rawDigit.Channel(), pos);
+      fGeo->ChannelToPosition(channel, pos);
       
-      for(auto itr : trackIDToTDCEDeps){
-       
-        auto const& tdcMap = itr.second;
-        // Loop over the vector of tdcs, make hits out of contiguous tdcs with
-        // energy deposits.
-        // Use the raw signal for the tdcs to sum up the total hit signal, then
-        // multiply that number by the ratio of the energy deposited for the track
-        // to the energy deposited for all tracks in the tdc range to get the
-        // signal for just this track/hit
-        startTDC = 0;
+      LOG_VERBATIM("HitCheater")
+      << "Channel location is ("
+      << pos[0]
+      << ", "
+      << pos[1]
+      << ", "
+      << pos[2]
+      << ")";
+      
+      // search for gaps in the TDC ticks with signal for each track id
+      // that means the outter loop has to be over track id values
+      // then loop over the tdcs for each track id and look for gaps to
+      // create hits.  It is possible there is only one hit on a given
+      // channel for a given track, but there could be more than one too
+      // if the volume is magnetized and the particle momentum is low enough
+      // to allow it to curl around.
+      for(auto trkIdItr : trackIDToTDCEDeps){
+        
+        trkId = trkIdItr.first;
+        
+        // loop over the tdcs for this track id
+        auto const& tdcToEDepMap = trkIdItr.second;
+
+        curTDC  = tdcToEDepMap.begin()->first;
+        prevTDC = curTDC;
+
+        startTDC = curTDC;
+        endTDC   = curTDC;
         wgtTDC   = 0.;
         trkEDep  = 0.;
         totEDep  = 0.;
         hitSig   = 0.;
-        for(auto tdcItr : tdcMap){
 
-          // We found a gap in time for the channel, make a hit
-          if(tdcItr.second == 0.){
-            
-            if(totEDep == 0.){
+        for(auto itr : tdcToEDepMap){
+          
+          curTDC = itr.first;
+          
+          if(curTDC - prevTDC > fTDCGap){
+            try{
+              chanHits.push_back(this->MakeTrackIDHitPair(trkId,
+                                                          channel,
+                                                          hitSig,
+                                                          trkEDep,
+                                                          totEDep,
+                                                          wgtTDC,
+                                                          pos,
+                                                          startTDC,
+                                                          endTDC)
+                                 );
+            }
+            catch(cet::exception &e){
               LOG_WARNING("HitCheater")
-              << "total energy deposited for tdc range "
-              << startTDC
-              << " : "
-              << tdcItr.first
-              << " is zero, that shouldn't be, do nothing with this range";
+              << e;
+              
               continue;
             }
             
-            hitSig *= trkEDep / totEDep;
-            wgtTDC /= totEDep;
-            
-            // the x position is given by the product of the drift velocity
-            // and the time, given by the weighted TDC average converted to
-            // a time
-            pos[0] = fDetProp->DriftVelocity() * fTime->TPCTick2Time(wgtTDC);
-            
-            chanHits.push_back(std::make_pair(itr.first,
-                                              gar::rec::Hit(rawDigit.Channel(),
-                                                            hitSig,
-                                                            pos,
-                                                            startTDC,
-                                                            tdcItr.first - 1)
-                                              )
-                               );
-            
-            startTDC = tdcItr.first;
+            // reset the variables for the next hit, whether we caught an exception
+            // or not
+            startTDC = curTDC;
             hitSig   = 0.;
             trkEDep  = 0.;
             totEDep  = 0.;
             wgtTDC   = 0.;
-          } // end if we have a gap in TDCs with signal
+            
+          } // end if there was a gap in TDC ticks with signal
           
-          hitSig  += 1. * rawDigit.ADC(tdcItr.first);
-          trkEDep += tdcItr.second;
-          totEDep += totalTDCEDep[tdcItr.first];
-          wgtTDC  += tdcItr.first * tdcItr.second;;
+          prevTDC  = curTDC;
+          endTDC   = curTDC;
+          hitSig  += 1. * rawDigit.ADC(curTDC);
+          trkEDep += itr.second;
+          totEDep += totalTDCEDep[curTDC];
+          wgtTDC  += curTDC * itr.second;
           
-        } // end loop over TDCs
+        } // end loop over TDC to energy deposit map
+        
+        // there is still one hit left
+        try{
+          chanHits.push_back(this->MakeTrackIDHitPair(trkId,
+                                                      channel,
+                                                      hitSig,
+                                                      trkEDep,
+                                                      totEDep,
+                                                      wgtTDC,
+                                                      pos,
+                                                      startTDC,
+                                                      endTDC)
+                             );
+        }
+        catch(cet::exception &e){
+          LOG_WARNING("HitCheater")
+          << e;
           
-      }
+          continue;
+        }
+
+      } // end loop over track ids
       
       return;
     }
 
     //--------------------------------------------------------------------------
+    std::pair<int, gar::rec::Hit> HitCheater::MakeTrackIDHitPair(int          trackId,
+                                                                 unsigned int channel,
+                                                                 float        signal,
+                                                                 float        trackEDep,
+                                                                 float        totalEDep,
+                                                                 float        wgtTDC,
+                                                                 float*       pos,
+                                                                 unsigned int startTDC,
+                                                                 unsigned int endTDC)
+    {
+      
+      if(totalEDep == 0.){
+        throw cet::exception("HitCheater")
+        << "total energy deposited for tdc range "
+        << startTDC
+        << " : "
+        << endTDC
+        << " is zero, that shouldn't be, do nothing with this range";
+      }
 
+      float hitSig = signal * trackEDep / totalEDep;
+      float tdcToX = wgtTDC / totalEDep;
+      
+      // the x position is given by the product of the drift velocity
+      // and the time, given by the weighted TDC average converted to
+      // a time
+      pos[0] = fDetProp->DriftVelocity() * fTime->TPCTick2Time(tdcToX);
+      
+      return std::make_pair(trackId,
+                            gar::rec::Hit(channel,
+                                          hitSig,
+                                          pos,
+                                          startTDC,
+                                          endTDC)
+                            );
+    }
+    
     
   } // cheat
   
   namespace cheat {
-      
+    
     DEFINE_ART_MODULE(HitCheater)
     
   } // cheat

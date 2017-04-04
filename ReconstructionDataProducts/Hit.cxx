@@ -36,5 +36,28 @@ namespace gar {
       return;
     }
 
+    //--------------------------------------------------------------------------
+    std::ostream& operator<< (std::ostream& o, gar::rec::Hit const& h)
+    {
+      
+      o << "Hit on channel "
+      << h.Channel()
+      << "\n\tposition = ("
+      << h.Position()[0]
+      << ", "
+      << h.Position()[1]
+      << ", "
+      << h.Position()[2]
+      << ")"
+      << "\n\tsignal = "
+      << h.Signal()
+      << "\n\t start time: "
+      << h.StartTime()
+      << " end time: "
+      << h.EndTime();
+      
+      return o;
+    }
+
   } // rec
 } // gar

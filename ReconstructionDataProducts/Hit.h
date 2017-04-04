@@ -7,6 +7,7 @@
 #ifndef GAR_RECONSTRUCTIONDATAPRODUCTS_Hit_h
 #define GAR_RECONSTRUCTIONDATAPRODUCTS_Hit_h
 
+#include <iostream>
 
 namespace gar {
   namespace rec {
@@ -41,6 +42,8 @@ namespace gar {
       unsigned int        Channel()   const;
       float               StartTime() const;
       float               EndTime()   const;
+      
+      friend std::ostream& operator << (std::ostream & o, gar::rec::Hit const& h);
       
 #endif
       
