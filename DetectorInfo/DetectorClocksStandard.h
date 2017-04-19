@@ -44,8 +44,8 @@ namespace gar {
       
       std::string TrigModuleName() const { return fTrigModuleName; }
       
-      /// Given Geant4 time [ns], returns relative time [us] w.r.t. electronics time T0
-      virtual double G4ToElecTime(double g4_time) const {return g4_time * 1.e-3 - fG4RefTime; }
+      /// Given Geant4 time [ns], returns relative time [ns] w.r.t. electronics time T0
+      virtual double G4ToElecTime(double g4_time) const {return g4_time - fG4RefTime; }
       
       /// Trigger electronics clock time in [us]
       virtual double TriggerTime() const { return fTriggerTime; }
@@ -116,23 +116,23 @@ namespace gar {
       { detinfo::ElecClock clock = ExternalClock(); clock.SetTime(sample,frame); return clock; }
     
       //
-      // Getters for time [us] w.r.t. trigger given information from waveform
+      // Getters for time [ns] w.r.t. trigger given information from waveform
       //
       
       
-      /// Given TPC time-tick (waveform index), returns time [us] w.r.t. trigger time stamp
+      /// Given TPC time-tick (waveform index), returns time [ns] w.r.t. trigger time stamp
       virtual double TPCTick2TrigTime(double tick) const
       { return fTPCClock.TickPeriod() * tick + TriggerOffsetTPC(); }
       
-      /// Given TPC time-tick (waveform index), returns time [us] w.r.t. beam gate time
+      /// Given TPC time-tick (waveform index), returns time [ns] w.r.t. beam gate time
       virtual double TPCTick2BeamTime(double tick) const
       { return fTPCClock.TickPeriod() * tick + TriggerOffsetTPC() + TriggerTime() - BeamGateTime(); }
       
-      /// Given External time-tick (waveform index), sample and frame number, returns time [us] w.r.t. trigger time stamp
+      /// Given External time-tick (waveform index), sample and frame number, returns time [ns] w.r.t. trigger time stamp
       virtual double ExternalTick2TrigTime(double tick, size_t sample, size_t frame) const
       { return fExternalClock.TickPeriod() * tick + fExternalClock.Time(sample,frame) - TriggerTime(); }
       
-      /// Given External time-tick (waveform index), sample and frame number, returns time [us] w.r.t. beam gate time stamp
+      /// Given External time-tick (waveform index), sample and frame number, returns time [ns] w.r.t. beam gate time stamp
       virtual double ExternalTick2BeamTime(double tick, size_t sample, size_t frame) const
       { return fExternalClock.TickPeriod() * tick + fExternalClock.Time(sample,frame) - BeamGateTime(); }
       
@@ -157,7 +157,7 @@ namespace gar {
       { return G4ToElecTime(g4time) / fExternalClock.TickPeriod(); }
       
       //
-      // Getters for time [us] (electronics clock counting ... in double precision)
+      // Getters for time [ns] (electronics clock counting ... in double precision)
       //
       /// Given TPC time-tick (waveform index), returns electronics clock [us]
       virtual double TPCTick2Time(double tick) const
@@ -215,10 +215,10 @@ namespace gar {
       /// Time offset from trigger to TPC readout start
       double fTriggerOffsetTPC;
       
-        /// Trigger time in [us]
+        /// Trigger time in [ns]
       double fTriggerTime;
       
-        /// BeamGate time in [us]
+        /// BeamGate time in [ns]
       double fBeamGateTime;
       
     }; // class DetectorClocksStandard

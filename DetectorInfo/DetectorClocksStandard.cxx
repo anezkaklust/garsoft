@@ -79,8 +79,8 @@ namespace gar {
   //-----------------------------------
   {
     
-    fG4RefTime   = fConfigValue.at(kG4RefTime);
-    fFramePeriod = fConfigValue.at(kFramePeriod);
+    fG4RefTime        = fConfigValue.at(kG4RefTime);
+    fFramePeriod      = fConfigValue.at(kFramePeriod);
     fTriggerOffsetTPC = fConfigValue.at(kTriggerOffsetTPC);
     
     fTPCClock     = detinfo::ElecClock( fTriggerTime, fFramePeriod, fConfigValue.at( kClockSpeedTPC     ) );
@@ -96,7 +96,7 @@ namespace gar {
     double d;
     
     bool result = !ps.get_if_present("module_label", s);
-    for(size_t i=0; result && i<kInheritConfigTypeMax; ++i)
+    for(size_t i = 0; result && i < kInheritConfigTypeMax; ++i)
       
       result = result && ps.get_if_present(fConfigName.at(i).c_str(),d);
     
@@ -118,18 +118,18 @@ namespace gar {
       << fConfigValue.at(i);
     
     LOG_VERBATIM("DetectorClocksStandard")
-    << "Trigger  time @ "                    << fTriggerTime               << std::endl
-    << "BeamGate time @ "                    << fBeamGateTime              << std::endl
-    << "TrigOffsetTPC @ "                    << TriggerOffsetTPC()         << std::endl
-    << "G4RefTime     @ "                    << fG4RefTime                 << std::endl
-    << "TPC     Freq. @ "                    << fTPCClock.Frequency()      << std::endl
-    << "Trigger Freq. @ "                    << fTriggerClock.Frequency()  << std::endl
-    << "External Freq. @ "                   << fExternalClock.Frequency() << std::endl
-    << "TPC start tick [tdc]             : " << TPCTick2TDC(0)             << std::endl
-    << "TPC start tick from trigger [us] : " << TPCTick2TrigTime(0)        << std::endl
-    << "TPC start tick from beam    [us] : " << TPCTick2BeamTime(0)        << std::endl
-    << "TPC tdc=0 in tick     : "            << TPCTDC2Tick(0)             << std::endl
-    << "TPC G4 time 0 in tick : "            << TPCG4Time2Tick(0);
+    << "Trigger  time @ "                      << fTriggerTime              
+    << "\nBeamGate time @ "                    << fBeamGateTime
+    << "\nTrigOffsetTPC @ "                    << TriggerOffsetTPC()
+    << "\nG4RefTime     @ "                    << fG4RefTime
+    << "\nTPC     Freq. @ "                    << fTPCClock.Frequency()
+    << "\nTrigger Freq. @ "                    << fTriggerClock.Frequency()
+    << "\nExternal Freq. @ "                   << fExternalClock.Frequency()
+    << "\nTPC start tick [tdc]             : " << TPCTick2TDC(0)
+    << "\nTPC start tick from trigger [ns] : " << TPCTick2TrigTime(0)
+    << "\nTPC start tick from beam    [ns] : " << TPCTick2BeamTime(0)
+    << "\nTPC tdc=0 in tick     : "            << TPCTDC2Tick(0)
+    << "\nTPC G4 time 0 in tick : "            << TPCG4Time2Tick(0);
     
   }
   

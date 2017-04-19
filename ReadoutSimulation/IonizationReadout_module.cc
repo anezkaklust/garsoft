@@ -319,6 +319,16 @@ namespace gar {
                                 fTime->TPCG4Time2TDC(clusterTime[c]),
                                 e);
           
+          LOG_DEBUG("IonizationReadout")
+          << "cluster time: "
+          << clusterTime[c]
+          << " TDC "
+          << fTime->TPCG4Time2TDC(clusterTime[c])
+          << " "
+          << fTime->G4ToElecTime(clusterTime[c])
+          << " "
+          << fTime->TPCClock().TickPeriod();
+          
           this->CheckChannelToEnergyDepositMapping(edepIDEs.back().Channel,
                                                    edepCol[e],
                                                    "DriftElectronsToReadout");
@@ -336,7 +346,7 @@ namespace gar {
     void IonizationReadout::CombineIDEs(std::vector<edepIDE>                 & edepIDEs,
                                         std::vector<sdp::EnergyDeposit> const& edepCol)
     {
-      LOG_DEBUG("IonizationReadout")
+      LOG_VERBATIM("IonizationReadout")
       << "starting with "
       << edepIDEs.size()
       << " energy deposits";
@@ -377,7 +387,14 @@ namespace gar {
         
         if(cur != prev){
           LOG_DEBUG("IonizationReadout")
-          << "storing edepIDE sum";
+          << "storing edepIDE sum: "
+          << sum.NumElect
+          << " "
+          << sum.Channel
+          << " "
+          << sum.TDC
+          << " "
+          << sum.edepLocs.size();
 
           if(fCheckChan)
             for(auto edloc : sum.edepLocs)
@@ -389,7 +406,8 @@ namespace gar {
           temp.push_back(sum);
           
           // start over with a fresh sum
-          sum = cur;
+          sum  = cur;
+          prev = cur;
         }
         else{
           LOG_DEBUG("IonizationReadout")

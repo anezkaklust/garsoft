@@ -366,8 +366,7 @@ namespace gar{
     }
     
     //--------------------------------------------------------------------------
-    std::vector<const sdp::EnergyDeposit*> BackTrackerCore::ChannelTDCToEnergyDeposit(raw::Channel_t channel,
-                                                                                      unsigned int   tdc) const
+    std::map<size_t, const sdp::EnergyDeposit*> BackTrackerCore::ChannelTDCToEnergyDeposit(raw::Channel_t channel) const
     {
       if(channel > fChannelToEDepCol.size())
         throw cet::exception("BackTrackerCore")
@@ -375,22 +374,29 @@ namespace gar{
         << channel
         << " for backtracking TDCs is out of range, bail";
       
-      std::vector<const sdp::EnergyDeposit*> edeps;
+      LOG_VERBATIM("BackTracker")
+      << "There are "
+      << fChannelToEDepCol[channel].size()
+      << " energy depositions for channel "
+      << channel;
       
-      // loop over all the energy deposits for this channel and get the +/- 3sigma
-      // range of TDC values for each time.  Keep those deposits that fall in that
-      // range
-      unsigned int centralTDC = 0.;
-      unsigned int tdc3Sigma  = 0.;
+      std::map<size_t, const sdp::EnergyDeposit*> edeps;
+      
+      // loop over all the energy deposits for this channel
+      size_t centralTDC = 0.;
 
       for(auto const* edep : fChannelToEDepCol[channel]){
-        centralTDC = (unsigned int)fClocks->TPCG4Time2TDC(edep->Time());
-        tdc3Sigma  = (unsigned int)(std::sqrt(edep->X() * fInverseVelocity) * fLongDiffConst * 3.);
+        centralTDC = (size_t)fClocks->TPCG4Time2TDC(edep->Time() + edep->X() * fInverseVelocity);
         
-        if     (tdc > (centralTDC + tdc3Sigma)                    ) continue;
-        else if(tdc < centralTDC && (centralTDC - tdc) > tdc3Sigma) continue;
+        LOG_DEBUG("BackTrackerCore")
+        << "centralTDC: "
+        << centralTDC
+        << " time "
+        << edep->Time()
+        << " energy "
+        << edep->Energy();
         
-        edeps.push_back(edep);
+        edeps[centralTDC] = edep;
       }
       
       return edeps;

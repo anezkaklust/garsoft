@@ -169,7 +169,8 @@ namespace gar {
       virtual double Efield(unsigned int planegap=0) const override; ///< kV/cm
       
       virtual double DriftVelocity(double efield=0.,
-                                   double temperature=0.) const override;  ///< cm/us
+                                   double temperature=0.,
+                                   bool   cmPerns=true) const override;  ///< cm/ns if true, otherwise cm/us
       
       /// dQ/dX in electrons/cm, returns dE/dX in MeV/cm.
       virtual double BirksCorrection(double dQdX) const override;

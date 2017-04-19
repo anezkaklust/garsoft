@@ -1,6 +1,11 @@
 
 
-cet_make( LIBRARIES canvas_Persistency_Common NO_DICTIONARY )
+cet_make( LIBRARIES canvas_Persistency_Common
+                    ${MF_MESSAGELOGGER}
+          NO_DICTIONARY )
+
+# Simulation base is included in making the dictionary for associations
+# between the MC truth and reconstructed quantities when cheating
 
 art_dictionary( DICTIONARY_LIBRARIES ReconstructionDataProducts
                                      RawDataProducts

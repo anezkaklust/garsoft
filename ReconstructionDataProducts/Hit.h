@@ -43,6 +43,8 @@ namespace gar {
       float               StartTime() const;
       float               EndTime()   const;
       
+      void operator += (gar::rec::Hit const& h);
+      
       friend std::ostream& operator << (std::ostream & o, gar::rec::Hit const& h);
       
 #endif

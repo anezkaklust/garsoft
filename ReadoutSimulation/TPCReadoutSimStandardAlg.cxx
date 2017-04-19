@@ -50,6 +50,14 @@ namespace gar {
       
       for(size_t e = 0; e < electrons.size(); ++e){
         adcs[e] = this->ElectronsToADCs(electrons[e]);
+//        if(electrons[e] > 0)
+//          LOG_VERBATIM("TPCReadoutSim")
+//          << "ADC: "
+//          << adcs[e]
+//          << " electrons "
+//          << electrons[e]
+//          << " tdc "
+//          << e;
       }
       
       // add noise to the adc vector if we want that
@@ -114,6 +122,14 @@ namespace gar {
     //----------------------------------------------------------------------------
     short TPCReadoutSimStandardAlg::ElectronsToADCs(float electrons)
     {
+      LOG_DEBUG("TPCReadoutSimStandard")
+      << "Electrons to ADC: "
+      << fDetProp->ElectronsToADC()
+      << " electrons: "
+      << electrons
+      << " product: "
+      << fDetProp->ElectronsToADC() * electrons;
+      
       return (short)(fDetProp->ElectronsToADC() * electrons);
     }
     

@@ -76,8 +76,7 @@ namespace gar{
       
       // this method determines the appropriate EnergyDeposits for a given TDC
       // on a channel
-      std::vector<const sdp::EnergyDeposit*> ChannelTDCToEnergyDeposit(raw::Channel_t channel,
-                                                                       unsigned int   tdc) const;
+      std::map<size_t, const sdp::EnergyDeposit*> ChannelTDCToEnergyDeposit(raw::Channel_t channel) const;
       
       // this method will return the Geant4 track IDs of
       // the particles contributing ionization electrons to the identified hit

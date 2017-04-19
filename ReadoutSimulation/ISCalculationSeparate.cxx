@@ -71,8 +71,8 @@ namespace gar {
       
       // Get the recombination factor for this deposit - Nucl.Instrum.Meth.A523:275-286,2004
       // R = A/(1 + (dE/dx)*k)
-      // dE/dx is given by the voxel energy deposition, but have to convert it to MeV/cm
-      // from GeV/voxel width
+      // dE/dx is given by the energy deposition, but have to convert it to MeV/cm
+      // from GeV
       // A = 0.800 +/- 0.003
       // k = (0.097+/-0.001) g/(MeVcm^2)
       // the dx depends on the trajectory of the step
@@ -81,7 +81,7 @@ namespace gar {
       
       double dx     = dep->dX();
       double recomb = 0.;
-      double dEdx   = fEnergyDeposit / dx;
+      double dEdx   = 1.e3 * fEnergyDeposit / dx;
       
       // Guard against spurious values of dE/dx. Note: assumes density of GAr
       if(dEdx < 1.) dEdx = 1.;
@@ -91,7 +91,7 @@ namespace gar {
       fNumIonElectrons = fGeVToElectrons * fEnergyDeposit * recomb;
       
       LOG_DEBUG("ISCalculationSeparate")
-      << " Electrons produced for " << fEnergyDeposit
+      << " Electrons produced for " << fEnergyDeposit * 1.e3
       << " MeV deposited with "     << recomb
       << " recombination: "         << fNumIonElectrons;
       

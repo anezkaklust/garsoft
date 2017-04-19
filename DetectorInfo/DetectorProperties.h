@@ -29,7 +29,7 @@ namespace gar {
     constexpr double kModBoxB        = 0.212;    ///< in g/(MeVcm^{2})*kV/cm
     
     // Conversion for energy deposited in GeV to number of ionization electrons produced
-    constexpr double kGeVToElectrons = 4.237e7;  ///< 23.6eV per ion pair, 1e9 eV/GeV
+    constexpr double kGeVToElectrons = 3.788e7;  ///< 26.4 eV per ion pair, 1e9 eV/GeV
     
     class DetectorProperties {
     public:
@@ -61,7 +61,9 @@ namespace gar {
        */
       virtual double Efield(unsigned int planegap=0) const = 0;
       
-      virtual double DriftVelocity(double efield=0., double temperature=0.) const = 0;
+      virtual double DriftVelocity(double efield=0.,
+                                   double temperature=0.,
+                                   bool   cmPerns=true) const = 0;
       
         /// dQ/dX in electrons/cm, returns dE/dX in MeV/cm.
       virtual double BirksCorrection(double dQdX) const = 0;
