@@ -10,7 +10,7 @@
 #include "RunHistory.fcl"
 
 #Plugins
-#include "SingleGen.fcl"
+#include "GENIEGen.fcl"
 #include "GArG4.fcl"
 
 process_name: GenieGen
@@ -28,7 +28,7 @@ services:
  GArProperties:          @local::standard_garproperties
  NuRandomService:        @local::standard_NuRandomService
  MagneticField:          @local::no_mag_larsoft            #larsoft uses the same volume naming as GArSoft
- RunHistory:             @local::standard_runhistory
+#RunHistory:             @local::standard_runhistory
 }
 
 #Start each new event with an empty event.

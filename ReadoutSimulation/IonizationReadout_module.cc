@@ -346,7 +346,7 @@ namespace gar {
     void IonizationReadout::CombineIDEs(std::vector<edepIDE>                 & edepIDEs,
                                         std::vector<sdp::EnergyDeposit> const& edepCol)
     {
-      LOG_VERBATIM("IonizationReadout")
+      LOG_DEBUG("IonizationReadout")
       << "starting with "
       << edepIDEs.size()
       << " energy deposits";

@@ -233,39 +233,39 @@ namespace gar {
           chan = geo->NearestChannel(xyz);
           geo->ChannelToPosition(chan, xyzChan);
           
-          if(std::abs(xyz[1] - fChannelInfo.y) > 0.33)
-            LOG_VERBATIM("RawDigitAna")
-            << "Channel "
-            << fChannelInfo.channel
-            << " / "
-            << chan
-            << " is off from the energy deposit in y: ("
-            << fChannelInfo.y
-            << ", "
-            << fChannelInfo.z
-            << ") vs ("
-            << xyz[1]
-            << ", "
-            << xyz[2]
-            << ") "
-            << std::abs(xyz[1] - fChannelInfo.y);
-
-          if(std::abs(xyz[2] - fChannelInfo.z) > 10.33)
-            LOG_VERBATIM("RawDigitAna")
-            << "Channel "
-            << fChannelInfo.channel
-            << " / "
-            << chan
-            << " is off from the energy deposit in z: ("
-            << fChannelInfo.y
-            << ", "
-            << fChannelInfo.z
-            << ") vs ("
-            << xyz[1]
-            << ", "
-            << xyz[2]
-            << ") "
-            << std::abs(xyz[2] - fChannelInfo.z);
+//          if(std::abs(xyz[1] - fChannelInfo.y) > 0.33)
+//            LOG_VERBATIM("RawDigitAna")
+//            << "Channel "
+//            << fChannelInfo.channel
+//            << " / "
+//            << chan
+//            << " is off from the energy deposit in y: ("
+//            << fChannelInfo.y
+//            << ", "
+//            << fChannelInfo.z
+//            << ") vs ("
+//            << xyz[1]
+//            << ", "
+//            << xyz[2]
+//            << ") "
+//            << std::abs(xyz[1] - fChannelInfo.y);
+//
+//          if(std::abs(xyz[2] - fChannelInfo.z) > 10.33)
+//            LOG_VERBATIM("RawDigitAna")
+//            << "Channel "
+//            << fChannelInfo.channel
+//            << " / "
+//            << chan
+//            << " is off from the energy deposit in z: ("
+//            << fChannelInfo.y
+//            << ", "
+//            << fChannelInfo.z
+//            << ") vs ("
+//            << xyz[1]
+//            << ", "
+//            << xyz[2]
+//            << ") "
+//            << std::abs(xyz[2] - fChannelInfo.z);
 
           // make the tree flat in terms of the energy depositions
           fChannelTree->Fill();

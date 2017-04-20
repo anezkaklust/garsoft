@@ -60,8 +60,6 @@ namespace gar {
                                std::vector<std::pair<int, gar::rec::Hit> >     & chanHits,
                                std::vector<const gar::sdp::EnergyDeposit*>     & edeps);
 
-      void ConcatenateTDCHits(std::vector<gar::rec::Hit> & hitVec);
-      
       std::string                         fReadoutLabel; ///< label of module creating raw digits
       std::string                         fG4Label;      ///< label of module creating mc particles
       const gar::detinfo::DetectorClocks* fTime;         ///< electronics clock
@@ -175,7 +173,7 @@ namespace gar {
         this->CreateHitsOnChannel(dig, hits, edeps);
         
         if(hits.size() > 0)
-          LOG_VERBATIM("HitCheater")
+          LOG_DEBUG("HitCheater")
           << "There are "
           << hits.size()
           << " hits found for channel "
@@ -184,7 +182,7 @@ namespace gar {
         // add the hits to the output collection and make the necessary associations
         for(auto hit : hits){
           
-          LOG_VERBATIM("HitCheater")
+          LOG_DEBUG("HitCheater")
           << hit.second;
           
           hitCol->push_back(hit.second);
@@ -237,7 +235,7 @@ namespace gar {
 
         if(rawDigit.ADC(tdc) != 0){
           ++nonZeroCtr;
-          LOG_VERBATIM("HitCheater")
+          LOG_DEBUG("HitCheater")
           << "RawDigit on channel "
           << rawDigit.Channel()
           << " has nonzero signal "
@@ -261,7 +259,7 @@ namespace gar {
       
       // no signal on the channel, so return empty handed
       if(nonZeroCtr == 0){
-        LOG_WARNING("HitCheater")
+        LOG_DEBUG("HitCheater")
         << "The input raw digit on channel "
         << rawDigit.Channel()
         << " has no signal for any TDC tick but "
@@ -281,7 +279,7 @@ namespace gar {
       float  pos[3]   = {0.};
       fGeo->ChannelToPosition(channel, pos);
       
-      LOG_VERBATIM("HitCheater")
+      LOG_DEBUG("HitCheater")
       << "Channel location is ("
       << pos[0]
       << ", "
@@ -299,6 +297,10 @@ namespace gar {
       // to allow it to curl around.
       int          trkId  = 0;
       unsigned int curTDC = 0;
+      unsigned int begTDC = 0;
+      unsigned int endTDC = 0;
+      float        hitSig = 0.;
+
       for(auto trkIdItr : trackIDToTDCEDeps){
         
         trkId = trkIdItr.first;
@@ -306,17 +308,16 @@ namespace gar {
         // loop over the tdcs for this track id
         auto const& tdcToEDepMap = trkIdItr.second;
 
-        LOG_VERBATIM("HitCheater")
+        LOG_DEBUG("HitCheater")
         << "TrackID "
         << trkId
         << " has the following TDCs: ";
-        for(auto const& itr : tdcToEDepMap)
-          LOG_VERBATIM("HitCheater")
-          << itr.first;
+//        for(auto const& itr : tdcToEDepMap)
+//          LOG_VERBATIM("HitCheater")
+//          << itr.first;
         
-        curTDC  = tdcToEDepMap.begin()->first;
-
         std::vector<gar::rec::Hit> trkIDHits;
+        std::set<unsigned int>     usedTDCs;
         
         for(auto itr : tdcToEDepMap){
           
@@ -325,60 +326,56 @@ namespace gar {
           // a time
           pos[0] = fDetProp->DriftVelocity() * fTime->TPCTick2Time(curTDC);
 
+          curTDC  = itr.first;
+          
+          begTDC = (curTDC > fTDCGap            ) ? curTDC - fTDCGap : 0;
+          endTDC = (curTDC < rawDigit.Samples() ) ? curTDC + fTDCGap : rawDigit.Samples();
+          
+          LOG_DEBUG("HitCheater")
+          << "begTDC: "
+          << begTDC
+          << " endTDC: "
+          << endTDC;
+
+          // check with ADC values from the raw digit are close enough in
+          // time to assign to the current true energy deposit and make hits out
+          // of those.  Make sure to not double count
+          hitSig = 0.;
+          for(size_t tdc = begTDC; tdc < endTDC + 1; ++tdc){
+            // only add signal from tdcs which have not already been used for
+            // this track id
+            if(usedTDCs.count(tdc) < 1){
+              hitSig += 1. * rawDigit.ADC(tdc) * itr.second / totalTDCEDep[curTDC];
+              usedTDCs.insert(tdc);
+              
+              LOG_DEBUG("HitCheater")
+              << " tdc: "
+              << tdc
+              << " hitSig: "
+              << hitSig
+              << " "
+              << rawDigit.ADC(tdc)
+              << " "
+              << itr.second / totalTDCEDep[curTDC];
+              
+            }
+          }
+          
           // the second arugment is the signal from the current TrackID
           // in this TDC
           trkIDHits.emplace_back(channel,
-                                 1. * rawDigit.ADC(curTDC) * itr.second / totalTDCEDep[curTDC],
+                                 hitSig,
                                  pos,
-                                 curTDC,
-                                 curTDC);
+                                 begTDC,
+                                 endTDC);
           
         } // end loop over TDC to energy deposit map
-        
-        // now concatenate the "hits" for this track ID that are close enough
-        // together in time
-        this->ConcatenateTDCHits(trkIDHits);
         
         // now add the hits for this track ID to the output vector
         for(auto const& hit : trkIDHits)
           chanHits.emplace_back(std::make_pair(trkId, hit));
         
       } // end loop over track ids
-      
-      return;
-    }
-
-    //--------------------------------------------------------------------------
-    void HitCheater::ConcatenateTDCHits(std::vector<gar::rec::Hit> & hitVec)
-    {
-      if(hitVec.size() < 1){
-        LOG_WARNING("HitCheater")
-        << "no hits to concatenate, bail";
-        return;
-      }
-      
-      std::vector<gar::rec::Hit> tmpVec;
-      
-      // loop over the hits in the input vector and decide if any should be
-      // grouped together
-      tmpVec.emplace_back(hitVec[0]);
-
-      for(size_t h = 1; h < hitVec.size(); ++h){
-        
-        // if the start time of the current hit is within the TDC gap size
-        // of the back of the tmpVec, then add the current hit to the hit
-        // at the back of tmpVec
-        if(hitVec[h].StartTime() < fTDCGap + tmpVec.back().StartTime()){
-          tmpVec.back() += hitVec[h];
-        }
-        else
-          tmpVec.emplace_back(hitVec[h]);
-        
-      } // end loop over hits.
-      
-      // almost done, just swap the two vectors so that the concatenated hits
-      // are now in the input vector location
-      hitVec.swap(tmpVec);
       
       return;
     }

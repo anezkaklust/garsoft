@@ -374,7 +374,7 @@ namespace gar{
         << channel
         << " for backtracking TDCs is out of range, bail";
       
-      LOG_VERBATIM("BackTracker")
+      LOG_DEBUG("BackTracker")
       << "There are "
       << fChannelToEDepCol[channel].size()
       << " energy depositions for channel "
