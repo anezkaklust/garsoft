@@ -31,17 +31,16 @@ dk2nu           v01_04_01g
 nusimdata       v1_06_01
 genie_xsec     	v2_12_0
 genie_phyopt    v2_12_0
-genie_fluxopt   v16_12_01
 
 cetbuildtools	v5_04_03	-	only_for_build
 end_product_list
 
   
 # e10  - with gcc 4.9.3 and -std=c++14
-qualifier     nutools    nusimdata dk2nu         genie_xsec           genie_phyopt genie_fluxopt
-e10:debug     e10:debug  e10:debug e10:r6:debug  DefaultPlusMECWithNC	dkcharmtau   nova
-e10:opt       e10:opt    e10:opt   e10:r6:opt    DefaultPlusMECWithNC	dkcharmtau   nova
-e10:prof      e10:prof   e10:prof  e10:r6:prof   DefaultPlusMECWithNC	dkcharmtau   nova
+qualifier     nutools    nusimdata dk2nu         genie_xsec           genie_phyopt 
+e10:debug     e10:debug  e10:debug e10:r6:debug  DefaultPlusMECWithNC	dkcharmtau   
+e10:opt       e10:opt    e10:opt   e10:r6:opt    DefaultPlusMECWithNC	dkcharmtau   
+e10:prof      e10:prof   e10:prof  e10:r6:prof   DefaultPlusMECWithNC	dkcharmtau   
 
 end_qualifier_list
 
