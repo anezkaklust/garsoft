@@ -167,7 +167,6 @@ namespace gar {
       produces< sumdata::POTSummary, ::art::InSubRun >();
       produces< ::art::Assns<simb::MCTruth, simb::MCFlux> >();
       produces< ::art::Assns<simb::MCTruth, simb::GTruth> >();
-      produces< std::vector<gar::sdp::BeamGateInfo> >();
       
       std::string beam_type_name = pset.get<std::string>("BeamName");
       
@@ -301,12 +300,11 @@ namespace gar {
     //____________________________________________________________________________
     void GENIEGen::produce(::art::Event& evt)
     {
-      std::unique_ptr< std::vector<simb::MCTruth> > truthcol  (new std::vector<simb::MCTruth>);
-      std::unique_ptr< std::vector<simb::MCFlux>  > fluxcol   (new std::vector<simb::MCFlux >);
-      std::unique_ptr< std::vector<simb::GTruth>  > gtruthcol (new std::vector<simb::GTruth >);
-      std::unique_ptr< ::art::Assns<simb::MCTruth, simb::MCFlux> > tfassn(new ::art::Assns<simb::MCTruth, simb::MCFlux>);
-      std::unique_ptr< ::art::Assns<simb::MCTruth, simb::GTruth> > tgtassn(new ::art::Assns<simb::MCTruth, simb::GTruth>);
-      std::unique_ptr< std::vector<sdp::BeamGateInfo> > gateCollection(new std::vector<sdp::BeamGateInfo>);
+      std::unique_ptr< std::vector<simb::MCTruth> >                truthcol (new std::vector<simb::MCTruth>);
+      std::unique_ptr< std::vector<simb::MCFlux>  >                fluxcol  (new std::vector<simb::MCFlux >);
+      std::unique_ptr< std::vector<simb::GTruth>  >                gtruthcol(new std::vector<simb::GTruth >);
+      std::unique_ptr< ::art::Assns<simb::MCTruth, simb::MCFlux> > tfassn   (new ::art::Assns<simb::MCTruth, simb::MCFlux>);
+      std::unique_ptr< ::art::Assns<simb::MCTruth, simb::GTruth> > tgtassn  (new ::art::Assns<simb::MCTruth, simb::GTruth>);
       
       while(truthcol->size() < 1){
         while(!fGENIEHelp->Stop()){
@@ -341,19 +339,12 @@ namespace gar {
         
       }// end loop while no interactions are made
       
-      // Create a simulated "beam gate" for these neutrino events.
-      // We're creating a vector of these because, in a
-      // distant-but-possible future, we may be generating more than one
-      // beam gate within a simulated time window.
-      gateCollection->push_back(sdp::BeamGateInfo( fGlobalTimeOffset, fRandomTimeOffset, fBeamType ));
-      
       // put the collections in the event
       evt.put(std::move(truthcol));
       evt.put(std::move(fluxcol));
       evt.put(std::move(gtruthcol));
       evt.put(std::move(tfassn));
       evt.put(std::move(tgtassn));
-      evt.put(std::move(gateCollection));
       
       return;
     }
