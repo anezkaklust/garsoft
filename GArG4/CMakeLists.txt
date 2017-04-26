@@ -52,13 +52,15 @@ art_make(LIB_LIBRARIES      nutools_ParticleNavigation
                             ${ART_FRAMEWORK_SERVICES_OPTIONAL}
                             ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
                             ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
-                            art_Persistency_Common canvas_Persistency_Common
-                            art_Persistency_Provenance canvas_Persistency_Provenance
-                            art_Utilities canvas_Utilities
+                            art_Persistency_Common
+                            art_Persistency_Provenance
+                            art_Utilities
+                            canvas
                             ${MF_MESSAGELOGGER}
                             ${MF_UTILITIES}
                             ${FHICLCPP}
                             ${CETLIB}
+                            ${CETLIB_EXCEPT}
                             ${ROOT_EG}
                             ${ROOT_TREEPLAYER}
                             ${ROOT_FFTW}
@@ -81,9 +83,10 @@ art_make(LIB_LIBRARIES      nutools_ParticleNavigation
                             ${ART_FRAMEWORK_CORE}
                             ${ART_FRAMEWORK_IO_SOURCES}
                             ${ART_FRAMEWORK_PRINCIPAL}
-                            art_Persistency_Common canvas_Persistency_Common
-                            art_Persistency_Provenance canvas_Persistency_Provenance
-                            art_Utilities canvas_Utilities
+                            art_Persistency_Common
+                            art_Persistency_Provenance
+                            art_Utilities
+                            canvas
                             ${ART_FRAMEWORK_SERVICES_REGISTRY}
                             ${ART_FRAMEWORK_SERVICES_OPTIONAL}
                             ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
@@ -91,6 +94,7 @@ art_make(LIB_LIBRARIES      nutools_ParticleNavigation
                             ${MF_UTILITIES}
                             ${FHICLCPP}
                             ${CETLIB}
+                            ${CETLIB_EXCEPT}
                             ${ROOT_BASIC_LIB_LIST}
                             ${G4LIBS}
 )

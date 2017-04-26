@@ -214,12 +214,12 @@ namespace gar {
       // Get access to the TFile service.
       ::art::ServiceHandle<::art::TFileService> tfs;
       
-      fGenerated[0] = tfs->make<TH1F>("fGenerated_necc","",  100, 0.0, 20.0);
-      fGenerated[1] = tfs->make<TH1F>("fGenerated_nebcc","", 100, 0.0, 20.0);
-      fGenerated[2] = tfs->make<TH1F>("fGenerated_nmcc","",  100, 0.0, 20.0);
-      fGenerated[3] = tfs->make<TH1F>("fGenerated_nmbcc","", 100, 0.0, 20.0);
-      fGenerated[4] = tfs->make<TH1F>("fGenerated_nnc","",   100, 0.0, 20.0);
-      fGenerated[5] = tfs->make<TH1F>("fGenerated_nbnc","",  100, 0.0, 20.0);
+      fGenerated[0] = tfs->make<TH1F>("fGenerated_necc",  "", 100, 0.0, 20.0);
+      fGenerated[1] = tfs->make<TH1F>("fGenerated_nebcc", "", 100, 0.0, 20.0);
+      fGenerated[2] = tfs->make<TH1F>("fGenerated_nmcc",  "", 100, 0.0, 20.0);
+      fGenerated[3] = tfs->make<TH1F>("fGenerated_nmbcc", "", 100, 0.0, 20.0);
+      fGenerated[4] = tfs->make<TH1F>("fGenerated_nnc",   "", 100, 0.0, 20.0);
+      fGenerated[5] = tfs->make<TH1F>("fGenerated_nbnc",  "", 100, 0.0, 20.0);
       
       fDCosX = tfs->make<TH1F>("fDCosX", ";dx/ds", 200, -1., 1.);
       fDCosY = tfs->make<TH1F>("fDCosY", ";dy/ds", 200, -1., 1.);
@@ -252,21 +252,21 @@ namespace gar {
       fDeltaE = tfs->make<TH1F>("fDeltaE", ";#Delta E_{#nu} (GeV);", 200, -1., 1.);
       fECons  = tfs->make<TH1F>("fECons", ";#Delta E(#nu,lepton);", 500, -5., 5.);
       
-      auto geo = gar::providerFrom<geo::Geometry>();
-      double x = 2.1*geo->DetHalfWidth();
-      double y = 2.1*geo->DetHalfHeight();
-      double z = 2.*geo->DetLength();
-      int xdiv = TMath::Nint(2*x/5.);
-      int ydiv = TMath::Nint(2*y/5.);
-      int zdiv = TMath::Nint(2*z/5.);
+      auto   geo  = gar::providerFrom<geo::Geometry>();
+      double x    = 2.1 * geo->DetHalfWidth();
+      double y    = 2.1 * geo->DetHalfHeight();
+      double z    = 2.  * geo->DetLength();
+      int    xdiv = TMath::Nint(2 * x / 5.);
+      int    ydiv = TMath::Nint(2 * y / 5.);
+      int    zdiv = TMath::Nint(2 * z / 5.);
       
-      fVertexX = tfs->make<TH1F>("fVertexX", ";x (cm)", xdiv, -0.1*x, x);
-      fVertexY = tfs->make<TH1F>("fVertexY", ";y (cm)", ydiv, -y,     y);
-      fVertexZ = tfs->make<TH1F>("fVertexZ", ";z (cm)", zdiv, -0.1*z, z);
+      fVertexX = tfs->make<TH1F>("fVertexX", ";x (cm)", xdiv, -0.1 * x, x);
+      fVertexY = tfs->make<TH1F>("fVertexY", ";y (cm)", ydiv, -y,       y);
+      fVertexZ = tfs->make<TH1F>("fVertexZ", ";z (cm)", zdiv, -0.1 * z, z);
       
-      fVertexXY = tfs->make<TH2F>("fVertexXY", ";x (cm);y (cm)", xdiv, -0.1*x, x, ydiv,     -y, y);
-      fVertexXZ = tfs->make<TH2F>("fVertexXZ", ";z (cm);x (cm)", zdiv, -0.2*z, z, xdiv, -0.1*x, x);
-      fVertexYZ = tfs->make<TH2F>("fVertexYZ", ";z (cm);y (cm)", zdiv, -0.2*z, z, ydiv,     -y, y);
+      fVertexXY = tfs->make<TH2F>("fVertexXY", ";x (cm);y (cm)", xdiv, -0.1 * x, x, ydiv,       -y, y);
+      fVertexXZ = tfs->make<TH2F>("fVertexXZ", ";z (cm);x (cm)", zdiv, -0.2 * z, z, xdiv, -0.1 * x, x);
+      fVertexYZ = tfs->make<TH2F>("fVertexYZ", ";z (cm);y (cm)", zdiv, -0.2 * z, z, ydiv,       -y, y);
       
     }
     
@@ -289,7 +289,7 @@ namespace gar {
       
       std::unique_ptr<sumdata::POTSummary> p(new sumdata::POTSummary());
       
-      p->totpot = fGENIEHelp->TotalExposure();
+      p->totpot     = fGENIEHelp->TotalExposure();
       p->totgoodpot = fGENIEHelp->TotalExposure();
       
       sr.put(std::move(p));
@@ -322,10 +322,10 @@ namespace gar {
             truthcol ->push_back(truth);
             fluxcol  ->push_back(flux);
             gtruthcol->push_back(gTruth);
-            util::CreateAssn(*this, evt, *truthcol, *fluxcol, *tfassn, fluxcol->size()-1, fluxcol->size());
-            util::CreateAssn(*this, evt, *truthcol, *gtruthcol, *tgtassn, gtruthcol->size()-1, gtruthcol->size());
+            util::CreateAssn(*this, evt, *truthcol, *fluxcol,   *tfassn,  fluxcol->size()   - 1, fluxcol->size()  );
+            util::CreateAssn(*this, evt, *truthcol, *gtruthcol, *tgtassn, gtruthcol->size() - 1, gtruthcol->size());
             
-            FillHistograms(truth);
+            this->FillHistograms(truth);
           }// end if genie was able to make an event
           
         }// end event generation loop

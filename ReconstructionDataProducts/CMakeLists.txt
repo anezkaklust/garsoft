@@ -1,6 +1,6 @@
 
 
-cet_make( LIBRARIES canvas_Persistency_Common
+cet_make( LIBRARIES canvas
                     ${MF_MESSAGELOGGER}
           NO_DICTIONARY )
 

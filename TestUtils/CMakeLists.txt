@@ -1,5 +1,6 @@
-art_make(LIB_LIBRARIES art_Utilities canvas_Utilities
+art_make(LIB_LIBRARIES canvas
                        ${CETLIB}
+                       ${CETLIB_EXCEPT}
   )
 
 

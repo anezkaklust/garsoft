@@ -1,4 +1,6 @@
-art_make(LIB_LIBRARIES ${CETLIB}
+include_directories( $ENV{CETLIB_EXCEPT_INC} )
+
+art_make(LIB_LIBRARIES ${CETLIB_EXCEPT} canvas
         )
 
 

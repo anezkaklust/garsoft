@@ -42,15 +42,18 @@ cet_set_compiler_flags(DIAGS CAUTIOUS WERROR
 cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
+find_ups_product( art            )
+find_ups_product( canvas         )
+find_ups_product( messagefacility)
+find_ups_product( genie          )
+find_ups_product( dk2nu          )
+find_ups_product( nutools        )
+find_ups_product( nusimdata      )
+find_ups_product( libwda         )
+find_ups_product( postgresql     )
+find_ups_product( cetbuildtools  )
 find_ups_boost  ()
 find_ups_root   ()
-find_ups_product( genie           )
-find_ups_product( libwda          )
-find_ups_product( postgresql      )
-find_ups_product( messagefacility )
-find_ups_product( cetbuildtools   )
-find_ups_product( nutools         )
-find_ups_product( nusimdata       )
 
 message(STATUS "ROOTSYS is ${ROOTSYS}")
 

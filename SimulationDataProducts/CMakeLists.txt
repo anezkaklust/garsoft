@@ -1,7 +1,6 @@
 
 cet_make( LIBRARIES nusimdata_SimulationBase
-                    canvas_Persistency_Provenance
-                    canvas_Utilities
+                    canvas
                     MF_MessageLogger
                     MF_Utilities
                     cetlib

@@ -10,13 +10,14 @@ art_make_library( LIBRARY_NAME MCCheater
                                nusimdata_SimulationBase
                                nutools_ParticleNavigation
                                ${ART_FRAMEWORK_SERVICES_REGISTRY}
-                               art_Persistency_Common     canvas_Persistency_Common
-                               art_Persistency_Provenance canvas_Persistency_Provenance
-                               art_Utilities canvas_Utilities
+                               art_Persistency_Common
+                               art_Persistency_Provenance
+                               art_Utilities
+                               canvas
                                ${MF_MESSAGELOGGER}
                                ${MF_UTILITIES}
                                ${FHICLCPP}
-                               ${CETLIB}
+                               ${CETLIB_EXCEPT}
                                ${Boost_SYSTEM_LIBRARY}
                 )
 
@@ -31,13 +32,14 @@ simple_plugin(BackTracker "service"
 			        ${ART_FRAMEWORK_PRINCIPAL}
 			        ${ART_FRAMEWORK_SERVICES_REGISTRY}
 			        ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
-			        art_Persistency_Common     canvas_Persistency_Common
-			        art_Persistency_Provenance canvas_Persistency_Provenance
-			        art_Utilities              canvas_Utilities
+			        art_Persistency_Common
+			        art_Persistency_Provenance
+			        art_Utilities
+              canvas
 			        ${MF_MESSAGELOGGER}
 			        ${MF_UTILITIES}
 			        ${FHICLCPP}
-			        ${CETLIB}
+			        ${CETLIB_EXCEPT}
 			        ${ROOT_BASIC_LIB_LIST}
 )
 
@@ -55,13 +57,14 @@ simple_plugin(HitCheater "module"
               ${ART_FRAMEWORK_SERVICES_REGISTRY}
               ${ART_FRAMEWORK_PRINCIPAL}
               ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
-              art_Persistency_Common     canvas_Persistency_Common
-              art_Persistency_Provenance canvas_Persistency_Provenance
-              art_Utilities              canvas_Utilities
+              art_Persistency_Common
+              art_Persistency_Provenance
+              art_Utilities
+              canvas
               ${MF_MESSAGELOGGER}
               ${MF_UTILITIES}
               ${FHICLCPP}
-              ${CETLIB}
+              ${CETLIB_EXCEPT}
               ${ROOT_BASIC_LIB_LIST}
 )
 
@@ -71,13 +74,14 @@ simple_plugin(TrackCheater "module"
               ${ART_FRAMEWORK_SERVICES_REGISTRY}
               ${ART_FRAMEWORK_PRINCIPAL}
               ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
-              art_Persistency_Common     canvas_Persistency_Common
-              art_Persistency_Provenance canvas_Persistency_Provenance
-              art_Utilities              canvas_Utilities
+              art_Persistency_Common
+              art_Persistency_Provenance
+              art_Utilities
+              canvas
               ${MF_MESSAGELOGGER}
               ${MF_UTILITIES}
               ${FHICLCPP}
-              ${CETLIB}
+              ${CETLIB_EXCEPT}
               ${ROOT_BASIC_LIB_LIST}
 )
 
@@ -87,13 +91,14 @@ simple_plugin(ShowerCheater "module"
               ${ART_FRAMEWORK_SERVICES_REGISTRY}
               ${ART_FRAMEWORK_PRINCIPAL}
               ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
-              art_Persistency_Common     canvas_Persistency_Common
-              art_Persistency_Provenance canvas_Persistency_Provenance
-              art_Utilities              canvas_Utilities
+              art_Persistency_Common
+              art_Persistency_Provenance
+              art_Utilities
+              canvas
               ${MF_MESSAGELOGGER}
               ${MF_UTILITIES}
               ${FHICLCPP}
-              ${CETLIB}
+              ${CETLIB_EXCEPT}
               ${ROOT_BASIC_LIB_LIST}
 )
 

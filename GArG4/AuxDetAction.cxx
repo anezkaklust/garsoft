@@ -2,11 +2,9 @@
 //  AuxDetAction.cxx
 //
 //  Created by Brian Rebel on 11/22/16.
-//  Copyright © 2016 Brian Rebel. All rights reserved.
 //
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "cetlib/exception.h"
 
 #include "TGeoManager.h"
 #include "TGeoMaterial.h"

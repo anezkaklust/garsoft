@@ -1,6 +1,6 @@
 
 
-cet_make( LIBRARIES canvas_Persistency_Common NO_DICTIONARY )
+cet_make( LIBRARIES canvas NO_DICTIONARY )
 
 art_dictionary( DICTIONARY_LIBRARIES RawDataProducts )
 
