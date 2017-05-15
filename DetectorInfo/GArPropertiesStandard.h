@@ -6,7 +6,7 @@
  * The provider detinfo::LArProperiesStandard supports simple setup for testing
  * environment, by including in your test:
  *     
- *     #include "lardata/DetectorInfo/LArPropertiesStandardTestHelpers.h"
+ *     #include "DetectorInfo/LArPropertiesStandardTestHelpers.h"
  *     
  */
 
@@ -14,7 +14,7 @@
 #define DETECTORINFO_GARPROPERTIESSTANDARD_H
 
 
-// LArSoft libraries
+// GArSoft libraries
 #include "DetectorInfo/GArProperties.h"
 
 // FHiCL libraries

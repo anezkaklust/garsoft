@@ -17,7 +17,7 @@
 #include "DetectorInfo/RunHistory.h"
 #include "Utilities/IRunHistoryService.h"
 
-///General LArSoft Utilities
+///General GArSoft Utilities
 namespace util
   class RunHistoryService : public IRunHistoryService {
     public:

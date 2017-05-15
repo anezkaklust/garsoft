@@ -1,6 +1,6 @@
 /**
  * @file   DetectorPropertiesStandardTestHelpers.h
- * @brief  Helpers for support of DetectorPropertiesService in LArSoft tests
+ * @brief  Helpers for support of DetectorPropertiesService in GArSoft tests
  * @author Gianluca Petrillo (petrillo@fnal.gov)
  * @date   May 6th, 2016
  * 
@@ -17,8 +17,8 @@
 #ifndef LARDATA_DETECTORINFO_DETECTORPROPERTIESSTANDARDTESTHELPERS_H
 #define LARDATA_DETECTORINFO_DETECTORPROPERTIESSTANDARDTESTHELPERS_H 1
 
-// LArSoft libraries
-#include "lardata/DetectorInfo/DetectorPropertiesStandard.h"
+// GArSoft libraries
+#include "DetectorInfo/DetectorPropertiesStandard.h"
 #include "larcore/TestUtils/ProviderTestHelpers.h"
 
 // framework and utility libraries

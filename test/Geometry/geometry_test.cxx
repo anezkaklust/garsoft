@@ -16,7 +16,7 @@
  */
 
 
-// LArSoft libraries
+// GArSoft libraries
 #include "test/Geometry/GeometryTestAlg.h"
 #include "test/Geometry/geometry_unit_test_base.h"
 #include "Geometry/GeometryCore.h"

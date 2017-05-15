@@ -120,7 +120,7 @@ namespace gar {
     * @tparam PROVIDER type of service provider interface to be returned
     * @see ServiceProviderImplementationWrapper
     * 
-    * This class provides a art service to wrap a LArSoft service provider
+    * This class provides a art service to wrap a GArSoft service provider
     * interface.
     * 
     * The behaviour of the implementations is not constrained by this interface.

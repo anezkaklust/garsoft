@@ -69,7 +69,7 @@ namespace gar {
    * The pointers are stored as constant.
    * Note that this container can host any type of objects, and it has 
    * "provider" in the name because the reason it was written was to provide
-   * a fast way to specify a set of LArSoft service providers.
+   * a fast way to specify a set of GArSoft service providers.
    * The only limitation is that there should be only one object per type.
    * Pointed objects are not owned by this class.
    *     

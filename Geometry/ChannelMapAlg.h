@@ -30,15 +30,15 @@ namespace gar{
       InvalidChannelIDError(std::string const& cat): cet::exception(cat) {}
       
       InvalidChannelIDError(std::string const& cat,
-                            int                bad_wire,
-                            int                better_wire = -1)
+                            int                bad_chan,
+                            int                better_chan = -1)
       : cet::exception    (cat)
-      , wire_number       (bad_wire)
-      , better_wire_number(better_wire)
+      , chan_number       (bad_chan)
+      , better_chan_number(better_chan)
       {}
       
-      int wire_number        = std::numeric_limits<int>::min(); ///< the invalid wire number
-      int better_wire_number = std::numeric_limits<int>::min(); ///< a suggestion for a good wire number
+      int chan_number        = std::numeric_limits<int>::min(); ///< the invalid wire number
+      int better_chan_number = std::numeric_limits<int>::min(); ///< a suggestion for a good wire number
 
     }; // class InvalidWireIDError
     
@@ -55,6 +55,7 @@ namespace gar{
       virtual unsigned int  NearestChannel(float const* xyz)     const = 0;
       virtual void          ChannelToPosition(unsigned int chan,
                                               float*       xyz)  const = 0;
+      virtual float         ChannelPitch()                       const = 0;
 
     protected:
       

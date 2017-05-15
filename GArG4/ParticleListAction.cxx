@@ -366,7 +366,7 @@ namespace gar {
         const G4ThreeVector position = postStepPoint->GetPosition();
         G4double time = postStepPoint->GetGlobalTime();
         
-        // Remember that LArSoft uses cm, ns, GeV.
+        // Remember that GArSoft uses cm, ns, GeV.
         TLorentzVector fourPos(position.x() / CLHEP::cm,
                                position.y() / CLHEP::cm,
                                position.z() / CLHEP::cm,

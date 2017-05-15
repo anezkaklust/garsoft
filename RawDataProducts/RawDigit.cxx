@@ -4,7 +4,7 @@
  * @author brebel@fnal.gov
  * @see  RawDigit.h raw.h
  * 
- * Compression/uncompression utilities are declared in lardata/RawData/raw.h .
+ * Compression/uncompression utilities are declared in RawData/raw.h .
  * 
  * ****************************************************************************/
 
@@ -40,7 +40,7 @@ namespace gar {
     
     
     //----------------------------------------------------------------------
-    RawDigit::RawDigit(Channel_t             channel,
+    RawDigit::RawDigit(Channel_t               channel,
                        unsigned short          samples,
                        RawDigit::ADCvector_t&& adclist)
     : fADC(std::move(adclist))
@@ -49,16 +49,6 @@ namespace gar {
     , fPedestal(0.)
     , fSigma(0.)
     {}
-    
-    
-    //----------------------------------------------------------------------
-    void RawDigit::SetPedestal(float ped, float sigma /* = 1. */ )
-    {
-      
-      fPedestal = ped;
-      fSigma = sigma;
-      
-    } // RawDigit::SetPedestal()
     
     
   } // namespace raw

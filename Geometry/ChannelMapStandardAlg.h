@@ -46,6 +46,7 @@ namespace gar{
       unsigned int NearestChannel(float const* xyz)     const override;
       void         ChannelToPosition(unsigned int chan,
                                      float*       xyz)  const override;
+      float        ChannelPitch()                       const override;
       
     private:
       

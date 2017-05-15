@@ -6,7 +6,7 @@
  * @see    ProviderTesterHelpers.h
  * 
  * This is a header-only library.
- * It depends only on standard C++ and on LArSoft pure headers with that same
+ * It depends only on standard C++ and on GArSoft pure headers with that same
  * feature, and therefore does not require additional linkage.
  * 
  * This library provides:
@@ -18,7 +18,7 @@
 #ifndef TESTUTILS_PROVIDERLIST_H
 #define TESTUTILS_PROVIDERLIST_H 1
 
-// LArSoft libraries
+// GArSoft libraries
 #include "TestUtils/ProviderTestHelpers.h"
 
 // C/C++ standard libraries
@@ -146,7 +146,7 @@ namespace testing {
     * The presence of a provider can be checked beforehand with `has()`.
     * 
     * @note The presence of multiple providers of the same type, supported via
-    * instance names, is not useful in the current art/LArSoft.
+    * instance names, is not useful in the current art/GArSoft.
     * 
     * 
     * How can a provider support the `setup()` construction method?

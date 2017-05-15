@@ -7,7 +7,7 @@
 #ifndef GEO_AUXDETGEOMETRYCORE_H
 #define GEO_AUXDETGEOMETRYCORE_H
 
-// LArSoft libraries
+// GArSoft libraries
 
 // Framework and infrastructure libraries
 #include "fhiclcpp/ParameterSet.h"
@@ -260,7 +260,7 @@ namespace gar {
       * The gdmlfile parameter does not have to necessarily be in GDML format,
       * as long as it's something supported by Geant4. This file is not used by
       * the geometry, but its path is provided on request by the simulation
-      * modules (see LArSoft `LArG4` module).
+      * modules (see GArSoft `LArG4` module).
       * The rootfile also does not need to be a ROOT file, but just anything
       * that TGeoManager::Import() supports. This file is parsed immediately
       * and the internal geometry representation is built out of it.

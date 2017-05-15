@@ -64,7 +64,7 @@ include(BuildPlugins)
 include(CetRootCint)
 
 # source
-#add_subdirectory(EventDisplay)
+add_subdirectory(EventDisplay)
 add_subdirectory (EventGenerator)
 add_subdirectory (CoreUtils)
 add_subdirectory (DetectorInfo)

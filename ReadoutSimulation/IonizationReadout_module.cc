@@ -198,72 +198,77 @@ namespace gar {
       
       // first get the energy deposits from the event record
       auto eDepCol = evt.getValidHandle< std::vector<sdp::EnergyDeposit> >(fG4Label);
-      std::vector<edepIDE> eDepIDEs;
-
-      // drift the ionization electrons to the readout and create edepIDE objects
-      this->DriftElectronsToReadout(*eDepCol, eDepIDEs);
       
-      // The IDEs should have been combined already so that there are no repeat
-      // TDC values for any channel
-      unsigned int       prevChan = eDepIDEs.front().Channel;
-      std::set<size_t>   digitEDepLocs;
-      std::vector<float> electrons(fNumTicks, 0.);
-
-      // make the signal raw digits and set their associations to the energy deposits
-      for(auto edide : eDepIDEs){
+      if(eDepCol->size() > 0){
+        
+        std::vector<edepIDE> eDepIDEs;
+        
+        // drift the ionization electrons to the readout and create edepIDE objects
+        this->DriftElectronsToReadout(*eDepCol, eDepIDEs);
+        
+        // The IDEs should have been combined already so that there are no repeat
+        // TDC values for any channel
+        unsigned int       prevChan = eDepIDEs.front().Channel;
+        std::set<size_t>   digitEDepLocs;
+        std::vector<float> electrons(fNumTicks, 0.);
+        
+        // make the signal raw digits and set their associations to the energy deposits
+        for(auto edide : eDepIDEs){
+          
+          LOG_DEBUG("IonizationReadout")
+          << "Current eDepIDE channel is "
+          << edide.Channel
+          << " previous channel is "
+          << prevChan;
+          
+          if(edide.Channel != prevChan){
+            LOG_DEBUG("IonizationReadout")
+            << "There are  "
+            << digitEDepLocs.size()
+            << " locations for "
+            << edide.Channel
+            << " rdCol size is currently "
+            << rdCol->size();
+            
+            // this method clears the electrons and digitEDepLocs collections
+            // after creating the RawDigit
+            this->CreateSignalDigit(prevChan,
+                                    electrons,
+                                    digitEDepLocs,
+                                    *rdCol,
+                                    eDepCol,
+                                    *erassn,
+                                    evt);
+            
+            // reset the previous channel info
+            prevChan = edide.Channel;
+            
+          }
+          
+          electrons[edide.TDC] = edide.NumElect;
+          
+          for(auto loc : edide.edepLocs) digitEDepLocs.insert(loc);
+          
+        } // end loop to fill signal raw digit vector and make EnergyDeposit associations
+        
+        // still one more digit to make because we ran out of channels to compare against
+        this->CreateSignalDigit(eDepIDEs.back().Channel,
+                                electrons,
+                                digitEDepLocs,
+                                *rdCol,
+                                eDepCol,
+                                *erassn,
+                                evt);
         
         LOG_DEBUG("IonizationReadout")
-        << "Current eDepIDE channel is "
-        << edide.Channel
-        << " previous channel is "
-        << prevChan;
+        << "Created "
+        << rdCol->size()
+        << " raw digits from signal";
         
-        if(edide.Channel != prevChan){
-          LOG_DEBUG("IonizationReadout")
-          << "There are  "
-          << digitEDepLocs.size()
-          << " locations for "
-          << edide.Channel
-          << " rdCol size is currently "
-          << rdCol->size();
-          
-          // this method clears the electrons and digitEDepLocs collections
-          // after creating the RawDigit
-          this->CreateSignalDigit(prevChan,
-                                  electrons,
-                                  digitEDepLocs,
-                                  *rdCol,
-                                  eDepCol,
-                                  *erassn,
-                                  evt);
-          
-          // reset the previous channel info
-          prevChan = edide.Channel;
-          
-        }
-
-        electrons[edide.TDC] = edide.NumElect;
+        // now make the noise digits
+        fROSimAlg->CreateNoiseDigits(*rdCol);
         
-        for(auto loc : edide.edepLocs) digitEDepLocs.insert(loc);
-        
-      } // end loop to fill signal raw digit vector and make EnergyDeposit associations
-
-      // still one more digit to make because we ran out of channels to compare against
-      this->CreateSignalDigit(eDepIDEs.back().Channel,
-                              electrons,
-                              digitEDepLocs,
-                              *rdCol,
-                              eDepCol,
-                              *erassn,
-                              evt);
-      
-      LOG_DEBUG("IonizationReadout")
-      << "Created "
-      << rdCol->size()
-      << " raw digits from signal";
-      
-      // now make the noise digits
-      fROSimAlg->CreateNoiseDigits(*rdCol);
+      } // end if there were energy deposits to use
       
       evt.put(std::move(rdCol));
       evt.put(std::move(erassn));

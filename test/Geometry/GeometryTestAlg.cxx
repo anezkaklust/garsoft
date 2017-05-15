@@ -395,7 +395,7 @@ namespace gar{
       // Even if you comment it out, please leave the TStopWatch code
       // in this code for additional testing. The NearestChannel routine
       // is the most frequently called in the simulation, so its execution time
-      // is an important component of LArSoft's speed.
+      // is an important component of GArSoft's speed.
       TStopwatch stopWatch;
       stopWatch.Start();
       

@@ -5,7 +5,7 @@ standard_genie:
  module_type:        "GENIEGen"
  PassEmptySpills:    false
  FluxType:           "mono"                # mono, histogram, ntuple, or simple_flux
- FluxFiles:          ["flugg_L010z185i_neutrino_mode.root"] #name of file with flux histos
+ FluxFiles:          ["gsimple_DUNE-NDTF-03_g4lbne_v3r4p2_QGSP_BERT_Nominal_80GeV_neutrino_s99_00050.root"] #name of file with flux histos
  BeamName:           "numi"                # numi or booster at this point - really for bookkeeping
  TopVolume:          "volDetEnclosure"     # volume in which to produce interactions
  EventsPerSpill:     1.                    # set != 0 to get n events per spill

@@ -27,7 +27,7 @@
 #ifndef TEST_UNIT_TEST_BASE_H
 #define TEST_UNIT_TEST_BASE_H
 
-// LArSoft libraries
+// GArSoft libraries
 #include "TestUtils/ProviderTestHelpers.h"
 #include "TestUtils/ProviderList.h"
 #include "CoreUtils/ProviderPack.h"

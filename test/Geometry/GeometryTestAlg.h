@@ -11,7 +11,7 @@
 #ifndef GEO_GEOMETRYTESTALG_H
 #define GEO_GEOMETRYTESTALG_H
 
-// LArSoft includes
+// GArSoft includes
 #include "TestUtils/NameSelector.h"
 
 // C/C++ standard libraries

@@ -4,7 +4,7 @@
  * @author brebel@fnal.gov
  * @see  RawDigit.cxx raw.h
  * 
- * Compression/uncompression utilities are declared in lardata/RawData/raw.h .
+ * Compression/uncompression utilities are declared in RawData/raw.h .
  * 
  * Changes:
  * 20141210 Gianluca Petrillo (petrillo@fnal.gov)
@@ -87,8 +87,8 @@ namespace gar {
        // removed waiting for a real use for flags
        typedef enum {
        fiSaturation,       ///< saturation flag: set if saturated at any time
-       NLArSoftFlags = 8,  ///< LArSoft reserves flags up to here (this excluded)
-       NFlagIndices = NLArSoftFlags ///< number of flags
+       NGArSoftFlags = 8,  ///< GArSoft reserves flags up to here (this excluded)
+       NFlagIndices = NGArSoftFlags ///< number of flags
        } FlagIndices_t; ///< type of index of flags
        */
       
@@ -143,10 +143,10 @@ namespace gar {
       
       /// Pedestal level (ADC counts)
       /// @deprecated Might be removed soon
-      float           GetPedestal() const;
+      float           Pedestal() const;
       
       /// TODO: RMS of the pedestal level?
-      float           GetSigma()    const;
+      float           Sigma()    const;
       
       ///@}
       
@@ -175,11 +175,11 @@ namespace gar {
 
 inline size_t           gar::raw::RawDigit::NADC()        const { return fADC.size();  }
 inline short            gar::raw::RawDigit::ADC(int i)    const { return fADC.at(i);   }
-inline const gar::raw::RawDigit::ADCvector_t& gar::raw::RawDigit::ADCs() const { return fADC; }
-inline gar::raw::Channel_t gar::raw::RawDigit::Channel()     const { return fChannel;     }
+inline gar::raw::RawDigit::ADCvector_t const& gar::raw::RawDigit::ADCs() const { return fADC; }
+inline gar::raw::Channel_t gar::raw::RawDigit::Channel()  const { return fChannel;     }
 inline unsigned short   gar::raw::RawDigit::Samples()     const { return fSamples;     }
-inline float            gar::raw::RawDigit::GetPedestal() const { return fPedestal;    }
-inline float            gar::raw::RawDigit::GetSigma()    const { return fSigma;       }
+inline float            gar::raw::RawDigit::Pedestal()    const { return fPedestal;    }
+inline float            gar::raw::RawDigit::Sigma()       const { return fSigma;       }
 
 #endif // !__GCCXML__
 

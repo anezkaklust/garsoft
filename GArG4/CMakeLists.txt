@@ -28,12 +28,6 @@ set(G4LIBS ${G4FR}
            ${G4PROCESSES}
            ${G4READOUT}
            ${G4RUN}
-           ${G4ERROR_PROPAGATION}
-           ${G4EVENT}
-           ${G4GEOMETRY}
-           ${G4GL2PS}
-           ${G4GLOBAL}
-           ${G4GRAPHICS_REPS}
            ${G4TRACK}
            ${G4TRACKING}
            ${G4VISHEPREP}
@@ -41,6 +35,9 @@ set(G4LIBS ${G4FR}
            ${G4VIS_MANAGEMENT}
            ${G4ZLIB}
     )
+
+
+MESSAGE(STATUS "G4LIBS is ${G4LIBS}")
 
 art_make(LIB_LIBRARIES      nutools_ParticleNavigation
                             nutools_G4Base

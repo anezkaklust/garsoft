@@ -130,20 +130,12 @@
       <D unit="g/cm3" value="1e-25"/>
       <fraction n="1" ref="videRef_elm"/>
     </material>
-    <element name="antimony_elm" formula="Sb" Z="51">
-      <atom unit="g/mole" value="121.76"/>
-    </element>
-    <element name="caesium_elm" formula="Cs" Z="55">
-      <atom unit="g/mole" value="132.9"/>
-    </element>
     <element name="potassium_elm" formula="K" Z="19">
       <atom unit="g/mole" value="39.0983"/>
     </element>
     <material name="bialkali">
-      <D unit="g/cm3" value="1.93"/>
-      <fraction n="0.414490401745" ref="antimony_elm"/>
-      <fraction n="0.452412754297" ref="caesium_elm"/>
-      <fraction n="0.133096829057" ref="potassium_elm"/>
+      <D unit="g/cm3" value="1e-25"/>
+      <fraction n="1" ref="videRef_elm"/>
     </material>
     <element name="aluminum_elm" formula="Al" Z="13">
       <atom unit="g/mole" value="26.9815"/>

@@ -27,7 +27,7 @@
 // C/C++ standard libraries
 #include <set>
 
-///General LArSoft Utilities
+///General GArSoft Utilities
 namespace gar {
   namespace detinfo{
     

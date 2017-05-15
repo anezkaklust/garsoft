@@ -67,13 +67,13 @@ namespace gar {
      *
      * GENIE uses a TRandom generator for its purposes.
      * Since art's RandomNumberGenerator service only provides
-     * `CLHEP::HepRandomEngine`, the standard LArSoft/art mechanism for handling
+     * `CLHEP::HepRandomEngine`, the standard GArSoft/art mechanism for handling
      * the random stream can't be used.
      * GENIEHelper, interface to GENIE provided by nutools, creates a TRandom
      * that GENIE can use. It initializes it with a random seed read from
      * *RandomSeed* configuration parameter. This and all the other parameters
      * are inherited from the art module (that is, `GENIEGen`) configuration.
-     * LArSoft meddles with this mechanism to provide support for the standard
+     * GArSoft meddles with this mechanism to provide support for the standard
      * "Seed" parameter and NuRandomService service.
      *
      * Configuration parameters
@@ -178,7 +178,7 @@ namespace gar {
       
       fhicl::ParameterSet GENIEconfig(pset);
       if (!GENIEconfig.has_key("RandomSeed")) {
-        // no RandomSeed specified; check for the LArSoft-style "Seed" instead:
+        // no RandomSeed specified; check for the GArSoft-style "Seed" instead:
         // obtain the random seed from a service,
         // unless overridden in configuration with key "Seed"
         

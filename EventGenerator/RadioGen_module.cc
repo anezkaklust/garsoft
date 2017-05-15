@@ -89,7 +89,7 @@ namespace gar {
       void readfile(std::string nuclide, std::string filename);
       void samplespectrum(std::string nuclide, int &itype, double &t, double &m, double &p);
       
-        // recoded so as to use the LArSoft-managed random number generator
+        // recoded so as to use the GArSoft-managed random number generator
       double samplefromth1d(TH1D *hist);
       
         // itype = pdg code:  1000020040: alpha.  itype=11: beta. -11: positron,  itype=22: gamma.  -1: error

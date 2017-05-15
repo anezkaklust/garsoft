@@ -4,14 +4,14 @@
  * @author rs@fnal.gov
  * 
  * Handles detector-specific information for the generic Geometry service
- * within LArSoft. Derived from the ExptGeoHelperInterface class. This version
+ * within GArSoft. Derived from the ExptGeoHelperInterface class. This version
  * provides strictly standard functionality
  */
 
 #ifndef GEO_StandardGeometryHelper_h
 #define GEO_StandardGeometryHelper_h
 
-// LArSoft libraries
+// GArSoft libraries
 #include "Geometry/ExptGeoHelperInterface.h"
 
 // C/C++ standard libraries

@@ -14,7 +14,7 @@
 //
 // for details on the format.  In brief each event contains at least two 
 // lines.  The first line contains two entries, the event number (which is
-// ignored in ART/LArSoft) and the number of particles in the event.  Each
+// ignored in ART/GArSoft) and the number of particles in the event.  Each
 // following line containes 15 entries to describe each particle.  The entries
 // are: 
 // 
@@ -47,11 +47,11 @@
 //
 // There are some assumptions that go into using this format that may not
 // be obvious.  The first is that only particles with status code = 1 
-// are tracked in the LArSoft/Geant4 combination making the mother daughter
+// are tracked in the GArSoft/Geant4 combination making the mother daughter
 // relations somewhat irrelevant.  That also means that you should let 
 // Geant4 handle any decays.
 //
-// The units in LArSoft are cm for distances and ns for time
+// The units in GArSoft are cm for distances and ns for time
 // The use of TLorentzVector below does not imply space and time have the same units
 //  (do not use TLorentzVector::Boost())
 ////////////////////////////////////////////////////////////////////////

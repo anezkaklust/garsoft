@@ -10,7 +10,7 @@
 // C++ language includes
 #include <iostream>
 
-// LArSoft includes
+// GArSoft includes
 #include "DetectorInfo/RunHistoryStandard.h"
 
 // ROOT includes

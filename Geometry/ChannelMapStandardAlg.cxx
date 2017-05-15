@@ -138,6 +138,12 @@ namespace gar {
       
       return;
     }
+
+    //----------------------------------------------------------------------------
+    float ChannelMapStandardAlg::ChannelPitch() const
+    {
+      return fPixelPitch;
+    }
     
   } // namespace
 } // namespace gar

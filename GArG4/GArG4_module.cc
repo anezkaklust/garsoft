@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////
 /// \file  GArG4.cxx
-/// \brief Use Geant4 to run the LArSoft detector simulation
+/// \brief Use Geant4 to run the GArSoft detector simulation
 ///
 /// \version $Id: GArG4.cxx,v 1.22 2010/07/20 06:08:30 bjpjones Exp $
 /// \author  seligman@nevis.columbia.edu
@@ -476,7 +476,7 @@ namespace gar {
           << " to create association between Particle and MCTruth";
 
         // FIXME workaround until https://cdcvs.fnal.gov/redmine/issues/12067
-        // is solved and adopted in LArSoft, after which moving will suffice
+        // is solved and adopted in GArSoft, after which moving will suffice
         // to avoid dramatic memory usage spikes;
         // for now, we immediately disposed of used particles
         iPartPair = particleList.erase(iPartPair);

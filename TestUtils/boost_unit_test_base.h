@@ -22,7 +22,7 @@
 #ifndef TEST_BOOST_UNIT_TEST_BASE_H
 #define TEST_BOOST_UNIT_TEST_BASE_H
 
-// LArSoft libraries
+// GArSoft libraries
 #include "TestUtils/unit_test_base.h"
 
 // Boost libraries

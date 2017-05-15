@@ -6,7 +6,7 @@
 
 if [ "$#" -ne 5 ]; then
   echo "Usage: install_garsoft_mrb.sh <external ups directory> <garsoft base version> <garsoft qualifiers> <buildtype> <garsoft destination directory>"
-  echo " For example: install_garsoft_ups.sh $HOME/gar/products vXX_YY_ZZ sJJ:eII <debug | prof> $HOME/gar/"
+  echo " For example: install_garsoft_mrb.sh $HOME/gar/products vXX_YY_ZZ sJJ:eII <debug | prof> $HOME/gar/"
  #echo " the lastest version of the garsoft bundle can be found at http://scisoft.fnal.gov/scisoft/bundles/garsoft/"
   echo " use the lastest version of the larsoft bundle to get external products, the bundle can be found at http://scisoft.fnal.gov/scisoft/bundles/larsoft/"
   echo " If running on Fermilab dunegpvm nodes, set the <external ups directory> to be /cvmfs/fermilab.opensciencegrid.org/products/larsoft"

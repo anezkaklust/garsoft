@@ -39,7 +39,7 @@ namespace gar {
       
       // Set the step size to small value if NEST is chosen, per Matthew Szydagis,
       // "because without delta rays, the yields are wrong.  The ICARUS model that is
-      // in LArSoft uses a fudge factor to compensate, but NEST is "purer" -- no
+      // in GArSoft uses a fudge factor to compensate, but NEST is "purer" -- no
       // fudge factor. "
       fStepSize = 0.05 * CLHEP::micrometer;
       

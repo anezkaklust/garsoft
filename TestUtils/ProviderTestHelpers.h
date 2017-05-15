@@ -1,6 +1,6 @@
 /**
  * @file   ProviderTestHelpers.h
- * @brief  Helper classes to be used together with LArSoft's unit test
+ * @brief  Helper classes to be used together with GArSoft's unit test
  * @date   May 10th, 2016
  * @author Gianluca Petrillo (petrillo@fnal.gov)
  * @see    ProviderList.h
@@ -11,7 +11,7 @@
  *   to support the setup of a specific service provider
  * - `SimpleEnvironmentSetupClass` class (and `simpleEnvironmentSetup()` helper)
  *   to be specialised to support the one-step set up of the provider in a
- *   LArSoft tester environment
+ *   GArSoft tester environment
  * 
  * This is a pure template header. It does not require additional libraries to
  * be linked.
