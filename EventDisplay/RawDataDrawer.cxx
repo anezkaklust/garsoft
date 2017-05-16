@@ -131,6 +131,8 @@ namespace gar {
       art::ServiceHandle<evd::ColorDrawingOptions> cdopt;
       art::ServiceHandle<geo::Geometry>            geom;
       
+      if(rawopt->fDrawRawOrReco > 0) return;
+      
       std::vector<const raw::RawDigit*> rawhits;
       this->GetRawDigits(evt, rawhits);
       

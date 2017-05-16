@@ -80,9 +80,11 @@ namespace evd{
   void RecoBaseDrawer::Hit3D(const art::Event& evt,
                              evdb::View3D*     view)
   {
-    art::ServiceHandle<evd::RecoDrawingOptions>  recoOpt;
+    art::ServiceHandle<evd::RecoDrawingOptions> recoOpt;
+    art::ServiceHandle<evd::RawDrawingOptions>  rawOpt;
     
-    if(recoOpt->fDrawHits == 0) return;
+    if(recoOpt->fDrawHits     == 0 ||
+       rawOpt->fDrawRawOrReco <  1 ) return;
     
     int h = 0;
     for(auto const& which : recoOpt->fHitLabels) {
@@ -132,7 +134,11 @@ namespace evd{
   void RecoBaseDrawer::Track3D(const art::Event& evt,
                                evdb::View3D*     view)
   {
-    art::ServiceHandle<evd::RecoDrawingOptions>  recoOpt;
+    art::ServiceHandle<evd::RecoDrawingOptions> recoOpt;
+    art::ServiceHandle<evd::RawDrawingOptions>  rawOpt;
+    
+    if(rawOpt->fDrawRawOrReco <  1 ) return;
+    
     
     for(auto const& which : recoOpt->fTrackLabels){
       art::View<rec::Track> trackView;

@@ -34,11 +34,14 @@ namespace evd{
   /// @param y2 : Location of top    edge of pad (0-1)
   /// @param opt: Options. Currently just a place holder
   ///
-  Display3DPad::Display3DPad(const char* nm, const char* ti,
-                             double x1, double y1,
-                             double x2, double y2,
-                             const char* /*opt*/) :
-    DrawingPad(nm, ti, x1, y1, x2, y2)
+  Display3DPad::Display3DPad(const char* nm,
+                             const char* ti,
+                             double x1,
+                             double y1,
+                             double x2,
+                             double y2,
+                             const char* /*opt*/)
+  : DrawingPad(nm, ti, x1, y1, x2, y2)
   {
     this->Pad()->SetFillColor(kBlack);
     this->Pad()->Draw();

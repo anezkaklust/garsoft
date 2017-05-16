@@ -8,7 +8,12 @@
 #define EVD_DISPLAY3DVIEW_H
 #include "RQ_OBJECT.h"
 
+#include "TGButton.h" // For TGCheckButton
+
 #include "nutools/EventDisplayBase/Canvas.h"
+
+#include "EventDisplay/HeaderPad.h"
+#include "EventDisplay/MCBriefPad.h"
 
 namespace gar {
 namespace evd {
@@ -31,7 +36,16 @@ namespace evd {
     void CloseWindow();
 
   private:
-    Display3DPad* fDisplay3DPad; /// Pad showing 3D view of the detector
+    
+    void SetRawReco();
+    
+    Display3DPad*  fDisplay3DPad; /// Pad showing 3D view of the detector
+    HeaderPad*     fHeaderPad;    ///< Show header information
+    MCBriefPad*    fMC;           ///< Short summary of MC event
+    TGCheckButton* fMCOn;         ///< Display MC truth information
+    TGRadioButton* fRawDraw;      ///< Draw Raw information only
+    TGRadioButton* fRecoDraw;     ///< Draw Reconstructed information only
+    
   };
 }
 }

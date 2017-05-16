@@ -14,9 +14,12 @@ namespace gar {
 namespace evd {
   class HeaderPad : public DrawingPad {
   public:
-    HeaderPad(const char* nm, const char* ti,
-              double x1, double y1,
-              double x2, double y2,
+    HeaderPad(const char* nm,
+              const char* ti,
+              double x1,
+              double y1,
+              double x2,
+              double y2,
               const char* opt);
     ~HeaderPad();
     void Draw(const char* opt="");

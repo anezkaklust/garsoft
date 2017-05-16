@@ -44,6 +44,7 @@ namespace evd {
 
     void reconfigure(fhicl::ParameterSet const& pset);
     
+    int                fDrawRawOrReco;            ///< 0 = draw raw, 1 = draw reco
     int    	           fTicksPerPoint;            ///< number of ticks to include in one point
     int    	           fScaleDigitsByCharge;      ///< scale the size of the digit by the charge
     double 	           fMinSignal;                ///< minimum ADC count to display a time bin

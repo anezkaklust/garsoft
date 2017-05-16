@@ -30,6 +30,7 @@ namespace evd {
   //......................................................................
   void RawDrawingOptions::reconfigure(fhicl::ParameterSet const& pset)
   {
+    fDrawRawOrReco            = pset.get< int          >("DrawRawOrReco",        0    );
     fScaleDigitsByCharge     	= pset.get< int          >("ScaleDigitsByCharge"        );
     fTicksPerPoint            = pset.get< int          >("TicksPerPoint"              );
     fMinSignal                = pset.get< double       >("MinimumSignal"              );
