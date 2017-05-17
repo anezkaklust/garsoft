@@ -12,39 +12,31 @@
 #include <iostream>
 
 namespace gar {
-namespace evd {
-
-  //......................................................................
-  EvdLayoutOptions::EvdLayoutOptions(fhicl::ParameterSet const& pset, 
-                                     art::ActivityRegistry& /* reg */)
-  {
-    this->reconfigure(pset);
+  namespace evd {
+    
+    //......................................................................
+    EvdLayoutOptions::EvdLayoutOptions(fhicl::ParameterSet const& pset,
+                                       art::ActivityRegistry& /* reg */)
+    {
+      this->reconfigure(pset);
+    }
+    
+    //......................................................................
+    EvdLayoutOptions::~EvdLayoutOptions()
+    {
+    }
+    
+    //......................................................................
+    void EvdLayoutOptions::reconfigure(fhicl::ParameterSet const& pset)
+    {
+      fEnableMCTruthCheckBox = pset.get< int >("EnableMCTruthCheckBox");
+    }
   }
   
-  //......................................................................
-  EvdLayoutOptions::~EvdLayoutOptions() 
-  {
-  }
-
-  //......................................................................
-  void EvdLayoutOptions::reconfigure(fhicl::ParameterSet const& pset){
-
-    fShowSideBar    	     = pset.get< int >("ShowSideBar");
-    fAutoZoomInterest      = pset.get< int >("AutoZoomInterest");  
-    fPrintTotalCharge  	   = pset.get< int >("PrintTotalCharge"); 
-    fShowEndPointSection   = pset.get< int >("ShowEndPointSection"); 
-    fShowEndPointMarkers   = pset.get< int >("ShowEndPointMarkers");   
-    fShowClusterSection    = pset.get< int >("ShowClusterSection");
-    fMakeClusters 	       = pset.get< int >("MakeClusters");
-    fMakeSeeds	 	         = pset.get< int >("MakeSeeds");
-    fEnableMCTruthCheckBox = pset.get< int >("EnableMCTruthCheckBox");
-  }   
-}
-
-namespace evd {
-
-  DEFINE_ART_SERVICE(EvdLayoutOptions)
-
-} // namespace evd
+  namespace evd {
+    
+    DEFINE_ART_SERVICE(EvdLayoutOptions)
+    
+  } // namespace evd
 }
 ////////////////////////////////////////////////////////////////////////

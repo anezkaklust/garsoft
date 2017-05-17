@@ -1,0 +1,110 @@
+BEGIN_PROLOG
+
+standard_colordrawingopt:
+{
+ ColorOrGrayScale:  1         # 0 = color, 1 = grayscale
+                              # the following parameters assume the first entry in the arrays
+                              # is for induction planes, the second for collection planes
+ RawDiv:           [ 100  ]   # number of divisions to use for the color scale
+ RawQLow:	         [ -20. ]   # minimum raw ADC value used in determining colors
+ RawQHigh:         [  60. ]   # maximum raw ADC value used in determining colors
+ RecoDiv:          [ 100  ]   # number of divisions to use for the color scale
+ RecoQLow:         [ -20. ]   # minimum calibrated ADC value used in determining colors
+ RecoQHigh:        [  60. ]   # maximum calibrated ADC value used in determining colors
+}
+
+standard_rawdrawingopt:
+{
+ DrawRawOrReco:              0     # 0 = raw, 1 = reconstructed, 2 = both for ADC vs TDC views
+ TicksPerPoint:              1     # number of TDC ticks to combine for each point in the TDC vs Wire veiws 
+ ScaleDigitsByCharge:        0     # 0 = off, 1 = on                                                        
+ MinimumSignal:              5.    # minimum ADC value to draw in TDC vs Wire views
+ StartTick:                  0.    # Starting tick for the display
+ TotalTicks:                 2048. # display TDC ticks 0 -> TotalTicks
+ RawDataLabel:               "daq" # label of module making the raw digits
+ Channel:                    0     # channel to draw in pad showing waveform for single channel
+}
+
+standard_recodrawingopt:
+{
+ DrawHits:                  1          # 0 = off, 1 = on, will not draw if DrawRawOrReco is set to 0
+ DrawTracks:                0  		     # 0 = off, 1 = on
+ DrawTrackTrajectoryPoints: 0  		     # 0 = off, 1 = on
+ DrawShowers:               0  		     # 0 = off, 1 = on
+ DrawVertices:              0  		     # 0 = off, 1 = on
+ DrawEvents:                0  		     # 0 = off, 1 = on
+ HitModuleLabels:           ["hit"]    # list of module labels in which to look for rec::Hits
+ TrackModuleLabels:         ["track"]  # list of module labels in which to look for rec::Tracks
+ ShowerModuleLabels:        ["shower"] # list of module labels in which to look for rec::Showers
+ VertexModuleLabels:        [""]       # list of module labels in which to look for rec::Vertexs
+ EventModuleLabels:         [""]       # list of module labels in which to look for rec::Events
+}
+
+standard_analysisdrawingopt:
+{
+ DrawCalorimetry:          1
+ DrawParticleID:           1
+ DrawShowerCalor:          0
+ CaloPlane:                -1
+ CalorimetryModuleLabels:  ["calo"]
+ ParticleIDModuleLabels:   ["pid"]
+ CalorTemplateFileName:    "dEdxKinErestemplate" # without .root
+}
+
+standard_simdrawingopt:
+{
+ ShowMCTruthText:         true       # toggle showing of MC interaction on or off
+ ShowMCTruthVectors:      true       # toggle showing of MC truth directions in 2D
+ ShowMCTruthTrajectories: true       # toggle showing of MC truth trajectories in 3D, all depositions
+ ShowMCTruthColors:       true       # toggle to use PDG colors for particles
+ ShowMCTruthFullSize:     true       # toggle to use larger size markers for visibility
+ MinimumEnergyDeposition: 5e-5       # in GeV
+ G4ModuleLabel:           "geant"    # module labels producing sim::SimChannel objects
+}
+
+standard_evdlayoutopt:
+{
+ EnableMCTruthCheckBox: 1            # 1 turn on the check box, 0 don't make it
+}
+
+standard_evd:
+{
+ AutoAdvanceInterval: 1000
+}
+
+evd_message:
+{
+ debugModules: [ "*" ]
+ destinations:
+ {
+  Drawers:
+  {
+   type: "cerr"
+   threshold: "INFO"
+   categories:
+   {
+    SimulationDrawer:
+    {     
+     limit:       5
+     timespan:    100
+    }
+    RecoBaseDrawer:
+    {     
+     limit:       5
+     timespan:    100
+    }
+    RawDataDrawer:
+    {     
+     limit:       5
+     timespan:    100
+    }
+   }
+  }
+ }
+}
+
+
+
+
+
+END_PROLOG

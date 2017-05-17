@@ -27,7 +27,6 @@
 #include "EventDisplay/MCBriefPad.h"
 
 class TH3F;
-namespace evdb { class View3D; }
 
 
 namespace gar {
