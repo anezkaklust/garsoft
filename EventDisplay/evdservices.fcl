@@ -1,8 +1,6 @@
 #
 # File:    evdservices.fcl
-# Purpose: Services for event display able to show events from prodsingle.fcl
-# Date:    July 30th, 2015
-# Author:  Gianluca Petrillo (petrillo@fnal.gov)
+# Purpose: Services for event display
 # Version: 1.0
 #
 
