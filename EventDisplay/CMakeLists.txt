@@ -3,6 +3,8 @@ include(CetRootCint)
 
 set( PACKAGE EventDisplay )
 FILE( GLOB src_files *.cxx )
+LIST( REMOVE_ITEM src_files "Display3DPad.cxx")
+LIST( REMOVE_ITEM src_files "Display3DView.cxx")
 
 cet_rootcint( ${PACKAGE} )
 

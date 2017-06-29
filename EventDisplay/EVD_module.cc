@@ -23,7 +23,7 @@ extern "C" {
 
 //GArSoft includes
 #include "nutools/EventDisplayBase/DisplayWindow.h"
-#include "EventDisplay/Display3DView.h"
+//#include "EventDisplay/Display3DView.h"
 #include "EventDisplay/CalorView.h"
 
 // Framework includes
@@ -37,10 +37,10 @@ extern "C" {
 
 /// The Event Display
 // Builder for the Display3D view
-static evdb::Canvas* mk_display3d_canvas(TGMainFrame* mf)
-{
-  return new gar::evd::Display3DView(mf);
-}
+//static evdb::Canvas* mk_display3d_canvas(TGMainFrame* mf)
+//{
+//  return new gar::evd::Display3DView(mf);
+//}
 
 // Builder for the Calor view
 static evdb::Canvas* mk_calor_canvas(TGMainFrame* mf)
@@ -89,11 +89,11 @@ namespace gar{
     //----------------------------------------------------
     void EVD::beginJob()
     {
-      evdb::DisplayWindow::Register("Display3D",
-                                    "Display3D",
-                                    700,
-                                    700,
-                                    mk_display3d_canvas);
+//      evdb::DisplayWindow::Register("Display3D",
+//                                    "Display3D",
+//                                    700,
+//                                    700,
+//                                    mk_display3d_canvas);
       
       evdb::DisplayWindow::Register("Calorimetry",
                                     "Calorimetry",
