@@ -1,7 +1,7 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version
 parent	garsoft	develop
-defaultqual	e14
+defaultqual	e15
 
 # These optional lines define the installed directories where
 # headers, libraries, and executables will be found
@@ -20,26 +20,23 @@ fcldir  product_dir fcl
 gdmldir product_dir
 fwdir   product_dir G4
 
-#
-# dk2nu should be brought in by nutools ... but isn't
-# must be consistent w/ GENIE build
 product         version
-art             v2_06_03
-nutools         v2_12_00
-dk2nu           v01_05_00b
-nusimdata       v1_07_01
-genie_xsec     	v2_12_0
-genie_phyopt    v2_12_0
+art             v2_10_03
+nutools         v2_19_00
+nusimdata       v1_11_00
+genie_xsec     	v2_12_8
+genie_phyopt    v2_12_8
 
-cetbuildtools	v5_06_07	-	only_for_build
+cetbuildtools	v7_00_03	-	only_for_build
 end_product_list
 
+# define allowed qualifiers and the corresponding qualifiers for the depdencies.
+# e15  - with gcc 6.4.0 and -std=c++14
   
-# e14  - with gcc 4.9.3 and -std=c++14
-qualifier     art          nutools    nusimdata dk2nu      genie_xsec            genie_phyopt
-e14:debug     e14:nu:debug e14:debug  e14:debug e14:debug  DefaultPlusMECWithNC	dkcharmtau
-e14:opt       e14:nu:opt   e14:opt    e14:opt   e14:opt    DefaultPlusMECWithNC	dkcharmtau
-e14:prof      e14:nu:prof  e14:prof   e14:prof  e14:prof   DefaultPlusMECWithNC	dkcharmtau
+qualifier     art          nutools    nusimdata   genie_xsec            genie_phyopt
+e15:debug     e15:debug    e15:debug  e15:debug   DefaultPlusMECWithNC	dkcharmtau
+e15:opt       e15:opt      e15:opt    e15:opt     DefaultPlusMECWithNC	dkcharmtau
+e15:prof      e15:prof     e15:prof   e15:prof    DefaultPlusMECWithNC	dkcharmtau
 
 end_qualifier_list
 

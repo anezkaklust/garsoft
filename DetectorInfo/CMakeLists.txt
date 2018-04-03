@@ -15,19 +15,20 @@ art_make( NO_PLUGINS
 simple_plugin(DetectorClocksServiceStandard "service"
               DetectorInfo
               RawDataProducts
-              ${ART_FRAMEWORK_CORE}
-              ${ART_FRAMEWORK_PRINCIPAL}
-              ${ART_PERSISTENCY_ROOTDB}
-              art_Utilities
-              canvas
-              art_Persistency_Common
-              art_Persistency_Provenance 
-              ${ART_FRAMEWORK_SERVICES_REGISTRY}
+  	      ${ART_FRAMEWORK_CORE}
+	      ${ART_FRAMEWORK_PRINCIPAL}
+	      ${ART_FRAMEWORK_SERVICES_REGISTRY}
+	      art_Persistency_Common canvas
+	      art_Persistency_Provenance canvas
+	      ${ART_FRAMEWORK_SERVICES_BASIC}
+	      ${ART_FRAMEWORK_SERVICES_OPTIONAL}
+	      art_Utilities canvas
+              ${ART_FRAMEWORK_IO_ROOT_ROOTDB}
               ${MF_MESSAGELOGGER}
               ${MF_UTILITIES}
               ${FHICLCPP}
               ${CETLIB_EXCEPT}
-              ${SQLITE3}
+	      ${SQLITE3}
               ${ROOT_BASIC_LIB_LIST}
              )
 
@@ -35,13 +36,18 @@ simple_plugin(DetectorPropertiesServiceStandard "service"
               DetectorInfo
               Geometry_Geometry_service
               Geometry
-              ${ART_PERSISTENCY_ROOTDB}
-              ${ART_FRAMEWORK_SERVICES_REGISTRY}
-              art_Utilities canvas
-              ${SQLITE3}
+	      ${ART_FRAMEWORK_PRINCIPAL}
+	      ${ART_FRAMEWORK_SERVICES_REGISTRY}
+	      art_Persistency_Common canvas
+	      art_Persistency_Provenance canvas
+	      ${ART_FRAMEWORK_SERVICES_BASIC}
+	      ${ART_FRAMEWORK_SERVICES_OPTIONAL}
+	      art_Utilities canvas
+              ${ART_FRAMEWORK_IO_ROOT_ROOTDB}
               ${MF_MESSAGELOGGER}
               ${MF_UTILITIES}
               ${CETLIB_EXCEPT}
+	      ${SQLITE3}
               ${ROOT_BASIC_LIB_LIST}
              )
 

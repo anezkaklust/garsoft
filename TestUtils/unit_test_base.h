@@ -1143,17 +1143,19 @@ namespace testing {
         << mf_pset.to_indented_string(1) << std::endl;
     } // if no configuration is available
     
-    mf::StartMessageFacility(mf::MessageFacilityService::SingleThread, mf_pset);
-    if (!appl_name.empty()) mf::SetApplicationName(appl_name);
-    mf::SetContext("Initialization");
+    //mf::StartMessageFacility(mf::MessageFacilityService::SingleThread, mf_pset);
+    //if (!appl_name.empty()) mf::SetApplicationName(appl_name);
+    //mf::SetContext("Initialization");
   //  mf::LogProblem("MessageFacility") << "Error messages are shown.";
   //  mf::LogPrint("MessageFacility") << "Warning messages are shown.";
   //  mf::LogVerbatim("MessageFacility") << "Info messages are shown.";
   //  mf::LogTrace("MessageFacility") << "Debug messages are shown.";
   //  LOG_TRACE("MessageFacility")
   //    << "LOG_TRACE/LOG_DEBUG messages are not compiled away.";
-    mf::LogInfo("MessageFacility") << "MessageFacility started.";
-    mf::SetModuleName("main");
+
+    //mf::LogInfo("MessageFacility") << "MessageFacility started.";
+    //mf::SetModuleName("main");
+
   } // BasicTesterEnvironment::SetupMessageFacility()
   
   

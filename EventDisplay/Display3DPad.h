@@ -25,6 +25,7 @@
 #include "EventDisplay/DrawingPad.h"
 #include "EventDisplay/HeaderPad.h"
 #include "EventDisplay/MCBriefPad.h"
+#include "EventDisplay/GeometryDrawer.h"
 
 class TH3F;
 

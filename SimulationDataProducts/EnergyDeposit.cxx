@@ -6,6 +6,7 @@
 //
 
 #include "SimulationDataProducts/EnergyDeposit.h"
+#include <limits>
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

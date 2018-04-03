@@ -226,7 +226,7 @@ namespace gar{
     {
       std::set<int> eveIDs;
       
-      std::vector< ::art::Ptr<gar::rec::Hit> >::const_iterator itr = hits.begin();
+      //std::vector< ::art::Ptr<gar::rec::Hit> >::const_iterator itr = hits.begin();
       for(auto itr : hits){
         
         // get the eve ids corresponding to this hit

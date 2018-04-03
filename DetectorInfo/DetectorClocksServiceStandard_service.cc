@@ -1,6 +1,6 @@
 #include "DetectorInfo/DetectorClocksServiceStandard.h"
 #include "TFile.h"
-#include "art/Persistency/RootDB/SQLite3Wrapper.h"
+#include "art/Framework/IO/Root/RootDB/SQLite3Wrapper.h"
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
