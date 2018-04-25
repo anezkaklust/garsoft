@@ -19,7 +19,7 @@
 
  <class name="std::vector<gar::raw::RawDigit>"                     />
  <class name="art::Wrapper< std::vector<gar::raw::RawDigit> >"     />
-
+ <enum name="gar::raw::_compress"                                    />
 <!--
  <class name="std::vector<raw::BeamInfo>       "                />
  <class name="std::vector<raw::Trigger>        "                />
