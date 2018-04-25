@@ -4,7 +4,6 @@
  * @author brebel@fnal.gov
  * @see  RawDigit.cxx raw.h
  * 
- * Compression/uncompression utilities are declared in RawData/raw.h .
  * 
  * Changes:
  * 20141210 Gianluca Petrillo (petrillo@fnal.gov)
@@ -19,21 +18,21 @@
  * 
  * ****************************************************************************/
 
-#ifndef RAWDATA_RAWDIGIT_H
-#define RAWDATA_RAWDIGIT_H
+#ifndef GAR_RAWDATA_RAWDIGIT_H
+#define GAR_RAWDATA_RAWDIGIT_H
 
 // C/C++ standard libraries
 #include <stdint.h> // uint32_t
 #include <cstdlib> // size_t
 #include <vector>
 // #include <bitset>
-
+#include "RawDataProducts/RawTypes.h"
 
 /// Raw data description and utilities
 namespace gar {
   namespace raw {
     
-    typedef unsigned int Channel_t;
+    typedef uint32_t Channel_t;
     
     /**
      * @brief Collection of charge vs time digitized from a single readout channel
@@ -137,6 +136,9 @@ namespace gar {
       
       /// DAQ channel this raw data was read from
       Channel_t       Channel()     const;
+
+      /// Compression algorithm selector
+      gar::raw::Compress_t Compression() const;
       
       /// Number of samples in the uncompressed ADC data
       unsigned short  Samples()     const;
@@ -161,7 +163,8 @@ namespace gar {
       
       float              fPedestal; ///< pedestal for this channel
       float              fSigma;    ///< sigma of the pedestal counts for this channel
-      
+      gar::raw::Compress_t         fCompression; ///< compression scheme used for the ADC vector
+
     }; // class RawDigit
     
     
@@ -180,9 +183,10 @@ inline gar::raw::Channel_t gar::raw::RawDigit::Channel()  const { return fChanne
 inline unsigned short   gar::raw::RawDigit::Samples()     const { return fSamples;     }
 inline float            gar::raw::RawDigit::Pedestal()    const { return fPedestal;    }
 inline float            gar::raw::RawDigit::Sigma()       const { return fSigma;       }
+inline gar::raw::Compress_t gar::raw::RawDigit::Compression() const  { return fCompression; }
 
 #endif // !__GCCXML__
 
-#endif // RAWDATA_RAWDIGIT_H
+#endif // gar_RAWDATA_RAWDIGIT_H
 
 ////////////////////////////////////////////////////////////////////////

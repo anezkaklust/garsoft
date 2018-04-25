@@ -4,7 +4,6 @@
  * @author brebel@fnal.gov
  * @see  RawDigit.h raw.h
  * 
- * Compression/uncompression utilities are declared in RawData/raw.h .
  * 
  * ****************************************************************************/
 
