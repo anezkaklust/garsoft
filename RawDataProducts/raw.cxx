@@ -139,12 +139,16 @@ namespace gar {
 	  {
 	    if (inablock)
 	      {
-	         blocksize[nblocks]++;
-	         nblocks++;  
-	         inablock = false;
+		blocksize[nblocks]++;
+		nblocks++;  
+		inablock = false;
 	      }
 	  } 
       }
+      if (inablock)
+	{
+	  nblocks++;  
+	}
 
       adc.resize(2+nblocks+nblocks+zerosuppressedsize);
 
