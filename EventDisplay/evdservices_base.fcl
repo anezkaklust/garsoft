@@ -67,6 +67,47 @@ standard_evdlayoutopt:
  EnableMCTruthCheckBox: 1            # 1 turn on the check box, 0 don't make it
 }
 
+standard_scanopt:
+{
+   Categories: [
+      "Neutrino",
+      "Collection Plane"
+   ]
+   FieldLabels: [
+      "No_nu",
+      "Possible_nu",
+      "nu",
+      "Tracks",
+      "Showers",
+      "Vertex_w",
+      "Vertex_t",
+      "Tracks",
+      "Showers",
+      "Vertex_w",
+      "Vertex_t"
+   ]
+   FieldTypes: [
+      "RadioButton",
+      "RadioButton",
+      "RadioButton",
+      "Number",
+      "Number",
+      "Number",
+      "Number",
+      "Number",
+      "Number",
+      "Number",
+      "Number"
+   ]
+   FieldsPerCategory: [
+      3,
+      4
+   ]
+   FileNameBase: "ScanFile"
+   IncludeMCInfo: false
+   service_type: "ScanOptions"
+}
+
 standard_evd:
 {
  AutoAdvanceInterval: 1000

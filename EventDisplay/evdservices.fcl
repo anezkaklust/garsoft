@@ -17,6 +17,8 @@ custom_colordrawingopt:  @local::standard_colordrawingopt
 custom_rawdrawingopt:               @local::standard_rawdrawingopt
 custom_rawdrawingopt.DrawRawOrReco: 1
 
+custom_scanopt:            @local::standard_scanopt
+
 custom_recodrawingopt:     @local::standard_recodrawingopt
 
 custom_analysisdrawingopt: @local::standard_analysisdrawingopt
@@ -25,7 +27,7 @@ custom_simdrawingopt:      @local::standard_simdrawingopt
 
 custom_evdlayoutopt:       @local::standard_evdlayoutopt
 
-custom_evd:              @local::standard_evd
+custom_evd:                @local::standard_evd
 
 custom_disp:
 {
@@ -41,6 +43,7 @@ custom_disp:
   RecoDrawingOptions:        @local::custom_recodrawingopt
   AnalysisDrawingOptions:    @local::custom_analysisdrawingopt
   EvdLayoutOptions:          @local::custom_evdlayoutopt
+  ScanOptions:               @local::custom_scanopt
   EventDisplay:              @local::custom_evd
 }
 
