@@ -11,6 +11,7 @@
 #include "BackTracker.fcl"
 
 #Plugins
+#include "HitCheater.fcl"
 #include "TrackCheater.fcl"
 
 process_name: TrackReco
