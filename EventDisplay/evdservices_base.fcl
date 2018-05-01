@@ -5,12 +5,12 @@ standard_colordrawingopt:
  ColorOrGrayScale:  1         # 0 = color, 1 = grayscale
                               # the following parameters assume the first entry in the arrays
                               # is for induction planes, the second for collection planes
- RawDiv:           [ 100  ]   # number of divisions to use for the color scale
- RawQLow:	         [ -20. ]   # minimum raw ADC value used in determining colors
- RawQHigh:         [  60. ]   # maximum raw ADC value used in determining colors
- RecoDiv:          [ 100  ]   # number of divisions to use for the color scale
- RecoQLow:         [ -20. ]   # minimum calibrated ADC value used in determining colors
- RecoQHigh:        [  60. ]   # maximum calibrated ADC value used in determining colors
+ RawDiv:             100      # number of divisions to use for the color scale
+ RawQLow:	     -20.     # minimum raw ADC value used in determining colors
+ RawQHigh:            60.     # maximum raw ADC value used in determining colors
+ RecoDiv:            100      # number of divisions to use for the color scale
+ RecoQLow:           -20.     # minimum calibrated ADC value used in determining colors
+ RecoQHigh:           60.     # maximum calibrated ADC value used in determining colors
 }
 
 standard_rawdrawingopt:
