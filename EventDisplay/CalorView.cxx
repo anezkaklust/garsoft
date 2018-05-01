@@ -34,7 +34,7 @@ gar::evd::CalorView::CalorView(TGMainFrame* mf) : evdb::Canvas(mf)
   evdb::Canvas::fCanvas->cd();
   fKEPad = new CalorPad("fKEPad","Kinetic Energy Pad",0.0,0.0,1.0,0.5,0);
   
-  this->Connect("CloseWindow()","evd::CalorView",this,"CloseWindow()");
+  this->Connect("CloseWindow()","gar::evd::CalorView",this,"CloseWindow()");
 
   evdb::Canvas::fCanvas->Update(); 
 }

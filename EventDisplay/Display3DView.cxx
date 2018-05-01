@@ -64,7 +64,7 @@ namespace gar {
                                        0.0, 0.0, 1.0, 1.0, "");
       
       this->Connect("CloseWindow()",
-                    "evd::Display3DView",
+                    "gar::evd::Display3DView",
                     this,
                     "CloseWindow()");
       

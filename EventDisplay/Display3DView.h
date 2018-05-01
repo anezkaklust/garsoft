@@ -24,7 +24,7 @@ namespace evd {
 
   public:
     
-    RQ_OBJECT("evd::Display3DView")
+    RQ_OBJECT("gar::evd::Display3DView")
 
   public:
     Display3DView(TGMainFrame* mf);

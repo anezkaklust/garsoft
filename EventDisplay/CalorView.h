@@ -22,7 +22,7 @@ namespace evd {
 
   public:
 
-    RQ_OBJECT("evd::CalorView")
+    RQ_OBJECT("gar::evd::CalorView")
     
   public:
     // Constructor, destructor.
