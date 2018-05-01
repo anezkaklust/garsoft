@@ -50,6 +50,11 @@
   <class name="art::Assns<gar::rec::Track, gar::rec::Hit>"                              />
   <class name="art::Wrapper<art::Assns<gar::rec::Hit,   gar::rec::Track> >"             />
   <class name="art::Wrapper<art::Assns<gar::rec::Track, gar::rec::Hit> >"               />
+  
+  <class name="art::Assns<gar::rec::Track,simb::MCParticle>"                            />
+  <class name="art::Assns<simb::MCParticle,gar::rec::Track>"		   	        />
+  <class name="art::Wrapper<art::Assns<gar::rec::Track,simb::MCParticle> >"	        />
+  <class name="art::Wrapper<art::Assns<simb::MCParticle,gar::rec::Track> >"	        />
 
   <class name="std::pair< art::Ptr<gar::rec::Hit>,    art::Ptr<gar::rec::Shower> >"     />
   <class name="std::pair< art::Ptr<gar::rec::Shower>, art::Ptr<gar::rec::Hit>   >"      />
