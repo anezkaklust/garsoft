@@ -25,14 +25,17 @@ namespace gar {
     //......................................................................
     Display3DView::Display3DView(TGMainFrame* mf)
     : evdb::Canvas(mf)
-    , fHeaderPad(new HeaderPad ("fHeaderPad", "Header",   0.00, 0.00, 0.15, 0.13, ""))
-    , fMC       (new MCBriefPad("fMCPad",     "MC Info.", 0.15, 0.13, 1.00, 0.17, ""))
     , fMCOn     (nullptr)
     , fRawDraw  (nullptr)
     , fRecoDraw (nullptr)
     {
       art::ServiceHandle<evd::EvdLayoutOptions>         evdlayoutopt;
       art::ServiceHandle<evd::SimulationDrawingOptions> sdo;
+
+      fHeaderPad = new HeaderPad ("fHeaderPad", "Header",   0.00, 0.00, 0.15, 0.13, "");
+      evdb::Canvas::fCanvas->cd();
+
+      fMC = new MCBriefPad("fMCPad",     "MC Info.", 0.15, 0.13, 1.00, 0.17, "");
 
       evdb::Canvas::fCanvas->cd();
       fHeaderPad->Draw();
