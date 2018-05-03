@@ -38,6 +38,7 @@ namespace evd {
   private:
     
     void SetRawReco();
+    void SetMCInfo();
     
     Display3DPad*  fDisplay3DPad; /// Pad showing 3D view of the detector
     HeaderPad*     fHeaderPad;    ///< Show header information

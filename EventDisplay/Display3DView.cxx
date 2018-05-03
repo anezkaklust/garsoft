@@ -45,20 +45,21 @@ namespace gar {
       
       if(evdlayoutopt->fEnableMCTruthCheckBox){
         fMCOn = new TGCheckButton(fFrame,"MC Truth",5);
-        fMCOn->Connect("Clicked()", "evd::Display3DView", this, "SetMCInfo()");
+        fMCOn->Connect("Clicked()", "gar::evd::Display3DView", this, "SetMCInfo()");
         if(sdo->fShowMCTruthText == 1) fMCOn->SetState(kButtonDown);
       }
       
       // radio buttons to toggle drawing raw vs calibrated information
       fRecoDraw = new TGRadioButton(fFrame,"Reconstructed", 3);
       fRawDraw  = new TGRadioButton(fFrame,"Raw",           4);
-      fRawDraw  ->Connect("Clicked()", "evd::Display3DView", this, "SetRawReco()");
-      fRecoDraw ->Connect("Clicked()", "evd::Display3DView", this, "SetRawReco()");
+      fRawDraw  ->Connect("Clicked()", "gar::evd::Display3DView", this, "SetRawReco()");
+      fRecoDraw ->Connect("Clicked()", "gar::evd::Display3DView", this, "SetRawReco()");
       
       if(evdlayoutopt->fEnableMCTruthCheckBox){
         fFrame->AddFrame(fMCOn,   new TGLayoutHints(kLHintsBottom | kLHintsRight, 0,  0, 5, 1 ) );
       }
       fFrame->AddFrame(fRecoDraw, new TGLayoutHints(kLHintsBottom | kLHintsRight, 0,  0, 5, 1 ) );
+
       fFrame->AddFrame(fRawDraw,  new TGLayoutHints(kLHintsBottom | kLHintsRight, 0,  0, 5, 1 ) );
       
       evdb::Canvas::fCanvas->cd();
@@ -72,7 +73,7 @@ namespace gar {
                     "CloseWindow()");
       
       fDisplay3DPad->Draw();
-      
+
       evdb::Canvas::fCanvas->Update();
     }
     
@@ -92,13 +93,18 @@ namespace gar {
     //......................................................................
     void Display3DView::Draw(const char* /*opt*/)
     {
-      
+
       fDisplay3DPad->Draw();
+
       evdb::Canvas::fCanvas->Update();
       
-      TVirtualViewer3D *viewer = fDisplay3DPad->Pad()->GetViewer3D("ogl");
+      //TVirtualViewer3D *viewer = fDisplay3DPad->Pad()->GetViewer3D("ogl");
+      TVirtualViewer3D *viewer = fDisplay3DPad->Pad()->GetViewer3D("pad");
+
       viewer->PreferLocalFrame();
+
       viewer->ResetCameras();
+
       viewer->PadPaint(fDisplay3DPad->Pad());
       
     }
@@ -122,6 +128,26 @@ namespace gar {
         fRawDraw->SetState(kButtonUp);
         fRecoDraw->SetState(kButtonDown);
       }
+      
+      TVirtualPad *ori = gPad;
+      
+      evdb::Canvas::fCanvas->cd();
+      evdb::Canvas::fCanvas->Modified();
+      evdb::Canvas::fCanvas->Update();
+      
+      ori->cd();
+      
+      return;
+    }
+
+    //......................................................................
+    void Display3DView::SetMCInfo()
+    {
+      art::ServiceHandle<evd::SimulationDrawingOptions> simopt;
+      
+      //TGButton *b = (TGButton *)gTQSender;
+      //int id = b->WidgetId();
+      // set button states TODO
       
       TVirtualPad *ori = gPad;
       
