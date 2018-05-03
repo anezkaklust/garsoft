@@ -66,8 +66,6 @@ namespace gar {
       
       virtual double RadiationLength()       const override { return fRadiationLength; } ///< g/cm^2
       
-      virtual double Argon39DecayRate()      const override { return fArgon39DecayRate; }  // decays per cm^3 per second
-      
       /// Ar atomic number
       virtual double AtomicNumber()          const override { return fZ; }
       
@@ -85,7 +83,6 @@ namespace gar {
       virtual double TransverseDiffusion()   const override { return fTransDiff; }
 
       void SetRadiationLength      (double rl) { fRadiationLength  = rl; }
-      void SetArgon39DecayRate     (double r ) { fArgon39DecayRate = r;  }
       void SetAtomicNumber         (double z ) { fZ = z;                 }
       void SetAtomicMass           (double a ) { fA = a;                 }
       void SetMeanExcitationEnergy (double e ) { fI = e;                 }
@@ -105,7 +102,6 @@ namespace gar {
         fhicl::Atom<double> AtomicNumber         { Name("AtomicNumber"    ),      Comment("atomic number (yes, yes, it's 18...)") };
         fhicl::Atom<double> AtomicMass           { Name("AtomicMass"      ),      Comment("atomic mass [g/mol]")                  };
         fhicl::Atom<double> MeanExcitationEnergy { Name("ExcitationEnergy"),      Comment("mean excitation energy [eV]")          };
-        fhicl::Atom<double> Argon39DecayRate     { Name("Argon39DecayRate"),      Comment("decays/(cm^3 s)")                      };
         fhicl::Atom<double> FanoFactor           { Name("FanoFactor"),            Comment("controls fluctuations in ionization")  };
         fhicl::Atom<double> LongitudinalDiffusion{ Name("LongitudinalDiffusion"), Comment("controls fluctuations in ionization")  };
         fhicl::Atom<double> TransverseDiffusion  { Name("TransverseDiffusion"),   Comment("controls fluctuations in ionization")  };
@@ -116,7 +112,6 @@ namespace gar {
       bool   fIsConfigured;
       
       double fRadiationLength;  ///< g/cm^2
-      double fArgon39DecayRate; ///<  decays per cm^3 per second
       double fZ;                ///< Ar atomic number
       double fA;                ///< Ar atomic mass (g/mol)
       double fI;                ///< Ar mean excitation energy (eV)

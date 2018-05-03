@@ -42,12 +42,7 @@ bool gar::detinfo::GArPropertiesStandard::Configure(fhicl::ParameterSet const& p
   this->SetAtomicNumber     (pset.get< double >("AtomicNumber"));
   this->SetAtomicMass       (pset.get< double >("AtomicMass"));
   this->SetMeanExcitationEnergy (pset.get< double >("ExcitationEnergy"));
-
-  this->SetArgon39DecayRate  (pset.get< double >("Argon39DecayRate"));
-
   fIsConfigured = true;
-
-
   return true;
 }
 #endif // 0
@@ -67,7 +62,6 @@ bool gar::detinfo::GArPropertiesStandard::Configure(fhicl::ParameterSet   const&
   SetAtomicNumber         (config.AtomicNumber()         );
   SetAtomicMass           (config.AtomicMass()           );
   SetMeanExcitationEnergy (config.MeanExcitationEnergy() );
-  SetArgon39DecayRate     (config.Argon39DecayRate()     );
   SetFanoFactor           (config.FanoFactor()           );
   SetLongitudinalDiffusion(config.LongitudinalDiffusion());
   SetTransverseDiffusion  (config.TransverseDiffusion()  );

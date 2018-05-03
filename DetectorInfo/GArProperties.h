@@ -28,7 +28,6 @@ namespace gar {
       virtual ~GArProperties()                          = default;
       
       virtual double RadiationLength()       const = 0;
-      virtual double Argon39DecayRate()      const = 0;
       
       /// Atomic number of the gas
       virtual double AtomicNumber()          const = 0;
