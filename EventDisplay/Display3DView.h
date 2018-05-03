@@ -34,11 +34,10 @@ namespace evd {
     const char* PrintTag()    const { return "lar3d";               }
     void Draw(const char* opt="");
     void CloseWindow();
-
-  private:
-    
     void SetRawReco();
     void SetMCInfo();
+    
+  private:
     
     Display3DPad*  fDisplay3DPad; /// Pad showing 3D view of the detector
     HeaderPad*     fHeaderPad;    ///< Show header information

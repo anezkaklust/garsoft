@@ -59,11 +59,8 @@ namespace gar {
         fFrame->AddFrame(fMCOn,   new TGLayoutHints(kLHintsBottom | kLHintsRight, 0,  0, 5, 1 ) );
       }
       fFrame->AddFrame(fRecoDraw, new TGLayoutHints(kLHintsBottom | kLHintsRight, 0,  0, 5, 1 ) );
-
       fFrame->AddFrame(fRawDraw,  new TGLayoutHints(kLHintsBottom | kLHintsRight, 0,  0, 5, 1 ) );
-      
       evdb::Canvas::fCanvas->cd();
-      
       fDisplay3DPad = new Display3DPad("fDisplay3DPad","3D Display",
                                        0.0, 0.0, 1.0, 1.0, "");
       
@@ -95,16 +92,11 @@ namespace gar {
     {
 
       fDisplay3DPad->Draw();
-
       evdb::Canvas::fCanvas->Update();
       
-      //TVirtualViewer3D *viewer = fDisplay3DPad->Pad()->GetViewer3D("ogl");
       TVirtualViewer3D *viewer = fDisplay3DPad->Pad()->GetViewer3D("pad");
-
       viewer->PreferLocalFrame();
-
       viewer->ResetCameras();
-
       viewer->PadPaint(fDisplay3DPad->Pad());
       
     }
