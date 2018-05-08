@@ -27,7 +27,7 @@ services:
  DetectorProperties:     @local::standard_detproperties
  GArProperties:          @local::standard_garproperties
  NuRandomService:        @local::standard_NuRandomService
- MagneticField:          @local::no_mag_larsoft            #larsoft uses the same volume naming as GArSoft
+ MagneticField:          @local::standard_mag_garsoft
 #RunHistory:             @local::standard_runhistory
 }
 
