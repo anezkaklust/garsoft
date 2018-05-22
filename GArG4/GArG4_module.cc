@@ -207,7 +207,7 @@ namespace gar {
     
     {
       // Set the volume for where we will record energy deposition in the GAr
-      fGArVolumeName = fEDepActionPSet.get< std::string >("GArVolumeName",    "volTPCActive");
+      fGArVolumeName = fEDepActionPSet.get< std::string >("GArVolumeName",    "TPC_Drift");
 
       // initialize the GArSimulationParameters singleton
       G4SimulationParameters::CreateInstance(pset.get<fhicl::ParameterSet>("GArSimParsPSet"));

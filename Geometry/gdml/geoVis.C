@@ -1,9 +1,9 @@
 //
-//  geom.C
+//  geovis.C
 //  garsoft-mrb
 //
-//  Created by Brian Rebel on 10/12/16.
-//  Copyright © 2016 Brian Rebel. All rights reserved.
+//  Original from Brian Rebel
+//  
 //
 #include "TGeoManager.h"
 #include "TFile.h"
@@ -14,12 +14,14 @@ typedef struct _drawopt {
   int         color;
 } drawopt;
 
-void geoVis(TString volName="volWorld"){
+void geoVis(TString volName="HPGTPC",TString filebase="hpgtpc_v1", bool checkoverlaps=true, bool writerootfile=true){
   
   gSystem->Load("libGeom");
   gSystem->Load("libGdml");
   
-  TGeoManager::Import("generic_detector.gdml");
+  TString gdmlfile=filebase;
+  gdmlfile += ".gdml";
+  TGeoManager::Import(gdmlfile);
   
   drawopt opt[] = {
     {"volWorld",           0},
@@ -40,9 +42,9 @@ void geoVis(TString volName="volWorld"){
   };
   
   /*for (int i=0;; ++i) {
-   if (opt[i].volume==0) break;
-   gGeoManager->FindVolumeFast(opt[i].volume)->SetLineColor(opt[i].color);
-   }*/
+    if (opt[i].volume==0) break;
+    gGeoManager->FindVolumeFast(opt[i].volume)->SetLineColor(opt[i].color);
+    }*/
   
   // TList* mat = gGeoManager->GetListOfMaterials();
   // TIter next(mat);
@@ -51,14 +53,30 @@ void geoVis(TString volName="volWorld"){
   //  obj->Print();
   // }
 
-  gGeoManager->CheckOverlaps(0.01);
-  gGeoManager->PrintOverlaps();
+  if (checkoverlaps)
+    {
+      gGeoManager->CheckOverlaps(0.01);
+      gGeoManager->PrintOverlaps();
+    }
   gGeoManager->SetMaxVisNodes(70000);
 
-  //gGeoManager->GetTopVolume()->Draw();
-  gGeoManager->FindVolumeFast(volName)->Draw();
+  TObjArray *vollist = gGeoManager->GetListOfVolumes();
+  TIter next(vollist);
+  TObject *obj = next();
+  while (obj) {
+    obj->Print();
+    obj = next();
+   }
 
-  TFile *tf = new TFile("generic_detector.root", "RECREATE");
-  gGeoManager->Write();
-  tf->Close();
+  //gGeoManager->GetTopVolume()->Draw();
+  gGeoManager->FindVolumeFast(volName)->Draw("");
+
+  if (writerootfile)
+    {
+      TString rootfile=filebase;
+      rootfile += ".root";
+      TFile *tf = new TFile(rootfile, "RECREATE");
+      gGeoManager->Write();
+      tf->Close();
+    }
 }

@@ -59,8 +59,6 @@ namespace gar {
      * The random number generators used by this process are:
      * - 'GEANT' instance: used by Geant4
      * - 'propagation' instance: used in electron propagation
-     * - 'radio' instance: used for radiological decay
-     *
      *
      */
     class IonizationReadout : public ::art::EDProducer{

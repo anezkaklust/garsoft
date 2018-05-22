@@ -22,6 +22,11 @@
 #include "Geant4/G4StepPoint.hh"
 #include "Geant4/G4VProcess.hh"
 
+#include <TGeoManager.h>
+#include <TGeoMaterial.h>
+#include <TGeoNode.h>
+
+#include "Geometry/Geometry.h"
 #include "GArG4/EnergyDepositAction.h"
 #include "GArG4/ParticleListAction.h"
 
@@ -50,7 +55,7 @@ namespace gar {
     {
       fEnergyCut  = pset.get<double     >("EnergyCut"    );
       fVolumeName = pset.get<std::string>("GArVolumeName");
-      
+      fMaterialMatchString = pset.get<std::string>("GArMaterialMatchString","TPCGas");
       return;
     }
     
@@ -78,6 +83,9 @@ namespace gar {
       LOG_DEBUG("EnergyDepositAction")
       << "EnergyDepositAction::SteppingAction";
       
+      art::ServiceHandle<geo::Geometry> geo;
+      TGeoManager *geomanager = geo->ROOTGeoManager(); 
+
       // Get the pointer to the track
       G4Track *track = step->GetTrack();
       
@@ -90,6 +98,12 @@ namespace gar {
       // check that we are in the correct material to record a hit
       auto volume   = track->GetVolume()->GetName();
       if(volume.find(fVolumeName) == std::string::npos) return;
+
+      // check the material
+      auto pos = 0.5 * (start + stop) / CLHEP::cm;
+      std::string volmaterial = geomanager->FindNode(pos.x(),pos.y(),pos.z())->GetMedium()->GetMaterial()->GetName();
+      //mf::LogDebug("GArG4::EnergyDepositAction")  << "Position: " << pos.x() << " " << pos.y() << " " << pos.z()  << " " << volmaterial << " " << fMaterialMatchString << std::endl;
+      if ( ! std::regex_match(volmaterial, std::regex(fMaterialMatchString)) ) return;
 
       LOG_DEBUG("EnergyDepositAction")
       << "In volume "

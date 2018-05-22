@@ -99,7 +99,7 @@ namespace gar {
       << "\n\t" << fROOTfile
       << "\n\t" << fGDMLfile;
 
-      std::vector<const TGeoNode*> path(8);
+      std::vector<const TGeoNode*> path(10);
       path[0] = gGeoManager->GetTopNode();
 
       this->FindActiveTPCVolume(path, 0);

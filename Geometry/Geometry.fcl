@@ -9,8 +9,8 @@ standard_geo:
   PixelPitch:      0.333333 # cm
  }
  RelativePath:      ""
- GDML:              "generic_detector.gdml"
- ROOT:              "generic_detector.gdml"
+ GDML:              "hpgtpc_v1.gdml"
+ ROOT:              "hpgtpc_v1.gdml"
  SurfaceY:          0.          # cm
  Name:              "standard"
  PositionEpsilon:   1.e-4
@@ -23,7 +23,7 @@ standard_geometry_helper:
 
 standard_auxdet_geo:
 {
- GDML:              "generic_detector.gdml"
+ GDML:              "hpgtpc_v1.gdml"
  RelativePath:      ""
  ForceUseFCLOnly:   false
  SortingParameters: {}
