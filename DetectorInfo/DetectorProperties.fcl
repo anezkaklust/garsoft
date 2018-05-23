@@ -24,7 +24,7 @@ standard_mag_garsoft:
 {
 FieldDescriptions: [ { UseField:         1  # 0--off 1--Constant field
                                             # 2--Field map (not implemented)
-                       ConstantField:    [ 400., 0.0, 0.0 ] # in milliTesla
+                       ConstantField:    [ 4., 0.0, 0.0 ] # in kGauss
                        MagnetizedVolume: "volWorld" } ]
 }
 
