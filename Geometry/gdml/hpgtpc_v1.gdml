@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
   <define>
+    <rotation name="WorldRotationColliderToND" x="0" y="90" z="0" unit="deg"/>
     <position name="TPC_IFC13_1inTPC_IFC12pos" x="0" y="0" z="0" unit="cm"/>
     <position name="TPC_IFC12_1inTPC_IFC11pos" x="0" y="0" z="0" unit="cm"/>
     <position name="TPC_IFC11_1inTPC_IFCpos" x="0" y="0" z="0" unit="cm"/>
@@ -2211,7 +2212,7 @@
     </material> 
   </materials>
   <solids>
-    <box name="volWorld" x="4000" y="4000" z="6000" lunit="cm"/>
+    <box name="volWorldBox" x="4000" y="4000" z="6000" lunit="cm"/>
     <polycone name="TGeoPcon" startphi="0" deltaphi="360" aunit="deg" lunit="cm">
       <zplane z="-289.6" rmin="77" rmax="278"/>
       <zplane z="-262.1" rmin="77" rmax="278"/>
@@ -2629,7 +2630,7 @@
       <first ref="hhole"/>
       <second ref="hhole"/>
       <firstposition name="TGeoCompositeShape0x49hholepos" x="0" y="-2" z="-7.5" unit="cm"/>
-      <firstrotation name="TGeoCompositeShape0x49hholerot" x="90" y="-0" z="0" unit="deg"/>
+      <firstrotation name="TGeoCompositeShape0x49hholerot" x="90" y="-0" z="0" unit="deg"/> 
       <position name="TGeoCompositeShape0x49hholepos" x="0" y="-2" z="-6" unit="cm"/>
       <rotation name="TGeoCompositeShape0x49hholerot" x="90" y="-0" z="0" unit="deg"/>
     </union>
@@ -3229,430 +3230,430 @@
         <volumeref ref="TPC_IROCE"/>
         <positionref ref="TPC_IROCE_1inTPC_IROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_1" copynumber="1">
+      <physvol name="TPC_RCCON_1_I" copynumber="1">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_1inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_1inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_2" copynumber="2">
+      <physvol name="TPC_RCCON_2_I" copynumber="2">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_2inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_2inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_3" copynumber="3">
+      <physvol name="TPC_RCCON_3_I" copynumber="3">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_3inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_3inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_4" copynumber="4">
+      <physvol name="TPC_RCCON_4_I" copynumber="4">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_4inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_4inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_5" copynumber="5">
+      <physvol name="TPC_RCCON_5_I" copynumber="5">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_5inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_5inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_6" copynumber="6">
+      <physvol name="TPC_RCCON_6_I" copynumber="6">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_6inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_6inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_7" copynumber="7">
+      <physvol name="TPC_RCCON_7_I" copynumber="7">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_7inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_7inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_8" copynumber="8">
+      <physvol name="TPC_RCCON_8_I" copynumber="8">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_8inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_8inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_9" copynumber="9">
+      <physvol name="TPC_RCCON_9_I" copynumber="9">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_9inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_9inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_10" copynumber="10">
+      <physvol name="TPC_RCCON_10_I" copynumber="10">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_10inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_10inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_11" copynumber="11">
+      <physvol name="TPC_RCCON_11_I" copynumber="11">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_11inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_11inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_12" copynumber="12">
+      <physvol name="TPC_RCCON_12_I" copynumber="12">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_12inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_12inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_13" copynumber="13">
+      <physvol name="TPC_RCCON_13_I" copynumber="13">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_13inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_13inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_14" copynumber="14">
+      <physvol name="TPC_RCCON_14_I" copynumber="14">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_14inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_14inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_15" copynumber="15">
+      <physvol name="TPC_RCCON_15_I" copynumber="15">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_15inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_15inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_16" copynumber="16">
+      <physvol name="TPC_RCCON_16_I" copynumber="16">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_16inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_16inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_17" copynumber="17">
+      <physvol name="TPC_RCCON_17_I" copynumber="17">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_17inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_17inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_18" copynumber="18">
+      <physvol name="TPC_RCCON_18_I" copynumber="18">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_18inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_18inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_19" copynumber="19">
+      <physvol name="TPC_RCCON_19_I" copynumber="19">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_19inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_19inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_20" copynumber="20">
+      <physvol name="TPC_RCCON_20_I" copynumber="20">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_20inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_20inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_21" copynumber="21">
+      <physvol name="TPC_RCCON_21_I" copynumber="21">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_21inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_21inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_22" copynumber="22">
+      <physvol name="TPC_RCCON_22_I" copynumber="22">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_22inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_22inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_23" copynumber="23">
+      <physvol name="TPC_RCCON_23_I" copynumber="23">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_23inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_23inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_24" copynumber="24">
+      <physvol name="TPC_RCCON_24_I" copynumber="24">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_24inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_24inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_25" copynumber="25">
+      <physvol name="TPC_RCCON_25_I" copynumber="25">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_25inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_25inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_26" copynumber="26">
+      <physvol name="TPC_RCCON_26_I" copynumber="26">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_26inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_26inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_27" copynumber="27">
+      <physvol name="TPC_RCCON_27_I" copynumber="27">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_27inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_27inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_28" copynumber="28">
+      <physvol name="TPC_RCCON_28_I" copynumber="28">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_28inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_28inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_29" copynumber="29">
+      <physvol name="TPC_RCCON_29_I" copynumber="29">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_29inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_29inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_30" copynumber="30">
+      <physvol name="TPC_RCCON_30_I" copynumber="30">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_30inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_30inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_31" copynumber="31">
+      <physvol name="TPC_RCCON_31_I" copynumber="31">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_31inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_31inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_32" copynumber="32">
+      <physvol name="TPC_RCCON_32_I" copynumber="32">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_32inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_32inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_33" copynumber="33">
+      <physvol name="TPC_RCCON_33_I" copynumber="33">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_33inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_33inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_34" copynumber="34">
+      <physvol name="TPC_RCCON_34_I" copynumber="34">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_34inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_34inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_35" copynumber="35">
+      <physvol name="TPC_RCCON_35_I" copynumber="35">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_35inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_35inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_36" copynumber="36">
+      <physvol name="TPC_RCCON_36_I" copynumber="36">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_36inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_36inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_37" copynumber="37">
+      <physvol name="TPC_RCCON_37_I" copynumber="37">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_37inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_37inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_38" copynumber="38">
+      <physvol name="TPC_RCCON_38_I" copynumber="38">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_38inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_38inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_39" copynumber="39">
+      <physvol name="TPC_RCCON_39_I" copynumber="39">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_39inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_39inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_40" copynumber="40">
+      <physvol name="TPC_RCCON_40_I" copynumber="40">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_40inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_40inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_41" copynumber="41">
+      <physvol name="TPC_RCCON_41_I" copynumber="41">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_41inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_41inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_42" copynumber="42">
+      <physvol name="TPC_RCCON_42_I" copynumber="42">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_42inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_42inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_43" copynumber="43">
+      <physvol name="TPC_RCCON_43_I" copynumber="43">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_43inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_43inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_44" copynumber="44">
+      <physvol name="TPC_RCCON_44_I" copynumber="44">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_44inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_44inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_45" copynumber="45">
+      <physvol name="TPC_RCCON_45_I" copynumber="45">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_45inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_45inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_46" copynumber="46">
+      <physvol name="TPC_RCCON_46_I" copynumber="46">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_46inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_46inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_47" copynumber="47">
+      <physvol name="TPC_RCCON_47_I" copynumber="47">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_47inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_47inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_48" copynumber="48">
+      <physvol name="TPC_RCCON_48_I" copynumber="48">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_48inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_48inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_49" copynumber="49">
+      <physvol name="TPC_RCCON_49_I" copynumber="49">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_49inTPC_IROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_50" copynumber="50">
+      <physvol name="TPC_RCCON_50_I" copynumber="50">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_50inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_50inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_51" copynumber="51">
+      <physvol name="TPC_RCCON_51_I" copynumber="51">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_51inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_51inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_52" copynumber="52">
+      <physvol name="TPC_RCCON_52_I" copynumber="52">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_52inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_52inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_53" copynumber="53">
+      <physvol name="TPC_RCCON_53_I" copynumber="53">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_53inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_53inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_54" copynumber="54">
+      <physvol name="TPC_RCCON_54_I" copynumber="54">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_54inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_54inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_55" copynumber="55">
+      <physvol name="TPC_RCCON_55_I" copynumber="55">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_55inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_55inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_56" copynumber="56">
+      <physvol name="TPC_RCCON_56_I" copynumber="56">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_56inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_56inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_57" copynumber="57">
+      <physvol name="TPC_RCCON_57_I" copynumber="57">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_57inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_57inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_58" copynumber="58">
+      <physvol name="TPC_RCCON_58_I" copynumber="58">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_58inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_58inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_59" copynumber="59">
+      <physvol name="TPC_RCCON_59_I" copynumber="59">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_59inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_59inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_60" copynumber="60">
+      <physvol name="TPC_RCCON_60_I" copynumber="60">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_60inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_60inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_61" copynumber="61">
+      <physvol name="TPC_RCCON_61_I" copynumber="61">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_61inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_61inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_62" copynumber="62">
+      <physvol name="TPC_RCCON_62_I" copynumber="62">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_62inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_62inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_63" copynumber="63">
+      <physvol name="TPC_RCCON_63_I" copynumber="63">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_63inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_63inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_64" copynumber="64">
+      <physvol name="TPC_RCCON_64_I" copynumber="64">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_64inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_64inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_65" copynumber="65">
+      <physvol name="TPC_RCCON_65_I" copynumber="65">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_65inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_65inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_66" copynumber="66">
+      <physvol name="TPC_RCCON_66_I" copynumber="66">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_66inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_66inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_67" copynumber="67">
+      <physvol name="TPC_RCCON_67_I" copynumber="67">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_67inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_67inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_68" copynumber="68">
+      <physvol name="TPC_RCCON_68_I" copynumber="68">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_68inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_68inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_69" copynumber="69">
+      <physvol name="TPC_RCCON_69_I" copynumber="69">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_69inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_69inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_70" copynumber="70">
+      <physvol name="TPC_RCCON_70_I" copynumber="70">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_70inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_70inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_71" copynumber="71">
+      <physvol name="TPC_RCCON_71_I" copynumber="71">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_71inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_71inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_72" copynumber="72">
+      <physvol name="TPC_RCCON_72_I" copynumber="72">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_72inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_72inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_73" copynumber="73">
+      <physvol name="TPC_RCCON_73_I" copynumber="73">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_73inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_73inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_74" copynumber="74">
+      <physvol name="TPC_RCCON_74_I" copynumber="74">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_74inTPC_IROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_75" copynumber="75">
+      <physvol name="TPC_RCCON_75_I" copynumber="75">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_75inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_75inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_76" copynumber="76">
+      <physvol name="TPC_RCCON_76_I" copynumber="76">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_76inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_76inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_77" copynumber="77">
+      <physvol name="TPC_RCCON_77_I" copynumber="77">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_77inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_77inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_78" copynumber="78">
+      <physvol name="TPC_RCCON_78_I" copynumber="78">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_78inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_78inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_79" copynumber="79">
+      <physvol name="TPC_RCCON_79_I" copynumber="79">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_79inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_79inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_80" copynumber="80">
+      <physvol name="TPC_RCCON_80_I" copynumber="80">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_80inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_80inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_81" copynumber="81">
+      <physvol name="TPC_RCCON_81_I" copynumber="81">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_81inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_81inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_82" copynumber="82">
+      <physvol name="TPC_RCCON_82_I" copynumber="82">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_82inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_82inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_83" copynumber="83">
+      <physvol name="TPC_RCCON_83_I" copynumber="83">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_83inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_83inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_84" copynumber="84">
+      <physvol name="TPC_RCCON_84_I" copynumber="84">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_84inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_84inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_85" copynumber="85">
+      <physvol name="TPC_RCCON_85_I" copynumber="85">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_85inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_85inTPC_IROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_86" copynumber="86">
+      <physvol name="TPC_RCCON_86_I" copynumber="86">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_86inTPC_IROCBpos"/>
         <rotationref ref="TPC_RCCON_86inTPC_IROCBrot"/>
@@ -3815,766 +3816,766 @@
         <volumeref ref="TPC_OROCE"/>
         <positionref ref="TPC_OROCE_1inTPC_OROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_1" copynumber="1">
+      <physvol name="TPC_RCCON_1_O" copynumber="1">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_10x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_10x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_79" copynumber="79">
+      <physvol name="TPC_RCCON_79_O" copynumber="79">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_790x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_790x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_2" copynumber="2">
+      <physvol name="TPC_RCCON_2_O" copynumber="2">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_20x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_20x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_80" copynumber="80">
+      <physvol name="TPC_RCCON_80_O" copynumber="80">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_800x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_800x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_3" copynumber="3">
+      <physvol name="TPC_RCCON_3_O" copynumber="3">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_30x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_30x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_81" copynumber="81">
+      <physvol name="TPC_RCCON_81_O" copynumber="81">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_810x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_810x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_4" copynumber="4">
+      <physvol name="TPC_RCCON_4_O" copynumber="4">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_40x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_40x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_82" copynumber="82">
+      <physvol name="TPC_RCCON_82_O" copynumber="82">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_820x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_820x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_5" copynumber="5">
+      <physvol name="TPC_RCCON_5_O" copynumber="5">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_50x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_50x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_83" copynumber="83">
+      <physvol name="TPC_RCCON_83_O" copynumber="83">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_830x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_830x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_6" copynumber="6">
+      <physvol name="TPC_RCCON_6_O" copynumber="6">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_60x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_60x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_84" copynumber="84">
+      <physvol name="TPC_RCCON_84_O" copynumber="84">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_840x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_840x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_7" copynumber="7">
+      <physvol name="TPC_RCCON_7_O" copynumber="7">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_70x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_70x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_85" copynumber="85">
+      <physvol name="TPC_RCCON_85_O" copynumber="85">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_850x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_850x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_8" copynumber="8">
+      <physvol name="TPC_RCCON_8_O" copynumber="8">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_80x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_80x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_86" copynumber="86">
+      <physvol name="TPC_RCCON_86_O" copynumber="86">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_860x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_860x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_9" copynumber="9">
+      <physvol name="TPC_RCCON_9_O" copynumber="9">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_90x1inTPC_OROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_87" copynumber="87">
+      <physvol name="TPC_RCCON_87_O" copynumber="87">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_87inTPC_OROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_10" copynumber="10">
+      <physvol name="TPC_RCCON_10_O" copynumber="10">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_100x1inTPC_OROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_88" copynumber="88">
+      <physvol name="TPC_RCCON_88_O" copynumber="88">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_88inTPC_OROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_11" copynumber="11">
+      <physvol name="TPC_RCCON_11_O" copynumber="11">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_110x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_110x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_89" copynumber="89">
+      <physvol name="TPC_RCCON_89_O" copynumber="89">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_89inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_89inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_12" copynumber="12">
+      <physvol name="TPC_RCCON_12_O" copynumber="12">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_120x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_120x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_90" copynumber="90">
+      <physvol name="TPC_RCCON_90_O" copynumber="90">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_90inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_90inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_13" copynumber="13">
+      <physvol name="TPC_RCCON_13_O" copynumber="13">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_130x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_130x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_91" copynumber="91">
+      <physvol name="TPC_RCCON_91_O" copynumber="91">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_91inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_91inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_14" copynumber="14">
+      <physvol name="TPC_RCCON_14_O" copynumber="14">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_140x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_140x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_92" copynumber="92">
+      <physvol name="TPC_RCCON_92_O" copynumber="92">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_92inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_92inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_15" copynumber="15">
+      <physvol name="TPC_RCCON_15_O" copynumber="15">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_150x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_150x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_93" copynumber="93">
+      <physvol name="TPC_RCCON_93_O" copynumber="93">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_93inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_93inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_16" copynumber="16">
+      <physvol name="TPC_RCCON_16_O" copynumber="16">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_160x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_160x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_94" copynumber="94">
+      <physvol name="TPC_RCCON_94_O" copynumber="94">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_94inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_94inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_17" copynumber="17">
+      <physvol name="TPC_RCCON_17_O" copynumber="17">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_170x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_170x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_95" copynumber="95">
+      <physvol name="TPC_RCCON_95_O" copynumber="95">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_95inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_95inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_18" copynumber="18">
+      <physvol name="TPC_RCCON_18_O" copynumber="18">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_180x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_180x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_96" copynumber="96">
+      <physvol name="TPC_RCCON_96_O" copynumber="96">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_96inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_96inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_19" copynumber="19">
+      <physvol name="TPC_RCCON_19_O" copynumber="19">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_190x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_190x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_97" copynumber="97">
+      <physvol name="TPC_RCCON_97_O" copynumber="97">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_97inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_97inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_20" copynumber="20">
+      <physvol name="TPC_RCCON_20_O" copynumber="20">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_200x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_200x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_98" copynumber="98">
+      <physvol name="TPC_RCCON_98_O" copynumber="98">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_98inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_98inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_21" copynumber="21">
+      <physvol name="TPC_RCCON_21_O" copynumber="21">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_210x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_210x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_99" copynumber="99">
+      <physvol name="TPC_RCCON_99_O" copynumber="99">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_99inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_99inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_22" copynumber="22">
+      <physvol name="TPC_RCCON_22_O" copynumber="22">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_220x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_220x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_100" copynumber="100">
+      <physvol name="TPC_RCCON_100_O" copynumber="100">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_100inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_100inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_23" copynumber="23">
+      <physvol name="TPC_RCCON_23_O" copynumber="23">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_230x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_230x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_101" copynumber="101">
+      <physvol name="TPC_RCCON_101_O" copynumber="101">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_101inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_101inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_24" copynumber="24">
+      <physvol name="TPC_RCCON_24_O" copynumber="24">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_240x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_240x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_102" copynumber="102">
+      <physvol name="TPC_RCCON_102_O" copynumber="102">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_102inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_102inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_25" copynumber="25">
+      <physvol name="TPC_RCCON_25_O" copynumber="25">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_250x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_250x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_103" copynumber="103">
+      <physvol name="TPC_RCCON_103_O" copynumber="103">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_103inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_103inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_26" copynumber="26">
+      <physvol name="TPC_RCCON_26_O" copynumber="26">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_260x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_260x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_104" copynumber="104">
+      <physvol name="TPC_RCCON_104_O" copynumber="104">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_104inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_104inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_27" copynumber="27">
+      <physvol name="TPC_RCCON_27_O" copynumber="27">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_270x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_270x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_105" copynumber="105">
+      <physvol name="TPC_RCCON_105_O" copynumber="105">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_105inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_105inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_28" copynumber="28">
+      <physvol name="TPC_RCCON_28_O" copynumber="28">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_280x1inTPC_OROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_106" copynumber="106">
+      <physvol name="TPC_RCCON_106_O" copynumber="106">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_106inTPC_OROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_29" copynumber="29">
+      <physvol name="TPC_RCCON_29_O" copynumber="29">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_290x1inTPC_OROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_107" copynumber="107">
+      <physvol name="TPC_RCCON_107_O" copynumber="107">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_107inTPC_OROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_30" copynumber="30">
+      <physvol name="TPC_RCCON_30_O" copynumber="30">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_300x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_300x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_108" copynumber="108">
+      <physvol name="TPC_RCCON_108_O" copynumber="108">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_108inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_108inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_31" copynumber="31">
+      <physvol name="TPC_RCCON_31_O" copynumber="31">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_310x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_310x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_109" copynumber="109">
+      <physvol name="TPC_RCCON_109_O" copynumber="109">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_109inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_109inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_32" copynumber="32">
+      <physvol name="TPC_RCCON_32_O" copynumber="32">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_320x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_320x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_110" copynumber="110">
+      <physvol name="TPC_RCCON_110_O" copynumber="110">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_110inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_110inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_33" copynumber="33">
+      <physvol name="TPC_RCCON_33_O" copynumber="33">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_330x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_330x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_111" copynumber="111">
+      <physvol name="TPC_RCCON_111_O" copynumber="111">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_111inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_111inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_34" copynumber="34">
+      <physvol name="TPC_RCCON_34_O" copynumber="34">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_340x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_340x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_112" copynumber="112">
+      <physvol name="TPC_RCCON_112_O" copynumber="112">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_112inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_112inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_35" copynumber="35">
+      <physvol name="TPC_RCCON_35_O" copynumber="35">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_350x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_350x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_113" copynumber="113">
+      <physvol name="TPC_RCCON_113_O" copynumber="113">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_113inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_113inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_36" copynumber="36">
+      <physvol name="TPC_RCCON_36_O" copynumber="36">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_360x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_360x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_114" copynumber="114">
+      <physvol name="TPC_RCCON_114_O" copynumber="114">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_114inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_114inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_37" copynumber="37">
+      <physvol name="TPC_RCCON_37_O" copynumber="37">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_370x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_370x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_115" copynumber="115">
+      <physvol name="TPC_RCCON_115_O" copynumber="115">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_115inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_115inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_38" copynumber="38">
+      <physvol name="TPC_RCCON_38_O" copynumber="38">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_380x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_380x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_116" copynumber="116">
+      <physvol name="TPC_RCCON_116_O" copynumber="116">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_116inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_116inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_39" copynumber="39">
+      <physvol name="TPC_RCCON_39_O" copynumber="39">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_390x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_390x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_117" copynumber="117">
+      <physvol name="TPC_RCCON_117_O" copynumber="117">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_117inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_117inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_40" copynumber="40">
+      <physvol name="TPC_RCCON_40_O" copynumber="40">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_400x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_400x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_118" copynumber="118">
+      <physvol name="TPC_RCCON_118_O" copynumber="118">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_118inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_118inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_41" copynumber="41">
+      <physvol name="TPC_RCCON_41_O" copynumber="41">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_410x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_410x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_119" copynumber="119">
+      <physvol name="TPC_RCCON_119_O" copynumber="119">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_119inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_119inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_42" copynumber="42">
+      <physvol name="TPC_RCCON_42_O" copynumber="42">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_420x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_420x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_120" copynumber="120">
+      <physvol name="TPC_RCCON_120_O" copynumber="120">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_120inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_120inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_43" copynumber="43">
+      <physvol name="TPC_RCCON_43_O" copynumber="43">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_430x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_430x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_121" copynumber="121">
+      <physvol name="TPC_RCCON_121_O" copynumber="121">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_121inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_121inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_44" copynumber="44">
+      <physvol name="TPC_RCCON_44_O" copynumber="44">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_440x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_440x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_122" copynumber="122">
+      <physvol name="TPC_RCCON_122_O" copynumber="122">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_122inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_122inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_45" copynumber="45">
+      <physvol name="TPC_RCCON_45_O" copynumber="45">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_450x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_450x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_123" copynumber="123">
+      <physvol name="TPC_RCCON_123_O" copynumber="123">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_123inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_123inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_46" copynumber="46">
+      <physvol name="TPC_RCCON_46_O" copynumber="46">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_460x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_460x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_124" copynumber="124">
+      <physvol name="TPC_RCCON_124_O" copynumber="124">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_124inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_124inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_47" copynumber="47">
+      <physvol name="TPC_RCCON_47_O" copynumber="47">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_470x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_470x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_125" copynumber="125">
+      <physvol name="TPC_RCCON_125_O" copynumber="125">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_125inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_125inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_48" copynumber="48">
+      <physvol name="TPC_RCCON_48_O" copynumber="48">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_480x1inTPC_OROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_126" copynumber="126">
+      <physvol name="TPC_RCCON_126_O" copynumber="126">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_126inTPC_OROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_49" copynumber="49">
+      <physvol name="TPC_RCCON_49_O" copynumber="49">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_490x1inTPC_OROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_127" copynumber="127">
+      <physvol name="TPC_RCCON_127_O" copynumber="127">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_127inTPC_OROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_50" copynumber="50">
+      <physvol name="TPC_RCCON_50_O" copynumber="50">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_500x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_500x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_128" copynumber="128">
+      <physvol name="TPC_RCCON_128_O" copynumber="128">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_128inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_128inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_51" copynumber="51">
+      <physvol name="TPC_RCCON_51_O" copynumber="51">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_510x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_510x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_129" copynumber="129">
+      <physvol name="TPC_RCCON_129_O" copynumber="129">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_129inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_129inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_52" copynumber="52">
+      <physvol name="TPC_RCCON_52_O" copynumber="52">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_520x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_520x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_130" copynumber="130">
+      <physvol name="TPC_RCCON_130_O" copynumber="130">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_130inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_130inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_53" copynumber="53">
+      <physvol name="TPC_RCCON_53_O" copynumber="53">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_530x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_530x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_131" copynumber="131">
+      <physvol name="TPC_RCCON_131_O" copynumber="131">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_131inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_131inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_54" copynumber="54">
+      <physvol name="TPC_RCCON_54_O" copynumber="54">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_540x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_540x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_132" copynumber="132">
+      <physvol name="TPC_RCCON_132_O" copynumber="132">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_132inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_132inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_55" copynumber="55">
+      <physvol name="TPC_RCCON_55_O" copynumber="55">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_550x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_550x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_133" copynumber="133">
+      <physvol name="TPC_RCCON_133_O" copynumber="133">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_133inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_133inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_56" copynumber="56">
+      <physvol name="TPC_RCCON_56_O" copynumber="56">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_560x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_560x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_134" copynumber="134">
+      <physvol name="TPC_RCCON_134_O" copynumber="134">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_134inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_134inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_57" copynumber="57">
+      <physvol name="TPC_RCCON_57_O" copynumber="57">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_570x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_570x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_135" copynumber="135">
+      <physvol name="TPC_RCCON_135_O" copynumber="135">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_135inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_135inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_58" copynumber="58">
+      <physvol name="TPC_RCCON_58_O" copynumber="58">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_580x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_580x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_136" copynumber="136">
+      <physvol name="TPC_RCCON_136_O" copynumber="136">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_136inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_136inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_59" copynumber="59">
+      <physvol name="TPC_RCCON_59_O" copynumber="59">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_590x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_590x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_137" copynumber="137">
+      <physvol name="TPC_RCCON_137_O" copynumber="137">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_137inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_137inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_60" copynumber="60">
+      <physvol name="TPC_RCCON_60_O" copynumber="60">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_600x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_600x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_138" copynumber="138">
+      <physvol name="TPC_RCCON_138_O" copynumber="138">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_138inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_138inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_61" copynumber="61">
+      <physvol name="TPC_RCCON_61_O" copynumber="61">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_610x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_610x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_139" copynumber="139">
+      <physvol name="TPC_RCCON_139_O" copynumber="139">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_139inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_139inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_62" copynumber="62">
+      <physvol name="TPC_RCCON_62_O" copynumber="62">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_620x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_620x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_140" copynumber="140">
+      <physvol name="TPC_RCCON_140_O" copynumber="140">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_140inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_140inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_63" copynumber="63">
+      <physvol name="TPC_RCCON_63_O" copynumber="63">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_630x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_630x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_141" copynumber="141">
+      <physvol name="TPC_RCCON_141_O" copynumber="141">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_141inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_141inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_64" copynumber="64">
+      <physvol name="TPC_RCCON_64_O" copynumber="64">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_640x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_640x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_142" copynumber="142">
+      <physvol name="TPC_RCCON_142_O" copynumber="142">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_142inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_142inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_65" copynumber="65">
+      <physvol name="TPC_RCCON_65_O" copynumber="65">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_650x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_650x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_143" copynumber="143">
+      <physvol name="TPC_RCCON_143_O" copynumber="143">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_143inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_143inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_66" copynumber="66">
+      <physvol name="TPC_RCCON_66_O" copynumber="66">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_660x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_660x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_144" copynumber="144">
+      <physvol name="TPC_RCCON_144_O" copynumber="144">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_144inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_144inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_67" copynumber="67">
+      <physvol name="TPC_RCCON_67_O" copynumber="67">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_670x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_670x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_145" copynumber="145">
+      <physvol name="TPC_RCCON_145_O" copynumber="145">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_145inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_145inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_68" copynumber="68">
+      <physvol name="TPC_RCCON_68_O" copynumber="68">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_680x1inTPC_OROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_146" copynumber="146">
+      <physvol name="TPC_RCCON_146_O" copynumber="146">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_146inTPC_OROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_69" copynumber="69">
+      <physvol name="TPC_RCCON_69_O" copynumber="69">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_690x1inTPC_OROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_147" copynumber="147">
+      <physvol name="TPC_RCCON_147_O" copynumber="147">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_147inTPC_OROCBpos"/>
       </physvol>
-      <physvol name="TPC_RCCON_70" copynumber="70">
+      <physvol name="TPC_RCCON_70_O" copynumber="70">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_700x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_700x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_148" copynumber="148">
+      <physvol name="TPC_RCCON_148_O" copynumber="148">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_148inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_148inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_71" copynumber="71">
+      <physvol name="TPC_RCCON_71_O" copynumber="71">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_710x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_710x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_149" copynumber="149">
+      <physvol name="TPC_RCCON_149_O" copynumber="149">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_149inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_149inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_72" copynumber="72">
+      <physvol name="TPC_RCCON_72_O" copynumber="72">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_720x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_720x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_150" copynumber="150">
+      <physvol name="TPC_RCCON_150_O" copynumber="150">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_150inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_150inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_73" copynumber="73">
+      <physvol name="TPC_RCCON_73_O" copynumber="73">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_730x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_730x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_151" copynumber="151">
+      <physvol name="TPC_RCCON_151_O" copynumber="151">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_151inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_151inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_74" copynumber="74">
+      <physvol name="TPC_RCCON_74_O" copynumber="74">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_740x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_740x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_152" copynumber="152">
+      <physvol name="TPC_RCCON_152_O" copynumber="152">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_152inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_152inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_75" copynumber="75">
+      <physvol name="TPC_RCCON_75_O" copynumber="75">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_750x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_750x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_153" copynumber="153">
+      <physvol name="TPC_RCCON_153_O" copynumber="153">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_153inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_153inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_76" copynumber="76">
+      <physvol name="TPC_RCCON_76_O" copynumber="76">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_760x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_760x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_154" copynumber="154">
+      <physvol name="TPC_RCCON_154_O" copynumber="154">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_154inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_154inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_77" copynumber="77">
+      <physvol name="TPC_RCCON_77_O" copynumber="77">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_770x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_770x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_155" copynumber="155">
+      <physvol name="TPC_RCCON_155_O" copynumber="155">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_155inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_155inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_78" copynumber="78">
+      <physvol name="TPC_RCCON_78_O" copynumber="78">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_780x1inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_780x1inTPC_OROCBrot"/>
       </physvol>
-      <physvol name="TPC_RCCON_156" copynumber="156">
+      <physvol name="TPC_RCCON_156_O" copynumber="156">
         <volumeref ref="TPC_RCCON"/>
         <positionref ref="TPC_RCCON_156inTPC_OROCBpos"/>
         <rotationref ref="TPC_RCCON_156inTPC_OROCBrot"/>
@@ -4619,102 +4620,102 @@
       </physvol>
     </assembly>
     <assembly name="TPC_SECT">
-      <physvol name="TPC_WCH_1" copynumber="1">
+      <physvol name="TPC_WCH_1A" copynumber="1">
         <volumeref ref="TPC_WCH"/>
         <positionref ref="TPC_WCH_1inTPC_SECTpos"/>
       </physvol>
-      <physvol name="TPC_IROC_1" copynumber="1">
+      <physvol name="TPC_IROC_1A" copynumber="1">
         <volumeref ref="TPC_IROC"/>
         <positionref ref="TPC_IROC_1inTPC_SECTpos"/>
         <rotationref ref="TPC_IROC_1inTPC_SECTrot"/>
       </physvol>
-      <physvol name="TPC_OROC_1" copynumber="1">
+      <physvol name="TPC_OROC_1A" copynumber="1">
         <volumeref ref="TPC_OROC"/>
         <positionref ref="TPC_OROC_1inTPC_SECTpos"/>
         <rotationref ref="TPC_OROC_1inTPC_SECTrot"/>
       </physvol>
     </assembly>
     <assembly name="TPC_ENDCAP">
-      <physvol name="TPC_SECT_1" copynumber="1">
+      <physvol name="TPC_SECT_1A" copynumber="1">
         <volumeref ref="TPC_SECT"/>
         <positionref ref="TPC_SECT_1inTPC_ENDCAPpos"/>
       </physvol>
-      <physvol name="TPC_SECT_2" copynumber="2">
+      <physvol name="TPC_SECT_2A" copynumber="2">
         <volumeref ref="TPC_SECT"/>
         <positionref ref="TPC_SECT_2inTPC_ENDCAPpos"/>
         <rotationref ref="TPC_SECT_2inTPC_ENDCAProt"/>
       </physvol>
-      <physvol name="TPC_SECT_3" copynumber="3">
+      <physvol name="TPC_SECT_3A" copynumber="3">
         <volumeref ref="TPC_SECT"/>
         <positionref ref="TPC_SECT_3inTPC_ENDCAPpos"/>
         <rotationref ref="TPC_SECT_3inTPC_ENDCAProt"/>
       </physvol>
-      <physvol name="TPC_SECT_4" copynumber="4">
+      <physvol name="TPC_SECT_4A" copynumber="4">
         <volumeref ref="TPC_SECT"/>
         <positionref ref="TPC_SECT_4inTPC_ENDCAPpos"/>
         <rotationref ref="TPC_SECT_4inTPC_ENDCAProt"/>
       </physvol>
-      <physvol name="TPC_SECT_5" copynumber="5">
+      <physvol name="TPC_SECT_5A" copynumber="5">
         <volumeref ref="TPC_SECT"/>
         <positionref ref="TPC_SECT_5inTPC_ENDCAPpos"/>
         <rotationref ref="TPC_SECT_5inTPC_ENDCAProt"/>
       </physvol>
-      <physvol name="TPC_SECT_6" copynumber="6">
+      <physvol name="TPC_SECT_6A" copynumber="6">
         <volumeref ref="TPC_SECT"/>
         <positionref ref="TPC_SECT_6inTPC_ENDCAPpos"/>
         <rotationref ref="TPC_SECT_6inTPC_ENDCAProt"/>
       </physvol>
-      <physvol name="TPC_SECT_7" copynumber="7">
+      <physvol name="TPC_SECT_7A" copynumber="7">
         <volumeref ref="TPC_SECT"/>
         <positionref ref="TPC_SECT_7inTPC_ENDCAPpos"/>
         <rotationref ref="TPC_SECT_7inTPC_ENDCAProt"/>
       </physvol>
-      <physvol name="TPC_SECT_8" copynumber="8">
+      <physvol name="TPC_SECT_8A" copynumber="8">
         <volumeref ref="TPC_SECT"/>
         <positionref ref="TPC_SECT_8inTPC_ENDCAPpos"/>
         <rotationref ref="TPC_SECT_8inTPC_ENDCAProt"/>
       </physvol>
-      <physvol name="TPC_SECT_9" copynumber="9">
+      <physvol name="TPC_SECT_9A" copynumber="9">
         <volumeref ref="TPC_SECT"/>
         <positionref ref="TPC_SECT_9inTPC_ENDCAPpos"/>
         <rotationref ref="TPC_SECT_9inTPC_ENDCAProt"/>
       </physvol>
-      <physvol name="TPC_SECT_10" copynumber="10">
+      <physvol name="TPC_SECT_10A" copynumber="10">
         <volumeref ref="TPC_SECT"/>
         <positionref ref="TPC_SECT_10inTPC_ENDCAPpos"/>
         <rotationref ref="TPC_SECT_10inTPC_ENDCAProt"/>
       </physvol>
-      <physvol name="TPC_SECT_11" copynumber="11">
+      <physvol name="TPC_SECT_11A" copynumber="11">
         <volumeref ref="TPC_SECT"/>
         <positionref ref="TPC_SECT_11inTPC_ENDCAPpos"/>
         <rotationref ref="TPC_SECT_11inTPC_ENDCAProt"/>
       </physvol>
-      <physvol name="TPC_SECT_12" copynumber="12">
+      <physvol name="TPC_SECT_12A" copynumber="12">
         <volumeref ref="TPC_SECT"/>
         <positionref ref="TPC_SECT_12inTPC_ENDCAPpos"/>
         <rotationref ref="TPC_SECT_12inTPC_ENDCAProt"/>
       </physvol>
-      <physvol name="TPC_SECT_13" copynumber="13">
+      <physvol name="TPC_SECT_13A" copynumber="13">
         <volumeref ref="TPC_SECT"/>
         <positionref ref="TPC_SECT_13inTPC_ENDCAPpos"/>
         <rotationref ref="TPC_SECT_13inTPC_ENDCAProt"/>
       </physvol>
-      <physvol name="TPC_SECT_14" copynumber="14">
+      <physvol name="TPC_SECT_14A" copynumber="14">
         <volumeref ref="TPC_SECT"/>
         <positionref ref="TPC_SECT_14inTPC_ENDCAPpos"/>
         <rotationref ref="TPC_SECT_14inTPC_ENDCAProt"/>
       </physvol>
-      <physvol name="TPC_SECT_15" copynumber="15">
+      <physvol name="TPC_SECT_15A" copynumber="15">
         <volumeref ref="TPC_SECT"/>
         <positionref ref="TPC_SECT_15inTPC_ENDCAPpos"/>
         <rotationref ref="TPC_SECT_15inTPC_ENDCAProt"/>
       </physvol>
-      <physvol name="TPC_SECT_16" copynumber="16">
+      <physvol name="TPC_SECT_16A" copynumber="16">
         <volumeref ref="TPC_SECT"/>
         <positionref ref="TPC_SECT_16inTPC_ENDCAPpos"/>
         <rotationref ref="TPC_SECT_16inTPC_ENDCAProt"/>
       </physvol>
-      <physvol name="TPC_SECT_17" copynumber="17">
+      <physvol name="TPC_SECT_17A" copynumber="17">
         <volumeref ref="TPC_SECT"/>
         <positionref ref="TPC_SECT_17inTPC_ENDCAPpos"/>
         <rotationref ref="TPC_SECT_17inTPC_ENDCAProt"/>
@@ -4726,107 +4727,107 @@
       </physvol>
     </assembly>
     <assembly name="TPC_SECT0x1">
-      <physvol name="TPC_WCH_1" copynumber="1">
+      <physvol name="TPC_WCH_1B" copynumber="1">
         <volumeref ref="TPC_WCH"/>
         <positionref ref="TPC_WCH_10x1inTPC_SECT0x1pos"/>
       </physvol>
-      <physvol name="TPC_IROC_1" copynumber="1">
+      <physvol name="TPC_IROC_1B" copynumber="1">
         <volumeref ref="TPC_IROC"/>
         <positionref ref="TPC_IROC_10x1inTPC_SECT0x1pos"/>
         <rotationref ref="TPC_IROC_10x1inTPC_SECT0x1rot"/>
       </physvol>
-      <physvol name="TPC_OROC_1" copynumber="1">
+      <physvol name="TPC_OROC_1B" copynumber="1">
         <volumeref ref="TPC_OROC"/>
         <positionref ref="TPC_OROC_10x1inTPC_SECT0x1pos"/>
         <rotationref ref="TPC_OROC_10x1inTPC_SECT0x1rot"/>
       </physvol>
     </assembly>
     <assembly name="TPC_ENDCAP0x1">
-      <physvol name="TPC_SECT_1" copynumber="1">
+      <physvol name="TPC_SECT_1B" copynumber="1">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_10x1inTPC_ENDCAP0x1pos"/>
       </physvol>
-      <physvol name="TPC_SECT_2" copynumber="2">
+      <physvol name="TPC_SECT_2B" copynumber="2">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_20x1inTPC_ENDCAP0x1pos"/>
         <rotationref ref="TPC_SECT_20x1inTPC_ENDCAP0x1rot"/>
       </physvol>
-      <physvol name="TPC_SECT_3" copynumber="3">
+      <physvol name="TPC_SECT_3B" copynumber="3">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_30x1inTPC_ENDCAP0x1pos"/>
         <rotationref ref="TPC_SECT_30x1inTPC_ENDCAP0x1rot"/>
       </physvol>
-      <physvol name="TPC_SECT_4" copynumber="4">
+      <physvol name="TPC_SECT_4B" copynumber="4">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_40x1inTPC_ENDCAP0x1pos"/>
         <rotationref ref="TPC_SECT_40x1inTPC_ENDCAP0x1rot"/>
       </physvol>
-      <physvol name="TPC_SECT_5" copynumber="5">
+      <physvol name="TPC_SECT_5B" copynumber="5">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_50x1inTPC_ENDCAP0x1pos"/>
         <rotationref ref="TPC_SECT_50x1inTPC_ENDCAP0x1rot"/>
       </physvol>
-      <physvol name="TPC_SECT_6" copynumber="6">
+      <physvol name="TPC_SECT_6B" copynumber="6">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_60x1inTPC_ENDCAP0x1pos"/>
         <rotationref ref="TPC_SECT_60x1inTPC_ENDCAP0x1rot"/>
       </physvol>
-      <physvol name="TPC_SECT_7" copynumber="7">
+      <physvol name="TPC_SECT_7B" copynumber="7">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_70x1inTPC_ENDCAP0x1pos"/>
         <rotationref ref="TPC_SECT_70x1inTPC_ENDCAP0x1rot"/>
       </physvol>
-      <physvol name="TPC_SECT_8" copynumber="8">
+      <physvol name="TPC_SECT_8B" copynumber="8">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_80x1inTPC_ENDCAP0x1pos"/>
         <rotationref ref="TPC_SECT_80x1inTPC_ENDCAP0x1rot"/>
       </physvol>
-      <physvol name="TPC_SECT_9" copynumber="9">
+      <physvol name="TPC_SECT_9B" copynumber="9">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_90x1inTPC_ENDCAP0x1pos"/>
         <rotationref ref="TPC_SECT_90x1inTPC_ENDCAP0x1rot"/>
       </physvol>
-      <physvol name="TPC_SECT_10" copynumber="10">
+      <physvol name="TPC_SECT_10B" copynumber="10">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_100x1inTPC_ENDCAP0x1pos"/>
         <rotationref ref="TPC_SECT_100x1inTPC_ENDCAP0x1rot"/>
       </physvol>
-      <physvol name="TPC_SECT_11" copynumber="11">
+      <physvol name="TPC_SECT_11B" copynumber="11">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_110x1inTPC_ENDCAP0x1pos"/>
         <rotationref ref="TPC_SECT_110x1inTPC_ENDCAP0x1rot"/>
       </physvol>
-      <physvol name="TPC_SECT_12" copynumber="12">
+      <physvol name="TPC_SECT_12B" copynumber="12">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_120x1inTPC_ENDCAP0x1pos"/>
         <rotationref ref="TPC_SECT_120x1inTPC_ENDCAP0x1rot"/>
       </physvol>
-      <physvol name="TPC_SECT_13" copynumber="13">
+      <physvol name="TPC_SECT_13B" copynumber="13">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_130x1inTPC_ENDCAP0x1pos"/>
         <rotationref ref="TPC_SECT_130x1inTPC_ENDCAP0x1rot"/>
       </physvol>
-      <physvol name="TPC_SECT_14" copynumber="14">
+      <physvol name="TPC_SECT_14B" copynumber="14">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_140x1inTPC_ENDCAP0x1pos"/>
         <rotationref ref="TPC_SECT_140x1inTPC_ENDCAP0x1rot"/>
       </physvol>
-      <physvol name="TPC_SECT_15" copynumber="15">
+      <physvol name="TPC_SECT_15B" copynumber="15">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_150x1inTPC_ENDCAP0x1pos"/>
         <rotationref ref="TPC_SECT_150x1inTPC_ENDCAP0x1rot"/>
       </physvol>
-      <physvol name="TPC_SECT_16" copynumber="16">
+      <physvol name="TPC_SECT_16B" copynumber="16">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_160x1inTPC_ENDCAP0x1pos"/>
         <rotationref ref="TPC_SECT_160x1inTPC_ENDCAP0x1rot"/>
       </physvol>
-      <physvol name="TPC_SECT_17" copynumber="17">
+      <physvol name="TPC_SECT_17B" copynumber="17">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_170x1inTPC_ENDCAP0x1pos"/>
         <rotationref ref="TPC_SECT_170x1inTPC_ENDCAP0x1rot"/>
       </physvol>
-      <physvol name="TPC_SECT_18" copynumber="18">
+      <physvol name="TPC_SECT_18B" copynumber="18">
         <volumeref ref="TPC_SECT0x1"/>
         <positionref ref="TPC_SECT_180x1inTPC_ENDCAP0x1pos"/>
         <rotationref ref="TPC_SECT_180x1inTPC_ENDCAP0x1rot"/>
@@ -8760,11 +8761,11 @@
     </volume>
     <volume name="volWorld">
       <materialref ref="BODY_Air_____"/>
-      <solidref ref="volWorld"/>
+      <solidref ref="volWorldBox"/>
       <physvol name="TPC_M_1" copynumber="1">
         <volumeref ref="TPC_M"/>
         <positionref ref="TPC_M_1inHPGTPCpos"/>
-        <rotation x="0" y="90" z="0" unit="deg"/>
+        <rotationref ref="WorldRotationColliderToND"/>
       </physvol>
     </volume>
   </structure>

@@ -14,7 +14,7 @@ typedef struct _drawopt {
   int         color;
 } drawopt;
 
-void geoVis(TString volName="HPGTPC",TString filebase="hpgtpc_v1", bool checkoverlaps=true, bool writerootfile=true){
+void geoVis(TString volName="volWorld",TString filebase="hpgtpc_v1", bool checkoverlaps=true, bool writerootfile=true){
   
   gSystem->Load("libGeom");
   gSystem->Load("libGdml");
