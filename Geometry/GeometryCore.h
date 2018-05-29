@@ -622,8 +622,6 @@ namespace gar {
       void ChannelToPosition(unsigned int const channel,
                              float*       const worldLoc) const;
 
-      float ChannelPitch() const;
-      
       //
       // unsorted methods
       //

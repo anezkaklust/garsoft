@@ -46,18 +46,39 @@ namespace gar{
       unsigned int NearestChannel(float const* xyz)     const override;
       void         ChannelToPosition(unsigned int chan,
                                      float*       xyz)  const override;
-      float        ChannelPitch()                       const override;
       
     private:
-      
-      unsigned int        fNumPixelsZ;      ///< number of pixels in the z direction
-      unsigned int        fNumPixelsY;      ///< number of pixels in the y direction
-      float               fPixelActiveSize; ///< active size of a pixel on an edge
-      float               fPixelPitch;      ///< distance between pixel centers
-      float               fHalfHeight;      ///< half height of the detector
-      std::vector<XYZPos> fPixelCenters;    ///< x,y,z center of each pixel
-      std::set<float>     fPixRowBounds;    ///< boundaries in y of each row of pixels
-      std::set<float>     fPixColumnBounds; ///< boundaries in z of each column of pixels
+
+      size_t              fNumSectors;                 ///<   Number of sectors -- should be 18
+      float               fSectorOffsetAngleDeg;       ///<   Angle to rotate to the middle of the first sector -- should be 10 degrees
+      float               fPhiSectorWidth;             ///<   width of a sector in phi (in radians)
+
+      size_t              fNumPadRowsIROC;             ///<   Number of pad rows in the inner ROC -- 64 (TDR) or 63 (ALICE code)
+      size_t              fNumPadRowsOROCI;            ///<   Number of small-pitch pad rows in the outer ROC 
+      size_t              fNumPadRowsOROCO;            ///<   Number of large-pitch pad rows in the outer ROC
+      float               fPadHeightIROC;              ///<   Pad height in the inner ROC (cm)
+      float               fPadWidthIROC;               ///<   Pad width in the inner ROC (cm)
+      float               fPadHeightOROCI;             ///<   Pad height in the outer ROC inner part (cm)
+      float               fPadHeightOROCO;             ///<   Pad height in the outer ROC outer part (cm)
+      float               fPadWidthOROC;               ///<   Pad width in the OROC (assumed same for both sections)
+
+      float               fIROCInnerRadius;            ///<   Radius from the beam in cm along the midline of the sector to the inner IROC row inner edge
+      float               fIROCOuterRadius;            ///<   Radius from the beam in cm along the midline of the sector to the outer IROC row outer edge
+      float               fOROCInnerRadius;            ///<   Radius from the beam in cm along the midline of the sector to the inner OROC row inner edge
+      float               fOROCPadHeightChangeRadius;  ///<   Radius from the beam in cm along the midline of the sector to the OROC pad height change
+      float               fOROCOuterRadius;            ///<   Radius from the beam in cm along the midline of the sector to the outer OROC row outer edge
+
+      float               fFrameWidth;                 ///< wire-fixation sides between sectors  in cm (1.2 cm)
+      float               fSectorGap;                  ///< Gap between readout sectors  (0.3 cm)
+
+      float               fXPlaneLoc;                  ///< Location of pixel plane in X (only positive.  Assume other one is at -X)
+
+      std::vector<size_t> fNumPadsPerRow;              ///< indexed by "global" pad row number for a single sector
+      std::vector<size_t> fFirstPadInRow;              ///< indexed by "global" pad row number for a single sector
+
+      std::vector<XYZPos> fPixelCenters;               ///< pixel centers (in cm) -- for the entire detector
+
+      size_t              fNumChansPerSector;          ///< Number of TPC pad channels per sector
     };
     
     

@@ -55,7 +55,6 @@ namespace gar{
       virtual unsigned int  NearestChannel(float const* xyz)     const = 0;
       virtual void          ChannelToPosition(unsigned int chan,
                                               float*       xyz)  const = 0;
-      virtual float         ChannelPitch()                       const = 0;
 
     protected:
       

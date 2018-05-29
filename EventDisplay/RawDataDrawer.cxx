@@ -122,6 +122,8 @@ namespace gar {
       return;
     }//end loop over raw hits
 
+    // to do -- need to get xyz position of a channel from the channel map -- it's not just a rectangular grid of pixels
+
     //......................................................................
     void RawDataDrawer::RawDigit3D(const art::Event& evt,
                                    evdb::View3D*     view)
@@ -165,8 +167,9 @@ namespace gar {
                                           xyz[1],
                                           xyz[2],
                                           0.5,    // the extent is 1/2 tick
-                                          0.5 * geom->ChannelPitch(),
-                                          0.5 * geom->ChannelPitch()));
+				       0.5 * 0.3, // to fix  geom->ChannelPitch(),
+                                       0.5 * 0.3  // to fix geom->ChannelPitch()
+				       ));
           
           box->SetFillStyle(1001);
           box->SetFillColor(colorSet.GetColor(dig->ADC(t)));
