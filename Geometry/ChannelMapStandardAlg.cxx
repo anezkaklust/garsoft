@@ -214,6 +214,8 @@ namespace gar {
 
       size_t ichan = ichansector + fNumChansPerSector * isector;
 
+      if (xyz[0] > 0) ichan += fNumSectors*fNumChansPerSector;  // the opposite side of the TPC.
+
       //   throw cet::exception("NearestChannel")
       //<< "y position: "
       //<< xyz[1]
