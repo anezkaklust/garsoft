@@ -59,10 +59,13 @@ namespace gar {
       float xyz[3] = {dep.X(),
                       dep.Y(),
                       dep.Z()};
-      
-      // The geometry has x = 0 at the readout, so x is conveniently the
-      // drift distance for this step and the drift time is x / fDriftVelocity
-      float driftT       = xyz[0] * fInverseVelocity;
+
+      //std::cout << "energy deposition: " << dep.X() << " " << dep.Y() << " " << dep.Z() << std::endl;
+
+      // The geometry has x = 0 at the cathode plane. Compute the drift time appropriately
+      // TODO -- get the maximum drift distance from the geometry service
+
+      float driftT       = std::abs(std::abs(xyz[0])-249.7) * fInverseVelocity;
       float sqrtDriftT   = std::sqrt(driftT);
       float lifetimeCorr = std::exp(driftT / fLifetimeCorrection);
       
@@ -93,7 +96,8 @@ namespace gar {
         XDiff[c]  = xyz[0];
         YDiff[c] += xyz[1];
         ZDiff[c] += xyz[2];
-        
+
+	//std::cout << "Drift xyz: " << XDiff[c] << " " << YDiff[c] << " " << ZDiff[c] << " " << TDiff[c] << std::endl;
         LOG_DEBUG("IonizationReadout")
         << "g4 time: "
         << g4time
