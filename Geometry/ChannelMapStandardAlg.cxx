@@ -61,6 +61,7 @@ namespace gar {
 	{
 
 	  float rotang = TMath::DegToRad()*( isector*360/fNumSectors + fSectorOffsetAngleDeg );
+	  //std::cout << "trot: " << isector << " " << rotang << std::endl;
 	  float crot = TMath::Cos(rotang);
 	  float srot = TMath::Sin(rotang);
 
@@ -72,7 +73,7 @@ namespace gar {
 
 	      float yloc = fIROCInnerRadius + fPadHeightIROC * (irow + 0.5);
 	      float zhalf = yloc * TsectorH - fSectorGap/2.0;
-	      size_t numpads = 2*( TMath::Floor(zhalf/fPadWidthIROC) );
+	      size_t numpads = 2*( TMath::Floor(TMath::Abs(zhalf)/fPadWidthIROC) );
 	      if (isector == 0) 
 		{
 		  fNumPadsPerRow.push_back(numpads);
@@ -80,7 +81,7 @@ namespace gar {
 		}
 	      for (size_t ipad = 0; ipad < numpads; ++ipad)
 		{
-	          float zloc = (ipad - numpads/2 + 0.5)*fPadWidthIROC;
+	          float zloc = ( (float) ipad - (float) numpads/2 + 0.5)*fPadWidthIROC;
 	          XYZPos pixpos(-fXPlaneLoc, zloc*crot+yloc*srot, yloc*crot - zloc*srot);
 	          fPixelCenters.push_back(pixpos);
 		  ipadacc++;
@@ -93,7 +94,7 @@ namespace gar {
 
 	      float yloc = fOROCInnerRadius + fPadHeightOROCI * (irow + 0.5);
 	      float zhalf = yloc * TsectorH - fSectorGap/2.0;
-	      size_t numpads = 2*( TMath::Floor(zhalf/fPadWidthOROC) );
+	      size_t numpads = 2*( TMath::Floor(TMath::Abs(zhalf)/fPadWidthOROC) );
 	      if (isector == 0) 
 		{
 		  fNumPadsPerRow.push_back(numpads);
@@ -101,7 +102,7 @@ namespace gar {
 		}
 	      for (size_t ipad = 0; ipad < numpads; ++ipad)
 		{
-	          float zloc = (ipad - numpads/2 + 0.5)*fPadWidthOROC;
+	          float zloc = ( (float) ipad - (float) numpads/2 + 0.5)*fPadWidthOROC;
 	          XYZPos pixpos(-fXPlaneLoc, zloc*crot+yloc*srot, yloc*crot - zloc*srot);
 	          fPixelCenters.push_back(pixpos);
 		  ipadacc++;
@@ -114,7 +115,7 @@ namespace gar {
 
 	      float yloc = fOROCPadHeightChangeRadius + fPadHeightOROCO * (irow + 0.5);
 	      float zhalf = yloc * TsectorH - fSectorGap/2.0;
-	      size_t numpads = 2*( TMath::Floor(zhalf/fPadWidthOROC) );
+	      size_t numpads = 2*( TMath::Floor(TMath::Abs(zhalf)/fPadWidthOROC) );
 	      if (isector == 0) 
 		{
 		  fNumPadsPerRow.push_back(numpads);
@@ -122,7 +123,7 @@ namespace gar {
 		}
 	      for (size_t ipad = 0; ipad < numpads; ++ipad)
 		{
-	          float zloc = (ipad - numpads/2 + 0.5)*fPadWidthOROC;
+	          float zloc = ( (float) ipad - (float) numpads/2 + 0.5)*fPadWidthOROC;
 	          XYZPos pixpos(-fXPlaneLoc, zloc*crot+yloc*srot, yloc*crot - zloc*srot);
 	          fPixelCenters.push_back(pixpos);
 		  ipadacc++;
@@ -139,6 +140,7 @@ namespace gar {
 	{
 	  XYZPos pixpos(fXPlaneLoc,fPixelCenters[ipix].y,fPixelCenters[ipix].z);
 	  fPixelCenters.push_back(pixpos);
+	  //std::cout << "trjpix " << fPixelCenters[ipix].z << " " << fPixelCenters[ipix].y << std::endl;
 	}
 
       
@@ -223,10 +225,10 @@ namespace gar {
       //<< xyz[2]
       //<< " is out of bounds.";
 
-      if (ichan>1000000) 
-	{
-	  std::cout << "Problem Channel ID: " << xyz[0] << " " << xyz[1] << " " << xyz[2] << " " << ichan << std::endl;
-	}
+      //if (ichan>1000000) 
+      //	{
+      //  std::cout << "Problem Channel ID: " << xyz[0] << " " << xyz[1] << " " << xyz[2] << " " << ichan << std::endl;
+      //}
       return ichan;
     }
     
