@@ -208,7 +208,7 @@ namespace gar {
 	  padwidthloc = fPadWidthOROC;
 	}
       size_t totpadrows = fNumPadRowsIROC + fNumPadRowsOROCI + fNumPadRowsOROCO;
-      if (irow > totpadrows) irow = totpadrows; 
+      if (irow >= totpadrows) irow = totpadrows-1; 
 
       size_t ichansector = fFirstPadInRow[irow] + TMath::Floor(yrot/padwidthloc) + fNumPadsPerRow[irow]/2;
 
@@ -222,7 +222,11 @@ namespace gar {
       //<< " or z position: "
       //<< xyz[2]
       //<< " is out of bounds.";
-              
+
+      if (ichan>1000000) 
+	{
+	  std::cout << "Problem Channel ID: " << xyz[0] << " " << xyz[1] << " " << xyz[2] << " " << ichan << std::endl;
+	}
       return ichan;
     }
     
