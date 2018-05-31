@@ -242,9 +242,22 @@ namespace gar {
             prevChan = edide.Channel;
             
           }
+
+	  // put overflow times in the last bin.  Is this okay?  TODO
           
-          electrons[edide.TDC] = edide.NumElect;
-          
+	  size_t esize = electrons.size();
+	  if (esize>0)
+	    {
+	      if (edide.TDC >= esize) 
+		{
+		  electrons[esize - 1] = edide.NumElect;
+		}
+	      else
+		{
+		  electrons[edide.TDC] = edide.NumElect;
+		}
+	    }
+
           for(auto loc : edide.edepLocs) digitEDepLocs.insert(loc);
           
         } // end loop to fill signal raw digit vector and make EnergyDeposit associations
