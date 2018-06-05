@@ -79,6 +79,16 @@ namespace gar{
       std::vector<XYZPos> fPixelCenters;               ///< pixel centers (in cm) -- for the entire detector
 
       size_t              fNumChansPerSector;          ///< Number of TPC pad channels per sector
+
+      // variables for the hole filler grid
+
+      std::vector<size_t> fCenterNumPadsPerRow;        ///< pads per row for the center hole filler
+      std::vector<size_t> fCenterFirstPadInRow;        ///< first pad in row for center hole filler
+
+      float               fCenterPadWidth;             ///< Width of square pads in center hole filler
+      size_t              fNumChansCenter;             ///< Number of channels in center hole filler
+
+      void                CheckPositions();            ///< Method to check consistency of NearestChannel and ChannelToPosition
     };
     
     
