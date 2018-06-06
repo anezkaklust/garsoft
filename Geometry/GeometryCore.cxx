@@ -116,9 +116,9 @@ namespace gar {
       const char* nm = path[depth]->GetName();
       if( (strncmp(nm, "TPC_Drift", 9) == 0) ){
         TGeoVolume *activeVol = path[depth]->GetVolume();
-        fDetHalfWidth  =       ((TGeoBBox*)activeVol->GetShape())->GetDX();
+        fDetHalfWidth  =       ((TGeoBBox*)activeVol->GetShape())->GetDZ();
         fDetHalfHeight =       ((TGeoBBox*)activeVol->GetShape())->GetDY();
-        fDetLength     = 2.0 * ((TGeoBBox*)activeVol->GetShape())->GetDZ();
+        fDetLength     = 2.0 * ((TGeoBBox*)activeVol->GetShape())->GetDX();
         return;
       }
 
