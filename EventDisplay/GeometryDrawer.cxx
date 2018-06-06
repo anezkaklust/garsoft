@@ -7,6 +7,7 @@
 #include "TLine.h"
 #include "TBox.h"
 #include "TText.h"
+#include "TMath.h"
 
 #include "Geometry/Geometry.h"
 #include "nutools/EventDisplayBase/View2D.h"
@@ -33,89 +34,46 @@ namespace evd{
   {
     art::ServiceHandle<geo::Geometry> geo;
 
-    double xlo =  0.;
-    double xhi =  2.*geo->DetHalfWidth();
+    double xlo =  -geo->DetLength()/2;
+    double xhi =  geo->DetLength()/2;
     double ylo = -geo->DetHalfHeight();
     double yhi =  geo->DetHalfHeight();
-    double zlo =  0.0;
-    double zhi =  geo->DetLength();
-  
+    //double zlo =  -geo->DetHalfWidth();
+    double zhi =  geo->DetHalfWidth();
+    double r=yhi;
+    double fracinner = 788.0/2580.;
+
+    double ang = TMath::Pi()*2.0/18.0;
+
     int c = kGray;
     int s = 1;
     int w = 1;
-    TPolyLine3D& top = view->AddPolyLine3D(5, c, w, s);
-    top.SetPoint(0, xlo, yhi, zlo);
-    top.SetPoint(1, xhi, yhi, zlo);
-    top.SetPoint(2, xhi, yhi, zhi);
-    top.SetPoint(3, xlo, yhi, zhi);
-    top.SetPoint(4, xlo, yhi, zlo);
-
-    TPolyLine3D& side = view->AddPolyLine3D(5, c, w, s);
-    side.SetPoint(0, xhi, yhi, zlo);
-    side.SetPoint(1, xhi, ylo, zlo);
-    side.SetPoint(2, xhi, ylo, zhi);
-    side.SetPoint(3, xhi, yhi, zhi);
-    side.SetPoint(4, xhi, yhi, zlo);
-
-    TPolyLine3D& side2 = view->AddPolyLine3D(5, c, w, s);
-    side2.SetPoint(0, xlo, yhi, zlo);
-    side2.SetPoint(1, xlo, ylo, zlo);
-    side2.SetPoint(2, xlo, ylo, zhi);
-    side2.SetPoint(3, xlo, yhi, zhi);
-    side2.SetPoint(4, xlo, yhi, zlo);
-
-    TPolyLine3D& bottom = view->AddPolyLine3D(5, c, w, s);
-    bottom.SetPoint(0, xlo, ylo, zlo);
-    bottom.SetPoint(1, xhi, ylo, zlo);
-    bottom.SetPoint(2, xhi, ylo, zhi);
-    bottom.SetPoint(3, xlo, ylo, zhi);
-    bottom.SetPoint(4, xlo, ylo, zlo);
+    TPolyLine3D& spos = view->AddPolyLine3D(19, c, w, s);
+    TPolyLine3D& sposi = view->AddPolyLine3D(19, c, w, s);
+    for (int i=0;i<19;++i)
+      {
+	spos.SetPoint(i,xhi,r*TMath::Cos(i*ang),r*TMath::Sin(i*ang));
+	sposi.SetPoint(i,xhi,fracinner*r*TMath::Cos(i*ang),fracinner*r*TMath::Sin(i*ang));
+      }
+    TPolyLine3D& sneg = view->AddPolyLine3D(19, c, w, s);
+    TPolyLine3D& snegi = view->AddPolyLine3D(19, c, w, s);
+    for (int i=0;i<19;++i)
+      {
+	sneg.SetPoint(i,xlo,r*TMath::Cos(i*ang),r*TMath::Sin(i*ang));
+	snegi.SetPoint(i,xlo,fracinner*r*TMath::Cos(i*ang),fracinner*r*TMath::Sin(i*ang));
+      }
 
     c = kGray+2;
     s = 1;
     w = 1;
-    double z = zlo;
-    // Grid running along x and y at constant z
-    for (;;) {
-      TPolyLine3D& gridt = view->AddPolyLine3D(2, c, s, w);
-      gridt.SetPoint(0, xlo, ylo, z);
-      gridt.SetPoint(1, xhi, ylo, z);
-
-      TPolyLine3D& grids = view->AddPolyLine3D(2, c, s, w);
-      grids.SetPoint(0, xhi, ylo, z);
-      grids.SetPoint(1, xhi, yhi, z);
-
-      z += 10.0;
-      if (z>zhi) break;
-    }
-
-    // Grid running along z at constant x
-    double x = 0.0;
-    for (;;) {
-      TPolyLine3D& gridt = view->AddPolyLine3D(2, c, s, w);
-      gridt.SetPoint(0, x, ylo, zlo);
-      gridt.SetPoint(1, x, ylo, zhi);
-      x += 10.0;
-      if (x>xhi) break;
-    }
-
-    // Grid running along z at constant y
-    double y = 0.0;
-    for (;;) {
-      TPolyLine3D& grids = view->AddPolyLine3D(2, c, s, w);
-      grids.SetPoint(0, xhi, y, zlo);
-      grids.SetPoint(1, xhi, y, zhi);
-      y += 10.0;
-      if (y>yhi) break;
-    }
-    y = -10.0;
-    for (;;) {
-      TPolyLine3D& grids = view->AddPolyLine3D(2, c, s, w);
-      grids.SetPoint(0, xhi, y, zlo);
-      grids.SetPoint(1, xhi, y, zhi);
-      y -= 10.0;
-      if (y<ylo) break;
-    }
+    for (int i=0;i<18;++i)
+      {
+         TPolyLine3D& gridt = view->AddPolyLine3D(4, c, s, w);
+	 gridt.SetPoint(0,xlo,fracinner*r*TMath::Cos(i*ang),fracinner*r*TMath::Sin(i*ang));
+	 gridt.SetPoint(1,xlo,r*TMath::Cos(i*ang),r*TMath::Sin(i*ang));
+	 gridt.SetPoint(2,xhi,r*TMath::Cos(i*ang),r*TMath::Sin(i*ang));
+	 gridt.SetPoint(3,xhi,fracinner*r*TMath::Cos(i*ang),fracinner*r*TMath::Sin(i*ang));
+      }
 
     // Indicate coordinate system
     double x0 = -0.20;     // Center location of the key
