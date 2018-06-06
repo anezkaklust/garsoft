@@ -36,27 +36,34 @@ namespace gar {
     }
 
     //----------------------------------------------------------
-    void Compress(gar::raw::ADCvector_t &adc, 
+    int Compress(gar::raw::ADCvector_t &adc, 
 		  gar::raw::Compress_t  compress, 
 		  gar::raw::ADC_t       zerothreshold,
 		  size_t                ticksbefore,
 		  size_t                ticksafter)
     {
-      if(compress == raw::kHuffman) CompressHuffman(adc);
+      int retval = 1;
+      if(compress == raw::kHuffman) 
+	{
+	  CompressHuffman(adc);
+	}
+      else if(compress == raw::kZeroSuppression) 
+	{
+	  retval = ZeroSuppression(adc,zerothreshold,ticksbefore,ticksafter);
+	}
+      else if(compress == raw::kZeroHuffman)
+	{
+	  retval = ZeroSuppression(adc,zerothreshold,ticksbefore,ticksafter);
+	  CompressHuffman(adc);
+        }    
 
-      else if(compress == raw::kZeroSuppression) ZeroSuppression(adc,zerothreshold,ticksbefore,ticksafter);
-      else if(compress == raw::kZeroHuffman){
-	ZeroSuppression(adc,zerothreshold,ticksbefore,ticksafter);
-	CompressHuffman(adc);
-      }    
-
-      return;
+      return retval;
     }
 
 
     //----------------------------------------------------------
     // Zero suppression function
-    void ZeroSuppression(gar::raw::ADCvector_t &adc, 
+    int ZeroSuppression(gar::raw::ADCvector_t &adc, 
 			 gar::raw::ADC_t       zerothreshold,
 			 size_t                ticksbefore_in,
 			 size_t                ticksafter_in)
@@ -165,6 +172,7 @@ namespace gar {
       for(unsigned int i = 0; i < zerosuppressedsize; ++i)
 	adc[i+nblocks+nblocks+2] = zerosuppressed[i];
  
+      return nblocks;  // for use in discarding rawdigit in case it's all zero
     }
 
 

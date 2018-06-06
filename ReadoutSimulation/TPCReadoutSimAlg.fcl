@@ -3,7 +3,11 @@ BEGIN_PROLOG
 standard_tpcreadoutsimalg:
 {
  TPCReadoutSimType: Standard
- AddNoise:          true
+ AddNoise:          false
+ CompressType:      1   # zero suppression=1, no compression=0
+ ZSThreshold:       5   # ADC counts
+ ZSTicksBefore:     5   # ticks to retain before an upcrossing of threshold
+ ZSTicksAfter:      5   # ticks to retain after an upcrossing of threshold
 }
 
 

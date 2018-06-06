@@ -9,7 +9,7 @@ namespace gar
 {
   namespace raw
   {
-    typedef uint16_t ADC_t;
+    typedef short ADC_t;
     typedef std::vector<ADC_t> ADCvector_t;
 
     typedef enum _compress {

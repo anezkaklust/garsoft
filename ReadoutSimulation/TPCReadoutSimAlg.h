@@ -109,7 +109,8 @@ namespace gar {
       
       // Method to take IDEs and turn them into RawDigits
       virtual raw::RawDigit CreateRawDigit(unsigned int              channel,
-                                           std::vector<float> const& electrons) = 0;
+                                           std::vector<float> const& electrons,
+					   bool &todrop) = 0;
       virtual void  CreateNoiseDigits(std::vector<raw::RawDigit> & digits)      = 0;
 
 
@@ -119,6 +120,11 @@ namespace gar {
       
       CLHEP::HepRandomEngine &           fEngine;   ///< random number engine
       bool                               fAddNoise; ///< flag to add noise or not
+      int                                fCompressType; ///< Switch to compress raw digits
+      int                                fZSThreshold;  ///< for ZS Compression, threshold (upwards)
+      unsigned int                       fZSTicksBefore; ///< for ZS Compression, # samples before
+      unsigned int                       fZSTicksAfter; ///< for ZS Compression, # samples after
+      int                                fPedestal;     ///< Raw Digit Pedestal
       const detinfo::DetectorProperties* fDetProp;  ///< detector properties
       
       // AddNoiseToADCs is foradding noise to recorded signal.  Assume that the

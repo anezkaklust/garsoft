@@ -103,7 +103,8 @@ namespace gar {
        */
       RawDigit(Channel_t          channel,
                unsigned short     samples,
-               ADCvector_t const& adclist);
+               ADCvector_t const& adclist,
+	       gar::raw::Compress_t compress);
       
       /**
        * @brief Constructor: sets all the fields
@@ -117,7 +118,8 @@ namespace gar {
        */
       RawDigit(Channel_t          channel,
                unsigned short     samples,
-               ADCvector_t&&      adclist);
+               ADCvector_t&&      adclist,
+	       gar::raw::Compress_t compress);
       
       /// Set pedestal and its RMS (the latter is 0 by default)
       void            SetPedestal(float ped, float sigma = 1.);

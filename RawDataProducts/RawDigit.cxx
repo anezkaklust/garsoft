@@ -23,30 +23,35 @@ namespace gar {
     , fSamples(0)
     , fPedestal(0.)
     , fSigma(0.)
+    , fCompression(gar::raw::kNone)
     {}
     
     
     //----------------------------------------------------------------------
     RawDigit::RawDigit(Channel_t                    channel,
                        unsigned short               samples,
-                       RawDigit::ADCvector_t const& adclist)
+                       RawDigit::ADCvector_t const& adclist,
+		       gar::raw::Compress_t compress)
     : fADC(adclist)
     , fChannel(channel)
     , fSamples(samples)
     , fPedestal(0.)
     , fSigma(0.)
+    , fCompression(compress)
     {}
     
     
     //----------------------------------------------------------------------
     RawDigit::RawDigit(Channel_t               channel,
                        unsigned short          samples,
-                       RawDigit::ADCvector_t&& adclist)
+                       RawDigit::ADCvector_t&& adclist,
+		       gar::raw::Compress_t compress)
     : fADC(std::move(adclist))
     , fChannel(channel)
     , fSamples(samples)
     , fPedestal(0.)
     , fSigma(0.)
+    , fCompression(compress)
     {}
     
     

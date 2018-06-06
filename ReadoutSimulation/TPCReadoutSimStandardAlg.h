@@ -25,7 +25,8 @@ namespace gar{
       virtual ~TPCReadoutSimStandardAlg();
       
       raw::RawDigit CreateRawDigit(unsigned int              channel,
-                                   std::vector<float> const& electrons);
+                                   std::vector<float> const& electrons,
+				   bool &todrop);
       void CreateNoiseDigits(std::vector<raw::RawDigit> & digits);
 
       void reconfigure(fhicl::ParameterSet const& pset);

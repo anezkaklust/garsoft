@@ -277,6 +277,10 @@ namespace gar {
         << " raw digits from signal";
         
         // now make the noise digits
+	// to do -- only make noise digits on channels we haven't
+	// yet considered for noise digits, but which may have
+	// been entirely zero-suppressed -- may need to keep a 
+	// list of channels and pass it in
         fROSimAlg->CreateNoiseDigits(*rdCol);
         
       } // end if there were energy deposits to use
@@ -455,28 +459,33 @@ namespace gar {
                                               ::art::Assns<sdp::EnergyDeposit, raw::RawDigit>       & erassn,
                                               ::art::Event                                          & evt)
     {
+
+      // could be that all the adc's fell below threshold, so test if we got a raw digit at all.
       
+      bool todrop=false;
+      raw::RawDigit tmpdigit = fROSimAlg->CreateRawDigit(channel, electrons, todrop);
+      if (!todrop) 
+	{ 
+	  digCol.emplace_back(tmpdigit);
       
+	  LOG_DEBUG("IonizationReadout")
+	    << "Associating "
+	    << eDepLocs.size()
+	    << " energy deposits to digit for channel "
+	    << channel;
       
-      digCol.emplace_back(fROSimAlg->CreateRawDigit(channel, electrons));
-      
-      LOG_DEBUG("IonizationReadout")
-      << "Associating "
-      << eDepLocs.size()
-      << " energy deposits to digit for channel "
-      << channel;
-      
-      // loop over the locations in the eDepCol to make the associations
-      for(auto ed : eDepLocs){
-        auto const ptr = art::Ptr<sdp::EnergyDeposit>(eDepCol, ed);
+	  // loop over the locations in the eDepCol to make the associations
+	  for(auto ed : eDepLocs){
+	    auto const ptr = art::Ptr<sdp::EnergyDeposit>(eDepCol, ed);
         
-        this->CheckChannelToEnergyDepositMapping(channel,
-                                                 *ptr,
-                                                 "CreateSignalDigit");
+	    this->CheckChannelToEnergyDepositMapping(channel,
+						     *ptr,
+						     "CreateSignalDigit");
         
-        util::CreateAssn(*this, evt, digCol, ptr, erassn);
-      }
-      
+	    util::CreateAssn(*this, evt, digCol, ptr, erassn);
+	  }
+	}
+
       eDepLocs.clear();
       electrons.clear();
       electrons.resize(fNumTicks, 0);

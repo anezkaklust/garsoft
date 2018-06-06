@@ -289,9 +289,6 @@ namespace gar {
                                                      bool   cmPerns) const
     {
       
-      // Drift Velocity as a function of Electric Field and Temperature
-      // from : W. Walkowiak, NIM A 449 (2000) 288-294
-      //
       // Efield should have units of kV/cm
       // Temperature should have units of Kelvin
       
@@ -373,7 +370,9 @@ namespace gar {
 //      
 //      vd /= 10.;
 
-      double vd = 0.1; // cm/us
+// approximate value from J. C. Bowe, Phys. Rev. 117, 1411 (1960).
+
+      double vd = 0.2; // cm/us
       
       if(cmPerns) return vd * 1.e-3; // cm/ns
       

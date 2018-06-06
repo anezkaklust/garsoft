@@ -46,7 +46,7 @@ namespace raw{
 		  gar::raw::ADC_t              pedestal,
                   gar::raw::Compress_t         compress);
 
-  void Compress(gar::raw::ADCvector_t        &adc, 
+  int Compress(gar::raw::ADCvector_t        &adc, 
                 gar::raw::Compress_t         compress,
 		gar::raw::ADC_t              zerothreshold,
 		size_t                       ticksbefore,
@@ -69,15 +69,16 @@ namespace raw{
   void Compress(gar::raw::ADCvector_t &adc, 
                 gar::raw::Compress_t     compress);
 
-  void Compress(gar::raw::ADCvector_t   &adc, 
-                gar::raw::Compress_t    compress, 
-                gar::raw::ADC_t         zerothreshold,
-		size_t                  ticksbefore,
-		size_t                  ticksafter);
+  // duplicate of above?
+  //int Compress(gar::raw::ADCvector_t   &adc, 
+  //            gar::raw::Compress_t    compress, 
+  //            gar::raw::ADC_t         zerothreshold,
+  //		size_t                  ticksbefore,
+  //		size_t                  ticksafter);
 
   void CompressHuffman(gar::raw::ADCvector_t &adc);
 
-  void ZeroSuppression(gar::raw::ADCvector_t &adc, 
+  int ZeroSuppression(gar::raw::ADCvector_t &adc, 
                        gar::raw::ADC_t       zerothreshold, 
                        size_t                ticksbefore,
 		       size_t                ticksafter);

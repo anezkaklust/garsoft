@@ -50,7 +50,7 @@ namespace gar {
         
         fhicl::Atom<double> Electronlifetime{
           Name   ("Electronlifetime"),
-          Comment("electron lifetime in liquid argon [us]")
+          Comment("electron lifetime in gaseous argon [us]")
         };
         fhicl::Atom<double> Temperature{
           Name   ("Temperature"),
