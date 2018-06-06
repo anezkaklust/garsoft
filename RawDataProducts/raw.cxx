@@ -231,7 +231,7 @@ namespace gar {
     // if the compression type is kNone, copy the adc vector into the uncompressed vector
     void Uncompress(const gar::raw::ADCvector_t& adc, 
 		    gar::raw::ADCvector_t      &uncompressed, 
-		    int               pedestal,
+		    ADC_t               pedestal,
 		    gar::raw::Compress_t          compress)
     {
       if(compress == raw::kHuffman) UncompressHuffman(adc, uncompressed);
