@@ -73,6 +73,7 @@
 #include "EventDisplay/ColorDrawingOptions.h"
 #include "EventDisplay/RawDrawingOptions.h"
 #include "RawDataProducts/RawDigit.h"
+#include "RawDataProducts/raw.h"
 #include "Geometry/Geometry.h"
 #include "DetectorInfo/GArPropertiesService.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
@@ -116,8 +117,16 @@ namespace gar {
     void RawDataDrawer::FillQHisto(gar::raw::RawDigit const& dig,
                                    TH1F*                     histo)
     {
-      for(size_t t = 0; t < dig.NADC(); ++t)
-        histo->Fill(t, 1. * dig.ADC(t) - 1. * dig.Pedestal());
+
+      gar::raw::ADCvector_t uncompressed;
+      uncompressed.resize(dig.Samples());
+      if (dig.Compression() != gar::raw::kNone)
+	{
+	  short ped = dig.Pedestal();
+	  gar::raw::Uncompress(dig.ADCs(),uncompressed,ped,dig.Compression());
+	}
+      for(size_t t = 0; t < uncompressed.size(); ++t)
+        histo->Fill(t, 1. * uncompressed[t] - 1. * dig.Pedestal());
 
       return;
     }//end loop over raw hits
