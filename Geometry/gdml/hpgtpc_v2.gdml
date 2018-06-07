@@ -268,7 +268,7 @@
     <tube name="TPCReadoutPlaneTube" rmin="0" rmax="264.4" z="1" startphi="0" deltaphi="360" lunit="cm" aunit="deg"/>
     <tube name="ECALEndcapInPVTube" rmin="0" rmax="298" z="30" startphi="0" deltaphi="360" lunit="cm" aunit="deg"/>
     <tube name="ECALInPressureVesselTube" rmin="268" rmax="298" z="520" startphi="0" deltaphi="360" lunit="cm" aunit="deg"/>
-    <tube name="PVCyl" rmin="278.2" rmax="281.2"  startphi="0" deltaphi="360" lunit="cm" aunit="deg"/>
+<!--    <tube name="PVCyl" rmin="278.2" rmax="281.2"  z="520" startphi="0" deltaphi="360" lunit="cm" aunit="deg"/> -->
   </solids>
   <structure>
     <volume name="TPC_Drift">
@@ -287,10 +287,12 @@
        <solidref ref="ECALEndcapInPVTube"/>
        <materialref ref="ECALMIXTURE"/>
     </volume>
+<!--  Add the pressure vessel later
     <volume name="PRESSURE_VESSEL_CYLINDER">
       <solidref ref="PVCyl"/>
       <materialref ref="STEEL_STAINLESS_Fe7Cr2Ni"/>
     </volume>
+-->
     <volume name="volWorld">
       <materialref ref="BODY_Air_____"/>
       <solidref ref="volWorldBox"/>
