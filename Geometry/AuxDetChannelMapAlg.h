@@ -15,7 +15,7 @@
 #include "Geometry/AuxDetGeoObjectSorter.h"
 
 // Framework libraries
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 
 // ROOT libraries
 #include "TVector3.h"

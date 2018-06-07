@@ -16,7 +16,7 @@
 
 // Framework includes
 #include "messagefacility/MessageLogger/MessageLogger.h"
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 
 //-----------------------------------------------
 gar::detinfo::GArPropertiesServiceStandard::GArPropertiesServiceStandard(fhicl::ParameterSet const& pset,

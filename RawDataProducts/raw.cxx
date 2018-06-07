@@ -12,7 +12,7 @@
 #include <numeric> // std::adjacent_difference()
 #include <iterator> // std::back_inserter()
 
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace gar {

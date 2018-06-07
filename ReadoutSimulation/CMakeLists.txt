@@ -56,7 +56,7 @@ art_make(LIB_LIBRARIES nusimdata_SimulationBase
                        art_Utilities
                        canvas
                        ${MF_MESSAGELOGGER}
-                       ${MF_UTILITIES}
+                       
                        ${FHICLCPP}
                        ${CETLIB_EXCEPT}
                        ${ROOT_BASIC_LIB_LIST}
@@ -82,7 +82,7 @@ art_make(LIB_LIBRARIES nusimdata_SimulationBase
                        ${ART_FRAMEWORK_SERVICES_OPTIONAL}
                        ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
                        ${MF_MESSAGELOGGER}
-                       ${MF_UTILITIES}
+                       
                        ${FHICLCPP}
                        ${CETLIB_EXCEPT}
                        ${ROOT_BASIC_LIB_LIST}

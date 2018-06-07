@@ -35,7 +35,7 @@
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "Utilities/AssociationUtil.h"
 
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Principal/Event.h"
 #include "canvas/Persistency/Common/Ptr.h"

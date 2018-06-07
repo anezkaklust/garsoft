@@ -24,7 +24,7 @@
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "canvas/Persistency/Common/FindMany.h"
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 
 #include "nusimdata/SimulationBase/MCParticle.h"
 

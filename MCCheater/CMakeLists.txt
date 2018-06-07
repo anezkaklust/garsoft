@@ -15,7 +15,7 @@ art_make_library( LIBRARY_NAME MCCheater
                                art_Utilities
                                canvas
                                ${MF_MESSAGELOGGER}
-                               ${MF_UTILITIES}
+                               
                                ${FHICLCPP}
                                ${CETLIB_EXCEPT}
                                ${Boost_SYSTEM_LIBRARY}
@@ -37,7 +37,7 @@ simple_plugin(BackTracker "service"
 			        art_Utilities
               canvas
 			        ${MF_MESSAGELOGGER}
-			        ${MF_UTILITIES}
+			        
 			        ${FHICLCPP}
 			        ${CETLIB_EXCEPT}
 			        ${ROOT_BASIC_LIB_LIST}
@@ -62,7 +62,7 @@ simple_plugin(HitCheater "module"
               art_Utilities
               canvas
               ${MF_MESSAGELOGGER}
-              ${MF_UTILITIES}
+              
               ${FHICLCPP}
               ${CETLIB_EXCEPT}
               ${ROOT_BASIC_LIB_LIST}
@@ -79,7 +79,7 @@ simple_plugin(TrackCheater "module"
               art_Utilities
               canvas
               ${MF_MESSAGELOGGER}
-              ${MF_UTILITIES}
+              
               ${FHICLCPP}
               ${CETLIB_EXCEPT}
               ${ROOT_BASIC_LIB_LIST}
@@ -96,7 +96,7 @@ simple_plugin(ShowerCheater "module"
               art_Utilities
               canvas
               ${MF_MESSAGELOGGER}
-              ${MF_UTILITIES}
+              
               ${FHICLCPP}
               ${CETLIB_EXCEPT}
               ${ROOT_BASIC_LIB_LIST}

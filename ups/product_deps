@@ -21,13 +21,13 @@ gdmldir product_dir
 fwdir   product_dir G4
 
 product         version
-art             v2_10_03
-nutools         v2_19_00
-nusimdata       v1_11_00
-genie_xsec     	v2_12_8
-genie_phyopt    v2_12_8
+art             v2_11_02
+nutools         v2_23_02
+nusimdata       v1_13_02
+genie_xsec     	v2_12_10
+genie_phyopt    v2_12_10
 
-cetbuildtools	v7_00_03	-	only_for_build
+cetbuildtools	v7_03_03	-	only_for_build
 end_product_list
 
 # define allowed qualifiers and the corresponding qualifiers for the depdencies.

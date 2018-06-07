@@ -72,7 +72,7 @@ art_make( MODULE_LIBRARIES SimulationDataProducts
                            art_Utilities
                            canvas
                            ${MF_MESSAGELOGGER}
-                           ${MF_UTILITIES}
+                           
                            ${FHICLCPP}
                            ${CETLIB}
                            ${CETLIB_EXCEPT}

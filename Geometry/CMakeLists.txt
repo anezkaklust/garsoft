@@ -1,6 +1,6 @@
 
 art_make(LIB_LIBRARIES      ${MF_MESSAGELOGGER}
-                            ${MF_UTILITIES}
+                            
                             ${FHICLCPP}
                             ${CETLIB}
                             ${CETLIB_EXCEPT}
@@ -20,7 +20,7 @@ art_make(LIB_LIBRARIES      ${MF_MESSAGELOGGER}
                             canvas
                             ${ART_FRAMEWORK_SERVICES_REGISTRY}
                             ${MF_MESSAGELOGGER}
-                            ${MF_UTILITIES}
+                            
                             ${FHICLCPP}
                             ${CETLIB}
                             ${CETLIB_EXCEPT}

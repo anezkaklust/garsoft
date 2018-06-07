@@ -54,7 +54,7 @@ art_make(LIB_LIBRARIES      nutools_ParticleNavigation
                             art_Utilities
                             canvas
                             ${MF_MESSAGELOGGER}
-                            ${MF_UTILITIES}
+                            
                             ${FHICLCPP}
                             ${CETLIB}
                             ${CETLIB_EXCEPT}
@@ -88,7 +88,7 @@ art_make(LIB_LIBRARIES      nutools_ParticleNavigation
                             ${ART_FRAMEWORK_SERVICES_OPTIONAL}
                             ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
                             ${MF_MESSAGELOGGER}
-                            ${MF_UTILITIES}
+                            
                             ${FHICLCPP}
                             ${CETLIB}
                             ${CETLIB_EXCEPT}

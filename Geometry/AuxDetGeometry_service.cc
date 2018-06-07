@@ -12,7 +12,7 @@
 #include "SummaryDataProducts/RunData.h"
 
 // Framework includes
-#include "cetlib/exception.h"
+#include "cetlib_except/exception.h"
 #include "cetlib/search_path.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

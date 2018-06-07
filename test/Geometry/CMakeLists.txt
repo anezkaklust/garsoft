@@ -7,7 +7,7 @@ art_make_library( LIBRARY_NAME GeometryTestLib
                             TestUtils
                             art_Utilities canvas
                             ${MF_MESSAGELOGGER}
-                            ${MF_UTILITIES}
+                            
                             ${FHICLCPP}
                             ${CETLIB_EXCEPT}
                             ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
@@ -24,7 +24,7 @@ cet_test(geometry_test
          LIBRARIES Geometry
                    GeometryTestLib
                    ${MF_MESSAGELOGGER}
-                   ${MF_UTILITIES}
+                   
                    ${FHICLCPP}
                    ${CETLIB_EXCEPT}
          USE_BOOST_UNIT

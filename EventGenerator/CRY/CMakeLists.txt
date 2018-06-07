@@ -18,7 +18,7 @@ art_make(MODULE_LIBRARIES Geometry
                           art_Utilities
                           canvas
                           ${MF_MESSAGELOGGER}
-                          ${MF_UTILITIES}
+                          
                           ${FHICLCPP}
                           ${CETLIB}
                           ${CETLIB_EXCEPT}
