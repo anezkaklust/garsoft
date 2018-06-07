@@ -10,6 +10,9 @@
     <position name="ECALEnd2pos" x="-277" y="0" z="0" unit="cm"/>
   </define>
   <materials>
+    <element name="HYDROGEN_elm" formula="H" Z="1">
+      <atom unit="g/mole" value="1.00794"/>
+    </element>
     <element name="CARBON_elm" formula="C" Z="6">
       <atom unit="g/mole" value="12.0107"/>
     </element>
