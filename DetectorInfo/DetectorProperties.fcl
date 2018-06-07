@@ -9,7 +9,7 @@ standard_detproperties:
  Efield:                [0.5,0.5,0.5 ]  # kV/cm -- three wire planes in larsoft -- fix for ALICE anode
  Electronlifetime:      3e6             # microseconds
 # ElectronsToADC:        1.208041e-1    # in ADC/e; 6241.5 electrons = 1fC = 754 ADC counts
- ElectronsToADC:        10              # account for gas gain
+ ElectronsToADC:        5              # account for gas gain
  NumberTimeSamples:     18048            # ticks of the clock per readout frame
 
  SternheimerA:         0.1956  # Ar Sternheimer parameter a.
