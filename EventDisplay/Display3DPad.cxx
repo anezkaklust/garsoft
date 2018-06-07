@@ -72,17 +72,18 @@ namespace evd{
       this->SimulationDraw()->MCTruth3D(*evt, fView);
       this->RecoBaseDraw()  ->Track3D  (*evt, fView);
       this->RecoBaseDraw()  ->Hit3D    (*evt, fView);
+      this->RawDataDraw()   ->RawDigit3D(*evt, fView);
     }
     
     this->Pad()->Clear();
     this->Pad()->cd();
     if (fPad->GetView()==0) {
       int irep;
-      double rmin[]={-2.1*geo->DetHalfWidth(),-2.1*geo->DetHalfHeight(),-0.5*geo->DetLength()};
-      double rmax[]={ 2.1*geo->DetHalfWidth(), 2.1*geo->DetHalfHeight(), 2.1*geo->DetLength()};
+      double rmin[]={-1.5*geo->DetHalfWidth(),-1.5*geo->DetHalfHeight(),-1.5*geo->DetLength()};
+      double rmax[]={ 1.5*geo->DetHalfWidth(), 1.5*geo->DetHalfHeight(), 1.5*geo->DetLength()};
       TView3D* v = new TView3D(1,rmin,rmax);
       v->SetPerspective();
-      v->SetView(0.0,260.0,270.0,irep);
+      v->SetView(0.0,0.0,270.0,irep);
       fPad->SetView(v); // ROOT takes ownership of object *v
     }
     fView->Draw();

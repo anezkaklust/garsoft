@@ -77,7 +77,7 @@
 #include "Geometry/Geometry.h"
 #include "DetectorInfo/GArPropertiesService.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
-
+#include "DetectorInfo/DetectorClocksService.h"
 
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/Exception.h"
@@ -87,6 +87,13 @@
 #include "canvas/Persistency/Common/Ptr.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "cetlib_except/demangle.h"
+
+#include "TPolyLine.h"
+#include "TPolyLine3D.h"
+#include "TLine.h"
+#include "TBox.h"
+#include "TText.h"
+#include "TMath.h"
 
 namespace {
     // Utility function to make uniform error messages.
@@ -106,6 +113,8 @@ namespace gar {
     //......................................................................
     RawDataDrawer::RawDataDrawer()
     {
+      fEventTQHist = (TH1F*) new TH1F("eventTQHist","ADC Sum vs Time, All Channels;time (ticks);ADC Sum",100,0,10000);
+      fDigitTQHist = (TH1F*) new TH1F("digitTQHist","ADC Sum vs Time, One Channel;time (ticks);ADC Sum",100,0,10000);
     }
     
     //......................................................................
@@ -120,11 +129,8 @@ namespace gar {
 
       gar::raw::ADCvector_t uncompressed;
       uncompressed.resize(dig.Samples());
-      if (dig.Compression() != gar::raw::kNone)
-	{
-	  short ped = dig.Pedestal();
-	  gar::raw::Uncompress(dig.ADCs(),uncompressed,ped,dig.Compression());
-	}
+      short ped = dig.Pedestal();
+      gar::raw::Uncompress(dig.ADCs(),uncompressed,ped,dig.Compression());
       for(size_t t = 0; t < uncompressed.size(); ++t)
         histo->Fill(t, 1. * uncompressed[t] - 1. * dig.Pedestal());
 
@@ -141,6 +147,11 @@ namespace gar {
       art::ServiceHandle<evd::RawDrawingOptions>   rawopt;
       art::ServiceHandle<evd::ColorDrawingOptions> cdopt;
       art::ServiceHandle<geo::Geometry>            geom;
+      auto fTime = gar::providerFrom<detinfo::DetectorClocksService>();
+      auto detProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
+
+      double driftVelocity = detProp->DriftVelocity(detProp->Efield(),
+                                                      detProp->Temperature());
       
       if(rawopt->fDrawRawOrReco > 0) return;
       
@@ -150,8 +161,9 @@ namespace gar {
       fEventTQHist->Reset();
       fDigitTQHist->Reset();
       
-      auto const& colorSet = cdopt->RawQ();
+      //auto const& colorSet = cdopt->RawQ();
       
+      gar::raw::ADCvector_t uncompressed;
       for(auto dig : rawhits){
 
         this->FillQHisto(*dig, fEventTQHist);
@@ -165,24 +177,67 @@ namespace gar {
         geom->ChannelToPosition((unsigned int)dig->Channel(),
                                 xyz);
         
+	//std::cout << "RDGeo: " << dig->Channel() << " " << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
+	double chanposx = xyz[0];
+
+	  int c = kGreen;
+	  int s=1;
+	  int w=1;
+
+	  TPolyLine3D& rdpos = view->AddPolyLine3D(2,c,w,s);
+	  rdpos.SetPoint(0,xyz[0],xyz[1],xyz[2]);
+	  rdpos.SetPoint(1,xyz[0]+1,xyz[1],xyz[2]);
+	  // std::cout << "adding a raw digit: " << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
+
         // loop over the ADC values for this digit and draw the value if it
         // is above the threshold
-        TMarker3DBox *box = nullptr;
-        for(size_t t = 0; t < dig->NADC(); ++t){
-          if(dig->ADC(t) < rawopt->fMinSignal) continue;
+        //TMarker3DBox *box = nullptr;
+
+        uncompressed.resize(dig->Samples());
+	short ped = dig->Pedestal();
+	gar::raw::Uncompress(dig->ADCs(),uncompressed,ped,dig->Compression());
+
+        for(size_t t = 0; t < dig->Samples(); ++t){
+          //if(uncompressed[t] < rawopt->fMinSignal) continue;
+          if(uncompressed[t] == 0) continue;
+
+	  double driftdistance = fTime->TPCTick2Time(t) * driftVelocity;
+	  
+	  if (chanposx < 0)
+	    {
+	      xyz[0] = chanposx + driftdistance;
+	    }
+	  else
+	    {
+	      xyz[0] = chanposx - driftdistance;
+	    }
+
+          //box = &(view->AddMarker3DBox(xyz[0],
+	  //                            xyz[1],
+	  //                            xyz[2],
+	  //                            0.5,    // the extent is 1/2 tick
+	  //			       0.5 * 0.3, // to fix  geom->ChannelPitch(),
+	  //                         0.5 * 0.3  // to fix geom->ChannelPitch()
+	  //			       ));
           
-          xyz[0] = 1. * t;
-          box = &(view->AddMarker3DBox(xyz[0],
-                                          xyz[1],
-                                          xyz[2],
-                                          0.5,    // the extent is 1/2 tick
-				       0.5 * 0.3, // to fix  geom->ChannelPitch(),
-                                       0.5 * 0.3  // to fix geom->ChannelPitch()
-				       ));
-          
-          box->SetFillStyle(1001);
-          box->SetFillColor(colorSet.GetColor(dig->ADC(t)));
-          box->SetBit(kCannotPick);
+          //box->SetFillStyle(1001);
+	  ////auto tmpcolor = colorSet.GetColor(uncompressed[t]);
+          //box->SetFillColor(kGreen);
+          //box->SetBit(kCannotPick);
+
+	  //std::cout << "adding a raw digit: " << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
+
+	  // try drawing with polylines, little red segments
+
+
+	  int c2 = kGreen;
+	  int s2=1;
+	  int w2=1;
+
+	  TPolyLine3D& rdpos = view->AddPolyLine3D(2,c2,w2,s2);
+	  rdpos.SetPoint(0,xyz[0],xyz[1],xyz[2]);
+	  rdpos.SetPoint(1,xyz[0]+1,xyz[1],xyz[2]);
+
         } // end loop over ADC values for the digit
       }//end loop over raw digits
       
