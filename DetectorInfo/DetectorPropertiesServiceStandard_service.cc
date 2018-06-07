@@ -190,7 +190,6 @@ namespace gar {
       result = result && ps.get_if_present("TriggerOffset", i);
       result = result && ps.get_if_present("SamplingRate", d);
       result = result && ps.get_if_present("NumberTimeSamples", u);
-      result = result && ps.get_if_present("ReadOutWindowSize", u);
       
       return result;
 #endif // 0

@@ -122,7 +122,6 @@ namespace gar {
       fTemperature                = config.Temperature();
       fElectronsToADC             = config.ElectronsToADC();
       fNumberTimeSamples          = config.NumberTimeSamples();
-      fReadOutWindowSize          = config.ReadOutWindowSize();
       
       fSternheimerParameters.a    = config.SternheimerA();
       fSternheimerParameters.k    = config.SternheimerK();

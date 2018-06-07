@@ -108,7 +108,6 @@ namespace gar {
       virtual double       SamplingRate()                  const = 0;
       virtual double       ElectronsToADC()                const = 0;
       virtual unsigned int NumberTimeSamples()             const = 0;
-      virtual unsigned int ReadOutWindowSize()             const = 0;
       virtual int          TriggerOffset()                 const = 0;
       
       virtual double       ConvertXToTicks(double X)       const = 0;

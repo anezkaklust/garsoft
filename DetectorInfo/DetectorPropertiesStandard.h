@@ -62,11 +62,7 @@ namespace gar {
         };
         fhicl::Atom<unsigned int> NumberTimeSamples{
           Name   ("NumberTimeSamples"),
-          Comment("number of TPC readout TDC clock ticks per event")
-        };
-        fhicl::Atom<unsigned int> ReadOutWindowSize{
-          Name   ("ReadOutWindowSize"),
-          Comment("number of TPC readout TDC clock ticks per readout window")
+          Comment("number of TPC readout TDC clock ticks per event (= readout window)")
         };
         
         fhicl::Atom<double> SternheimerA{
@@ -224,7 +220,6 @@ namespace gar {
       virtual double       SamplingRate()      const override { return fTPCClock.TickPeriod() * 1.e3; }
       virtual double       ElectronsToADC()    const override { return fElectronsToADC; }
       virtual unsigned int NumberTimeSamples() const override { return fNumberTimeSamples; }
-      virtual unsigned int ReadOutWindowSize() const override { return fReadOutWindowSize; }
       virtual int          TriggerOffset()     const override;
       
       virtual double       ConvertXToTicks(double X)     const override;
@@ -265,8 +260,7 @@ namespace gar {
       double                         fTemperature;           ///< kelvin
       double                         fSamplingRate;          ///< in ns
       double 	                       fElectronsToADC;        ///< conversion factor for # of ionization electrons to 1 ADC count
-      unsigned int                   fNumberTimeSamples;     ///< number of clock ticks per event
-      unsigned int                   fReadOutWindowSize;     ///< number of clock ticks per readout window
+      unsigned int                   fNumberTimeSamples;     ///< number of clock ticks per event (= readout window)
       
       SternheimerParameters_t        fSternheimerParameters; ///< Sternheimer parameters
       

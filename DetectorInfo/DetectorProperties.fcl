@@ -10,8 +10,7 @@ standard_detproperties:
  Electronlifetime:      3e6             # microseconds
 # ElectronsToADC:        1.208041e-1    # in ADC/e; 6241.5 electrons = 1fC = 754 ADC counts
  ElectronsToADC:        20              # account for gas gain
- NumberTimeSamples:     2048            # ticks of the clock per readout frame
- ReadOutWindowSize:     2048
+ NumberTimeSamples:     18048            # ticks of the clock per readout frame
 
  SternheimerA:         0.1956  # Ar Sternheimer parameter a.
  SternheimerK:         3.0000  # Ar Sternheimer parameter k.
