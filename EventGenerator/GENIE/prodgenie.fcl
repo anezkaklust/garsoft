@@ -29,6 +29,7 @@ services:
  NuRandomService:        @local::standard_NuRandomService
  MagneticField:          @local::standard_mag_garsoft
 #RunHistory:             @local::standard_runhistory
+ IFDH:                  {}
 }
 
 #Start each new event with an empty event.
