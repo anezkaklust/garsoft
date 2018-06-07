@@ -65,7 +65,7 @@ namespace gar {
       // The geometry has x = 0 at the cathode plane. Compute the drift time appropriately
       // TODO -- get the maximum drift distance from the geometry service
 
-      float driftT       = std::abs(std::abs(xyz[0])-249.7) * fInverseVelocity;
+      float driftT       = std::abs(std::abs(xyz[0]) - fGeo->DetLength()/2.0) * fInverseVelocity;
       float sqrtDriftT   = std::sqrt(driftT);
       float lifetimeCorr = std::exp(driftT / fLifetimeCorrection);
       
@@ -98,21 +98,21 @@ namespace gar {
         ZDiff[c] += xyz[2];
 
 	//std::cout << "Drift xyz: " << XDiff[c] << " " << YDiff[c] << " " << ZDiff[c] << " " << TDiff[c] << std::endl;
-        LOG_DEBUG("IonizationReadout")
-        << "g4 time: "
-        << g4time
-        << " drift time "
-        << driftT
-        << " diffusion  x:"
-        << XDiff[c]
-        << " y "
-        << YDiff[c]
-        << " z "
-        << ZDiff[c]
-        << " t "
-        << TDiff[c]
-        << " tick period "
-        << fTime->TPCClock().TickPeriod();
+	// LOG_DEBUG("IonizationReadout")
+        //<< "g4 time: "
+        //<< g4time
+        //<< " drift time "
+        //<< driftT
+        //<< " diffusion  x:"
+        //<< XDiff[c]
+        //<< " y "
+        //<< YDiff[c]
+        //<< " z "
+        //<< ZDiff[c]
+        //<< " t "
+        //<< TDiff[c]
+        //<< " tick period "
+        //<< fTime->TPCClock().TickPeriod();
 
       }
       

@@ -75,7 +75,7 @@ namespace gar {
 	}
 
       todrop = (retblocks == 0);
-      return  raw::RawDigit(channel, adcs.size(), adcs, cflag);
+      return  raw::RawDigit(channel, numTicks, adcs, cflag);
     }
     
     //----------------------------------------------------------------------------
@@ -122,7 +122,8 @@ namespace gar {
 	    cflag = gar::raw::kZeroSuppression;
 	  }
 
-	if (retblocks) digits.emplace_back(c, adcs.size(), adcs, cflag);
+        auto numTicks = fDetProp->NumberTimeSamples();
+	if (retblocks) digits.emplace_back(c, numTicks, adcs, cflag);
 
       } // end make noise digits
       
