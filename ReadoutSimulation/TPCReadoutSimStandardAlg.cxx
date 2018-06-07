@@ -147,13 +147,13 @@ namespace gar {
     //----------------------------------------------------------------------------
     short TPCReadoutSimStandardAlg::ElectronsToADCs(float electrons)
     {
-      LOG_DEBUG("TPCReadoutSimStandard")
-      << "Electrons to ADC: "
-      << fDetProp->ElectronsToADC()
-      << " electrons: "
-      << electrons
-      << " product: "
-      << fDetProp->ElectronsToADC() * electrons;
+      //LOG_DEBUG("TPCReadoutSimStandard")
+      //<< "Electrons to ADC: "
+      //<< fDetProp->ElectronsToADC()
+      //<< " electrons: "
+      //<< electrons
+      //<< " product: "
+      //<< fDetProp->ElectronsToADC() * electrons;
       
       return (short)(fDetProp->ElectronsToADC() * electrons);
     }
