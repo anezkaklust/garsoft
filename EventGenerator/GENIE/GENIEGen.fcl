@@ -36,7 +36,7 @@ standard_genie_atmo_flux.AtmoEmin:   0.01                  # minimum neutrino en
 standard_genie_atmo_flux.AtmoEmax:   100.                  # maximum neutrino energy, in GeV
 standard_genie_atmo_flux.Rl:         20.                   # radius of sphere on which to generate neutrinos
 standard_genie_atmo_flux.Rt:         20.                   # radius of transverse area on sphere
-standard_genie_atmo_flux.TopVolume:  "volTPCActive"
+standard_genie_atmo_flux.TopVolume:  "TPC_Drift"
 standard_genie_atmo_flux.GenFlavors: [12, 14, -12, -14] 
 standard_genie_atmo_flux.GeomScan:   "flux: 10000 1.1"
 
