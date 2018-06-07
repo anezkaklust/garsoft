@@ -8,6 +8,7 @@ standard_tpcreadoutsimalg:
  ZSThreshold:       5   # ADC counts
  ZSTicksBefore:     5   # ticks to retain before an upcrossing of threshold
  ZSTicksAfter:      5   # ticks to retain after an upcrossing of threshold
+ ADCSaturation:     4095  # limit of a 12-bit ADC
 }
 
 

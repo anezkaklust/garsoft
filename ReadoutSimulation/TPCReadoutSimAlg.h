@@ -126,6 +126,7 @@ namespace gar {
       unsigned int                       fZSTicksAfter; ///< for ZS Compression, # samples after
       int                                fPedestal;     ///< Raw Digit Pedestal
       const detinfo::DetectorProperties* fDetProp;  ///< detector properties
+      int                                fADCSaturation; ///< limit of the ADC
       
       // AddNoiseToADCs is foradding noise to recorded signal.  Assume that the
       // noise level is dependent on the amount of signal recorded

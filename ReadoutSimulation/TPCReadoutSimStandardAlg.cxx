@@ -87,6 +87,7 @@ namespace gar {
       fZSTicksBefore = pset.get<unsigned int>("ZSTicksBefore",5);
       fZSTicksAfter = pset.get<unsigned int>("ZSTicksAfter",5);
       fPedestal = pset.get<int>("Pedestal",0);
+      fADCSaturation = pset.get<int>("ADCSaturation",4095); // default to 12-bit ADC's
       return;
     }
     
@@ -133,12 +134,9 @@ namespace gar {
     void TPCReadoutSimStandardAlg::AddNoiseToADCs(std::vector<short> & adcs)
     {
       for(auto adc : adcs){
-        
-        // TODO: figure out how to add noise
-        // It is assumed that the amount of noise added to
-        // a given ADC value depends on the ADC value
+          // TODO: figure out how to add noise
         adc += 0;
-        
+	if (adc>fADCSaturation) adc = fADCSaturation;
       }
       
       return;
@@ -155,7 +153,9 @@ namespace gar {
       //<< " product: "
       //<< fDetProp->ElectronsToADC() * electrons;
       
-      return (short)(fDetProp->ElectronsToADC() * electrons);
+      int tmpadc = (int) (fDetProp->ElectronsToADC() * electrons);
+      if (tmpadc > fADCSaturation) tmpadc = fADCSaturation;
+      return (short)(tmpadc);
     }
     
   } // rosim
