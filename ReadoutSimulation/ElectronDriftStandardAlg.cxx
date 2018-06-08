@@ -63,7 +63,6 @@ namespace gar {
       //std::cout << "energy deposition: " << dep.X() << " " << dep.Y() << " " << dep.Z() << std::endl;
 
       // The geometry has x = 0 at the cathode plane. Compute the drift time appropriately
-      // TODO -- get the maximum drift distance from the geometry service
 
       float driftT       = std::abs(std::abs(xyz[0]) - fGeo->DetLength()/2.0) * fInverseVelocity;
       float sqrtDriftT   = std::sqrt(driftT);

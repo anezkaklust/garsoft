@@ -15,8 +15,10 @@ standard_genie:
  BeamDirection:      [0., 0., 1.]          # all in the z direction
  BeamRadius:         3.                    # in meters for GENIE
  SurroundingMass:    0.0                   # mass surrounding the detector to use
- GlobalTimeOffset:   10000.                # in ns - 10000 means the spill appears 10 us into the readout window
- RandomTimeOffset:   10000.                # length of spill in ns
+# GlobalTimeOffset:   10000.                # in ns - 10000 means the spill appears 10 us into the readout window
+# RandomTimeOffset:   10000.                # length of spill in ns
+ GlobalTimeOffset:   0.                    # in ns - 10000 means the spill appears 10 us into the readout window
+ RandomTimeOffset:   0.                    # length of spill in ns
  FiducialCut:        "none"                # fiducial cut, see https://cdcvs.fnal.gov/redmine/projects/nusoft/wiki/GENIEHelper
  GenFlavors:         [12,14,-12,-14]       # pdg codes of flux generator neutrino flavors
  Environment:        ["GPRODMODE", "YES"]  # deprecated

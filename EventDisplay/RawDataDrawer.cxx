@@ -1,55 +1,10 @@
 /**
  * @file    RawDataDrawer.cxx
  * @brief   Class to aid in the rendering of RawData objects
- * @author  messier@indiana.edu
+ * @author  trj@fnal.gov
  * 
- * This class prepares the rendering of the raw digits content for the 2D view
- * of the display. In particular, it fills the 2D view of detected charge
- * vs. time and wire number for a single TPC.
- * The code is not ready to support an arbitrary TPC from the detector;
- * it can be fixed to support that, but a good deal of the calling code also
- * has to change.
- * 
- * Notes from Gianluca Petrillo (petrillo@fnal.gov) on August 19, 2015
- * --------------------------------------------------------------------
- * 
- * As of August 2015, this class performs some preprocessing for the data to
- * be displayed.
- * The main argument here is that the display assigns to each plane a space
- * of 600x250 pixels, while the amound of data is typically 500x5000 elements.
- * These numbers vary wildly: while the first number is close to the current
- * default size for a new window, that window can be resized and windows many
- * times larger can be obtained; for the data content, a MicroBooNE plane
- * contains 2400x9600 elements (that's roughly 25 millions, and there is three
- * of them), each of the two LArIAT planes contains 240x3200 (less than 1
- * million), and a single TPC of DUNE's 35t prototype about 350x4800 (but it
- * is larger when extended readout window modes are used).
- * The code produces TBox'es to be rendered by the nutools event display
- * infrastructure. The code before August 2015 would produce one box for each
- * of the aggregated charge; charge could be aggregated in time by FHiCL
- * configuration to merge TDC ticks. This typically bloats rendering time,
- * since rendering of all boxes is attempted.
- * The new code performs dynamic aggregation after discovering the actual size
- * of the graphical viewport, and it submits at most one TBox per pixel.
- * Additional improvement is caching of the uncompressed raw data, so that
- * following zooming is faster, and especially a way to bypass the decompression
- * when the original data is not compressed in the first place, that saves
- * a bit of time and quite some memory.
- * 
- * @todo There are probably a number of glitches and shortcuts in the current
- * preprocessing implementation. If they become a problem, they can probably be
- * fixed on demand. Examples include:
- * - no alignment of the boxes with the wire and tick numbers
- * - possible border effects
- * - the fact that only the maximum charge is displayed on each box , and no
- *   dynamic charge range detection is in place
- * - the first drawing is performed with a grid that is not the final one
- *   (because for some reason the frame starts larger than it should and is
- *   resized later)
- * - the drawing honours the zoom region the user selected, even if the viewport
- *   ends up being larger (that is, if upstream decides that the zoom region is
- *   too small and a larger area will be drawn, the additional area will be
- *   blank)
+ * This class prepares the rendering of the raw digits content for the 3D view
+ * of the display. 
  */
 #include <cmath>       // std::abs(), ...
 #include <utility>     // std::pair<>, std::move()
@@ -180,7 +135,7 @@ namespace gar {
 	//std::cout << "RDGeo: " << dig->Channel() << " " << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
 	double chanposx = xyz[0];
 
-	  int c = kGreen;
+	  int c = kGray;
 	  int s=1;
 	  int w=1;
 
@@ -198,8 +153,7 @@ namespace gar {
 	gar::raw::Uncompress(dig->ADCs(),uncompressed,ped,dig->Compression());
 
         for(size_t t = 0; t < dig->Samples(); ++t){
-          //if(uncompressed[t] < rawopt->fMinSignal) continue;
-          if(uncompressed[t] == 0) continue;
+          if(uncompressed[t] < rawopt->fMinSignal) continue;
 
 	  double driftdistance = fTime->TPCTick2Time(t) * driftVelocity;
 	  
@@ -212,14 +166,14 @@ namespace gar {
 	      xyz[0] = chanposx - driftdistance;
 	    }
 
+	  // somehow these boxes don't work -- draw short lines instead
           //box = &(view->AddMarker3DBox(xyz[0],
 	  //                            xyz[1],
 	  //                            xyz[2],
 	  //                            0.5,    // the extent is 1/2 tick
 	  //			       0.5 * 0.3, // to fix  geom->ChannelPitch(),
 	  //                         0.5 * 0.3  // to fix geom->ChannelPitch()
-	  //			       ));
-          
+	  //			       ));          
           //box->SetFillStyle(1001);
 	  ////auto tmpcolor = colorSet.GetColor(uncompressed[t]);
           //box->SetFillColor(kGreen);
@@ -235,8 +189,8 @@ namespace gar {
 	  int w2=1;
 
 	  TPolyLine3D& rdpos = view->AddPolyLine3D(2,c2,w2,s2);
-	  rdpos.SetPoint(0,xyz[0],xyz[1],xyz[2]);
-	  rdpos.SetPoint(1,xyz[0]+1,xyz[1],xyz[2]);
+	  rdpos.SetPoint(0,xyz[0]-0.5,xyz[1],xyz[2]);
+	  rdpos.SetPoint(1,xyz[0]+0.5,xyz[1],xyz[2]);
 
         } // end loop over ADC values for the digit
       }//end loop over raw digits

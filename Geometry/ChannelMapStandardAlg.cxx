@@ -53,7 +53,7 @@ namespace gar {
       fSectorGap = 0.3;
 
       fCenterPadWidth = 0.6;
-      fXPlaneLoc = 259.6;
+      fXPlaneLoc = 264.4;
 
       float TsectorH = TMath::Tan(TMath::DegToRad()*(360/(fNumSectors*2)));
 
