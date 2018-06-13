@@ -35,6 +35,7 @@
 #include "Utilities/AssociationUtil.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "RawDataProducts/RawDigit.h"
+#include "RawDataProducts/raw.h"
 #include "ReconstructionDataProducts/Hit.h"
 #include "Geometry/Geometry.h"
 #include "CoreUtils/ServiceUtil.h"
@@ -235,15 +236,22 @@ namespace gar {
       << " tdcEDeps for channel "
       << rawDigit.Channel();
 
+      // uncompress Raw Digits as needed, since samples are in ticks
+
+      gar::raw::ADCvector_t uncompressed;
+      uncompressed.resize(rawDigit.Samples());
+      short ped = rawDigit.Pedestal();
+      gar::raw::Uncompress(rawDigit.ADCs(),uncompressed,ped,rawDigit.Compression());
+
       for(size_t tdc = 0; tdc < rawDigit.Samples(); ++tdc){
 
-        if(rawDigit.ADC(tdc) != 0){
+        if(uncompressed[tdc] != 0){
           ++nonZeroCtr;
           LOG_DEBUG("HitCheater")
           << "RawDigit on channel "
           << rawDigit.Channel()
           << " has nonzero signal "
-          << rawDigit.ADC(tdc)
+          << uncompressed[tdc]
           << " at "
           << tdc;
         }
@@ -355,7 +363,7 @@ namespace gar {
             // only add signal from tdcs which have not already been used for
             // this track id
             if(usedTDCs.count(tdc) < 1){
-	      float cursig =  1. * rawDigit.ADC(tdc) * itr.second / totalTDCEDep[curTDC];
+	      float cursig =  1. * uncompressed[tdc] * itr.second / totalTDCEDep[curTDC];
 	      hitSig += cursig;
               usedTDCs.insert(tdc);
 	      hitTime += hitSig*tdc;
@@ -367,7 +375,7 @@ namespace gar {
               << " hitSig: "
               << hitSig
               << " "
-              << rawDigit.ADC(tdc)
+              << uncompressed[tdc]
               << " "
               << itr.second / totalTDCEDep[curTDC];
             }
