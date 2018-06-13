@@ -6,6 +6,7 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "ReconstructionDataProducts/Hit.h"
+#include "TMath.h"
 
 namespace gar {
   namespace rec {
@@ -21,11 +22,15 @@ namespace gar {
              float        sig,
              float       *pos,
              float        startT,
-             float        endT)
+             float        endT,
+	     float        Time,
+	     float        RMS)
     : fChannel  (chan  )
     , fSignal   (sig   )
+    , fTime     (Time  )
     , fStartTime(startT)
     , fEndTime  (endT  )
+    , fRMS      (RMS   )
     {
       
       fPosition[0] = pos[0];
@@ -54,16 +59,28 @@ namespace gar {
       
       if(totSig == 0.){
         LOG_WARNING("Hit")
-        << "attempting to add two hits with no signal between them, bail";
+        << "attempting to add two hits and neithr has any signal, bail.";
         return;
       }
  
       for(size_t i = 0; i < 3; ++i)
         fPosition[i] = (fPosition[i] * fSignal + h.Position()[i] * h.Signal()) / totSig;
+
+      // don't do a weighted average but just make a wider hit
       
-      fStartTime = (fStartTime * fSignal + h.StartTime() * h.Signal()) / totSig;
-      fEndTime   = (fEndTime   * fSignal + h.EndTime()   * h.Signal()) / totSig;
+      //fStartTime = (fStartTime * fSignal + h.StartTime() * h.Signal()) / totSig;
+      //fEndTime   = (fEndTime   * fSignal + h.EndTime()   * h.Signal()) / totSig;
       
+      fStartTime = TMath::Min(fStartTime,h.StartTime());
+      fEndTime   = TMath::Max(fEndTime,h.EndTime());
+
+      float avgtime = (fTime * fSignal + h.Time() * h.Signal()) / totSig;
+
+      fRMS = TMath::Sqrt(  (fSignal*(TMath::Sq(fTime-avgtime)+TMath::Sq(fRMS))
+			    + h.Signal()*(TMath::Sq(h.Time()-avgtime)+TMath::Sq(h.RMS())))/totSig );
+                          
+      fTime      = avgtime;
+
       fSignal += h.Signal();
       
       return;

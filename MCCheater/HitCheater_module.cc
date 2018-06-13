@@ -39,6 +39,10 @@
 #include "Geometry/Geometry.h"
 #include "CoreUtils/ServiceUtil.h"
 
+// ROOT Includes
+
+#include "TMath.h"
+
 // Forward declarations
 
 namespace gar {
@@ -300,6 +304,8 @@ namespace gar {
       unsigned int begTDC = 0;
       unsigned int endTDC = 0;
       float        hitSig = 0.;
+      float        hitTime = 0.;
+      float        hitSumSq = 0;
 
       for(auto trkIdItr : trackIDToTDCEDeps){
         
@@ -340,14 +346,21 @@ namespace gar {
           // check with ADC values from the raw digit are close enough in
           // time to assign to the current true energy deposit and make hits out
           // of those.  Make sure to not double count
+
           hitSig = 0.;
+	  hitTime = 0;
+	  hitSumSq = 0;
+
           for(size_t tdc = begTDC; tdc < endTDC + 1; ++tdc){
             // only add signal from tdcs which have not already been used for
             // this track id
             if(usedTDCs.count(tdc) < 1){
-              hitSig += 1. * rawDigit.ADC(tdc) * itr.second / totalTDCEDep[curTDC];
+	      float cursig =  1. * rawDigit.ADC(tdc) * itr.second / totalTDCEDep[curTDC];
+	      hitSig += cursig;
               usedTDCs.insert(tdc);
-              
+	      hitTime += hitSig*tdc;
+              hitSumSq = hitSig*tdc*tdc;
+
               LOG_DEBUG("HitCheater")
               << " tdc: "
               << tdc
@@ -357,17 +370,30 @@ namespace gar {
               << rawDigit.ADC(tdc)
               << " "
               << itr.second / totalTDCEDep[curTDC];
-              
             }
           }
-          
+
+	  float hitRMS = 0;
+	  if (hitSig>0)
+	    {
+	      hitTime = hitTime/hitSig;
+	      hitRMS = TMath::Sqrt( TMath::Max( (float) 0.0,hitSumSq/hitSig - hitTime*hitTime) );
+	    }
+	  else
+	    {
+	      hitTime = 0.5*(begTDC+endTDC);
+	      hitRMS = 0;
+	    }
+
           // the second arugment is the signal from the current TrackID
           // in this TDC
           trkIDHits.emplace_back(channel,
                                  hitSig,
                                  pos,
                                  begTDC,
-                                 endTDC);
+                                 endTDC,
+				 hitTime,
+				 hitRMS);
           
         } // end loop over TDC to energy deposit map
         

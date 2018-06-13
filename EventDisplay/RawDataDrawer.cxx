@@ -135,14 +135,14 @@ namespace gar {
 	//std::cout << "RDGeo: " << dig->Channel() << " " << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
 	double chanposx = xyz[0];
 
-	  int c = kGray;
-	  int s=1;
-	  int w=1;
-
-	  TPolyLine3D& rdpos = view->AddPolyLine3D(2,c,w,s);
-	  rdpos.SetPoint(0,xyz[0],xyz[1],xyz[2]);
-	  rdpos.SetPoint(1,xyz[0]+1,xyz[1],xyz[2]);
-	  // std::cout << "adding a raw digit: " << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
+	// draw hit channels on the readout planes in gray.  No timing or x information. 
+	//int c = kGray;
+	//int s=1;
+	//int w=1;
+	//TPolyLine3D& rdpos = view->AddPolyLine3D(2,c,w,s);
+	//rdpos.SetPoint(0,xyz[0],xyz[1],xyz[2]);
+	//rdpos.SetPoint(1,xyz[0]+1,xyz[1],xyz[2]);
+	//// std::cout << "adding a raw digit: " << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
 
         // loop over the ADC values for this digit and draw the value if it
         // is above the threshold

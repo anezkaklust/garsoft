@@ -22,10 +22,12 @@ namespace gar {
     private:
       
       unsigned int fChannel;     ///< channel recording this hit
-      float        fSignal;      ///< size of the signal for this hit
+      float        fSignal;      ///< size of the signal for this hit  (integral of ADC values)
       float        fPosition[3]; ///< position of the hit
-      float        fStartTime;   ///< start time of the hit
-      float        fEndTime;     ///< end time of the hit
+      float        fTime;        ///< time of hit charge arrival at the readout plane (ticks)
+      float        fStartTime;   ///< start time of the hit (ticks)
+      float        fEndTime;     ///< end time of the hit (ticks)
+      float        fRMS;         ///< Hit width calculated with RMS (in ticks)
 
 #ifndef __GCCXML__
       
@@ -35,13 +37,17 @@ namespace gar {
           float        sig,
           float       *pos,
           float        startT,
-          float        endT);
+          float        endT,
+	  float        Time,
+	  float        RMS);
       
       const float*        Position()  const;
       float        const& Signal()    const;
       unsigned int        Channel()   const;
       float               StartTime() const;
       float               EndTime()   const;
+      float               Time()      const;
+      float               RMS()       const;
       
       void operator += (gar::rec::Hit const& h);
       
@@ -56,6 +62,8 @@ namespace gar {
     inline float  const& Hit::Signal()    const { return fSignal;       }
     inline float         Hit::StartTime() const { return fStartTime;    }
     inline float         Hit::EndTime()   const { return fEndTime;      }
+    inline float         Hit::RMS()       const { return fRMS;          }
+    inline float         Hit::Time()      const { return fTime;         }    
   } // rec
 } // gar
 

@@ -78,6 +78,7 @@ add_subdirectory (SimulationDataProducts)
 add_subdirectory (SummaryDataProducts)
 add_subdirectory (TestUtils)
 add_subdirectory (Utilities)
+add_subdirectory (Reco)
 
 # tests
 add_subdirectory (test)

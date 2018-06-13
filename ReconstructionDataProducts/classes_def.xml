@@ -9,7 +9,8 @@
 
 
 <lcgdict>
-  <class name="gar::rec::Hit"               ClassVersion="12"         	 >
+  <class name="gar::rec::Hit"               ClassVersion="13"         	 >
+   <version ClassVersion="13" checksum="2469822198"/>
    <version ClassVersion="12" checksum="1367314231"/>
    <version ClassVersion="11" checksum="3285061365"/>
    <version ClassVersion="10" checksum="1053093344"/>
