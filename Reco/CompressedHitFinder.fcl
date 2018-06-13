@@ -1,0 +1,12 @@
+BEGIN_PROLOG
+
+standard_CompressedHitFinder:
+{
+ module_type:        CompressedHitFinder
+ RawDigitLabel:      "daq"
+ ADCThreshold:       5
+ TicksBefore:        5
+ TicksAfter:         5
+}
+
+END_PROLOG

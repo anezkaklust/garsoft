@@ -290,7 +290,8 @@ namespace gar {
       // time below
       float  pos[3]   = {0.};
       fGeo->ChannelToPosition(channel, pos);
-      
+      float chanposx = pos[0];
+
       LOG_DEBUG("HitCheater")
       << "Channel location is ("
       << pos[0]
@@ -334,16 +335,24 @@ namespace gar {
         std::set<unsigned int>     usedTDCs;
         
         for(auto itr : tdcToEDepMap){
+
+          curTDC  = itr.first;
+          begTDC = (curTDC > fTDCGap            ) ? curTDC - fTDCGap : 0;
+          endTDC = (curTDC < rawDigit.Samples() ) ? curTDC + fTDCGap : rawDigit.Samples();
           
           // the x position is given by the product of the drift velocity
           // and the time, given by the weighted TDC average converted to
           // a time
-          pos[0] = fDetProp->DriftVelocity() * fTime->TPCTick2Time(curTDC);
+          float driftdistance = fDetProp->DriftVelocity() * fTime->TPCTick2Time(curTDC);
+	  if (chanposx < 0)
+	    {
+	      pos[0] = chanposx + driftdistance;
+	    }
+	  else
+	    {
+	      pos[0] = chanposx - driftdistance;
+	    }
 
-          curTDC  = itr.first;
-          
-          begTDC = (curTDC > fTDCGap            ) ? curTDC - fTDCGap : 0;
-          endTDC = (curTDC < rawDigit.Samples() ) ? curTDC + fTDCGap : rawDigit.Samples();
           
           LOG_DEBUG("HitCheater")
           << "begTDC: "
