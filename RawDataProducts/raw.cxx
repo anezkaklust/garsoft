@@ -146,7 +146,6 @@ namespace gar {
 	  {
 	    if (inablock)
 	      {
-		blocksize[nblocks]++;
 		nblocks++;  
 		inablock = false;
 	      }

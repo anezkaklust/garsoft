@@ -124,9 +124,13 @@ namespace gar {
 	      float hitTime = 0;
 	      float hitSumSq = 0;
 	      float hitRMS = 0;
+	      unsigned int begT = adc[2+i];
 	      int blocksize = adc[2+nblocks+i];
-	      unsigned int begT = zerosuppressedindex;
-	      unsigned int endT = zerosuppressedindex + blocksize;
+	      if (blocksize<1)
+		{
+		  throw cet::exception("CompressedHitFinder") << "Negative or zero block size in compressed data.";
+		}
+	      unsigned int endT = begT + blocksize;
 	      for(int j = 0; j < blocksize; ++j)  // loop over time samples in each block
 		{
 		  int t = adc[2+i]+j;
@@ -141,6 +145,11 @@ namespace gar {
 		  hitTime /= hitSig;
 		  hitRMS = TMath::Sqrt(hitSumSq/hitSig - hitTime*hitTime);
 		}
+	      else
+		{
+		  hitTime = 0.5*(begT + endT);
+		  hitRMS = 0;
+		}
 	      float driftdistance = fDetProp->DriftVelocity() * fTime->TPCTick2Time(hitTime);
 	      if (chanposx < 0)
 		{
@@ -151,6 +160,10 @@ namespace gar {
 		  pos[0] = chanposx - driftdistance;
 		}
 
+	      if (hitSig < 0)
+		{
+		  LOG_WARNING("CompressedHitFinder") << "Negative Signal in hit finder" << std::endl;
+		}
 	      hitCol->emplace_back(channel,
 				   hitSig,
 				   pos,
