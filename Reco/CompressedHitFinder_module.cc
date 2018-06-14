@@ -29,7 +29,6 @@
 
 #include "TMath.h"
 
-class CompressedHitFinder;
 
 namespace gar {
   namespace rec {

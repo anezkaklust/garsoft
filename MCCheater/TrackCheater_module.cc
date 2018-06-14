@@ -33,6 +33,10 @@
 #include "ReconstructionDataProducts/Hit.h"
 #include "ReconstructionDataProducts/Track.h"
 
+// ROOT includes
+
+#include "TMath.h"
+
 // Forward declarations
 
 namespace gar {
@@ -50,7 +54,7 @@ namespace gar {
       
     private:
       
-      std::string fHitLabel; ///< label of module creating raw digits
+      std::string fHitLabel; ///< label of module creating hits
       std::string fG4Label;  ///< label of module creating mc particles
       
     };
@@ -138,9 +142,9 @@ namespace gar {
         // find the length of the track by getting the distance between each hit
         length = 0.;
         for(size_t h = 1; h < hits.size(); ++h)
-          length += std::sqrt(std::pow(hits[h]->Position()[0] - hits[h-1]->Position()[0], 2.) +
-                              std::pow(hits[h]->Position()[1] - hits[h-1]->Position()[1], 2.) +
-                              std::pow(hits[h]->Position()[2] - hits[h-1]->Position()[2], 2.));
+          length += std::sqrt(TMath::Sq(hits[h]->Position()[0] - hits[h-1]->Position()[0]) +
+                              TMath::Sq(hits[h]->Position()[1] - hits[h-1]->Position()[1]) +
+                              TMath::Sq(hits[h]->Position()[2] - hits[h-1]->Position()[2]));
         
         momentum  = part->Momentum().Mag();
         vtx[0]    = part->Vx();

@@ -25,7 +25,7 @@ namespace gar {
     private:
       
       float fLength;    ///< length of the track
-      float fMomentum;  ///< momentum of the track
+      float fMomentum;  ///< momentum of the track at the vertex
       float fVertex[3]; ///< track vertex position
       float fEnd[3];    ///< track end    position
       float fVtxDir[3]; ///< track vertex direction
