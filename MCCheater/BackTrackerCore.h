@@ -18,6 +18,7 @@
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "ReconstructionDataProducts/Hit.h"
 #include "RawDataProducts/RawDigit.h"
+#include "Geometry/Geometry.h"
 
 ///code to link reconstructed objects back to the MC truth information
 
@@ -139,6 +140,8 @@ namespace gar{
                                                                                     ///< based on hit collections
       double                                                fInverseVelocity;       ///< inverse drift velocity
       double                                                fLongDiffConst;         ///< longitudinal diffusion constant
+
+      const geo::GeometryCore*                              fGeo;                   ///< pointer to the geometry
     };
   } // namespace
 }

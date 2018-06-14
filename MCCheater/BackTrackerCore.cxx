@@ -17,15 +17,17 @@
 #include "MCCheater/BackTrackerCore.h"
 #include "Geometry/Geometry.h"
 
+#include "TMath.h"
+
 namespace gar{
   namespace cheat{
     
     //--------------------------------------------------------------------------
     BackTrackerCore::BackTrackerCore(fhicl::ParameterSet const& pset)
-    : fClocks(nullptr)
+      : fClocks(nullptr), fGeo(nullptr)
     {
       fClocks = gar::providerFrom<detinfo::DetectorClocksService>();
-      
+      fGeo     = gar::providerFrom<geo::Geometry>();
       this->reconfigure(pset);
       
       return;
@@ -380,13 +382,16 @@ namespace gar{
       << " energy depositions for channel "
       << channel;
       
+      float chanpos[3]={0.,0.,0};
+      fGeo->ChannelToPosition(channel, chanpos);
+
       std::map<size_t, const sdp::EnergyDeposit*> edeps;
       
       // loop over all the energy deposits for this channel
       size_t centralTDC = 0.;
 
       for(auto const* edep : fChannelToEDepCol[channel]){
-        centralTDC = (size_t)fClocks->TPCG4Time2TDC(edep->Time() + edep->X() * fInverseVelocity);
+        centralTDC = (size_t)fClocks->TPCG4Time2TDC(edep->Time() + TMath::Abs(edep->X()-chanpos[0]) * fInverseVelocity);
         
         LOG_DEBUG("BackTrackerCore")
         << "centralTDC: "
