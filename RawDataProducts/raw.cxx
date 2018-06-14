@@ -123,7 +123,7 @@ namespace gar {
 
 	if ( adc_current_value > zerothreshold )
 	  {
-	    ntb = ticksafter;
+	    ntb = ticksafter + 1;  // need to count the tick we're on
 	  }
 	else
 	  {
