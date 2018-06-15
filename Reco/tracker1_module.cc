@@ -65,8 +65,7 @@ namespace gar {
 
       fHitResolYZ     = p.get<float>("HitResolYZ",0.7);
       fHitResolX      = p.get<float>("HitResolX",0.5);  // this is probably much better
-      fSigmaRoad      = p.get<float>("SigmaRoad",3.0);
-      fXGapToEndTrack = p.get<float>("XGapToEndTrack",3.0) ;
+      fSigmaRoad      = p.get<float>("SigmaRoad",5.0);
       fMinNumHits     = p.get<float>("MinNumHits",10);
       fHitLabel       = p.get<std::string>("HitLabel","hit");
 
@@ -77,20 +76,53 @@ namespace gar {
       std::unique_ptr< std::vector<rec::Track> > trkCol(new std::vector<rec::Track>);
       std::unique_ptr< ::art::Assns<rec::Hit,rec::Track> > hitTrkAssns(new ::art::Assns<rec::Hit,rec::Track>);
 
-      auto hitHandle = evt.getValidHandle< std::vector<Hit> >(fHitLabel);
+      auto hitHandle = e.getValidHandle< std::vector<Hit> >(fHitLabel);
       auto const& hits = *hitHandle;
 
       // make an array of hit indices sorted by hit X position
       std::vector<float> hitx;
       for (size_t i=0; i<hits.size(); ++i)
 	{
-	  hitx.push_back(hit.Position()[0]);
+	  hitx.push_back(hits[i].Position()[0]);
 	}
       std::vector<int> hsi(hitx.size());
-      TMath::Sort(hitx.size(),hitx,hsi);
+      TMath::Sort((int) hitx.size(),hitx.data(),hsi.data());
 
-      // to do -- start with the first hit in the sort (lowest X), and accumulate a track using
-      // local linear extrapolations.  Look for nearby hits in Y,Z at small delta X.  If none are found
+      float roadsq = fSigmaRoad*fSigmaRoad;
+
+      // record which hits we have assigned to which tracks
+      std::vector< std::vector<int> > hitlist;
+
+      for (size_t i=0; i<hits.size(); ++i)
+	{
+	  const float *hpos = hits[hsi[i]].Position();
+	  float bestsignifs = -1;
+	  int ibest = -1;
+	  for (size_t itcand = 0; itcand < hitlist.size(); ++itcand)
+	    {
+	      const float *cpos = hits[hsi[hitlist[itcand].back()]].Position();
+	      float signifs = TMath::Sq( (hpos[0]-cpos[0])/fHitResolX ) + 
+		TMath::Sq( (hpos[1]-cpos[1])/fHitResolYZ ) +
+		TMath::Sq( (hpos[3]-cpos[3])/fHitResolYZ );
+	      if (bestsignifs < 0 || signifs < bestsignifs)
+		{
+		  bestsignifs = signifs;
+		  ibest = itcand;
+		}
+	    }
+	  if (ibest == -1 || bestsignifs > roadsq)  // start a new track if we're not on the road, or if we had no tracks to begin with
+	    {
+	      std::vector<int> hloc;
+	      hloc.push_back(i);
+	      hitlist.push_back(hloc);
+	    }
+	  else  // add the hit to the existing best track
+	    {
+	      hitlist[ibest].push_back(i);
+	    }
+	}
+
+      // now that we have the hits assigned, fit the tracks and adjust the hit lists.
 
       e.put(std::move(trkCol));
       e.put(std::move(hitTrkAssns));

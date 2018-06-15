@@ -6,8 +6,7 @@ standard_tracker1:
  HitLabel:           "hit"
  HitResolYZ:         0.7   # pad size limitation on hit position resolution (cm)
  HitResolX:          0.5   # resolution in the drift coordinate (cm)
- SigmaRoad:          3.0   # number of sigma allowed for a hit to be associated to a track
- XGapToEndTrack:     3.0   # how far to extrapolate off the end of a track to continue it before quitting (cm)
+ SigmaRoad:          5.0   # number of sigma allowed for a hit to be associated to a track
 }
 
 END_PROLOG
