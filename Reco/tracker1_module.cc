@@ -185,6 +185,7 @@ namespace gar {
 	      // 4: slope
 
 	      // initial track position.  TODO -- start the track off with better guesses for the curvature, slope, and phi
+	      // todo -- check the initial guesses and make sure they make sense
 
 	      size_t inthit = fMinNumHits/2;
 
