@@ -60,6 +60,12 @@ namespace gar {
       float fXGapToEndTrack;       ///< how big a gap must be before we end a track and start a new one
       unsigned int fMinNumHits;    ///< minimum number of hits to define a track
       std::string fHitLabel;       ///< label of module creating hits
+
+      float capprox(float x1,float y1,
+		    float x2,float y2,
+		    float x3,float y3);  ///< initial guess of curvature calculator
+
+      int fPrintLevel;             ///< debug printout:  0: none, 1: just track parameters and residuals, 2: all
     };
 
 
@@ -72,8 +78,9 @@ namespace gar {
       fHitResolYZ     = p.get<float>("HitResolYZ",0.7);
       fHitResolX      = p.get<float>("HitResolX",0.5);  // this is probably much better
       fSigmaRoad      = p.get<float>("SigmaRoad",5.0);
-      fMinNumHits     = p.get<unsigned int>("MinNumHits",10);
+      fMinNumHits     = p.get<unsigned int>("MinNumHits",20);
       fHitLabel       = p.get<std::string>("HitLabel","hit");
+      fPrintLevel     = p.get<int>("PrintLevel",0);
     }
 
     void tracker1::produce(art::Event & e)
@@ -166,6 +173,10 @@ namespace gar {
 	  if ( nhits >= fMinNumHits)
 	    {
 
+	      if (fPrintLevel)
+		{
+		  std::cout << "Starting a new track: " << itrack << " Number of hits from patrec: " << nhits << std::endl;
+		}
 	      // variables:  x is the independent variable
 	      // 0: y
 	      // 1: z
@@ -175,21 +186,60 @@ namespace gar {
 
 	      // initial track position.  TODO -- start the track off with better guesses for the curvature, slope, and phi
 
+	      size_t inthit = fMinNumHits/2;
+
 	      float trackbeg[3] = {hits[hsi[hitlist[itrack][0]]].Position()[0],hits[hsi[hitlist[itrack][0]]].Position()[1],hits[hsi[hitlist[itrack][0]]].Position()[2]};
+	      float tp1[3] = {hits[hsi[hitlist[itrack][inthit]]].Position()[0],hits[hsi[hitlist[itrack][inthit]]].Position()[1],hits[hsi[hitlist[itrack][inthit]]].Position()[2]};
+	      float tp2[3] = {hits[hsi[hitlist[itrack][fMinNumHits]]].Position()[0],hits[hsi[hitlist[itrack][fMinNumHits]]].Position()[1],hits[hsi[hitlist[itrack][fMinNumHits]]].Position()[2]};
+
+	      if (fPrintLevel>1)
+		{
+		  std::cout << "Printing the first " << fMinNumHits << " hits" << std::endl;
+		  for (size_t i=0;i<fMinNumHits;++i)
+		    {
+		      std::cout << i << " : " << hits[hsi[hitlist[itrack][i]]].Position()[0] << " " << hits[hsi[hitlist[itrack][i]]].Position()[1] << " " << hits[hsi[hitlist[itrack][i]]].Position()[2] << std::endl;
+		    }
+		}
+	      if (fPrintLevel>0)
+		{
+		  std::cout << "first hit: 0, inter hit: " << inthit << " " << " far hit: " << fMinNumHits << std::endl;
+		  std::cout << "in the hit list: " << hsi[hitlist[itrack][0]] << " " << hsi[hitlist[itrack][inthit]] << " " << hsi[hitlist[itrack][fMinNumHits]] << std::endl;
+		  std::cout << "First hit x, y, z: " << trackbeg[0] << " " << trackbeg[1] << " " << trackbeg[2] << std::endl;
+		  std::cout << "Inter hit x, y, z: " << tp1[0] << " " << tp1[1] << " " << tp1[2] << std::endl;
+		  std::cout << "Far   hit x, y, z: " << tp2[0] << " " << tp2[1] << " " << tp2[2] << std::endl;
+		}
+
 	      float curvature_init = 0.1; // initial guess -- maybe use the min and max above to refine this guess
 	      float phi_init = 0;        // initial guess at the track beginning
 	      float slope_init = 1;   // d(yz distance)/dx
 
 	      float xpos = trackbeg[0];
 
+	      // linear guess for the initial slope.
+	      float dx1 = tp2[0] - xpos;
+	      float dyz1 = TMath::Sqrt( TMath::Sq( tp2[1] - trackbeg[1] ) +
+                                        TMath::Sq( tp2[2] - trackbeg[2] ) );
+	      if (dx1 != 0) 
+		{ slope_init = dyz1/dx1; }
+	      else
+		{ continue; } // got fMinNumHits all at exactly the same value of x (they were sorted).  Reject track.
+	      // phi in the y,z plane
+	      phi_init = TMath::ATan2( tp2[2]-trackbeg[2], tp2[1]-trackbeg[1] ); 
+	      curvature_init = capprox(trackbeg[1],trackbeg[2],tp1[1],tp1[2],tp2[1],tp2[2]);
+
+	      if (fPrintLevel>0)
+		{
+		  std::cout << "initial slope, phi, curvature: " << slope_init << " " << phi_init << " " << curvature_init << std::endl;
+		}
+
 	      TMatrixF P(5,5);  // covariance matrix of parameters
 	      // fill in initial guesses -- generous uncertainties on first value.
 	      P.Zero();
 	      P[0][0] = TMath::Sq(1); // initial position uncertainties -- y
 	      P[1][1] = TMath::Sq(1); // and z
-	      P[2][2] = TMath::Sq(1);  // curvature of zero gets us to infinite momentum, and curvature of 2 is curled up tighter than the pads
-	      P[3][3] = TMath::Sq(2*TMath::Pi()); // phi uncertainty
-	      P[4][4] = TMath::Sq(2.0);  // slope uncertainty
+	      P[2][2] = TMath::Sq(.5);  // curvature of zero gets us to infinite momentum, and curvature of 2 is curled up tighter than the pads
+	      P[3][3] = TMath::Sq(.5); // phi uncertainty
+	      P[4][4] = TMath::Sq(.5);  // slope uncertainty
 	  
 	      TMatrixF PPred(5,5);
 
@@ -202,8 +252,9 @@ namespace gar {
 
 	      // uncertainties on the measured points  (big for now)
 	      TMatrixF R(2,2);
-	      R[0][0] = 0.5;  // in cm^2
-	      R[1][1] = 0.5;  // in cm^2
+	      R.Zero();
+	      R[0][0] = 1;  // in cm^2
+	      R[1][1] = 1;  // in cm^2
 
 	      // add the hits and update the track parameters and uncertainties.  Put in additional terms to keep uncertainties from shrinking when
               // scattering and energy loss can change the track parameters along the way.
@@ -233,13 +284,19 @@ namespace gar {
 
 	      TMatrixF I(5,5);
 	      I.Zero();
-	      for (int i=0;i<5;++i) I[i][i] = i;
+	      for (int i=0;i<5;++i) I[i][i] = 1;
 
 	      for (size_t ihit=1; ihit<nhits; ++ihit)
 		{
 	          float xh = hits[hsi[hitlist[itrack][ihit]]].Position()[0];
 		  float yh = hits[hsi[hitlist[itrack][ihit]]].Position()[1];
 		  float zh = hits[hsi[hitlist[itrack][ihit]]].Position()[2];
+
+		  if (fPrintLevel > 0)
+		    {
+		      std::cout << std::endl;
+		      std::cout << "Adding a new hit: " << xh << " " << yh << " " << zh << std::endl;
+		    }
 
 		  // for readability
 
@@ -276,20 +333,72 @@ namespace gar {
 
 		  // predicted step
 
+		  if (fPrintLevel > 1)
+		    {
+		      std::cout << "F Matrix: " << std::endl;
+		      F.Print();
+		      std::cout << "P Matrix: " << std::endl;
+		      P.Print();
+		    }
+		  if (fPrintLevel > 0)
+		    {
+		      std::cout << "x: " << xpos << " dx: " << dx <<  std::endl;
+		      std::cout << " Parvec:   y " << parvec[0] << " z " << parvec[1] << " c " << parvec[2] << " phi " << parvec[3] << " slope " << parvec[4] << std::endl;
+		    }
+
 		  predstep = parvec;
 		  predstep[0] += slope*dx*TMath::Sin(phi);  // update y
 		  predstep[1] += slope*dx*TMath::Cos(phi);  // update z
 		  predstep[3] += slope*dx*curvature;        // update phi
 
+		  if (fPrintLevel > 1)
+		    {
+		      std::cout << " Predstep: y " << predstep[0] << " z " << predstep[1] << " c " << predstep[2] << " phi " << predstep[3] << " slope " << predstep[4] << std::endl;
+		    }
 		  // equations from the extended Kalman filter
 		  FT.Transpose(F);
 		  PPred = F*P*FT + Q;
+		  if (fPrintLevel > 1)
+		    {
+		      std::cout << "PPred Matrix: " << std::endl;
+		      PPred.Print();
+		    }
+
 		  ytilde[0] = yh - predstep[0];
 		  ytilde[1] = zh - predstep[1];
+		  if (fPrintLevel > 0)
+		    {
+		      std::cout << "ytilde (residuals): " << std::endl;
+		      ytilde.Print();
+		    }
+		  if (fPrintLevel > 1)
+		    {
+		      std::cout << "H Matrix: " << std::endl;
+		      H.Print();
+		    }
+
 		  HT.Transpose(H);
 		  S = H*PPred*HT + R;
+		  if (fPrintLevel > 1)
+		    {
+		      std::cout << "S Matrix: " << std::endl;
+		      S.Print();
+		    }
+
 		  S.Invert();
+		  if (fPrintLevel > 1)
+		    {
+		      std::cout << "Inverted S Matrix: " << std::endl;
+		      S.Print();
+		    }
+
 		  K = PPred*HT*S;
+		  if (fPrintLevel > 1)
+		    {
+		      std::cout << "K Matrix: " << std::endl;
+		      K.Print();
+		    }
+
 		  parvec = predstep + K*ytilde;
 		  P = (I-K*H)*PPred;
 		  xpos = xh;
@@ -301,6 +410,32 @@ namespace gar {
       e.put(std::move(hitTrkAssns));
     }
 
+    //_____________________________________________________________________________
+    float tracker1::capprox(float x1,float y1,
+			    float x2,float y2,
+			    float x3,float y3)
+    {
+      //-----------------------------------------------------------------
+      // Initial approximation of the track curvature -- copied from ALICE
+      // here x is y and y is z for us
+      //-----------------------------------------------------------------
+      x3 -=x1;
+      x2 -=x1;
+      y3 -=y1;
+      y2 -=y1;
+      //  
+      float det = x3*y2-x2*y3;
+      if (TMath::Abs(det)<1e-10){
+	return 100;
+      }
+      //
+      float u = 0.5* (x2*(x2-x3)+y2*(y2-y3))/det;
+      float x0 = x3*0.5-y3*u;
+      float y0 = y3*0.5+x3*u;
+      float c2 = 1/TMath::Sqrt(x0*x0+y0*y0);
+      if (det<0) c2*=-1;
+      return c2;
+    }
     DEFINE_ART_MODULE(tracker1)
 
   } // namespace rec

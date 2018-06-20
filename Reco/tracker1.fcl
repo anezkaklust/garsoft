@@ -7,6 +7,8 @@ standard_tracker1:
  HitResolYZ:         0.7   # pad size limitation on hit position resolution (cm)
  HitResolX:          0.5   # resolution in the drift coordinate (cm)
  SigmaRoad:          5.0   # number of sigma allowed for a hit to be associated to a track
+ MinNumHits:         40    # minimum number of hits
+ PrintLevel:         1     # Debug printout:  0: none, 1: track parameters and residuals, 2: everything
 }
 
 END_PROLOG
