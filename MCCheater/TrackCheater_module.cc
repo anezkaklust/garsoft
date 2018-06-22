@@ -124,6 +124,7 @@ namespace gar {
       simb::MCParticle const* part      = nullptr;
       float                   length    = 0.;
       float                   momentum  = 0.;
+      float                   end_momentum  = 0.;
       float                   vtx[3]    = {0.};
       float                   end[3]    = {0.};
       float                   vtxDir[3] = {0.};
@@ -147,6 +148,7 @@ namespace gar {
                               TMath::Sq(hits[h]->Position()[2] - hits[h-1]->Position()[2]));
         
         momentum  = part->Momentum().Mag();
+        end_momentum  = part->EndMomentum().Mag();
         vtx[0]    = part->Vx();
         vtx[1]    = part->Vx();
         vtx[2]    = part->Vx();
@@ -156,16 +158,20 @@ namespace gar {
         end[0]    = part->EndX();
         end[1]    = part->EndY();
         end[2]    = part->EndZ();
-        endDir[0] = part->EndPx() / part->EndMomentum().Mag();
-        endDir[1] = part->EndPy() / part->EndMomentum().Mag();
-        endDir[2] = part->EndPz() / part->EndMomentum().Mag();
+        endDir[0] = part->EndPx() / end_momentum;
+        endDir[1] = part->EndPy() / end_momentum;
+        endDir[2] = part->EndPz() / end_momentum;
         
         trkCol->emplace_back(length,
                              momentum,
+			     end_momentum,
                              vtx,
                              end,
                              vtxDir,
-                             endDir);
+                             endDir,
+			     0,  // no chisquared for cheated tracks
+			     0,
+			     hits.size());
 
         // make the hit to MCParticle association
         util::CreateAssn(*this, evt, *trkCol, partVec[p], *pTrkAssns);

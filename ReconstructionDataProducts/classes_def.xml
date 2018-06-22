@@ -15,7 +15,9 @@
    <version ClassVersion="11" checksum="3285061365"/>
    <version ClassVersion="10" checksum="1053093344"/>
   </class>
-  <class name="gar::rec::Track"             ClassVersion="10"            >
+  <class name="gar::rec::Track"             ClassVersion="12"            >
+   <version ClassVersion="12" checksum="1467287187"/>
+   <version ClassVersion="11" checksum="325077414"/>
    <version ClassVersion="10" checksum="2676520567"/>
   </class>
   <class name="gar::rec::Shower"            ClassVersion="10"            >

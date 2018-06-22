@@ -25,29 +25,41 @@ namespace gar {
     private:
       
       float fLength;    ///< length of the track
-      float fMomentum;  ///< momentum of the track at the vertex
+      float fMomentum_beg;  ///< momentum of the track at the vertex
+      float fMomentum_end;  ///< momentum of the track at the end
       float fVertex[3]; ///< track vertex position
       float fEnd[3];    ///< track end    position
       float fVtxDir[3]; ///< track vertex direction
       float fEndDir[3]; ///< track end    direction
-      
+      float fChisqForward; ///< chisquared forward fit
+      float fChisqBackward; ///< chisquared backward fit
+      size_t fNHits;        ///< number of hits
+
 #ifndef __GCCXML__
       
     public:
       
       Track(float  length,
-            float  momentum,
+            float  momentum_beg,
+            float  momentum_end,
             float *vtx,
             float *end,
             float *vtxDir,
-            float *endDir);
+            float *endDir,
+	    float chisqfw,
+	    float chisqbck,
+	    size_t nhits);
       
       const float* Vertex()   const;
       const float* End()      const;
       const float* VtxDir()   const;
       const float* EndDir()   const;
       float const& Length()   const;
-      float const& Momentum() const;
+      float const& Momentum_beg() const;
+      float const& Momentum_end() const;
+      float const& ChisqForward() const;
+      float const& ChisqBackward() const;
+      size_t const& NHits() const;
       
 #endif
       
@@ -58,7 +70,11 @@ namespace gar {
     inline const float* Track::VtxDir()   const { return fVtxDir;   }
     inline const float* Track::EndDir()   const { return fEndDir;   }
     inline float const& Track::Length()   const { return fLength;   }
-    inline float const& Track::Momentum() const { return fMomentum; }
+    inline float const& Track::Momentum_beg() const { return fMomentum_beg; }
+    inline float const& Track::Momentum_end() const { return fMomentum_end; }
+    inline float const& Track::ChisqForward() const { return fChisqForward; }
+    inline float const& Track::ChisqBackward() const { return fChisqBackward; }
+    inline size_t const& Track::NHits() const { return fNHits; }
     
   } // rec
 } // gar

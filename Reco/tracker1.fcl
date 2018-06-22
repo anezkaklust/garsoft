@@ -4,7 +4,7 @@ standard_tracker1:
 {
  module_type:        tracker1
  HitLabel:           "hit"
- HitResolYZ:         0.7   # pad size limitation on hit position resolution (cm)
+ HitResolYZ:         1.0   # resolution in hit position in yz (cm)  (TODO -- after hit clustering, reduce this ALICE got 1 mm).
  HitResolX:          0.5   # resolution in the drift coordinate (cm)
  SigmaRoad:          5.0   # number of sigma allowed for a hit to be associated to a track
  MinNumHits:         40    # minimum number of hits

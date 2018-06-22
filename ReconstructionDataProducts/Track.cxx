@@ -19,13 +19,20 @@ namespace gar {
     
     //--------------------------------------------------------------------------
     Track::Track(float  length,
-                 float  momentum,
+                 float  momentum_beg,
+		 float  momentum_end,
                  float *vtx,
                  float *end,
                  float *vtxDir,
-                 float *endDir)
+                 float *endDir,
+		 float chisqfw,
+		 float chisqbck,
+		 size_t nhits)
     : fLength  (length  )
-    , fMomentum(momentum)
+    , fMomentum_beg(momentum_beg)
+    , fMomentum_end(momentum_end)
+    , fChisqForward(chisqfw)
+    , fChisqBackward(chisqbck)
     {
       fVertex[0] = vtx[0];
       fVertex[1] = vtx[1];
@@ -42,7 +49,7 @@ namespace gar {
       fEndDir[0] = endDir[0];
       fEndDir[1] = endDir[1];
       fEndDir[2] = endDir[2];
-      
+
       return;
     }
     
