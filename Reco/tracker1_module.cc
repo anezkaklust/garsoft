@@ -18,6 +18,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "cetlib_except/exception.h"
+#include "art/Persistency/Common/PtrMaker.h"
 
 #include <memory>
 
@@ -101,6 +102,9 @@ namespace gar {
 
       auto hitHandle = e.getValidHandle< std::vector<Hit> >(fHitLabel);
       auto const& hits = *hitHandle;
+
+      auto const trackPtrMaker = art::PtrMaker<rec::Track>(e, *this);
+      auto const hitPtrMaker = art::PtrMaker<rec::Hit>(e, hitHandle.id());
 
       art::ServiceHandle<mag::MagneticField> magFieldService;
       G4ThreeVector zerovec(0,0,0);
@@ -243,6 +247,14 @@ namespace gar {
 				  chisqbackwards,
 				  chisqforwards,
 				  nhits);
+
+	      auto const trackpointer = trackPtrMaker(trkCol->size()-1);
+
+	      for (size_t ihit=0; ihit<nhits; ++ ihit)
+		{
+		  auto const hitpointer = hitPtrMaker(hsi[hitlist[itrack][ihit]]);
+		  hitTrkAssns->addSingle(hitpointer,trackpointer);
+		}
 	    }
 	}
 
