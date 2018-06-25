@@ -144,7 +144,7 @@ namespace gar {
 	  for (size_t itcand = 0; itcand < hitlist.size(); ++itcand)
 	    {
 	      const float *cpos = hits[hsi[hitlist[itcand].back()]].Position();
-	      float signifs = TMath::Sq( (hpos[0]-cpos[0])/fHitResolX ) + 
+	      float signifs = // TMath::Sq( (hpos[0]-cpos[0])/fHitResolX ) + 
 		(TMath::Sq( (hpos[1]-cpos[1]) ) +
 		 TMath::Sq( (hpos[2]-cpos[2]) ))/resolSq;
 	      if (bestsignifs < 0 || signifs < bestsignifs)

@@ -4,9 +4,12 @@ standard_CompressedHitFinder:
 {
  module_type:        CompressedHitFinder
  RawDigitLabel:      "daq"
- ADCThreshold:       5
- TicksBefore:        5
- TicksAfter:         5
+ ADCThreshold:       5      # apply this threshold if we don't already have zero-suppressed raw digits
+ TicksBefore:        5      # number of ticks to keep before first over-threshold tick if we must redo ZS
+ TicksAfter:         5      # number of ticks to keep after last over-threshold tick if we must redo ZS
+ ClusterHits:        1      # switch to turn on hit clustering algorithm.  0=no, 1=first algorithm version
+ HitClusterDx:       1.0    # range in which to look for charge contributing to clusters in x, in cm
+ HitClusterDyDz:     5.0    # range in Y and Z to look for charge contributing to clusters in y and z, in cm
 }
 
 END_PROLOG
