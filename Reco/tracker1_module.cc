@@ -123,13 +123,6 @@ namespace gar {
 
       // record which hits we have assigned to which tracks
       std::vector< std::vector<int> > hitlist;
-      // rough bounding box for the track -- do we want to use this for something?
-      std::vector<float> tminx;
-      std::vector<float> tmaxx;
-      std::vector<float> tminy;
-      std::vector<float> tmaxy;
-      std::vector<float> tminz;
-      std::vector<float> tmaxz;
 
       float resolSq = fHitResolYZ*fHitResolYZ;
 
@@ -158,22 +151,10 @@ namespace gar {
 	      std::vector<int> hloc;
 	      hloc.push_back(i);
 	      hitlist.push_back(hloc);
-	      tminx.push_back(hpos[0]);
-	      tmaxx.push_back(hpos[0]);
-	      tminy.push_back(hpos[1]);
-	      tmaxy.push_back(hpos[1]);
-	      tminz.push_back(hpos[2]);
-	      tmaxz.push_back(hpos[2]);
 	    }
 	  else  // add the hit to the existing best track
 	    {
 	      hitlist[ibest].push_back(i);
-	      tminx[ibest] = TMath::Min(tminx[ibest],hpos[0]);
-	      tmaxx[ibest] = TMath::Max(tmaxx[ibest],hpos[0]);
-	      tminy[ibest] = TMath::Min(tminy[ibest],hpos[1]);
-	      tmaxy[ibest] = TMath::Max(tmaxy[ibest],hpos[1]);
-	      tminz[ibest] = TMath::Min(tminz[ibest],hpos[2]);
-	      tmaxz[ibest] = TMath::Max(tmaxz[ibest],hpos[2]);
 	    }
 	}
 
