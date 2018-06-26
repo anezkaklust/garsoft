@@ -36,6 +36,7 @@
 // ROOT includes
 
 #include "TMath.h"
+#include "TDatabasePDG.h"
 
 // Forward declarations
 
@@ -161,6 +162,9 @@ namespace gar {
         endDir[0] = part->EndPx() / end_momentum;
         endDir[1] = part->EndPy() / end_momentum;
         endDir[2] = part->EndPz() / end_momentum;
+	int pdgid = part->PdgCode();
+	TDatabasePDG *PDGdb = TDatabasePDG::Instance(); 
+	int charge = PDGdb->GetParticle(pdgid)->Charge();   // nb we set the charge to +- 1 in the tracker, but get the full charge here
         
         trkCol->emplace_back(length,
                              momentum,
@@ -169,9 +173,8 @@ namespace gar {
                              end,
                              vtxDir,
                              endDir,
-			     0,  // no chisquared for cheated tracks
-			     0,
-			     hits.size());
+			     hits.size(),
+			     charge);
 
         // make the hit to MCParticle association
         util::CreateAssn(*this, evt, *trkCol, partVec[p], *pTrkAssns);

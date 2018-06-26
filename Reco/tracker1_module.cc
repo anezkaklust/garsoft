@@ -31,7 +31,6 @@
 #include "nutools/MagneticField/MagneticField.h"
 
 // GArSoft Includes
-#include "Utilities/AssociationUtil.h"
 #include "ReconstructionDataProducts/Hit.h"
 #include "ReconstructionDataProducts/Track.h"
 
@@ -70,7 +69,8 @@ namespace gar {
 		     bool Forwards, 
 		     std::vector<float> &trackparatend,
 		     float &chisquared,
-		     float &length);
+		     float &length,
+		     float *covmat); // 5x5 covariance matrix
 
       size_t ifob(size_t ihit, size_t nhits, bool Forwards);
  
@@ -162,6 +162,9 @@ namespace gar {
       // fit them in both directions.  The Kalman filter gives the most precise measurement
       // of position and momentum at the end.
 
+      float covmatbeg[25];
+      float covmatend[25];
+
       size_t ntracks = hitlist.size();
       for (size_t itrack=0; itrack<ntracks; ++itrack)
 	{
@@ -185,49 +188,27 @@ namespace gar {
 	      std::vector<float> tparend(6);
 	      float chisqforwards = 0;
 	      float lengthforwards = 0;
-	      int retcode = KalmanFit(hitHandle,hitlist,hsi,itrack,true,tparend,chisqforwards,lengthforwards);
+	      int retcode = KalmanFit(hitHandle,hitlist,hsi,itrack,true,tparend,chisqforwards,lengthforwards,covmatend);
 	      if (retcode != 0) continue;
 
 	      std::vector<float> tparbeg(6);
 	      float chisqbackwards = 0;
 	      float lengthbackwards = 0;
-	      retcode = KalmanFit(hitHandle,hitlist,hsi,itrack,false,tparbeg,chisqbackwards,lengthbackwards);
+	      retcode = KalmanFit(hitHandle,hitlist,hsi,itrack,false,tparbeg,chisqbackwards,lengthbackwards,covmatbeg);
 	      if (retcode != 0) continue;
 
 	      float length = 0.5*(lengthforwards + lengthbackwards);
 
-	      float momentum_beg = 0;
-	      if (tparbeg[2] != 0) momentum_beg = 0.3*magfield[0]/tparbeg[2];  // TODO -- check constant?  In kGauss or T?
-	      float momentum_end = 0;
-	      if (tparend[2] != 0) momentum_end = 0.3*magfield[0]/tparend[2];
-
-	      float posbeg[3] = {tparbeg[5],tparbeg[0],tparbeg[1]};
-	      float posend[3] = {tparend[5],tparend[0],tparend[1]};
-	      
-	      float hbeg = TMath::Sqrt( 1.0 + TMath::Sq(tparbeg[4]) );
-	      float sbeg = TMath::Sin(tparbeg[3]);
-	      float cbeg = TMath::Cos(tparbeg[3]);
-	      float dirbeg[3] = {tparbeg[4]/hbeg,
-				 cbeg/hbeg,
-				 sbeg/hbeg};
-
-	      float hend = TMath::Sqrt( 1.0 + TMath::Sq(tparend[4]) );
-	      float send = TMath::Sin(tparend[3]);
-	      float cend = TMath::Cos(tparend[3]);
-	      float dirend[3] = {tparend[4]/hend,
-				 cend/hend,
-				 send/hend};
-
 	      trkCol->emplace_back(length,
-				  momentum_beg,
-				  momentum_end,
-				  posbeg,
-				  posend,
-				  dirbeg,
-				  dirend,
-				  chisqbackwards,
-				  chisqforwards,
-				  nhits);
+				   nhits,
+				   tparbeg[5],
+				   tparbeg.data(),
+				   covmatbeg,
+				   chisqforwards,
+				   tparend[5],
+				   tparend.data(),
+				   covmatend,
+				   chisqbackwards);
 
 	      auto const trackpointer = trackPtrMaker(trkCol->size()-1);
 
@@ -270,8 +251,10 @@ namespace gar {
       return c2;
     }
 
+    //--------------------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------
 
-    // does a forwards or backwards Kalman fit using the sorted hit list
+    // KalmanFit does a forwards or backwards Kalman fit using the sorted hit list
     // variables:  x is the independent variable
     // 0: y
     // 1: z
@@ -286,13 +269,18 @@ namespace gar {
 			     bool Forwards, 
 			     std::vector<float> &trackparatend,
 			     float &chisquared,
-			     float &length)
+			     float &length,
+			     float *covmat) // 5x5 covariance matrix
     {
+
+      // set some default values in case we return early
 
       auto const& hits = *hitHandle;
       size_t nhits = hitlist[itrack].size();
       chisquared = 0;
       length = 0;
+      for (size_t i=0; i<5; ++i) trackparatend[i] = 0;
+      for (size_t i=0; i<25; ++i) covmat[i] = 0;
 
       // form a rough guess of track parameters
 
@@ -534,7 +522,6 @@ namespace gar {
 	  xpos = xh;
 
 	  length += TMath::Sqrt( dx*dx + TMath::Sq(parvec[0]-yprev) + TMath::Sq(parvec[1]-zprev) );
-
 	}
 
       for (size_t i=0; i<5; ++i)
@@ -542,8 +529,22 @@ namespace gar {
 	  trackparatend[i] = parvec[i];
 	}
       trackparatend[5] = xpos;  // tack this on so we can specify where the track endpoint is
+
+      size_t icov=0;
+      for (size_t i=0; i<5; ++i)
+	{
+	  for (size_t j=0; j<5; ++j)
+	    {
+	      covmat[icov] = P[i][j];
+	    }
+	}
+
       return 0;
     }
+
+    //--------------------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------
+
 
     size_t tracker1::ifob(size_t ihit, size_t nhits, bool Forwards)
     {

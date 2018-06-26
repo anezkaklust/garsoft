@@ -14,7 +14,7 @@
 #include "CompressedHitFinder.fcl"
 #include "tracker1.fcl"
 
-process_name: HitReco
+process_name: RecoProc
 
 services:
 {

@@ -62,7 +62,6 @@ simple_plugin(HitCheater "module"
               art_Utilities
               canvas
               ${MF_MESSAGELOGGER}
-              
               ${FHICLCPP}
               ${CETLIB_EXCEPT}
               ${ROOT_BASIC_LIB_LIST}
@@ -79,10 +78,10 @@ simple_plugin(TrackCheater "module"
               art_Utilities
               canvas
               ${MF_MESSAGELOGGER}
-              
               ${FHICLCPP}
               ${CETLIB_EXCEPT}
               ${ROOT_BASIC_LIB_LIST}
+	      ${ROOT_EG}
 )
 
 simple_plugin(ShowerCheater "module"
@@ -96,7 +95,6 @@ simple_plugin(ShowerCheater "module"
               art_Utilities
               canvas
               ${MF_MESSAGELOGGER}
-              
               ${FHICLCPP}
               ${CETLIB_EXCEPT}
               ${ROOT_BASIC_LIB_LIST}
