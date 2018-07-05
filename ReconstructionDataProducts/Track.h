@@ -10,6 +10,7 @@
 #define Track_hpp
 
 #include <stdio.h>
+//#include "Reco/TrackPar.h"
 
 
 namespace gar {
@@ -24,7 +25,8 @@ namespace gar {
       
     private:
       
-      float fLength;    ///< length of the track in cm
+      float fLengthforwards;    ///< length of the track in cm from forwards fit
+      float fLengthbackwards;   ///< length of the track in cm from backwards fit
       float fMomentum_beg;  ///< momentum of the track at the vertex in GeV/c
       float fMomentum_end;  ///< momentum of the track at the end in GeV/c
       float fVertex[3]; ///< track vertex position in cm -- == "beginning" of track.  Arbitrary choice made by patrec
@@ -50,35 +52,40 @@ namespace gar {
       // Cartesian coordinate constructor -- to be used with the MC Cheater, where
       // the uncertainties are not specified and are set to zero in the constructor.
       
-      Track(float  length,
-            float  momentum_beg,
-            float  momentum_end,
-            float *vtx,
-            float *end,
-            float *vtxDir,
-            float *endDir,
-	    size_t nhits,
-	    int    charge); // units of e.  Need this to convert momentum into  curvature
+      Track(const float  length,
+            const float  momentum_beg,
+            const float  momentum_end,
+            const float *vtx,
+            const float *end,
+            const float *vtxDir,
+            const float *endDir,
+	    const size_t nhits,
+	    const int    charge); // units of e.  Need this to convert momentum into  curvature
 
       // constructor to fill after the fits -- including covariance matrix
 
-      Track(float length,
-	    size_t nhits,
-	    float xbeg,           // x location at beginning of track in cm
-	    float *trackparbeg,   // y, z, curvature, phi, slope  -- 5-parameter track  (cm, cm, cm-1, radians, dy,z/dx)
-	    float *covmatbeg,     // covariance matrix at beginning of track -- symmetric 5x5
-	    float chisqforward,   // chisquared of forwards fit
-	    float xend,           // x location at end of track
-	    float *trackparend,   // y, z, curvature, phi, slope  -- 5-parameter track (cm, cm, cm-1, radians, dy,z/dx)
-	    float *covmatend,     // covariance matrix at beginning of track -- symmetric 5x5
-	    float chisqbackward); // chisquared of forwards fit
+      Track(const float lengthforwards,
+	    const float lengthbackwards,
+	    const size_t nhits,
+	    const float xbeg,           // x location at beginning of track in cm
+	    const float *trackparbeg,   // y, z, curvature, phi, slope  -- 5-parameter track  (cm, cm, cm-1, radians, dy,z/dx)
+	    const float *covmatbeg,     // covariance matrix at beginning of track -- symmetric 5x5
+	    const float chisqforward,   // chisquared of forwards fit
+	    const float xend,           // x location at end of track
+	    const float *trackparend,   // y, z, curvature, phi, slope  -- 5-parameter track (cm, cm, cm-1, radians, dy,z/dx)
+	    const float *covmatend,     // covariance matrix at beginning of track -- symmetric 5x5
+	    const float chisqbackward); // chisquared of forwards fit
 	    
       
+      //Track(gar::rec::TrackPar &tp);    // constructor using the track parameter class
+
       const float* Vertex()   const;
       const float* End()      const;
       const float* VtxDir()   const;
       const float* EndDir()   const;
-      float const& Length()   const;
+      float Length();  // returns average length
+      float const& LengthForward()   const;  // returns length from forward fit
+      float const& LengthBackward()  const;  // returns length from backward fit
       float const& Momentum_beg() const;
       float const& Momentum_end() const;
       float const& ChisqForward() const;
@@ -103,7 +110,9 @@ namespace gar {
     inline const float* Track::End()      const { return fEnd;      }
     inline const float* Track::VtxDir()   const { return fVtxDir;   }
     inline const float* Track::EndDir()   const { return fEndDir;   }
-    inline float const& Track::Length()   const { return fLength;   }
+    inline float Track::Length() { return 0.5*(fLengthforwards+fLengthbackwards);  }
+    inline float const& Track::LengthForward()   const { return fLengthforwards;   }
+    inline float const& Track::LengthBackward()   const { return fLengthbackwards;   }
     inline float const& Track::Momentum_beg() const { return fMomentum_beg; }
     inline float const& Track::Momentum_end() const { return fMomentum_end; }
     inline float const& Track::ChisqForward() const { return fChisqForward; }

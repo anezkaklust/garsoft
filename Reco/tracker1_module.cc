@@ -33,6 +33,7 @@
 // GArSoft Includes
 #include "ReconstructionDataProducts/Hit.h"
 #include "ReconstructionDataProducts/Track.h"
+#include "Reco/TrackPar.h"
 
 namespace gar {
   namespace rec {
@@ -85,7 +86,7 @@ namespace gar {
     {
 
       produces< std::vector<rec::Track> >();
-      produces< ::art::Assns<rec::Hit, rec::Track> >();
+      produces< art::Assns<rec::Hit, rec::Track> >();
 
       fHitResolYZ     = p.get<float>("HitResolYZ",1.0); // TODO -- think about what this value is
       fHitResolX      = p.get<float>("HitResolX",0.5);  // this is probably much better
@@ -98,7 +99,7 @@ namespace gar {
     void tracker1::produce(art::Event & e)
     {
       std::unique_ptr< std::vector<rec::Track> > trkCol(new std::vector<rec::Track>);
-      std::unique_ptr< ::art::Assns<rec::Hit,rec::Track> > hitTrkAssns(new ::art::Assns<rec::Hit,rec::Track>);
+      std::unique_ptr< art::Assns<rec::Hit,rec::Track> > hitTrkAssns(new ::art::Assns<rec::Hit,rec::Track>);
 
       auto hitHandle = e.getValidHandle< std::vector<Hit> >(fHitLabel);
       auto const& hits = *hitHandle;
@@ -129,9 +130,9 @@ namespace gar {
       // idea -- find all of the track candidates a hit can be added to that have signfs <= roadsq, and
       // pick the one that is closest to the local linear extrapolation of the existing hits.
 
-      for (size_t i=0; i<hits.size(); ++i)
+      for (size_t ihit=0; ihit<hits.size(); ++ihit)
 	{
-	  const float *hpos = hits[hsi[i]].Position();
+	  const float *hpos = hits[hsi[ihit]].Position();
 	  float bestsignifs = -1;
 	  int ibest = -1;
 	  for (size_t itcand = 0; itcand < hitlist.size(); ++itcand)
@@ -149,12 +150,12 @@ namespace gar {
 	  if (ibest == -1 || bestsignifs > roadsq)  // start a new track if we're not on the road, or if we had no tracks to begin with
 	    {
 	      std::vector<int> hloc;
-	      hloc.push_back(i);
+	      hloc.push_back(ihit);
 	      hitlist.push_back(hloc);
 	    }
 	  else  // add the hit to the existing best track
 	    {
-	      hitlist[ibest].push_back(i);
+	      hitlist[ibest].push_back(ihit);
 	    }
 	}
 
@@ -162,10 +163,13 @@ namespace gar {
       // fit them in both directions.  The Kalman filter gives the most precise measurement
       // of position and momentum at the end.
 
+      // do a first pass of fitting the tracks
+
+      std::vector<TrackPar> firstpass_tracks;
       float covmatbeg[25];
       float covmatend[25];
-
       size_t ntracks = hitlist.size();
+
       for (size_t itrack=0; itrack<ntracks; ++itrack)
 	{
 	  size_t nhits = hitlist[itrack].size();
@@ -185,11 +189,15 @@ namespace gar {
 	      // 4: slope = d(yz distance)/dx
 	      // 5: x   /// added on to the end
 
+	      // the "forward" fit is just in increasing x.  Track parameters are at the end of the fit
+
 	      std::vector<float> tparend(6);
 	      float chisqforwards = 0;
 	      float lengthforwards = 0;
 	      int retcode = KalmanFit(hitHandle,hitlist,hsi,itrack,true,tparend,chisqforwards,lengthforwards,covmatend);
 	      if (retcode != 0) continue;
+
+	      // the "backwards" fit is in decreasing x.  Track paramters are at the end of the fit, the other end of the track
 
 	      std::vector<float> tparbeg(6);
 	      float chisqbackwards = 0;
@@ -197,26 +205,54 @@ namespace gar {
 	      retcode = KalmanFit(hitHandle,hitlist,hsi,itrack,false,tparbeg,chisqbackwards,lengthbackwards,covmatbeg);
 	      if (retcode != 0) continue;
 
-	      float length = 0.5*(lengthforwards + lengthbackwards);
+	      firstpass_tracks.emplace_back(lengthforwards,
+					    lengthbackwards,
+					    nhits,
+					    tparbeg[5],
+					    tparbeg.data(),
+					    covmatbeg,
+					    chisqforwards,
+					    tparend[5],
+					    tparend.data(),
+					    covmatend,
+					    chisqbackwards);
 
-	      trkCol->emplace_back(length,
-				   nhits,
-				   tparbeg[5],
-				   tparbeg.data(),
-				   covmatbeg,
-				   chisqforwards,
-				   tparend[5],
-				   tparend.data(),
-				   covmatend,
-				   chisqbackwards);
+	    }
+	}
 
-	      auto const trackpointer = trackPtrMaker(trkCol->size()-1);
+      // Rearrange the hit lists -- ask ourselves which track each hit is best assigned to.  Make a new hit list, hitlist2
 
-	      for (size_t ihit=0; ihit<nhits; ++ ihit)
+      std::vector< std::vector<int> > hitlist2(firstpass_tracks.size());
+
+      for (size_t ihit=0; ihit< hits.size(); ++ihit)
+	{
+	  const float *hpos = hits[hsi[ihit]].Position();
+          float mindist = 0;
+	  size_t ibest = 0;
+	  for (size_t itrack=0; itrack<firstpass_tracks.size(); ++itrack)
+	    {
+	      float dist = firstpass_tracks[itrack].DistXYZ(hpos);
+	      if (itrack == 0) mindist = dist;
+	      if (dist < mindist) 
 		{
-		  auto const hitpointer = hitPtrMaker(hsi[hitlist[itrack][ihit]]);
-		  hitTrkAssns->addSingle(hitpointer,trackpointer);
+		  mindist = dist;
+		  ibest = itrack;
 		}
+	    }
+          hitlist2[ibest].push_back(ihit);	  
+	}
+
+      // todo -- refit with new hits and add to the track collection.  Remove stray hits
+
+      // this code still uses the first version of hitlist -- need to use the updated one
+      for (size_t itrack=0; itrack<ntracks; ++itrack)
+	{
+	  auto const trackpointer = trackPtrMaker(trkCol->size()-1);
+
+	  for (size_t ihit=0; ihit<hitlist[itrack].size(); ++ ihit)
+	    {
+	      auto const hitpointer = hitPtrMaker(hsi[hitlist[itrack][ihit]]);
+	      hitTrkAssns->addSingle(hitpointer,trackpointer);
 	    }
 	}
 
@@ -424,7 +460,8 @@ namespace gar {
 
 	  F.Zero();
 
-	  // y = yold + slope*dx*Sin(phi)
+	  // y = yold + slope*dx*Sin(phi).   F[0][i] = df/dtrackpar[i], where f is the update function slope*dx*Sin(phi)
+
 	  F[0][0] = 1.; 
 	  F[0][3] = dx*slope*TMath::Cos(phi);
 	  F[0][4] = dx*TMath::Sin(phi);

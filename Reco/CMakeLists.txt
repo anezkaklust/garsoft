@@ -2,7 +2,9 @@ include_directories( $ENV{GEANT4_FQ_DIR}/include )
 include_directories( $ENV{NUTOOLS_DIR}/include   )
 include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
 
-art_make(LIB_LIBRARIES nusimdata_SimulationBase
+art_make(BASENAME_ONLY
+        LIBRARY_NAME GArReco
+	LIB_LIBRARIES nusimdata_SimulationBase
                        Geometry
                        GArG4
                        SimulationDataProducts
@@ -26,6 +28,7 @@ art_make(LIB_LIBRARIES nusimdata_SimulationBase
                        ${Boost_SYSTEM_LIBRARY}
       MODULE_LIBRARIES Geometry
                        GArG4
+		       GArReco
                        ReadoutSimulation
                        SimulationDataProducts
                        RawDataProducts
