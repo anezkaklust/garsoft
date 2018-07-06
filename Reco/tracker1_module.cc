@@ -127,6 +127,11 @@ namespace gar {
       float roadsq = fSigmaRoad*fSigmaRoad;
 
       // record which hits we have assigned to which tracks
+      std::vector< std::vector<int> > hitlistf;
+      std::vector<int> trackf(hits.size());
+      std::vector< std::vector<int> > hitlistb;
+      std::vector<int> trackb(hits.size());
+
       std::vector< std::vector<int> > hitlist;
       std::vector<int> whichtrack(hits.size(),-1);
 
@@ -135,14 +140,17 @@ namespace gar {
       // idea -- find all of the track candidates a hit can be added to that have signfs <= roadsq, and
       // pick the one that is closest to the local linear extrapolation of the existing hits.
 
+      // do this twice, once going forwards through the hits, once backwards, and then collect hits
+      // in groups and split them when either the forwards or the backwards list says to split them.
+
       for (size_t ihit=0; ihit<hits.size(); ++ihit)
 	{
 	  const float *hpos = hits[hsi[ihit]].Position();
 	  float bestsignifs = -1;
 	  int ibest = -1;
-	  for (size_t itcand = 0; itcand < hitlist.size(); ++itcand)
+	  for (size_t itcand = 0; itcand < hitlistf.size(); ++itcand)
 	    {
-	      const float *cpos = hits[hsi[hitlist[itcand].back()]].Position();
+	      const float *cpos = hits[hsi[hitlistf[itcand].back()]].Position();
 	      float signifs = // TMath::Sq( (hpos[0]-cpos[0])/fHitResolX ) + 
 		(TMath::Sq( (hpos[1]-cpos[1]) ) +
 		 TMath::Sq( (hpos[2]-cpos[2]) ))/resolSq;
@@ -154,12 +162,60 @@ namespace gar {
 	    }
 	  if (ibest == -1 || bestsignifs > roadsq)  // start a new track if we're not on the road, or if we had no tracks to begin with
 	    {
-	      ibest = hitlist.size();
+	      ibest = hitlistf.size();
 	      std::vector<int> vtmp;
-	      hitlist.push_back(vtmp);
+	      hitlistf.push_back(vtmp);
 	    }
-	  hitlist[ibest].push_back(ihit);
+	  hitlistf[ibest].push_back(ihit);
+	  trackf[ihit] = ibest;
 	}
+
+      for (int ihit=hits.size()-1; ihit >= 0; --ihit)
+	{
+	  const float *hpos = hits[hsi[ihit]].Position();
+	  float bestsignifs = -1;
+	  int ibest = -1;
+	  for (size_t itcand = 0; itcand < hitlistb.size(); ++itcand)
+	    {
+	      const float *cpos = hits[hsi[hitlistb[itcand].back()]].Position();
+	      float signifs = // TMath::Sq( (hpos[0]-cpos[0])/fHitResolX ) + 
+		(TMath::Sq( (hpos[1]-cpos[1]) ) +
+		 TMath::Sq( (hpos[2]-cpos[2]) ))/resolSq;
+	      if (bestsignifs < 0 || signifs < bestsignifs)
+		{
+		  bestsignifs = signifs;
+		  ibest = itcand;
+		}
+	    }
+	  if (ibest == -1 || bestsignifs > roadsq)  // start a new track if we're not on the road, or if we had no tracks to begin with
+	    {
+	      ibest = hitlistb.size();
+	      std::vector<int> vtmp;
+	      hitlistb.push_back(vtmp);
+	    }
+	  hitlistb[ibest].push_back(ihit);
+	  trackb[ihit] = ibest;
+	}
+
+      // make a list of tracks that is the set of disjoint subsets
+
+      for (size_t itrack=0; itrack<hitlistf.size(); ++itrack)
+	{
+	  int itrackl = 0;
+	  for (size_t ihit=0; ihit<hitlistf[itrack].size(); ++ihit)
+	    {
+	      int ihif = hitlistf[itrack][ihit];
+	      if (ihit == 0 || (trackb[ihif] != itrackl))
+		{
+		  std::vector<int> vtmp;
+		  hitlist.push_back(vtmp);
+		  itrackl = trackb[ihif];
+		}
+	      hitlist.back().push_back(ihif);
+	    }
+	}
+
+
 
       // now that we have the hits assigned, fit the tracks and adjust the hit lists.
       // fit them in both directions.  The Kalman filter gives the most precise measurement
