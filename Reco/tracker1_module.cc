@@ -312,6 +312,7 @@ namespace gar {
 
       // Rearrange the hit lists -- ask ourselves which track each hit is best assigned to.  Make a new hit list, hitlist2
       // start only with hits that were assigned to tracks in pass1 (i.e. don't try to add new hits that made short, faraway tracks)
+      // todo -- change this last requirement to an absolute distance cut.  Debug the track parameter extrapolation first.
 
       std::vector< std::vector<int> > hitlist2(firstpass_tracks.size());
 
@@ -473,7 +474,7 @@ namespace gar {
 
       size_t firsthit = ifob(0,nhits,Forwards);
       size_t inthit = ifob(fMinNumHits/2,nhits,Forwards);
-      size_t farhit = ifob(fMinNumHits,nhits,Forwards);
+      size_t farhit = ifob(fMinNumHits-1,nhits,Forwards);
 
       float trackbeg[3] = {hits[hsi[hitlist[itrack][firsthit]]].Position()[0],
 			   hits[hsi[hitlist[itrack][firsthit]]].Position()[1],
