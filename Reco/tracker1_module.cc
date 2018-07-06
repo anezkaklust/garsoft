@@ -124,6 +124,7 @@ namespace gar {
 
       // record which hits we have assigned to which tracks
       std::vector< std::vector<int> > hitlist;
+      std::vector<int> whichtrack(hits.size(),-1);
 
       float resolSq = fHitResolYZ*fHitResolYZ;
 
@@ -149,14 +150,11 @@ namespace gar {
 	    }
 	  if (ibest == -1 || bestsignifs > roadsq)  // start a new track if we're not on the road, or if we had no tracks to begin with
 	    {
-	      std::vector<int> hloc;
-	      hloc.push_back(ihit);
-	      hitlist.push_back(hloc);
+	      ibest = hitlist.size();
+	      std::vector<int> vtmp;
+	      hitlist.push_back(vtmp);
 	    }
-	  else  // add the hit to the existing best track
-	    {
-	      hitlist[ibest].push_back(ihit);
-	    }
+	  hitlist[ibest].push_back(ihit);
 	}
 
       // now that we have the hits assigned, fit the tracks and adjust the hit lists.
@@ -166,6 +164,7 @@ namespace gar {
       // do a first pass of fitting the tracks
 
       std::vector<TrackPar> firstpass_tracks;
+      std::vector<TrackPar> secondpass_tracks;
       float covmatbeg[25];
       float covmatend[25];
       size_t ntracks = hitlist.size();
@@ -175,10 +174,14 @@ namespace gar {
 	  size_t nhits = hitlist[itrack].size();
 	  if ( nhits >= fMinNumHits)
 	    {
+	      for (size_t ihit=0; ihit<nhits; ++ihit)
+		{
+		  whichtrack[hitlist[itrack][ihit]] = itrack;  // fill this here so we only get the ones passing the nhits cut
+		}
 
 	      if (fPrintLevel)
 		{
-		  std::cout << "Starting a new track: " << itrack << " Number of hits from patrec: " << nhits << std::endl;
+		  std::cout << "Starting a new Pass1 track: " << itrack << " Number of hits: " << nhits << std::endl;
 		}
 
 	      // variables:  x is the independent variable
@@ -221,11 +224,13 @@ namespace gar {
 	}
 
       // Rearrange the hit lists -- ask ourselves which track each hit is best assigned to.  Make a new hit list, hitlist2
+      // start only with hits that were assigned to tracks in pass1 (i.e. don't try to add new hits that made short, faraway tracks)
 
       std::vector< std::vector<int> > hitlist2(firstpass_tracks.size());
 
       for (size_t ihit=0; ihit< hits.size(); ++ihit)
 	{
+	  if (whichtrack[ihit] < 0) continue;
 	  const float *hpos = hits[hsi[ihit]].Position();
           float mindist = 0;
 	  size_t ibest = 0;
@@ -242,6 +247,44 @@ namespace gar {
           hitlist2[ibest].push_back(ihit);	  
 	}
 
+      size_t ntracks2 = hitlist2.size();
+      for (size_t itrack=0; itrack<ntracks2; ++itrack)
+	{
+	  size_t nhits = hitlist2[itrack].size();
+	  if ( nhits >= fMinNumHits)
+	    {
+	      if (fPrintLevel)
+		{
+		  std::cout << "Starting a new Pass2 track: " << itrack << " Number of hits: " << nhits << std::endl;
+		}
+
+	      std::vector<float> tparend(6);
+	      float chisqforwards = 0;
+	      float lengthforwards = 0;
+	      int retcode = KalmanFit(hitHandle,hitlist2,hsi,itrack,true,tparend,chisqforwards,lengthforwards,covmatend);
+	      if (retcode != 0) continue;
+
+	      std::vector<float> tparbeg(6);
+	      float chisqbackwards = 0;
+	      float lengthbackwards = 0;
+	      retcode = KalmanFit(hitHandle,hitlist2,hsi,itrack,false,tparbeg,chisqbackwards,lengthbackwards,covmatbeg);
+	      if (retcode != 0) continue;
+
+	      secondpass_tracks.emplace_back(lengthforwards,
+					     lengthbackwards,
+					     nhits,
+					     tparbeg[5],
+					     tparbeg.data(),
+					     covmatbeg,
+					     chisqforwards,
+					     tparend[5],
+					     tparend.data(),
+					     covmatend,
+					     chisqbackwards);
+	      
+	    }
+	}
+
       // todo -- refit with new hits and add to the track collection.  Remove stray hits
 
       // this code still uses the first version of hitlist -- need to use the updated one
@@ -251,7 +294,7 @@ namespace gar {
 
 	  for (size_t ihit=0; ihit<hitlist[itrack].size(); ++ ihit)
 	    {
-	      auto const hitpointer = hitPtrMaker(hsi[hitlist[itrack][ihit]]);
+	      auto const hitpointer = hitPtrMaker(hsi[hitlist2[itrack][ihit]]);
 	      hitTrkAssns->addSingle(hitpointer,trackpointer);
 	    }
 	}
