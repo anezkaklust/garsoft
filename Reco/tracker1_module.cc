@@ -285,20 +285,21 @@ namespace gar {
 	    }
 	}
 
-      // todo -- refit with new hits and add to the track collection.  Remove stray hits
+      //  Remove stray hits.  Dig through unassociated hits and try to make extra tracks out of them.
+      //  May need to wait until vertex finding is done so we know where to concentrate the effort
 
-      // this code still uses the first version of hitlist -- need to use the updated one
-      for (size_t itrack=0; itrack<ntracks; ++itrack)
+      // currently -- put second-pass tracks and associations with hits in the event
+
+      for (size_t itrack=0; itrack<ntracks2; ++itrack)
 	{
-	  auto const trackpointer = trackPtrMaker(trkCol->size()-1);
-
-	  for (size_t ihit=0; ihit<hitlist[itrack].size(); ++ ihit)
+	  trkCol->push_back(secondpass_tracks[itrack].CreateTrack());
+	  auto const trackpointer = trackPtrMaker(itrack);
+	  for (size_t ihit=0; ihit<hitlist2[itrack].size(); ++ ihit)
 	    {
 	      auto const hitpointer = hitPtrMaker(hsi[hitlist2[itrack][ihit]]);
 	      hitTrkAssns->addSingle(hitpointer,trackpointer);
 	    }
 	}
-
       e.put(std::move(trkCol));
       e.put(std::move(hitTrkAssns));
     }
