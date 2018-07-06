@@ -224,7 +224,9 @@ namespace gar {
       // do a first pass of fitting the tracks
 
       std::vector<TrackPar> firstpass_tracks;
+      std::vector<int> firstpass_tid;
       std::vector<TrackPar> secondpass_tracks;
+      std::vector<int> secondpass_tid;
       float covmatbeg[25];
       float covmatend[25];
       size_t ntracks = hitlist.size();
@@ -288,6 +290,7 @@ namespace gar {
 					    tparend.data(),
 					    covmatend,
 					    chisqbackwards);
+	      firstpass_tid.push_back(itrack);
 
 	      if (fDumpTracks > 0)
 		{
@@ -364,7 +367,7 @@ namespace gar {
 					     tparend.data(),
 					     covmatend,
 					     chisqbackwards);
-	      
+	      secondpass_tid.push_back(itrack);
 	    }
 	}
 
@@ -375,26 +378,26 @@ namespace gar {
 
       if (fTrackPass == 1)
 	{
-	  for (size_t itrack=0; itrack<ntracks; ++itrack)
+	  for (size_t itrack=0; itrack<firstpass_tracks.size(); ++itrack)
 	    {
 	      trkCol->push_back(firstpass_tracks[itrack].CreateTrack());
 	      auto const trackpointer = trackPtrMaker(itrack);
-	      for (size_t ihit=0; ihit<hitlist[itrack].size(); ++ ihit)
+	      for (size_t ihit=0; ihit<hitlist[firstpass_tid[itrack]].size(); ++ ihit)
 		{
-		  auto const hitpointer = hitPtrMaker(hsi[hitlist[itrack][ihit]]);
+		  auto const hitpointer = hitPtrMaker(hsi[hitlist[firstpass_tid[itrack]][ihit]]);
 		  hitTrkAssns->addSingle(hitpointer,trackpointer);
 		}
 	    }
 	}
       else if (fTrackPass == 2)
 	{
-	  for (size_t itrack=0; itrack<ntracks2; ++itrack)
+	  for (size_t itrack=0; itrack<secondpass_tracks.size(); ++itrack)
 	    {
 	      trkCol->push_back(secondpass_tracks[itrack].CreateTrack());
 	      auto const trackpointer = trackPtrMaker(itrack);
-	      for (size_t ihit=0; ihit<hitlist2[itrack].size(); ++ ihit)
+	      for (size_t ihit=0; ihit<hitlist2[secondpass_tid[itrack]].size(); ++ ihit)
 		{
-		  auto const hitpointer = hitPtrMaker(hsi[hitlist2[itrack][ihit]]);
+		  auto const hitpointer = hitPtrMaker(hsi[hitlist2[secondpass_tid[itrack]][ihit]]);
 		  hitTrkAssns->addSingle(hitpointer,trackpointer);
 		}
 	    }
