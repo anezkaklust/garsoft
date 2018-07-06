@@ -62,6 +62,7 @@ namespace gar {
       unsigned int fMinNumHits;    ///< minimum number of hits to define a track
       std::string fHitLabel;       ///< label of module creating hits
       int fPrintLevel;             ///< debug printout:  0: none, 1: just track parameters and residuals, 2: all
+      int fTrackPass;              ///< which pass of the tracking to save as the tracks in the event
 
       int KalmanFit( art::ValidHandle<std::vector<Hit> > &hitHandle, 
 		     std::vector<std::vector<int> > &hitlist, 
@@ -94,6 +95,7 @@ namespace gar {
       fMinNumHits     = p.get<unsigned int>("MinNumHits",20);
       fHitLabel       = p.get<std::string>("HitLabel","hit");
       fPrintLevel     = p.get<int>("PrintLevel",0);
+      fTrackPass      = p.get<int>("TrackPass",2);
     }
 
     void tracker1::produce(art::Event & e)
@@ -290,16 +292,37 @@ namespace gar {
 
       // currently -- put second-pass tracks and associations with hits in the event
 
-      for (size_t itrack=0; itrack<ntracks2; ++itrack)
+      if (fTrackPass == 1)
 	{
-	  trkCol->push_back(secondpass_tracks[itrack].CreateTrack());
-	  auto const trackpointer = trackPtrMaker(itrack);
-	  for (size_t ihit=0; ihit<hitlist2[itrack].size(); ++ ihit)
+	  for (size_t itrack=0; itrack<ntracks; ++itrack)
 	    {
-	      auto const hitpointer = hitPtrMaker(hsi[hitlist2[itrack][ihit]]);
-	      hitTrkAssns->addSingle(hitpointer,trackpointer);
+	      trkCol->push_back(firstpass_tracks[itrack].CreateTrack());
+	      auto const trackpointer = trackPtrMaker(itrack);
+	      for (size_t ihit=0; ihit<hitlist[itrack].size(); ++ ihit)
+		{
+		  auto const hitpointer = hitPtrMaker(hsi[hitlist[itrack][ihit]]);
+		  hitTrkAssns->addSingle(hitpointer,trackpointer);
+		}
 	    }
 	}
+      else if (fTrackPass == 2)
+	{
+	  for (size_t itrack=0; itrack<ntracks2; ++itrack)
+	    {
+	      trkCol->push_back(secondpass_tracks[itrack].CreateTrack());
+	      auto const trackpointer = trackPtrMaker(itrack);
+	      for (size_t ihit=0; ihit<hitlist2[itrack].size(); ++ ihit)
+		{
+		  auto const hitpointer = hitPtrMaker(hsi[hitlist2[itrack][ihit]]);
+		  hitTrkAssns->addSingle(hitpointer,trackpointer);
+		}
+	    }
+	}
+      else
+	{
+	  throw cet::exception("Tracker1") << "Invalid track pass number requested: " << fTrackPass;
+	}
+
       e.put(std::move(trkCol));
       e.put(std::move(hitTrkAssns));
     }
