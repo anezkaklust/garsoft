@@ -63,6 +63,7 @@ namespace gar {
       std::string fHitLabel;       ///< label of module creating hits
       int fPrintLevel;             ///< debug printout:  0: none, 1: just track parameters and residuals, 2: all
       int fTrackPass;              ///< which pass of the tracking to save as the tracks in the event
+      int fDumpTracks;             ///< 0: do not print out tracks, 1: print out tracks
 
       int KalmanFit( art::ValidHandle<std::vector<Hit> > &hitHandle, 
 		     std::vector<std::vector<int> > &hitlist, 
@@ -96,6 +97,7 @@ namespace gar {
       fHitLabel       = p.get<std::string>("HitLabel","hit");
       fPrintLevel     = p.get<int>("PrintLevel",0);
       fTrackPass      = p.get<int>("TrackPass",2);
+      fDumpTracks     = p.get<int>("DumpTracks",2);
     }
 
     void tracker1::produce(art::Event & e)
@@ -171,6 +173,15 @@ namespace gar {
       float covmatend[25];
       size_t ntracks = hitlist.size();
 
+      if (fDumpTracks > 0)
+	{
+	  int ntracktmp = 0;
+	  for (size_t itrack=0;itrack<ntracks;++itrack)
+	    {
+	      if (hitlist[itrack].size() >= fMinNumHits) ntracktmp++;
+	    }
+	  std::cout << "Trkdump: " << ntracktmp << std::endl;
+	}
       for (size_t itrack=0; itrack<ntracks; ++itrack)
 	{
 	  size_t nhits = hitlist[itrack].size();
@@ -222,6 +233,21 @@ namespace gar {
 					    covmatend,
 					    chisqbackwards);
 
+	      if (fDumpTracks > 0)
+		{
+		  std::cout << "Trkdump: " << itrack << std::endl;
+		  std::cout << "Trkdump: " << tparbeg[5] << std::endl;
+		  for (int i=0; i<5;++i) std::cout << "Trkdump: " << tparbeg[i] << std::endl;
+		  std::cout << "Trkdump: " << tparend[5] << std::endl;
+		  for (int i=0; i<5;++i) std::cout << "Trkdump: " << tparend[i] << std::endl;
+		  std::cout << "Trkdump: " << nhits << std::endl;
+		  for (size_t ihit=0;ihit<nhits;++ihit)
+		    {
+		      std::cout << "Trkdump: " << hits[hsi[ihit]].Position()[0] << std::endl;
+		      std::cout << "Trkdump: " << hits[hsi[ihit]].Position()[1] << std::endl;
+		      std::cout << "Trkdump: " << hits[hsi[ihit]].Position()[2] << std::endl;
+		    }
+		}
 	    }
 	}
 
@@ -239,8 +265,7 @@ namespace gar {
 	  for (size_t itrack=0; itrack<firstpass_tracks.size(); ++itrack)
 	    {
 	      float dist = firstpass_tracks[itrack].DistXYZ(hpos);
-	      if (itrack == 0) mindist = dist;
-	      if (dist < mindist) 
+	      if (itrack == 0 || dist < mindist) 
 		{
 		  mindist = dist;
 		  ibest = itrack;

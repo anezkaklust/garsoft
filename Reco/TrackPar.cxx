@@ -366,9 +366,9 @@ namespace gar
 		}
 	    }
 	  
-	  float xp = x0 + (phi-phi0)/(s*curv);
-	  float yp = yc - TMath::Cos(phi)/curv;
-	  float zp = zc + TMath::Sin(phi)/curv;
+	  float xp = x0 + r*(phi-phi0)/s;
+	  float yp = yc - r*TMath::Cos(phi);
+	  float zp = zc + r*TMath::Sin(phi);
 
 	  distance = TMath::Sqrt( TMath::Sq(xt-xp) + TMath::Sq(yt-yp) + TMath::Sq(zt-zp) );
 	}
