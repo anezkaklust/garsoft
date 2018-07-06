@@ -243,9 +243,9 @@ namespace gar {
 		  std::cout << "Trkdump: " << nhits << std::endl;
 		  for (size_t ihit=0;ihit<nhits;++ihit)
 		    {
-		      std::cout << "Trkdump: " << hits[hsi[ihit]].Position()[0] << std::endl;
-		      std::cout << "Trkdump: " << hits[hsi[ihit]].Position()[1] << std::endl;
-		      std::cout << "Trkdump: " << hits[hsi[ihit]].Position()[2] << std::endl;
+		      std::cout << "Trkdump: " << hits[hsi[hitlist[itrack][ihit]]].Position()[0] << std::endl;
+		      std::cout << "Trkdump: " << hits[hsi[hitlist[itrack][ihit]]].Position()[1] << std::endl;
+		      std::cout << "Trkdump: " << hits[hsi[hitlist[itrack][ihit]]].Position()[2] << std::endl;
 		    }
 		}
 	    }
