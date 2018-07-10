@@ -19,7 +19,7 @@ process_name: RecoProc
 services:
 {
  # Load the service that manages root files for histograms.
- TFileService:           { fileName: "hitcheat_hist.root" }
+ TFileService:           { fileName: "recojob_hist.root" }
  TimeTracker:            {}
  RandomNumberGenerator:  {} #ART native random number generator
  Geometry:               @local::standard_geo
