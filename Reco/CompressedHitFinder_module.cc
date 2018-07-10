@@ -195,8 +195,7 @@ namespace gar {
 	  size_t nhits = hitCol->size();
 	  std::vector<float> hptmp(nhits);
           std::vector<int> hsi(nhits);
-	  std::vector<int> used(nhits);
-	  used.assign(nhits,0);
+	  std::vector<int> used(nhits,0);
 
 	  // sort hits by position in x
 
@@ -211,6 +210,8 @@ namespace gar {
 	  for (size_t ihitx=0; ihitx< nhits; ++ihitx)
 	    {
 	      size_t ihit = hsi[ihitx];  // unwound index to hit array
+	      if (used[ihit]) continue;
+
 	      const float *xyz = hitCol->at(ihit).Position();
 	       
 	      // start a cluster with just this hit
