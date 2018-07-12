@@ -46,7 +46,7 @@ namespace gar {
     class TrackCheater : public ::art::EDProducer{
     public:
       
-        // Standard constructor and destructor for an FMWK module.
+      // Standard constructor and destructor for an FMWK module.
       explicit TrackCheater(fhicl::ParameterSet const& pset);
       virtual ~TrackCheater();
       
@@ -95,8 +95,8 @@ namespace gar {
     {
       if( evt.isRealData() ){
         throw cet::exception("TrackCheater")
-        << "Attempting to cheat the track reconstruction for real data, "
-        << "that will never work";
+	  << "Attempting to cheat the track reconstruction for real data, "
+	  << "that will never work";
         return;
       }
       
@@ -116,9 +116,9 @@ namespace gar {
       // getValidHandle throws if it can't find a valid handle
       if(!fmphit.isValid() ){
         throw cet::exception("TrackCheater")
-        << "Unable to find valid FindMany<Hit> "
-        << fmphit.isValid()
-        << " this is a problem for cheating";
+	  << "Unable to find valid FindMany<Hit> "
+	  << fmphit.isValid()
+	  << " this is a problem for cheating";
       }
       
       std::vector< art::Ptr<rec::Hit> > hits;
@@ -165,8 +165,7 @@ namespace gar {
 	int pdgid = part->PdgCode();
 	TDatabasePDG *PDGdb = TDatabasePDG::Instance(); 
 	int charge = PDGdb->GetParticle(pdgid)->Charge();   // nb we set the charge to +- 1 in the tracker, but get the full charge here
-        
-        trkCol->emplace_back(length,
+	trkCol->emplace_back(length,
                              momentum,
 			     end_momentum,
                              vtx,
@@ -174,7 +173,8 @@ namespace gar {
                              vtxDir,
                              endDir,
 			     hits.size(),
-			     charge);
+			     charge,
+			     0);  // zero timestamp for now
 
         // make the hit to MCParticle association
         util::CreateAssn(*this, evt, *trkCol, partVec[p], *pTrkAssns);

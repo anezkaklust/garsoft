@@ -4,13 +4,15 @@
 //
 //  Created by Brian Rebel on 10/6/16.
 //  Copyright © 2016 Brian Rebel. All rights reserved.
+//  Additions by Tom Junk, 2018
 //
 
 #ifndef Shower_hpp
 #define Shower_hpp
 
 #include <stdio.h>
-
+#include "RtypesCore.h"
+#include <stdint.h>
 
 namespace gar {
   namespace rec {
@@ -27,6 +29,7 @@ namespace gar {
       float fEnergy;    ///< energy of the shower
       float fVertex[3]; ///< Shower vertex position
       float fVtxDir[3]; ///< Shower vertex direction
+      ULong64_t  fTime; ///< Timestamp
       
 #ifndef __GCCXML__
       
@@ -34,11 +37,13 @@ namespace gar {
       
       Shower(float  energy,
              float *vtx,
-             float *vtxDir);
+             float *vtxDir,
+	     ULong64_t time);
       
       const float* Vertex() const;
       const float* VtxDir() const;
       float const& Energy() const;
+      ULong64_t    Time()   const;
       
 #endif
       
@@ -47,6 +52,7 @@ namespace gar {
     inline const float* Shower::Vertex() const { return fVertex; }
     inline const float* Shower::VtxDir() const { return fVtxDir; }
     inline float const& Shower::Energy() const { return fEnergy; }
+    inline ULong64_t Shower::Time() const { return fTime; }
     
   } // rec
 } // gar

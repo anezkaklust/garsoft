@@ -1,10 +1,10 @@
 //
-//  Shower.cpp
+//  Shower.cxx
 //  garsoft-mrb
 //
 //  Created by Brian Rebel on 10/6/16.
 //  Copyright © 2016 Brian Rebel. All rights reserved.
-//
+//  Additions by Tom Junk, 2018
 
 #include "ReconstructionDataProducts/Shower.h"
 
@@ -20,8 +20,9 @@ namespace gar {
     //--------------------------------------------------------------------------
     Shower::Shower(float  energy,
                    float *vtx,
-                   float *vtxDir)
-    : fEnergy  (energy  )
+                   float *vtxDir,
+		   ULong64_t time)
+      : fEnergy(energy), fTime(time)
     {
       fVertex[0] = vtx[0];
       fVertex[1] = vtx[1];

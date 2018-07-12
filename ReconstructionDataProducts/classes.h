@@ -14,6 +14,7 @@
 #include "ReconstructionDataProducts/Hit.h"
 #include "ReconstructionDataProducts/Track.h"
 #include "ReconstructionDataProducts/Shower.h"
+#include "ReconstructionDataProducts/Vertex.h"
 
 
 #endif /* classes_h */

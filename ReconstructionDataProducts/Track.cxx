@@ -31,7 +31,8 @@ namespace gar {
                  const float *vtxDir,
                  const float *endDir,
 		 const size_t nhits,
-		 const int   charge)
+		 const int   charge,
+		 const ULong64_t time)
       : fLengthforwards  (length  )
       , fLengthbackwards  (length  )
       , fMomentum_beg(momentum_beg)
@@ -39,6 +40,7 @@ namespace gar {
       , fChisqForward(0)
       , fChisqBackward(0)
       , fNHits(nhits)
+      , fTime(time)
     {
 
       art::ServiceHandle<mag::MagneticField> magFieldService;
@@ -125,12 +127,14 @@ namespace gar {
 		 const float xend,           // x location at end of track
 		 const float *trackparend,   // y, z, curvature, phi, slope  -- 5-parameter track (cm, cm, cm-1, radians, dy,z/dx)
 		 const float *covmatend,     // covariance matrix at beginning of track -- symmetric 5x5
-		 const float chisqbackward) // chisquared of forwards fit
+		 const float chisqbackward,  // chisquared of forwards fit
+		 const ULong64_t time)       // timestamp
       : fLengthforwards(lengthforwards),
 	fLengthbackwards(lengthbackwards)
       , fChisqForward(chisqforward)
       , fChisqBackward(chisqbackward)
       , fNHits(nhits)
+      , fTime(time)
     {
       art::ServiceHandle<mag::MagneticField> magFieldService;
       G4ThreeVector zerovec(0,0,0);

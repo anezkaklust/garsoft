@@ -40,7 +40,8 @@ namespace gar
 		       const float xend,           // x location at end of track
 		       const float *trackparend,   // y, z, curvature, phi, slope  -- 5-parameter track (cm, cm, cm-1, radians, dy,z/dx)
 		       const float *covmatend,     // covariance matrix at beginning of track -- symmetric 5x5
-		       const float chisqbackward)  // chisquared of forwards fit
+		       const float chisqbackward,  // chisquared of backwards fit
+		       const ULong64_t time) // timestamp
     {
       fNHits = nhits;
       fLengthForwards = lengthforwards;
@@ -59,6 +60,7 @@ namespace gar
 	}
       fChisquaredForwards = chisqforward;
       fChisquaredBackwards = chisqbackward;
+      fTime = time;
       CalcCenter();
     }
 
@@ -147,6 +149,11 @@ namespace gar
     float TrackPar::getXEnd()
     {
       return fXEnd;
+    }
+
+    ULong64_t TrackPar::getTime()
+    {
+      return fTime;
     }
 
     int TrackPar::getChargeBeg()   // just returns +1 or -1 depending on the sign of the curvature at the track beginning point
@@ -251,6 +258,11 @@ namespace gar
       float dmin = TMath::Min(DistXYZ_Aux(xyz,true),
 	        	      DistXYZ_Aux(xyz,false));
       return dmin;
+    }
+
+    void TrackPar::setTime(const ULong64_t time)
+    {
+      fTime = time;
     }
 
     // split off the calc so we can do the two distances, using the track begin parameters and
@@ -394,7 +406,8 @@ namespace gar
 			     fXEnd,
 			     fTrackParametersEnd,
 			     fCovMatEnd,
-			     fChisquaredBackwards
+			     fChisquaredBackwards,
+			     fTime
 			     );
     }
   }  // namespace rec

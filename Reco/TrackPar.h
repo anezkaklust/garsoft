@@ -35,7 +35,8 @@ namespace gar
 	       const float xend,           // x location at end of track
 	       const float *trackparend,   // y, z, curvature, phi, slope  -- 5-parameter track (cm, cm, cm-1, radians, dy,z/dx)
 	       const float *covmatend,     // covariance matrix at beginning of track -- symmetric 5x5
-	       const float chisqbackward); // chisquared of forwards fit
+	       const float chisqbackward,  // chisquared of backwards fit
+	       const ULong64_t time);      // timestamp
 
 
       const float *getTrackParametersBegin();
@@ -51,6 +52,7 @@ namespace gar
       float getXEnd();
       int getChargeBeg();   // just returns +1 or -1 depending on the sign of the curvature at the track beginning point
       int getChargeEnd();  // just returns +1 or -1 depending on the sign of the curvature at the track ending point
+      ULong64_t getTime();
 
       void setNHits(const size_t nhits);
       void setTrackParametersBegin(const float *tparbeg);
@@ -64,6 +66,7 @@ namespace gar
       void setChisqBackwards(const float chisqbackwards);
       void setXBeg(const float xbeg);
       void setXEnd(const float xend);
+      void setTime(const ULong64_t time);
 
       float DistXYZ(const float *xyz);
 
@@ -87,6 +90,8 @@ namespace gar
       float fZCentEnd;
       bool fBegCentValid;   // flags to indicate if circle center calc is valid (really just curvature != 0)
       bool fEndCentValid;
+      ULong64_t fTime;      // timestamp
+
       void CalcCenter();    // so as not to duplicate code in the constructors
       float DistXYZ_Aux(const float *xyz, bool useBegin);
     };

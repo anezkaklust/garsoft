@@ -9,7 +9,8 @@
  <class name="gar::raw::BeamInfo" ClassVersion="10"           >
   <version ClassVersion="10" checksum="341596131"/>
  </class>
- <class name="gar::raw::RawDigit" ClassVersion="11"           >
+ <class name="gar::raw::RawDigit" ClassVersion="12"           >
+  <version ClassVersion="12" checksum="1022570397"/>
   <version ClassVersion="11" checksum="330154456"/>
   <version ClassVersion="10" checksum="1136501152"/>
  </class>

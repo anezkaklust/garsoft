@@ -24,6 +24,7 @@ namespace gar {
     , fPedestal(0.)
     , fSigma(0.)
     , fCompression(gar::raw::kNone)
+    , fTime(0)
     {}
     
     
@@ -31,13 +32,15 @@ namespace gar {
     RawDigit::RawDigit(Channel_t                    channel,
                        unsigned short               samples,
                        RawDigit::ADCvector_t const& adclist,
-		       gar::raw::Compress_t compress)
+		       gar::raw::Compress_t compress,
+		       ULong64_t            time)
     : fADC(adclist)
     , fChannel(channel)
     , fSamples(samples)
     , fPedestal(0.)
     , fSigma(0.)
     , fCompression(compress)
+    , fTime(time)
     {}
     
     
@@ -45,13 +48,15 @@ namespace gar {
     RawDigit::RawDigit(Channel_t               channel,
                        unsigned short          samples,
                        RawDigit::ADCvector_t&& adclist,
-		       gar::raw::Compress_t compress)
+		       gar::raw::Compress_t compress,
+		       ULong64_t            time)
     : fADC(std::move(adclist))
     , fChannel(channel)
     , fSamples(samples)
     , fPedestal(0.)
     , fSigma(0.)
     , fCompression(compress)
+    , fTime(time)
     {}
     
     

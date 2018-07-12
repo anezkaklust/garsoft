@@ -300,7 +300,8 @@ namespace gar {
 					    tparend[5],
 					    tparend.data(),
 					    covmatend,
-					    chisqbackwards);
+					    chisqbackwards,
+					    0);  // zero timestamp for now
 	      firstpass_tid.push_back(itrack);
 
 	      if (fDumpTracks > 0)
@@ -381,7 +382,8 @@ namespace gar {
 					     tparend[5],
 					     tparend.data(),
 					     covmatend,
-					     chisqbackwards);
+					     chisqbackwards,
+					     0);  // zero timestamp for now
 	      secondpass_tid.push_back(itrack);
 	    }
 	}

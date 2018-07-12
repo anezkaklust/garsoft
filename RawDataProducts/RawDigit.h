@@ -25,8 +25,8 @@
 #include <stdint.h> // uint32_t
 #include <cstdlib> // size_t
 #include <vector>
-// #include <bitset>
 #include "RawDataProducts/RawTypes.h"
+#include "RtypesCore.h"  // ULong64_t
 
 /// Raw data description and utilities
 namespace gar {
@@ -48,7 +48,7 @@ namespace gar {
      * (remember that you have to provide raw::Uncompress() with a buffer large
      * enough to contain the uncompressed data).
      *
-     * The class provides some flags, defined in FlagIndices_t.
+     * Removed; may need to add this back later.  The class provides some flags, defined in FlagIndices_t.
      * The construction of a RawDigit should be for example in the form:
      *
      *     raw::RawDigit::ADCvector_t ADCs;
@@ -76,7 +76,7 @@ namespace gar {
        typedef std::bitset<16> Flags_t;
        */
       
-        /// Default constructor: an empty raw digit
+        /// Default constructor: an empty raw digit with zeros put in for paraneters and an invalid channel
       RawDigit();
       
 #ifndef __GCCXML__
@@ -104,7 +104,8 @@ namespace gar {
       RawDigit(Channel_t          channel,
                unsigned short     samples,
                ADCvector_t const& adclist,
-	       gar::raw::Compress_t compress);
+	       gar::raw::Compress_t compress,
+	       ULong64_t          time);
       
       /**
        * @brief Constructor: sets all the fields
@@ -119,7 +120,8 @@ namespace gar {
       RawDigit(Channel_t          channel,
                unsigned short     samples,
                ADCvector_t&&      adclist,
-	       gar::raw::Compress_t compress);
+	       gar::raw::Compress_t compress,
+	       ULong64_t          time);
       
       /// Set pedestal and its RMS (the latter is 0 by default)
       void            SetPedestal(float ped, float sigma = 1.);
@@ -151,6 +153,9 @@ namespace gar {
       
       /// TODO: RMS of the pedestal level?
       float           Sigma()    const;
+
+      /// Timestmap
+      ULong64_t       Time()    const;
       
       ///@}
       
@@ -166,6 +171,7 @@ namespace gar {
       float              fPedestal; ///< pedestal for this channel
       float              fSigma;    ///< sigma of the pedestal counts for this channel
       gar::raw::Compress_t         fCompression; ///< compression scheme used for the ADC vector
+      ULong64_t          fTime;    ///< timestamp
 
     }; // class RawDigit
     
@@ -185,6 +191,7 @@ inline gar::raw::Channel_t gar::raw::RawDigit::Channel()  const { return fChanne
 inline unsigned short   gar::raw::RawDigit::Samples()     const { return fSamples;     }
 inline float            gar::raw::RawDigit::Pedestal()    const { return fPedestal;    }
 inline float            gar::raw::RawDigit::Sigma()       const { return fSigma;       }
+inline ULong64_t        gar::raw::RawDigit::Time()        const { return fTime;       }
 inline gar::raw::Compress_t gar::raw::RawDigit::Compression() const  { return fCompression; }
 
 #endif // !__GCCXML__

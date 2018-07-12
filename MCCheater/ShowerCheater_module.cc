@@ -149,7 +149,8 @@ namespace gar {
         
         shwCol->emplace_back(energy,
                              vtx,
-                             vtxDir);
+                             vtxDir,
+			     0);      // zero timestamp for now
         
         // make the hit to MCParticle association
         util::CreateAssn(*this, evt, *shwCol, partVec[p], *pShwAssns);
