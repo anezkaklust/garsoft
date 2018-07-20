@@ -11,6 +11,7 @@
 #define GARTPCTRACKPAR_H
 
 #include "ReconstructionDataProducts/Track.h"
+#include "TVector3.h"
 
 namespace gar
 {
@@ -23,7 +24,7 @@ namespace gar
     {
     public:
 
-      TrackPar(gar::rec::Track &t);  // constructor from a Track data product
+      TrackPar(gar::rec::Track const &t);  // constructor from a Track data product
 
       TrackPar(const float lengthforwards,  // constructor from parameters
 	       const float lengthbackwards,
@@ -53,6 +54,8 @@ namespace gar
       int getChargeBeg();   // just returns +1 or -1 depending on the sign of the curvature at the track beginning point
       int getChargeEnd();  // just returns +1 or -1 depending on the sign of the curvature at the track ending point
       ULong64_t getTime();
+      TVector3 getXYZBeg();
+      TVector3 getXYZEnd();
 
       void setNHits(const size_t nhits);
       void setTrackParametersBegin(const float *tparbeg);
@@ -68,9 +71,9 @@ namespace gar
       void setXEnd(const float xend);
       void setTime(const ULong64_t time);
 
-      float DistXYZ(const float *xyz);
-
-      gar::rec::Track CreateTrack();
+      float DistXYZ(const float *xyz);  // Distance from a point to this track (minimum using forwards and backwards track parameters).
+      gar::rec::Track CreateTrack();    // Make a Track data product from this TrackPar instance
+      void FitAnotherTrack(TrackPar &othertrack, float &chisquared, float *xyz, float *covmat); // find the best-fit vertex with another track
 
     private:
       size_t fNHits;

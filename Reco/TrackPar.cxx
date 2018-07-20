@@ -9,7 +9,7 @@ namespace gar
   namespace rec
   {
 
-    TrackPar::TrackPar(Track &t)  // constructor from Track data product
+    TrackPar::TrackPar(Track const &t)  // constructor from Track data product
     {
       fNHits = t.NHits();
       fXBeg = t.Vertex()[0];
@@ -410,5 +410,18 @@ namespace gar
 			     fTime
 			     );
     }
+
+    TVector3 TrackPar::getXYZBeg()
+    {
+      TVector3 result(getXBeg(),getTrackParametersBegin()[0],getTrackParametersBegin()[1]);
+      return result;
+    }
+
+    TVector3 TrackPar::getXYZEnd()
+    {
+      TVector3 result(getXEnd(),getTrackParametersEnd()[0],getTrackParametersEnd()[1]);
+      return result;
+    }
+
   }  // namespace rec
 } // namespace gar
