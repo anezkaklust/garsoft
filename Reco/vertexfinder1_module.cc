@@ -235,26 +235,27 @@ namespace gar {
 	  if (dsum_beg <= dsum_end)
 	    {
 	      usebeg.push_back(true);
-	      p.emplace_back(trackbeg.X(),trackbeg.Y(),trackbeg.Z());
+	      float tmppos[3] = {(float) trackbeg.X(), (float) trackbeg.Y(), (float) trackbeg.Z()};
+	      p.emplace_back(3,tmppos);
 	      phi = tracks.at(itrack).getTrackParametersBegin()[3];
 	      s =   tracks.at(itrack).getTrackParametersBegin()[4];
 	    }
 	  else
 	    {
 	      usebeg.push_back(false);
-	      p.emplace_back(trackend.X(),trackend.Y(),trackend.Z());
+	      float tmppos[3] = {(float) trackend.X(), (float) trackend.Y(), (float) trackend.Z()};
+	      p.emplace_back(3,tmppos);
 	      phi = tracks.at(itrack).getTrackParametersEnd()[3];
 	      s =   tracks.at(itrack).getTrackParametersEnd()[4];
 	    }
 	  if (s == 0) s=1E-6;
-	  float dirx = 1.0/s;
-	  float diry = TMath::Sin(phi);
-	  float dirz = TMath::Cos(phi);
-	  float norm = TMath::Sqrt(dirx*dirx + diry*diry + dirz*dirz);
-	  dirx /= norm;
-	  diry /= norm;
-	  dirz /= norm;
-	  dir.emplace_back(dirx,diry,dirz);
+	  TVectorF dtmp(3);
+	  dtmp[0] = 1.0/s;
+	  dtmp[1] = TMath::Sin(phi);
+	  dtmp[2] = TMath::Cos(phi);
+	  float norminv = 1.0/TMath::Sqrt(dtmp.Norm2Sqr());
+	  dtmp *= norminv;
+	  dir.push_back(dtmp);
 	}
 
       TMatrixF I(3,3);
@@ -303,7 +304,7 @@ namespace gar {
       // to iterate -- extrapolate helical tracks to the closest point to the first found vertex and
       // run the fitter again
 
-      // figure out what the vertex covariance matrix is
+      // to do: figure out what the vertex covariance matrix is
 
       covmat.clear();
       for (size_t i=0;i<3;++i)
