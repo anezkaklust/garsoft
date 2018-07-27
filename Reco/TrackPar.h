@@ -56,6 +56,8 @@ namespace gar
       ULong64_t getTime();
       TVector3 getXYZBeg();
       TVector3 getXYZEnd();
+      TVector3 getPosAtX(const float x, bool usebegpar);  // returns 3d track position if x is provided, using track begin track parameters  
+      // if usebegpar is true, otherwise use the end parameters
 
       void setNHits(const size_t nhits);
       void setTrackParametersBegin(const float *tparbeg);
@@ -80,7 +82,7 @@ namespace gar
       float fXBeg;  // X at which the beginning track parameters are quoted
       float fTrackParametersBegin[5];  // y, z, curvature, phi,slope
       float fXEnd;
-      float fTrackParametersEnd[5];
+      float fTrackParametersEnd[5]; // y, z, curvature, phi,slope
       float fChisquaredForwards;
       float fChisquaredBackwards;
       float fLengthForwards;

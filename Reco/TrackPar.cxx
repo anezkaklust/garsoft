@@ -423,5 +423,45 @@ namespace gar
       return result;
     }
 
+    //-----------------------------------
+
+    // position along a track given X.
+
+    TVector3 TrackPar::getPosAtX(const float x, bool usebegpar)
+    {
+      float y=0;
+      float z=0;
+      if (usebegpar)
+	{
+	  float phi = (x-fXBeg)*fTrackParametersBegin[4]*fTrackParametersBegin[2] + fTrackParametersBegin[3];   // (x-x0)*s*c + phi0  -- c=1/r
+	  if (fTrackParametersBegin[2] == 0)
+	    {
+	      y = 0;
+	      z = 0;
+	    }
+	  else
+	    {
+	       y = fYCentBeg - TMath::Cos(phi)/fTrackParametersBegin[2];
+	       z = fZCentBeg + TMath::Cos(phi)/fTrackParametersBegin[2];
+	    }	  
+	}
+      else
+	{
+	  float phi = (x-fXEnd)*fTrackParametersEnd[4]*fTrackParametersEnd[2] + fTrackParametersEnd[3];   // (x-x0)*s*c + phi0  -- c=1/r
+	  if (fTrackParametersEnd[2] == 0)
+	    {
+	      y = 0;
+	      z = 0;
+	    }
+	  else
+	    {
+	       y = fYCentEnd - TMath::Cos(phi)/fTrackParametersEnd[2];
+	       z = fZCentEnd + TMath::Cos(phi)/fTrackParametersEnd[2];
+	    }	  
+	}
+      TVector3 pos(x,y,z);
+      return pos;
+    }
+
   }  // namespace rec
 } // namespace gar
