@@ -68,6 +68,18 @@ namespace gar {
       float fHitResolYZinFit;      ///< Hit resolution parameter to use in fit
       float fRoadYZinFit;          ///< cut in cm for dropping hits from tracks in fit
 
+      int initial_trackpar_estimate(art::ValidHandle<std::vector<Hit> > &hitHandle, 
+				    std::vector<std::vector<int> >      &hitlist,
+				    std::vector<int>                    &hsi,
+				    int itrack, 
+				    bool isForwards,
+				    float &curvature_init,
+				    float &slope_init,
+				    float &phi_init,
+				    float &xpos,
+				    float &ypos,
+				    float &zpos);
+
       int KalmanFit( art::ValidHandle<std::vector<Hit> > &hitHandle, 
 		     std::vector<std::vector<int> > &hitlist, 
 		     std::vector<int> &hsi, 
@@ -78,6 +90,15 @@ namespace gar {
 		     float &length,
 		     float *covmat,    // 5x5 covariance matrix
 		     std::vector<int> &unused_hits);
+
+      int FitHelix(art::ValidHandle<std::vector<Hit> > &hitHandle, 
+		   std::vector<std::vector<int> > &hitlist, 
+		   std::vector<int> &hsi, 
+		   int itrack, 
+		   bool isForwards, 
+		   std::vector<int> &unused_hits,
+		   TrackPar &trackpar
+		   );
 
       size_t ifob(size_t ihit, size_t nhits, bool isForwards);
  
@@ -525,75 +546,31 @@ namespace gar {
 
       float roadsq = fRoadYZinFit*fRoadYZinFit;
 
-      // form a rough guess of track parameters
-
-      size_t firsthit = ifob(0,nhits,isForwards);
-      size_t inthit = ifob(fMinNumHits/2,nhits,isForwards);
-      size_t farhit = ifob(fMinNumHits-1,nhits,isForwards);
-      //size_t inthit = ifob(nhits/2,nhits,isForwards);
-      //size_t farhit = ifob(nhits-1,nhits,isForwards);
-
-      float trackbeg[3] = {hits[hsi[hitlist[itrack][firsthit]]].Position()[0],
-			   hits[hsi[hitlist[itrack][firsthit]]].Position()[1],
-			   hits[hsi[hitlist[itrack][firsthit]]].Position()[2]};
-
-      float tp1[3] = {hits[hsi[hitlist[itrack][inthit]]].Position()[0],
-		      hits[hsi[hitlist[itrack][inthit]]].Position()[1],
-		      hits[hsi[hitlist[itrack][inthit]]].Position()[2]};
-
-      float tp2[3] = {hits[hsi[hitlist[itrack][farhit]]].Position()[0],
-		      hits[hsi[hitlist[itrack][farhit]]].Position()[1],
-		      hits[hsi[hitlist[itrack][farhit]]].Position()[2]};
-
-      if (fPrintLevel>1)
+      // estimate curvature, slope, phi, xpos from the initial track parameters
+      float curvature_init=0.1;
+      float phi_init = 0;
+      float slope_init = 0;
+      float xpos_init=0;
+      float ypos_init=0;
+      float zpos_init=0;
+      if ( initial_trackpar_estimate(hitHandle, 
+				     hitlist,
+				     hsi,
+				     itrack, 
+				     isForwards,
+				     curvature_init,
+				     slope_init,
+				     phi_init,
+				     xpos_init,
+				     ypos_init,
+				     zpos_init) != 0)
 	{
-	  std::cout << "Printing the first " << fMinNumHits << " hits" << std::endl;
-	  for (size_t i=0;i<fMinNumHits;++i)
-	    {
-	      size_t ihf = ifob(i,nhits,isForwards);
-	      std::cout << i << " : " << 
-		hits[hsi[hitlist[itrack][ihf]]].Position()[0] << " " << 
-		hits[hsi[hitlist[itrack][ihf]]].Position()[1] << " " << 
-		hits[hsi[hitlist[itrack][ihf]]].Position()[2] << std::endl;
-	    }
-	}
-      if (fPrintLevel>0)
-	{
-	  std::cout << "isForwards: " << isForwards << std::endl;
-	  std::cout << "first hit: " << firsthit << ", inter hit: " << inthit << " " << " far hit: " << farhit << std::endl;
-	  std::cout << "in the hit list: " << hsi[hitlist[itrack][firsthit]] << " " << hsi[hitlist[itrack][inthit]] << " " << hsi[hitlist[itrack][farhit]] << std::endl;
-	  std::cout << "First hit x, y, z: " << trackbeg[0] << " " << trackbeg[1] << " " << trackbeg[2] << std::endl;
-	  std::cout << "Inter hit x, y, z: " << tp1[0] << " " << tp1[1] << " " << tp1[2] << std::endl;
-	  std::cout << "Far   hit x, y, z: " << tp2[0] << " " << tp2[1] << " " << tp2[2] << std::endl;
+	  return 1;
 	}
 
-      float curvature_init = 0.1; // initial guess -- maybe use the min and max above to refine this guess
-      float phi_init = 0;        // initial guess at the track beginning
-      float slope_init = 1;   // d(yz distance)/dx
+      // Kalman fitter variables
 
-      float xpos = trackbeg[0];
-
-      // linear guess for the initial slope.
-      float dx1 = tp2[0] - xpos;
-      float dyz1 = TMath::Sqrt( TMath::Sq( tp2[1] - trackbeg[1] ) +
-				TMath::Sq( tp2[2] - trackbeg[2] ) );
-      if (dx1 != 0) 
-	{ slope_init = dyz1/dx1; }
-      else
-	{ return 1; } // got fMinNumHits all at exactly the same value of x (they were sorted).  Reject track.
-      // phi in the y,z plane
-      phi_init = TMath::ATan2( tp2[1]-trackbeg[1], tp2[2]-trackbeg[2] ); 
-      curvature_init = TMath::Abs(capprox(trackbeg[1],trackbeg[2],tp1[1],tp1[2],tp2[1],tp2[2]));
-      //float curvature_init2 = capprox2(trackbeg[1],trackbeg[2],tp1[1],tp1[2],tp2[1],tp2[2]);
-      //std::cout << "Compare initial curvatures: " << curvature_init << " " <<  curvature_init2 << std::endl;
-
-      if (! isForwards) curvature_init *= -1;
-
-      if (fPrintLevel>0)
-	{
-	  std::cout << "phi calc: dz, dy " << tp2[2]-trackbeg[2] << " " <<  tp2[1]-trackbeg[1] << std::endl;
-	  std::cout << "initial curvature, phi, slope: " << curvature_init << " " << phi_init << " " << slope_init << std::endl;
-	}
+      float xpos = xpos_init; 
 
       TMatrixF P(5,5);  // covariance matrix of parameters
       // fill in initial guesses -- generous uncertainties on first value.
@@ -626,8 +603,8 @@ namespace gar {
       TMatrixF F(5,5);
       TMatrixF FT(5,5);
       TVectorF parvec(5);
-      parvec[0] = trackbeg[1];
-      parvec[1] = trackbeg[2];
+      parvec[0] = ypos_init;
+      parvec[1] = zpos_init;
       parvec[2] = curvature_init;
       parvec[3] = phi_init;
       parvec[4] = slope_init;
@@ -816,7 +793,6 @@ namespace gar {
     }
 
     //--------------------------------------------------------------------------------------------------------------
-    //--------------------------------------------------------------------------------------------------------------
 
 
     size_t tracker1::ifob(size_t ihit, size_t nhits, bool isForwards)
@@ -833,6 +809,160 @@ namespace gar {
 	{
 	  return (nhits - ihit - 1);
 	}
+    }
+
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    int tracker1::initial_trackpar_estimate(art::ValidHandle<std::vector<Hit> > &hitHandle, 
+					    std::vector<std::vector<int> >      &hitlist,
+					    std::vector<int>                    &hsi,
+					    int itrack, 
+					    bool isForwards,
+					    float &curvature_init,
+					    float &slope_init,
+					    float &phi_init,
+					    float &xpos,
+					    float &ypos,
+					    float &zpos)
+    {
+      // form a rough guess of track parameters
+
+      auto const& hits = *hitHandle;
+      size_t nhits = hitlist[itrack].size();
+
+      size_t firsthit = ifob(0,nhits,isForwards);
+      size_t inthit = ifob(fMinNumHits/2,nhits,isForwards);
+      size_t farhit = ifob(fMinNumHits-1,nhits,isForwards);
+      //size_t inthit = ifob(nhits/2,nhits,isForwards);
+      //size_t farhit = ifob(nhits-1,nhits,isForwards);
+
+      float trackbeg[3] = {hits[hsi[hitlist[itrack][firsthit]]].Position()[0],
+			   hits[hsi[hitlist[itrack][firsthit]]].Position()[1],
+			   hits[hsi[hitlist[itrack][firsthit]]].Position()[2]};
+
+      float tp1[3] = {hits[hsi[hitlist[itrack][inthit]]].Position()[0],
+		      hits[hsi[hitlist[itrack][inthit]]].Position()[1],
+		      hits[hsi[hitlist[itrack][inthit]]].Position()[2]};
+
+      float tp2[3] = {hits[hsi[hitlist[itrack][farhit]]].Position()[0],
+		      hits[hsi[hitlist[itrack][farhit]]].Position()[1],
+		      hits[hsi[hitlist[itrack][farhit]]].Position()[2]};
+
+      if (fPrintLevel>1)
+	{
+	  std::cout << "Printing the first " << fMinNumHits << " hits" << std::endl;
+	  for (size_t i=0;i<fMinNumHits;++i)
+	    {
+	      size_t ihf = ifob(i,nhits,isForwards);
+	      std::cout << i << " : " << 
+		hits[hsi[hitlist[itrack][ihf]]].Position()[0] << " " << 
+		hits[hsi[hitlist[itrack][ihf]]].Position()[1] << " " << 
+		hits[hsi[hitlist[itrack][ihf]]].Position()[2] << std::endl;
+	    }
+	}
+      if (fPrintLevel>0)
+	{
+	  std::cout << "isForwards: " << isForwards << std::endl;
+	  std::cout << "first hit: " << firsthit << ", inter hit: " << inthit << " " << " far hit: " << farhit << std::endl;
+	  std::cout << "in the hit list: " << hsi[hitlist[itrack][firsthit]] << " " << hsi[hitlist[itrack][inthit]] << " " << hsi[hitlist[itrack][farhit]] << std::endl;
+	  std::cout << "First hit x, y, z: " << trackbeg[0] << " " << trackbeg[1] << " " << trackbeg[2] << std::endl;
+	  std::cout << "Inter hit x, y, z: " << tp1[0] << " " << tp1[1] << " " << tp1[2] << std::endl;
+	  std::cout << "Far   hit x, y, z: " << tp2[0] << " " << tp2[1] << " " << tp2[2] << std::endl;
+	}
+
+      xpos = trackbeg[0];
+      ypos = trackbeg[1];
+      zpos = trackbeg[2];
+
+      // linear guess for the initial slope.
+      float dx1 = tp2[0] - xpos;
+      float dyz1 = TMath::Sqrt( TMath::Sq( tp2[1] - trackbeg[1] ) +
+				TMath::Sq( tp2[2] - trackbeg[2] ) );
+      if (dx1 != 0) 
+	{ slope_init = dyz1/dx1; }
+      else
+	{ 
+	  slope_init = 0;
+	  return 1; 
+	} // got fMinNumHits all at exactly the same value of x (they were sorted).  Reject track.
+
+      // phi in the y,z plane
+
+      phi_init = TMath::ATan2( tp2[1]-trackbeg[1], tp2[2]-trackbeg[2] ); 
+
+      curvature_init = TMath::Abs(capprox(trackbeg[1],trackbeg[2],tp1[1],tp1[2],tp2[1],tp2[2]));
+
+      //float curvature_init2 = capprox2(trackbeg[1],trackbeg[2],tp1[1],tp1[2],tp2[1],tp2[2]);
+      //std::cout << "Compare initial curvatures: " << curvature_init << " " <<  curvature_init2 << std::endl;
+
+      if (! isForwards) curvature_init *= -1;
+
+      if (fPrintLevel>0)
+	{
+	  std::cout << "phi calc: dz, dy " << tp2[2]-trackbeg[2] << " " <<  tp2[1]-trackbeg[1] << std::endl;
+	  std::cout << "initial curvature, phi, slope: " << curvature_init << " " << phi_init << " " << slope_init << std::endl;
+	}
+      return 0;
+    }
+
+    //--------------------------------------------------------------
+    // the isForwards switch is only used to select which end to use to estimate the initial track parameters. Since this is a single helix
+    // fit, the track parameters are the same, except for an evaluation of x, y, and z at the beginning and the end.
+
+    int tracker1::FitHelix(art::ValidHandle<std::vector<Hit> > &hitHandle, 
+			   std::vector<std::vector<int> > &hitlist, 
+			   std::vector<int> &hsi, 
+			   int itrack, 
+			   bool isForwards, 
+			   std::vector<int> &unused_hits,
+			   TrackPar &trackpar
+			   )
+    {
+      auto const& hits = *hitHandle;
+      size_t nhits = hitlist[itrack].size();
+
+      // estimate curvature, slope, phi, xpos from the initial track parameters
+      float curvature_init=0.1;
+      float phi_init = 0;
+      float slope_init = 0;
+      float xpos_init=0;
+      float ypos_init=0;
+      float zpos_init=0;
+      if ( initial_trackpar_estimate(hitHandle, 
+				     hitlist,
+				     hsi,
+				     itrack, 
+				     isForwards,
+				     curvature_init,
+				     slope_init,
+				     phi_init,
+				     xpos_init,
+				     ypos_init,
+				     zpos_init) != 0)
+	{
+	  return 1;
+	}
+
+      float tpi[5] = {ypos_init, zpos_init, curvature_init, phi_init, slope_init};
+      float covmat[25] = {0};
+
+      // only need this to compute chisquared, so set the track parameters the same at the beginning and end
+
+      TrackPar tpar(0,0,nhits,xpos_init,tpi,covmat,0,xpos_init,tpi,covmat,0,0);
+
+      float c2sum = 0;
+      for (size_t ihit=0; ihit<nhits; ++ihit)
+	{
+	  TVector3 hitpos(hits[hsi[hitlist[itrack][ihit]]].Position()[0],
+		          hits[hsi[hitlist[itrack][ihit]]].Position()[1],
+		          hits[hsi[hitlist[itrack][ihit]]].Position()[2]);
+	  TVector3 helixpos = tpar.getPosAtX(hitpos.X(),isForwards);
+	  c2sum += (hitpos-helixpos).Mag2();
+	}
+
+      // todo -- wrap a minimizer around this chisquared function to get the best track parameters
+      return 0;
     }
 
     DEFINE_ART_MODULE(tracker1)
