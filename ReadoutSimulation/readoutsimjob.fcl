@@ -77,7 +77,7 @@ outputs:
  out1:
  {
   module_type: RootOutput
-  fileName:    "sim_readout.root" #default file name, can override from command line with -o or --output
+  fileName:    "readoutsim.root" #default file name, can override from command line with -o or --output
  }
 }
 

@@ -2,6 +2,7 @@
 //  Vertex.h
 //
 //  Created by Tom Junk on 7/11/16.
+//  Not much track information is stored in the vertex data product -- use the associations with tracks to find them.
 //
 
 #ifndef GAR_RECONSTRUCTIONDATAPRODUCTS_Vertex_h

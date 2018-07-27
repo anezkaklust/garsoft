@@ -183,10 +183,16 @@ namespace gar {
       e.put(std::move(trkVtxAssns));
     }
 
-    // returns 0 if success
-    // does not cut out tracks from the vertex candidate set -- may need to do that in the caller.
+    //--------------------------------------------------------------------------------------------------
 
-      int vertexfinder1::fitVertex(std::vector<TrackPar> &tracks, std::vector<float> &xyz, float &chisquared, std::vector< std::vector<float> > &covmat, ULong64_t &time)
+    // fitVertex returns 0 if success
+    // It does not cut tracks from the vertex candidate set -- may need to do that in the caller.
+
+      int vertexfinder1::fitVertex(std::vector<TrackPar> &tracks, 
+				   std::vector<float> &xyz, 
+				   float &chisquared, 
+				   std::vector< std::vector<float> > &covmat, 
+				   ULong64_t &time)
     {
       // find the ends of the tracks that are closest to the other tracks' ends
       // pick the end that minimizes the sums of the min(dist) to the other tracks' endpoints
