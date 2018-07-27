@@ -13,13 +13,14 @@
 #Plugins
 #include "CompressedHitFinder.fcl"
 #include "tracker1.fcl"
+#include "vertexfinder1.fcl"
 
 process_name: RecoProc
 
 services:
 {
  # Load the service that manages root files for histograms.
- TFileService:           { fileName: "recojob_hist.root" }
+ TFileService:           { fileName: "reco_hist.root" }
  TimeTracker:            {}
  RandomNumberGenerator:  {} #ART native random number generator
  Geometry:               @local::standard_geo
@@ -50,6 +51,7 @@ physics:
  {
   hit: @local::standard_CompressedHitFinder
   track: @local::standard_tracker1
+  vertex: @local::standard_vertexfinder1
  }
  analyzers:
  {
@@ -57,7 +59,7 @@ physics:
 
  #define the producer and filter modules for this path, order matters,
  #filters reject all following items.  see lines starting physics.producers below
- reco: [ hit, track ]
+ reco: [ hit, track, vertex ]
 
  #define the output stream, there could be more than one if using filters
  stream1:  [ out1 ]
