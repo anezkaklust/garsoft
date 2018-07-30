@@ -56,7 +56,7 @@ namespace gar
       ULong64_t getTime();
       TVector3 getXYZBeg();
       TVector3 getXYZEnd();
-      TVector3 getPosAtX(const float x, bool usebegpar);  // returns 3d track position if x is provided, using track begin track parameters  
+      TVector3 getPosAtX(const float x, bool usebegpar=true);  // returns 3d track position if x is provided, using track begin track parameters  
       // if usebegpar is true, otherwise use the end parameters
 
       void setNHits(const size_t nhits);

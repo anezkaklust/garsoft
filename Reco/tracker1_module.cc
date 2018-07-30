@@ -24,6 +24,9 @@
 
 #include "TVectorF.h"
 #include "TMatrix.h"
+#include "TMath.h"
+#include "Fit/Fitter.h"
+#include "Math/Functor.h"
 
 #include "Geant4/G4ThreeVector.hh"
 
@@ -78,7 +81,8 @@ namespace gar {
 				    float &phi_init,
 				    float &xpos,
 				    float &ypos,
-				    float &zpos);
+				    float &zpos,
+				    float &x_other_end);
 
       int KalmanFit( art::ValidHandle<std::vector<Hit> > &hitHandle, 
 		     std::vector<std::vector<int> > &hitlist, 
@@ -553,6 +557,7 @@ namespace gar {
       float xpos_init=0;
       float ypos_init=0;
       float zpos_init=0;
+      float x_other_end = 0;
       if ( initial_trackpar_estimate(hitHandle, 
 				     hitlist,
 				     hsi,
@@ -563,7 +568,8 @@ namespace gar {
 				     phi_init,
 				     xpos_init,
 				     ypos_init,
-				     zpos_init) != 0)
+				     zpos_init,
+				     x_other_end) != 0)
 	{
 	  return 1;
 	}
@@ -824,7 +830,8 @@ namespace gar {
 					    float &phi_init,
 					    float &xpos,
 					    float &ypos,
-					    float &zpos)
+					    float &zpos,
+					    float &x_other_end)
     {
       // form a rough guess of track parameters
 
@@ -836,6 +843,7 @@ namespace gar {
       size_t farhit = ifob(fMinNumHits-1,nhits,isForwards);
       //size_t inthit = ifob(nhits/2,nhits,isForwards);
       //size_t farhit = ifob(nhits-1,nhits,isForwards);
+      size_t lasthit = ifob(0,nhits,!isForwards);
 
       float trackbeg[3] = {hits[hsi[hitlist[itrack][firsthit]]].Position()[0],
 			   hits[hsi[hitlist[itrack][firsthit]]].Position()[1],
@@ -874,6 +882,7 @@ namespace gar {
       xpos = trackbeg[0];
       ypos = trackbeg[1];
       zpos = trackbeg[2];
+      x_other_end = hits[hsi[hitlist[itrack][lasthit]]].Position()[0];
 
       // linear guess for the initial slope.
       float dx1 = tp2[0] - xpos;
@@ -921,6 +930,7 @@ namespace gar {
     {
       auto const& hits = *hitHandle;
       size_t nhits = hitlist[itrack].size();
+      if (nhits < fMinNumHits) return 1;
 
       // estimate curvature, slope, phi, xpos from the initial track parameters
       float curvature_init=0.1;
@@ -929,6 +939,7 @@ namespace gar {
       float xpos_init=0;
       float ypos_init=0;
       float zpos_init=0;
+      float x_other_end=0;
       if ( initial_trackpar_estimate(hitHandle, 
 				     hitlist,
 				     hsi,
@@ -939,7 +950,8 @@ namespace gar {
 				     phi_init,
 				     xpos_init,
 				     ypos_init,
-				     zpos_init) != 0)
+				     zpos_init,
+				     x_other_end) != 0)
 	{
 	  return 1;
 	}
@@ -947,21 +959,103 @@ namespace gar {
       float tpi[5] = {ypos_init, zpos_init, curvature_init, phi_init, slope_init};
       float covmat[25] = {0};
 
-      // only need this to compute chisquared, so set the track parameters the same at the beginning and end
+      // syntax from $ROOTSYS/tutorials/fit/fitCircle.C
 
-      TrackPar tpar(0,0,nhits,xpos_init,tpi,covmat,0,xpos_init,tpi,covmat,0,0);
+      auto chi2Function = [&](const Double_t *par) {
+	//minimisation function computing the sum of squares of residuals
+	// looping at the graph points
 
-      float c2sum = 0;
-      for (size_t ihit=0; ihit<nhits; ++ihit)
+	float tpl[5] = { (float) par[0], (float) par[1], (float) par[2], (float) par[3], (float) par[4] };
+
+	// only need this to compute chisquared, so set the track parameters the same at the beginning and end,
+	// and no covmat is needed (defined outside to be zero)
+
+	TrackPar tpar(0,0,nhits,xpos_init,tpl,covmat,0,xpos_init,tpl,covmat,0,0);
+
+	float c2sum = 0;
+	for (size_t ihit=0; ihit<nhits; ++ihit)
+	  {
+	    TVector3 hitpos(hits[hsi[hitlist[itrack][ihit]]].Position()[0],
+			    hits[hsi[hitlist[itrack][ihit]]].Position()[1],
+			    hits[hsi[hitlist[itrack][ihit]]].Position()[2]);
+	    TVector3 helixpos = tpar.getPosAtX(hitpos.X(),isForwards);
+	    c2sum += (hitpos-helixpos).Mag2();
+	  }
+	double dc2sum = c2sum;
+	return dc2sum;
+      };
+
+      // wrap chi2 funciton in a function object for the fit
+      // 5 is the number of fit parameters (size of array par)
+      ROOT::Math::Functor fcn(chi2Function,5);
+      ROOT::Fit::Fitter  fitter;
+
+      double pStart[5];
+      for (size_t i=0; i<5; ++i) pStart[i] = tpi[i];
+      fitter.SetFCN(fcn, pStart);
+      fitter.Config().ParSettings(0).SetName("y0");
+      fitter.Config().ParSettings(1).SetName("z0");
+      fitter.Config().ParSettings(2).SetName("curvature");
+      fitter.Config().ParSettings(3).SetName("phi0");
+      fitter.Config().ParSettings(4).SetName("slope");
+
+      // do the fit 
+      bool ok = fitter.FitFCN();
+      if (!ok) {
+	LOG_WARNING("gar::rec::tracker1") << "Helix Fit failed";
+	return(1);
+      }   
+
+      const ROOT::Fit::FitResult & result = fitter.Result();
+      //result.Print(std::cout);
+      float fity0 = result.Value(0);
+      float fitz0 = result.Value(1);
+      float fitcurvature = result.Value(2);
+      float fitphi0 = result.Value(3);
+      float fitslope = result.Value(4);
+      float tpfit[5] = {fity0,fitz0,fitcurvature,fitphi0,fitslope};
+      float chisqmin = result.MinFcnValue();
+      float tracklength = TMath::Abs(xpos_init - x_other_end) * TMath::Sqrt( 1.0 + fitslope*fitslope );
+      float covmatfit[25];
+      for (size_t i=0; i<5; ++i)
 	{
-	  TVector3 hitpos(hits[hsi[hitlist[itrack][ihit]]].Position()[0],
-		          hits[hsi[hitlist[itrack][ihit]]].Position()[1],
-		          hits[hsi[hitlist[itrack][ihit]]].Position()[2]);
-	  TVector3 helixpos = tpar.getPosAtX(hitpos.X(),isForwards);
-	  c2sum += (hitpos-helixpos).Mag2();
+	  for (size_t j=0; j<5; ++j)
+	    {
+	      covmatfit[5*i + j] = result.CovMatrix(i,j);
+	    }
+	} 
+
+      trackpar.setNHits(nhits);
+      trackpar.setTime(0);
+      trackpar.setChisqForwards(chisqmin);
+      trackpar.setChisqBackwards(chisqmin);
+      trackpar.setLengthForwards(tracklength);
+      trackpar.setLengthBackwards(tracklength);
+      trackpar.setCovMatBeg(covmatfit);  // todo -- put in covariance matrices at both ends properly.
+      trackpar.setCovMatEnd(covmatfit);
+      if (isForwards)
+	{
+	  trackpar.setTrackParametersBegin(tpfit);
+	  trackpar.setXBeg(xpos_init);
+	  trackpar.setXEnd(x_other_end);
+	  TVector3 xyzend = trackpar.getPosAtX(x_other_end,true);
+	  float yend = xyzend[1];
+	  float zend = xyzend[2];
+          float tp_other_end[5] = {yend,zend,fitcurvature,fitphi0,fitslope};
+	  trackpar.setTrackParametersEnd(tp_other_end);
+	}
+      else
+	{
+	  trackpar.setTrackParametersEnd(tpfit);
+	  trackpar.setXEnd(xpos_init);
+	  trackpar.setXBeg(x_other_end);
+	  TVector3 xyzend = trackpar.getPosAtX(x_other_end,true);
+	  float yend = xyzend[1];
+	  float zend = xyzend[2];
+          float tp_other_end[5] = {yend,zend,fitcurvature,fitphi0,fitslope};
+	  trackpar.setTrackParametersBegin(tp_other_end);
 	}
 
-      // todo -- wrap a minimizer around this chisquared function to get the best track parameters
       return 0;
     }
 
