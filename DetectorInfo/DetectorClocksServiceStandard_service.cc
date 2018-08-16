@@ -61,7 +61,8 @@ void gar::detinfo::DetectorClocksServiceStandard::preProcessEvent(::art::Event c
 void gar::detinfo::DetectorClocksServiceStandard::preBeginRun(::art::Run const& run)
 //------------------------------------------------------
 {
-  if (run.id().run() < 0) return;
+  // run number is unsigned so clang says this statement cannot happen
+  //if (run.id().run() < 0) return;
   
   fClocks->ApplyParams();
 }

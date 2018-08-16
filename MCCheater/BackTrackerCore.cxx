@@ -420,8 +420,9 @@ namespace gar{
       // get the track ids corresponding to this hit
       unsigned int start_tdc = (unsigned int)start;
       unsigned int end_tdc   = (unsigned int)end;
-      if(start_tdc < 0) start_tdc = 0;
-      if(end_tdc   < 0) end_tdc   = 0;
+      // clang though these were unnecessary as start_tdc and end_tdc are unsigned
+      //if(start_tdc < 0) start_tdc = 0;
+      //if(end_tdc   < 0) end_tdc   = 0;
       
       hitIDEs.clear();
       

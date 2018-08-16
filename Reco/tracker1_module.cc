@@ -61,7 +61,7 @@ namespace gar {
       float fHitResolYZ;           ///< resolution in cm of a hit in YZ (pad size)
       float fHitResolX;            ///< resolution in cm of a hit in X (drift direction)
       float fSigmaRoad;            ///< how many sigma away from a track a hit can be and still add it during patrec
-      float fXGapToEndTrack;       ///< how big a gap must be before we end a track and start a new one
+      //float fXGapToEndTrack;       ///< how big a gap must be before we end a track and start a new one (unused for now)
       unsigned int fMinNumHits;    ///< minimum number of hits to define a track
       std::string fHitLabel;       ///< label of module creating hits
       int fPrintLevel;             ///< debug printout:  0: none, 1: just track parameters and residuals, 2: all

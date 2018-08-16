@@ -29,7 +29,7 @@ namespace gar {
       GArPropertiesServiceStandard(fhicl::ParameterSet   const& pset,
                                    ::art::ActivityRegistry      & reg);
       
-      virtual void   reconfigure(fhicl::ParameterSet const& pset);
+      virtual void   reconfigure(fhicl::ParameterSet const& pset) override;
       void   preBeginRun(const ::art::Run& run);
       
       virtual const  provider_type* provider() const override { return fProp.get();}

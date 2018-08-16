@@ -56,7 +56,7 @@ namespace gar {
       double                               fEnergyCut;         ///< The minimum energy in GeV for a particle to
                                                                ///< be included in the list.
       const gar::geo::GeometryCore*        fGeo;               ///< handle to geometry service
-      CLHEP::HepRandomEngine*              fEngine;            ///< random number engine
+      //unused      CLHEP::HepRandomEngine*              fEngine;            ///< random number engine
     };
     
   } // garg4

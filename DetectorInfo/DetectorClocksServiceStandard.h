@@ -27,7 +27,7 @@ namespace gar {
       DetectorClocksServiceStandard(fhicl::ParameterSet   const& pset,
                                     ::art::ActivityRegistry      & reg);
       
-      virtual void  reconfigure(fhicl::ParameterSet const& pset);
+      virtual void  reconfigure(fhicl::ParameterSet const& pset) override;
       void          preBeginRun(::art::Run const& run);
       void          preProcessEvent(::art::Event const& evt);
       void          postOpenFile(std::string const& filename);

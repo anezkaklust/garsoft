@@ -14,10 +14,12 @@
 namespace gar {
 namespace evd{
 
-  static const int kRAW   = 0;
-  static const int kCALIB = 1;
-  static const int kPE =  2;
-  static const int kTNS = 3;
+  // clang didn't like these unused varaibles
+
+  //static const int kRAW   = 0;
+  //static const int kCALIB = 1;
+  //static const int kPE =  2;
+  //static const int kTNS = 3;
 
   //......................................................................
 

@@ -33,7 +33,7 @@ namespace gar {
     // Constructor.
     AuxDetAction::AuxDetAction(CLHEP::HepRandomEngine*    engine,
                                fhicl::ParameterSet const& pset)
-    : fEngine(engine)
+    //: fEngine(engine)
     {
       fGeo = gar::providerFrom<geo::Geometry>();
 

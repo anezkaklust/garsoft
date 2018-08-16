@@ -12,6 +12,7 @@ art_make_library(SOURCE    ${src_files} ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE}Ci
                  LIBRARIES EventDisplay_ColorDrawingOptions_service
  			                     SimulationDataProducts
  			                     RawDataProducts
+	                                     DetectorInfo_DetectorPropertiesServiceStandard_service
                            Geometry_Geometry_service
 			                     ReconstructionDataProducts
                            nusimdata_SimulationBase

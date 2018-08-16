@@ -27,7 +27,7 @@
 
 #include <algorithm>
 
-const G4bool debug = false;
+//unused const G4bool debug = false;
 
 namespace gar {
   namespace garg4 {

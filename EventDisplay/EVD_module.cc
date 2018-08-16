@@ -69,14 +69,14 @@ namespace gar{
       
     private:
       
-      bool fWindowsDrawn; ///< flag for whether windows are already drawn
+      //unused bool fWindowsDrawn; ///< flag for whether windows are already drawn
       
     };
 
     //----------------------------------------------------
     EVD::EVD(fhicl::ParameterSet const& pset)
     : EDAnalyzer(pset)
-    , fWindowsDrawn(false)
+      //, fWindowsDrawn(false)
     {
       
     }

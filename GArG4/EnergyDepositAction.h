@@ -62,7 +62,7 @@ namespace gar {
                                                         ///< be included in the list.
       std::string                          fVolumeName; ///< volume we will record energy depositions in
       std::string                          fMaterialMatchString; ///< Energy deposition will be recorded for materials that match this
-      CLHEP::HepRandomEngine*              fEngine;     ///< random number engine
+      //unused CLHEP::HepRandomEngine*              fEngine;     ///< random number engine
       std::vector<gar::sdp::EnergyDeposit> fDeposits;   ///< energy deposits
     };
     

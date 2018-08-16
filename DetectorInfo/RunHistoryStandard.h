@@ -40,7 +40,7 @@ namespace gar {
       RunHistoryStandard(RunHistoryStandard const&) = delete;
       virtual ~RunHistoryStandard();
       
-      virtual bool   Update(uint64_t ts=0) = 0;
+      virtual bool Update(uint64_t ts=0) override;
       
       virtual int RunNumber() const override{ return fRun; }
       virtual int NSubruns() const override{ return fNSubruns; }

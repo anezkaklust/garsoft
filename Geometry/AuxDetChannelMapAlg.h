@@ -29,7 +29,7 @@ namespace gar {
   namespace geo{
     
     // forward-declaration from geometry
-    class AuxDetGeometryData_t;
+    struct AuxDetGeometryData_t;
     class AuxDetGeo;
     
     class AuxDetChannelMapAlg{

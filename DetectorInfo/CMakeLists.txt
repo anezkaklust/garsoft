@@ -25,7 +25,6 @@ simple_plugin(DetectorClocksServiceStandard "service"
 	      art_Utilities canvas
               ${ART_FRAMEWORK_IO_ROOT_ROOTDB}
               ${MF_MESSAGELOGGER}
-              
               ${FHICLCPP}
               ${CETLIB_EXCEPT}
 	      ${SQLITE3}
@@ -53,10 +52,10 @@ simple_plugin(DetectorPropertiesServiceStandard "service"
 
 simple_plugin(GArPropertiesServiceStandard "service"
               DetectorInfo
+	      DetectorInfo_DetectorPropertiesServiceStandard_service
               art_Utilities canvas
               ${ART_FRAMEWORK_SERVICES_REGISTRY}
-              ${MF_MESSAGELOGGER}
-              
+              ${MF_MESSAGELOGGER}              
               ${CETLIB_EXCEPT}
              )
 
