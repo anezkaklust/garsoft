@@ -1020,6 +1020,7 @@ namespace gar {
 			    hits[hsi[hitlist[itrack][ihit]]].Position()[1],
 			    hits[hsi[hitlist[itrack][ihit]]].Position()[2]);
 	    TVector3 helixpos = tpar.getPosAtX(hitpos.X(),isForwards);
+	    std::cout << hitpos.X() << " " << hitpos.Y() << " " << hitpos.Z() << " " << helixpos.X() << " " << helixpos.Y() << " " << helixpos.Z() << std::endl;
 	    c2sum += (hitpos-helixpos).Mag2();
 	  }
 	double dc2sum = c2sum;
