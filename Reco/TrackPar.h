@@ -39,6 +39,7 @@ namespace gar
 	       const float chisqbackward,  // chisquared of backwards fit
 	       const ULong64_t time);      // timestamp
 
+      TrackPar() {};   // empty constructor
 
       const float *getTrackParametersBegin();
       const float *getTrackParametersEnd();

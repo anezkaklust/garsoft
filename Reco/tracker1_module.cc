@@ -21,6 +21,7 @@
 #include "art/Persistency/Common/PtrMaker.h"
 
 #include <memory>
+#include <set>
 
 #include "TVectorF.h"
 #include "TMatrix.h"
@@ -71,6 +72,9 @@ namespace gar {
       float fHitResolYZinFit;      ///< Hit resolution parameter to use in fit
       float fRoadYZinFit;          ///< cut in cm for dropping hits from tracks in fit
 
+      std::string fFirstPassFitType; ///< helix or Kalman -- which fitter to call for first-pass tracks
+      std::string fSecondPassFitType; ///< helix or Kalman -- which fitter to call for second-pass tracks
+
       int initial_trackpar_estimate(art::ValidHandle<std::vector<Hit> > &hitHandle, 
 				    std::vector<std::vector<int> >      &hitlist,
 				    std::vector<int>                    &hsi,
@@ -93,14 +97,22 @@ namespace gar {
 		     float &chisquared,
 		     float &length,
 		     float *covmat,    // 5x5 covariance matrix
-		     std::vector<int> &unused_hits);
+		     std::set<int> &unused_hits);
+
+      int KalmanFitBothWays(art::ValidHandle<std::vector<Hit> > &hitHandle, 
+			    std::vector<std::vector<int> > &hitlist, 
+			    std::vector<int> &hsi, 
+			    int itrack, 
+			    std::set<int> &unused_hits,
+			    TrackPar &trackpar
+			    );
 
       int FitHelix(art::ValidHandle<std::vector<Hit> > &hitHandle, 
 		   std::vector<std::vector<int> > &hitlist, 
 		   std::vector<int> &hsi, 
 		   int itrack, 
 		   bool isForwards, 
-		   std::vector<int> &unused_hits,
+		   std::set<int> &unused_hits,
 		   TrackPar &trackpar
 		   );
 
@@ -115,12 +127,10 @@ namespace gar {
     };
 
 
+    // constructor
+
     tracker1::tracker1(fhicl::ParameterSet const & p)
     {
-
-      produces< std::vector<rec::Track> >();
-      produces< art::Assns<rec::Hit, rec::Track> >();
-
       fHitResolYZ      = p.get<float>("HitResolYZ",1.0); // TODO -- think about what this value is
       fHitResolX       = p.get<float>("HitResolX",0.5);  // this is probably much better
       fSigmaRoad       = p.get<float>("SigmaRoad",5.0);
@@ -131,6 +141,13 @@ namespace gar {
       fDumpTracks      = p.get<int>("DumpTracks",2);
       fHitResolYZinFit = p.get<float>("HitResolYZinFit",4.0);
       fRoadYZinFit     = p.get<float>("RoadYZinFit",1.0);
+      fFirstPassFitType = p.get<std::string>("FirstPassFitType","helix");  
+      fSecondPassFitType = p.get<std::string>("SecondPassFitType","Kalman");
+
+      art::InputTag itag(fHitLabel);
+      consumes< std::vector<rec::Hit> >(itag); 
+      produces< std::vector<rec::Track> >();
+      produces< art::Assns<rec::Hit, rec::Track> >();
     }
 
     void tracker1::produce(art::Event & e)
@@ -248,8 +265,6 @@ namespace gar {
 	    }
 	}
 
-
-
       // now that we have the hits assigned, fit the tracks and adjust the hit lists.
       // fit them in both directions.  The Kalman filter gives the most precise measurement
       // of position and momentum at the end.
@@ -260,8 +275,6 @@ namespace gar {
       std::vector<int> firstpass_tid;
       std::vector<TrackPar> secondpass_tracks;
       std::vector<int> secondpass_tid;
-      float covmatbeg[25];
-      float covmatend[25];
       size_t ntracks = hitlist.size();
 
       if (fDumpTracks > 0)
@@ -288,54 +301,34 @@ namespace gar {
 		  std::cout << "Starting a new Pass1 track: " << itrack << " Number of hits: " << nhits << std::endl;
 		}
 
-	      // variables:  x is the independent variable
-	      // 0: y
-	      // 1: z
-	      // 2: curvature
-	      // 3: phi
-	      // 4: slope = d(yz distance)/dx
-	      // 5: x   /// added on to the end
+	      TrackPar trackparams;
+	      std::set<int> unused_hits;
 
-	      // the "forward" fit is just in increasing x.  Track parameters are at the end of the fit
-
-	      std::vector<float> tparend(6);
-	      float chisqforwards = 0;
-	      float lengthforwards = 0;
-	      std::vector<int> unused_hits;  
-	      int retcode = KalmanFit(hitHandle,hitlist,hsi,itrack,true,tparend,chisqforwards,lengthforwards,covmatend,unused_hits);
+	      int retcode=0;
+	      if (fFirstPassFitType == "helix")
+		{
+	          retcode = FitHelix(hitHandle,hitlist,hsi,itrack,true,unused_hits,trackparams);
+		}
+	      else if (fFirstPassFitType == "Kalman")
+		{
+	          retcode = KalmanFitBothWays(hitHandle,hitlist,hsi,itrack,unused_hits,trackparams);
+		}
+	      else
+		{
+		  throw cet::exception("Tracker1") << "Invalid first-pass fit type: " << fFirstPassFitType;
+		}
 	      if (retcode != 0) continue;
-              unused_hits.clear();  // todo -- use these hits for something
 
-	      // the "backwards" fit is in decreasing x.  Track paramters are at the end of the fit, the other end of the track
-
-	      std::vector<float> tparbeg(6);
-	      float chisqbackwards = 0;
-	      float lengthbackwards = 0;
-	      retcode = KalmanFit(hitHandle,hitlist,hsi,itrack,false,tparbeg,chisqbackwards,lengthbackwards,covmatbeg,unused_hits);
-	      if (retcode != 0) continue;
-              unused_hits.clear();  // todo -- use these hits for something
-
-	      firstpass_tracks.emplace_back(lengthforwards,
-					    lengthbackwards,
-					    nhits,
-					    tparbeg[5],
-					    tparbeg.data(),
-					    covmatbeg,
-					    chisqforwards,
-					    tparend[5],
-					    tparend.data(),
-					    covmatend,
-					    chisqbackwards,
-					    0);  // zero timestamp for now
+	      firstpass_tracks.push_back(trackparams);
 	      firstpass_tid.push_back(itrack);
 
 	      if (fDumpTracks > 0)
 		{
 		  std::cout << "Trkdump: " << itrack << std::endl;
-		  std::cout << "Trkdump: " << tparbeg[5] << std::endl;
-		  for (int i=0; i<5;++i) std::cout << "Trkdump: " << tparbeg[i] << std::endl;
-		  std::cout << "Trkdump: " << tparend[5] << std::endl;
-		  for (int i=0; i<5;++i) std::cout << "Trkdump: " << tparend[i] << std::endl;
+		  std::cout << "Trkdump: " << trackparams.getTrackParametersBegin()[5] << std::endl;
+		  for (int i=0; i<5;++i) std::cout << "Trkdump: " << trackparams.getTrackParametersBegin()[i] << std::endl;
+		  std::cout << "Trkdump: " << trackparams.getTrackParametersEnd()[5] << std::endl;
+		  for (int i=0; i<5;++i) std::cout << "Trkdump: " << trackparams.getTrackParametersEnd()[i] << std::endl;
 		  std::cout << "Trkdump: " << nhits << std::endl;
 		  for (size_t ihit=0;ihit<nhits;++ihit)
 		    {
@@ -382,33 +375,25 @@ namespace gar {
 		  std::cout << "Starting a new Pass2 track: " << itrack << " Number of hits: " << nhits << std::endl;
 		}
 
-	      std::vector<float> tparend(6);
-	      float chisqforwards = 0;
-	      float lengthforwards = 0;
-	      std::vector<int> unused_hits;
-	      int retcode = KalmanFit(hitHandle,hitlist2,hsi,itrack,true,tparend,chisqforwards,lengthforwards,covmatend,unused_hits);
-	      if (retcode != 0) continue;
-              unused_hits.clear();  // todo -- use these hits for something
+	      TrackPar trackparams;
+	      std::set<int> unused_hits;
 
-	      std::vector<float> tparbeg(6);
-	      float chisqbackwards = 0;
-	      float lengthbackwards = 0;
-	      retcode = KalmanFit(hitHandle,hitlist2,hsi,itrack,false,tparbeg,chisqbackwards,lengthbackwards,covmatbeg,unused_hits);
+	      int retcode=0;
+	      if (fFirstPassFitType == "helix")
+		{
+	          retcode = FitHelix(hitHandle,hitlist2,hsi,itrack,true,unused_hits,trackparams);
+		}
+	      else if (fFirstPassFitType == "Kalman")
+		{
+	          retcode = KalmanFitBothWays(hitHandle,hitlist2,hsi,itrack,unused_hits,trackparams);
+		}
+	      else
+		{
+		  throw cet::exception("Tracker1") << "Invalid first-pass fit type: " << fFirstPassFitType;
+		}
 	      if (retcode != 0) continue;
-              unused_hits.clear();  // todo -- use these hits for something
 
-	      secondpass_tracks.emplace_back(lengthforwards,
-					     lengthbackwards,
-					     nhits,
-					     tparbeg[5],
-					     tparbeg.data(),
-					     covmatbeg,
-					     chisqforwards,
-					     tparend[5],
-					     tparend.data(),
-					     covmatend,
-					     chisqbackwards,
-					     0);  // zero timestamp for now
+	      secondpass_tracks.push_back(trackparams);
 	      secondpass_tid.push_back(itrack);
 	    }
 	}
@@ -516,6 +501,61 @@ namespace gar {
       return curv;
     }
 
+
+    int tracker1::KalmanFitBothWays(art::ValidHandle<std::vector<Hit> > &hitHandle, 
+				    std::vector<std::vector<int> > &hitlist, 
+				    std::vector<int> &hsi, 
+				    int itrack, 
+				    std::set<int> &unused_hits,
+				    TrackPar &trackpar
+				    )
+
+    {
+      // variables:  x is the independent variable
+      // 0: y
+      // 1: z
+      // 2: curvature
+      // 3: phi
+      // 4: slope = d(yz distance)/dx
+      // 5: x   /// added on to the end
+
+      // the "forward" fit is just in increasing x.  Track parameters are at the end of the fit
+
+      std::vector<float> tparend(6);
+      float covmatend[25];
+      float chisqforwards = 0;
+      float lengthforwards = 0;
+      int retcode = KalmanFit(hitHandle,hitlist,hsi,itrack,true,tparend,chisqforwards,lengthforwards,covmatend,unused_hits);
+      if (retcode != 0) return 1;
+
+      // the "backwards" fit is in decreasing x.  Track paramters are at the end of the fit, the other end of the track
+
+      std::vector<float> tparbeg(6);
+      float covmatbeg[25];
+      float chisqbackwards = 0;
+      float lengthbackwards = 0;
+      retcode = KalmanFit(hitHandle,hitlist,hsi,itrack,false,tparbeg,chisqbackwards,lengthbackwards,covmatbeg,unused_hits);
+      if (retcode != 0) return 1;
+
+      size_t nhits=0;
+      if (hitlist.size()>unused_hits.size()) 
+	{ nhits = hitlist.size()-unused_hits.size(); }
+      trackpar.setNHits(nhits);
+      trackpar.setTime(0);
+      trackpar.setChisqForwards(chisqforwards);
+      trackpar.setChisqBackwards(chisqbackwards);
+      trackpar.setLengthForwards(lengthforwards);
+      trackpar.setLengthBackwards(lengthbackwards);
+      trackpar.setCovMatBeg(covmatbeg);
+      trackpar.setCovMatEnd(covmatend);
+      trackpar.setTrackParametersBegin(tparbeg.data());
+      trackpar.setXBeg(tparbeg[5]);
+      trackpar.setTrackParametersEnd(tparend.data());
+      trackpar.setXEnd(tparend[5]);
+
+      return 0;
+    }
+
     //--------------------------------------------------------------------------------------------------------------
     //--------------------------------------------------------------------------------------------------------------
 
@@ -536,7 +576,7 @@ namespace gar {
 			     float &chisquared,
 			     float &length,
 			     float *covmat,                     // 5x5 covariance matrix
-			     std::vector<int> &unused_hits) 
+			     std::set<int> &unused_hits) 
     {
 
       // set some default values in case we return early
@@ -718,7 +758,7 @@ namespace gar {
 	  float ydistsq = ytilde.Norm2Sqr();
 	  if (ydistsq > roadsq) 
 	    {
-	      unused_hits.push_back(ihf);
+	      unused_hits.insert(ihf);
 	      continue;
 	    }
 	  chisquared += ytilde.Norm2Sqr()/TMath::Sq(fHitResolYZ); 
@@ -918,13 +958,14 @@ namespace gar {
     //--------------------------------------------------------------
     // the isForwards switch is only used to select which end to use to estimate the initial track parameters. Since this is a single helix
     // fit, the track parameters are the same, except for an evaluation of x, y, and z at the beginning and the end.
+    // to do -- drop some hits if they have bad chisquared
 
     int tracker1::FitHelix(art::ValidHandle<std::vector<Hit> > &hitHandle, 
 			   std::vector<std::vector<int> > &hitlist, 
 			   std::vector<int> &hsi, 
 			   int itrack, 
 			   bool isForwards, 
-			   std::vector<int> &unused_hits,
+			   std::set<int> &unused_hits,
 			   TrackPar &trackpar
 			   )
     {
