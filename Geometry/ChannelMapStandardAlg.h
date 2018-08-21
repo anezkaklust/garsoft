@@ -26,8 +26,10 @@ namespace gar{
       : x(xPos)
       , y(yPos)
       , z(zPos)
-      {}
-      
+      {};
+
+      XYZPos() {x=0; y=0; z=0; };  
+
       float x;
       float y;
       float z;
@@ -89,6 +91,8 @@ namespace gar{
       size_t              fNumChansCenter;             ///< Number of channels in center hole filler
 
       void                CheckPositions();            ///< Method to check consistency of NearestChannel and ChannelToPosition
+
+      XYZPos              fTPCCenter;                  ///< Location of the center of the TPC
     };
     
     

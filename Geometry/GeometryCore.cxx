@@ -119,6 +119,9 @@ namespace gar {
         fDetHalfWidth  =       ((TGeoBBox*)activeVol->GetShape())->GetDZ();
         fDetHalfHeight =       ((TGeoBBox*)activeVol->GetShape())->GetDY();
         fDetLength     = 2.0 * ((TGeoBBox*)activeVol->GetShape())->GetDX();
+        fDetXCent =            ((TGeoBBox*)activeVol->GetShape())->GetOrigin()[0];
+        fDetYCent =            ((TGeoBBox*)activeVol->GetShape())->GetOrigin()[1];
+        fDetZCent =            ((TGeoBBox*)activeVol->GetShape())->GetOrigin()[2];
         return;
       }
 

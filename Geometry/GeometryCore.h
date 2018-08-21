@@ -581,6 +581,28 @@ namespace gar {
        */
       float DetLength() const { return fDetLength; }
       //@}
+
+
+      //@{
+      /**
+       * @brief Returns the X location of the center of the TPC in cm
+       */
+      float DetXCent() const { return fDetXCent; }
+      //@}
+
+      //@{
+      /**
+       * @brief Returns the Y location of the center of the TPC in cm
+       */
+      float DetYCent() const { return fDetYCent; }
+      //@}
+
+      //@{
+      /**
+       * @brief Returns the Z location of the center of the TPC in cm
+       */
+      float DetZCent() const { return fDetZCent; }
+      //@}
       
       unsigned int NChannels() const;
       
@@ -724,7 +746,10 @@ namespace gar {
       float          fDetHalfHeight;  ///< half height of the TPC
       float          fDetHalfWidth;   ///< half width of the TPC
       float          fDetLength;      ///< length of the TPC
-      
+      float          fDetXCent;       ///< center of TPC: X      
+      float          fDetYCent;       ///< center of TPC: Y      
+      float          fDetZCent;       ///< center of TPC: Z      
+
       typedef std::shared_ptr<const gar::geo::ChannelMapAlg> ChannelMapPtr;
       ChannelMapPtr  fChannelMapAlg;  ///< Object containing the channel to wire mapping
     }; // class GeometryCore

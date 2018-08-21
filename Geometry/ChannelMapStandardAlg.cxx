@@ -28,6 +28,12 @@ namespace gar {
       // start over:
       Uninitialize();
       
+      std::string driftvolname = geo.GetGArTPCVolumeName();
+
+      fTPCCenter.x = geo.DetXCent();
+      fTPCCenter.y = geo.DetYCent();
+      fTPCCenter.z = geo.DetZCent();
+
       // get these from the geometry?
       // all dimensions are in cm
 
@@ -87,7 +93,7 @@ namespace gar {
 	      for (size_t ipad = 0; ipad < numpads; ++ipad)
 		{
 	          float zloc = ( (float) ipad - (float) numpads/2 + 0.5)*fPadWidthIROC;
-	          XYZPos pixpos(-fXPlaneLoc, zloc*crot+yloc*srot, yloc*crot - zloc*srot);
+	          XYZPos pixpos(-fXPlaneLoc + fTPCCenter.x, zloc*crot+yloc*srot + fTPCCenter.y, yloc*crot - zloc*srot + fTPCCenter.z);
 	          fPixelCenters.push_back(pixpos);
 		  ipadacc++;
 		}
@@ -110,7 +116,7 @@ namespace gar {
 	      for (size_t ipad = 0; ipad < numpads; ++ipad)
 		{
 	          float zloc = ( (float) ipad - (float) numpads/2 + 0.5)*fPadWidthOROC;
-	          XYZPos pixpos(-fXPlaneLoc, zloc*crot+yloc*srot, yloc*crot - zloc*srot);
+	          XYZPos pixpos(-fXPlaneLoc + fTPCCenter.x, zloc*crot+yloc*srot + fTPCCenter.y, yloc*crot - zloc*srot+fTPCCenter.z);
 	          fPixelCenters.push_back(pixpos);
 		  ipadacc++;
 		}
@@ -133,7 +139,7 @@ namespace gar {
 	      for (size_t ipad = 0; ipad < numpads; ++ipad)
 		{
 	          float zloc = ( (float) ipad - (float) numpads/2 + 0.5)*fPadWidthOROC;
-	          XYZPos pixpos(-fXPlaneLoc, zloc*crot+yloc*srot, yloc*crot - zloc*srot);
+	          XYZPos pixpos(-fXPlaneLoc + fTPCCenter.x, zloc*crot+yloc*srot + fTPCCenter.y, yloc*crot - zloc*srot+fTPCCenter.z);
 	          fPixelCenters.push_back(pixpos);
 		  ipadacc++;
 		}
@@ -156,7 +162,7 @@ namespace gar {
 	  for (size_t ipad = 0; ipad < numpads; ++ipad)
 	    {
 	      zloc = ( (float) ipad - (float) numpads/2 + 0.5 )*fCenterPadWidth;
-	      XYZPos pixpos(-fXPlaneLoc,yloc,zloc);
+	      XYZPos pixpos(-fXPlaneLoc+fTPCCenter.x,yloc+fTPCCenter.y,zloc+fTPCCenter.z);
 	      fPixelCenters.push_back(pixpos);
 	      fNumChansCenter++;
 	    }
@@ -170,7 +176,7 @@ namespace gar {
 
       for (size_t ipix = 0; ipix < numpixside; ++ipix)
 	{
-	  XYZPos pixpos(fXPlaneLoc,fPixelCenters[ipix].y,fPixelCenters[ipix].z);
+	  XYZPos pixpos(fXPlaneLoc+fTPCCenter.x,fPixelCenters[ipix].y+fTPCCenter.y,fPixelCenters[ipix].z+fTPCCenter.z);
 	  fPixelCenters.push_back(pixpos);
 	  //std::cout << "trjpix " << fPixelCenters[ipix].z << " " << fPixelCenters[ipix].y << std::endl;
 	}
@@ -196,7 +202,7 @@ namespace gar {
     void ChannelMapStandardAlg::CheckPositions()
     {
       std::cout << "gar::ChannelMapStandardAlg::CheckPositions -- checking positions" << std::endl;
-
+      std::cout << "TPC center: (x,y,z) in cm: (" << fTPCCenter.x << "," << fTPCCenter.y << "," << fTPCCenter.z << ")" << std::endl; 
       size_t numchans = Nchannels();
       float xyz[3] = {0,0,0};
       for (size_t ichan=0; ichan<numchans; ++ichan)
@@ -220,9 +226,12 @@ namespace gar {
     }
     
     //----------------------------------------------------------------------------
-    unsigned int ChannelMapStandardAlg::NearestChannel(float const* xyz) const
+    unsigned int ChannelMapStandardAlg::NearestChannel(float const* xyz_input) const
     {
 
+      float xyz[3] = {xyz_input[0] - fTPCCenter.x, xyz_input[1] - fTPCCenter.y, xyz_input[2] - fTPCCenter.z};
+
+      // so far the calculations are formulaic lookups not relying on fPixelCenters.  So
       size_t ichan=0;
 
       float r = TMath::Sqrt(xyz[1]*xyz[1] + xyz[2]*xyz[2]);
