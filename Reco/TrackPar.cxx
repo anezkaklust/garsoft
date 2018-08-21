@@ -442,7 +442,7 @@ namespace gar
 	  else
 	    {
 	       y = fYCentBeg - TMath::Cos(phi)/fTrackParametersBegin[2];
-	       z = fZCentBeg + TMath::Cos(phi)/fTrackParametersBegin[2];
+	       z = fZCentBeg + TMath::Sin(phi)/fTrackParametersBegin[2];
 	    }	  
 	}
       else
@@ -456,7 +456,7 @@ namespace gar
 	  else
 	    {
 	       y = fYCentEnd - TMath::Cos(phi)/fTrackParametersEnd[2];
-	       z = fZCentEnd + TMath::Cos(phi)/fTrackParametersEnd[2];
+	       z = fZCentEnd + TMath::Sin(phi)/fTrackParametersEnd[2];
 	    }	  
 	}
       TVector3 pos(x,y,z);
