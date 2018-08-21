@@ -34,6 +34,9 @@ namespace evd{
   {
     art::ServiceHandle<geo::Geometry> geo;
 
+    // these are relative to the center of the TPC.  We will add the detector offsets
+    // on each point
+
     double xlo =  -geo->DetLength()/2;
     double xhi =  geo->DetLength()/2;
     double ylo = -geo->DetHalfHeight();
@@ -41,6 +44,7 @@ namespace evd{
     //double zlo =  -geo->DetHalfWidth();
     double zhi =  geo->DetHalfWidth();
     double r=yhi;
+
     double fracinner = 788.0/2580.;
 
     double ang = TMath::Pi()*2.0/18.0;
@@ -52,15 +56,15 @@ namespace evd{
     TPolyLine3D& sposi = view->AddPolyLine3D(19, c, w, s);
     for (int i=0;i<19;++i)
       {
-	spos.SetPoint(i,xhi,r*TMath::Cos(i*ang),r*TMath::Sin(i*ang));
-	sposi.SetPoint(i,xhi,fracinner*r*TMath::Cos(i*ang),fracinner*r*TMath::Sin(i*ang));
+	spos.SetPoint(i,xhi+geo->TPCXCent(),r*TMath::Cos(i*ang)+geo->TPCYCent(),r*TMath::Sin(i*ang)+geo->TPCZCent());
+	sposi.SetPoint(i,xhi+geo->TPCXCent(),fracinner*r*TMath::Cos(i*ang)+geo->TPCYCent(),fracinner*r*TMath::Sin(i*ang)+geo->TPCZCent());
       }
     TPolyLine3D& sneg = view->AddPolyLine3D(19, c, w, s);
     TPolyLine3D& snegi = view->AddPolyLine3D(19, c, w, s);
     for (int i=0;i<19;++i)
       {
-	sneg.SetPoint(i,xlo,r*TMath::Cos(i*ang),r*TMath::Sin(i*ang));
-	snegi.SetPoint(i,xlo,fracinner*r*TMath::Cos(i*ang),fracinner*r*TMath::Sin(i*ang));
+	sneg.SetPoint(i,xlo+geo->TPCXCent(),r*TMath::Cos(i*ang)+geo->TPCYCent(),r*TMath::Sin(i*ang)+geo->TPCZCent());
+	snegi.SetPoint(i,xlo+geo->TPCXCent(),fracinner*r*TMath::Cos(i*ang)+geo->TPCYCent(),fracinner*r*TMath::Sin(i*ang)+geo->TPCZCent());
       }
 
     c = kGray+2;
@@ -69,10 +73,10 @@ namespace evd{
     for (int i=0;i<18;++i)
       {
          TPolyLine3D& gridt = view->AddPolyLine3D(4, c, w, s);
-	 gridt.SetPoint(0,xlo,fracinner*r*TMath::Cos(i*ang),fracinner*r*TMath::Sin(i*ang));
-	 gridt.SetPoint(1,xlo,r*TMath::Cos(i*ang),r*TMath::Sin(i*ang));
-	 gridt.SetPoint(2,xhi,r*TMath::Cos(i*ang),r*TMath::Sin(i*ang));
-	 gridt.SetPoint(3,xhi,fracinner*r*TMath::Cos(i*ang),fracinner*r*TMath::Sin(i*ang));
+	 gridt.SetPoint(0,xlo+geo->TPCXCent(),fracinner*r*TMath::Cos(i*ang)+geo->TPCYCent(),fracinner*r*TMath::Sin(i*ang)+geo->TPCZCent());
+	 gridt.SetPoint(1,xlo+geo->TPCXCent(),r*TMath::Cos(i*ang)+geo->TPCYCent(),r*TMath::Sin(i*ang)+geo->TPCZCent());
+	 gridt.SetPoint(2,xhi+geo->TPCXCent(),r*TMath::Cos(i*ang)+geo->TPCYCent(),r*TMath::Sin(i*ang)+geo->TPCZCent());
+	 gridt.SetPoint(3,xhi+geo->TPCXCent(),fracinner*r*TMath::Cos(i*ang)+geo->TPCYCent(),fracinner*r*TMath::Sin(i*ang)+geo->TPCZCent());
       }
 
     // Indicate coordinate system
@@ -86,52 +90,52 @@ namespace evd{
     TPolyLine3D& xaxis = view->AddPolyLine3D(2, c, w, s);
     TPolyLine3D& yaxis = view->AddPolyLine3D(2, c, w, s);
     TPolyLine3D& zaxis = view->AddPolyLine3D(2, c, s, w);
-    xaxis.SetPoint(0, x0,    y0, z0);
-    xaxis.SetPoint(1, sz+x0, y0, z0);
+    xaxis.SetPoint(0, x0+geo->TPCXCent(),    y0+geo->TPCYCent(), z0+geo->TPCZCent());
+    xaxis.SetPoint(1, sz+x0+geo->TPCXCent(), y0+geo->TPCYCent(), z0+geo->TPCZCent());
 
-    yaxis.SetPoint(0, x0, y0,     z0);
-    yaxis.SetPoint(1, x0, y0+sz,  z0);
+    yaxis.SetPoint(0, x0+geo->TPCXCent(), y0+geo->TPCYCent(),     z0+geo->TPCZCent());
+    yaxis.SetPoint(1, x0+geo->TPCXCent(), y0+sz+geo->TPCYCent(),  z0+geo->TPCZCent());
 
-    zaxis.SetPoint(0, x0, y0, z0);
-    zaxis.SetPoint(1, x0, y0, z0+sz);
+    zaxis.SetPoint(0, x0+geo->TPCXCent(), y0+geo->TPCYCent(), z0+geo->TPCZCent());
+    zaxis.SetPoint(1, x0+geo->TPCXCent(), y0+geo->TPCYCent(), z0+sz+geo->TPCZCent());
 
     TPolyLine3D& xpoint = view->AddPolyLine3D(3, c, w, s);
     TPolyLine3D& ypoint = view->AddPolyLine3D(3, c, w, s);
     TPolyLine3D& zpoint = view->AddPolyLine3D(3, c, w, s);
   
-    xpoint.SetPoint(0, 0.95*sz+x0, y0, z0-0.05*sz);
-    xpoint.SetPoint(1, 1.00*sz+x0, y0, z0);
-    xpoint.SetPoint(2, 0.95*sz+x0, y0, z0+0.05*sz);
+    xpoint.SetPoint(0, 0.95*sz+x0+geo->TPCXCent(), y0+geo->TPCYCent(), z0-0.05*sz+geo->TPCZCent());
+    xpoint.SetPoint(1, 1.00*sz+x0+geo->TPCXCent(), y0+geo->TPCYCent(), z0+geo->TPCZCent());
+    xpoint.SetPoint(2, 0.95*sz+x0+geo->TPCXCent(), y0+geo->TPCYCent(), z0+0.05*sz+geo->TPCZCent());
 
-    ypoint.SetPoint(0, x0, 0.95*sz+y0, z0-0.05*sz);
-    ypoint.SetPoint(1, x0, 1.00*sz+y0, z0);
-    ypoint.SetPoint(2, x0, 0.95*sz+y0, z0+0.05*sz);
+    ypoint.SetPoint(0, x0+geo->TPCXCent(), 0.95*sz+y0+geo->TPCYCent(), z0-0.05*sz+geo->TPCZCent());
+    ypoint.SetPoint(1, x0+geo->TPCXCent(), 1.00*sz+y0+geo->TPCYCent(), z0+geo->TPCZCent());
+    ypoint.SetPoint(2, x0+geo->TPCXCent(), 0.95*sz+y0+geo->TPCYCent(), z0+0.05*sz+geo->TPCZCent());
 
-    zpoint.SetPoint(0, x0-0.05*sz, y0, 0.95*sz+z0);
-    zpoint.SetPoint(1, x0+0.00*sz, y0, 1.00*sz+z0);
-    zpoint.SetPoint(2, x0+0.05*sz, y0, 0.95*sz+z0);
+    zpoint.SetPoint(0, x0-0.05*sz+geo->TPCXCent(), y0+geo->TPCYCent(), 0.95*sz+z0+geo->TPCZCent());
+    zpoint.SetPoint(1, x0+0.00*sz+geo->TPCXCent(), y0+geo->TPCYCent(), 1.00*sz+z0+geo->TPCZCent());
+    zpoint.SetPoint(2, x0+0.05*sz+geo->TPCXCent(), y0+geo->TPCYCent(), 0.95*sz+z0+geo->TPCZCent());
 
     TPolyLine3D& zleg = view->AddPolyLine3D(4, c, w, s);  
-    zleg.SetPoint(0,  x0-0.05*sz, y0+0.05*sz, z0+1.05*sz);
-    zleg.SetPoint(1,  x0+0.05*sz, y0+0.05*sz, z0+1.05*sz);
-    zleg.SetPoint(2,  x0-0.05*sz, y0-0.05*sz, z0+1.05*sz);
-    zleg.SetPoint(3,  x0+0.05*sz, y0-0.05*sz, z0+1.05*sz);
+    zleg.SetPoint(0,  x0-0.05*sz+geo->TPCXCent(), y0+0.05*sz+geo->TPCYCent(), z0+1.05*sz+geo->TPCZCent());
+    zleg.SetPoint(1,  x0+0.05*sz+geo->TPCXCent(), y0+0.05*sz+geo->TPCYCent(), z0+1.05*sz+geo->TPCZCent());
+    zleg.SetPoint(2,  x0-0.05*sz+geo->TPCXCent(), y0-0.05*sz+geo->TPCYCent(), z0+1.05*sz+geo->TPCZCent());
+    zleg.SetPoint(3,  x0+0.05*sz+geo->TPCXCent(), y0-0.05*sz+geo->TPCYCent(), z0+1.05*sz+geo->TPCZCent());
 
     TPolyLine3D& yleg = view->AddPolyLine3D(5, c, w, s);  
-    yleg.SetPoint(0,  x0-0.05*sz, y0+1.15*sz, z0);
-    yleg.SetPoint(1,  x0+0.00*sz, y0+1.10*sz, z0);
-    yleg.SetPoint(2,  x0+0.00*sz, y0+1.05*sz, z0);
-    yleg.SetPoint(3,  x0+0.00*sz, y0+1.10*sz, z0);
-    yleg.SetPoint(4,  x0+0.05*sz, y0+1.15*sz, z0);
+    yleg.SetPoint(0,  x0-0.05*sz+geo->TPCXCent(), y0+1.15*sz+geo->TPCYCent(), z0+geo->TPCZCent());
+    yleg.SetPoint(1,  x0+0.00*sz+geo->TPCXCent(), y0+1.10*sz+geo->TPCYCent(), z0+geo->TPCZCent());
+    yleg.SetPoint(2,  x0+0.00*sz+geo->TPCXCent(), y0+1.05*sz+geo->TPCYCent(), z0+geo->TPCZCent());
+    yleg.SetPoint(3,  x0+0.00*sz+geo->TPCXCent(), y0+1.10*sz+geo->TPCYCent(), z0+geo->TPCZCent());
+    yleg.SetPoint(4,  x0+0.05*sz+geo->TPCXCent(), y0+1.15*sz+geo->TPCYCent(), z0+geo->TPCZCent());
 
     TPolyLine3D& xleg = view->AddPolyLine3D(7, c, w, s);  
-    xleg.SetPoint(0,  x0+1.05*sz, y0+0.05*sz, z0-0.05*sz);
-    xleg.SetPoint(1,  x0+1.05*sz, y0+0.00*sz, z0-0.00*sz);
-    xleg.SetPoint(2,  x0+1.05*sz, y0+0.05*sz, z0+0.05*sz);
-    xleg.SetPoint(3,  x0+1.05*sz, y0+0.00*sz, z0-0.00*sz);
-    xleg.SetPoint(4,  x0+1.05*sz, y0-0.05*sz, z0-0.05*sz);
-    xleg.SetPoint(5,  x0+1.05*sz, y0+0.00*sz, z0-0.00*sz);
-    xleg.SetPoint(6,  x0+1.05*sz, y0-0.05*sz, z0+0.05*sz);
+    xleg.SetPoint(0,  x0+1.05*sz+geo->TPCXCent(), y0+0.05*sz+geo->TPCYCent(), z0-0.05*sz+geo->TPCZCent());
+    xleg.SetPoint(1,  x0+1.05*sz+geo->TPCXCent(), y0+0.00*sz+geo->TPCYCent(), z0-0.00*sz+geo->TPCZCent());
+    xleg.SetPoint(2,  x0+1.05*sz+geo->TPCXCent(), y0+0.05*sz+geo->TPCYCent(), z0+0.05*sz+geo->TPCZCent());
+    xleg.SetPoint(3,  x0+1.05*sz+geo->TPCXCent(), y0+0.00*sz+geo->TPCYCent(), z0-0.00*sz+geo->TPCZCent());
+    xleg.SetPoint(4,  x0+1.05*sz+geo->TPCXCent(), y0-0.05*sz+geo->TPCYCent(), z0-0.05*sz+geo->TPCZCent());
+    xleg.SetPoint(5,  x0+1.05*sz+geo->TPCXCent(), y0+0.00*sz+geo->TPCYCent(), z0-0.00*sz+geo->TPCZCent());
+    xleg.SetPoint(6,  x0+1.05*sz+geo->TPCXCent(), y0-0.05*sz+geo->TPCYCent(), z0+0.05*sz+geo->TPCZCent());
 
   }
 

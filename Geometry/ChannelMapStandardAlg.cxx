@@ -28,11 +28,11 @@ namespace gar {
       // start over:
       Uninitialize();
       
-      std::string driftvolname = geo.GetGArTPCVolumeName();
+      //std::string driftvolname = geo.GetGArTPCVolumeName();
 
-      fTPCCenter.x = geo.DetXCent();
-      fTPCCenter.y = geo.DetYCent();
-      fTPCCenter.z = geo.DetZCent();
+      fTPCCenter.x = geo.TPCXCent();
+      fTPCCenter.y = geo.TPCYCent();
+      fTPCCenter.z = geo.TPCZCent();
 
       // get these from the geometry?
       // all dimensions are in cm
