@@ -120,9 +120,10 @@ namespace gar {
  
       float capprox(float x1,float y1,
 		    float x2,float y2,
-		    float x3,float y3);  ///< initial guess of curvature calculator -- from ALICE
+		    float x3,float y3,
+		    float &xc, float &yc);  ///< initial guess of curvature calculator -- from ALICE.  Also returns circle center
 
-      float capprox2(float y0, float z0, float y1, float z1, float y2, float z2);  // redo -- returns abs value of curvature
+      float capprox2(float y0, float z0, float y1, float z1, float y2, float z2);  //  -- returns abs value of curvature
 
     };
 
@@ -441,7 +442,8 @@ namespace gar {
     //_____________________________________________________________________________
     float tracker1::capprox(float x1,float y1,
 			    float x2,float y2,
-			    float x3,float y3)
+			    float x3,float y3,
+	                    float &xc, float &yc)
     {
       //-----------------------------------------------------------------
       // Initial approximation of the track curvature -- copied from ALICE
@@ -461,6 +463,8 @@ namespace gar {
       float x0 = x3*0.5-y3*u;
       float y0 = y3*0.5+x3*u;
       float c2 = 1/TMath::Sqrt(x0*x0+y0*y0);
+      xc = x0 + x1;
+      yc = y0 + y1;
       if (det<0) c2*=-1;
       return c2;
     }
@@ -924,28 +928,33 @@ namespace gar {
       zpos = trackbeg[2];
       x_other_end = hits[hsi[hitlist[itrack][lasthit]]].Position()[0];
 
-      // linear guess for the initial slope.
+
+      float ycc=0;
+      float zcc=0;
+      curvature_init = capprox(trackbeg[1],trackbeg[2],tp1[1],tp1[2],tp2[1],tp2[2],ycc,zcc);
+      //std::cout << " inputs to trackpar circ fit (y,z): " << trackbeg[1] << " " << trackbeg[2] << " : " 
+      //	    << tp1[1] << " " << tp1[2] << " : " << tp2[1] << " " << tp2[2] << std::endl; 
+      //std::cout << "curvature output: " << curvature_init << std::endl;
+
+      phi_init = TMath::ATan2( trackbeg[2] - zcc, ycc - trackbeg[1] );
+      float phi2 = phi_init;
+      if (curvature_init<0) phi_init += TMath::Pi();
+      float radius_init = 10000;
+      if (curvature_init != 0) radius_init = 1.0/curvature_init;
+
       float dx1 = tp2[0] - xpos;
-      float dyz1 = TMath::Sqrt( TMath::Sq( tp2[1] - trackbeg[1] ) +
-				TMath::Sq( tp2[2] - trackbeg[2] ) );
       if (dx1 != 0) 
-	{ slope_init = dyz1/dx1; }
+	{
+	  float dphi2 = TMath::ATan2(tp2[2]-zcc,ycc-tp2[1])-phi2;
+	  if (dphi2 > TMath::Pi()) dphi2 -= 2.0*TMath::Pi();
+	  if (dphi2 < -TMath::Pi()) dphi2 += 2.0*TMath::Pi();
+	  slope_init = (radius_init/dx1)*dphi2; 
+	}
       else
 	{ 
 	  slope_init = 0;
 	  return 1; 
 	} // got fMinNumHits all at exactly the same value of x (they were sorted).  Reject track.
-
-      // phi in the y,z plane
-
-      phi_init = TMath::ATan2( tp2[1]-trackbeg[1], tp2[2]-trackbeg[2] ); 
-
-      curvature_init = TMath::Abs(capprox(trackbeg[1],trackbeg[2],tp1[1],tp1[2],tp2[1],tp2[2]));
-
-      //float curvature_init2 = capprox2(trackbeg[1],trackbeg[2],tp1[1],tp1[2],tp2[1],tp2[2]);
-      //std::cout << "Compare initial curvatures: " << curvature_init << " " <<  curvature_init2 << std::endl;
-
-      if (! isForwards) curvature_init *= -1;
 
       if (fPrintLevel>0)
 	{
