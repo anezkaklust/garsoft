@@ -1,0 +1,13 @@
+BEGIN_PROLOG
+
+standard_anatree:
+{
+ module_type:       anatree
+ GeneratorLabel:    "generator"
+ GEANTLabel:        "geant"
+ HitLabel:          "hit"
+ TrackLabel:        "track"
+ VertexLabel:       "vertex"
+}
+
+END_PROLOG
