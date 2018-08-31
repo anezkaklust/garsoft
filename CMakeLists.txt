@@ -79,6 +79,7 @@ add_subdirectory (SummaryDataProducts)
 add_subdirectory (TestUtils)
 add_subdirectory (Utilities)
 add_subdirectory (Reco)
+add_subdirectory (Ana)
 
 # tests
 add_subdirectory (test)
