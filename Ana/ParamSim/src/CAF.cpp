@@ -29,7 +29,7 @@ CAF::CAF( std::string infile, std::string filename, int correct4origin)
 : cafFile(nullptr), _intfile(nullptr), _inttree(nullptr), _util(new Utils()), _inputfile(infile), _outputFile(filename), _correct4origin(correct4origin)
 {
     if(_correct4origin)
-        _util->SetOrigin(_util->GetOriginTPC());
+    _util->SetOrigin(_util->GetOriginTPC());
 }
 
 CAF::~CAF()
@@ -111,6 +111,7 @@ bool CAF::BookTFile()
         cafMVA->Branch("truepdg", &truepdg);
         //Reco info
         cafMVA->Branch("recopid", &recopid);
+        cafMVA->Branch("recopidecal", &recopidecal);
         cafMVA->Branch("trkLen", &trkLen);
         cafMVA->Branch("trkLenPerp", &trkLenPerp);
         cafMVA->Branch("preco", &_preco);
@@ -201,6 +202,7 @@ void CAF::ClearVectors()
 
     //Reco values
     recopid.clear();
+    recopidecal.clear();
     prob_arr.clear();
     partereco.clear();
     anglereco.clear();
@@ -344,7 +346,8 @@ void CAF::loop()
 
     //gamma, neutron, pi0, k0L, k0S, k0, delta0
     std::vector<int> pdg_neutral = {22, 2112, 111, 130, 310, 311, 2114, 14, 12, 16};
-
+    //pion, muon, proton, kaon, deuteron, electron
+    std::vector<int> pdg_charged = {211, 13, 2212, 321, 1000010020, 11};
     //-------------------------------------------------------------------
 
     // Main event loop
@@ -510,6 +513,7 @@ void CAF::loop()
                     _angle.push_back(angle);
                     _preco.push_back(0);
                     anglereco.push_back(0);
+                    recopidecal.push_back(2112);
                     for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
                     // mctrkid.push_back(MCPTrkID->at(i));
 
@@ -539,6 +543,7 @@ void CAF::loop()
                     _angle.push_back(angle);
                     _preco.push_back(0);
                     anglereco.push_back(0);
+                    recopidecal.push_back(0);
                     for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
                     // mctrkid.push_back(MCPTrkID->at(i));
 
@@ -574,6 +579,7 @@ void CAF::loop()
                 mctime.push_back(time);
                 _preco.push_back(0);
                 anglereco.push_back(0);
+                recopidecal.push_back(0);//TODO??
                 for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
                 //mctrkid.push_back(MCPTrkID->at(i));
 
@@ -616,6 +622,10 @@ void CAF::loop()
                         mctime.push_back(time);
                         _preco.push_back(0);
                         anglereco.push_back(0);
+
+                        //reach the ECAL, should be tagged as gamma
+                        recopidecal.push_back(22);
+
                         for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
                         //mctrkid.push_back(MCPTrkID->at(i));
 
@@ -646,6 +656,8 @@ void CAF::loop()
                         mctime.push_back(time);
                         _preco.push_back(0);
                         anglereco.push_back(0);
+                        //converted so not seen in ECAL
+                        recopidecal.push_back(0);
                         for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
 
                         // std::cout << "gamma converted in ECAL not from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
@@ -654,6 +666,7 @@ void CAF::loop()
                 else{
                     //case they are from pi0
                     TVector3 epoint(MCPEndX->at(i)- _util->GetOrigin()[0], MCPEndY->at(i)- _util->GetOrigin()[1], MCPEndZ->at(i)- _util->GetOrigin()[2]);
+                    //Endpoint is not in the tracker, reaches the ecal
                     if(not _util->hasOriginInTracker(epoint))
                     {
                         //if they hit the ECAL and smear their energy
@@ -682,6 +695,10 @@ void CAF::loop()
                         mctime.push_back(time);
                         _preco.push_back(0);
                         anglereco.push_back(0);
+
+                        //reaches the ecal
+                        recopidecal.push_back(22);
+
                         for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
 
                         // std::cout << "gamma detected in ECAL from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
@@ -711,6 +728,8 @@ void CAF::loop()
                         mctime.push_back(time);
                         _preco.push_back(0);
                         anglereco.push_back(0);
+                        //converted not seen by ecal
+                        recopidecal.push_back(0);
                         for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
 
                         // std::cout << "gamma converted in ECAL from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
@@ -721,11 +740,9 @@ void CAF::loop()
             //Visible in the TPC
             if( trkLen.at(i) > gastpc_len )
             {
-                // std::vector<int> pdglist = {2112, 211, 13, 2212, 321, 1000010020, 11};
-                std::vector<int> pdglist = {211, 13, 2212, 321, 1000010020, 11};
                 for (int pidm = 0; pidm < 6; ++pidm)
                 {
-                    if ( abs(pdg) == pdglist[pidm] ) {
+                    if ( abs(pdg) == pdg_charged.at(pidm) ) {
                         // std::cout << "Entered reco TPC" << std::endl;
 
                         //Use range instead of Gluckstern for stopping tracks
@@ -756,7 +773,7 @@ void CAF::loop()
                         mctime.push_back(time);
                         //mctrkid.push_back(MCPTrkID->at(i));
 
-                        //Case for range, the end point of the mcp is in the tracker
+                        //Case for range, the end point of the mcp is in the tracker, does not reach the ecal
                         if( _util->hasOriginInTracker(epoint) )
                         {
                             // calculate number of trackpoints
@@ -778,6 +795,7 @@ void CAF::loop()
                             else
                             _preco.push_back(0);
                             anglereco.push_back(angle_reco);
+                            recopidecal.push_back(0);
                         }
                         else{
                             //Case where the endpoint is not in the tracker, should be able to use the Gluckstern formula
@@ -804,12 +822,112 @@ void CAF::loop()
                             float angle_reco = _util->GaussianSmearing(angle, sigma_angle);
 
                             // save reconstructed momentum and angle to cafanatree
-                            erecon.push_back(0);
                             if(preco > 0)
                             _preco.push_back(preco);
                             else
                             _preco.push_back(0);
                             anglereco.push_back(angle_reco);
+
+                            //should reach the ECAL?
+                            //Need energy measurement in ecal
+                            TParticlePDG *part = TDatabasePDG::Instance()->GetParticle(abs(pdg));
+                            if(nullptr == part){
+                                std::cout << "Could not find particle in root pdg table, pdg " << pdg << std::endl;
+                                //deuteron
+                                if( pdg == 1000010020 ) {
+                                    float mtrue = 1.8756; //in GeV
+                                    float etrue = std::sqrt(ptrue*ptrue + mtrue*mtrue);
+                                    float ECAL_resolution = fRes->Eval(etrue)*etrue;
+                                    float ereco = _util->GaussianSmearing(etrue, ECAL_resolution);
+                                    erecon.push_back(ereco);
+                                    recopidecal.push_back(0);
+                                }
+                                else {
+                                    erecon.push_back(0);
+                                    recopidecal.push_back(0);
+                                }
+                            } else {
+                                float mtrue = part->Mass(); //in GeV
+                                float etrue = std::sqrt(ptrue*ptrue + mtrue*mtrue);
+                                float ECAL_resolution = fRes->Eval(etrue)*etrue;
+                                float ereco = _util->GaussianSmearing(etrue, ECAL_resolution);
+                                erecon.push_back(ereco);
+                                //by default should be tagged as an electron as it has a track,
+                                //otherwise tag as gamma if not track -> need mis association rate, and use dE/dX in Scintillator?
+                                //separation between e and mu/pi should be around 100%
+                                //separation mu/pi -> based on Chris study with only the ECAL (no Muon ID detector)
+                                //separation with p and mu/pi/e ?? high energy -> confusion with mu/pi, low energy confusion with e
+                                //using E/p to ID?
+
+                                // std::cout << "E/p " << ereco/preco << " true pdg " << pdg << std::endl;
+
+                                if( abs(pdg) == 11 ){
+                                    recopidecal.push_back(11);
+                                }
+                                if( abs(pdg) == 13 || abs(pdg) == 211 )
+                                {
+                                    //ptrue < 480 MeV/c 100% separation
+                                    //80% from 480 to 750
+                                    //90% up to 750 to 900
+                                    //95% over 900
+                                    float random_number = _util->GetRamdomNumber();
+
+                                    if(ptrue < 0.48)
+                                    recopidecal.push_back(pdg);//100% efficiency by range
+
+                                    if(ptrue >= 0.48 && ptrue < 0.75)
+                                    {
+                                        //case muon
+                                        if(random_number > (1 - 0.8) && abs(pdg) == 13)
+                                        recopidecal.push_back(13);
+                                        else{
+                                            recopidecal.push_back(211);
+                                        }
+                                        //case pion
+                                        if(random_number > (1 - 0.8) && abs(pdg) == 211)
+                                        recopidecal.push_back(211);
+                                        else{
+                                            recopidecal.push_back(13);
+                                        }
+                                    }
+
+                                    if(ptrue >= 0.75 && ptrue < 900)
+                                    {
+                                        //case muon
+                                        if(random_number > (1 - 0.9) && abs(pdg) == 13)
+                                        recopidecal.push_back(13);
+                                        else{
+                                            recopidecal.push_back(211);
+                                        }
+                                        //case pion
+                                        if(random_number > (1 - 0.9) && abs(pdg) == 211)
+                                        recopidecal.push_back(211);
+                                        else{
+                                            recopidecal.push_back(13);
+                                        }
+                                    }
+
+                                    if(ptrue > 0.9)
+                                    {
+                                        //case muon
+                                        if(random_number > (1 - 0.95) && abs(pdg) == 13)
+                                        recopidecal.push_back(13);
+                                        else{
+                                            recopidecal.push_back(211);
+                                        }
+                                        //case pion
+                                        if(random_number > (1 - 0.95) && abs(pdg) == 211)
+                                        recopidecal.push_back(211);
+                                        else{
+                                            recopidecal.push_back(13);
+                                        }
+                                    }
+                                }
+                                if( abs(pdg) == 2212 )
+                                {
+                                    recopidecal.push_back(2212);//TODO for p/pi separation
+                                }
+                            }
                         }
 
                         //--------------------------------------------------------------------------
@@ -886,7 +1004,7 @@ void CAF::loop()
                                     float prob = pidinterp->GetBinContent(pidm+1,pidr+1);
                                     prob_arr.push_back(prob);
 
-                                    // std::cout << "true part " << trueparticlename << " true pid " << pdglist[pidm] << " reco name " << recoparticlename << " reco part list "
+                                    // std::cout << "true part " << trueparticlename << " true pid " << pdg_charged.at(pidm) << " reco name " << recoparticlename << " reco part list "
                                     // << recopnamelist[pidr] <<  " true mom " << ptrue << " reco mom " <<  p << " prob " << pidinterp->GetBinContent(pidm+1,pidr+1) << '\n';
                                     //Need to check random number value and prob value then associate the recopdg to the reco prob
                                     v_prob.push_back( std::make_pair(prob, recoparticlename) );
@@ -909,22 +1027,22 @@ void CAF::loop()
                                 {
                                     if( random_number < v_prob.at(ivec+1).first && random_number >= v_prob.at(ivec).first ) {
                                         // std::cout << "true pdg " << pdg << " Reco pid " << v_prob.at(ivec+1).second << std::endl;
-                                        recopid.push_back( pdglist.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(ivec+1).second) ) ) );
+                                        recopid.push_back( pdg_charged.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(ivec+1).second) ) ) );
                                     }
                                 }
                             }
                             else{
                                 // std::cout << v_prob.at(0).first << " " << v_prob.at(0).second << std::endl;
-                                recopid.push_back( pdglist.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(0).second) ) ) );
+                                recopid.push_back( pdg_charged.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(0).second) ) ) );
                             }
                         } // closes the if statement
 
-                        std::cout << "particle seen in TPC, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << " trk length " << trkLen.at(i) << std::endl;
+                        // std::cout << "particle seen in TPC, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << " trk length " << trkLen.at(i) << std::endl;
                     } // closes the conditional statement of trueparticlename == MC true pdg
                     else {
                         //not in the pdglist of particles but visible in TPC?
-                        auto found = std::find(pdglist.begin(), pdglist.end(), abs(pdg));
-                        if(found == pdglist.end())
+                        auto found = std::find(pdg_charged.begin(), pdg_charged.end(), abs(pdg));
+                        if(found == pdg_charged.end())
                         {
                             // std::cout << "Maybe visible but not {#pi, #mu, p, K, d, e};" << std::endl;
                             // std::cout << "pdg " << pdg << std::endl;
@@ -954,6 +1072,7 @@ void CAF::loop()
                             _preco.push_back(0);
                             anglereco.push_back(0);
                             recopid.push_back(0);
+                            recopidecal.push_back(0);
                             for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
 
                             // std::cout << "particle seen in TPC but not {#pi, #mu, p, K, d, e}, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << " trk length " << trkLen.at(i) << std::endl;
@@ -995,6 +1114,7 @@ void CAF::loop()
                     _preco.push_back(0);
                     anglereco.push_back(0);
                     recopid.push_back(0);
+                    recopidecal.push_back(0);
                     for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
 
                     // std::cout << "particle not seen in TPC, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << " trk length " << trkLen.at(i) << std::endl;

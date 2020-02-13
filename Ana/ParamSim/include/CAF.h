@@ -67,7 +67,7 @@ private:
     std::vector<std::string> _MCProc, _MCEndProc;
     std::vector<float> trkLen, trkLenPerp, truep, truepx, truepy, truepz, _angle;
     //Reco values
-    std::vector<int> recopid;
+    std::vector<int> recopid, recopidecal;
     std::vector<float> prob_arr, partereco, anglereco, _preco, erecon;
 };
 
