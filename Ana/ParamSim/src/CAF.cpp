@@ -20,15 +20,16 @@
 #include <functional>
 
 CAF::CAF()
-: cafFile(nullptr), _intfile(nullptr), _inttree(nullptr), _util(new Utils()), _inputfile(""), _outputFile("")
+: cafFile(nullptr), _intfile(nullptr), _inttree(nullptr), _util(new Utils()), _inputfile(""), _outputFile(""), _correct4origin(0)
 {
 
 }
 
-CAF::CAF( std::string infile, std::string filename )
-: cafFile(nullptr), _intfile(nullptr), _inttree(nullptr), _util(new Utils()), _inputfile(infile), _outputFile(filename)
+CAF::CAF( std::string infile, std::string filename, int correct4origin)
+: cafFile(nullptr), _intfile(nullptr), _inttree(nullptr), _util(new Utils()), _inputfile(infile), _outputFile(filename), _correct4origin(correct4origin)
 {
-
+    if(_correct4origin)
+        _util->SetOrigin(_util->GetOriginTPC());
 }
 
 CAF::~CAF()
@@ -342,7 +343,7 @@ void CAF::loop()
     _inttree->SetBranchAddress("TrajMCPTrajIndex", &TrajMCPTrajIndex);
 
     //gamma, neutron, pi0, k0L, k0S, k0, delta0
-    std::vector<int> pdg_neutral = {22, 2112, 111, 130, 310, 311, 2114, 14};
+    std::vector<int> pdg_neutral = {22, 2112, 111, 130, 310, 311, 2114, 14, 12, 16};
 
     //-------------------------------------------------------------------
 
@@ -353,7 +354,7 @@ void CAF::loop()
 
         this->ClearVectors();
 
-        if(Event%100 == 0)
+        // if(Event%100 == 0)
         std::cout << "Treating Evt " << Event << std::endl;
 
         //Filling MCTruth values
@@ -373,9 +374,9 @@ void CAF::loop()
             theta.push_back(MC_Theta->at(i));
             mode.push_back(Mode->at(i));
             intert.push_back(InterT->at(i));
-            vertx.push_back(MCVertX->at(i));
-            verty.push_back(MCVertY->at(i));
-            vertz.push_back(MCVertZ->at(i));
+            vertx.push_back(MCVertX->at(i) - _util->GetOrigin()[0]);
+            verty.push_back(MCVertY->at(i) - _util->GetOrigin()[1]);
+            vertz.push_back(MCVertZ->at(i) - _util->GetOrigin()[2]);
             mcnupx.push_back(MCNuPx->at(i));
             mcnupy.push_back(MCNuPy->at(i));
             mcnupz.push_back(MCNuPz->at(i));
@@ -425,13 +426,14 @@ void CAF::loop()
                 double tracklen = 0.;
                 double tracklen_perp = 0.;
 
+                //CAREFUL No offset for the trajectory points (origin for them is the TPC?)??????
                 //TODO check if the mcp point is within the TPC volume! Skip for mcp in the ECAL (showers)
                 //TODO Link showers to original mcp?
                 for(size_t itraj = 1; itraj < TrajMCPX->size(); itraj++){
                     //check that it is the correct mcp
-		  if(TrajMCPTrajIndex->at(itraj) == (int) i){
+                    if(TrajMCPTrajIndex->at(itraj) == (int) i){
                         //Traj point+1
-                        TVector3 point(TrajMCPX->at(itraj), TrajMCPY->at(itraj), TrajMCPZ->at(itraj));
+                        TVector3 point(TrajMCPX->at(itraj)- _util->GetOriginTPC()[0], TrajMCPY->at(itraj)- _util->GetOriginTPC()[1], TrajMCPZ->at(itraj)- _util->GetOriginTPC()[2]);
                         //point is not in the TPC anymore - stop traj loop
                         if(not _util->hasOriginInTracker(point))
                         {
@@ -483,7 +485,7 @@ void CAF::loop()
                     //TODO random is first interaction or rescatter and smear accordingly to Chris's study
                     //Detected in the ECAL
                     // recopid.push_back(2112);
-                    recopid.push_back(0);
+                    recopid.push_back(0); //reco pid set to 0?
                     detected.push_back(1);
                     float eres = sigmaNeutronECAL_first * std::sqrt(ptrue*ptrue + neutron_mass*neutron_mass);
                     float ereco = _util->GaussianSmearing( std::sqrt(ptrue*ptrue + neutron_mass*neutron_mass), eres );
@@ -494,12 +496,12 @@ void CAF::loop()
                     truepx.push_back(MCPStartPX->at(i));
                     truepy.push_back(MCPStartPY->at(i));
                     truepz.push_back(MCPStartPZ->at(i));
-                    _MCPStartX.push_back(MCPStartX->at(i));
-                    _MCPStartY.push_back(MCPStartY->at(i));
-                    _MCPStartZ.push_back(MCPStartZ->at(i));
-                    _MCPEndX.push_back(MCPEndX->at(i));
-                    _MCPEndY.push_back(MCPEndY->at(i));
-                    _MCPEndZ.push_back(MCPEndZ->at(i));
+                    _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                    _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                    _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                    _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                    _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                    _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
                     pdgmother.push_back(PDGMother->at(i));
                     //Save MC process
                     _MCProc.push_back(mcp_process);
@@ -510,6 +512,8 @@ void CAF::loop()
                     anglereco.push_back(0);
                     for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
                     // mctrkid.push_back(MCPTrkID->at(i));
+
+                    // std::cout << "Neutron detected in ECAL, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                 }
                 else{
                     //neutron not detected
@@ -521,12 +525,12 @@ void CAF::loop()
                     truepx.push_back(MCPStartPX->at(i));
                     truepy.push_back(MCPStartPY->at(i));
                     truepz.push_back(MCPStartPZ->at(i));
-                    _MCPStartX.push_back(MCPStartX->at(i));
-                    _MCPStartY.push_back(MCPStartY->at(i));
-                    _MCPStartZ.push_back(MCPStartZ->at(i));
-                    _MCPEndX.push_back(MCPEndX->at(i));
-                    _MCPEndY.push_back(MCPEndY->at(i));
-                    _MCPEndZ.push_back(MCPEndZ->at(i));
+                    _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                    _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                    _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                    _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                    _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                    _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
                     pdgmother.push_back(PDGMother->at(i));
                     //Save MC process
                     _MCProc.push_back(mcp_process);
@@ -537,6 +541,8 @@ void CAF::loop()
                     anglereco.push_back(0);
                     for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
                     // mctrkid.push_back(MCPTrkID->at(i));
+
+                    // std::cout << "Neutron not detected in ECAL, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                 }
             }
 
@@ -554,12 +560,12 @@ void CAF::loop()
                 truepx.push_back(MCPStartPX->at(i));
                 truepy.push_back(MCPStartPY->at(i));
                 truepz.push_back(MCPStartPZ->at(i));
-                _MCPStartX.push_back(MCPStartX->at(i));
-                _MCPStartY.push_back(MCPStartY->at(i));
-                _MCPStartZ.push_back(MCPStartZ->at(i));
-                _MCPEndX.push_back(MCPEndX->at(i));
-                _MCPEndY.push_back(MCPEndY->at(i));
-                _MCPEndZ.push_back(MCPEndZ->at(i));
+                _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
                 pdgmother.push_back(PDGMother->at(i));
                 _angle.push_back(angle);
                 //Save MC process
@@ -570,6 +576,8 @@ void CAF::loop()
                 anglereco.push_back(0);
                 for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
                 //mctrkid.push_back(MCPTrkID->at(i));
+
+                // std::cout << "pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
             }
 
             //for gammas
@@ -578,7 +586,7 @@ void CAF::loop()
                 //TODO check if they are not from a pi0 or decayed in the TPC and hit the ECAL!
                 if( PDGMother->at(i) != 111 )
                 {
-                    TVector3 epoint(MCPEndX->at(i), MCPEndY->at(i), MCPEndZ->at(i));
+                    TVector3 epoint(MCPEndX->at(i)- _util->GetOrigin()[0], MCPEndY->at(i)- _util->GetOrigin()[1], MCPEndZ->at(i)- _util->GetOrigin()[2]);
                     //Endpoint is not in the TPC
                     if(not _util->hasOriginInTracker(epoint))
                     {
@@ -594,12 +602,12 @@ void CAF::loop()
                         truepx.push_back(MCPStartPX->at(i));
                         truepy.push_back(MCPStartPY->at(i));
                         truepz.push_back(MCPStartPZ->at(i));
-                        _MCPStartX.push_back(MCPStartX->at(i));
-                        _MCPStartY.push_back(MCPStartY->at(i));
-                        _MCPStartZ.push_back(MCPStartZ->at(i));
-                        _MCPEndX.push_back(MCPEndX->at(i));
-                        _MCPEndY.push_back(MCPEndY->at(i));
-                        _MCPEndZ.push_back(MCPEndZ->at(i));
+                        _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                        _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                        _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                        _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                        _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                        _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
                         pdgmother.push_back(PDGMother->at(i));
                         _angle.push_back(angle);
                         //Save MC process
@@ -610,6 +618,8 @@ void CAF::loop()
                         anglereco.push_back(0);
                         for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
                         //mctrkid.push_back(MCPTrkID->at(i));
+
+                        // std::cout << "gamma detected in ECAL not from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                     }
                     else{
                         //case endpoint is in the TPC (Converted!)
@@ -622,12 +632,12 @@ void CAF::loop()
                         truepx.push_back(MCPStartPX->at(i));
                         truepy.push_back(MCPStartPY->at(i));
                         truepz.push_back(MCPStartPZ->at(i));
-                        _MCPStartX.push_back(MCPStartX->at(i));
-                        _MCPStartY.push_back(MCPStartY->at(i));
-                        _MCPStartZ.push_back(MCPStartZ->at(i));
-                        _MCPEndX.push_back(MCPEndX->at(i));
-                        _MCPEndY.push_back(MCPEndY->at(i));
-                        _MCPEndZ.push_back(MCPEndZ->at(i));
+                        _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                        _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                        _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                        _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                        _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                        _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
                         pdgmother.push_back(PDGMother->at(i));
                         _angle.push_back(angle);
                         //Save MC process
@@ -637,11 +647,13 @@ void CAF::loop()
                         _preco.push_back(0);
                         anglereco.push_back(0);
                         for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
+
+                        // std::cout << "gamma converted in ECAL not from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                     }
                 }
                 else{
                     //case they are from pi0
-                    TVector3 epoint(MCPEndX->at(i), MCPEndY->at(i), MCPEndZ->at(i));
+                    TVector3 epoint(MCPEndX->at(i)- _util->GetOrigin()[0], MCPEndY->at(i)- _util->GetOrigin()[1], MCPEndZ->at(i)- _util->GetOrigin()[2]);
                     if(not _util->hasOriginInTracker(epoint))
                     {
                         //if they hit the ECAL and smear their energy
@@ -656,12 +668,12 @@ void CAF::loop()
                         truepx.push_back(MCPStartPX->at(i));
                         truepy.push_back(MCPStartPY->at(i));
                         truepz.push_back(MCPStartPZ->at(i));
-                        _MCPStartX.push_back(MCPStartX->at(i));
-                        _MCPStartY.push_back(MCPStartY->at(i));
-                        _MCPStartZ.push_back(MCPStartZ->at(i));
-                        _MCPEndX.push_back(MCPEndX->at(i));
-                        _MCPEndY.push_back(MCPEndY->at(i));
-                        _MCPEndZ.push_back(MCPEndZ->at(i));
+                        _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                        _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                        _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                        _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                        _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                        _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
                         pdgmother.push_back(PDGMother->at(i));
                         _angle.push_back(angle);
                         //Save MC process
@@ -671,9 +683,11 @@ void CAF::loop()
                         _preco.push_back(0);
                         anglereco.push_back(0);
                         for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
+
+                        // std::cout << "gamma detected in ECAL from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                     }
                     else{
-                        //not from pi0 and converted in TPC
+                        //from pi0 and converted in TPC
                         erecon.push_back(0);
                         recopid.push_back(0);
                         detected.push_back(0);
@@ -683,12 +697,12 @@ void CAF::loop()
                         truepx.push_back(MCPStartPX->at(i));
                         truepy.push_back(MCPStartPY->at(i));
                         truepz.push_back(MCPStartPZ->at(i));
-                        _MCPStartX.push_back(MCPStartX->at(i));
-                        _MCPStartY.push_back(MCPStartY->at(i));
-                        _MCPStartZ.push_back(MCPStartZ->at(i));
-                        _MCPEndX.push_back(MCPEndX->at(i));
-                        _MCPEndY.push_back(MCPEndY->at(i));
-                        _MCPEndZ.push_back(MCPEndZ->at(i));
+                        _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                        _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                        _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                        _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                        _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                        _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
                         pdgmother.push_back(PDGMother->at(i));
                         _angle.push_back(angle);
                         //Save MC process
@@ -698,6 +712,8 @@ void CAF::loop()
                         _preco.push_back(0);
                         anglereco.push_back(0);
                         for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
+
+                        // std::cout << "gamma converted in ECAL from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                     }
                 }
             }
@@ -715,7 +731,7 @@ void CAF::loop()
                         //Use range instead of Gluckstern for stopping tracks
                         //TODO is that correct? What if it is a scatter in the TPC? Need to check if daughter is same particle
                         float preco = 0;
-                        TVector3 epoint(MCPEndX->at(i), MCPEndY->at(i), MCPEndZ->at(i));
+                        TVector3 epoint(MCPEndX->at(i)- _util->GetOrigin()[0], MCPEndY->at(i)- _util->GetOrigin()[1], MCPEndZ->at(i)- _util->GetOrigin()[2]);
 
                         // save the true PDG, parametrized PID comes later
                         truepdg.push_back(pdg);
@@ -723,12 +739,12 @@ void CAF::loop()
                         truepx.push_back(MCPStartPX->at(i));
                         truepy.push_back(MCPStartPY->at(i));
                         truepz.push_back(MCPStartPZ->at(i));
-                        _MCPStartX.push_back(MCPStartX->at(i));
-                        _MCPStartY.push_back(MCPStartY->at(i));
-                        _MCPStartZ.push_back(MCPStartZ->at(i));
-                        _MCPEndX.push_back(MCPEndX->at(i));
-                        _MCPEndY.push_back(MCPEndY->at(i));
-                        _MCPEndZ.push_back(MCPEndZ->at(i));
+                        _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                        _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                        _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                        _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                        _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                        _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
                         pdgmother.push_back(PDGMother->at(i));
                         // save the true momentum
                         truep.push_back(ptrue);
@@ -902,26 +918,28 @@ void CAF::loop()
                                 recopid.push_back( pdglist.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(0).second) ) ) );
                             }
                         } // closes the if statement
+
+                        std::cout << "particle seen in TPC, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << " trk length " << trkLen.at(i) << std::endl;
                     } // closes the conditional statement of trueparticlename == MC true pdg
                     else {
                         //not in the pdglist of particles but visible in TPC?
                         auto found = std::find(pdglist.begin(), pdglist.end(), abs(pdg));
                         if(found == pdglist.end())
                         {
-                            std::cout << "Maybe visible but not {#pi, #mu, p, K, d, e};" << std::endl;
-                            std::cout << "pdg " << pdg << std::endl;
+                            // std::cout << "Maybe visible but not {#pi, #mu, p, K, d, e};" << std::endl;
+                            // std::cout << "pdg " << pdg << std::endl;
 
                             truepdg.push_back(pdg);
                             detected.push_back(0);
                             truepx.push_back(MCPStartPX->at(i));
                             truepy.push_back(MCPStartPY->at(i));
                             truepz.push_back(MCPStartPZ->at(i));
-                            _MCPStartX.push_back(MCPStartX->at(i));
-                            _MCPStartY.push_back(MCPStartY->at(i));
-                            _MCPStartZ.push_back(MCPStartZ->at(i));
-                            _MCPEndX.push_back(MCPEndX->at(i));
-                            _MCPEndY.push_back(MCPEndY->at(i));
-                            _MCPEndZ.push_back(MCPEndZ->at(i));
+                            _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                            _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                            _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                            _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                            _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                            _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
                             pdgmother.push_back(PDGMother->at(i));
                             // save the true momentum
                             truep.push_back(ptrue);
@@ -937,6 +955,8 @@ void CAF::loop()
                             anglereco.push_back(0);
                             recopid.push_back(0);
                             for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
+
+                            // std::cout << "particle seen in TPC but not {#pi, #mu, p, K, d, e}, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << " trk length " << trkLen.at(i) << std::endl;
 
                             break;
                         }
@@ -955,12 +975,12 @@ void CAF::loop()
                     truepx.push_back(MCPStartPX->at(i));
                     truepy.push_back(MCPStartPY->at(i));
                     truepz.push_back(MCPStartPZ->at(i));
-                    _MCPStartX.push_back(MCPStartX->at(i));
-                    _MCPStartY.push_back(MCPStartY->at(i));
-                    _MCPStartZ.push_back(MCPStartZ->at(i));
-                    _MCPEndX.push_back(MCPEndX->at(i));
-                    _MCPEndY.push_back(MCPEndY->at(i));
-                    _MCPEndZ.push_back(MCPEndZ->at(i));
+                    _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                    _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                    _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                    _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                    _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                    _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
                     pdgmother.push_back(PDGMother->at(i));
                     // save the true momentum
                     truep.push_back(ptrue);
@@ -976,8 +996,14 @@ void CAF::loop()
                     anglereco.push_back(0);
                     recopid.push_back(0);
                     for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
+
+                    // std::cout << "particle not seen in TPC, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << " trk length " << trkLen.at(i) << std::endl;
                 }
             }
+
+            //Check truepdg and recopdg
+            if( (std::fabs(truepdg.at(i)) == 11 || std::fabs(truepdg.at(i)) == 13 || std::fabs(truepdg.at(i)) == 211) && recopid.at(i) == 0 && trkLen.at(i) > 0)
+            std::cout << "truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << " trk length " << trkLen.at(i) << std::endl;
         } // closes the MC truth loop
 
         _nFSP.push_back(nFSP);

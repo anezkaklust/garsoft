@@ -16,7 +16,7 @@ public:
     CAF();
 
     /* Constructor */
-    CAF( std::string infile, std::string filename );
+    CAF( std::string infile, std::string filename, int correct4origin);
 
     /* Default Copy Constructor */
     CAF(const CAF &) = default;
@@ -54,6 +54,7 @@ private:
 
     std::string _inputfile;
     std::string _outputFile; ///< The output TFile name */
+    int _correct4origin;     ///< sets the string for the coordinates origins (World or TPC)
 
     //Event-wise values
     int _Run, _Event, _SubRun;

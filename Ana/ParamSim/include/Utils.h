@@ -20,6 +20,12 @@ public:
     /* Set the seed */
     void SetSeed(int seed);
 
+    /* Set the origin */
+    void SetOrigin(float *origin);
+
+    /* Set the origin with hardcoded values for the CDR production geometry */
+    void SetTPCOrigin();
+
     /* Check if MCP started in tracker */
     bool hasOriginInTracker(TVector3 spoint);
 
@@ -36,7 +42,13 @@ public:
 
     float GaussianSmearing(float mean, float sigma) { return _rando->Gaus(mean, sigma); }
 
+    float* GetOrigin() { return &_origin[0]; }
+
+    float* GetOriginTPC() { return &_originTPC[0]; }
+
 private:
+    float _origin[3];                   ///< coordinates of the origin
+    float _originTPC[3];                ///< coordinates of the origin of TPC used for the CDR production
     unsigned long int _seed;         ///< seed
     TRandom3 *_rando;                ///< random generator
 };

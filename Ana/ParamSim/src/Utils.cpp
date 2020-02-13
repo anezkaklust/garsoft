@@ -3,6 +3,10 @@
 Utils::Utils()
 : _seed(0), _rando(new TRandom3(0))
 {
+    _origin[0] = 0.;
+    _origin[1] = 0.;
+    _origin[2] = 0.;
+    SetTPCOrigin();
 }
 
 Utils::~Utils()
@@ -16,13 +20,28 @@ void Utils::SetSeed(int seed)
     _rando->SetSeed(_seed);
 }
 
+void Utils::SetOrigin(float *origin)
+{
+    _origin[0] = origin[0];
+    _origin[1] = origin[1];
+    _origin[2] = origin[2];
+}
+
+void Utils::SetTPCOrigin()
+{
+    //Origin of the TPC with the CDR production geometry in cm
+    _originTPC[0] = 0.00012207;
+    _originTPC[1] = -150.473;
+    _originTPC[2] = 1486;
+}
+
 bool Utils::hasOriginInTracker(TVector3 spoint)
 {
     //TPC Volume radius 2600 mm
     //TPC full length 5 m
     bool hasOriginInTracker = true;
 
-    float r_point = std::sqrt(spoint.Y()*spoint.Y() + spoint.Z()*spoint.Z());
+    float r_point = std::sqrt( spoint.Y()*spoint.Y() + spoint.Z()*spoint.Z() );
     //in the Barrel
     if( r_point > 260 ) hasOriginInTracker = false;
     //in the Endcap
@@ -41,8 +60,8 @@ bool Utils::isBackscatter(TVector3 spoint, TVector3 epoint)
     bool isBackscatter = false;
 
     //check if started in the calo but made it to the tracker
-    float r_spoint = std::sqrt(spoint.Y()*spoint.Y() + spoint.Z()*spoint.Z());
-    float r_epoint = std::sqrt(epoint.Y()*epoint.Y() + epoint.Z()*epoint.Z());
+    float r_spoint = std::sqrt( spoint.Y()*spoint.Y() + spoint.Z()*spoint.Z() );
+    float r_epoint = std::sqrt( epoint.Y()*epoint.Y() + epoint.Z()*epoint.Z() );
 
     //in the Barrel
     if( r_spoint > 260 && r_epoint < 260 ) isBackscatter = true;
