@@ -16,7 +16,7 @@ public:
     CAF();
 
     /* Constructor */
-    CAF( std::string infile, std::string filename, int correct4origin);
+    CAF( std::string infile, std::string filename, int correct4origin, double *originTPC);
 
     /* Default Copy Constructor */
     CAF(const CAF &) = default;

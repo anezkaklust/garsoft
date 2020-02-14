@@ -25,11 +25,10 @@ CAF::CAF()
 
 }
 
-CAF::CAF( std::string infile, std::string filename, int correct4origin)
+CAF::CAF( std::string infile, std::string filename, int correct4origin, double *originTPC)
 : cafFile(nullptr), _intfile(nullptr), _inttree(nullptr), _util(new Utils()), _inputfile(infile), _outputFile(filename), _correct4origin(correct4origin)
 {
-    if(_correct4origin)
-    _util->SetOrigin(_util->GetOriginTPC());
+    _util->SetOrigin(originTPC);
 }
 
 CAF::~CAF()
@@ -377,9 +376,15 @@ void CAF::loop()
             theta.push_back(MC_Theta->at(i));
             mode.push_back(Mode->at(i));
             intert.push_back(InterT->at(i));
-            vertx.push_back(MCVertX->at(i) - _util->GetOrigin()[0]);
-            verty.push_back(MCVertY->at(i) - _util->GetOrigin()[1]);
-            vertz.push_back(MCVertZ->at(i) - _util->GetOrigin()[2]);
+            if(_correct4origin){
+                vertx.push_back(MCVertX->at(i) - _util->GetOrigin()[0]);
+                verty.push_back(MCVertY->at(i) - _util->GetOrigin()[1]);
+                vertz.push_back(MCVertZ->at(i) - _util->GetOrigin()[2]);
+            } else {
+                vertx.push_back(MCVertX->at(i));
+                verty.push_back(MCVertY->at(i));
+                vertz.push_back(MCVertZ->at(i));
+            }
             mcnupx.push_back(MCNuPx->at(i));
             mcnupy.push_back(MCNuPy->at(i));
             mcnupz.push_back(MCNuPz->at(i));
@@ -436,7 +441,7 @@ void CAF::loop()
                     //check that it is the correct mcp
                     if(TrajMCPTrajIndex->at(itraj) == (int) i){
                         //Traj point+1
-                        TVector3 point(TrajMCPX->at(itraj)- _util->GetOriginTPC()[0], TrajMCPY->at(itraj)- _util->GetOriginTPC()[1], TrajMCPZ->at(itraj)- _util->GetOriginTPC()[2]);
+                        TVector3 point(TrajMCPX->at(itraj)- _util->GetOrigin()[0], TrajMCPY->at(itraj)- _util->GetOrigin()[1], TrajMCPZ->at(itraj)- _util->GetOrigin()[2]);
                         //point is not in the TPC anymore - stop traj loop
                         if(not _util->hasOriginInTracker(point))
                         {
@@ -499,12 +504,21 @@ void CAF::loop()
                     truepx.push_back(MCPStartPX->at(i));
                     truepy.push_back(MCPStartPY->at(i));
                     truepz.push_back(MCPStartPZ->at(i));
-                    _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
-                    _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
-                    _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
-                    _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
-                    _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
-                    _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                    if(_correct4origin){
+                        _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                        _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                        _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                        _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                        _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                        _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                    } else {
+                        _MCPStartX.push_back(MCPStartX->at(i));
+                        _MCPStartY.push_back(MCPStartY->at(i));
+                        _MCPStartZ.push_back(MCPStartZ->at(i));
+                        _MCPEndX.push_back(MCPEndX->at(i));
+                        _MCPEndY.push_back(MCPEndY->at(i));
+                        _MCPEndZ.push_back(MCPEndZ->at(i));
+                    }
                     pdgmother.push_back(PDGMother->at(i));
                     //Save MC process
                     _MCProc.push_back(mcp_process);
@@ -529,12 +543,21 @@ void CAF::loop()
                     truepx.push_back(MCPStartPX->at(i));
                     truepy.push_back(MCPStartPY->at(i));
                     truepz.push_back(MCPStartPZ->at(i));
-                    _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
-                    _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
-                    _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
-                    _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
-                    _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
-                    _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                    if(_correct4origin){
+                        _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                        _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                        _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                        _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                        _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                        _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                    } else {
+                        _MCPStartX.push_back(MCPStartX->at(i));
+                        _MCPStartY.push_back(MCPStartY->at(i));
+                        _MCPStartZ.push_back(MCPStartZ->at(i));
+                        _MCPEndX.push_back(MCPEndX->at(i));
+                        _MCPEndY.push_back(MCPEndY->at(i));
+                        _MCPEndZ.push_back(MCPEndZ->at(i));
+                    }
                     pdgmother.push_back(PDGMother->at(i));
                     //Save MC process
                     _MCProc.push_back(mcp_process);
@@ -565,12 +588,21 @@ void CAF::loop()
                 truepx.push_back(MCPStartPX->at(i));
                 truepy.push_back(MCPStartPY->at(i));
                 truepz.push_back(MCPStartPZ->at(i));
-                _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
-                _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
-                _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
-                _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
-                _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
-                _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                if(_correct4origin){
+                    _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                    _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                    _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                    _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                    _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                    _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                } else {
+                    _MCPStartX.push_back(MCPStartX->at(i));
+                    _MCPStartY.push_back(MCPStartY->at(i));
+                    _MCPStartZ.push_back(MCPStartZ->at(i));
+                    _MCPEndX.push_back(MCPEndX->at(i));
+                    _MCPEndY.push_back(MCPEndY->at(i));
+                    _MCPEndZ.push_back(MCPEndZ->at(i));
+                }
                 pdgmother.push_back(PDGMother->at(i));
                 _angle.push_back(angle);
                 //Save MC process
@@ -608,12 +640,21 @@ void CAF::loop()
                         truepx.push_back(MCPStartPX->at(i));
                         truepy.push_back(MCPStartPY->at(i));
                         truepz.push_back(MCPStartPZ->at(i));
-                        _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
-                        _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
-                        _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
-                        _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
-                        _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
-                        _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                        if(_correct4origin){
+                            _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                            _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                            _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                            _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                            _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                            _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                        } else {
+                            _MCPStartX.push_back(MCPStartX->at(i));
+                            _MCPStartY.push_back(MCPStartY->at(i));
+                            _MCPStartZ.push_back(MCPStartZ->at(i));
+                            _MCPEndX.push_back(MCPEndX->at(i));
+                            _MCPEndY.push_back(MCPEndY->at(i));
+                            _MCPEndZ.push_back(MCPEndZ->at(i));
+                        }
                         pdgmother.push_back(PDGMother->at(i));
                         _angle.push_back(angle);
                         //Save MC process
@@ -642,12 +683,21 @@ void CAF::loop()
                         truepx.push_back(MCPStartPX->at(i));
                         truepy.push_back(MCPStartPY->at(i));
                         truepz.push_back(MCPStartPZ->at(i));
-                        _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
-                        _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
-                        _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
-                        _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
-                        _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
-                        _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                        if(_correct4origin){
+                            _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                            _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                            _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                            _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                            _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                            _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                        } else {
+                            _MCPStartX.push_back(MCPStartX->at(i));
+                            _MCPStartY.push_back(MCPStartY->at(i));
+                            _MCPStartZ.push_back(MCPStartZ->at(i));
+                            _MCPEndX.push_back(MCPEndX->at(i));
+                            _MCPEndY.push_back(MCPEndY->at(i));
+                            _MCPEndZ.push_back(MCPEndZ->at(i));
+                        }
                         pdgmother.push_back(PDGMother->at(i));
                         _angle.push_back(angle);
                         //Save MC process
@@ -681,12 +731,21 @@ void CAF::loop()
                         truepx.push_back(MCPStartPX->at(i));
                         truepy.push_back(MCPStartPY->at(i));
                         truepz.push_back(MCPStartPZ->at(i));
-                        _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
-                        _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
-                        _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
-                        _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
-                        _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
-                        _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                        if(_correct4origin){
+                            _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                            _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                            _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                            _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                            _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                            _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                        } else {
+                            _MCPStartX.push_back(MCPStartX->at(i));
+                            _MCPStartY.push_back(MCPStartY->at(i));
+                            _MCPStartZ.push_back(MCPStartZ->at(i));
+                            _MCPEndX.push_back(MCPEndX->at(i));
+                            _MCPEndY.push_back(MCPEndY->at(i));
+                            _MCPEndZ.push_back(MCPEndZ->at(i));
+                        }
                         pdgmother.push_back(PDGMother->at(i));
                         _angle.push_back(angle);
                         //Save MC process
@@ -714,12 +773,21 @@ void CAF::loop()
                         truepx.push_back(MCPStartPX->at(i));
                         truepy.push_back(MCPStartPY->at(i));
                         truepz.push_back(MCPStartPZ->at(i));
-                        _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
-                        _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
-                        _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
-                        _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
-                        _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
-                        _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                        if(_correct4origin){
+                            _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                            _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                            _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                            _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                            _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                            _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                        } else {
+                            _MCPStartX.push_back(MCPStartX->at(i));
+                            _MCPStartY.push_back(MCPStartY->at(i));
+                            _MCPStartZ.push_back(MCPStartZ->at(i));
+                            _MCPEndX.push_back(MCPEndX->at(i));
+                            _MCPEndY.push_back(MCPEndY->at(i));
+                            _MCPEndZ.push_back(MCPEndZ->at(i));
+                        }
                         pdgmother.push_back(PDGMother->at(i));
                         _angle.push_back(angle);
                         //Save MC process
@@ -756,12 +824,21 @@ void CAF::loop()
                         truepx.push_back(MCPStartPX->at(i));
                         truepy.push_back(MCPStartPY->at(i));
                         truepz.push_back(MCPStartPZ->at(i));
-                        _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
-                        _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
-                        _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
-                        _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
-                        _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
-                        _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                        if(_correct4origin){
+                            _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                            _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                            _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                            _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                            _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                            _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                        } else {
+                            _MCPStartX.push_back(MCPStartX->at(i));
+                            _MCPStartY.push_back(MCPStartY->at(i));
+                            _MCPStartZ.push_back(MCPStartZ->at(i));
+                            _MCPEndX.push_back(MCPEndX->at(i));
+                            _MCPEndY.push_back(MCPEndY->at(i));
+                            _MCPEndZ.push_back(MCPEndZ->at(i));
+                        }
                         pdgmother.push_back(PDGMother->at(i));
                         // save the true momentum
                         truep.push_back(ptrue);
@@ -1052,12 +1129,21 @@ void CAF::loop()
                             truepx.push_back(MCPStartPX->at(i));
                             truepy.push_back(MCPStartPY->at(i));
                             truepz.push_back(MCPStartPZ->at(i));
-                            _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
-                            _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
-                            _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
-                            _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
-                            _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
-                            _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                            if(_correct4origin){
+                                _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                                _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                                _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                                _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                                _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                                _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                            } else {
+                                _MCPStartX.push_back(MCPStartX->at(i));
+                                _MCPStartY.push_back(MCPStartY->at(i));
+                                _MCPStartZ.push_back(MCPStartZ->at(i));
+                                _MCPEndX.push_back(MCPEndX->at(i));
+                                _MCPEndY.push_back(MCPEndY->at(i));
+                                _MCPEndZ.push_back(MCPEndZ->at(i));
+                            }
                             pdgmother.push_back(PDGMother->at(i));
                             // save the true momentum
                             truep.push_back(ptrue);
@@ -1094,12 +1180,21 @@ void CAF::loop()
                     truepx.push_back(MCPStartPX->at(i));
                     truepy.push_back(MCPStartPY->at(i));
                     truepz.push_back(MCPStartPZ->at(i));
-                    _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
-                    _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
-                    _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
-                    _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
-                    _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
-                    _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                    if(_correct4origin){
+                        _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                        _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                        _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                        _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                        _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                        _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                    } else {
+                        _MCPStartX.push_back(MCPStartX->at(i));
+                        _MCPStartY.push_back(MCPStartY->at(i));
+                        _MCPStartZ.push_back(MCPStartZ->at(i));
+                        _MCPEndX.push_back(MCPEndX->at(i));
+                        _MCPEndY.push_back(MCPEndY->at(i));
+                        _MCPEndZ.push_back(MCPEndZ->at(i));
+                    }
                     pdgmother.push_back(PDGMother->at(i));
                     // save the true momentum
                     truep.push_back(ptrue);

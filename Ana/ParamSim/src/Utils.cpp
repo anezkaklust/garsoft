@@ -6,7 +6,6 @@ Utils::Utils()
     _origin[0] = 0.;
     _origin[1] = 0.;
     _origin[2] = 0.;
-    SetTPCOrigin();
 }
 
 Utils::~Utils()
@@ -20,19 +19,11 @@ void Utils::SetSeed(int seed)
     _rando->SetSeed(_seed);
 }
 
-void Utils::SetOrigin(float *origin)
+void Utils::SetOrigin(double *origin)
 {
     _origin[0] = origin[0];
     _origin[1] = origin[1];
     _origin[2] = origin[2];
-}
-
-void Utils::SetTPCOrigin()
-{
-    //Origin of the TPC with the CDR production geometry in cm
-    _originTPC[0] = 0.00012207;
-    _originTPC[1] = -150.473;
-    _originTPC[2] = 1486;
 }
 
 bool Utils::hasOriginInTracker(TVector3 spoint)
