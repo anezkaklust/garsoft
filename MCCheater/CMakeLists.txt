@@ -23,8 +23,8 @@ art_make_library( LIBRARY_NAME MCCheater
 
 simple_plugin(BackTracker "service"
               MCCheater
-	            Geometry
-	            Geometry_Geometry_service
+	          Geometry
+	          Geometry_Geometry_service
               ReconstructionDataProducts
               RawDataProducts
               SimulationDataProducts
@@ -40,63 +40,6 @@ simple_plugin(BackTracker "service"
 			        ${FHICLCPP}
 			        ${CETLIB_EXCEPT}
 			        ${ROOT_BASIC_LIB_LIST}
-)
-
-simple_plugin(BackTrackerLoader "module"
-              MCCheater_BackTracker_service
-        			${ART_FRAMEWORK_SERVICES_REGISTRY}              
-
-)
-
-simple_plugin(HitCheater "module"
-              ReconstructionDataProducts
-              Geometry
-              Geometry_Geometry_service
-              MCCheater_BackTracker_service
-              ${ART_FRAMEWORK_SERVICES_REGISTRY}
-              ${ART_FRAMEWORK_PRINCIPAL}
-              ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
-              art_Persistency_Common
-              art_Persistency_Provenance
-              art_Utilities
-              canvas
-              ${MF_MESSAGELOGGER}
-              ${FHICLCPP}
-              ${CETLIB_EXCEPT}
-              ${ROOT_BASIC_LIB_LIST}
-)
-
-simple_plugin(TrackCheater "module"
-              nusimdata_SimulationBase
-              ReconstructionDataProducts
-              ${ART_FRAMEWORK_SERVICES_REGISTRY}
-              ${ART_FRAMEWORK_PRINCIPAL}
-              ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
-              art_Persistency_Common
-              art_Persistency_Provenance
-              art_Utilities
-              canvas
-              ${MF_MESSAGELOGGER}
-              ${FHICLCPP}
-              ${CETLIB_EXCEPT}
-              ${ROOT_BASIC_LIB_LIST}
-	      ${ROOT_EG}
-)
-
-simple_plugin(ShowerCheater "module"
-              nusimdata_SimulationBase
-              ReconstructionDataProducts
-              ${ART_FRAMEWORK_SERVICES_REGISTRY}
-              ${ART_FRAMEWORK_PRINCIPAL}
-              ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
-              art_Persistency_Common
-              art_Persistency_Provenance
-              art_Utilities
-              canvas
-              ${MF_MESSAGELOGGER}
-              ${FHICLCPP}
-              ${CETLIB_EXCEPT}
-              ${ROOT_BASIC_LIB_LIST}
 )
 
 install_headers()
