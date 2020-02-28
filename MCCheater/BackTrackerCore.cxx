@@ -27,26 +27,22 @@ namespace gar{
       : fClocks(nullptr), fGeo(nullptr)
     {
       fClocks = gar::providerFrom<detinfo::DetectorClocksService>();
-      fGeo     = gar::providerFrom<geo::Geometry>();
-      this->reconfigure(pset);
+      fGeo    = gar::providerFrom<geo::Geometry>();
+
+      fG4ModuleLabel        = pset.get<std::string>("G4ModuleLabel",           "geant");
+      fRawDataLabel         = pset.get<std::string>("RawDataLabel",            "daq");
+      fMinHitEnergyFraction = pset.get<double     >("MinimumHitEnergyFraction", 0.1);
+      fDisableRebuild       = pset.get<bool       >("DisableRebuild",           false);
       
       return;
     }
 
     //--------------------------------------------------------------------------
-    BackTrackerCore::~BackTrackerCore()
-    {
-      
-    }
+    BackTrackerCore::~BackTrackerCore() {}
     
-    //----------------------------------------------------------------------
-    void BackTrackerCore::reconfigure(const fhicl::ParameterSet& pset)
-    {
-      fG4ModuleLabel        = pset.get<std::string>("G4ModuleLabel",           "geant");
-      fRawDataLabel         = pset.get<std::string>("RawDataLabel",            "daq");
-      fMinHitEnergyFraction = pset.get<double     >("MinimumHitEnergyFraction", 0.1);
-      fDisableRebuild       = pset.get<bool       >("DisableRebuild",           false);
-    }
+
+
+
     
     //----------------------------------------------------------------------
     const simb::MCParticle* BackTrackerCore::TrackIDToParticle(int const& id) const
@@ -64,77 +60,205 @@ namespace gar{
       
       return part_it->second;
     }
-    
-    //----------------------------------------------------------------------
-    const simb::MCParticle* BackTrackerCore::TrackIDToMotherParticle(int const& id) const
-    {
-      // get the mother id from the particle navigator
-      // the EveId was adopted in the Rebuild method
-      
-      return this->TrackIDToParticle(fParticleList.EveId(std::abs(id)));
-    }
-    
-    //----------------------------------------------------------------------
-    ::art::Ptr<simb::MCTruth> const& BackTrackerCore::TrackIDToMCTruth(int const& id) const
-    {
-      // find the entry in the MCTruth collection for this track id
-      size_t mct = fTrackIDToMCTruthIndex.find(std::abs(id))->second;
-      
-      if(/* mct < 0 || */ mct > fMCTruthList.size() )
-        throw cet::exception("BackTracker")
-        << "attempting to find MCTruth index for "
-        << "out of range value: "
-        << mct
-        << "/" << fMCTruthList.size();
-      
-      return fMCTruthList[mct];
-    }
-    
-    //----------------------------------------------------------------------
-    ::art::Ptr<simb::MCTruth> const& BackTrackerCore::ParticleToMCTruth(const simb::MCParticle* p) const
-    {
-      return this->TrackIDToMCTruth(p->TrackId());
-    }
-    
-    //----------------------------------------------------------------------
-    std::vector<const simb::MCParticle*> BackTrackerCore::MCTruthToParticles(::art::Ptr<simb::MCTruth> const& mct) const
-    {
-      std::vector<const simb::MCParticle*> ret;
-      
-      // sim::ParticleList::value_type is a pair (track ID, particle pointer)
-      for(auto const& TrackIDpair: fParticleList) {
-        if( TrackIDToMCTruth(TrackIDpair.first) == mct )
-          ret.push_back(TrackIDpair.second);
-      }
-      
-      return ret;
-    }
-    
-    //----------------------------------------------------------------------
-    std::vector<HitIDE> BackTrackerCore::HitToTrackID(::art::Ptr<gar::rec::Hit> const& hit) const
-    {
-      std::vector<HitIDE> ides;
-      
-      this->ChannelToTrackID(ides,
-                             hit->Channel(),
-                             hit->StartTime(),
-                             hit->EndTime());
-      
-      return ides;
-    }
+
+
 
     //----------------------------------------------------------------------
-    std::vector<HitIDE> BackTrackerCore::HitToTrackID(gar::rec::Hit const& hit) const
-    {
-      std::vector<HitIDE> ides;
+    art::Ptr<simb::MCTruth> const&
+	BackTrackerCore::ParticleToMCTruth(const simb::MCParticle* p) const {
+
+		int id = p->TrackId();
+		// find the entry in the MCTruth collection for this track id
+      	size_t mct = fTrackIDToMCTruthIndex.find(std::abs(id))->second;
       
-      this->ChannelToTrackID(ides,
-                             hit.Channel(),
-                             hit.StartTime(),
-                             hit.EndTime());
-      
-      return ides;
+		if( mct > fMCTruthList.size() ) {
+			throw cet::exception("BackTracker")
+				<< "attempting to find MCTruth index for out-of-range value: "
+				<< mct << "/" << fMCTruthList.size();
+		}
+		return fMCTruthList[mct];
+	}
+
+
+
+    //----------------------------------------------------------------------
+    std::vector<HitIDE>
+	BackTrackerCore::HitToHitIDEs(art::Ptr<gar::rec::Hit> const& hit) const {
+
+		std::vector<HitIDE> ides;
+		ides = this->ChannelToHitIDEs(hit->Channel(),hit->StartTime(),hit->EndTime());
+		return ides;
+	}
+
+
+
+    //----------------------------------------------------------------------
+    std::vector<HitIDE>
+	BackTrackerCore::HitToHitIDEs(gar::rec::Hit const& hit) const {
+
+		std::vector<HitIDE> ides;
+		ides = this->ChannelToHitIDEs(hit.Channel(),hit.StartTime(),hit.EndTime());
+		return ides;
     }
+
+
+
+	//----------------------------------------------------------------------
+	std::vector<HitIDE>
+	BackTrackerCore::ChannelToHitIDEs(raw::Channel_t const& channel,
+                                    double const  start, double const stop) const {
+
+
+		// loop over the electrons in the channel and grab those that are in time
+		// with the identified hit start and stop times
+
+		// get the track ids corresponding to this hit
+		unsigned int start_tdc = (unsigned int)start;
+		unsigned int stop_tdc   = (unsigned int)stop;
+
+		std::vector<HitIDE> hitIDEs;
+
+		double totalE = 0.;
+      
+		if(fChannelToEDepCol.size() < channel){
+			LOG_WARNING("BackTracker")
+				<< "Attempting to find energy deposits for channel " << channel
+				<< " while there are only " << fChannelToEDepCol.size()
+				<< " channels available, returning an empty vector.";
+			return hitIDEs;
+		}
+
+		auto chanEDeps = fChannelToEDepCol[channel];
+
+		if(chanEDeps.size() < 1){
+			LOG_WARNING("BackTracker")
+				<< "No sdp::EnergyDeposits for selected channel: " << channel
+				<< ". There is no way to backtrack the given hit, returning"
+				<< " an empty vector.";
+			return hitIDEs;
+		}
+
+		std::map<int,size_t> tidmap;
+
+		// first get the total energy represented by all track ids for
+		// this channel and range of tdc values
+		unsigned short tdc = 0;
+
+		float chanpos[3]={0.,0.,0};
+		fGeo->ChannelToPosition(channel, chanpos);
+
+		for (auto const& edep : chanEDeps) {
+
+			if (edep->TrackID() == gar::sdp::NoParticleId) continue;
+        
+			tdc = fClocks->TPCG4Time2TDC( edep->Time() +TMath::Abs(edep->X()-chanpos[0]) *fInverseVelocity);
+			if ( tdc >= start_tdc && tdc <= stop_tdc) {
+				float energy = edep->Energy();
+				totalE += energy;
+				int tid = edep->TrackID();
+				auto tidmapiter = tidmap.find(tid);
+				if (tidmapiter == tidmap.end()) {
+					hitIDEs.emplace_back(tid,0,energy);
+					tidmap[tid] = hitIDEs.size()-1;
+				} else {
+					hitIDEs.at(tidmapiter->second).numElectrons += energy;
+				}
+			}
+		}
+
+		// loop over the hitIDEs to set the fractional energy for each TrackID
+		// and the total energy as well
+		if (totalE < 1.e-5) totalE = 1.;
+
+		for (size_t i = 0; i < hitIDEs.size(); ++i) {
+			hitIDEs[i].energyFrac = hitIDEs[i].numElectrons / totalE;
+		}
+		return hitIDEs;
+	}
+
+    //----------------------------------------------------------------------
+    double BackTrackerCore::HitCollectionPurity(simb::MCParticle* p,
+		std::vector<art::Ptr<gar::rec::Hit> > const& hits,
+		bool weightByCharge) const {
+
+		int trackIDin = p->TrackId();
+
+
+		float weight;
+		float desired = 0.0;
+		float total   = 0.0;
+		for (auto hit : hits) {
+			std::vector<HitIDE> hitIDEs = this->HitToHitIDEs(hit);
+
+			weight = (weightByCharge) ? hit->Signal() : 1.0;
+			total += weight;
+        
+			for (auto iHitIDE : hitIDEs) {
+				if (iHitIDE.trackID    == trackIDin &&
+					iHitIDE.energyFrac >= fMinHitEnergyFraction) {
+					desired += weight;
+					break;
+				}
+			}
+		} // end loop over hits
+      
+		double purity = 0.;
+		if(total > 0) purity = desired/total;
+		return purity;
+	}
+
+    //----------------------------------------------------------------------
+    double BackTrackerCore::HitCollectionEfficiency(simb::MCParticle* p,
+		std::vector<art::Ptr<gar::rec::Hit> > const& hits,
+        std::vector<art::Ptr<gar::rec::Hit> > const& allhits,
+        bool weightByCharge) const {
+
+		int trackIDin = p->TrackId();
+
+		float weight;
+		float desired = 0.0;
+		for (auto hit : hits) {
+			std::vector<HitIDE> hitIDEs = this->HitToHitIDEs(hit);
+
+			weight = (weightByCharge) ? hit->Signal() : 1.0;
+
+			// Don't double count if this hit has more than one of the
+			// desired track IDs associated with it
+			for (auto iHitIDE : hitIDEs) {
+				if (iHitIDE.trackID    == trackIDin &&
+					iHitIDE.energyFrac >= fMinHitEnergyFraction) {
+					desired += weight;
+					break;
+				}
+			}
+		} // end loop over hits
+
+		// Next figure out how many hits in the whole collection are associated with this id
+		float total   = 0.0;
+		for (auto hit : allhits) {
+			std::vector<HitIDE> hitIDEs = this->HitToHitIDEs(hit);
+
+			weight = (weightByCharge) ? hit->Signal() : 1.0;
+        
+			for (auto iHitIDE : hitIDEs) {
+				if (iHitIDE.trackID    == trackIDin &&
+					iHitIDE.energyFrac >= fMinHitEnergyFraction) {
+					total += weight;
+					break;
+				}
+			}
+        } // end loop over all hits
+
+		double efficiency = 0.;
+		if (total > 0.) efficiency = desired/total;
+		return efficiency;
+	}
+
+
+
+
+
+
     
     //----------------------------------------------------------------------
     std::vector<std::vector<::art::Ptr<gar::rec::Hit>>> const BackTrackerCore::TrackIDsToHits(std::vector<::art::Ptr<gar::rec::Hit>> const& allhits,
@@ -150,10 +274,7 @@ namespace gar{
       for(auto hit : allhits){
         hids.clear();
         
-        this->ChannelToTrackID(hids,
-                               hit->Channel(),
-                               hit->StartTime(),
-                               hit->EndTime());
+        hids = this->ChannelToHitIDEs(hit->Channel(),hit->StartTime(),hit->EndTime());
         
         for(auto const& hid : hids) {
           for(auto const& itkid : tkIDs) {
@@ -188,7 +309,7 @@ namespace gar{
     // the one you always want to use
     std::vector<HitIDE> BackTrackerCore::HitToEveID(::art::Ptr<gar::rec::Hit> const& hit) const
     {
-      std::vector<HitIDE> ides = this->HitToTrackID(hit);
+      std::vector<HitIDE> ides = this->HitToHitIDEs(hit);
       
       // make a map of evd ID values and fraction of energy represented by
       // that eve id in this hit
@@ -210,21 +331,6 @@ namespace gar{
       return eveides;
     }
     
-    //----------------------------------------------------------------------
-    std::set<int> BackTrackerCore::GetSetOfEveIDs() const
-    {
-      std::set<int> eveIDs;
-      
-      sim::ParticleList::const_iterator plitr = fParticleList.begin();
-      while(plitr != fParticleList.end() ){
-        int eveID = fParticleList.EveId((*plitr).first);
-        // look to see if this eveID is already in the set
-        if( eveIDs.find(eveID) == eveIDs.end() ) eveIDs.insert(eveID);
-        plitr++;
-      }
-      
-      return eveIDs;
-    }
     
     //----------------------------------------------------------------------
     std::set<int> BackTrackerCore::GetSetOfTrackIDs() const
@@ -235,152 +341,8 @@ namespace gar{
         trackIDs.insert(pl.first);
       
       return trackIDs;
-    }
-    
-    //----------------------------------------------------------------------
-    std::set<int> BackTrackerCore::GetSetOfEveIDs(std::vector< ::art::Ptr<gar::rec::Hit> > const& hits) const
-    {
-      std::set<int> eveIDs;
-      
-      //std::vector< ::art::Ptr<gar::rec::Hit> >::const_iterator itr = hits.begin();
-      for(auto itr : hits){
+    }    
         
-        // get the eve ids corresponding to this hit
-        const std::vector<HitIDE> ides = HitToEveID(itr);
-        
-        // loop over the ides and extract the track ids
-        for(auto const& ide : ides) eveIDs.insert(ide.trackID);
-        
-      }
-      
-      return eveIDs;
-    }
-    
-    //----------------------------------------------------------------------
-    std::set<int> BackTrackerCore::GetSetOfTrackIDs(std::vector< ::art::Ptr<gar::rec::Hit> > const& hits) const
-    {
-      std::set<int>       trackIDs;
-      std::vector<HitIDE> ides;
-      
-      for(auto itr : hits ){
-        
-        ides.clear();
-        
-        this->ChannelToTrackID(ides,
-                               itr->Channel(),
-                               itr->StartTime(),
-                               itr->EndTime());
-        
-        // loop over the ides and extract the track ids
-        for(auto const& hid : ides) {
-          trackIDs.insert(hid.trackID);
-        }
-      }
-      
-      return trackIDs;
-    }
-    
-    //----------------------------------------------------------------------
-    double BackTrackerCore::HitCollectionPurity(std::set<int>                                   trackIDs,
-                                                std::vector< ::art::Ptr<gar::rec::Hit> > const& hits,
-                                                bool                                            weightByCharge) const
-    {
-      // get the list of EveIDs that correspond to the hits in this collection
-      // if the EveID shows up in the input list of trackIDs, then it counts
-      float total   = 0;
-      float desired = 0.;
-      float weight  = 1.;
-      
-      // don't have to check the view in the hits collection because
-      // those are assumed to be from the object we are testing and will
-      // the correct view by definition then.
-      for(auto hit : hits){
-        
-        weight = (weightByCharge) ? hit->Signal() : 1.;
-        
-        std::vector<HitIDE> hitTrackIDs = this->HitToTrackID(hit);
-        
-        total += weight;
-        
-        // don't double count if this hit has more than one of the
-        // desired track IDs associated with it
-        for(auto const& tid : hitTrackIDs){
-          if(trackIDs.find(tid.trackID) != trackIDs.end()){
-            desired += weight;
-            break;
-          }
-        }
-        
-      }// end loop over hits
-      
-      double purity = 0.;
-      
-      if(total > 0) purity = desired/total;
-      
-      return purity;
-    }
-    
-    //----------------------------------------------------------------------
-    double BackTrackerCore::HitCollectionEfficiency(std::set<int>                                   trackIDs,
-                                                    std::vector< ::art::Ptr<gar::rec::Hit> > const& hits,
-                                                    std::vector< ::art::Ptr<gar::rec::Hit> > const& allhits,
-                                                    bool                                            weightByCharge) const
-    {
-      // get the list of EveIDs that correspond to the hits in this collection
-      // and the energy associated with the desired trackID
-      float desired = 0.;
-      float total   = 0.;
-      float weight  = 0.;
-      
-      // don't have to check the view in the hits collection because
-      // those are assumed to be from the object we are testing and will
-      // the correct view by definition then.
-      for(auto hit : hits){
-        
-        std::vector<HitIDE> hitTrackIDs = this->HitToTrackID(hit);
-        
-        weight = (weightByCharge) ? hit->Signal() : 1.;
-        
-        // don't worry about hits where the energy fraction for the chosen
-        // trackID is < 0.1
-        // also don't double count if this hit has more than one of the
-        // desired track IDs associated with it
-        for(auto tid : hitTrackIDs){
-          if(trackIDs.find(tid.trackID) != trackIDs.end() &&
-             tid.energyFrac             >= fMinHitEnergyFraction){
-            desired += weight;
-            break;
-          }
-        }
-      }// end loop over hits
-      
-      // now figure out how many hits in the whole collection are associated with this id
-      for(auto hit : allhits){
-        
-        weight = (weightByCharge) ? hit->Signal() : 1.;
-        
-        std::vector<HitIDE> hitTrackIDs = this->HitToTrackID(hit);
-        
-        for(auto const& tid : hitTrackIDs){
-          // don't worry about hits where the energy fraction for the chosen
-          // trackID is < 0.1
-          // also don't double count if this hit has more than one of the
-          // desired track IDs associated with it
-          if(trackIDs.find(tid.trackID) != trackIDs.end() &&
-             tid.energyFrac             >= fMinHitEnergyFraction){
-            total += weight;
-            break;
-          }
-        }
-        
-      }// end loop over all hits
-      
-      double efficiency = 0.;
-      if(total > 0.) efficiency = desired/total;
-      
-      return efficiency;
-    }
-    
     //--------------------------------------------------------------------------
     std::map<size_t, const sdp::EnergyDeposit*> BackTrackerCore::ChannelTDCToEnergyDeposit(raw::Channel_t channel) const
     {
@@ -421,91 +383,6 @@ namespace gar{
       return edeps;
     }
     
-    //----------------------------------------------------------------------
-    void BackTrackerCore::ChannelToTrackID(std::vector<HitIDE>      & hitIDEs,
-                                           raw::Channel_t      const& channel,
-                                           double              const  start,
-                                           double              const  end) const
-    {
-      
-      // loop over the electrons in the channel and grab those that are in time
-      // with the identified hit start and stop times
-    
-      // get the track ids corresponding to this hit
-      unsigned int start_tdc = (unsigned int)start;
-      unsigned int end_tdc   = (unsigned int)end;
-      // clang though these were unnecessary as start_tdc and end_tdc are unsigned
-      //if(start_tdc < 0) start_tdc = 0;
-      //if(end_tdc   < 0) end_tdc   = 0;
-      
-      hitIDEs.clear();
-      
-      double totalE = 0.;
-      
-      if(fChannelToEDepCol.size() < channel){
-        LOG_WARNING("BackTracker")
-        << "Attempting to find energy deposits for channel "
-        << channel
-        << " while there are only "
-        << fChannelToEDepCol.size()
-        << " channels available, return with empty result.";
-        
-        return;
-      }
-      
-      auto chanEDeps = fChannelToEDepCol[channel];
-      
-      if(chanEDeps.size() < 1){
-        LOG_WARNING("BackTracker")
-        << "No sdp::EnergyDeposits for selected channel: "
-        << channel
-        << ". There is no way to backtrack the given hit, return"
-        << " an empty vector.";
-        return;
-      }
-      
-      std::map<int,size_t> tidmap;
-
-      // first get the total energy represented by all track ids for
-      // this channel and range of tdc values
-      unsigned short tdc         = 0;
-      
-      float chanpos[3]={0.,0.,0};
-      fGeo->ChannelToPosition(channel, chanpos);
-
-      for(auto const& edep : chanEDeps){
-        
-        if(edep->TrackID() == gar::sdp::NoParticleId) continue;
-        
-        tdc = fClocks->TPCG4Time2TDC( edep->Time() + TMath::Abs(edep->X()-chanpos[0]) * fInverseVelocity);
-	if ( tdc >= start_tdc && tdc <= end_tdc)
-	  {
-	    float energy = edep->Energy();
-	    totalE += energy;
-	    int tid = edep->TrackID();
-	    auto tidmapiter = tidmap.find(tid);
-	    if (tidmapiter == tidmap.end())
-	      {
-		hitIDEs.emplace_back(tid,0,energy);
-		tidmap[tid] = hitIDEs.size()-1;
-	      }
-	    else
-	      {
-		hitIDEs.at(tidmapiter->second).numElectrons += energy;
-	      }
-	  }
-
-      }
-      
-      // loop over the hitIDEs to set the fractional energy for each TrackID
-      // and the total energy as well
-      if(totalE < 1.e-5) totalE = 1.;
-      
-      for(size_t i = 0; i < hitIDEs.size(); ++i)
-        hitIDEs[i].energyFrac = hitIDEs[i].numElectrons / totalE;
-      
-      return;
-    }
     
     //----------------------------------------------------------------------
     std::vector<float> BackTrackerCore::HitToXYZ(::art::Ptr<gar::rec::Hit> const& hit) const

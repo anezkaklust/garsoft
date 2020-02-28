@@ -142,7 +142,7 @@ namespace gar {
 		      hitside = -1;
 		    }
 		  if (hitside != iside) continue;
-		  auto hitides = bt->HitToTrackID(hits.at(ihit));
+		  auto hitides = bt->HitToHitIDEs(hits.at(ihit));
 		  //std::cout << "number of hitides: " << hitides.size() << std::endl;
 		  for (size_t i=0; i<hitides.size(); ++i)
 		    {

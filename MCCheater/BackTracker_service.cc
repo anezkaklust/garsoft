@@ -4,6 +4,8 @@
 // \file: BackTracker_service.cc
 //
 // brebel@fnal.gov
+// modified Feb - Mar 2020 Leo Bellantoni, bellanto@fnal.gov
+//
 //
 ////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +45,7 @@ namespace gar {
 
         //----------------------------------------------------------------------
         void BackTracker::Rebuild(::art::Event const& evt, art::ScheduleContext) {
+            // Just drop the ScheduleContext that art requires. 
             RebuildNoSC(evt);
         }
 
