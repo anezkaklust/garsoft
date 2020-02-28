@@ -298,9 +298,9 @@ namespace gar {
               
 	    // Check fiducial limits
 	    if (xPos > xMinimum && xPos < xMaximum){
-	      hitPositions[3*hitCount    ] = xPos;
-	      hitPositions[3*hitCount + 1] = yPos;
-	      hitPositions[3*hitCount + 2] = zPos;
+	      hitPositions[3*hitCount    ] = zPos;
+	      hitPositions[3*hitCount + 1] = xPos;
+	      hitPositions[3*hitCount + 2] = yPos;
 	      hitCount++;
 	    }
 	  }
@@ -354,7 +354,7 @@ namespace gar {
             double xCoord = posVec[0];
             
             if (xCoord > xMinimum && xCoord < xMaximum)
-	      pm.SetPoint(posIdx, xCoord, posVec[1], posVec[2]);
+	      pm.SetPoint(posIdx, posVec[2], xCoord, posVec[1]);
 	  }
 	}
       
@@ -388,11 +388,11 @@ namespace gar {
               // Draw the line, use an off color to be unique
 	      TPolyLine3D& pl(view->AddPolyLine3D(2, neutrinoColor, 1, 2));
             
-	      pl.SetPoint(0,particlePosition.X()+xcent,particlePosition.Y()+ycent,particlePosition.Z()+zcent);
+	      pl.SetPoint(0,particlePosition.Z()+zcent,particlePosition.X()+xcent,particlePosition.Y()+ycent);
             
 	      particlePosition += std::min(arcLenToDraw + 10.,1000.) * oppPartDir;
             
-	      pl.SetPoint(1,particlePosition.X()+xcent,particlePosition.Y()+ycent,particlePosition.Z()+zcent);
+	      pl.SetPoint(1,particlePosition.Z()+zcent,particlePosition.X()+xcent,particlePosition.Y()+ycent);
 	    }
 	  }
           // The particles we want to draw will be early in the list so break out if we didn't find them

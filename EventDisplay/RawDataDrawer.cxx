@@ -141,8 +141,8 @@ namespace {
               //int s=1;
               //int w=1;
               //TPolyLine3D& rdpos = view->AddPolyLine3D(2,c,w,s);
-              //rdpos.SetPoint(0,xyz[0],xyz[1],xyz[2]);
-              //rdpos.SetPoint(1,xyz[0]+1,xyz[1],xyz[2]);
+              //rdpos.SetPoint(0,xyz[2],xyz[0],xyz[1]);
+              //rdpos.SetPoint(1,xyz[2]+1,xyz[0],xyz[1]);
               //// std::cout << "adding a raw digit: " << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
 
               // loop over the ADC values for this digit and draw the value if it
@@ -168,9 +168,9 @@ namespace {
                 }
 
                 // somehow these boxes don't work -- draw short lines instead
-                //box = &(view->AddMarker3DBox(xyz[0],
+                //box = &(view->AddMarker3DBox(xyz[2],
+                //                            xyz[0],
                 //                            xyz[1],
-                //                            xyz[2],
                 //                            0.5,    // the extent is 1/2 tick
                 //			       0.5 * 0.3, // to fix  geom->ChannelPitch(),
                 //                         0.5 * 0.3  // to fix geom->ChannelPitch()
@@ -190,8 +190,8 @@ namespace {
                 int w2=1;
 
                 TPolyLine3D& rdpos = view->AddPolyLine3D(2,c2,w2,s2);
-                rdpos.SetPoint(0,xyz[0]-0.3,xyz[1],xyz[2]);
-                rdpos.SetPoint(1,xyz[0]+0.3,xyz[1],xyz[2]);
+                rdpos.SetPoint(0,xyz[2],xyz[0]-0.3,xyz[1]);
+                rdpos.SetPoint(1,xyz[2],xyz[0]+0.3,xyz[1]);
 
               } // end loop over ADC values for the digit
             }//end loop over raw digits

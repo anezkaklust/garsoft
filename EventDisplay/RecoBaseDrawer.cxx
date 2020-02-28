@@ -209,7 +209,7 @@ namespace evd{
     ycent = 0;
     zcent = 0;
     TPolyMarker3D& pm = view->AddPolyMarker3D(1, color, marker, size);
-    pm.SetPoint(0,xcent + pos[0], ycent + pos[1], zcent + pos[2] );
+    pm.SetPoint(0, zcent + pos[2], xcent + pos[0], ycent + pos[1] );
   } 
   
   void RecoBaseDrawer::DrawHelix3D(const float *trackpar,
@@ -252,7 +252,7 @@ namespace evd{
 	float xl = xpar + r*si*(philoc);
 	float yl = ycc - r*TMath::Cos(philoc + trackpar[3]);
 	float zl = zcc + r*TMath::Sin(philoc + trackpar[3]);
-	tpoly.SetPoint(ipoint,xcent+xl,ycent+yl,zcent+zl);
+	tpoly.SetPoint(ipoint,zcent+zl,xcent+xl,ycent+yl);
       }
     tpoly.SetLineWidth(width);
   }
@@ -279,8 +279,8 @@ namespace evd{
     TVector3 av(arrowvec);
     TVector3 endpos = spcv + lengthscale*av;
 
-    tpoly.SetPoint(0,spcv.X(),spcv.Y(),spcv.Z());
-    tpoly.SetPoint(1,endpos.X(),endpos.Y(),endpos.Z());
+    tpoly.SetPoint(0,spcv.Z(),spcv.X(),spcv.Y());
+    tpoly.SetPoint(1,endpos.Z(),endpos.X(),endpos.Y());
 
     TVector3 xhat(1,0,0);
     TVector3 yhat(0,1,0);
@@ -297,18 +297,18 @@ namespace evd{
       }
     if (perp1.Mag() == 0)
       {
-         tpoly.SetPoint(2,endpos.X(),endpos.Y(),endpos.Z());
-         tpoly.SetPoint(3,endpos.X(),endpos.Y(),endpos.Z());
-         tpoly.SetPoint(4,endpos.X(),endpos.Y(),endpos.Z());
+         tpoly.SetPoint(2,endpos.Z(),endpos.X(),endpos.Y());
+         tpoly.SetPoint(3,endpos.Z(),endpos.X(),endpos.Y());
+         tpoly.SetPoint(4,endpos.Z(),endpos.X(),endpos.Y());
 	 return;
       }
     perp1 = perp1*(1.0/perp1.Mag());
 
     TVector3 arpd1 = endpos -lengthscale*0.1*av + perp1*lengthscale*0.1*av.Mag();
     TVector3 arpd2 = endpos -lengthscale*0.1*av - perp1*lengthscale*0.1*av.Mag();
-    tpoly.SetPoint(2,arpd1.X(),arpd1.Y(),arpd1.Z());
-    tpoly.SetPoint(3,endpos.X(),endpos.Y(),endpos.Z());
-    tpoly.SetPoint(4,arpd2.X(),arpd2.Y(),arpd2.Z());
+    tpoly.SetPoint(2,arpd1.Z(),arpd1.X(),arpd1.Y());
+    tpoly.SetPoint(3,endpos.Z(),endpos.X(),endpos.Y());
+    tpoly.SetPoint(4,arpd2.Z(),arpd2.X(),arpd2.Y());
   }
 
   //......................................................................
@@ -343,7 +343,7 @@ namespace evd{
       // the calibration chain
       auto const* pos = itr->Position();
       
-      pm.SetPoint(p, xcent+pos[0], ycent+pos[1], zcent+pos[2]);
+      pm.SetPoint(p, zcent+pos[2], xcent+pos[0], ycent+pos[1]);
       ++p;
     }
 
@@ -383,7 +383,7 @@ namespace evd{
       // the calibration chain
       auto const* pos = itr->Position();
       
-      pm.SetPoint(p, xcent+pos[0], ycent+pos[1], zcent+pos[2]);
+      pm.SetPoint(p, zcent+pos[2], xcent+pos[0], ycent+pos[1]);
       ++p;
     }
 
@@ -435,20 +435,20 @@ namespace evd{
 	  poslist[j][1] += ycent;
 	  poslist[j][2] += zcent;
 	}
-      pl.SetPoint(0, poslist[0][0], poslist[0][1], poslist[0][2]);
-      pl.SetPoint(1, poslist[1][0], poslist[1][1], poslist[1][2]);
-      pl.SetPoint(2, poslist[5][0], poslist[5][1], poslist[5][2]);
-      pl.SetPoint(3, poslist[2][0], poslist[2][1], poslist[2][2]);
-      pl.SetPoint(4, poslist[0][0], poslist[0][1], poslist[0][2]);
-      pl.SetPoint(5, poslist[3][0], poslist[3][1], poslist[3][2]);
-      pl.SetPoint(6, poslist[5][0], poslist[5][1], poslist[5][2]);
-      pl.SetPoint(7, poslist[4][0], poslist[4][1], poslist[4][2]);
-      pl.SetPoint(8, poslist[0][0], poslist[0][1], poslist[0][2]);
-      pl.SetPoint(9, poslist[1][0], poslist[1][1], poslist[1][2]);
-      pl.SetPoint(10, poslist[2][0], poslist[2][1], poslist[2][2]);
-      pl.SetPoint(11, poslist[3][0], poslist[3][1], poslist[3][2]);
-      pl.SetPoint(12, poslist[4][0], poslist[4][1], poslist[4][2]);
-      pl.SetPoint(13, poslist[1][0], poslist[1][1], poslist[1][2]);
+      pl.SetPoint(0 , poslist[0][2], poslist[0][0], poslist[0][1]);
+      pl.SetPoint(1 , poslist[1][2], poslist[1][0], poslist[1][1]);
+      pl.SetPoint(2 , poslist[5][2], poslist[5][0], poslist[5][1]);
+      pl.SetPoint(3 , poslist[2][2], poslist[2][0], poslist[2][1]);
+      pl.SetPoint(4 , poslist[0][2], poslist[0][0], poslist[0][1]);
+      pl.SetPoint(5 , poslist[3][2], poslist[3][0], poslist[3][1]);
+      pl.SetPoint(6 , poslist[5][2], poslist[5][0], poslist[5][1]);
+      pl.SetPoint(7 , poslist[4][2], poslist[4][0], poslist[4][1]);
+      pl.SetPoint(8 , poslist[0][2], poslist[0][0], poslist[0][1]);
+      pl.SetPoint(9 , poslist[1][2], poslist[1][0], poslist[1][1]);
+      pl.SetPoint(10, poslist[2][2], poslist[2][0], poslist[2][1]);
+      pl.SetPoint(11, poslist[3][2], poslist[3][0], poslist[3][1]);
+      pl.SetPoint(12, poslist[4][2], poslist[4][0], poslist[4][1]);
+      pl.SetPoint(13, poslist[1][2], poslist[1][0], poslist[1][1]);
     }
 
     return;
@@ -544,7 +544,7 @@ namespace evd{
 
       for (size_t j=0; j<pointlist.size(); ++j)
 	{
-	  pl.SetPoint(j, poslist[pointlist[j]][0],poslist[pointlist[j]][1],poslist[pointlist[j]][2]);
+	  pl.SetPoint(j,poslist[pointlist[j]][2],poslist[pointlist[j]][0],poslist[pointlist[j]][1]);
 	}
 
     }
@@ -577,16 +577,20 @@ namespace evd{
 
       //pm.SetPoint(0, pos[0], pos[1], pos[2]);
 
-      pl.SetPoint(0, pos[0] - dir[0]*(len/2),
-		     pos[1] - dir[1]*(len/2),
-		     pos[2] - dir[2]*(len/2));
+      pl.SetPoint(0, 
+		  pos[2] - dir[2]*(len/2),
+		  pos[0] - dir[0]*(len/2),
+		  pos[1] - dir[1]*(len/2)
+		     );
 
       // This would be the center, but don't need to draw that
       //pl.SetPoint(1, pos[0], pos[1], pos[2]);
       
-      pl.SetPoint(1, pos[0] + dir[0]*(len/2),
-		     pos[1] + dir[1]*(len/2),
-		     pos[2] + dir[2]*(len/2));
+      pl.SetPoint(1, 
+		  pos[2] + dir[2]*(len/2),
+		  pos[0] + dir[0]*(len/2),
+		  pos[1] + dir[1]*(len/2)
+		  );
       ++p;
     }
   }
