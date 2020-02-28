@@ -55,29 +55,32 @@ namespace gar {
       TPolyLine3D& spos = view->AddPolyLine3D(19, c, w, s);
       TPolyLine3D& sposi = view->AddPolyLine3D(19, c, w, s);
       for (int i=0;i<19;++i)
-      {
-        spos.SetPoint(i,r*TMath::Cos(i*ang)+geo->TPCZCent(),xhi+geo->TPCXCent(),r*TMath::Sin(i*ang)+geo->TPCYCent());
-        sposi.SetPoint(i,fracinner*r*TMath::Cos(i*ang)+geo->TPCZCent(),xhi+geo->TPCXCent(),fracinner*r*TMath::Sin(i*ang)+geo->TPCYCent());
-      }
+	{
+	  // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+	  spos.SetPoint(i,r*TMath::Cos(i*ang)+geo->TPCZCent(),xhi+geo->TPCXCent(),r*TMath::Sin(i*ang)+geo->TPCYCent());
+	  sposi.SetPoint(i,fracinner*r*TMath::Cos(i*ang)+geo->TPCZCent(),xhi+geo->TPCXCent(),fracinner*r*TMath::Sin(i*ang)+geo->TPCYCent());
+	}
       TPolyLine3D& sneg = view->AddPolyLine3D(19, c, w, s);
       TPolyLine3D& snegi = view->AddPolyLine3D(19, c, w, s);
       for (int i=0;i<19;++i)
-      {
-        sneg.SetPoint(i,r*TMath::Cos(i*ang)+geo->TPCZCent(),xlo+geo->TPCXCent(),r*TMath::Sin(i*ang)+geo->TPCYCent());
-        snegi.SetPoint(i,fracinner*r*TMath::Cos(i*ang)+geo->TPCZCent(),xlo+geo->TPCXCent(),fracinner*r*TMath::Sin(i*ang)+geo->TPCYCent());
-      }
+	{
+	  // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+	  sneg.SetPoint(i,r*TMath::Cos(i*ang)+geo->TPCZCent(),xlo+geo->TPCXCent(),r*TMath::Sin(i*ang)+geo->TPCYCent());
+	  snegi.SetPoint(i,fracinner*r*TMath::Cos(i*ang)+geo->TPCZCent(),xlo+geo->TPCXCent(),fracinner*r*TMath::Sin(i*ang)+geo->TPCYCent());
+	}
 
       c = kGray+2;
       s = 1;
       w = 1;
       for (int i=0;i<18;++i)
-      {
-        TPolyLine3D& gridt = view->AddPolyLine3D(4, c, w, s);
-        gridt.SetPoint(0,fracinner*r*TMath::Cos(i*ang)+geo->TPCZCent(),xlo+geo->TPCXCent(),fracinner*r*TMath::Sin(i*ang)+geo->TPCYCent());
-        gridt.SetPoint(1,r*TMath::Cos(i*ang)+geo->TPCZCent(),xlo+geo->TPCXCent(),r*TMath::Sin(i*ang)+geo->TPCYCent());
-        gridt.SetPoint(2,r*TMath::Cos(i*ang)+geo->TPCZCent(),xhi+geo->TPCXCent(),r*TMath::Sin(i*ang)+geo->TPCYCent());
-        gridt.SetPoint(3,fracinner*r*TMath::Cos(i*ang)+geo->TPCZCent(),xhi+geo->TPCXCent(),fracinner*r*TMath::Sin(i*ang)+geo->TPCYCent());
-      }
+	{
+	  TPolyLine3D& gridt = view->AddPolyLine3D(4, c, w, s);
+	  // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+	  gridt.SetPoint(0,fracinner*r*TMath::Cos(i*ang)+geo->TPCZCent(),xlo+geo->TPCXCent(),fracinner*r*TMath::Sin(i*ang)+geo->TPCYCent());
+	  gridt.SetPoint(1,r*TMath::Cos(i*ang)+geo->TPCZCent(),xlo+geo->TPCXCent(),r*TMath::Sin(i*ang)+geo->TPCYCent());
+	  gridt.SetPoint(2,r*TMath::Cos(i*ang)+geo->TPCZCent(),xhi+geo->TPCXCent(),r*TMath::Sin(i*ang)+geo->TPCYCent());
+	  gridt.SetPoint(3,fracinner*r*TMath::Cos(i*ang)+geo->TPCZCent(),xhi+geo->TPCXCent(),fracinner*r*TMath::Sin(i*ang)+geo->TPCYCent());
+	}
 
       // Indicate coordinate system
       double x0 = -0.20;     // Center location of the key
@@ -90,6 +93,7 @@ namespace gar {
       TPolyLine3D& xaxis = view->AddPolyLine3D(2, c, w, s);
       TPolyLine3D& yaxis = view->AddPolyLine3D(2, c, w, s);
       TPolyLine3D& zaxis = view->AddPolyLine3D(2, c, s, w);
+      // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
       xaxis.SetPoint(0, z0+geo->TPCZCent(), x0+geo->TPCXCent(),    y0+geo->TPCYCent());
       xaxis.SetPoint(1, z0+geo->TPCZCent(), sz+x0+geo->TPCXCent(), y0+geo->TPCYCent());
 

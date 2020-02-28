@@ -167,6 +167,7 @@ namespace {
                   xyz[0] = chanposx - driftdistance;
                 }
 
+	        // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
                 // somehow these boxes don't work -- draw short lines instead
                 //box = &(view->AddMarker3DBox(xyz[2],
                 //                            xyz[0],
@@ -188,6 +189,8 @@ namespace {
                 int c2 = kGreen;
                 int s2=1;
                 int w2=1;
+
+  	        // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
 
                 TPolyLine3D& rdpos = view->AddPolyLine3D(2,c2,w2,s2);
                 rdpos.SetPoint(0,xyz[2],xyz[0]-0.3,xyz[1]);
