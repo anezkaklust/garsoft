@@ -297,7 +297,7 @@ namespace gar {
 	    if (xPos < minx || xPos > maxx || yPos < miny || yPos > maxy|| zPos < minz || zPos > maxz) continue;
               
 	    // Check fiducial limits
-	    // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) to the polyline coords
+	    // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) to the polyline coords
 	    if (xPos > xMinimum && xPos < xMaximum){
 	      hitPositions[3*hitCount    ] = zPos;
 	      hitPositions[3*hitCount + 1] = xPos;
@@ -354,7 +354,7 @@ namespace gar {
             
             double xCoord = posVec[0];
             
-	    // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+	    // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) 
             if (xCoord > xMinimum && xCoord < xMaximum)
 	      pm.SetPoint(posIdx, posVec[2], xCoord, posVec[1]);
 	  }
@@ -390,7 +390,7 @@ namespace gar {
               // Draw the line, use an off color to be unique
 	      TPolyLine3D& pl(view->AddPolyLine3D(2, neutrinoColor, 1, 2));
             
-	      // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+	      // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) 
 
 	      pl.SetPoint(0,particlePosition.Z()+zcent,particlePosition.X()+xcent,particlePosition.Y()+ycent);
             

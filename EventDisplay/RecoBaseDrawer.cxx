@@ -209,7 +209,7 @@ namespace gar {
       ycent = 0;
       zcent = 0;
       TPolyMarker3D& pm = view->AddPolyMarker3D(1, color, marker, size);
-      // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+      // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) 
       pm.SetPoint(0, zcent + pos[2], xcent + pos[0], ycent + pos[1] );
     } 
   
@@ -253,7 +253,7 @@ namespace gar {
 	  float xl = xpar + r*si*(philoc);
 	  float yl = ycc - r*TMath::Cos(philoc + trackpar[3]);
 	  float zl = zcc + r*TMath::Sin(philoc + trackpar[3]);
-	  // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+	  // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) 
 	  tpoly.SetPoint(ipoint,zcent+zl,xcent+xl,ycent+yl);
 	}
       tpoly.SetLineWidth(width);
@@ -281,7 +281,7 @@ namespace gar {
       TVector3 av(arrowvec);
       TVector3 endpos = spcv + lengthscale*av;
 
-      // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+      // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) 
       tpoly.SetPoint(0,spcv.Z(),spcv.X(),spcv.Y());
       tpoly.SetPoint(1,endpos.Z(),endpos.X(),endpos.Y());
 
@@ -300,7 +300,7 @@ namespace gar {
 	}
       if (perp1.Mag() == 0)
 	{
-	  // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+	  // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) 
 	  tpoly.SetPoint(2,endpos.Z(),endpos.X(),endpos.Y());
 	  tpoly.SetPoint(3,endpos.Z(),endpos.X(),endpos.Y());
 	  tpoly.SetPoint(4,endpos.Z(),endpos.X(),endpos.Y());
@@ -310,7 +310,7 @@ namespace gar {
 
       TVector3 arpd1 = endpos -lengthscale*0.1*av + perp1*lengthscale*0.1*av.Mag();
       TVector3 arpd2 = endpos -lengthscale*0.1*av - perp1*lengthscale*0.1*av.Mag();
-      // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+      // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) 
       tpoly.SetPoint(2,arpd1.Z(),arpd1.X(),arpd1.Y());
       tpoly.SetPoint(3,endpos.Z(),endpos.X(),endpos.Y());
       tpoly.SetPoint(4,arpd2.Z(),arpd2.X(),arpd2.Y());
@@ -348,7 +348,7 @@ namespace gar {
 	// the calibration chain
 	auto const* pos = itr->Position();
       
-	// nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+	// nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) 
 	pm.SetPoint(p, zcent+pos[2], xcent+pos[0], ycent+pos[1]);
 	++p;
       }
@@ -389,7 +389,7 @@ namespace gar {
 	// the calibration chain
 	auto const* pos = itr->Position();
       
-	// nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+	// nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) 
 	pm.SetPoint(p, zcent+pos[2], xcent+pos[0], ycent+pos[1]);
 	++p;
       }
@@ -442,7 +442,7 @@ namespace gar {
 	    poslist[j][1] += ycent;
 	    poslist[j][2] += zcent;
 	  }
-	// nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+	// nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) 
 	pl.SetPoint(0 , poslist[0][2], poslist[0][0], poslist[0][1]);
 	pl.SetPoint(1 , poslist[1][2], poslist[1][0], poslist[1][1]);
 	pl.SetPoint(2 , poslist[5][2], poslist[5][0], poslist[5][1]);
@@ -552,7 +552,7 @@ namespace gar {
 
 	for (size_t j=0; j<pointlist.size(); ++j)
 	  {
-	    // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+	    // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) 
 	    pl.SetPoint(j,poslist[pointlist[j]][2],poslist[pointlist[j]][0],poslist[pointlist[j]][1]);
 	  }
 
@@ -585,7 +585,7 @@ namespace gar {
 	const double len = vechits[idx]->Length();
 
 	//pm.SetPoint(0, pos[0], pos[1], pos[2]);
-	// nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+	// nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) 
 
 	pl.SetPoint(0, 
 		    pos[2] - dir[2]*(len/2),
