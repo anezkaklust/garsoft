@@ -56,7 +56,7 @@ namespace gar {
       TPolyLine3D& sposi = view->AddPolyLine3D(19, c, w, s);
       for (int i=0;i<19;++i)
 	{
-	  // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+	  // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) 
 	  spos.SetPoint(i,r*TMath::Cos(i*ang)+geo->TPCZCent(),xhi+geo->TPCXCent(),r*TMath::Sin(i*ang)+geo->TPCYCent());
 	  sposi.SetPoint(i,fracinner*r*TMath::Cos(i*ang)+geo->TPCZCent(),xhi+geo->TPCXCent(),fracinner*r*TMath::Sin(i*ang)+geo->TPCYCent());
 	}
@@ -64,7 +64,7 @@ namespace gar {
       TPolyLine3D& snegi = view->AddPolyLine3D(19, c, w, s);
       for (int i=0;i<19;++i)
 	{
-	  // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+	  // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) 
 	  sneg.SetPoint(i,r*TMath::Cos(i*ang)+geo->TPCZCent(),xlo+geo->TPCXCent(),r*TMath::Sin(i*ang)+geo->TPCYCent());
 	  snegi.SetPoint(i,fracinner*r*TMath::Cos(i*ang)+geo->TPCZCent(),xlo+geo->TPCXCent(),fracinner*r*TMath::Sin(i*ang)+geo->TPCYCent());
 	}
@@ -75,7 +75,7 @@ namespace gar {
       for (int i=0;i<18;++i)
 	{
 	  TPolyLine3D& gridt = view->AddPolyLine3D(4, c, w, s);
-	  // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+	  // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) 
 	  gridt.SetPoint(0,fracinner*r*TMath::Cos(i*ang)+geo->TPCZCent(),xlo+geo->TPCXCent(),fracinner*r*TMath::Sin(i*ang)+geo->TPCYCent());
 	  gridt.SetPoint(1,r*TMath::Cos(i*ang)+geo->TPCZCent(),xlo+geo->TPCXCent(),r*TMath::Sin(i*ang)+geo->TPCYCent());
 	  gridt.SetPoint(2,r*TMath::Cos(i*ang)+geo->TPCZCent(),xhi+geo->TPCXCent(),r*TMath::Sin(i*ang)+geo->TPCYCent());
@@ -93,7 +93,7 @@ namespace gar {
       TPolyLine3D& xaxis = view->AddPolyLine3D(2, c, w, s);
       TPolyLine3D& yaxis = view->AddPolyLine3D(2, c, w, s);
       TPolyLine3D& zaxis = view->AddPolyLine3D(2, c, s, w);
-      // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (x,z,y) 
+      // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) 
       xaxis.SetPoint(0, z0+geo->TPCZCent(), x0+geo->TPCXCent(),    y0+geo->TPCYCent());
       xaxis.SetPoint(1, z0+geo->TPCZCent(), sz+x0+geo->TPCXCent(), y0+geo->TPCYCent());
 
