@@ -245,13 +245,13 @@ void CAF::loop()
     fRes->FixParameter(0, ECAL_stock);
     fRes->FixParameter(1, ECAL_const);
 
-    float ECAL_pi0_resolution = 0.13; //sigmaE/E in between at rest (17%) and high energy (~few %)
+    // float ECAL_pi0_resolution = 0.13; //sigmaE/E in between at rest (17%) and high energy (~few %)
     float ECAL_time_resolution = 1.; // 1 ns time resolution
 
     TParticlePDG *neutron = TDatabasePDG::Instance()->GetParticle(2112);
     float neutron_mass = neutron->Mass(); //in GeV
-    TParticlePDG *pi0 = TDatabasePDG::Instance()->GetParticle(111);
-    float pi0_mass = pi0->Mass(); //in GeV
+    // TParticlePDG *pi0 = TDatabasePDG::Instance()->GetParticle(111);
+    // float pi0_mass = pi0->Mass(); //in GeV
 
     //------------------------------------------------------------------------
 
@@ -912,7 +912,7 @@ void CAF::loop()
                                 std::cout << "Could not find particle in root pdg table, pdg " << pdg << std::endl;
                                 //deuteron
                                 if( pdg == 1000010020 ) {
-                                    float mtrue = 1.8756; //in GeV
+                                    // float mtrue = 1.8756; //in GeV
                                     // float etrue = std::sqrt(ptrue*ptrue + mtrue*mtrue);
                                     float etrue = ptrue;
                                     float ECAL_resolution = fRes->Eval(etrue)*etrue;
@@ -925,7 +925,7 @@ void CAF::loop()
                                     recopidecal.push_back(0);
                                 }
                             } else {
-                                float mtrue = part->Mass(); //in GeV
+                                // float mtrue = part->Mass(); //in GeV
                                 // float etrue = std::sqrt(ptrue*ptrue + mtrue*mtrue);
                                 float etrue = ptrue;
                                 float ECAL_resolution = fRes->Eval(etrue)*etrue;
