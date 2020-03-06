@@ -11,7 +11,7 @@ standard_geo:
   PixelPitch:      0.333333 # cm
  }
  SegmentationAlgPars: @local::standard_ecalmultigridstripxysegalgpars
- RelativePath:      ""
+ RelativePath:      "MPD_Standalone"
  GDML:              "MPD_ECalOctagon_60l_UniformMagnet.gdml"
  ROOT:              "MPD_ECalOctagon_60l_UniformMagnet.gdml"
  SurfaceY:          0.          # cm
@@ -27,7 +27,7 @@ standard_geometry_helper:
 standard_auxdet_geo:
 {
  GDML:              "MPD_ECalOctagon_60l_UniformMagnet.gdml"
- RelativePath:      ""
+ RelativePath:      "MPD_Standalone"
  ForceUseFCLOnly:   false
  SortingParameters: {}
 }
