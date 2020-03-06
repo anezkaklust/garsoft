@@ -490,14 +490,35 @@ namespace gar{
             //----------------------------------------------------
             void EventDisplay3D::PickVolumes(TEveElementList* &list)
             {
+                //Check if top volume is rock hall
+                bool hasHall = false;
+                std::vector<const TGeoNode*> topnodes = fGeometry->FindVolumePath("rockBox_lv_0");
+                TGeoScale nullmatgm;
+                TGeoMatrix* topHall = &nullmatgm;
+                if(topnodes.size() != 0) hasHall = true;
+
+                std::cout << "Has the hall in the list of volumes? " << hasHall << std::endl;
+
+                //Matrix Enclosure
+                if(hasHall)
+                {
+                    for(unsigned int i = 0; i < topnodes.size(); i++)
+                    {
+                        std::string nodename(topnodes.at(i)->GetName());
+                        if(nodename.find("rockBox_lv_0") == std::string::npos) continue;
+
+                        const TGeoNode *top = topnodes.at(i);
+                        topHall = top->GetMatrix();
+                    }
+                }
+
                 //Check if the top volume is Enclosure or ND
                 bool hasEnclosure = false;
-                std::vector<const TGeoNode*> topnodes = fGeometry->FindVolumePath("volDetEnclosure_0");
-                TGeoScale nullmatgm;
+                topnodes = fGeometry->FindVolumePath("volDetEnclosure_0");
                 TGeoMatrix* topEnclosure = &nullmatgm;
                 if(topnodes.size() != 0) hasEnclosure = true;
 
-                std::cout << "The top Volume is Enclosure? " << hasEnclosure << std::endl;
+                std::cout << "Has the Enclosure in the list of volumes? " << hasEnclosure << std::endl;
 
                 //Matrix Enclosure
                 if(hasEnclosure)
@@ -512,10 +533,10 @@ namespace gar{
                     }
                 }
 
-                //Matrix ND
-                TGeoMatrix* topND = &nullmatgm;
                 //Get the matrix of the top volume (rotation of the full ND)
                 topnodes = fGeometry->FindVolumePath("volMPD_0");
+                //Matrix ND
+                TGeoMatrix* topND = &nullmatgm;
                 for(unsigned int i = 0; i < topnodes.size(); i++)
                 {
                     std::string nodename(topnodes.at(i)->GetName());
@@ -523,6 +544,19 @@ namespace gar{
 
                     const TGeoNode *top = topnodes.at(i);
                     topND = top->GetMatrix();
+                }
+
+                //Get the matrix of the top volume (rotation of the full ND)
+                topnodes = fGeometry->FindVolumePath("volNDHPgTPC_0");
+                //Matrix ND
+                TGeoMatrix* topND2 = &nullmatgm;
+                for(unsigned int i = 0; i < topnodes.size(); i++)
+                {
+                    std::string nodename(topnodes.at(i)->GetName());
+                    if(nodename.find("volNDHPgTPC_0") == std::string::npos) continue;
+
+                    const TGeoNode *top = topnodes.at(i);
+                    topND2 = top->GetMatrix();
                 }
 
                 for(auto volname : fVolumesToShow)
@@ -566,8 +600,10 @@ namespace gar{
                                 TGeoMatrix* mat = currMat->MakeClone();
                                 TGeoHMatrix *m = new TGeoHMatrix(*mat);
                                 m->MultiplyLeft(topECal);
+                                m->MultiplyLeft(topND2);
                                 m->MultiplyLeft(topND);
                                 if(hasEnclosure) m->MultiplyLeft(topEnclosure);
+                                if(hasHall) m->MultiplyLeft(topHall);
                                 daugh_fakeShape->SetTransMatrix(*m);
 
                                 list->AddElement(daugh_fakeShape);
@@ -598,8 +634,10 @@ namespace gar{
                             TGeoMatrix* currMat = node->GetMatrix();
                             TGeoMatrix* mat = currMat->MakeClone();
                             TGeoHMatrix *m = new TGeoHMatrix(*mat);
+                            m->MultiplyLeft(topND2);
                             m->MultiplyLeft(topND);
                             if(hasEnclosure) m->MultiplyLeft(topEnclosure);
+                            if(hasHall) m->MultiplyLeft(topHall);
                             fakeShape->SetTransMatrix(*m);
                             // fakeShape->SetTransMatrix(*mat);
 
@@ -675,7 +713,7 @@ namespace gar{
 
                             // If the original simulated hit did not occur in the enclosure volume then don't draw it
                             TVector3 point(xPos, yPos, zPos);
-                            if (!fGeometry->PointInDetEnclosure(point) || std::sqrt(yPos*yPos + zPos*zPos) > 400. || std::abs(xPos) > 550) continue;
+                            if (!fGeometry->PointInMPD(point)) continue;
 
                             MCtrack->SetPoint(hitIdx, xPos, yPos, zPos);
                         }
