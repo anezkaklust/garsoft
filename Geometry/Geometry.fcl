@@ -11,9 +11,9 @@ standard_geo:
   PixelPitch:      0.333333 # cm
  }
  SegmentationAlgPars: @local::standard_ecalmultigridstripxysegalgpars
- RelativePath:      "MPD_Standalone"
- GDML:              "MPD_ECalOctagon_60l_UniformMagnet.gdml"
- ROOT:              "MPD_ECalOctagon_60l_UniformMagnet.gdml"
+ RelativePath:      ""
+ GDML:              "MPD_Standalone/MPD_ECalOctagon_60l_UniformMagnet.gdml"
+ ROOT:              "MPD_Standalone/MPD_ECalOctagon_60l_UniformMagnet.gdml"
  SurfaceY:          0.          # cm
  Name:              "Realistic"
  PositionEpsilon:   1.e-4
@@ -26,8 +26,8 @@ standard_geometry_helper:
 
 standard_auxdet_geo:
 {
- GDML:              "MPD_ECalOctagon_60l_UniformMagnet.gdml"
- RelativePath:      "MPD_Standalone"
+ GDML:              "MPD_Standalone/MPD_ECalOctagon_60l_UniformMagnet.gdml"
+ RelativePath:      ""
  ForceUseFCLOnly:   false
  SortingParameters: {}
 }
