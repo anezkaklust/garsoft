@@ -34,4 +34,4 @@ install_source()
 
 add_subdirectory(ParamSim)
 add_subdirectory(DSTproduction)
-
+add_subdirectory(gntpc_dune)
