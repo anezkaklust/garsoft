@@ -245,13 +245,13 @@ void CAF::loop()
     fRes->FixParameter(0, ECAL_stock);
     fRes->FixParameter(1, ECAL_const);
 
-    float ECAL_pi0_resolution = 0.13; //sigmaE/E in between at rest (17%) and high energy (~few %)
+    // float ECAL_pi0_resolution = 0.13; //sigmaE/E in between at rest (17%) and high energy (~few %)
     float ECAL_time_resolution = 1.; // 1 ns time resolution
 
     TParticlePDG *neutron = TDatabasePDG::Instance()->GetParticle(2112);
     float neutron_mass = neutron->Mass(); //in GeV
-    TParticlePDG *pi0 = TDatabasePDG::Instance()->GetParticle(111);
-    float pi0_mass = pi0->Mass(); //in GeV
+    // TParticlePDG *pi0 = TDatabasePDG::Instance()->GetParticle(111);
+    // float pi0_mass = pi0->Mass(); //in GeV
 
     //------------------------------------------------------------------------
 
@@ -495,8 +495,8 @@ void CAF::loop()
                     // recopid.push_back(2112);
                     recopid.push_back(0); //reco pid set to 0?
                     detected.push_back(1);
-                    float eres = sigmaNeutronECAL_first * std::sqrt(ptrue*ptrue + neutron_mass*neutron_mass);
-                    float ereco = _util->GaussianSmearing( std::sqrt(ptrue*ptrue + neutron_mass*neutron_mass), eres );
+                    float eres = sigmaNeutronECAL_first * true_KE;
+                    float ereco = _util->GaussianSmearing( true_KE, eres );
                     erecon.push_back(ereco > 0 ? ereco : 0.);
                     // std::cout << "true part n true energy " << std::sqrt(ptrue*ptrue + neutron_mass*neutron_mass) << " ereco " << erecon[i] << std::endl;
                     truepdg.push_back(pdg);
@@ -578,8 +578,8 @@ void CAF::loop()
             if(pdg == 111)
             {
                 //TODO smear the pi0 energy (and decay vertex?) according to previous pi0 reco studies
-                float ereco = _util->GaussianSmearing( std::sqrt(ptrue*ptrue + pi0_mass*pi0_mass), ECAL_pi0_resolution*std::sqrt(ptrue*ptrue + pi0_mass*pi0_mass));
-                erecon.push_back(ereco);
+                // float ereco = _util->GaussianSmearing( std::sqrt(ptrue*ptrue + pi0_mass*pi0_mass), ECAL_pi0_resolution*std::sqrt(ptrue*ptrue + pi0_mass*pi0_mass));
+                erecon.push_back(0);
                 recopid.push_back(0);
                 detected.push_back(0);
 
@@ -912,8 +912,9 @@ void CAF::loop()
                                 std::cout << "Could not find particle in root pdg table, pdg " << pdg << std::endl;
                                 //deuteron
                                 if( pdg == 1000010020 ) {
-                                    float mtrue = 1.8756; //in GeV
-                                    float etrue = std::sqrt(ptrue*ptrue + mtrue*mtrue);
+                                    // float mtrue = 1.8756; //in GeV
+                                    // float etrue = std::sqrt(ptrue*ptrue + mtrue*mtrue);
+                                    float etrue = ptrue;
                                     float ECAL_resolution = fRes->Eval(etrue)*etrue;
                                     float ereco = _util->GaussianSmearing(etrue, ECAL_resolution);
                                     erecon.push_back(ereco);
@@ -924,8 +925,9 @@ void CAF::loop()
                                     recopidecal.push_back(0);
                                 }
                             } else {
-                                float mtrue = part->Mass(); //in GeV
-                                float etrue = std::sqrt(ptrue*ptrue + mtrue*mtrue);
+                                // float mtrue = part->Mass(); //in GeV
+                                // float etrue = std::sqrt(ptrue*ptrue + mtrue*mtrue);
+                                float etrue = ptrue;
                                 float ECAL_resolution = fRes->Eval(etrue)*etrue;
                                 float ereco = _util->GaussianSmearing(etrue, ECAL_resolution);
                                 erecon.push_back(ereco);

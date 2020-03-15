@@ -505,6 +505,30 @@ namespace gar {
         }
 
         //......................................................................
+        bool GeometryCore::PointInMPD(TVector3 const& point) const
+        {
+            TVector3 tpc_origin(TPCXCent(), TPCYCent(), TPCZCent());
+            TVector3 new_point = point - tpc_origin;
+            // check that the given point is in the enclosure volume at least
+            if(std::abs(new_point.x()) > fMPDHalfWidth  ||
+            std::abs(new_point.y()) > fMPDHalfHeight ||
+            std::abs(new_point.z()) > fMPDLength){
+                LOG_WARNING("GeometryCoreBadInputPoint")
+                << "point ("
+                << new_point.x() << ","
+                << new_point.y() << ","
+                << new_point.z() << ") "
+                << "is not inside the MPD volume "
+                << " half width = "  << fMPDHalfWidth
+                << " half height = " << fMPDHalfHeight
+                << " length = " << fMPDLength;
+                return false;
+            }
+
+            return true;
+        }
+
+        //......................................................................
         bool GeometryCore::PointInGArTPC(TVector3 const& point) const
         {
             // check that the given point is in the enclosure volume at least
