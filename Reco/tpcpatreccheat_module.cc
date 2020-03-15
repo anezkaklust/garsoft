@@ -146,7 +146,7 @@ namespace gar {
 		  //std::cout << "number of hitides: " << hitides.size() << std::endl;
 		  for (size_t i=0; i<hitides.size(); ++i)
 		    {
-		      float charge = hitides.at(i).numElectrons;
+		      float charge = hitides.at(i).energyTot;
 		      totcharge += charge;
 		      int trackid = TMath::Abs(hitides.at(i).trackID);
 		      auto cmf = chargemap.find(trackid);

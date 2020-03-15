@@ -29,10 +29,11 @@ namespace gar {
     namespace cheat {
     
         //----------------------------------------------------------------------
-        BackTracker::BackTracker(fhicl::ParameterSet     const& pset,
-                                 ::art::ActivityRegistry      & reg)
+        BackTracker::BackTracker(fhicl::ParameterSet const& pset,
+                                 art::ActivityRegistry    & reg)
             : BackTrackerCore(pset) {
             reg.sPreProcessEvent.watch(this, &BackTracker::Rebuild);
+            fHasMC = fHasHits = fHasCaloHits = fHasTracks = fHasClusters = false;
         }
 
         //----------------------------------------------------------------------
@@ -44,12 +45,12 @@ namespace gar {
 
 
         //----------------------------------------------------------------------
-        void BackTracker::Rebuild(::art::Event const& evt, art::ScheduleContext) {
+        void BackTracker::Rebuild(art::Event const& evt, art::ScheduleContext) {
             // Just drop the ScheduleContext that art requires. 
             RebuildNoSC(evt);
         }
 
-        void BackTracker::RebuildNoSC(::art::Event const& evt) {
+        void BackTracker::RebuildNoSC(art::Event const& evt) {
             // do nothing if this is data
             if (evt.isRealData()) return;
       
@@ -59,32 +60,40 @@ namespace gar {
 
 
             // we have a new event, so clear the collections from the previous events
-            for(auto vec : fChannelToEDepCol) vec.clear();
-            fChannelToEDepCol.clear();
             fParticleList.clear();
             fMCTruthList .clear();
+            fTrackIDToMCTruthIndex.clear();
+
+            for (auto vec : fChannelToEDepCol) vec.clear();
+            fChannelToEDepCol.clear();
 
 
 
-            // get the particles from the event
+            // get the MCParticles from the event
             auto pHandle = evt.getValidHandle<std::vector<simb::MCParticle> >(fG4ModuleLabel);
             if (pHandle.failedToGet()) {
-                LOG_WARNING("BackTracker")
+                LOG_WARNING("BackTracker_service::RebuildNoSC")
                     << "failed to get handle to simb::MCParticle from " << fG4ModuleLabel
                     << ", return";
                 return;
             }
             // get mapping from MCParticles to MCTruths; loop to fill fTrackIDToMCTruthIndex
-            ::art::FindOneP<simb::MCTruth> fo(pHandle, evt, fG4ModuleLabel);
-            if( fo.isValid() ){
-                for(size_t p = 0; p < pHandle->size(); ++p){
+            art::FindOneP<simb::MCTruth> fo(pHandle, evt, fG4ModuleLabel);
+            if( !fo.isValid() ){
+               LOG_WARNING("BackTracker_service::RebuildNoSC")
+                    << "failed to associate MCTruth to MCParticle with " << fG4ModuleLabel
+                    << "; all attempts to backtrack will fail\n";
+                return;        
+
+            } else {
+                for (size_t p = 0; p < pHandle->size(); ++p) {
 
                     simb::MCParticle *part = new simb::MCParticle(pHandle->at(p));
                     fParticleList.Add(part);
           
                     // get the simb::MCTruth associated to this sim::ParticleList
                     try {
-                        ::art::Ptr<simb::MCTruth> mct = fo.at(p);
+                        art::Ptr<simb::MCTruth> mct = fo.at(p);
                         if (fMCTruthList.size() < 1) {
                             fMCTruthList.push_back(mct);
                         } else {
@@ -100,21 +109,19 @@ namespace gar {
                         fTrackIDToMCTruthIndex[pHandle->at(p).TrackId()] = fMCTruthList.size() - 1;
                     }
                     catch (cet::exception &ex) {
-                        LOG_WARNING("BackTracker")
+                        LOG_WARNING("BackTracker_service::RebuildNoSC")
                             << "unable to find MCTruth from ParticleList created in "
                             << fG4ModuleLabel
-                            << "; attempts to get MCTruth from the backtracker will fail\n"
+                            << "; all attempts to backtrack will fail\n"
                             << "message from caught exception:\n" << ex;
                     }
-                }// end loop over MCParticles
-            }// end if fo.isValid()
+                } // end loop over MCParticles
+            }
 
             // Register the electromagnetic Eve calculator
             fParticleList.AdoptEveIdCalculator(new sim::EmEveIdCalculator);
 
-            LOG_DEBUG("BackTracker")
-                << "BackTracker has " << GetSetOfTrackIDs().size()
-                << " tracks.  The particles are:\n" << fParticleList;
+            fHasMC = true;
 
 
 
@@ -122,13 +129,19 @@ namespace gar {
             // between the digits and energy deposits if it exists.
             art::Handle<std::vector<gar::raw::RawDigit> > digCol;
             evt.getByLabel(fRawDataLabel, digCol);
-            if (!digCol.isValid()) return;
+            if (!digCol.isValid()) {
+                LOG_WARNING("BackTracker_service::RebuildNoSC")
+                    << "Unable to find RawDigits in " << fRawDataLabel <<
+                    "; no backtracking in TPC will be possible";            
+                return;
+            }
 
-            ::art::FindMany<gar::sdp::EnergyDeposit> fmEnergyDep(digCol, evt, fRawDataLabel);
+            art::FindMany<gar::sdp::EnergyDeposit> fmEnergyDep(digCol, evt, fRawDataLabel);
             if (!fmEnergyDep.isValid()) {
-                LOG_WARNING("BackTracker")
+                LOG_WARNING("BackTracker_service::RebuildNoSC")
                     << "Unable to find valid association between RawDigits and "
-                    << "energy deposits, no backtracking of hits will be possible";
+                    << "energy deposits in " << fRawDataLabel <<
+                    "; no backtracking in TPC will be possible";
                 return;
             }
 
@@ -138,8 +151,8 @@ namespace gar {
             auto geo = gar::providerFrom<geo::Geometry>();
             fChannelToEDepCol.resize(geo->NChannels());
       
-            LOG_DEBUG("BackTrackerServ")
-                << "There are " << geo->NChannels() << " " << fChannelToEDepCol.size()
+            LOG_DEBUG("BackTracker_service::RebuildNoSC")
+                << "There are " << fChannelToEDepCol.size()
                 << " channels in the geometry";
 
             std::vector<const gar::sdp::EnergyDeposit*> eDeps;
@@ -150,16 +163,16 @@ namespace gar {
                 fChannelToEDepCol[ (*digCol)[d].Channel() ].swap(eDeps);
             }
 
-
-
             // Inverse of drift velocity and longitudinal diffusion constant will
-            // be needed by the backtracker, so get 'em now
+            // be needed by the backtracker when fHasHits, so get 'em now
             auto detProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fInverseVelocity = 1.0/detProp->DriftVelocity(detProp->Efield(),
                                                           detProp->Temperature());
 
             auto garProp = gar::providerFrom<detinfo::GArPropertiesService>();
             fLongDiffConst = std::sqrt(2.0 * garProp->LongitudinalDiffusion());
+
+            fHasHits = true;
 
 
 

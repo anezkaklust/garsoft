@@ -23,8 +23,8 @@ namespace gar {
              float       *pos,
              float        startT,
              float        endT,
-	     float        Time,
-	     float        RMS)
+         float        Time,
+         float        RMS)
     : fChannel  (chan  )
     , fSignal   (sig   )
     , fTime     (Time  )
@@ -77,7 +77,7 @@ namespace gar {
       float avgtime = (fTime * fSignal + h.Time() * h.Signal()) / totSig;
 
       fRMS = TMath::Sqrt(  (fSignal*(TMath::Sq(fTime-avgtime)+TMath::Sq(fRMS))
-			    + h.Signal()*(TMath::Sq(h.Time()-avgtime)+TMath::Sq(h.RMS())))/totSig );
+                + h.Signal()*(TMath::Sq(h.Time()-avgtime)+TMath::Sq(h.RMS())))/totSig );
                           
       fTime      = avgtime;
 
@@ -85,7 +85,20 @@ namespace gar {
       
       return;
     }
-
+    
+    //--------------------------------------------------------------------------
+    // Sometimes one must sort Hits
+    bool Hit::operator<(gar::rec::Hit const& h)
+    {
+      if (Channel()   < h.Channel()  ) return true;
+      if (Channel()   > h.Channel()  ) return false;
+      if (StartTime() < h.StartTime()) return true;
+      if (StartTime() > h.StartTime()) return false;
+      if (EndTime()   < h.EndTime()  ) return true;
+      if (EndTime()   > h.EndTime()  ) return false;
+      // I dunno wot den
+      return true;
+    }
 
     //--------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& o, gar::rec::Hit const& h)

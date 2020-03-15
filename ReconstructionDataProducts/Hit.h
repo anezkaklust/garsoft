@@ -38,8 +38,8 @@ namespace gar {
           float       *pos,
           float        startT,
           float        endT,
-	  float        Time,
-	  float        RMS);
+      float        Time,
+      float        RMS);
       
       const float*        Position()  const;
       float        const& Signal()    const;
@@ -50,6 +50,8 @@ namespace gar {
       float               RMS()       const;
       
       void operator += (gar::rec::Hit const& h);
+
+      bool operator <  (gar::rec::Hit const& h);
       
       friend std::ostream& operator << (std::ostream & o, gar::rec::Hit const& h);
       

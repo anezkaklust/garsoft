@@ -30,7 +30,7 @@ namespace gar{
             using provider_type = BackTrackerCore; ///< type of service provider
 
             BackTracker(fhicl::ParameterSet     const& pset,
-                        ::art::ActivityRegistry      & reg);
+                        art::ActivityRegistry      & reg);
             ~BackTracker();
 
             void beginJob();
@@ -42,8 +42,10 @@ namespace gar{
             // It is called automatically at the time registered by the constructor.  In this case,
             // the constructor registers PreProcessEvent.  See the art::ActivityRegistry class.
             // art wants to see a ScheduleContext in the argument, but we don't need that.
-            void Rebuild(::art::Event const& evt, art::ScheduleContext);
-            void RebuildNoSC(::art::Event const& evt);
+            void Rebuild(art::Event const& evt, art::ScheduleContext);
+            void RebuildNoSC(art::Event const& evt);
+
+        protected:
 
         private:
 

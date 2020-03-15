@@ -165,7 +165,7 @@ namespace gar {
         return;
       }
 
-      auto const& pList = bt->ParticleList();
+      auto const& pList = bt->GetParticleList();
       
       for(auto itr : pList){
         auto part = itr.second;
