@@ -493,7 +493,7 @@ void ConvertToGST(void)
     bool is_coh    = proc_info.IsCoherent();
     bool is_dfr    = proc_info.IsDiffractive();
     bool is_imd    = proc_info.IsInverseMuDecay();
-    bool is_imdanh = proc_info.IsIMDAnnihilation();
+    //bool is_imdanh = proc_info.IsIMDAnnihilation();
     bool is_singlek = proc_info.IsSingleKaon();
     bool is_nuel   = proc_info.IsNuElectronElastic();
     bool is_em     = proc_info.IsEM();
