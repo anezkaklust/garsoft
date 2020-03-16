@@ -493,7 +493,13 @@ void ConvertToGST(void)
     bool is_coh    = proc_info.IsCoherent();
     bool is_dfr    = proc_info.IsDiffractive();
     bool is_imd    = proc_info.IsInverseMuDecay();
+
+    // put this back if you need it elswhere -- gcc was complaining about an unused
+    // variable since it was used only in the assert statement below.  Changed so
+    // the access method is called in the assert statement instead to make both gcc
+    // and clang happy
     //bool is_imdanh = proc_info.IsIMDAnnihilation();
+
     bool is_singlek = proc_info.IsSingleKaon();
     bool is_nuel   = proc_info.IsNuElectronElastic();
     bool is_em     = proc_info.IsEM();
@@ -502,7 +508,7 @@ void ConvertToGST(void)
     bool is_mec    = proc_info.IsMEC();
 
     if (!hitnucl && neutrino) {
-        assert(is_coh || is_imd || is_imdanh || is_nuel);
+        assert(is_coh || is_imd || proc_info.IsIMDAnnihilation() || is_nuel);
     }
 
     // Hit quark - set only for DIS events
