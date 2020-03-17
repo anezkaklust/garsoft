@@ -1,0 +1,18 @@
+BEGIN_PROLOG
+
+standard_anatest:
+{
+ module_type:               anatest
+
+ GEANTLabel:               "geant"
+ HitLabel:                 "hit"
+ TPCClusterLabel:          "tpccluster"
+ TrackLabel:               "track"
+ VertexLabel:              "vertex"
+ RawCaloHitLabel:          "daqecal"
+ CaloHitLabel:             "calohit"
+ ClusterLabel:             "calocluster"
+ ECALAssnLabel:            "trkecalassn"
+}
+
+END_PROLOG

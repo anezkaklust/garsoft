@@ -1367,12 +1367,15 @@ void gar::anatree::processIonizationInfo(rec::TrackIoniz& ion, float ionizeTrunc
 
 float gar::anatree::processOneDirection(std::vector<std::pair<float,float>> SigData, float ionizeTruncate) {
 
-    std::vector<std::pair<float,float>> dEvsX;    // Will be the ionization vs distance along tra
+    std::vector<std::pair<float,float>> dEvsX;    // Ionization vs distance along track
 
     // The first hit on the track never had its ionization info stored.  Not a problem
     // really.  Each pair is a hit and the step along the track that ends at the hit
-    // For the last hit, just take the step from the n-1 hit; don't guess some distance to
-    // (nonexistant!) n+1 hit.  Using pointer arithmetic because you are a real K&R C nerd!
+    // For the last hit, just take the step from the n-1 hit; don't guess some distance
+	// to (nonexistant!) n+1 hit.  Using pointer arithmetic because you are a real K&R 
+	// C nerd!  Except that C++ doesn't know you are such a nerd and if 
+	//  SigData.size()==0, then SigData.end()-1 is 0xFFFFFFFFFFFFFFF8.
+	if (SigData.size()==0) return 0.0;
     float distAlongTrack = 0;
     std::vector<std::pair<float,float>>::iterator littlebit = SigData.begin();
     for (; littlebit<(SigData.end()-1); ++littlebit) {
