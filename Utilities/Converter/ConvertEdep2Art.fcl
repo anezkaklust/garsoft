@@ -1,0 +1,12 @@
+BEGIN_PROLOG
+
+standard_edep2art:
+{
+module_type: ConvertEdep2Art
+Inputfile: ""
+ECALMaterial: "Scintillator"
+addMCFlux: false
+applyBirks: true
+}
+
+END_PROLOG
