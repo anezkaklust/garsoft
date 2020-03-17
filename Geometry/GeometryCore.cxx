@@ -10,6 +10,7 @@
 #include "Geometry/GeometryCore.h"
 #include "Geometry/ChannelMapAlg.h"
 #include "Geometry/ECALSegmentationAlg.h"
+#include "Geometry/LocalTransformation.h"
 
 // Framework includes
 #include "cetlib_except/exception.h"
@@ -419,6 +420,42 @@ namespace gar {
         TGeoNode* GeometryCore::FindNode(TVector3 const& point) const
         {
             return gGeoManager->FindNode(point.x(), point.y(), point.z());
+        }
+
+        //......................................................................
+        void GeometryCore::WorldToLocal(TVector3 const& world, TVector3 &local) const
+        {
+            TVector3 point(world.x(), world.y(), world.z());
+            std::string name = VolumeName(point);
+            auto const& path = FindVolumePath(name);
+            if (path.empty())
+            {
+                throw cet::exception("GeometryCore::WorldToLocal") << " can't find volume '" << name << "'\n";
+            }
+
+            //Change to local frame
+            gar::geo::LocalTransformation<TGeoHMatrix> trans(path, path.size() - 1);
+            std::array<double, 3U> wd{ {world.x(), world.y(), world.z()} }, loc;
+            trans.WorldToLocal(wd.data(), loc.data());
+            local.SetXYZ(loc.at(0), loc.at(1), loc.at(2));
+        }
+
+        //......................................................................
+        void GeometryCore::LocalToWorld(TVector3 const& local, TVector3 &world) const
+        {
+            TVector3 point(local.x(), local.y(), local.z());
+            std::string name = VolumeName(point);
+            auto const& path = FindVolumePath(name);
+            if (path.empty())
+            {
+                throw cet::exception("GeometryCore::LocalToWorld") << " can't find volume '" << name << "'\n";
+            }
+
+            //Change to local frame
+            gar::geo::LocalTransformation<TGeoHMatrix> trans(path, path.size() - 1);
+            std::array<double, 3U> loc{ {local.x(), local.y(), local.z()} }, wd;
+            trans.LocalToWorld(loc.data(), wd.data());
+            world.SetXYZ(wd.at(0), wd.at(1), wd.at(2));
         }
 
         //......................................................................

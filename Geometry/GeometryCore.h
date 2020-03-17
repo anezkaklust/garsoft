@@ -597,6 +597,12 @@ namespace gar {
       //Return the node of the point
       TGeoNode* FindNode(TVector3 const& point) const;
 
+      //Transform world coordinates in local coordinates
+      void WorldToLocal(TVector3 const& world, TVector3 &local) const;
+
+      //Transform local coordinates in world coordinates
+      void LocalToWorld(TVector3 const& local, TVector3 &world) const;
+
       /**
        * @brief Name of the deepest material containing the point xyz
        * @return material of the origin by default

@@ -276,7 +276,7 @@ namespace gar {
                         auto trackID = h->PrimaryId;
                         double edep = VisibleEnergyDeposition(h, fApplyBirks);
                         double time = (h->Start.T() + h->Stop.T())/2 / CLHEP::ns;
-                        G4ThreeVector GlobalPosCM( (h->Start.X() + h->Stop.X())/2 /CLHEP::cm,
+                        TVector3 GlobalPosCM( (h->Start.X() + h->Stop.X())/2 /CLHEP::cm,
                         (h->Start.Y() + h->Stop.Y())/2 /CLHEP::cm ,
                         (h->Start.Z() + h->Stop.Z())/2 /CLHEP::cm );
 
@@ -292,20 +292,9 @@ namespace gar {
                         unsigned int stave = GetStaveNumber(VolumeName); //get the stave number
                         unsigned int module = GetModuleNumber(VolumeName); //get the module number
 
-                        //Transform in cm
-                        TVector3 point(GlobalPosCM.x(), GlobalPosCM.y(), GlobalPosCM.z());
-                        std::string name = fGeo->VolumeName(point);
-                        auto const& path = fGeo->FindVolumePath(name);
-                        if (path.empty())
-                        {
-                            throw cet::exception("ConvertEdep2Art") << "produce(): can't find volume '" << name << "'\n";
-                        }
-
-                        //Change to local frame
-                        gar::geo::LocalTransformation<TGeoHMatrix> trans(path, path.size() - 1);
-                        std::array<double, 3U> world{ {GlobalPosCM.x(), GlobalPosCM.y(), GlobalPosCM.z()} }, local;
-                        trans.WorldToLocal(world.data(), local.data());
-                        G4ThreeVector LocalPosCM(local.at(0), local.at(1), local.at(2));
+                        TVector3 LocalPosCM;
+                        fGeo->WorldToLocal(GlobalPosCM, LocalPosCM);
+                        G4ThreeVector G4LocalPosCM(LocalPosCM.x(), LocalPosCM.y(), LocalPosCM.z());
 
                         // std::cout << "layer " << layer;
                         // std::cout << " slice " << slice;
@@ -314,17 +303,15 @@ namespace gar {
                         // std::cout << " module " << module;
                         // std::cout << std::endl;
 
-                        long long int cellID = fGeo->cellID(node, det_id, stave, module, layer, slice, LocalPosCM);//encoding the cellID on 64 bits
+                        long long int cellID = fGeo->cellID(node, det_id, stave, module, layer, slice, G4LocalPosCM);//encoding the cellID on 64 bits
 
                         double G4Pos[3] = {0., 0., 0.}; // in cm
                         if(fGeo->isTile(cellID))
                         {
-                            G4ThreeVector SegLocalCM = fGeo->position(node, cellID);//in cm
-
-                            gar::geo::LocalTransformation<TGeoHMatrix> trans(path, path.size() - 1);
-                            std::array<double, 3U> local_back{ {SegLocalCM.x(), SegLocalCM.y(), SegLocalCM.z()} }, world_back;
-                            trans.LocalToWorld(local_back.data(), world_back.data());
-                            G4ThreeVector SegGlobalCM(world_back.at(0), world_back.at(1), world_back.at(2));
+                            G4ThreeVector G4SegLocalCM = fGeo->position(node, cellID);//in cm
+                            TVector3 SegLocalCM(G4SegLocalCM.x(), G4SegLocalCM.y(), G4SegLocalCM.z());
+                            TVector3 SegGlobalCM;
+                            fGeo->LocalToWorld(SegLocalCM, SegGlobalCM);
 
                             G4Pos[0] = SegGlobalCM.x();
                             G4Pos[1] = SegGlobalCM.y();
@@ -351,34 +338,25 @@ namespace gar {
                 LOG_DEBUG("ConvertEdep2Art")
                 << "adding GAr deposits for track id: "
                 << hit.TrackID();
-
                 TPCCol->emplace_back(hit);
             }
-
             for(auto hit : fECALDeposits)
             {
                 LOG_DEBUG("ConvertEdep2Art")
                 << "adding calo deposits for track id: "
                 << hit.TrackID();
-
                 ECALCol->emplace_back(hit);
             }
-
             evt.put(std::move(TPCCol));
             evt.put(std::move(ECALCol));
             // evt.put(std::move(LArCol));
             // evt.put(std::move(partCol));
             // evt.put(std::move(tpassn));
-
             return;
         }
-
     } // namespace garg4
-
     namespace garg4 {
-
         DEFINE_ART_MODULE(ConvertEdep2Art)
-
     } // namespace garg4
 } // gar
 
