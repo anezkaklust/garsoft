@@ -5,6 +5,7 @@ standard_edep2art:
 module_type: ConvertEdep2Art
 EDepSimFile: ""
 GhepFile: ""
+OverlayFile: true
 ECALMaterial: "Scintillator"
 applyBirks: true
 }

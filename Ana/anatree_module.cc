@@ -330,8 +330,6 @@ gar::anatree::anatree(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
     fClusterLabel     = p.get<std::string>("ClusterLabel","calocluster");
     fECALAssnLabel    = p.get<std::string>("ECALAssnLabel","trkecalassn");
 
-
-
     // What to write
     fWriteMCinfo              = p.get<bool>("WriteMCinfo",       true);
     fWriteMCPTrajectory       = p.get<bool>("WriteMCPTrajectory",true);
@@ -354,8 +352,6 @@ gar::anatree::anatree(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
     fIonizTruncate            = p.get<float>("IonizTruncate",    0.70);
     fWriteCohInfo             = p.get<bool> ("WriteCohInfo",     false);
 
-    consumes<std::vector<simb::MCParticle> >(fGeantLabel);
-
     if (usegenlabels) {
         for (size_t i=0; i<fGeneratorLabels.size(); ++i) {
             consumes<std::vector<simb::MCTruth> >(fGeneratorLabels.at(i));
@@ -373,6 +369,7 @@ gar::anatree::anatree(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
     }
 
     //consumes<art::Assns<simb::MCTruth, simb::MCParticle> >(fGeantLabel);
+    consumes<std::vector<simb::MCParticle> >(fGeantLabel);
 
     consumes<std::vector<rec::TPCCluster> >(fTPCClusterLabel);
     consumes<art::Assns<rec::Track, rec::TPCCluster> >(fTPCClusterLabel);
@@ -1372,8 +1369,8 @@ float gar::anatree::processOneDirection(std::vector<std::pair<float,float>> SigD
     // The first hit on the track never had its ionization info stored.  Not a problem
     // really.  Each pair is a hit and the step along the track that ends at the hit
     // For the last hit, just take the step from the n-1 hit; don't guess some distance
-	// to (nonexistant!) n+1 hit.  Using pointer arithmetic because you are a real K&R 
-	// C nerd!  Except that C++ doesn't know you are such a nerd and if 
+	// to (nonexistant!) n+1 hit.  Using pointer arithmetic because you are a real K&R
+	// C nerd!  Except that C++ doesn't know you are such a nerd and if
 	//  SigData.size()==0, then SigData.end()-1 is 0xFFFFFFFFFFFFFFF8.
 	if (SigData.size()==0) return 0.0;
     float distAlongTrack = 0;
