@@ -3,9 +3,9 @@ BEGIN_PROLOG
 standard_edep2art:
 {
 module_type: ConvertEdep2Art
-Inputfile: ""
+EDepSimFile: ""
+GhepFile: ""
 ECALMaterial: "Scintillator"
-addMCFlux: false
 applyBirks: true
 }
 

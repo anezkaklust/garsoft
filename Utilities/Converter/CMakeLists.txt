@@ -1,6 +1,9 @@
 add_subdirectory(edep-io)
 
 include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
+include_directories ( $ENV{GENIE_INC}/GENIE )
+
+execute_process(COMMAND genie-config --libs OUTPUT_VARIABLE GENIE_LIBS_DIR_WITH_LFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 art_make(LIB_LIBRARIES      Utilities_Converter_edep-io
                             SimulationDataProducts
@@ -32,6 +35,8 @@ art_make(LIB_LIBRARIES      Utilities_Converter_edep-io
                             SimulationDataProducts
                             Geometry
                             MCCheater_BackTracker_service
+                            nutools_EventGeneratorBase_GENIE
+                            nutools_RandomUtils_NuRandomService_service
                             ${ART_FRAMEWORK_CORE}
                             ${ART_FRAMEWORK_IO_SOURCES}
                             ${ART_FRAMEWORK_PRINCIPAL}
@@ -47,6 +52,8 @@ art_make(LIB_LIBRARIES      Utilities_Converter_edep-io
                             ${CETLIB}
                             ${CETLIB_EXCEPT}
                             ${ROOT_BASIC_LIB_LIST}
+                            ${ROOT_EGPYTHIA6}
+                            ${GENIE_LIBS_DIR_WITH_LFLAGS}
 )
 
 

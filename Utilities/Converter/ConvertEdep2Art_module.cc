@@ -26,6 +26,14 @@
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/GTruth.h"
 #include "nusimdata/SimulationBase/MCFlux.h"
+#include "nutools/EventGeneratorBase/evgenbase.h"
+#include "nutools/EventGeneratorBase/GENIE/GENIE2ART.h"
+#include "nutools/EventGeneratorBase/GENIE/EVGBAssociationUtil.h"
+
+//GENIE
+#include "Ntuple/NtpMCEventRecord.h"
+#include "GHEP/GHepRecord.h"
+#include "PDG/PDGLibrary.h"
 
 // GArSoft Includes
 #include "Utilities/AssociationUtil.h"
@@ -84,20 +92,27 @@ namespace gar {
 
             double VisibleEnergyDeposition(std::vector<TG4HitSegment>::iterator hit, bool applyBirks);
 
-            std::string fInputfile;
+            std::string fEDepSimfile;
+            std::string fGhepfile;
             std::string fECALMaterial;
-            bool fAddMCFlux;
             bool fApplyBirks;
 
             TChain* fTreeChain;
             unsigned int nEntries;
+
+            TChain* fGTreeChain;
+            unsigned int nEntriesGhep;
+            genie::NtpMCEventRecord*                 fMCRec;
+
             TG4Event* event;
             double fBirksCoeff;
 
+            genie::PDGLibrary *pdglib;
             const gar::geo::GeometryCore*            fGeo;               ///< geometry information
             TGeoManager*                             fGeoManager;
             const detinfo::ECALProperties*           fEcalProp;
 
+            std::vector<simb::MCParticle> fMCParticles;
             std::vector<gar::sdp::CaloDeposit> fECALDeposits;
             std::vector<gar::sdp::EnergyDeposit> fGArDeposits;
         };
@@ -110,40 +125,52 @@ namespace gar {
         // Constructor
         ConvertEdep2Art::ConvertEdep2Art(fhicl::ParameterSet const& pset)
         : art::EDProducer{pset},
-        fInputfile( pset.get< std::string >("Inputfile", "") ),
+        fEDepSimfile( pset.get< std::string >("EDepSimFile", "") ),
+        fGhepfile( pset.get< std::string >("GhepFile", "") ),
         fECALMaterial( pset.get< std::string >("ECALMaterial", "Scintillator") ),
-        fAddMCFlux( pset.get< bool >("addMCFlux", false) ),
         fApplyBirks( pset.get< bool >("applyBirks", true) ),
-        fTreeChain(new TChain("EDepSimEvents"))
+        fTreeChain(new TChain("EDepSimEvents")),
+        fGTreeChain(new TChain("gtree")),
+        fMCRec(new genie::NtpMCEventRecord)
         {
-            // produces< std::vector<simb::MCTruth> >();
-            // produces< std::vector<simb::GTruth>  >();
-            // if ( fAddMCFlux ) {
-            //     produces< std::vector<simb::MCFlux>  >();
-            // }
-            //
-            // produces< std::vector<simb::MCParticle> >();
+            pdglib = genie::PDGLibrary::Instance();
+
+            produces< std::vector<simb::MCTruth> >();
+            produces< std::vector<simb::GTruth>  >();
+            produces< art::Assns<simb::MCTruth, simb::GTruth> >();
+
+            produces< std::vector<simb::MCParticle> >();
             produces< std::vector<sdp::EnergyDeposit> >();
             produces< std::vector<sdp::CaloDeposit> >();
             // produces< std::vector<sdp::LArDeposit> >();
 
-            fTreeChain->Add(fInputfile.c_str());
-            nEntries = fTreeChain->GetEntries();
+            if(fEDepSimfile.empty() || fGhepfile.empty())
+            {
+                throw cet::exception("ConvertEdep2Art")
+                << "Empty edep-sim file or ghep file";
+            }
 
+            fTreeChain->Add(fEDepSimfile.c_str());
+            nEntries = fTreeChain->GetEntries();
             event = nullptr;
             fTreeChain->SetBranchAddress("Event", &event);
+
+            fGTreeChain->Add(fGhepfile.c_str());
+            nEntriesGhep = fTreeChain->GetEntries();
+            fGTreeChain->SetBranchAddress("gmcrec", &fMCRec);
 
             fGeo = gar::providerFrom<geo::Geometry>();
             fGeoManager = fGeo->ROOTGeoManager();
             fEcalProp = gar::providerFrom<detinfo::ECALPropertiesService>();
-            fBirksCoeff = fEcalProp->ScintBirksConstant(); //CLHEP::mm/CLHEP::MeV;
+            fBirksCoeff = fEcalProp->ScintBirksConstant(); //CLHEP::mm/CLHEP::MeV;;
         }
 
         //----------------------------------------------------------------------
         // Destructor
         ConvertEdep2Art::~ConvertEdep2Art()
         {
-
+            if ( fTreeChain ) delete fTreeChain;
+            if ( fGTreeChain ) delete fGTreeChain;
         }
 
         //----------------------------------------------------------------------
@@ -197,9 +224,9 @@ namespace gar {
         //------------------------------------------------------------------------------
         double ConvertEdep2Art::VisibleEnergyDeposition(std::vector<TG4HitSegment>::iterator hit, bool applyBirks)
         {
-            double edep = hit->EnergyDeposit;
-            double niel = hit->SecondaryDeposit;
-            double length = hit->TrackLength;
+            double edep = hit->GetEnergyDeposit();
+            double niel = hit->GetSecondaryDeposit();
+            double length = hit->GetTrackLength();
             double evis = edep;
 
             if(applyBirks)
@@ -233,23 +260,88 @@ namespace gar {
             LOG_DEBUG("ConvertEdep2Art") << "produce()";
             art::EventNumber_t eventnumber = evt.id().event();
 
-            // std::unique_ptr< std::vector<simb::MCParticle> > partCol(new std::vector<simb::MCParticle>                );
-            // std::unique_ptr< ::art::Assns<simb::MCTruth, simb::MCParticle> > tpassn (new ::art::Assns<simb::MCTruth, simb::MCParticle>);
-
-            // std::unique_ptr< std::vector< sdp::LArDeposit > >           LArCol  (new std::vector<sdp::LArDeposit>           );
-            std::unique_ptr< std::vector<sdp::EnergyDeposit>  > TPCCol(new std::vector<sdp::EnergyDeposit> );
-            std::unique_ptr< std::vector< sdp::CaloDeposit > > ECALCol(new std::vector<sdp::CaloDeposit> );
-
-            fGArDeposits.clear();
-            fECALDeposits.clear();
-
             if( eventnumber > nEntries ){
                 //stop...
                 return;
             }
 
+            std::unique_ptr< std::vector<simb::MCTruth> > mctruthcol(new std::vector<simb::MCTruth>);
+            std::unique_ptr< std::vector<simb::GTruth> > gtruthcol(new std::vector<simb::GTruth>);
+            std::unique_ptr< art::Assns<simb::MCTruth, simb::GTruth> > tgassn(new art::Assns<simb::MCTruth, simb::GTruth>);
+
+            simb::MCTruth mctruth;
+            simb::GTruth  gtruth;
+
+            fGTreeChain->GetEntry(eventnumber);
+            genie::EventRecord* grec = fMCRec->event;
+
+            evgb::FillMCTruth(grec, 0., mctruth);
+            evgb::FillGTruth(grec, gtruth);
+
+            mctruthcol->push_back(mctruth);
+            gtruthcol->push_back(gtruth);
+
+            evgb::util::CreateAssn(*this, evt, *mctruthcol, *gtruthcol, *tgassn, gtruthcol->size()-1, gtruthcol->size());
+
             //Get the event
             fTreeChain->GetEntry(eventnumber);
+
+            //--------------------------------------------------------------------------
+            std::unique_ptr< std::vector<simb::MCParticle> > partCol(new std::vector<simb::MCParticle> );
+
+            fMCParticles.clear();
+
+            for (std::vector<TG4Trajectory>::iterator t = event->Trajectories.begin(); t != event->Trajectories.end(); ++t)
+            {
+                int trkID = t->GetTrackId();
+                int parentID = t->GetParentId();
+                int pdg = t->GetPDGCode();
+                std::string name = t->GetName();
+                double mass = pdglib->Find(pdg)->Mass();
+
+                std::string process_name = "unknown";
+                if(parentID == -1) { process_name = "primary"; parentID = 0; }
+                else{
+                    //Get the first point that created this particle
+                    process_name = std::to_string( t->Points.at(0).GetProcess() );
+                }
+
+                // std::cout << "Part name " << name << " pdg " << pdg << " trkID " << trkID << " parentID " << parentID << " process " << process_name << std::endl;
+
+                simb::MCParticle mcpart(trkID, pdg, process_name, parentID, mass);
+
+                for (std::vector<TG4TrajectoryPoint>::iterator p = t->Points.begin(); p != t->Points.end(); ++p)
+                {
+                    TLorentzVector position = p->GetPosition();
+                    TLorentzVector fourPos(position.X() / CLHEP::cm, position.Y() / CLHEP::cm, position.Z() / CLHEP::cm, position.T() / CLHEP::s );
+                    TVector3 momentum = p->GetMomentum();
+                    TLorentzVector fourMom(momentum.x() * CLHEP::MeV / CLHEP::GeV, momentum.y() * CLHEP::MeV / CLHEP::GeV, momentum.z() * CLHEP::MeV / CLHEP::GeV, 0.);
+                    std::string process = std::to_string( p->GetProcess() + 1000*p->GetSubprocess() );
+
+                    if(p == t->Points.begin()) process = "Start";
+                    mcpart.AddTrajectoryPoint(fourPos, fourMom, process);
+                }
+
+                std::string end_process = std::to_string( t->Points.at(t->Points.size()-1).GetProcess() );
+                mcpart.SetEndProcess(end_process);
+
+                fMCParticles.push_back( mcpart );
+            }
+
+            for(auto mcpart : fMCParticles)
+            {
+                LOG_DEBUG("ConvertEdep2Art")
+                << "adding mc particle with track id: "
+                << mcpart.TrackId();
+                partCol->emplace_back(mcpart);
+            }
+
+            //--------------------------------------------------------------------------
+            std::unique_ptr< std::vector<sdp::EnergyDeposit>  > TPCCol(new std::vector<sdp::EnergyDeposit> );
+            std::unique_ptr< std::vector< sdp::CaloDeposit > > ECALCol(new std::vector<sdp::CaloDeposit> );
+
+            fGArDeposits.clear();
+            fECALDeposits.clear();
 
             //Fill simulated hits
             for (auto d = event->SegmentDetectors.begin(); d != event->SegmentDetectors.end(); ++d)
@@ -259,13 +351,13 @@ namespace gar {
                     //GAr deposits
                     for (std::vector<TG4HitSegment>::iterator h = d->second.begin(); h != d->second.end(); ++h)
                     {
-                        auto trackID = h->PrimaryId;
-                        double edep = h->EnergyDeposit / CLHEP::MeV;
-                        double time = (h->Start.T() + h->Stop.T())/2 / CLHEP::ns;
-                        double x = (h->Start.X() + h->Stop.X())/2;
-                        double y = (h->Start.Y() + h->Stop.Y())/2;
-                        double z = (h->Start.Z() + h->Stop.Z())/2;
-                        double stepLength = h->TrackLength;
+                        auto trackID = h->GetPrimaryId();
+                        double edep = h->GetEnergyDeposit() / CLHEP::MeV;
+                        double time = (h->GetStart().T() + h->GetStop().T())/2 / CLHEP::s;
+                        double x = (h->GetStart().X() + h->GetStop().X())/2;
+                        double y = (h->GetStart().Y() + h->GetStop().Y())/2;
+                        double z = (h->GetStart().Z() + h->GetStop().Z())/2;
+                        double stepLength = h->GetTrackLength();
                         fGArDeposits.emplace_back(trackID, time, edep, x/CLHEP::cm, y/CLHEP::cm, z/CLHEP::cm, stepLength/CLHEP::cm, (trackID > 0));
                     }
                 }
@@ -273,12 +365,12 @@ namespace gar {
                     //ECAL deposits
                     for (std::vector<TG4HitSegment>::iterator h = d->second.begin(); h != d->second.end(); ++h)
                     {
-                        auto trackID = h->PrimaryId;
+                        auto trackID = h->GetPrimaryId();
                         double edep = VisibleEnergyDeposition(h, fApplyBirks);
-                        double time = (h->Start.T() + h->Stop.T())/2 / CLHEP::ns;
-                        TVector3 GlobalPosCM( (h->Start.X() + h->Stop.X())/2 /CLHEP::cm,
-                        (h->Start.Y() + h->Stop.Y())/2 /CLHEP::cm ,
-                        (h->Start.Z() + h->Stop.Z())/2 /CLHEP::cm );
+                        double time = (h->GetStart().T() + h->GetStop().T())/2 / CLHEP::s;
+                        TVector3 GlobalPosCM( (h->GetStart().X() + h->GetStop().X())/2 /CLHEP::cm,
+                        (h->GetStart().Y() + h->GetStop().Y())/2 /CLHEP::cm ,
+                        (h->GetStart().Z() + h->GetStop().Z())/2 /CLHEP::cm );
 
                         TGeoNode *node = fGeoManager->FindNode(GlobalPosCM.x(), GlobalPosCM.y(), GlobalPosCM.z());//Node in cm...
                         std::string VolumeName  = node->GetVolume()->GetName();
@@ -340,6 +432,7 @@ namespace gar {
                 << hit.TrackID();
                 TPCCol->emplace_back(hit);
             }
+
             for(auto hit : fECALDeposits)
             {
                 LOG_DEBUG("ConvertEdep2Art")
@@ -347,16 +440,24 @@ namespace gar {
                 << hit.TrackID();
                 ECALCol->emplace_back(hit);
             }
+
+            evt.put(std::move(mctruthcol));
+            evt.put(std::move(gtruthcol));
+            evt.put(std::move(tgassn));
+
+            evt.put(std::move(partCol));
             evt.put(std::move(TPCCol));
             evt.put(std::move(ECALCol));
             // evt.put(std::move(LArCol));
-            // evt.put(std::move(partCol));
             // evt.put(std::move(tpassn));
             return;
         }
     } // namespace garg4
+
     namespace garg4 {
+
         DEFINE_ART_MODULE(ConvertEdep2Art)
+
     } // namespace garg4
 } // gar
 
