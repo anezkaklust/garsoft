@@ -283,10 +283,10 @@ namespace util {
 
                 genie::NtpMCRecHeader rec_header = fMCRec->hdr;
                 genie::EventRecord *event = fMCRec->event;
-                // genie::Interaction *interaction = event->Summary();
 
-                // std::cout << rec_header;
-                // std::cout << *event;
+                LOG_DEBUG("ConvertEdep2Art")
+                << rec_header
+                << *event;
 
                 //Need to get the Rootino showing the end of spill
                 genie::GHepParticle *neutrino = event->Probe();
@@ -302,9 +302,11 @@ namespace util {
                 }
             }
 
-            mf::LogInfo("ConvertEdep2Art") << "Number of spills in the ghep file " << fSpillCount << std::endl;
+            mf::LogInfo("ConvertEdep2Art")
+            << "Number of spills in the ghep file "
+            << fSpillCount;
 
-            for(int ientry = fStartSpill[eventnumber]; ientry < fStopSpill[eventnumber]; ientry++)
+            for(int ientry = fStartSpill[eventnumber-1]; ientry < fStopSpill[eventnumber-1]; ientry++)
             {
                 fGTreeChain->GetEntry(ientry);
 
@@ -328,7 +330,8 @@ namespace util {
             }
         }
         else{
-            fGTreeChain->GetEntry(eventnumber);
+            //Starts at 0, evt starts at 1
+            fGTreeChain->GetEntry(eventnumber-1);
 
             genie::NtpMCRecHeader rec_header = fMCRec->hdr;
             genie::EventRecord *event = fMCRec->event;
@@ -346,7 +349,8 @@ namespace util {
         }
 
         //Get the event
-        fTreeChain->GetEntry(eventnumber);
+        //Starts at 0, evt starts at 1
+        fTreeChain->GetEntry(eventnumber-1);
 
         //--------------------------------------------------------------------------
         std::unique_ptr< std::vector<simb::MCParticle> > partCol(new std::vector<simb::MCParticle> );
@@ -365,10 +369,13 @@ namespace util {
             if(parentID == -1) { process_name = "primary"; parentID = 0; }
             else{
                 //Get the first point that created this particle
-                process_name = std::to_string( t->Points.at(0).GetProcess() );
+                process_name = t->Points.at(0).GetProcessName();
             }
 
             // std::cout << "Part name " << name << " pdg " << pdg << " trkID " << trkID << " parentID " << parentID << " process " << process_name << std::endl;
+
+            //Skip the creation of the mcp if it is part of shower (based on process name) and only if it is not in the TPC
+            //TODO
 
             simb::MCParticle mcpart(trkID, pdg, process_name, parentID, mass);
 
@@ -378,13 +385,13 @@ namespace util {
                 TLorentzVector fourPos(position.X() / CLHEP::cm, position.Y() / CLHEP::cm, position.Z() / CLHEP::cm, position.T() / CLHEP::s );
                 TVector3 momentum = p->GetMomentum();
                 TLorentzVector fourMom(momentum.x() * CLHEP::MeV / CLHEP::GeV, momentum.y() * CLHEP::MeV / CLHEP::GeV, momentum.z() * CLHEP::MeV / CLHEP::GeV, 0.);
-                std::string process = std::to_string( p->GetProcess() + 1000*p->GetSubprocess() );
+                std::string process = p->GetProcessName();
 
                 if(p == t->Points.begin()) process = "Start";
                 mcpart.AddTrajectoryPoint(fourPos, fourMom, process);
             }
 
-            std::string end_process = std::to_string( t->Points.at(t->Points.size()-1).GetProcess() );
+            std::string end_process = t->Points.at(t->Points.size()-1).GetProcessName();
             mcpart.SetEndProcess(end_process);
 
             fMCParticles.push_back( mcpart );
@@ -420,6 +427,7 @@ namespace util {
                     double y = (h->GetStart().Y() + h->GetStop().Y())/2;
                     double z = (h->GetStart().Z() + h->GetStop().Z())/2;
                     double stepLength = h->GetTrackLength();
+
                     fGArDeposits.emplace_back(trackID, time, edep, x/CLHEP::cm, y/CLHEP::cm, z/CLHEP::cm, stepLength/CLHEP::cm, (trackID > 0));
                 }
             }
@@ -480,6 +488,9 @@ namespace util {
                 }
             }
             else{
+                LOG_DEBUG("ConvertEdep2Art")
+                << "Ignoring hits for sensitive material: "
+                << d->first;
                 continue;
             }
         }

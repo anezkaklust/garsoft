@@ -95,7 +95,7 @@ class TG4TrajectoryPoint {
     friend class EDepSim::PersistencyManager;
 public:
     TG4TrajectoryPoint()
-        : Position(0,0,0,0), Momentum(0,0,0),
+        : Position(0,0,0,0), Momentum(0,0,0), ProcessName(""),
           Process(0), Subprocess(0) {}
 
     virtual ~TG4TrajectoryPoint();
@@ -154,6 +154,9 @@ public:
     /// The momentum of the particle at this trajectory point.
     const TVector3& GetMomentum() const {return Momentum;}
 
+    /// The interaction process name associated with this trajectory point.
+    std::string GetProcessName() const {return ProcessName;}
+
     /// The interaction process type associated with this trajectory point.
     /// The possible values are defined in the G4ProcessType enum.
     int GetProcess() const {return Process;}
@@ -176,6 +179,9 @@ private:
 
     /// The momentum of the particle at this trajectory point.
     TVector3 Momentum;
+
+    /// The interaction process name associated with this trajectory point.
+    std::string ProcessName;
 
     /// The interaction process type associated with this trajectory point.
     /// The possible values are defined in the G4ProcessType enum.
