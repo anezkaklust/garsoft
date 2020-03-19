@@ -84,18 +84,21 @@ namespace util {
 
     private:
 
-        unsigned int GetDetNumber(std::string volname);
-        unsigned int GetStaveNumber(std::string volname);
-        unsigned int GetModuleNumber(std::string volname);
-        unsigned int GetLayerNumber(std::string volname);
-        unsigned int GetSliceNumber(std::string volname);
+        unsigned int GetDetNumber(std::string volname) const;
+        unsigned int GetStaveNumber(std::string volname) const;
+        unsigned int GetModuleNumber(std::string volname) const;
+        unsigned int GetLayerNumber(std::string volname) const;
+        unsigned int GetSliceNumber(std::string volname) const;
 
-        double VisibleEnergyDeposition(std::vector<TG4HitSegment>::iterator hit, bool applyBirks);
+        double VisibleEnergyDeposition(const TG4HitSegment *hit, bool applyBirks) const;
+        bool CheckProcess( std::string process_name ) const;
 
         std::string fEDepSimfile;
         std::string fGhepfile;
         bool fOverlay;
         std::string fECALMaterial;
+        std::string fTPCMaterial;
+        double fEnergyCut;
         bool fApplyBirks;
 
         TChain* fTreeChain;
@@ -107,6 +110,7 @@ namespace util {
 
         TG4Event* fEvent;
         double fBirksCoeff;
+        std::string fEMShowerDaughterMatRegex;   ///< keep EM shower daughters only in these materials
 
         genie::PDGLibrary *pdglib;
         const gar::geo::GeometryCore*            fGeo;               ///< geometry information
@@ -116,6 +120,10 @@ namespace util {
         std::vector<simb::MCParticle> fMCParticles;
         std::vector<gar::sdp::CaloDeposit> fECALDeposits;
         std::vector<gar::sdp::EnergyDeposit> fGArDeposits;
+
+        int fSpillCount;
+        int fStartSpill[10000];
+        int fStopSpill[10000];
     };
 
 } // namespace util
@@ -130,11 +138,14 @@ namespace util {
     fGhepfile( pset.get< std::string >("GhepFile", "") ),
     fOverlay( pset.get< bool >("OverlayFile", true) ),
     fECALMaterial( pset.get< std::string >("ECALMaterial", "Scintillator") ),
+    fTPCMaterial( pset.get< std::string >("TPCMaterial", "HP_ArCH4") ),
+    fEnergyCut( pset.get< double >("EnergyCut", 0.000001) ),
     fApplyBirks( pset.get< bool >("applyBirks", true) ),
     fTreeChain(new TChain("EDepSimEvents")),
     fGTreeChain(new TChain("gtree")),
     fMCRec(nullptr),
-    fEvent(nullptr)
+    fEvent(nullptr),
+    fEMShowerDaughterMatRegex( pset.get< std::string >("EMShowerDaughterMatRegex", ".*") )
     {
         pdglib = genie::PDGLibrary::Instance();
 
@@ -164,7 +175,9 @@ namespace util {
         fGeo = gar::providerFrom<gar::geo::Geometry>();
         fGeoManager = fGeo->ROOTGeoManager();
         fEcalProp = gar::providerFrom<gar::detinfo::ECALPropertiesService>();
-        fBirksCoeff = fEcalProp->ScintBirksConstant(); //CLHEP::mm/CLHEP::MeV;;
+        fBirksCoeff = fEcalProp->ScintBirksConstant(); //CLHEP::mm/CLHEP::MeV;
+
+        fSpillCount = 0;
     }
 
     //----------------------------------------------------------------------
@@ -178,6 +191,38 @@ namespace util {
     //----------------------------------------------------------------------
     void ConvertEdep2Art::beginJob()
     {
+        if(fOverlay){
+            //need to get where is the end of the spill
+            for(int ientry = 0; ientry < fGTreeChain->GetEntries(); ientry++)
+            {
+                fGTreeChain->GetEntry(ientry);
+
+                genie::NtpMCRecHeader rec_header = fMCRec->hdr;
+                genie::EventRecord *event = fMCRec->event;
+
+                LOG_DEBUG("ConvertEdep2Art")
+                << rec_header
+                << *event;
+
+                //Need to get the Rootino showing the end of spill
+                genie::GHepParticle *neutrino = event->Probe();
+                if(nullptr == neutrino){
+                    if(fSpillCount == 0)
+                    fStartSpill[fSpillCount] = 0;
+                    else{
+                        fStartSpill[fSpillCount] = fStopSpill[fSpillCount-1]+1;
+                    }
+
+                    fStopSpill[fSpillCount] = ientry;
+                    fSpillCount++;
+                }
+            }
+
+            mf::LogInfo("ConvertEdep2Art::beginJob()")
+            << "Number of spills in the ghep file "
+            << fSpillCount;
+        }
+
         return;
     }
 
@@ -189,19 +234,19 @@ namespace util {
     }
 
     //------------------------------------------------------------------------------
-    unsigned int ConvertEdep2Art::GetLayerNumber(std::string volname)
+    unsigned int ConvertEdep2Art::GetLayerNumber(std::string volname) const
     {
         return std::atoi( (volname.substr( volname.find("layer_") + 6, 2)).c_str() );
     }
 
     //------------------------------------------------------------------------------
-    unsigned int ConvertEdep2Art::GetSliceNumber(std::string volname)
+    unsigned int ConvertEdep2Art::GetSliceNumber(std::string volname) const
     {
         return std::atoi( (volname.substr( volname.find("slice") + 5, 1)).c_str() );
     }
 
     //------------------------------------------------------------------------------
-    unsigned int ConvertEdep2Art::GetDetNumber(std::string volname)
+    unsigned int ConvertEdep2Art::GetDetNumber(std::string volname) const
     {
         unsigned int det_id = 0;
         if( volname.find("Barrel") !=  std::string::npos )
@@ -212,19 +257,19 @@ namespace util {
     }
 
     //------------------------------------------------------------------------------
-    unsigned int ConvertEdep2Art::GetStaveNumber(std::string volname)
+    unsigned int ConvertEdep2Art::GetStaveNumber(std::string volname) const
     {
         return std::atoi( (volname.substr( volname.find("_stave") + 6, 2)).c_str() );
     }
 
     //------------------------------------------------------------------------------
-    unsigned int ConvertEdep2Art::GetModuleNumber(std::string volname)
+    unsigned int ConvertEdep2Art::GetModuleNumber(std::string volname) const
     {
         return std::atoi( (volname.substr( volname.find("_module") + 7, 2)).c_str() );
     }
 
     //------------------------------------------------------------------------------
-    double ConvertEdep2Art::VisibleEnergyDeposition(std::vector<TG4HitSegment>::iterator hit, bool applyBirks)
+    double ConvertEdep2Art::VisibleEnergyDeposition(const TG4HitSegment *hit, bool applyBirks) const
     {
         double edep = hit->GetEnergyDeposit();
         double niel = hit->GetSecondaryDeposit();
@@ -257,6 +302,31 @@ namespace util {
     }
 
     //--------------------------------------------------------------------------
+    bool ConvertEdep2Art::CheckProcess( std::string process_name ) const
+    {
+        bool isEMShowerProcess = false;
+
+        if( process_name.find("conv")            != std::string::npos  ||
+        process_name.find("LowEnConversion") != std::string::npos  ||
+        process_name.find("Pair")            != std::string::npos  ||
+        process_name.find("compt")           != std::string::npos  ||
+        process_name.find("Compt")           != std::string::npos  ||
+        process_name.find("Brem")            != std::string::npos  ||
+        process_name.find("phot")            != std::string::npos  ||
+        process_name.find("Photo")           != std::string::npos  ||
+        process_name.find("hIoni")           != std::string::npos  ||
+        process_name.find("eIoni")           != std::string::npos  ||
+        process_name.find("ionIoni")         != std::string::npos  ||
+        (process_name.find("Ion")            != std::string::npos  && process_name.find("mu") != std::string::npos) ||
+        process_name.find("annihil")         != std::string::npos ) {
+            isEMShowerProcess = true;
+        }
+
+
+        return isEMShowerProcess;
+    }
+
+    //--------------------------------------------------------------------------
     void ConvertEdep2Art::produce(::art::Event& evt)
     {
         LOG_DEBUG("ConvertEdep2Art") << "produce()";
@@ -271,41 +341,8 @@ namespace util {
         std::unique_ptr< std::vector<simb::GTruth> > gtruthcol(new std::vector<simb::GTruth>);
         std::unique_ptr< art::Assns<simb::MCTruth, simb::GTruth> > tgassn(new art::Assns<simb::MCTruth, simb::GTruth>);
 
+        //--------------------------------------------------------------------------
         if(fOverlay){
-            int fSpillCount = 0;
-            int fStartSpill[10000];
-            int fStopSpill[10000];
-
-            //need to get where is the end of the spill
-            for(int ientry = 0; ientry < fGTreeChain->GetEntries(); ientry++)
-            {
-                fGTreeChain->GetEntry(ientry);
-
-                genie::NtpMCRecHeader rec_header = fMCRec->hdr;
-                genie::EventRecord *event = fMCRec->event;
-
-                LOG_DEBUG("ConvertEdep2Art")
-                << rec_header
-                << *event;
-
-                //Need to get the Rootino showing the end of spill
-                genie::GHepParticle *neutrino = event->Probe();
-                if(nullptr == neutrino){
-                    if(fSpillCount == 0)
-                    fStartSpill[fSpillCount] = 0;
-                    else{
-                        fStartSpill[fSpillCount] = fStopSpill[fSpillCount-1]+1;
-                    }
-
-                    fStopSpill[fSpillCount] = ientry;
-                    fSpillCount++;
-                }
-            }
-
-            mf::LogInfo("ConvertEdep2Art")
-            << "Number of spills in the ghep file "
-            << fSpillCount;
-
             for(int ientry = fStartSpill[eventnumber-1]; ientry < fStopSpill[eventnumber-1]; ientry++)
             {
                 fGTreeChain->GetEntry(ientry);
@@ -348,16 +385,16 @@ namespace util {
             evgb::util::CreateAssn(*this, evt, *mctruthcol, *gtruthcol, *tgassn, gtruthcol->size()-1, gtruthcol->size());
         }
 
+        //--------------------------------------------------------------------------
         //Get the event
         //Starts at 0, evt starts at 1
         fTreeChain->GetEntry(eventnumber-1);
 
-        //--------------------------------------------------------------------------
         std::unique_ptr< std::vector<simb::MCParticle> > partCol(new std::vector<simb::MCParticle> );
 
         fMCParticles.clear();
 
-        for (std::vector<TG4Trajectory>::iterator t = fEvent->Trajectories.begin(); t != fEvent->Trajectories.end(); ++t)
+        for (std::vector<TG4Trajectory>::const_iterator t = fEvent->Trajectories.begin(); t != fEvent->Trajectories.end(); ++t)
         {
             int trkID = t->GetTrackId();
             int parentID = t->GetParentId();
@@ -372,14 +409,42 @@ namespace util {
                 process_name = t->Points.at(0).GetProcessName();
             }
 
-            // std::cout << "Part name " << name << " pdg " << pdg << " trkID " << trkID << " parentID " << parentID << " process " << process_name << std::endl;
+            LOG_DEBUG("ConvertEdep2Art")
+            << "Particle " << name
+            << " with pdg " << pdg
+            << " trackID " << trkID
+            << " parent id " << parentID
+            << " created with process [ " << process_name << " ]";
 
-            //Skip the creation of the mcp if it is part of shower (based on process name) and only if it is not in the TPC
-            //TODO
+            //Skip the creation of the mcp if it is part of shower (based on process name) and only if it is not matching the material
+            //TODO debug as it does not work for anatree at the moment, problem related to pdg mom exception
+            //Maybe need to keep relation trackid, parentid
+
+            bool isEMShowerProcess = CheckProcess( process_name );
+            TLorentzVector part_start = t->Points.at(0).GetPosition();
+            TGeoNode *node = fGeoManager->FindNode(part_start.X() / CLHEP::cm, part_start.Y() / CLHEP::cm, part_start.Z() / CLHEP::cm);
+            std::string material_name = "";
+
+            if(node)
+            material_name = node->GetMedium()->GetMaterial()->GetName();
+            // std::cout << "Material name " << material_name << std::endl;
+
+            std::regex const re_material(fEMShowerDaughterMatRegex);
+            if( isEMShowerProcess && !std::regex_match(material_name, re_material) ) {
+
+                LOG_DEBUG("ConvertEdep2Art")
+                << "Skipping EM shower daughter " << name
+                << " with trackID " << trkID
+                << " with parent id " << parentID
+                << " created with process [ " << process_name << " ]"
+                << " in material " << material_name;
+
+                continue;
+            }
 
             simb::MCParticle mcpart(trkID, pdg, process_name, parentID, mass);
 
-            for (std::vector<TG4TrajectoryPoint>::iterator p = t->Points.begin(); p != t->Points.end(); ++p)
+            for (std::vector<TG4TrajectoryPoint>::const_iterator p = t->Points.begin(); p != t->Points.end(); ++p)
             {
                 TLorentzVector position = p->GetPosition();
                 TLorentzVector fourPos(position.X() / CLHEP::cm, position.Y() / CLHEP::cm, position.Z() / CLHEP::cm, position.T() / CLHEP::s );
@@ -418,36 +483,52 @@ namespace util {
             if( d->first == "TPC_Drift1" || d->first == "TPC_Drift2" )
             {
                 //GAr deposits
-                for (std::vector<TG4HitSegment>::iterator h = d->second.begin(); h != d->second.end(); ++h)
+                for (std::vector<TG4HitSegment>::const_iterator h = d->second.begin(); h != d->second.end(); ++h)
                 {
-                    auto trackID = h->GetPrimaryId();
-                    double edep = h->GetEnergyDeposit() / CLHEP::MeV;
-                    double time = (h->GetStart().T() + h->GetStop().T())/2 / CLHEP::s;
-                    double x = (h->GetStart().X() + h->GetStop().X())/2;
-                    double y = (h->GetStart().Y() + h->GetStop().Y())/2;
-                    double z = (h->GetStart().Z() + h->GetStop().Z())/2;
-                    double stepLength = h->GetTrackLength();
+                    const TG4HitSegment *hit = &(*h);
 
-                    fGArDeposits.emplace_back(trackID, time, edep, x/CLHEP::cm, y/CLHEP::cm, z/CLHEP::cm, stepLength/CLHEP::cm, (trackID > 0));
+                    int trackID = hit->GetPrimaryId();
+                    double edep = hit->GetEnergyDeposit() * CLHEP::MeV / CLHEP::GeV;
+                    double time = (hit->GetStart().T() + hit->GetStop().T())/2 / CLHEP::s;
+                    double x = (hit->GetStart().X() + hit->GetStop().X())/2 /CLHEP::cm;
+                    double y = (hit->GetStart().Y() + hit->GetStop().Y())/2 /CLHEP::cm;
+                    double z = (hit->GetStart().Z() + hit->GetStop().Z())/2 /CLHEP::cm;
+                    double stepLength = hit->GetTrackLength() /CLHEP::cm;
+
+                    if(edep == 0 || edep < fEnergyCut)
+                    continue;
+
+                    TGeoNode *node = fGeoManager->FindNode(x, y, z);//Node in cm...
+                    std::string VolumeName  = node->GetVolume()->GetName();
+                    std::string volmaterial = node->GetMedium()->GetMaterial()->GetName();
+                    if ( ! std::regex_match(volmaterial, std::regex(fTPCMaterial)) ) continue;
+
+                    fGArDeposits.emplace_back(trackID, time, edep, x, y, z, stepLength, (trackID > 0));
                 }
             }
             else if( d->first == "BarrelECal_vol" || d->first == "EndcapECal_vol"){
                 //ECAL deposits
-                for (std::vector<TG4HitSegment>::iterator h = d->second.begin(); h != d->second.end(); ++h)
+                for (std::vector<TG4HitSegment>::const_iterator h = d->second.begin(); h != d->second.end(); ++h)
                 {
-                    auto trackID = h->GetPrimaryId();
-                    double edep = VisibleEnergyDeposition(h, fApplyBirks);
-                    double time = (h->GetStart().T() + h->GetStop().T())/2 / CLHEP::s;
-                    TVector3 GlobalPosCM( (h->GetStart().X() + h->GetStop().X())/2 /CLHEP::cm,
-                    (h->GetStart().Y() + h->GetStop().Y())/2 /CLHEP::cm ,
-                    (h->GetStart().Z() + h->GetStop().Z())/2 /CLHEP::cm );
+                    const TG4HitSegment *hit = &(*h);
 
+                    int trackID = hit->GetPrimaryId();
+                    double edep = VisibleEnergyDeposition(hit, fApplyBirks) * CLHEP::MeV / CLHEP::GeV;
+                    double time = (hit->GetStart().T() + hit->GetStop().T())/2 / CLHEP::s;
+                    double x = (hit->GetStart().X() + hit->GetStop().X())/2 /CLHEP::cm;
+                    double y = (hit->GetStart().Y() + hit->GetStop().Y())/2 /CLHEP::cm;
+                    double z = (hit->GetStart().Z() + hit->GetStop().Z())/2 /CLHEP::cm;
+
+                    if(edep == 0 || edep < fEnergyCut)
+                    continue;
+
+                    TVector3 GlobalPosCM(x, y, z);
+                    //Check if it is in the active material of the ECAL
                     TGeoNode *node = fGeoManager->FindNode(GlobalPosCM.x(), GlobalPosCM.y(), GlobalPosCM.z());//Node in cm...
                     std::string VolumeName  = node->GetVolume()->GetName();
                     std::string volmaterial = node->GetMedium()->GetMaterial()->GetName();
                     if ( ! std::regex_match(volmaterial, std::regex(fECALMaterial)) ) continue;
 
-                    // std::cout << "Volume " << VolumeName << " material " << volmaterial << std::endl;
                     unsigned int layer = GetLayerNumber(VolumeName); //get layer number
                     unsigned int slice = GetSliceNumber(VolumeName); // get slice number
                     unsigned int det_id = GetDetNumber(VolumeName); // 1 == Barrel, 2 = Endcap
@@ -458,12 +539,15 @@ namespace util {
                     fGeo->WorldToLocal(GlobalPosCM, LocalPosCM);
                     G4ThreeVector G4LocalPosCM(LocalPosCM.x(), LocalPosCM.y(), LocalPosCM.z());
 
-                    // std::cout << "layer " << layer;
-                    // std::cout << " slice " << slice;
-                    // std::cout << " det_id " << det_id;
-                    // std::cout << " stave " << stave;
-                    // std::cout << " module " << module;
-                    // std::cout << std::endl;
+                    LOG_DEBUG("ConvertEdep2Art")
+                    << "Hit " << hit
+                    << " in volume " << VolumeName
+                    << " in material " << volmaterial
+                    << " det_id " << det_id
+                    << " module " << module
+                    << " stave " << stave
+                    << " layer " << layer
+                    << " slice " << slice;
 
                     long long int cellID = fGeo->cellID(node, det_id, stave, module, layer, slice, G4LocalPosCM);//encoding the cellID on 64 bits
 
@@ -494,6 +578,8 @@ namespace util {
                 continue;
             }
         }
+
+        //--------------------------------------------------------------------------
 
         std::sort(fGArDeposits.begin(), fGArDeposits.end());
         std::sort(fECALDeposits.begin(), fECALDeposits.end());
