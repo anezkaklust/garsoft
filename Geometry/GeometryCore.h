@@ -568,6 +568,9 @@ namespace gar {
 
       bool FindFirstVolume(std::string const& name, std::vector<const TGeoNode*>& path) const;
 
+      /* To fasten for the ECAL */
+      bool FindECALFirstVolume(std::string const& name, std::vector<const TGeoNode*>& path) const;
+
       /**
        * @brief Returns all the nodes with volumes with any of the specified names
        * @param vol_names list of names of volumes
@@ -959,6 +962,9 @@ namespace gar {
       float          fMPDHalfWidth = 0.;
       float          fMPDHalfHeight = 0.;
       float          fMPDLength = 0.;
+
+      std::vector<const TGeoNode*> fECALBarrelNodePath; ///< Stored vector of nodes for the ecal barrel
+      std::vector<const TGeoNode*> fECALEndcapNodePath; ///< Stored vector of nodes for the ecal endcap
 
       //Related to the ECAL
       float fECALRinner;              ///< Minimum radius of the ECAL inner barrel

@@ -35,6 +35,9 @@
 #include <utility> // std::swap()
 #include <limits> // std::numeric_limits<>
 #include <memory> // std::default_deleter<>
+#include <regex>
+
+#include <boost/format.hpp>
 
 namespace gar {
     namespace geo {
@@ -360,7 +363,19 @@ namespace gar {
         //......................................................................
         std::vector<TGeoNode const*> GeometryCore::FindVolumePath(std::string const& vol_name) const
         {
-            std::vector<TGeoNode const*> path { ROOTGeoManager()->GetTopNode() };
+            std::vector<TGeoNode const*> path;
+
+            if( vol_name.find("BarrelECal") != std::string::npos && fECALBarrelNodePath.size() != 0 ) {
+                path.assign(fECALBarrelNodePath.begin(), fECALBarrelNodePath.end());
+                // if(!FindECALFirstVolume(vol_name, path)) path.clear();
+            }
+            else if( vol_name.find("EndcapECal") != std::string::npos && fECALEndcapNodePath.size() != 0 ) {
+                path.assign(fECALEndcapNodePath.begin(), fECALEndcapNodePath.end());
+                // if(!FindECALFirstVolume(vol_name, path)) path.clear();
+            }
+            else
+            path = { ROOTGeoManager()->GetTopNode() };
+
             if (!FindFirstVolume(vol_name, path)) path.clear();
             return path;
         } // GeometryCore::FindVolumePath()
@@ -384,6 +399,71 @@ namespace gar {
             } // for
             return false;
         } // GeometryCore::FindFirstVolume()
+
+        //......................................................................
+        bool GeometryCore::FindECALFirstVolume(std::string const& name, std::vector<const TGeoNode*>& path) const
+        {
+            assert(!path.empty());
+            auto const* pCurrent = path.back();
+            // first check the current layer
+            if (strncmp(name.c_str(), pCurrent->GetName(), name.length()) == 0)
+            return true;
+
+            //special check for ECAL
+            //check if the string is of form <Type>ECal_staveXX_moduleYY_layer_ZZ_slice2_vol_0
+            //if yes, extract the numbers XX, YY and ZZ
+            //get the corresponding nodes above using the numbers and push them back into the vector
+            std::regex re("ECal_stave[0-9]+_module[0-9]+_layer_[0-9]+_slice[0-9]_vol");
+            if(std::regex_search(name, re))
+            {
+                int det_id = 0;
+                if( name.find("Barrel") !=  std::string::npos )
+                det_id = 1;
+                if( name.find("Endcap") !=  std::string::npos )
+                det_id = 2;
+
+                std::string pathname = "/";
+                for(auto const &it : path)
+                {
+                    pathname += it->GetName();
+                    pathname += "/";
+                }
+
+                int stave = std::atoi( (name.substr( name.find("_stave") + 6, 2)).c_str() );
+                int module = std::atoi( (name.substr( name.find("_module") + 7, 2)).c_str() );
+                int layer = std::atoi( (name.substr( name.find("layer_") + 6, 2)).c_str() );
+
+                pathname += (det_id == 1) ? "BarrelECal_" : "EndcapECal_";
+                boost::format bnodename = boost::format("stave%02i_module%02i_vol_0") % stave % module;
+                std::string nodename = bnodename.str();
+                std::string fullpath = pathname+nodename;
+                if( ROOTGeoManager()->CheckPath( fullpath.c_str() ) ) {
+                    ROOTGeoManager()->cd( fullpath.c_str() );
+                    path.push_back(ROOTGeoManager()->GetCurrentNode());
+                }
+
+                fullpath += (det_id == 1) ? "/BarrelECal_" : "/EndcapECal_";
+                bnodename = boost::format("stave%02i_module%02i_layer%02i_vol_0") % stave % module % layer;
+                nodename = bnodename.str();
+                fullpath += nodename;
+                if( ROOTGeoManager()->CheckPath( fullpath.c_str() ) ) {
+                    ROOTGeoManager()->cd( fullpath.c_str() );
+                    path.push_back(ROOTGeoManager()->GetCurrentNode());
+                }
+
+                fullpath += (det_id == 1) ? "/BarrelECal_" : "/EndcapECal_";
+                bnodename = boost::format("stave%02i_module%02i_layer%02i_slice2_vol_0") % stave % module % layer;
+                nodename = bnodename.str();
+                fullpath += nodename;
+                if( ROOTGeoManager()->CheckPath( fullpath.c_str() ) ) {
+                    ROOTGeoManager()->cd( fullpath.c_str() );
+                    path.push_back(ROOTGeoManager()->GetCurrentNode());
+                }
+
+                return true;
+            }
+            return false;
+        }
 
         //......................................................................
         std::vector<TGeoNode const*> GeometryCore::FindAllVolumes(std::set<std::string> const& vol_names) const
@@ -429,9 +509,7 @@ namespace gar {
             std::string name = VolumeName(point);
             auto const& path = FindVolumePath(name);
             if (path.empty())
-            {
-                throw cet::exception("GeometryCore::WorldToLocal") << " can't find volume '" << name << "'\n";
-            }
+            throw cet::exception("GeometryCore::WorldToLocal") << " can't find volume '" << name << "'\n";
 
             //Change to local frame
             gar::geo::LocalTransformation<TGeoHMatrix> trans(path, path.size() - 1);
@@ -447,9 +525,7 @@ namespace gar {
             std::string name = VolumeName(point);
             auto const& path = FindVolumePath(name);
             if (path.empty())
-            {
-                throw cet::exception("GeometryCore::LocalToWorld") << " can't find volume '" << name << "'\n";
-            }
+            throw cet::exception("GeometryCore::LocalToWorld") << " can't find volume '" << name << "'\n";
 
             //Change to local frame
             gar::geo::LocalTransformation<TGeoHMatrix> trans(path, path.size() - 1);
@@ -776,6 +852,13 @@ namespace gar {
         //----------------------------------------------------------------------------
         void GeometryCore::StoreECALParameters()
         {
+            std::cout << "------------------------------" << std::endl;
+            fECALBarrelNodePath = this->FindVolumePath("volBarrelECal");
+            std::cout << "ECAL Barrel node path filled with " << fECALBarrelNodePath.size() << " entries" << std::endl;
+            fECALEndcapNodePath = this->FindVolumePath("volEndcapECal");
+            std::cout << "ECAL Endcap node path filled with " << fECALEndcapNodePath.size() << " entries" << std::endl;
+            std::cout << "------------------------------" << std::endl;
+
             this->FindECALInnerBarrelRadius();
             this->FindECALOuterBarrelRadius();
             this->FindPVThickness();
@@ -801,7 +884,6 @@ namespace gar {
         bool GeometryCore::FindECALOuterBarrelRadius()
         {
             TGeoVolume *vol = gGeoManager->FindVolumeFast("BarrelECal_vol");
-            if(!vol)
             if(!vol)
             vol = gGeoManager->FindVolumeFast("volBarrelECal");
             if(!vol)
@@ -985,6 +1067,9 @@ namespace gar {
             fPVThickness = 0.;
             fECALSymmetry = -1;
             fECALEndcapStartX = 0.;
+
+            fECALBarrelNodePath.clear();
+            fECALEndcapNodePath.clear();
         }
 
         //--------------------------------------------------------------------

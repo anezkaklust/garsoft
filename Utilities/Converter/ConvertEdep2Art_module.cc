@@ -122,8 +122,8 @@ namespace util {
         std::vector<gar::sdp::EnergyDeposit> fGArDeposits;
 
         int fSpillCount;
-        int fStartSpill[10000];
-        int fStopSpill[10000];
+        std::vector<int> fStartSpill;
+        std::vector<int> fStopSpill;
     };
 
 } // namespace util
@@ -208,12 +208,12 @@ namespace util {
                 genie::GHepParticle *neutrino = event->Probe();
                 if(nullptr == neutrino){
                     if(fSpillCount == 0)
-                    fStartSpill[fSpillCount] = 0;
+                    fStartSpill.insert(fStartSpill.begin()+fSpillCount, 0);
                     else{
-                        fStartSpill[fSpillCount] = fStopSpill[fSpillCount-1]+1;
+                        fStartSpill.insert(fStartSpill.begin()+fSpillCount, fStopSpill.at(fSpillCount-1)+1);
                     }
 
-                    fStopSpill[fSpillCount] = ientry;
+                    fStopSpill.insert(fStopSpill.begin()+fSpillCount, ientry);
                     fSpillCount++;
                 }
             }
