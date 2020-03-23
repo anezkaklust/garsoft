@@ -2,7 +2,6 @@
 add_subdirectory(scripts)
 add_subdirectory(Dumpers)
 add_subdirectory(Metadata)
-add_subdirectory(Converter)
 
 include_directories( $ENV{NUTOOLS_DIR}/include   )
 include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
@@ -44,6 +43,7 @@ art_make(
     ${CETLIB_EXCEPT}
   )
 
+add_subdirectory(Converter)
 
 install_headers()
 install_fhicl()

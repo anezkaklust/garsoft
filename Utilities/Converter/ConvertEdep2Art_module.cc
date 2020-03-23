@@ -21,11 +21,13 @@
 #include "canvas/Persistency/Common/Assns.h"
 #include "cetlib_except/exception.h"
 #include "cetlib/search_path.h"
+#include "art/Persistency/Common/PtrMaker.h"
 
 // nutools extensions
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/GTruth.h"
 #include "nusimdata/SimulationBase/MCFlux.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
 #include "nutools/EventGeneratorBase/evgenbase.h"
 #include "nutools/EventGeneratorBase/GENIE/GENIE2ART.h"
 #include "nutools/EventGeneratorBase/GENIE/EVGBAssociationUtil.h"
@@ -110,6 +112,8 @@ namespace util {
 
         TG4Event* fEvent;
         double fBirksCoeff;
+
+        bool fkeepEMShowers;
         std::string fEMShowerDaughterMatRegex;   ///< keep EM shower daughters only in these materials
 
         genie::PDGLibrary *pdglib;
@@ -145,6 +149,7 @@ namespace util {
     fGTreeChain(new TChain("gtree")),
     fMCRec(nullptr),
     fEvent(nullptr),
+    fkeepEMShowers( pset.get< bool >("keepEMShowers", true) ),
     fEMShowerDaughterMatRegex( pset.get< std::string >("EMShowerDaughterMatRegex", ".*") )
     {
         pdglib = genie::PDGLibrary::Instance();
@@ -157,6 +162,9 @@ namespace util {
         produces< std::vector<gar::sdp::EnergyDeposit> >();
         produces< std::vector<gar::sdp::CaloDeposit> >();
         // produces< std::vector<sdp::LArDeposit> >();
+
+        produces< art::Assns<gar::sdp::EnergyDeposit, simb::MCParticle> >();
+        produces< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> >();
 
         if(fEDepSimfile.empty() || fGhepfile.empty())
         {
@@ -430,7 +438,7 @@ namespace util {
             // std::cout << "Material name " << material_name << std::endl;
 
             std::regex const re_material(fEMShowerDaughterMatRegex);
-            if( isEMShowerProcess && !std::regex_match(material_name, re_material) ) {
+            if( !fkeepEMShowers && (isEMShowerProcess && !std::regex_match(material_name, re_material)) ) {
 
                 LOG_DEBUG("ConvertEdep2Art")
                 << "Skipping EM shower daughter " << name
@@ -473,6 +481,8 @@ namespace util {
         //--------------------------------------------------------------------------
         std::unique_ptr< std::vector< gar::sdp::EnergyDeposit>  > TPCCol(new std::vector<gar::sdp::EnergyDeposit> );
         std::unique_ptr< std::vector< gar::sdp::CaloDeposit > > ECALCol(new std::vector<gar::sdp::CaloDeposit> );
+        std::unique_ptr< art::Assns<gar::sdp::EnergyDeposit, simb::MCParticle> > ghmcassn(new art::Assns<gar::sdp::EnergyDeposit, simb::MCParticle>);
+        std::unique_ptr< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> > ehmcassn(new art::Assns<gar::sdp::CaloDeposit, simb::MCParticle>);
 
         fGArDeposits.clear();
         fECALDeposits.clear();
@@ -597,7 +607,40 @@ namespace util {
             LOG_DEBUG("ConvertEdep2Art")
             << "adding calo deposits for track id: "
             << ecalhit.TrackID();
+
             ECALCol->emplace_back(ecalhit);
+        }
+
+        //Create assn between hits and mcp
+        art::PtrMaker<simb::MCParticle> makeMCPPtr(evt);
+        art::PtrMaker<gar::sdp::EnergyDeposit> makeEnergyDepositPtr(evt);
+        art::PtrMaker<gar::sdp::CaloDeposit> makeCaloDepositPtr(evt);
+
+        unsigned int imcp = 0;
+        for(auto const &part : *partCol)
+        {
+            int mpc_trkid = part.TrackId();
+            art::Ptr<simb::MCParticle> partPtr = makeMCPPtr(imcp);
+
+            unsigned int igashit = 0;
+            unsigned int iecalhit = 0;
+            for(auto const& gashit : *TPCCol)
+            {
+                if(mpc_trkid == gashit.TrackID()){
+                    art::Ptr<gar::sdp::EnergyDeposit> gashitPtr = makeEnergyDepositPtr(igashit);
+                    ghmcassn->addSingle(gashitPtr, partPtr);
+                }
+                igashit++;
+            }
+            for(auto const& ecalhit : *ECALCol)
+            {
+                if(mpc_trkid == ecalhit.TrackID()){
+                    art::Ptr<gar::sdp::CaloDeposit> ecalhitPtr = makeCaloDepositPtr(iecalhit);
+                    ehmcassn->addSingle(ecalhitPtr, partPtr);
+                }
+                iecalhit++;
+            }
+            imcp++;
         }
 
         evt.put(std::move(mctruthcol));
@@ -608,7 +651,10 @@ namespace util {
         evt.put(std::move(TPCCol));
         evt.put(std::move(ECALCol));
         // evt.put(std::move(LArCol));
-        // evt.put(std::move(tpassn));
+
+        evt.put(std::move(ghmcassn));
+        evt.put(std::move(ehmcassn));
+
         return;
     }
 } // namespace util
