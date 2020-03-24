@@ -65,19 +65,19 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        G4ThreeVector ECALSegmentationGridXYAlg::position(const gar::geo::GeometryCore& geo, const long64& cID) const
+        std::array<double, 3> ECALSegmentationGridXYAlg::GetPosition(const gar::geo::GeometryCore& geo, const long64& cID) const
         {
-            G4ThreeVector cellPosition;
-            cellPosition.setX(binToPosition(_decoder->get(cID, _xId), _gridSizeX, _offsetX));
-            cellPosition.setY(binToPosition(_decoder->get(cID, _yId), _gridSizeY, _offsetY));
-            cellPosition.setZ(0.);
+            std::array<double, 3> cellPosition;
+            cellPosition[0] = binToPosition(_decoder->get(cID, _xId), _gridSizeX, _offsetX);
+            cellPosition[1] = binToPosition(_decoder->get(cID, _yId), _gridSizeY, _offsetY);
+            cellPosition[2] = 0.;
 
             return cellPosition;
         }
 
         //----------------------------------------------------------------------------
         /// determine the cell ID based on the position
-        long64 ECALSegmentationGridXYAlg::cellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const G4ThreeVector& localPosition) const
+        long64 ECALSegmentationGridXYAlg::GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
         {
             long64 cID = 0;
 
@@ -87,8 +87,8 @@ namespace gar {
             _decoder->set(cID, "layer", layer);
             _decoder->set(cID, "slice", slice);
 
-            _decoder->set(cID, _xId, positionToBin(localPosition.x(), _gridSizeX, _offsetX));
-            _decoder->set(cID, _yId, positionToBin(localPosition.y(), _gridSizeY, _offsetY));
+            _decoder->set(cID, _xId, positionToBin(localPosition[0], _gridSizeX, _offsetX));
+            _decoder->set(cID, _yId, positionToBin(localPosition[1], _gridSizeY, _offsetY));
 
             return cID;
         }

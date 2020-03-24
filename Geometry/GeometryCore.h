@@ -41,8 +41,8 @@
 #ifndef GEO_GEOMETRYCORE_H
 #define GEO_GEOMETRYCORE_H
 
-
 // GArSoft libraries
+#include "Geometry/LocalTransformation.h"
 
 // Framework and infrastructure libraries
 #include "fhiclcpp/ParameterSet.h"
@@ -50,8 +50,6 @@
 // ROOT libraries
 #include <TVector3.h>
 // #include <Rtypes.h>
-
-#include "CLHEP/Vector/ThreeVector.h"
 
 // C/C++ standard libraries
 #include <cstddef> // size_t
@@ -69,7 +67,6 @@ class TGeoManager;
 class TGeoNode;
 class TGeoMaterial;
 
-
 /// Namespace collecting geometry-related classes utilities
 namespace gar {
   namespace geo {
@@ -77,8 +74,6 @@ namespace gar {
     class GeometryCore;
     class ChannelMapAlg;
     class ECALSegmentationAlg;
-
-    typedef CLHEP::Hep3Vector G4ThreeVector;
 
     typedef enum ROCType_ {HFILLER, IROC, IOROC, OOROC} ROCType;
 
@@ -598,13 +593,20 @@ namespace gar {
       std::vector<std::vector<TGeoNode const*>> FindAllVolumePaths(std::set<std::string> const& vol_names) const;
 
       //Return the node of the point
+      template <typename T>
+      TGeoNode* FindNode(T const &x, T const &y, T const &z) const;
+
+      //Return the node of the point
+      TGeoNode* FindNode(std::array<double, 3> const& point) const;
+
+      //Return the node of the point
       TGeoNode* FindNode(TVector3 const& point) const;
 
       //Transform world coordinates in local coordinates
-      void WorldToLocal(TVector3 const& world, TVector3 &local) const;
+      bool WorldToLocal(std::array<double, 3> const& world, std::array<double, 3> &local, gar::geo::LocalTransformation<TGeoHMatrix> &trans) const;
 
       //Transform local coordinates in world coordinates
-      void LocalToWorld(TVector3 const& local, TVector3 &world) const;
+      bool LocalToWorld(std::array<double, 3> const& local, std::array<double, 3> &world, gar::geo::LocalTransformation<TGeoHMatrix> const &trans) const;
 
       /**
        * @brief Name of the deepest material containing the point xyz
@@ -847,11 +849,11 @@ namespace gar {
 
       const float GetSensVolumeThickness(const TVector3& point) const;
 
-      const std::array<float, 3> FindShapeSize(const TGeoNode *node) const;
+      const std::array<double, 3> FindShapeSize(const TGeoNode *node) const;
 
-      long long int cellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const G4ThreeVector& localPosition) const;
+      long long int GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const;
 
-      G4ThreeVector position(const TGeoNode *node, const long long int &cID) const;
+      std::array<double, 3> GetPosition(const TGeoNode *node, const long long int &cID) const;
 
       int getIDbyCellID(const long long int& cID, const char* identifier) const;
 
@@ -861,11 +863,11 @@ namespace gar {
 
       double getTileSize() const;
 
-      double getStripLength(TVector3 const& point, const long long int &cID) const;
+      double getStripLength(std::array<double, 3> const& point, const long long int &cID) const;
 
-      std::pair<float, float> CalculateLightPropagation(TVector3 const& point, const std::array<double, 3U> &local, const long long int &cID) const;
+      std::pair<float, float> CalculateLightPropagation(std::array<double, 3>const& point, const std::array<double, 3> &local, const long long int &cID) const;
 
-      std::array<double, 3U> ReconstructStripHitPosition(const std::array<double, 3U> &local, const float &xlocal, const long long int &cID) const;
+      std::array<double, 3> ReconstructStripHitPosition(const std::array<double, 3> &local, const float &xlocal, const long long int &cID) const;
 
     protected:
 
@@ -981,7 +983,8 @@ namespace gar {
 
     }; // class GeometryCore
 
-
+    template<> TGeoNode* GeometryCore::FindNode<float>(float const &x, float const &y, float const &z) const;
+    template<> TGeoNode* GeometryCore::FindNode<double>(double const &x, double const &y, double const &z) const;
 
     /** **************************************************************************
      * @brief Iterator to navigate through all the nodes

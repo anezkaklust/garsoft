@@ -6,15 +6,19 @@
 * @see    LocalTransformation.h
 *
 */
+
 // our header
 #include "LocalTransformation.h"
+
 // ROOT
 #include "TGeoMatrix.h" // TGeoHMatrix
+
 // CLHEP
 #include "CLHEP/Geometry/Transform3D.h" // HepGeom::Transform3D
 #include "CLHEP/Vector/Rotation.h" // CLHEP::HepRotation
 #include "CLHEP/Vector/RotationInterfaces.h" // CLHEP::HepRep3x3
 #include "CLHEP/Vector/ThreeVector.h" // CLHEP::Hep3Vector
+
 //------------------------------------------------------------------------------
 // specialisations
 //
@@ -25,10 +29,10 @@ namespace gar {
         TGeoHMatrix LocalTransformation<TGeoHMatrix>::transformationFromPath
         (std::vector<TGeoNode const*> const& path, size_t depth)
         {
-
             TGeoHMatrix matrix = *(path[0]->GetMatrix());
-            for(size_t i = 1; i <= depth; ++i)
-            matrix.Multiply(path[i]->GetMatrix());
+            for(size_t i = 1; i <= depth; ++i){
+                matrix.Multiply(path[i]->GetMatrix());
+            }
             return matrix;
 
         } // gar::geo::LocalTransformation::transformationFromPath()

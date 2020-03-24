@@ -44,6 +44,12 @@ namespace gar {
             /// Type of transformation matrix
             using TransformationMatrix_t = StoredMatrix;
 
+            /**
+            * @brief Constructor
+            */
+            LocalTransformation()
+            : fGeoMatrix(nullptr) {}
+
             //@{
             /**
             * @brief Constructor: uses the specified transformation matrix
@@ -133,19 +139,32 @@ namespace gar {
             */
             void WorldToLocalVect(const double* world, double* local) const;
 
-
             /// Direct access to the transformation matrix
             TransformationMatrix_t const& Matrix() const { return fGeoMatrix; }
-
 
             /// Builds a matrix to go from local to world coordinates in one step
             static TransformationMatrix_t transformationFromPath
             (std::vector<TGeoNode const*> const& path, size_t depth);
 
+            //Set the paths manually instead of constructor
+            void SetPath(std::vector<TGeoNode const*> const& path, size_t depth){
+                fGeoMatrix = transformationFromPath(path, depth);
+                for(size_t i = 0; i <= depth; i++) fNodeVec.push_back(path[i]);
+            }
+
+            //Set the matrix
+            void SetMatrix(TransformationMatrix_t matrix){
+                fGeoMatrix = matrix;
+            }
+
+            std::vector<TGeoNode const*> GetNodes() const {return fNodeVec;}
+
+            TransformationMatrix_t GetMatrix() const {return fGeoMatrix;}
 
         protected:
 
             TransformationMatrix_t fGeoMatrix; ///< local to world transform
+            std::vector<TGeoNode const*> fNodeVec;
 
         }; // class LocalTransformation<>
 

@@ -154,7 +154,7 @@ namespace gar {
                     time = hitTime.first;
                 }
                 else{
-                    std::array<double, 3U> strip_pos = this->CalculateStripHitPosition(x, y, z, hitTime, cellID);
+                    std::array<double, 3> strip_pos = this->CalculateStripHitPosition(x, y, z, hitTime, cellID);
                     pos[0] = strip_pos[0];
                     pos[1] = strip_pos[1];
                     pos[2] = strip_pos[2];
@@ -213,24 +213,12 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::array<double, 3U> CaloHitFinder::CalculateStripHitPosition(float x, float y, float z, std::pair<float, float> hitTime, long long int cID)
+        std::array<double, 3> CaloHitFinder::CalculateStripHitPosition(float x, float y, float z, std::pair<float, float> hitTime, long long int cID)
         {
-            // TGeoNode *node = fGeoManager->FindNode(x, y, z);//Node in cm...
-            // double stripLength = fGeo->getStripLength(node, cID); // in mm
-
-            //Find the volume path
-            TVector3 point(x, y, z);
-            std::string name = fGeo->VolumeName(point);
-            auto const& path = fGeo->FindVolumePath(name);
-            if (path.empty())
-            {
-                throw cet::exception("CaloHitFinder") << "CalculateStripHitPosition(): can't find volume '" << name << "'\n";
-            }
-
-            //Change to local frame
-            gar::geo::LocalTransformation<TGeoHMatrix> trans(path, path.size() - 1);
-            std::array<double, 3U> world{ {x, y, z} }, local;
-            trans.WorldToLocal(world.data(), local.data());
+            std::array<double, 3> point = {x, y, z};
+            std::array<double, 3> pointLocal;
+            gar::geo::LocalTransformation<TGeoHMatrix> trans;
+            fGeo->WorldToLocal(point, pointLocal, trans);
 
             //Calculate the position of the hit based on the time of both SiPM along the strip
             // pos along strip is
@@ -241,10 +229,9 @@ namespace gar {
             // if( hitTime.first - hitTime.second < 0)
             // xlocal = - xlocal;
 
-            std::array<double, 3U> local_back = fGeo->ReconstructStripHitPosition(local, xlocal, cID);
-            std::array<double, 3U> world_back;
-
-            trans.LocalToWorld(local_back.data(), world_back.data());
+            std::array<double, 3> local_back = fGeo->ReconstructStripHitPosition(pointLocal, xlocal, cID);
+            std::array<double, 3> world_back;
+            fGeo->LocalToWorld(local_back, world_back, trans);
 
             return world_back;
         }
@@ -252,7 +239,7 @@ namespace gar {
         //----------------------------------------------------------------------------
         float CaloHitFinder::CorrectStripHitTime(float x, float y, float z, std::pair<float, float> hitTime, long long int cID)
         {
-            TVector3 point(x, y, z);
+            std::array<double, 3> point = {x, y, z};
             double stripLength = fGeo->getStripLength(point, cID); // in cm
 
             float c = (CLHEP::c_light * CLHEP::mm / CLHEP::ns) / CLHEP::cm; // in cm/ns

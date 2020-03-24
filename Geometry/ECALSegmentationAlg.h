@@ -63,11 +63,11 @@ namespace gar {
 
             virtual void Initialize(const gar::geo::GeometryCore& geo) = 0;
 
-            virtual long64 cellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const G4ThreeVector& localPosition) const = 0;
+            virtual std::array<double, 3> GetPosition(const gar::geo::GeometryCore& geo, const long64& cID) const = 0;
+
+            virtual long64 GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const = 0;
 
             virtual int getIDbyCellID(const long64& cID, const char* id) const = 0;
-
-            virtual G4ThreeVector position(const gar::geo::GeometryCore& geo, const long64& cID) const = 0;
 
             virtual void PrintParameters() const = 0;
 
@@ -77,9 +77,9 @@ namespace gar {
 
             virtual double getStripLength(const gar::geo::GeometryCore& geo, const long64& cID) const = 0;
 
-            virtual std::pair<float, float> CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3U> &local, const long64& cID) const = 0;
+            virtual std::pair<float, float> CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const long64& cID) const = 0;
 
-            virtual std::array<double, 3U> ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3U> &local, const float &xlocal, const long64& cID) const = 0;
+            virtual std::array<double, 3> ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const long64& cID) const = 0;
 
         protected:
             ECALSegmentationAlg(fhicl::ParameterSet const& pset);

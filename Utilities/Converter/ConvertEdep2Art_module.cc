@@ -118,7 +118,6 @@ namespace util {
 
         genie::PDGLibrary *pdglib;
         const gar::geo::GeometryCore*            fGeo;               ///< geometry information
-        TGeoManager*                             fGeoManager;
         const gar::detinfo::ECALProperties*      fEcalProp;
 
         std::vector<simb::MCParticle> fMCParticles;
@@ -181,7 +180,6 @@ namespace util {
         fGTreeChain->SetBranchAddress("gmcrec", &fMCRec);
 
         fGeo = gar::providerFrom<gar::geo::Geometry>();
-        fGeoManager = fGeo->ROOTGeoManager();
         fEcalProp = gar::providerFrom<gar::detinfo::ECALPropertiesService>();
         fBirksCoeff = fEcalProp->ScintBirksConstant(); //CLHEP::mm/CLHEP::MeV;
 
@@ -430,12 +428,11 @@ namespace util {
 
             bool isEMShowerProcess = CheckProcess( process_name );
             TLorentzVector part_start = t->Points.at(0).GetPosition();
-            TGeoNode *node = fGeoManager->FindNode(part_start.X() / CLHEP::cm, part_start.Y() / CLHEP::cm, part_start.Z() / CLHEP::cm);
+            TGeoNode *node = fGeo->FindNode(part_start.X() / CLHEP::cm, part_start.Y() / CLHEP::cm, part_start.Z() / CLHEP::cm);
             std::string material_name = "";
 
             if(node)
             material_name = node->GetMedium()->GetMaterial()->GetName();
-            // std::cout << "Material name " << material_name << std::endl;
 
             std::regex const re_material(fEMShowerDaughterMatRegex);
             if( !fkeepEMShowers && (isEMShowerProcess && !std::regex_match(material_name, re_material)) ) {
@@ -508,7 +505,7 @@ namespace util {
                     if(edep == 0 || edep < fEnergyCut)
                     continue;
 
-                    TGeoNode *node = fGeoManager->FindNode(x, y, z);//Node in cm...
+                    TGeoNode *node = fGeo->FindNode(x, y, z);//Node in cm...
                     std::string VolumeName  = node->GetVolume()->GetName();
                     std::string volmaterial = node->GetMedium()->GetMaterial()->GetName();
                     if ( ! std::regex_match(volmaterial, std::regex(fTPCMaterial)) ) continue;
@@ -532,9 +529,8 @@ namespace util {
                     if(edep == 0 || edep < fEnergyCut)
                     continue;
 
-                    TVector3 GlobalPosCM(x, y, z);
                     //Check if it is in the active material of the ECAL
-                    TGeoNode *node = fGeoManager->FindNode(GlobalPosCM.x(), GlobalPosCM.y(), GlobalPosCM.z());//Node in cm...
+                    TGeoNode *node = fGeo->FindNode(x, y, z);//Node in cm...
                     std::string VolumeName  = node->GetVolume()->GetName();
                     std::string volmaterial = node->GetMedium()->GetMaterial()->GetName();
                     if ( ! std::regex_match(volmaterial, std::regex(fECALMaterial)) ) continue;
@@ -545,9 +541,10 @@ namespace util {
                     unsigned int stave = GetStaveNumber(VolumeName); //get the stave number
                     unsigned int module = GetModuleNumber(VolumeName); //get the module number
 
-                    TVector3 LocalPosCM;
-                    fGeo->WorldToLocal(GlobalPosCM, LocalPosCM);
-                    G4ThreeVector G4LocalPosCM(LocalPosCM.x(), LocalPosCM.y(), LocalPosCM.z());
+                    std::array<double, 3> GlobalPosCM = {x, y, z};
+                    std::array<double, 3> LocalPosCM;
+                    gar::geo::LocalTransformation<TGeoHMatrix> trans;
+                    fGeo->WorldToLocal(GlobalPosCM, LocalPosCM, trans);
 
                     LOG_DEBUG("ConvertEdep2Art")
                     << "Hit " << hit
@@ -559,23 +556,29 @@ namespace util {
                     << " layer " << layer
                     << " slice " << slice;
 
-                    long long int cellID = fGeo->cellID(node, det_id, stave, module, layer, slice, G4LocalPosCM);//encoding the cellID on 64 bits
+                    long long int cellID = fGeo->GetCellID(node, det_id, stave, module, layer, slice, LocalPosCM);//encoding the cellID on 64 bits
 
                     double G4Pos[3] = {0., 0., 0.}; // in cm
                     if(fGeo->isTile(cellID))
                     {
-                        G4ThreeVector G4SegLocalCM = fGeo->position(node, cellID);//in cm
-                        TVector3 SegLocalCM(G4SegLocalCM.x(), G4SegLocalCM.y(), G4SegLocalCM.z());
-                        TVector3 SegGlobalCM;
-                        fGeo->LocalToWorld(SegLocalCM, SegGlobalCM);
+                        std::array<double, 3> SegLocalCM = fGeo->GetPosition(node, cellID);//in cm
+                        std::array<double, 3> SegGlobalCM;
+                        fGeo->LocalToWorld(SegLocalCM, SegGlobalCM, trans);
 
-                        G4Pos[0] = SegGlobalCM.x();
-                        G4Pos[1] = SegGlobalCM.y();
-                        G4Pos[2] = SegGlobalCM.z();
+                        LOG_DEBUG("ConvertEdep2Art")
+                        << " Point in node " << node->GetName()
+                        << " Global before " << GlobalPosCM[0] << " " << GlobalPosCM[1] << " " << GlobalPosCM[2]
+                        << " Local before " << LocalPosCM[0] << " " << LocalPosCM[1] << " " << LocalPosCM[2]
+                        << " Local after " << SegLocalCM[0] << " " << SegLocalCM[1] << " " << SegLocalCM[2]
+                        << " Global after " << SegGlobalCM[0] << " " << SegGlobalCM[1] << " " << SegGlobalCM[2];
+
+                        G4Pos[0] = SegGlobalCM[0];
+                        G4Pos[1] = SegGlobalCM[1];
+                        G4Pos[2] = SegGlobalCM[2];
                     } else {
-                        G4Pos[0] = GlobalPosCM.x();
-                        G4Pos[1] = GlobalPosCM.y();
-                        G4Pos[2] = GlobalPosCM.z();
+                        G4Pos[0] = GlobalPosCM[0];
+                        G4Pos[1] = GlobalPosCM[1];
+                        G4Pos[2] = GlobalPosCM[2];
                     }
 
                     fECALDeposits.emplace_back(trackID, time, edep, G4Pos, cellID);

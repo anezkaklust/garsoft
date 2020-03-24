@@ -48,7 +48,7 @@ namespace gar{
 
             std::shared_ptr<raw::CaloRawDigit> DoStripDigitization(float x, float y, float z, float energy, float time, long long int cID) const;
 
-            std::array<double, 3U> CalculateStripPosition(float x, float y, float z, long long int cID) const;
+            std::array<double, 3> CalculateStripPosition(float x, float y, float z, long long int cID) const;
 
             std::pair<float, float> DoLightPropagation(float x, float y, float z, float time, long long int cID) const;
 

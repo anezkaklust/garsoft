@@ -10,7 +10,6 @@
 #include "Geometry/GeometryCore.h"
 #include "Geometry/ChannelMapAlg.h"
 #include "Geometry/ECALSegmentationAlg.h"
-#include "Geometry/LocalTransformation.h"
 
 // Framework includes
 #include "cetlib_except/exception.h"
@@ -267,7 +266,7 @@ namespace gar {
             TGeoNode *node = gGeoManager->FindNode(point.x(), point.y(), point.z());
 
             if(node) {
-                return this->FindShapeSize(node).at(2) * 2;
+                return this->FindShapeSize(node)[2] * 2;
             }
             else{
                 return 0.;
@@ -275,22 +274,25 @@ namespace gar {
         }
 
         //......................................................................
-        const std::array<float, 3> GeometryCore::FindShapeSize(const TGeoNode *node) const
+        const std::array<double, 3> GeometryCore::FindShapeSize(const TGeoNode *node) const
         {
             TGeoVolume *vol = node->GetVolume();
+            std::array<double, 3> shape;
 
             if(vol)
             {
                 TGeoBBox *box = (TGeoBBox*)(vol->GetShape());
 
-                float dX = box->GetDX();
-                float dY = box->GetDY();
-                float dZ = box->GetDZ();
+                shape[0] = box->GetDX();
+                shape[1] = box->GetDY();
+                shape[2] = box->GetDZ();
 
-                return std::array<float, 3> { {dX, dY, dZ} }; //return half size in cm
+                return shape; //return half size in cm
             }
             else{
-                return std::array<float, 3> { {0., 0., 0.} }; //return half size in cm
+                throw cet::exception("GeometryCore::FindShapeSize")
+                << "Could not find the volume associated to node "
+                << node->GetName() <<"\n";
             }
         }
 
@@ -497,41 +499,65 @@ namespace gar {
         } // GeometryCore::FindAllVolumePaths()
 
         //......................................................................
+        template<>
+        TGeoNode* GeometryCore::FindNode<float>(float const &x, float const &y, float const &z) const
+        {
+            return gGeoManager->FindNode(x, y, z);
+        }
+
+        //......................................................................
+        template<>
+        TGeoNode* GeometryCore::FindNode<double>(double const &x, double const &y, double const &z) const
+        {
+            return gGeoManager->FindNode(x, y, z);
+        }
+
+        //......................................................................
+        TGeoNode* GeometryCore::FindNode(std::array<double, 3> const& point) const
+        {
+            return gGeoManager->FindNode(point[0], point[1], point[2]);
+        }
+
+        //......................................................................
         TGeoNode* GeometryCore::FindNode(TVector3 const& point) const
         {
             return gGeoManager->FindNode(point.x(), point.y(), point.z());
         }
 
         //......................................................................
-        void GeometryCore::WorldToLocal(TVector3 const& world, TVector3 &local) const
+        bool GeometryCore::WorldToLocal(std::array<double, 3> const& world, std::array<double, 3> &local, gar::geo::LocalTransformation<TGeoHMatrix> &trans) const
         {
-            TVector3 point(world.x(), world.y(), world.z());
+            TVector3 point(world[0], world[1], world[2]);
             std::string name = VolumeName(point);
             auto const& path = FindVolumePath(name);
-            if (path.empty())
-            throw cet::exception("GeometryCore::WorldToLocal") << " can't find volume '" << name << "'\n";
-
+            if (path.empty()){
+                throw cet::exception("GeometryCore::WorldToLocal") << " can't find volume '" << name << "'\n";
+                return false;
+            }
             //Change to local frame
-            gar::geo::LocalTransformation<TGeoHMatrix> trans(path, path.size() - 1);
-            std::array<double, 3U> wd{ {world.x(), world.y(), world.z()} }, loc;
+            trans.SetPath(path, path.size() - 1);
+            std::array<double, 3> wd{ {world[0], world[1], world[2]} }, loc;
             trans.WorldToLocal(wd.data(), loc.data());
-            local.SetXYZ(loc.at(0), loc.at(1), loc.at(2));
+            local = {loc.at(0), loc.at(1), loc.at(2)};
+
+            return true;
         }
 
         //......................................................................
-        void GeometryCore::LocalToWorld(TVector3 const& local, TVector3 &world) const
+        bool GeometryCore::LocalToWorld(std::array<double, 3> const& local, std::array<double, 3> &world, gar::geo::LocalTransformation<TGeoHMatrix> const &trans) const
         {
-            TVector3 point(local.x(), local.y(), local.z());
-            std::string name = VolumeName(point);
-            auto const& path = FindVolumePath(name);
-            if (path.empty())
-            throw cet::exception("GeometryCore::LocalToWorld") << " can't find volume '" << name << "'\n";
+            if (trans.GetNodes().empty()){
+                throw cet::exception("GeometryCore::LocalToWorld")
+                << " LocalTransformation has no nodes! -- Call WorldToLocal first!" << "\n";
+                return false;
+            }
 
-            //Change to local frame
-            gar::geo::LocalTransformation<TGeoHMatrix> trans(path, path.size() - 1);
-            std::array<double, 3U> loc{ {local.x(), local.y(), local.z()} }, wd;
+            //Change to world frame
+            std::array<double, 3> loc{ {local[0], local[1], local[2]} }, wd;
             trans.LocalToWorld(loc.data(), wd.data());
-            world.SetXYZ(wd.at(0), wd.at(1), wd.at(2));
+            world = {wd.at(0), wd.at(1), wd.at(2)};
+
+            return true;
         }
 
         //......................................................................
@@ -946,19 +972,19 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        long long int GeometryCore::cellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const G4ThreeVector& localPosition) const
+        long long int GeometryCore::GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
         {
-            const std::array<float, 3> shape = this->FindShapeSize(node);
-            fECALSegmentationAlg->setLayerDimXY(shape.at(0) * 2, shape.at(1) * 2);
-            return fECALSegmentationAlg->cellID(*this, det_id, stave, module, layer, slice, localPosition);
+            const std::array<double, 3> shape = this->FindShapeSize(node);
+            fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+            return fECALSegmentationAlg->GetCellID(*this, det_id, stave, module, layer, slice, localPosition);
         }
 
         //----------------------------------------------------------------------------
-        G4ThreeVector GeometryCore::position(const TGeoNode *node, const long long int &cID) const
+        std::array<double, 3> GeometryCore::GetPosition(const TGeoNode *node, const long long int &cID) const
         {
-            const std::array<float, 3> shape = this->FindShapeSize(node);
-            fECALSegmentationAlg->setLayerDimXY(shape.at(0) * 2, shape.at(1) * 2);
-            return fECALSegmentationAlg->position(*this, cID);
+            const std::array<double, 3> shape = this->FindShapeSize(node);
+            fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+            return fECALSegmentationAlg->GetPosition(*this, cID);
         }
 
         //----------------------------------------------------------------------------
@@ -980,23 +1006,23 @@ namespace gar {
         double GeometryCore::getTileSize() const { return fECALSegmentationAlg->gridSizeX(); }
 
         //----------------------------------------------------------------------------
-        double GeometryCore::getStripLength(TVector3 const& point, const long long int &cID) const
+        double GeometryCore::getStripLength(std::array<double, 3> const& point, const long long int &cID) const
         {
-            const std::array<float, 3> shape = this->FindShapeSize(this->FindNode(point));
-            fECALSegmentationAlg->setLayerDimXY(shape.at(0) * 2, shape.at(1) * 2);
+            const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
+            fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
             return fECALSegmentationAlg->getStripLength(*this, cID);
         }
 
         //----------------------------------------------------------------------------
-        std::pair<float, float> GeometryCore::CalculateLightPropagation(TVector3 const& point, const std::array<double, 3U> &local, const long long int &cID) const
+        std::pair<float, float> GeometryCore::CalculateLightPropagation(std::array<double, 3> const& point, const std::array<double, 3> &local, const long long int &cID) const
         {
-            const std::array<float, 3> shape = this->FindShapeSize(this->FindNode(point));
-            fECALSegmentationAlg->setLayerDimXY(shape.at(0) * 2, shape.at(1) * 2);
+            const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
+            fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
             return fECALSegmentationAlg->CalculateLightPropagation(*this, local, cID);
         }
 
         //----------------------------------------------------------------------------
-        std::array<double, 3U> GeometryCore::ReconstructStripHitPosition(const std::array<double, 3U> &local, const float &xlocal, const long long int &cID) const
+        std::array<double, 3> GeometryCore::ReconstructStripHitPosition(const std::array<double, 3> &local, const float &xlocal, const long long int &cID) const
         {
             return fECALSegmentationAlg->ReconstructStripHitPosition(*this, local, xlocal, cID);
         }

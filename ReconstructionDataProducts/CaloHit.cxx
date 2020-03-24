@@ -118,7 +118,7 @@ namespace gar {
             }
             else
             {
-                TVector3 point(this->Position()[0], this->Position()[1], this->Position()[2]);
+                std::array<double, 3> point = {this->Position()[0], this->Position()[1], this->Position()[2]};
                 return std::sqrt( fGeo->getStripWidth() * fGeo->getStripLength(point, this->CellID()) );
             }
 

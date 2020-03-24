@@ -166,7 +166,7 @@ namespace gar {
             float new_energy = this->DoPhotonStatistics(x, y, z, energy);
 
             //Calculate the position of the strip
-            std::array<double, 3U> pos = this->CalculateStripPosition(x, y, z, cID);
+            std::array<double, 3> pos = this->CalculateStripPosition(x, y, z, cID);
 
             //make the shared ptr
             std::shared_ptr<raw::CaloRawDigit> digihit = std::make_shared<raw::CaloRawDigit>( raw::CaloRawDigit(static_cast<unsigned int>(new_energy), times, pos[0], pos[1], pos[2], cID) );
@@ -244,52 +244,33 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::array<double, 3U> ECALReadoutSimStandardAlg::CalculateStripPosition(float x, float y, float z, long long int cID) const
+        std::array<double, 3> ECALReadoutSimStandardAlg::CalculateStripPosition(float x, float y, float z, long long int cID) const
         {
-            //Find the volume path
-            TVector3 point(x, y, z);
-            std::string name = fGeo->VolumeName(point);
-            auto const& path = fGeo->FindVolumePath(name);
-            if (path.empty())
-            {
-                throw cet::exception("ECALReadoutSimStandardAlg") << "CalculateStripPosition(): can't find volume '" << name << "'\n";
-            }
-
-            //Change to local frame
-            gar::geo::LocalTransformation<TGeoHMatrix> trans(path, path.size() - 1);
-            std::array<double, 3U> world{ {x, y, z} }, local;
-            trans.WorldToLocal(world.data(), local.data());
-
             //Use the segmentation algo to get the position
-            TGeoNode *node = fGeoManager->FindNode(x, y, z);//Node in cm...
-            G4ThreeVector pos = fGeo->position(node, cID);//returns in cm
+            std::array<double, 3> point = {x, y, z};
+            std::array<double, 3> pointLocal;
+            gar::geo::LocalTransformation<TGeoHMatrix> trans;
+            fGeo->WorldToLocal(point, pointLocal, trans);
 
-            std::array<double, 3U> local_back{ {pos.x(), pos.y(), 0.} }, world_back;
-            //Change back to World frame
-            trans.LocalToWorld(local_back.data(), world_back.data());
+            TGeoNode *node = fGeo->FindNode(point);//Node in cm...
+            std::array<double, 3> pointLocal_back = fGeo->GetPosition(node, cID);//returns in cm
+            std::array<double, 3> point_back;
+            fGeo->LocalToWorld(pointLocal_back, point_back, trans);
 
-            return world_back;
+            return point_back;
         }
 
         //----------------------------------------------------------------------------
         std::pair<float, float> ECALReadoutSimStandardAlg::DoLightPropagation(float x, float y, float z, float time, long long int cID) const
         {
             //Find the volume path
-            TVector3 point(x, y, z);
-            std::string name = fGeo->VolumeName(point);
-            auto const& path = fGeo->FindVolumePath(name);
-            if (path.empty())
-            {
-                throw cet::exception("ECALReadoutSimStandardAlg") << "DoLightPropagation(): can't find volume '" << name << "'\n";
-            }
-
-            //Change to local frame
-            gar::geo::LocalTransformation<TGeoHMatrix> trans(path, path.size() - 1);
-            std::array<double, 3U> world{ {x, y, z} }, local;
-            trans.WorldToLocal(world.data(), local.data());
+            std::array<double, 3> point = {x, y, z};
+            std::array<double, 3> pointLocal;
+            gar::geo::LocalTransformation<TGeoHMatrix> trans;
+            fGeo->WorldToLocal(point, pointLocal, trans);
 
             //Calculate light propagation along the strip
-            std::pair<float, float> times = fGeo->CalculateLightPropagation(point, local, cID);
+            std::pair<float, float> times = fGeo->CalculateLightPropagation(point, pointLocal, cID);
 
             //t1 is left SiPM, t2 is right SiPM
             float time1 = time + times.first;
