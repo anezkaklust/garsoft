@@ -94,6 +94,7 @@ namespace util {
 
         double VisibleEnergyDeposition(const TG4HitSegment *hit, bool applyBirks) const;
         bool CheckProcess( std::string process_name ) const;
+        unsigned int GetParentage( unsigned int trkid ) const;
 
         std::string fEDepSimfile;
         std::string fGhepfile;
@@ -127,6 +128,8 @@ namespace util {
         int fSpillCount;
         std::vector<int> fStartSpill;
         std::vector<int> fStopSpill;
+
+        std::map<unsigned int, unsigned int> fTrkIDParent;
     };
 
 } // namespace util
@@ -184,6 +187,11 @@ namespace util {
         fBirksCoeff = fEcalProp->ScintBirksConstant(); //CLHEP::mm/CLHEP::MeV;
 
         fSpillCount = 0;
+
+        if(!fkeepEMShowers){
+            LOG_INFO("ConvertEdep2Art")
+            << " Will not keep EM shower daughters!";
+        }
     }
 
     //----------------------------------------------------------------------
@@ -277,9 +285,9 @@ namespace util {
     //------------------------------------------------------------------------------
     double ConvertEdep2Art::VisibleEnergyDeposition(const TG4HitSegment *hit, bool applyBirks) const
     {
-        double edep = hit->GetEnergyDeposit();
-        double niel = hit->GetSecondaryDeposit();
-        double length = hit->GetTrackLength();
+        double edep = hit->GetEnergyDeposit();//MeV
+        double niel = hit->GetSecondaryDeposit();//MeV
+        double length = hit->GetTrackLength();//mm
         double evis = edep;
 
         if(applyBirks)
@@ -304,7 +312,7 @@ namespace util {
             }
         }
 
-        return evis;
+        return evis;//MeV
     }
 
     //--------------------------------------------------------------------------
@@ -312,7 +320,11 @@ namespace util {
     {
         bool isEMShowerProcess = false;
 
-        if( process_name.find("conv")            != std::string::npos  ||
+        //avoid false positive
+        if(process_name.find("photonNuclear") != std::string::npos)
+        return isEMShowerProcess;
+
+        if( process_name.find("conv")        != std::string::npos  ||
         process_name.find("LowEnConversion") != std::string::npos  ||
         process_name.find("Pair")            != std::string::npos  ||
         process_name.find("compt")           != std::string::npos  ||
@@ -330,6 +342,23 @@ namespace util {
 
 
         return isEMShowerProcess;
+    }
+
+    //--------------------------------------------------------------------------
+    unsigned int ConvertEdep2Art::GetParentage(unsigned int trkid) const
+    {
+        unsigned int parentid = -1;
+        std::map<unsigned int, unsigned int>::const_iterator it = fTrkIDParent.find(trkid);
+        while ( it != fTrkIDParent.end() )
+        {
+            LOG_DEBUG("ConvertEdep2Art::GetParentage")
+            << "parentage for track id " << trkid
+            << " is " << (*it).second;
+
+            parentid = (*it).second;
+            it = fTrkIDParent.find(parentid);
+        }
+        return parentid;
     }
 
     //--------------------------------------------------------------------------
@@ -399,6 +428,7 @@ namespace util {
         std::unique_ptr< std::vector<simb::MCParticle> > partCol(new std::vector<simb::MCParticle> );
 
         fMCParticles.clear();
+        fTrkIDParent.clear();
 
         for (std::vector<TG4Trajectory>::const_iterator t = fEvent->Trajectories.begin(); t != fEvent->Trajectories.end(); ++t)
         {
@@ -409,24 +439,13 @@ namespace util {
             double mass = pdglib->Find(pdg)->Mass();
 
             std::string process_name = "unknown";
+            //Could be linked to the MCTruth primary with fEvent->Primaries.Particles
             if(parentID == -1) { process_name = "primary"; parentID = 0; }
             else{
                 //Get the first point that created this particle
                 process_name = t->Points.at(0).GetProcessName();
             }
 
-            LOG_DEBUG("ConvertEdep2Art")
-            << "Particle " << name
-            << " with pdg " << pdg
-            << " trackID " << trkID
-            << " parent id " << parentID
-            << " created with process [ " << process_name << " ]";
-
-            //Skip the creation of the mcp if it is part of shower (based on process name) and only if it is not matching the material
-            //TODO debug as it does not work for anatree at the moment, problem related to pdg mom exception
-            //Maybe need to keep relation trackid, parentid
-
-            bool isEMShowerProcess = CheckProcess( process_name );
             TLorentzVector part_start = t->Points.at(0).GetPosition();
             TGeoNode *node = fGeo->FindNode(part_start.X() / CLHEP::cm, part_start.Y() / CLHEP::cm, part_start.Z() / CLHEP::cm);
             std::string material_name = "";
@@ -434,17 +453,37 @@ namespace util {
             if(node)
             material_name = node->GetMedium()->GetMaterial()->GetName();
 
-            std::regex const re_material(fEMShowerDaughterMatRegex);
-            if( !fkeepEMShowers && (isEMShowerProcess && !std::regex_match(material_name, re_material)) ) {
+            LOG_DEBUG("ConvertEdep2Art")
+            << " Particle " << name
+            << " with pdg " << pdg
+            << " trackID " << trkID
+            << " parent id " << parentID
+            << " created with process [ " << process_name << " ]"
+            << " is EM " << CheckProcess( process_name )
+            << " in material " << material_name;
 
-                LOG_DEBUG("ConvertEdep2Art")
-                << "Skipping EM shower daughter " << name
-                << " with trackID " << trkID
-                << " with parent id " << parentID
-                << " created with process [ " << process_name << " ]"
-                << " in material " << material_name;
+            //Skip the creation of the mcp if it is part of shower (based on process name) and only if it is not matching the material
+            //TODO debug as it does not work for anatree at the moment, problem related to pdg mom exception
+            //Maybe need to keep relation trackid, parentid
 
-                continue;
+            if(not fkeepEMShowers){
+                bool isEMShowerProcess = CheckProcess( process_name );
+                std::regex const re_material(fEMShowerDaughterMatRegex);
+                if( isEMShowerProcess && not std::regex_match(material_name, re_material) ) {
+
+                    //link trkid and parent id to be able to go back in history only for these and stop at the parent that created the shower
+                    fTrkIDParent[trkID] = parentID;
+
+                    LOG_DEBUG("ConvertEdep2Art")
+                    << " Skipping EM shower daughter " << name
+                    << " with trackID " << trkID
+                    << " with parent id " << parentID
+                    << " Ultimate parentage " << GetParentage(trkID)
+                    << " created with process [ " << process_name << " ]"
+                    << " in material " << material_name;
+
+                    continue;
+                }
             }
 
             simb::MCParticle mcpart(trkID, pdg, process_name, parentID, mass);
