@@ -33,7 +33,7 @@ namespace gar {
                                  art::ActivityRegistry    & reg)
             : BackTrackerCore(pset) {
             reg.sPreProcessEvent.watch(this, &BackTracker::Rebuild);
-            fHasMC = fHasHits = fHasCaloHits = fHasTracks = fHasClusters = false;
+            fHasMC = fHasHits = fHasCalHits = fHasTracks = fHasClusters = false;
         }
 
         //----------------------------------------------------------------------
@@ -59,13 +59,11 @@ namespace gar {
 
 
 
-            // we have a new event, so clear the collections from the previous events
+            // We have a new event, so clear the collections from the previous events
+            // Just the MC collections now, others as needed
             fParticleList.clear();
             fMCTruthList .clear();
             fTrackIDToMCTruthIndex.clear();
-
-            for (auto vec : fChannelToEDepCol) vec.clear();
-            fChannelToEDepCol.clear();
 
 
 
@@ -125,46 +123,8 @@ namespace gar {
 
 
 
-            // look for the RawDigit collection from the event and create a FindMany mapping
-            // between the digits and energy deposits if it exists.
-            art::Handle<std::vector<gar::raw::RawDigit> > digCol;
-            evt.getByLabel(fRawDataLabel, digCol);
-            if (!digCol.isValid()) {
-                LOG_WARNING("BackTracker_service::RebuildNoSC")
-                    << "Unable to find RawDigits in " << fRawDataLabel <<
-                    "; no backtracking in TPC will be possible";            
-                return;
-            }
-
-            art::FindMany<gar::sdp::EnergyDeposit> fmEnergyDep(digCol, evt, fRawDataLabel);
-            if (!fmEnergyDep.isValid()) {
-                LOG_WARNING("BackTracker_service::RebuildNoSC")
-                    << "Unable to find valid association between RawDigits and "
-                    << "energy deposits in " << fRawDataLabel <<
-                    "; no backtracking in TPC will be possible";
-                return;
-            }
-
-
-
-            // Create the channel to energy deposit collection
-            auto geo = gar::providerFrom<geo::Geometry>();
-            fChannelToEDepCol.resize(geo->NChannels());
-      
-            LOG_DEBUG("BackTracker_service::RebuildNoSC")
-                << "There are " << fChannelToEDepCol.size()
-                << " channels in the geometry";
-
-            std::vector<const gar::sdp::EnergyDeposit*> eDeps;
-
-            for (size_t d = 0; d < digCol->size(); ++d) {
-                fmEnergyDep.get(d, eDeps);
-                if (eDeps.size() < 1) continue;
-                fChannelToEDepCol[ (*digCol)[d].Channel() ].swap(eDeps);
-            }
-
             // Inverse of drift velocity and longitudinal diffusion constant will
-            // be needed by the backtracker when fHasHits, so get 'em now
+            // be needed by the backtracker when fHasHits, and also the geometry
             auto detProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fInverseVelocity = 1.0/detProp->DriftVelocity(detProp->Efield(),
                                                           detProp->Temperature());
@@ -172,12 +132,83 @@ namespace gar {
             auto garProp = gar::providerFrom<detinfo::GArPropertiesService>();
             fLongDiffConst = std::sqrt(2.0 * garProp->LongitudinalDiffusion());
 
-            fHasHits = true;
+            fGeo = gar::providerFrom<geo::Geometry>();
+
+            // Create the channel to energy deposit collection.  Start by 
+            // looking for the RawDigit collection from the event and create
+            // a FindMany mapping between the digits and energy deposits if it exists.
+            for (auto vec : fChannelToEDepCol) vec.clear();
+            fChannelToEDepCol.clear();
+            art::Handle<std::vector<gar::raw::RawDigit> > digCol;
+            evt.getByLabel(fRawTPCDataLabel, digCol);
+            if (!digCol.isValid()) {
+                LOG_WARNING("BackTracker_service::RebuildNoSC")
+                    << "Unable to find RawDigits in " << fRawTPCDataLabel <<
+                    "; no backtracking in TPC will be possible";
+            } else {
+                art::FindMany<gar::sdp::EnergyDeposit> fmEnergyDep(digCol, evt, fRawTPCDataLabel);
+                if (!fmEnergyDep.isValid()) {
+                    LOG_WARNING("BackTracker_service::RebuildNoSC")
+                        << "Unable to find valid association between RawDigits and "
+                        << "energy deposits in " << fRawTPCDataLabel <<
+                        "; no backtracking in TPC will be possible";
+                } else {
+
+                    fChannelToEDepCol.resize(fGeo->NChannels());
+                    LOG_DEBUG("BackTracker_service::RebuildNoSC")
+                        << "There are " << fChannelToEDepCol.size()
+                        << " channels in the geometry";
+
+                    std::vector<const gar::sdp::EnergyDeposit*> eDeps;
+                    for (size_t d = 0; d < digCol->size(); ++d) {
+                        eDeps.clear();
+                        fmEnergyDep.get(d, eDeps);    // uses vector::insert
+                        if (eDeps.size() < 1) continue;
+                        fChannelToEDepCol[ (*digCol)[d].Channel() ].swap(eDeps);
+                    }
+                    fHasHits = true;
+                }
+            }
+
+
+
+            // Create the CellID to energy deposit collection.  Start by 
+            // looking for the CaloRawDigit collection from the event and create
+            // a FindMany mapping between these digits and CalodDeposits if it exists.
+            fECALTrackToTPCTrack->clear();
+            fCellIDToEDepCol.clear();
+            art::Handle<std::vector<gar::raw::CaloRawDigit> > caloDigCol;
+            evt.getByLabel(fRawCaloDataLabel, caloDigCol);
+            if (!caloDigCol.isValid()) {
+                LOG_WARNING("BackTracker_service::RebuildNoSC")
+                    << "Unable to find CaloRawDigits in " << fRawCaloDataLabel <<
+                    "; no backtracking in ECAL will be possible";            
+            } else {
+                art::FindMany<gar::sdp::CaloDeposit> fmCaloDep(caloDigCol, evt, fRawCaloDataLabel);
+                if (!fmCaloDep.isValid()) {
+                    LOG_WARNING("BackTracker_service::RebuildNoSC")
+                        << "Unable to find valid association between CaloRawDigits and "
+                        << "calorimeter energy deposits in " << fRawCaloDataLabel <<
+                        "; no backtracking in ECAL will be possible";
+                } else {
+
+                    std::vector<const gar::sdp::CaloDeposit*> CeDeps;
+                    for (size_t d = 0; d < caloDigCol->size(); ++d) {
+                        CeDeps.clear();
+                        fmCaloDep.get(d, CeDeps);    // uses vector::insert
+                        if (CeDeps.size() < 1) continue;
+                        fCellIDToEDepCol[ (*caloDigCol)[d].CellID() ] = CeDeps;
+                    }
+                    fHasCalHits = true;
+                }
+            }
 
 
 
             return;
         }
+
+
 
 
 

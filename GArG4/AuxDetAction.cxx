@@ -264,7 +264,7 @@ namespace gar {
             std::array<double, 3> G4Localcm = {G4Local.x() / CLHEP::cm, G4Local.y() / CLHEP::cm, G4Local.z() / CLHEP::cm};
 
             //Get cellID
-            long long int cellID = fGeo->GetCellID(node, det_id, stave, module, layer, slice, G4Localcm);//encoding the cellID on 64 bits
+            raw::CellID_t cellID = fGeo->cellID(node, det_id, stave, module, layer, slice, G4Localcm);//encoding the cellID on 64 bits
 
             //Correct the position of the tiles only -> center of a tile
             //Leave strips alone for now

@@ -51,6 +51,12 @@
 #include <TVector3.h>
 // #include <Rtypes.h>
 
+#include "CLHEP/Vector/ThreeVector.h"
+
+#include "RawDataProducts/CaloRawDigit.h"
+
+=======
+>>>>>>> 340b550e4fffd651ea194655bcc68c444616551f
 // C/C++ standard libraries
 #include <cstddef> // size_t
 #include <string>
@@ -649,23 +655,15 @@ namespace gar {
 
       //@{
       /**
-       * @brief Returns the half width of the TPC (x direction)
+       * @brief Returns the radius of the TPC (y or z direction)
        * @return the value of the half width of the specified TPC
        */
-      float TPCHalfWidth() const { return fTPCHalfWidth; }
+      float TPCRadius() const { return fTPCRadius; }
       //@}
 
       //@{
       /**
-       * @brief Returns the half height of the TPC (y direction)
-       * @return the value of the half height of the specified TPC
-       */
-      float TPCHalfHeight() const { return fTPCHalfHeight; }
-      //@}
-
-      //@{
-      /**
-       * @brief Returns the length of the TPC (z direction)
+       * @brief Returns the length of the TPC (x direction)
        * @return the value of the length of the specified TPC
        */
       float TPCLength() const { return fTPCLength; }
@@ -851,23 +849,24 @@ namespace gar {
 
       const std::array<double, 3> FindShapeSize(const TGeoNode *node) const;
 
-      long long int GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const;
+      raw::CellID_t cellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const G4ThreeVector& localPosition) const;
 
-      std::array<double, 3> GetPosition(const TGeoNode *node, const long long int &cID) const;
+      G4ThreeVector position(const TGeoNode *node, const raw::CellID_t &cID) const;
 
-      int getIDbyCellID(const long long int& cID, const char* identifier) const;
+      int getIDbyCellID(const raw::CellID_t& cID, const char* identifier) const;
 
-      bool isTile(const long long int& cID) const;
+      bool isTile(const raw::CellID_t& cID) const;
 
       double getStripWidth() const;
 
       double getTileSize() const;
 
-      double getStripLength(std::array<double, 3> const& point, const long long int &cID) const;
 
-      std::pair<float, float> CalculateLightPropagation(std::array<double, 3>const& point, const std::array<double, 3> &local, const long long int &cID) const;
+      double getStripLength(TVector3 const& point, const raw::CellID_t &cID) const;
 
-      std::array<double, 3> ReconstructStripHitPosition(const std::array<double, 3> &local, const float &xlocal, const long long int &cID) const;
+      std::pair<float, float> CalculateLightPropagation(TVector3 const& point, const std::array<double, 3U> &local, const raw::CellID_t &cID) const;
+
+      std::array<double, 3U> ReconstructStripHitPosition(const std::array<double, 3U> &local, const float &xlocal, const raw::CellID_t &cID) const;
 
     protected:
 
@@ -917,17 +916,18 @@ namespace gar {
       //Sets the position of the xplane of the ECAL endcap
       bool FindECALEndcapStartX();
 
-      double         fSurfaceY;       ///< The point where air meets earth for this detector.
-      std::string    fDetectorName;   ///< Name of the detector.
-      std::string    fGDMLfile;       ///< path to geometry file used for Geant4 simulation
-      std::string    fROOTfile;       ///< path to geometry file for geometry in GeometryCore
-      double         fMinWireZDist;   ///< Minimum distance in Z from a point in which
-                                      ///< to look for the closest wire
-      double         fPositionWiggle; ///< accounting for rounding errors when testing positions
+      double         fSurfaceY;        ///< The point where air meets earth for this detector.
+      std::string    fDetectorName;    ///< Name of the detector.
+      std::string    fGDMLfile;        ///< path to geometry file used for Geant4 simulation
+      std::string    fROOTfile;        ///< path to geometry file for geometry in GeometryCore
+      double         fMinWireZDist;    ///< Minimum distance in Z from a point in which
+                                       ///< to look for the closest wire
+      double         fPositionWiggle;  ///< accounting for rounding errors when testing positions
 
-      float          fTPCHalfHeight = 0.; ///< half height of the TPC
-      float          fTPCHalfWidth = 0.;   ///< half width of the TPC
-      float          fTPCLength = 0.;      ///< length of the TPC
+      bool           fPointInWarnings; ///< Generate warnings from failed inputs to PointIn* methods
+
+      float          fTPCRadius = 0.;  ///< Radius of the TPC
+      float          fTPCLength = 0.;  ///< length of the TPC
 
       float          fTPCXCent = 0.;       ///< center of TPC: X
       float          fTPCYCent = 0.;       ///< center of TPC: Y

@@ -165,10 +165,12 @@ namespace gar {
         return;
       }
 
-      auto const& pList = bt->GetParticleList();
-      
-      for(auto itr : pList){
-        auto part = itr.second;
+      sim::ParticleList* pList = bt->GetParticleList();
+      sim::ParticleList::iterator itr = pList->begin();
+	  for (; itr!=pList->end(); ++itr) {
+
+        //auto part = itr.second;
+        auto part = itr->second;
         if( !part ) continue;
         
         fPartInfo.trackID = part->TrackId();

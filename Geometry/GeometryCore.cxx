@@ -47,9 +47,10 @@ namespace gar {
         //......................................................................
         // Constructor.
         GeometryCore::GeometryCore(fhicl::ParameterSet const& pset)
-        : fSurfaceY         (pset.get< double            >("SurfaceY"               ))
-        , fDetectorName     (pset.get< std::string       >("Name"                   ))
-        , fPositionWiggle   (pset.get< double            >("PositionEpsilon",  1.e-4))
+        : fSurfaceY         (pset.get< double     >("SurfaceY"               ))
+        , fDetectorName     (pset.get< std::string>("Name"                   ))
+        , fPositionWiggle   (pset.get< double     >("PositionEpsilon",  1.e-4))
+        , fPointInWarnings  (pset.get< bool       >("PointInWarnings",  false))
         {
             std::transform(fDetectorName.begin(), fDetectorName.end(), fDetectorName.begin(), ::tolower);
 
@@ -253,9 +254,8 @@ namespace gar {
             TGeoVolume *activeVol = GArTPC_node->GetVolume();
             float rOuter = ((TGeoTube*)activeVol->GetShape())->GetRmax();
 
-            fTPCHalfWidth  =       rOuter;
-            fTPCHalfHeight =       rOuter;
-            fTPCLength     = 2.0 * ((TGeoTube*)activeVol->GetShape())->GetDZ();
+            fTPCRadius = rOuter;
+            fTPCLength = 2.0 * ((TGeoTube*)activeVol->GetShape())->GetDZ();
 
             return;
         }
@@ -603,18 +603,20 @@ namespace gar {
             float halflength = ((TGeoBBox*)volWorld->GetShape())->GetDZ();
             float halfheight = ((TGeoBBox*)volWorld->GetShape())->GetDY();
             float halfwidth  = ((TGeoBBox*)volWorld->GetShape())->GetDX();
-            if(std::abs(point.x()) > halfwidth  ||
+            if (std::abs(point.x()) > halfwidth  ||
             std::abs(point.y()) > halfheight ||
             std::abs(point.z()) > halflength){
-                LOG_WARNING("GeometryCoreBadInputPoint")
-                << "point ("
-                << point.x() << ","
-                << point.y() << ","
-                << point.z() << ") "
-                << "is not inside the world volume "
-                << " half width = "  << halfwidth
-                << " half height = " << halfheight
-                << " half length = " << halflength;
+                if (fPointInWarnings) {
+                    LOG_WARNING("GeometryCoreBadInputPoint")
+                        << "point ("
+                        << point.x() << ","
+                        << point.y() << ","
+                        << point.z() << ") "
+                        << "is not inside the world volume "
+                        << " half width = "  << halfwidth
+                        << " half height = " << halfheight
+                        << " half length = " << halflength;
+                }
                 return false;
             }
 
@@ -625,18 +627,20 @@ namespace gar {
         bool GeometryCore::PointInDetEnclosure(TVector3 const& point) const
         {
             // check that the given point is in the enclosure volume at least
-            if(std::abs(point.x()) > fEnclosureHalfWidth  ||
+            if (std::abs(point.x()) > fEnclosureHalfWidth  ||
             std::abs(point.y()) > fEnclosureHalfHeight ||
             std::abs(point.z()) > fEnclosureLength){
-                LOG_WARNING("GeometryCoreBadInputPoint")
-                << "point ("
-                << point.x() << ","
-                << point.y() << ","
-                << point.z() << ") "
-                << "is not inside the detector enclosure volume "
-                << " half width = "  << fEnclosureHalfWidth
-                << " half height = " << fEnclosureHalfHeight
-                << " length = " << fEnclosureLength;
+                if (fPointInWarnings) {
+                    LOG_WARNING("GeometryCoreBadInputPoint")
+                        << "point ("
+                        << point.x() << ","
+                        << point.y() << ","
+                        << point.z() << ") "
+                        << "is not inside the detector enclosure volume "
+                        << " half width = "  << fEnclosureHalfWidth
+                        << " half height = " << fEnclosureHalfHeight
+                        << " length = " << fEnclosureLength;
+                }
                 return false;
             }
 
@@ -649,18 +653,20 @@ namespace gar {
             TVector3 tpc_origin(TPCXCent(), TPCYCent(), TPCZCent());
             TVector3 new_point = point - tpc_origin;
             // check that the given point is in the enclosure volume at least
-            if(std::abs(new_point.x()) > fMPDHalfWidth  ||
+            if (std::abs(new_point.x()) > fMPDHalfWidth  ||
             std::abs(new_point.y()) > fMPDHalfHeight ||
             std::abs(new_point.z()) > fMPDLength){
-                LOG_WARNING("GeometryCoreBadInputPoint")
-                << "point ("
-                << new_point.x() << ","
-                << new_point.y() << ","
-                << new_point.z() << ") "
-                << "is not inside the MPD volume "
-                << " half width = "  << fMPDHalfWidth
-                << " half height = " << fMPDHalfHeight
-                << " length = " << fMPDLength;
+                if (fPointInWarnings) {
+                    LOG_WARNING("GeometryCoreBadInputPoint")
+                        << "point ("
+                        << new_point.x() << ","
+                        << new_point.y() << ","
+                        << new_point.z() << ") "
+                        << "is not inside the MPD volume "
+                        << " half width = "  << fMPDHalfWidth
+                        << " half height = " << fMPDHalfHeight
+                        << " length = " << fMPDLength;
+                }
                 return false;
             }
 
@@ -671,18 +677,21 @@ namespace gar {
         bool GeometryCore::PointInGArTPC(TVector3 const& point) const
         {
             // check that the given point is in the enclosure volume at least
-            if(std::abs(point.x() - fTPCXCent) > fTPCHalfWidth  ||
-            std::abs(point.y() - fTPCYCent) > fTPCHalfHeight ||
-            std::abs(point.z() - fTPCZCent) > fTPCLength){
-                LOG_WARNING("GeometryCoreBadInputPoint")
-                << "point ("
-                << point.x() << ","
-                << point.y() << ","
-                << point.z() << ") "
-                << "is not inside the full GArTPC volume "
-                << " half width = "  << fTPCHalfWidth
-                << " half height = " << fTPCHalfHeight
-                << " length = " << fTPCLength;
+			float y = std::abs(point.y() - fTPCYCent);
+			float z = std::abs(point.z() - fTPCZCent);
+			
+            if (std::abs(point.x() - fTPCXCent) > fTPCLength/2.0  ||
+                std::hypot(z,y)                 > fTPCRadius) {
+                if (fPointInWarnings) {
+                    LOG_WARNING("GeometryCoreBadInputPoint")
+                        << "point ("
+                        << point.x() << ","
+                        << point.y() << ","
+                        << point.z() << ") "
+                        << "is not inside the GArTPC volume "
+                        << " radius = " << fTPCRadius
+                        << " length = " << fTPCLength;
+                }
                 return false;
             }
 
@@ -697,18 +706,20 @@ namespace gar {
             float halflength = ((TGeoBBox*)volLArTPC->GetShape())->GetDZ();
             float halfheight = ((TGeoBBox*)volLArTPC->GetShape())->GetDY();
             float halfwidth  = ((TGeoBBox*)volLArTPC->GetShape())->GetDX();
-            if(std::abs(point.x()) > halfwidth  ||
+            if (std::abs(point.x()) > halfwidth  ||
             std::abs(point.y()) > halfheight ||
             std::abs(point.z()) > halflength){
-                LOG_WARNING("GeometryCoreBadInputPoint")
-                << "point ("
-                << point.x() << ","
-                << point.y() << ","
-                << point.z() << ") "
-                << "is not inside the LArTPC volume "
-                << " half width = "  << halfwidth
-                << " half height = " << halfheight
-                << " half length = " << halflength;
+                if (fPointInWarnings) {
+                    LOG_WARNING("GeometryCoreBadInputPoint")
+                        << "point ("
+                        << point.x() << ","
+                        << point.y() << ","
+                        << point.z() << ") "
+                        << "is not inside the LArTPC volume "
+                        << " half width = "  << halfwidth
+                        << " half height = " << halfheight
+                        << " half length = " << halflength;
+                }
                 return false;
             }
 
@@ -972,7 +983,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        long long int GeometryCore::GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
+        raw::CellID_t GeometryCore::cellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const G4ThreeVector& localPosition) const
         {
             const std::array<double, 3> shape = this->FindShapeSize(node);
             fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
@@ -980,7 +991,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::array<double, 3> GeometryCore::GetPosition(const TGeoNode *node, const long long int &cID) const
+        G4ThreeVector GeometryCore::position(const TGeoNode *node, const raw::CellID_t &cID) const
         {
             const std::array<double, 3> shape = this->FindShapeSize(node);
             fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
@@ -988,13 +999,13 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        int GeometryCore::getIDbyCellID(const long long int& cID, const char* identifier) const
+        int GeometryCore::getIDbyCellID(const raw::CellID_t& cID, const char* identifier) const
         {
             return fECALSegmentationAlg->getIDbyCellID(cID, identifier);
         }
 
         //----------------------------------------------------------------------------
-        bool GeometryCore::isTile(const long long int& cID) const
+        bool GeometryCore::isTile(const raw::CellID_t& cID) const
         {
             return fECALSegmentationAlg->isTile(cID);
         }
@@ -1006,7 +1017,7 @@ namespace gar {
         double GeometryCore::getTileSize() const { return fECALSegmentationAlg->gridSizeX(); }
 
         //----------------------------------------------------------------------------
-        double GeometryCore::getStripLength(std::array<double, 3> const& point, const long long int &cID) const
+        double GeometryCore::getStripLength(TVector3 const& point, const raw::CellID_t &cID) const
         {
             const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
             fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
@@ -1014,7 +1025,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::pair<float, float> GeometryCore::CalculateLightPropagation(std::array<double, 3> const& point, const std::array<double, 3> &local, const long long int &cID) const
+        std::pair<float, float> GeometryCore::CalculateLightPropagation(TVector3 const& point, const std::array<double, 3U> &local, const raw::CellID_t &cID) const
         {
             const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
             fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
@@ -1022,7 +1033,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::array<double, 3> GeometryCore::ReconstructStripHitPosition(const std::array<double, 3> &local, const float &xlocal, const long long int &cID) const
+        std::array<double, 3U> GeometryCore::ReconstructStripHitPosition(const std::array<double, 3U> &local, const float &xlocal, const raw::CellID_t &cID) const
         {
             return fECALSegmentationAlg->ReconstructStripHitPosition(*this, local, xlocal, cID);
         }
@@ -1050,7 +1061,7 @@ namespace gar {
             std::cout << "------------------------------" << std::endl;
             std::cout << "TPC Geometry" << std::endl;
             std::cout << "TPC Origin (x, y, z) " << TPCXCent() << " cm " << TPCYCent() << " cm " << TPCZCent() << " cm" << std::endl;
-            std::cout << "TPC Active Volume Size (H, W, L) " << TPCHalfHeight() << " cm " << TPCHalfWidth() << " cm " << TPCLength() << " cm" << std::endl;
+            std::cout << "TPC Active Volume Size (R, L) " << TPCRadius() << " cm " << TPCLength() << " cm" << std::endl;
             std::cout << "------------------------------" << std::endl;
             std::cout << "ECAL Geometry" << std::endl;
             std::cout << "ECAL Barrel inner radius: " << GetECALInnerBarrelRadius() << " cm" << std::endl;
@@ -1076,8 +1087,7 @@ namespace gar {
             fMPDY = 0.;
             fMPDZ = 0.;
 
-            fTPCHalfWidth = 9999.;
-            fTPCHalfHeight = 9999.;
+            fTPCRadius = 9999.;
             fTPCLength = 9999.;
 
             fEnclosureHalfWidth = 9999.;
