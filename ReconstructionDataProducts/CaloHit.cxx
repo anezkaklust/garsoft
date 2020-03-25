@@ -27,8 +27,6 @@ namespace gar {
             return;
         }
 
-
-
         bool CaloHit::operator==(const CaloHit& rhs) const {
             return (this->fIDnumero == rhs.fIDnumero);
         }
@@ -104,6 +102,22 @@ namespace gar {
         {
             gar::geo::GeometryCore const* fGeo = gar::providerFrom<geo::Geometry>();
             return fGeo->getIDbyCellID(this->CellID(), "layer");
+            delete fGeo;
+        }
+
+        //--------------------------------------------------------------------------
+        const unsigned int CaloHit::GetModule() const
+        {
+            gar::geo::GeometryCore const* fGeo = gar::providerFrom<geo::Geometry>();
+            return fGeo->getIDbyCellID(this->CellID(), "module");
+            delete fGeo;
+        }
+
+        //--------------------------------------------------------------------------
+        const unsigned int CaloHit::GetStave() const
+        {
+            gar::geo::GeometryCore const* fGeo = gar::providerFrom<geo::Geometry>();
+            return fGeo->getIDbyCellID(this->CellID(), "stave");
             delete fGeo;
         }
 

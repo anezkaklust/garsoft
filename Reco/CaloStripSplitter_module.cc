@@ -93,30 +93,24 @@ namespace gar {
             //Perform the SS
             fSSAAlgo->DoStripSplitting();
             //Get back the vector of split hits
-            std::vector<gar::rec::CaloHit*> splitHits = fSSAAlgo->getSplitHits();
+            std::vector<const gar::rec::CaloHit*> splitHits = fSSAAlgo->getSplitHits();
             //Get back the vector of unsplit hits
-            std::vector<gar::rec::CaloHit*> unsplitHits = fSSAAlgo->getUnSplitHits();
+            std::vector<const gar::rec::CaloHit*> unsplitHits = fSSAAlgo->getUnSplitHits();
 
             // make an art::PtrVector of the hits
             std::unique_ptr< std::vector<gar::rec::CaloHit> > HitCol(new std::vector<gar::rec::CaloHit>);
 
             //Copy the split hits to the collection
-            for(auto it : splitHits)
-            {
-                gar::rec::CaloHit hit(*it);
-                HitCol->push_back(hit);
-            }
+            for(auto const &it : splitHits)
+            HitCol->emplace_back(*it);
 
             //Copy the unsplit hits to the collection
-            for(auto it : unsplitHits)
-            {
-                gar::rec::CaloHit hit(*it);
-                HitCol->push_back(hit);
-            }
+            for(auto const &it : unsplitHits)
+            HitCol->emplace_back(*it);
 
             if (fVerbosity>0) {
                 std::cout << "Before " << artHits.size() << std::endl;
-               std::cout << "After " << HitCol->size() << std::endl;
+                std::cout << "After " << HitCol->size() << std::endl;
             }
 
             e.put(std::move(HitCol));

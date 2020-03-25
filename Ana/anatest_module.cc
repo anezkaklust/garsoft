@@ -346,71 +346,12 @@ void gar::anatest::FillVectors(art::Event const & e) {
             }
         }
     }
-
-
-
-
-
-    // Testing the backtracker
-	// Here, a few lines to set up useful data and pick some good events.
-    auto bt = gar::providerFrom<cheat::BackTracker>();
-    typedef int TrkId;
-
-    std::unordered_map<TrkId, int> localMap;    // From track ID to index in event
-    int index = 0;
-    for ( auto const& mcp : *MCPHandle ) {
-        int TrackId = mcp.TrackId();
-        localMap[TrackId] = index++;
-    }
-
-    auto const hitPtrMaker = art::PtrMaker<rec::Hit>(e, HitHandle.id());
-    std::vector<art::Ptr<gar::rec::Hit>> allhits;
-    size_t nHits = HitHandle->size();
-    for (size_t iHit=0; iHit<nHits; ++iHit) {
-        auto const hitPointer = hitPtrMaker(iHit);
-        allhits.push_back(hitPointer);
-    }
-
-    for (size_t imchl = 0; imchl < mcthandlelist.size(); ++imchl) {
-		for ( auto const& mct : (*mcthandlelist.at(imchl)) ) {
-			if (mct.NeutrinoSet()) {
-				simb::MCNeutrino nuw = mct.GetNeutrino();
-				double x = nuw.Nu().EndX();
-				double r = std::hypot( nuw.Nu().EndZ(), nuw.Nu().EndY());
-				bool inFiducial = ( r < 445.0 /2.0) && ( fabs(x) < 430.0 /2.0 );
-				if (inFiducial) goto somebodyIn;
-			}
-		}
-	}
-	return;
-	somebodyIn:
-
-
-    for (simb::MCParticle mcpFromEvent : *MCPHandle) {
-        TrkId traky = mcpFromEvent.TrackId();
-        simb::MCParticle* mcpFromList = bt->TrackIDToParticle(traky);
-
-		if ( mcpFromList->Mother() != 0) continue;
-		double x = mcpFromList->Vx();
-		double r = std::hypot( mcpFromList->Vy(), mcpFromList->Vz());
-		bool inFiducial = ( r < 445.0 /2.0) && ( fabs(x) < 430.0 /2.0 );
-		if (!inFiducial) continue;
-
-		std::vector<art::Ptr<gar::rec::Hit>> somehits =
-			bt->ParticleToHits(mcpFromList, allhits);
-
-		std::pair<double,double> straight = bt->HitCollectionEfficiency(mcpFromList,
-												somehits,allhits,false);
-		std::pair<double,double> chaser   = bt->HitCollectionEfficiency(mcpFromList,
-												somehits,allhits,true);
-		std::cout << straight.first << " +/- " << straight.second << "\nno,\n" 
-			<< chaser.first << " +/- " << chaser.second << std::endl << std::endl;
-	}
-
-
-
-
     return;
+
+
+
+
+
 }
 
 

@@ -38,18 +38,19 @@ namespace gar{
 
                 void DoStripSplitting();
 
-                std::vector <gar::rec::CaloHit*> getSplitHits() { return splitStripHits; }
+                std::vector <const gar::rec::CaloHit*> getSplitHits() const { return splitStripHits; }
 
-                std::vector <gar::rec::CaloHit*> getUnSplitHits() { return unSplitStripHits; }
-
-            protected:
-
-                std::vector <gar::rec::CaloHit*> getVirtualHits(gar::rec::CaloHit* hit);
+                std::vector <const gar::rec::CaloHit*> getUnSplitHits() const { return unSplitStripHits; }
 
             private:
 
+                std::vector <const gar::rec::CaloHit*> getVirtualHits(const gar::rec::CaloHit* hit, int Orientation, bool isBarrel);
+
+                std::pair < TVector3, TVector3 > getStripEnds(const gar::rec::CaloHit* hit, int Orientation, bool isBarrel);
+
+                TVector3 stripIntersect(const gar::rec::CaloHit* hit0, TVector3 axis0, const gar::rec::CaloHit* hit1, TVector3 axis1);
+
                 gar::geo::GeometryCore const* fGeo; ///< geometry information
-                TGeoManager* fGeoManager;
 
                 std::string fSSAAlgName;
                 unsigned int m_Verbose;
@@ -58,11 +59,13 @@ namespace gar{
                 double fStripLength;
                 int fnVirtual;
 
-                std::vector<gar::rec::CaloHit*> m_CaloHitVecOdd;
-                std::vector<gar::rec::CaloHit*> m_CaloHitVecEven;
+                std::vector<const gar::rec::CaloHit*> m_CaloHitVecOdd;
+                std::vector<const gar::rec::CaloHit*> m_CaloHitVecEven;
 
-                std::vector <gar::rec::CaloHit*> unSplitStripHits;
-                std::vector <gar::rec::CaloHit*> splitStripHits;
+                std::vector <const gar::rec::CaloHit*> unSplitStripHits;
+                std::vector <const gar::rec::CaloHit*> splitStripHits;
+
+                enum {TRANSVERSE=0, LONGITUDINAL};
             };
 
         } // namespace alg
