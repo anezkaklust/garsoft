@@ -69,11 +69,11 @@ namespace gar {
             bool fDesaturation; ///< flag to perform the SiPM desaturation
             std::string fRawDigitLabel;  ///< label to find the right raw digits
             float factorSamplingGeV;
+            bool fUseTimePositionReco;
 
             const detinfo::DetectorProperties*  fDetProp;      ///< detector properties
             const geo::GeometryCore*            fGeo;          ///< pointer to the geometry
             std::unique_ptr<util::ECALUtils>          fECALUtils;    ///< pointer to the Util fcn for the ECAL containing the desaturation function
-            TGeoManager* fGeoManager;
         };
 
 
@@ -84,9 +84,9 @@ namespace gar {
             fRawDigitLabel = p.get<std::string>("RawDigitLabel", "daqecal");
             fDesaturation = p.get<bool>("Desaturation", false);
             factorSamplingGeV = p.get<float>("SamplingFactorGeV", 1/0.24);
+            fUseTimePositionReco = p.get<bool>("UseTimePositionReco", true);
 
             fGeo     = gar::providerFrom<geo::Geometry>();
-            fGeoManager = fGeo->ROOTGeoManager();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fECALUtils = std::make_unique<util::ECALUtils>(fDetProp->EffectivePixel());
 
@@ -154,11 +154,16 @@ namespace gar {
                     time = hitTime.first;
                 }
                 else{
-                    std::array<double, 3> strip_pos = this->CalculateStripHitPosition(x, y, z, hitTime, cellID);
-                    pos[0] = strip_pos[0];
-                    pos[1] = strip_pos[1];
-                    pos[2] = strip_pos[2];
-
+                    if(fUseTimePositionReco){
+                        std::array<double, 3> strip_pos = this->CalculateStripHitPosition(x, y, z, hitTime, cellID);
+                        pos[0] = strip_pos[0];
+                        pos[1] = strip_pos[1];
+                        pos[2] = strip_pos[2];
+                    } else {
+                        pos[0] = x;
+                        pos[1] = y;
+                        pos[2] = z;
+                    }
                     //Correct the time based on the strip length
                     time = this->CorrectStripHitTime(x, y, z, hitTime, cellID);
                 }
