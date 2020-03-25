@@ -2,14 +2,11 @@ BEGIN_PROLOG
 
 standard_backtracker:
 {
- G4ModuleLabel:            "geant"   # module that produced the sim::Particle and sim::SimChannel objects
- RawTPCDataLabel:          "daq"     # module that made the RawDigits for the TPC
- RawCaloDataLabel:         "daqecal" # module that made the CaloRawDigits for the ECAL
- ECALtimeResolution:        1.0      # time resolution for hits in ECAL, nsec. (3, 4 sigma, OK?)
- MinHitEnergyFraction:      0.1      # min frac of total E a G4 track contributes to a TPC hit to be counted
- MinCaloHitEnergyFrac:      0.1      # min frac of total E a G4 track contributes to a CaloHit to be counted
-                                     # 
- DisableRebuild:            false    # switches off Backtracker functionality
+ G4ModuleLabel:            "geant" # module that produced the sim::Particle and sim::SimChannel objects
+ RawDataLabel:             "daq"   # moudle that made the raw digits
+ MinimumHitEnergyFraction:  0.1    # minimum fraction of energy a G4 trackID contributes to a hit to be
+                                   # counted in hit based efficiency and purity calculation
+ DisableRebuild:            false  # switches off Backtracker functionality
 }
 
 standard_backtrackerloader:

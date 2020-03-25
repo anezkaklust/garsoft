@@ -20,8 +20,6 @@
 /// Raw data description and utilities
 namespace gar {
   namespace raw {
-    
-    typedef long long int CellID_t;
 
     class CaloRawDigit {
 
@@ -33,8 +31,8 @@ namespace gar {
 #ifndef __GCCXML__
     public:
 
-      CaloRawDigit(unsigned int ADC, float time, float x, float y, float z, CellID_t cellID);
-      CaloRawDigit(unsigned int ADC, std::pair<float, float> time, float x, float y, float z, CellID_t cellID);
+      CaloRawDigit(unsigned int ADC, float time, float x, float y, float z, long long int cellID);
+      CaloRawDigit(unsigned int ADC, std::pair<float, float> time, float x, float y, float z, long long int cellID);
 
       /// Reference to the compressed ADC count vector
       unsigned int           ADC()     const;
@@ -47,7 +45,7 @@ namespace gar {
       /// Z position
       float                  Z()    const;
       /// cellID
-      CellID_t CellID() const;
+      long long int CellID() const;
 
 
 #endif // !__GCCXML__
@@ -58,7 +56,7 @@ namespace gar {
       float fX; ///< x of the hit
       float fY; ///< y of the hit
       float fZ; ///< z of the hit
-      CellID_t fCellID;              ///< cellID1 of the hit based on 64 bits
+      long long int fCellID; ///< cellID1 of the hit based on 64 bits
 
     }; // class CaloRawDigit
 
@@ -71,12 +69,12 @@ namespace gar {
 //---
 #ifndef __GCCXML__
 
-inline unsigned int            gar::raw::CaloRawDigit::ADC()           const {return fADC;   }
-inline std::pair<float, float> gar::raw::CaloRawDigit::Time()          const {return fTime;  }
-inline float                   gar::raw::CaloRawDigit::X()             const {return fX;	 }
-inline float                   gar::raw::CaloRawDigit::Y()             const {return fY;	 }
-inline float                   gar::raw::CaloRawDigit::Z()             const {return fZ;	 }
-inline gar::raw::CellID_t      gar::raw::CaloRawDigit::CellID()        const {return fCellID;}
+inline unsigned int            gar::raw::CaloRawDigit::ADC()           const { return fADC;   }
+inline std::pair<float, float> gar::raw::CaloRawDigit::Time()          const { return fTime;    }
+inline float                   gar::raw::CaloRawDigit::X()             const { return fX;       }
+inline float                   gar::raw::CaloRawDigit::Y()             const { return fY;       }
+inline float                   gar::raw::CaloRawDigit::Z()             const { return fZ;       }
+inline long long int           gar::raw::CaloRawDigit::CellID()        const { return fCellID;       }
 
 #endif // !__GCCXML__
 

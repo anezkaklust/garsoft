@@ -19,7 +19,6 @@
 #include "SimulationDataProducts/CaloDeposit.h"
 #include "SimulationDataProducts/LArDeposit.h"
 #include "DetectorInfo/DetectorProperties.h"
-#include "RawDataProducts/CaloRawDigit.h"
 
 #include "CLHEP/Random/RandGauss.h"
 

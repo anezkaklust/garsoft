@@ -17,7 +17,6 @@ standard_geo:
  SurfaceY:          0.          # cm
  Name:              "Realistic"
  PositionEpsilon:   1.e-4
- PointInWarnings:   false
 }
 
 standard_geometry_helper:

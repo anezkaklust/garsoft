@@ -274,9 +274,11 @@ namespace gar{
     void GeometryTestAlg::printDetDim()
     {
       LOG_VERBATIM("GeometryTest")
-      << "  TPC:    radius: "
-      << geom->TPCRadius()
-     << "    length: "
+      << "  TPC:    width: "
+      << geom->TPCHalfWidth()
+      << "    height: "
+      << geom->TPCHalfHeight()
+      << "    length: "
       << geom->TPCLength();
 
       TVector3 origin(0., 0., 0.);
@@ -394,11 +396,11 @@ namespace gar{
       // in this code for additional testing. The NearestChannel routine
       // is the most frequently called in the simulation, so its execution time
       // is an important component of GArSoft's speed.
-      //TStopwatch stopWatch;
-      //stopWatch.Start();
+      TStopwatch stopWatch;
+      stopWatch.Start();
 
-      float posWorld[3] = {0.0,0.0,0.0};
-      posWorld[1] = 0.5 * geom->TPCRadius();
+      float posWorld[3] = {0.};
+      posWorld[1] = 0.5 * geom->TPCHalfHeight();
       posWorld[2] = 0.5 * geom->TPCLength();
 
       try{
@@ -435,9 +437,9 @@ namespace gar{
         if (fNonFatalExceptions.count(e.category()) == 0) throw;
       }
 
-      //stopWatch.Stop();
+      stopWatch.Stop();
       LOG_DEBUG("GeometryTest") << "\tdone testing nearest channel";
-      //stopWatch.Print();
+      stopWatch.Print();
 
       // trigger an exception with NearestChannel
       LOG_VERBATIM("GeometryTest")
@@ -448,7 +450,7 @@ namespace gar{
       geom->WorldBox(nullptr, posWorld + 0,
                      nullptr, posWorld + 1,
                      nullptr, posWorld + 2);
-      for (int i = 0; i < 3; ++i) posWorld[i] *= 2.0;
+      for (int i = 0; i < 3; ++i) posWorld[i] *= 2.;
 
       bool hasThrown = false;
       unsigned int nearest_to_what = 0;

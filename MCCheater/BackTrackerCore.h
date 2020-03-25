@@ -23,14 +23,10 @@
 
 #include "DetectorInfo/DetectorClocksService.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
-#include "RawDataProducts/RawDigit.h"
 #include "ReconstructionDataProducts/Hit.h"
-#include "SimulationDataProducts/CaloDeposit.h"
-#include "ReconstructionDataProducts/CaloHit.h"
-#include "RawDataProducts/CaloRawDigit.h"
+#include "RawDataProducts/RawDigit.h"
 #include "Geometry/Geometry.h"
 
-#include <unordered_map>
 
 
 
@@ -86,9 +82,10 @@ namespace gar{
             // Following should work as long as there are MCParticles and MCTruth
             // data products in the event, and suitable Assns between them
 
-            // ParticleList has no copy constructor.  It does have iterators etc.
-            sim::ParticleList* GetParticleList() {
-                return &fParticleList;
+            // Get pointer to the ParticleList - BTW there's no copy constructor
+            // in that class.  Ooooo kay!
+            sim::ParticleList const& GetParticleList() const {
+                return fParticleList;
             }
 
             // Returns a bare pointer to the MCParticle corresponding to a given TrackID
@@ -96,16 +93,10 @@ namespace gar{
             simb::MCParticle* const TrackIDToParticle(int const& id) const;
 
             simb::MCParticle* const FindMother(simb::MCParticle* const p) const {
-                // Always walk up the ParticleList in case someday somebody changes it
                 return TrackIDToParticle(p->Mother());
             }
 
             simb::MCParticle* const FindEve(simb::MCParticle* const p) const;
-
-            // FindTPCEve is not a const method because it saves result of previous 
-            // calls in `this' for efficiency.  2nd signature mostly for internal use.
-            simb::MCParticle* const FindTPCEve(simb::MCParticle* const p) const;
-            simb::MCParticle* const FindTPCEve(int const trackId) const;
 
             bool IsDescendedFrom(simb::MCParticle* const forebear,
                                  simb::MCParticle* const afterbear) const;
@@ -128,101 +119,80 @@ namespace gar{
                            std::vector<art::Ptr<gar::rec::Hit>> const& allhits,
                            bool checkNeutrals=false) const;
 
-            // Find the fraction of hits in a collection that come from the specified MCParticle
+            // Fins the fraction of hits in a collection that come from the specified MCParticle
             // with statistical uncertainty.  Binomial uncertainty in weighted events is from
             // the usual primitive algorithm, which is not obviously right to me.
             std::pair<double,double>
-            HitPurity(simb::MCParticle* const p,
-                      std::vector<art::Ptr<gar::rec::Hit>> const& hits,
-                      bool weightByCharge=false) const;
+            HitCollectionPurity(simb::MCParticle* const p,
+                                std::vector<art::Ptr<gar::rec::Hit>> const& hits,
+                                bool weightByCharge=false) const;
 
-            // method to return the fraction of all hits in an event from a specific set of 
-            // Geant4 track IDs that arerepresented in a collection of hits
+            // method to return the fraction of all hits in an event from a specific set of Geant4 track IDs that are
+            // represented in a collection of hits
             std::pair<double,double>
-            HitEfficiency(simb::MCParticle* const p,
-                          std::vector<art::Ptr<gar::rec::Hit> > const& hits,
-                          std::vector<art::Ptr<gar::rec::Hit> > const& allhits,
-                          bool weightByCharge=false) const;
-
-
-
-            // Following should work as long as there are CaloRawDigit and CaloDeposit
-            // data products in the event, and suitable Assns between them
-
-            // These methods will return HitIDE structures containing the Geant4 track IDs of
-            // the TPC-originating particles contributing ionization electrons to the input hit.
-            std::vector<CalIDE> CaloHitToCalIDEs(art::Ptr<gar::rec::CaloHit> const& hit) const;
-            std::vector<CalIDE> CaloHitToCalIDEs(         gar::rec::CaloHit  const& hit) const;
-
-            std::vector<art::Ptr<gar::rec::CaloHit>>
-            ParticleToCaloHits(simb::MCParticle* const p,
-                               std::vector<art::Ptr<gar::rec::CaloHit>> const& allhits) const;
-
-            // Find the fraction of CaloHits in a collection that come from the specified 
-            // MCParticle with statistical uncertainty.  Binomial uncertainty in weighted 
-            // events is from the usual primitive algorithm, which is not obviously right to me.
-            std::pair<double,double>
-            CaloHitPurity(simb::MCParticle* const p,
-                          std::vector<art::Ptr<gar::rec::CaloHit>> const& hits,
-                          bool weightByCharge=false) const;
-
-            // method to return the fraction of all hits in an event from a specific set of 
-            // Geant4 track IDs that arerepresented in a collection of hits
-            std::pair<double,double>
-            CaloHitEfficiency(simb::MCParticle* const p,
-                              std::vector<art::Ptr<gar::rec::CaloHit> > const& hits,
-                              std::vector<art::Ptr<gar::rec::CaloHit> > const& allhits,
-                              bool weightByCharge=false) const;
+            HitCollectionEfficiency(simb::MCParticle* const p,
+                                    std::vector<art::Ptr<gar::rec::Hit> > const& hits,
+                                    std::vector<art::Ptr<gar::rec::Hit> > const& allhits,
+                                    bool weightByCharge=false) const;
 
 
 
 
 
       
+      // this method determines the appropriate EnergyDeposits for a given TDC
+      // on a channel
+      std::map<size_t, const sdp::EnergyDeposit*> ChannelTDCToEnergyDeposit(raw::Channel_t channel) const;
+      
+      
+      // method to return a subset of allhits that are matched to a list of TrackIDs
+      std::vector<std::vector<::art::Ptr<gar::rec::Hit>>> const TrackIDsToHits(std::vector<::art::Ptr<gar::rec::Hit>> const& allhits,
+                                                                               std::vector<int>                       const& tkIDs) const;
+      
+      // method to return the EveIDs of particles contributing ionization
+      // electrons to the identified hit
+      std::vector<HitIDE> HitToEveID(::art::Ptr<gar::rec::Hit> const& hit) const;
+      
+      // method to return the XYZ position of the weighted average energy deposition for a given hit
+      std::vector<float>  HitToXYZ(::art::Ptr<gar::rec::Hit> const& hit) const;
+      
+      
+      // method to return all TrackIDs corresponding to the given list of hits
+      std::set<int> GetSetOfTrackIDs() const;
+
+
+
         private:
 
             std::vector<HitIDE>
             ChannelToHitIDEs(gar::raw::Channel_t const& channel,
                              double const start, double const stop) const;
 
-            std::vector<CalIDE>
-            CellIDToCalIDEs(gar::raw::CellID_t const& cellID, float const time) const;
-
 
 
         protected:
 
-            bool fHasMC, fHasHits, fHasCalHits, fHasTracks, fHasClusters;
+            bool fHasMC, fHasHits, fHasCaloHits, fHasTracks, fHasClusters;
 
             const detinfo::DetectorClocks*                      fClocks;                ///< Detector clock information
             const geo::GeometryCore*                            fGeo;                   ///< pointer to the geometry
 
             std::string                                         fG4ModuleLabel;         ///< label for geant4 module
-            std::string                                         fRawTPCDataLabel;       ///< label for TPC readout module
-            std::string                                         fRawCaloDataLabel;      ///< label for ECAL readout module
-            double                                              fECALtimeResolution;    ///< time resolution for hits in ECAL, nsec.
-            double                                              fMinHitEnergyFraction;  ///< min frac of E a track has to count in a TPC hit
-            double                                              fMinCaloHitEnergyFrac;  ///< min frac of E a track has to count in a CaloHit
-
-
-            bool                                                fDisableRebuild;        ///< for switching off backtracker's rebuild of the MCParticle tables
-                                                                                        ///< contribute to a hit to be counted in
-                                                                                        ///< purity and efficiency calculations
-                                                                                        ///< based on hit collections
+            std::string                                         fRawDataLabel;          ///< label for geant4 module
+            double                                              fMinHitEnergyFraction;  ///< minimum fraction of energy a track id has to
+             bool                                               fDisableRebuild;        ///< for switching off backtracker's rebuild of the MCParticle tables
+                                                                                          ///< contribute to a hit to be counted in
+                                                                                            ///< purity and efficiency calculations
+                                                                                            ///< based on hit collections
 
             sim::ParticleList                                   fParticleList;          ///< ParticleList to map track ID to sim::Particle
             std::vector<art::Ptr<simb::MCTruth>>                fMCTruthList;           ///< all the MCTruths for the event
-            std::unordered_map<int, int>                        fTrackIDToMCTruthIndex; ///< map of track ids to MCTruthList entry
-            std::unordered_map<int, int>*                       fECALTrackToTPCTrack;    ///< results of previous FindTPCEve calls
+            std::map<int, int>                                  fTrackIDToMCTruthIndex; ///< map of track ids to MCTruthList entry
+
+            std::vector<std::vector<const sdp::EnergyDeposit*>> fChannelToEDepCol;      ///< convenience collections of EnergyDeposits for each channel
 
             double                                              fInverseVelocity;       ///< inverse drift velocity
             double                                              fLongDiffConst;         ///< longitudinal diffusion constant
-            // vector gives a fast lookup and is only 677864*24 = 16Mbytes.
-            std::vector<std::vector<const sdp::EnergyDeposit*>> fChannelToEDepCol;      ///< convenience collections of EnergyDeposits for each channel
-
-            // ECAL max channel id is something like 2^56.  Try an unordered map, not a vector.
-            std::unordered_map<raw::CellID_t,std::vector<const sdp::CaloDeposit*>>
-                                                                fCellIDToEDepCol;      ///< convenience collections of EnergyDeposit for each cell
 
         };
     } // namespace

@@ -60,14 +60,14 @@ namespace gar {
       maxz = -1e9;
       double world[3] = {geom->TPCXCent(),geom->TPCYCent(),geom->TPCZCent()};
 
-      if (minx>world[0]-geom->TPCRadius())
-	minx = world[0]-geom->TPCRadius();
-      if (maxx<world[0]+geom->TPCRadius())
-	maxx = world[0]+geom->TPCRadius();
-      if (miny>world[1]-geom->TPCRadius())
-	miny = world[1]-geom->TPCRadius();
-      if (maxy<world[1]+geom->TPCRadius())
-	maxy = world[1]+geom->TPCRadius();
+      if (minx>world[0]-geom->TPCHalfWidth())
+	minx = world[0]-geom->TPCHalfWidth();
+      if (maxx<world[0]+geom->TPCHalfWidth())
+	maxx = world[0]+geom->TPCHalfWidth();
+      if (miny>world[1]-geom->TPCHalfHeight())
+	miny = world[1]-geom->TPCHalfHeight();
+      if (maxy<world[1]+geom->TPCHalfHeight())
+	maxy = world[1]+geom->TPCHalfHeight();
       if (minz>world[2]-geom->TPCLength()/2.)
 	minz = world[2]-geom->TPCLength()/2.;
       if (maxz<world[2]+geom->TPCLength()/2.)
