@@ -28,6 +28,9 @@
 #include "Geometry/Geometry.h"
 #include "TMath.h"
 #include "TVector3.h"
+#include "TVectorD.h"
+#include "TMatrixD.h"
+#include "TMatrixDSym.h"
 
 namespace gar {
   namespace rec {
@@ -70,10 +73,12 @@ namespace gar {
       std::vector<float>           fTPCClusterRCut;              ///< only take TPCClusters within rcut of the center of the detector
       std::vector<float>           fC2Cut;                ///< "chisquared" per ndof cut to reassign TPCClusters
 
-
+      int                          fLineFitAlg;           ///< Line Fit switch.  0: six least-squares, 1: PCA
 
       bool vh_TPCClusmatch(int iTPCCluster, vechit_t &vechit, const std::vector<gar::rec::TPCCluster> &TPCClusters, vechit_t &proposedvh, size_t ipass);
       void fitlinesdir(std::vector<TVector3> &hlist, TVector3 &pos, TVector3 &dir, float &chi2ndf);
+      void fitlines6ls(std::vector<double> &x, std::vector<double> &y, std::vector<double> &z,TVector3 &pos, TVector3 &dir, float &chi2ndf);
+      void fitlinesPCA(std::vector<double> &x, std::vector<double> &y, std::vector<double> &z,TVector3 &pos, TVector3 &dir, float &chi2ndf);
       void fitline(std::vector<double> &x, std::vector<double> &y, double &lambda, double &intercept, double &chi2ndf);
 
     };
@@ -81,14 +86,15 @@ namespace gar {
 
     tpcvechitfinder2::tpcvechitfinder2(fhicl::ParameterSet const& p) : EDProducer{p}
     {
-      fTPCClusterLabel   = p.get<std::string>("TPCClusterLabel","tpccluster");
-      fPrintLevel        = p.get<int>("PrintLevel",0);
-      fNPasses           = p.get<unsigned int>("NPasses",2);
-      fMaxVecHitLen      = p.get<std::vector<float>>("MaxVecHitLen",{20.0,20.0});
-      fVecHitRoad        = p.get<std::vector<float>>("VecHitRoad",{2.0,2.0});
+      fTPCClusterLabel          = p.get<std::string>("TPCClusterLabel","tpccluster");
+      fPrintLevel               = p.get<int>("PrintLevel",0);
+      fNPasses                  = p.get<unsigned int>("NPasses",2);
+      fMaxVecHitLen             = p.get<std::vector<float>>("MaxVecHitLen",{20.0,20.0});
+      fVecHitRoad               = p.get<std::vector<float>>("VecHitRoad",{2.0,2.0});
       fVecHitMinTPCClusters     = p.get<std::vector<unsigned int>>("VecHitMinTPCClusters",{10,5});
       fTPCClusterRCut           = p.get<std::vector<float>>("TPCClusterRCut",{280.,280});
-      fC2Cut             = p.get<std::vector<float>>("C2Cut",{0.5,0.5});
+      fC2Cut                    = p.get<std::vector<float>>("C2Cut",{0.5,0.5});
+      fLineFitAlg               = p.get<int>("LineFitAlg",0);
 
       art::InputTag TPCClusterTag(fTPCClusterLabel);
       consumes< std::vector<gar::rec::TPCCluster> >(TPCClusterTag);
@@ -292,6 +298,23 @@ namespace gar {
 	  y.push_back(hlist[i].Y());
 	  z.push_back(hlist[i].Z());
 	}
+      if (fLineFitAlg == 0)
+	{
+	  fitlines6ls(x,y,z,pos,dir,chi2ndf);
+	}
+      else if (fLineFitAlg == 1)
+	{
+	  fitlinesPCA(x,y,z,pos,dir,chi2ndf);
+	}
+      else
+	{
+	  throw cet::exception("tpcvechitfinder2_module.cc: ununderstood LineFitAlg parameter: ") << fLineFitAlg;
+	}
+    }
+
+    void tpcvechitfinder2::fitlines6ls(std::vector<double> &x, std::vector<double> &y, std::vector<double> &z,
+				       TVector3 &pos, TVector3 &dir, float &chi2ndf)
+    {
       double slope_yx=0;
       double slope_zx=0;
       double intercept_yx=0;
@@ -416,6 +439,78 @@ namespace gar {
 	{
 	  chi2ndf = 1.0; // a choice here -- if we can add the TPCCluster to an existing VH or make a "perfect-chisquare" 2-TPCCluster VH?
 	  // define a 2-TPCCluster VH to be not perfect.
+	}
+    }
+
+
+    void tpcvechitfinder2::fitlinesPCA(std::vector<double> &x, std::vector<double> &y, std::vector<double> &z,
+				       TVector3 &pos, TVector3 &dir, float &chi2ndf)
+    {
+      double* xyz[3];
+      xyz[0] = x.data();
+      xyz[1] = y.data();
+      xyz[2] = z.data();
+      size_t npts = x.size();
+      if (npts < 2)
+	{
+	  throw cet::exception("tpcvechitfinder2_module.cc: too few TPCClusters to fit a line in linefit");
+	}
+
+      TMatrixDSym covmat(3);  // covariance matrix (use symmetric version)
+
+      // position is just the average of the coordinates
+
+      double psum[3] = {0,0,0};
+      for (size_t ipoint=0; ipoint<npts; ++ipoint)
+	{
+	  for (size_t j=0; j<3; j++)
+	    {
+	      psum[j] += xyz[j][ipoint];
+	    }
+	}
+      for (size_t j=0; j<3; ++j)
+	{
+	  psum[j] /= npts;
+	}
+      pos.SetXYZ(psum[0],psum[1],psum[2]);
+
+      for (size_t i=0; i<3; ++i)
+	{
+	  for (size_t j=0; j<= i; ++j)
+	    {
+	      double csum=0;
+	      for (size_t ipoint=0; ipoint<npts; ++ipoint)
+		{
+		  csum += (xyz[i][ipoint] - psum[i]) * (xyz[j][ipoint] - psum[j]);
+		}
+	      csum /= (npts-1);
+	      covmat[i][j] = csum;
+	      covmat[j][i] = csum;
+	    }
+	}
+      TVectorD eigenvalues(3);
+      TMatrixD eigenvectors = covmat.EigenVectors(eigenvalues);
+      double dirv[3] = {0,0,0};
+      for (size_t i=0; i<3; ++i)
+	{
+	  dirv[i]=eigenvectors[i][0]; 
+	}
+      dir.SetXYZ(dirv[0],dirv[1],dirv[2]);
+      chi2ndf = 0;
+
+      for (size_t i=0; i<npts; ++i)
+	{
+	  TVector3 pt(x[i],y[i],z[i]);
+	  double dist = ((pt - pos).Cross(dir)).Mag(); // no uncertainties for now -- set all to 1
+	  chi2ndf += dist*dist;
+	}
+      if (npts == 2)
+	{
+	  chi2ndf = 1; // a choice -- same as the choice in fitlines6ls
+	}
+      else
+	{
+          chi2ndf /= (npts-2);
 	}
     }
 

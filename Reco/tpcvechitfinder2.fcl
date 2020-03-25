@@ -16,6 +16,7 @@ standard_tpcvechitfinder2:
  VecHitMinTPCClusters: [    10,     5 ]  # minimum number of hits for a vector hit to be considered
  C2Cut:                [   0.5,   0.5 ]  # "chisquared" per ndof cut to reassign hits
 
+ LineFitAlg:           1     #  3D line fit algorithm. 0: six least squares fits, 1: PCA
 }
 
 END_PROLOG
