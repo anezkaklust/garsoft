@@ -71,7 +71,6 @@ physics:
   tpccluster:         @local::standard_tpccathodestitch  # use unusual name to keep backward compatibility as this module produces tpc clusters
   track:              @local::standard_tpctrackfit2
   vertex:             @local::standard_vertexfinder1
-  ssacalohit:         @local::standard_CaloStripSplitter
   calocluster:        @local::standard_CaloClustering
   trkecalassn:        @local::standard_TPCECALAssociation
  }
@@ -81,7 +80,7 @@ physics:
 
  #Define the producer and filter modules for this path, order matters.  Put init 1st!
  #Filters reject all following items.  ee lines starting physics.producers below
- reco: [init,hit,tpcclusterpass1,vechit,patrec,trackpass1,vertexpass1,tpccluster,track,vertex,calohit,ssacalohit,calocluster,trkecalassn]
+ reco: [init,hit,tpcclusterpass1,vechit,patrec,trackpass1,vertexpass1,tpccluster,track,vertex,calohit,calocluster,trkecalassn]
 
  #define the output stream, there could be more than one if using filters
  stream1:  [ out1 ]

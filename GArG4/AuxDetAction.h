@@ -87,8 +87,6 @@ namespace gar {
             std::vector<gar::sdp::LArDeposit> fLArDeposits;          ///< energy fDeposits for the LArTPC
 
             const gar::geo::GeometryCore*      fGeo;               ///< geometry information
-            TGeoManager*                       fGeoManager;
-
             const detinfo::DetectorProperties*       fDetProp;  ///< detector properties
         };
 

@@ -41,8 +41,8 @@
 #ifndef GEO_GEOMETRYCORE_H
 #define GEO_GEOMETRYCORE_H
 
-
 // GArSoft libraries
+#include "Geometry/LocalTransformation.h"
 
 // Framework and infrastructure libraries
 #include "fhiclcpp/ParameterSet.h"
@@ -55,6 +55,8 @@
 
 #include "RawDataProducts/CaloRawDigit.h"
 
+=======
+>>>>>>> 340b550e4fffd651ea194655bcc68c444616551f
 // C/C++ standard libraries
 #include <cstddef> // size_t
 #include <string>
@@ -71,7 +73,6 @@ class TGeoManager;
 class TGeoNode;
 class TGeoMaterial;
 
-
 /// Namespace collecting geometry-related classes utilities
 namespace gar {
   namespace geo {
@@ -79,8 +80,6 @@ namespace gar {
     class GeometryCore;
     class ChannelMapAlg;
     class ECALSegmentationAlg;
-
-    typedef CLHEP::Hep3Vector G4ThreeVector;
 
     typedef enum ROCType_ {HFILLER, IROC, IOROC, OOROC} ROCType;
 
@@ -570,6 +569,9 @@ namespace gar {
 
       bool FindFirstVolume(std::string const& name, std::vector<const TGeoNode*>& path) const;
 
+      /* To fasten for the ECAL */
+      bool FindECALFirstVolume(std::string const& name, std::vector<const TGeoNode*>& path) const;
+
       /**
        * @brief Returns all the nodes with volumes with any of the specified names
        * @param vol_names list of names of volumes
@@ -597,7 +599,20 @@ namespace gar {
       std::vector<std::vector<TGeoNode const*>> FindAllVolumePaths(std::set<std::string> const& vol_names) const;
 
       //Return the node of the point
+      template <typename T>
+      TGeoNode* FindNode(T const &x, T const &y, T const &z) const;
+
+      //Return the node of the point
+      TGeoNode* FindNode(std::array<double, 3> const& point) const;
+
+      //Return the node of the point
       TGeoNode* FindNode(TVector3 const& point) const;
+
+      //Transform world coordinates in local coordinates
+      bool WorldToLocal(std::array<double, 3> const& world, std::array<double, 3> &local, gar::geo::LocalTransformation<TGeoHMatrix> &trans) const;
+
+      //Transform local coordinates in world coordinates
+      bool LocalToWorld(std::array<double, 3> const& local, std::array<double, 3> &world, gar::geo::LocalTransformation<TGeoHMatrix> const &trans) const;
 
       /**
        * @brief Name of the deepest material containing the point xyz
@@ -832,7 +847,7 @@ namespace gar {
 
       const float GetSensVolumeThickness(const TVector3& point) const;
 
-      const std::array<float, 3> FindShapeSize(const TGeoNode *node) const;
+      const std::array<double, 3> FindShapeSize(const TGeoNode *node) const;
 
       raw::CellID_t cellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const G4ThreeVector& localPosition) const;
 
@@ -845,6 +860,7 @@ namespace gar {
       double getStripWidth() const;
 
       double getTileSize() const;
+
 
       double getStripLength(TVector3 const& point, const raw::CellID_t &cID) const;
 
@@ -949,6 +965,9 @@ namespace gar {
       float          fMPDHalfHeight = 0.;
       float          fMPDLength = 0.;
 
+      std::vector<const TGeoNode*> fECALBarrelNodePath; ///< Stored vector of nodes for the ecal barrel
+      std::vector<const TGeoNode*> fECALEndcapNodePath; ///< Stored vector of nodes for the ecal endcap
+
       //Related to the ECAL
       float fECALRinner;              ///< Minimum radius of the ECAL inner barrel
       float fECALRouter;              ///< Minimum radius of the ECAL outer barrel
@@ -964,7 +983,8 @@ namespace gar {
 
     }; // class GeometryCore
 
-
+    template<> TGeoNode* GeometryCore::FindNode<float>(float const &x, float const &y, float const &z) const;
+    template<> TGeoNode* GeometryCore::FindNode<double>(double const &x, double const &y, double const &z) const;
 
     /** **************************************************************************
      * @brief Iterator to navigate through all the nodes

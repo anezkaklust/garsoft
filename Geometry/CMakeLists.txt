@@ -1,7 +1,6 @@
 include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
 
 art_make(LIB_LIBRARIES      ${MF_MESSAGELOGGER}
-
                             ${FHICLCPP}
                             ${CETLIB}
                             ${CETLIB_EXCEPT}
@@ -16,6 +15,7 @@ art_make(LIB_LIBRARIES      ${MF_MESSAGELOGGER}
                             ${ROOT_REFLEX}
                             ${ROOT_EGPYTHIA6}
                             ${ROOT_GUI}
+                            ${Boost_SYSTEM_LIBRARY}
           SERVICE_LIBRARIES Geometry
                             ${ART_FRAMEWORK_CORE}
                             ${ART_FRAMEWORK_IO_SOURCES}
@@ -26,7 +26,6 @@ art_make(LIB_LIBRARIES      ${MF_MESSAGELOGGER}
                             canvas
                             ${ART_FRAMEWORK_SERVICES_REGISTRY}
                             ${MF_MESSAGELOGGER}
-
                             ${FHICLCPP}
                             ${CETLIB}
                             ${CETLIB_EXCEPT}

@@ -67,10 +67,10 @@ namespace gar {
         //----------------------------------------------------------------------------
         G4ThreeVector ECALSegmentationGridXYAlg::position(const gar::geo::GeometryCore& geo, const raw::CellID_t& cID) const
         {
-            G4ThreeVector cellPosition;
-            cellPosition.setX(binToPosition(_decoder->get(cID, _xId), _gridSizeX, _offsetX));
-            cellPosition.setY(binToPosition(_decoder->get(cID, _yId), _gridSizeY, _offsetY));
-            cellPosition.setZ(0.);
+            std::array<double, 3> cellPosition;
+            cellPosition[0] = binToPosition(_decoder->get(cID, _xId), _gridSizeX, _offsetX);
+            cellPosition[1] = binToPosition(_decoder->get(cID, _yId), _gridSizeY, _offsetY);
+            cellPosition[2] = 0.;
 
             return cellPosition;
         }
@@ -87,8 +87,8 @@ namespace gar {
             _decoder->set(cID, "layer", layer);
             _decoder->set(cID, "slice", slice);
 
-            _decoder->set(cID, _xId, positionToBin(localPosition.x(), _gridSizeX, _offsetX));
-            _decoder->set(cID, _yId, positionToBin(localPosition.y(), _gridSizeY, _offsetY));
+            _decoder->set(cID, _xId, positionToBin(localPosition[0], _gridSizeX, _offsetX));
+            _decoder->set(cID, _yId, positionToBin(localPosition[1], _gridSizeY, _offsetY));
 
             return cID;
         }

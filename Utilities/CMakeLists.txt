@@ -43,6 +43,7 @@ art_make(
     ${CETLIB_EXCEPT}
   )
 
+add_subdirectory(Converter)
 
 install_headers()
 install_fhicl()

@@ -1,0 +1,22 @@
+BEGIN_PROLOG
+
+standard_edep2art:
+{
+module_type: ConvertEdep2Art
+EDepSimFile: ""
+GhepFile: ""
+OverlayFile: true
+
+ECALMaterial: "Scintillator"
+TPCMaterial: "HP_ArCH4"
+EnergyCut: 0.000001 #GeV
+
+applyBirks: true
+
+keepEMShowers: true
+# if we are keeping EM shower daughters, do so only in the following materials
+EMShowerDaughterMatRegex: ".*"   # Material name match string for keeping EM shower daughters.
+# ".*" matches every string, and "HP_ArCH4" matches the TPC gas
+}
+
+END_PROLOG

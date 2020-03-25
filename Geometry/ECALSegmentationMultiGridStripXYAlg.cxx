@@ -86,17 +86,18 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
+
         G4ThreeVector ECALSegmentationMultiGridStripXYAlg::position(const gar::geo::GeometryCore& geo, const raw::CellID_t& cID) const
         {
-            G4ThreeVector cellPosition;
+            std::array<double, 3> cellPosition;
 
             //Need to differentiate case tile and strips based on layer and slice
             bool isTile = this->isTile(cID);
 
             if(isTile){
-                cellPosition.setX(binToPosition(_decoder->get(cID, _xId), _gridSizeX, _offsetX));
-                cellPosition.setY(binToPosition(_decoder->get(cID, _yId), _gridSizeY, _offsetY));
-                cellPosition.setZ(0.);
+                cellPosition[0] = binToPosition(_decoder->get(cID, _xId), _gridSizeX, _offsetX);
+                cellPosition[1] = binToPosition(_decoder->get(cID, _yId), _gridSizeY, _offsetY);
+                cellPosition[2] = 0.;
             }
             else
             {
@@ -109,9 +110,9 @@ namespace gar {
                     int nCellsX = 1;
                     // int nCellsY = int(_layer_dim_Y / _stripSizeY);
 
-                    cellPosition.setX( ( cellIndexX + 0.5 ) * (_layer_dim_X / nCellsX ) - (_layer_dim_X / 2.) );
-                    cellPosition.setY( ( cellIndexY + 0.5 ) * _stripSizeY );
-                    cellPosition.setZ(0.);
+                    cellPosition[0] = ( cellIndexX + 0.5 ) * (_layer_dim_X / nCellsX ) - (_layer_dim_X / 2.);
+                    cellPosition[1] = ( cellIndexY + 0.5 ) * _stripSizeY;
+                    cellPosition[2] = 0.;
                 }
 
                 if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 3) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) )
@@ -120,9 +121,9 @@ namespace gar {
                     // int nCellsX = int(_layer_dim_X / _stripSizeX);
                     int nCellsY = 1;
 
-                    cellPosition.setX( ( cellIndexX + 0.5 ) * _stripSizeX );
-                    cellPosition.setY( ( cellIndexY + 0.5 ) * (_layer_dim_Y / nCellsY ) - (_layer_dim_Y / 2.) );
-                    cellPosition.setZ(0.);
+                    cellPosition[0] = ( cellIndexX + 0.5 ) * _stripSizeX;
+                    cellPosition[1] = ( cellIndexY + 0.5 ) * (_layer_dim_Y / nCellsY ) - (_layer_dim_Y / 2.);
+                    cellPosition[2] = 0.;
                 }
             }
 
@@ -131,6 +132,7 @@ namespace gar {
 
         //----------------------------------------------------------------------------
         /// determine the cell ID based on the position
+
         raw::CellID_t ECALSegmentationMultiGridStripXYAlg::cellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const G4ThreeVector& localPosition) const
         {
             raw::CellID_t cID = 0;
@@ -144,8 +146,8 @@ namespace gar {
             //Need to differentiate case tile and strips based on layer and slice
             bool isTile = this->isTile(cID);
 
-            double localX = localPosition.x();
-            double localY = localPosition.y();
+            double localX = localPosition[0];
+            double localY = localPosition[1];
 
             if(isTile)
             {
@@ -332,13 +334,13 @@ namespace gar {
         //----------------------------------------------------------------------------
         std::array<double, 3U> ECALSegmentationMultiGridStripXYAlg::ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3U> &local, const float &xlocal, const raw::CellID_t& cID) const
         {
-            std::array<double, 3U> newlocal;
+            std::array<double, 3> newlocal;
 
             if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 2) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 == 0) )
-            newlocal = { {xlocal, local[1], local[2]} };
+            newlocal = {xlocal, local[1], local[2]};
 
             if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 3) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) ) //Strip along Y
-            newlocal = { {local[0], xlocal, local[2]} };
+            newlocal = {local[0], xlocal, local[2]};
 
             return newlocal;
         }

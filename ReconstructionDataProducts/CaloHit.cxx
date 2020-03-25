@@ -27,8 +27,6 @@ namespace gar {
             return;
         }
 
-
-
         bool CaloHit::operator==(const CaloHit& rhs) const {
             return (this->fIDnumero == rhs.fIDnumero);
         }
@@ -108,6 +106,22 @@ namespace gar {
         }
 
         //--------------------------------------------------------------------------
+        const unsigned int CaloHit::GetModule() const
+        {
+            gar::geo::GeometryCore const* fGeo = gar::providerFrom<geo::Geometry>();
+            return fGeo->getIDbyCellID(this->CellID(), "module");
+            delete fGeo;
+        }
+
+        //--------------------------------------------------------------------------
+        const unsigned int CaloHit::GetStave() const
+        {
+            gar::geo::GeometryCore const* fGeo = gar::providerFrom<geo::Geometry>();
+            return fGeo->getIDbyCellID(this->CellID(), "stave");
+            delete fGeo;
+        }
+
+        //--------------------------------------------------------------------------
         const unsigned int CaloHit::GetCellLengthScale() const
         {
             gar::geo::GeometryCore const* fGeo = gar::providerFrom<geo::Geometry>();
@@ -118,7 +132,7 @@ namespace gar {
             }
             else
             {
-                TVector3 point(this->Position()[0], this->Position()[1], this->Position()[2]);
+                std::array<double, 3> point = {this->Position()[0], this->Position()[1], this->Position()[2]};
                 return std::sqrt( fGeo->getStripWidth() * fGeo->getStripLength(point, this->CellID()) );
             }
 

@@ -8,7 +8,6 @@
 
 #include <algorithm>
 
-#include "TGeoManager.h"
 #include "TGeoMaterial.h"
 #include "TGeoNode.h"
 #include "TGeoBBox.h"
@@ -32,6 +31,7 @@
 #include "GArG4/AuxDetAction.h"
 #include "GArG4/ParticleListAction.h"
 
+#include "Geometry/GeometryCore.h"
 #include "Geometry/Geometry.h"
 #include "CoreUtils/ServiceUtil.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
@@ -48,7 +48,6 @@ namespace gar {
         fhicl::ParameterSet const& pset)
         {
             fGeo = gar::providerFrom<geo::Geometry>();
-            fGeoManager = fGeo->ROOTGeoManager();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
 
             this->reconfigure(pset);
@@ -142,7 +141,7 @@ namespace gar {
 
             // check the material
             auto pos = 0.5 * (start + stop);
-            TGeoNode *node = fGeoManager->FindNode(pos.x()/CLHEP::cm, pos.y()/CLHEP::cm, pos.z()/CLHEP::cm);//Node in cm...
+            TGeoNode *node = fGeo->FindNode(pos.x()/CLHEP::cm, pos.y()/CLHEP::cm, pos.z()/CLHEP::cm);//Node in cm...
 
             if(!node){
                 LOG_DEBUG("AuxDetAction::LArSteppingAction")
@@ -216,7 +215,7 @@ namespace gar {
 
             // check the material
             auto pos = 0.5 * (start + stop);
-            TGeoNode *node = fGeoManager->FindNode(pos.x()/CLHEP::cm, pos.y()/CLHEP::cm, pos.z()/CLHEP::cm);//Node in cm...
+            TGeoNode *node = fGeo->FindNode(pos.x()/CLHEP::cm, pos.y()/CLHEP::cm, pos.z()/CLHEP::cm);//Node in cm...
 
             if(!node){
                 LOG_DEBUG("AuxDetAction::ECALSteppingAction")
@@ -262,7 +261,7 @@ namespace gar {
             //Transform from global coordinates to local coordinates in mm
             G4ThreeVector G4Local = this->globalToLocal(step, G4Global);
             //Transform in cm
-            G4ThreeVector G4Localcm(G4Local.x() / CLHEP::cm, G4Local.y() / CLHEP::cm, G4Local.z() / CLHEP::cm);
+            std::array<double, 3> G4Localcm = {G4Local.x() / CLHEP::cm, G4Local.y() / CLHEP::cm, G4Local.z() / CLHEP::cm};
 
             //Get cellID
             raw::CellID_t cellID = fGeo->cellID(node, det_id, stave, module, layer, slice, G4Localcm);//encoding the cellID on 64 bits
@@ -272,8 +271,8 @@ namespace gar {
             double G4Pos[3] = {0., 0., 0.}; // in cm
             if(fGeo->isTile(cellID))
             {
-                G4ThreeVector SegLocalcm = fGeo->position(node, cellID);//in cm
-                G4ThreeVector SegLocal(SegLocalcm.x() * CLHEP::cm, SegLocalcm.y() * CLHEP::cm, SegLocalcm.z() * CLHEP::cm);
+                std::array<double, 3> SegLocalcm = fGeo->GetPosition(node, cellID);//in cm
+                G4ThreeVector SegLocal(SegLocalcm[0] * CLHEP::cm, SegLocalcm[1] * CLHEP::cm, SegLocalcm[2] * CLHEP::cm);
                 G4ThreeVector SegGlobal = this->localToGlobal(step, SegLocal);
 
                 G4Pos[0] = SegGlobal.x() / CLHEP::cm;

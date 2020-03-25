@@ -7,6 +7,7 @@
 
 // nutools includes
 #include "nusimdata/SimulationBase/MCTruth.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
 
 // Simulation includes
 #include "SimulationDataProducts/SimChannel.h"

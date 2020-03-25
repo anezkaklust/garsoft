@@ -29,6 +29,8 @@ namespace gar {
       // let the compiler provide the dtor
 
       const unsigned int GetLayer() const;
+      const unsigned int GetModule() const;
+      const unsigned int GetStave() const;
       const unsigned int GetCellLengthScale() const;
 
       bool operator< (const CaloHit &rhs) const;
@@ -49,6 +51,9 @@ namespace gar {
     public:
 
       CaloHit(float energy, float time, float *pos, raw::CellID_t cellID);
+
+      //Copy constructor
+      CaloHit(const gar::rec::CaloHit &) = default;
 
       bool operator==(const CaloHit& rhs) const;
       bool operator!=(const CaloHit& rhs) const;

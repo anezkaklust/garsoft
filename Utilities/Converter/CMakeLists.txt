@@ -1,48 +1,13 @@
+add_subdirectory(edep-io)
 
-include_directories( $ENV{GEANT4_FQ_DIR}/include )
-include_directories( $ENV{NUTOOLS_DIR}/include   )
 include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
+include_directories ( $ENV{GENIE_INC}/GENIE )
 
-set(G4LIBS ${G4FR}
-           ${G4GMOCREN}
-           ${G4OPENGL}
-           ${G4RAYTRACER}
-           ${G4TREE}
-           ${G4VRML}
-           ${G4ANALYSIS}
-           ${G4DIGITS_HITS}
-           ${G4ERROR_PROPAGATION}
-           ${G4EVENT}
-           ${G4GEOMETRY}
-           ${G4GL2PS}
-           ${G4GLOBAL}
-           ${G4GRAPHICS_REPS}
-           ${G4INTERCOMS}
-           ${G4INTERFACES}
-           ${G4MATERIALS}
-           ${G4MODELING}
-           ${G4PARMODELS}
-           ${G4PARTICLES}
-           ${G4PERSISTENCY}
-           ${G4PHYSICSLISTS}
-           ${G4PROCESSES}
-           ${G4READOUT}
-           ${G4RUN}
-           ${G4TRACK}
-           ${G4TRACKING}
-           ${G4VISHEPREP}
-           ${G4VISXXX}
-           ${G4VIS_MANAGEMENT}
-           ${G4ZLIB}
-    )
+execute_process(COMMAND genie-config --libs OUTPUT_VARIABLE GENIE_LIBS_DIR_WITH_LFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-MESSAGE(STATUS "G4LIBS is ${G4LIBS}")
-
-art_make(LIB_LIBRARIES      nutools_ParticleNavigation
-                            nutools_G4Base
-                            nusimdata_SimulationBase
-                            Geometry
+art_make(LIB_LIBRARIES      Utilities_Converter_edep-io
                             SimulationDataProducts
+                            Geometry
                             ${ART_FRAMEWORK_PRINCIPAL}
                             ${ART_FRAMEWORK_SERVICES_REGISTRY}
                             ${ART_FRAMEWORK_SERVICES_OPTIONAL}
@@ -65,15 +30,12 @@ art_make(LIB_LIBRARIES      nutools_ParticleNavigation
                             ${ROOT_BASIC_LIB_LIST}
                             ${ROOT_GEOM}
                             ${CLHEP}
-                            ${G4LIBS}
                             ${Boost_SYSTEM_LIBRARY}
-           MODULE_LIBRARIES Geometry
-                            GArG4
+       MODULE_LIBRARIES     Utilities_Converter_edep-io
                             SimulationDataProducts
+                            Geometry
                             MCCheater_BackTracker_service
-                            nusimdata_SimulationBase
-                            nutools_G4Base
-                            nutools_ParticleNavigation
+                            nutools_EventGeneratorBase_GENIE
                             nutools_RandomUtils_NuRandomService_service
                             ${ART_FRAMEWORK_CORE}
                             ${ART_FRAMEWORK_IO_SOURCES}
@@ -90,14 +52,11 @@ art_make(LIB_LIBRARIES      nutools_ParticleNavigation
                             ${CETLIB}
                             ${CETLIB_EXCEPT}
                             ${ROOT_BASIC_LIB_LIST}
-                            ${G4LIBS}
+                            ${ROOT_EGPYTHIA6}
+                            ${GENIE_LIBS_DIR_WITH_LFLAGS}
 )
 
 
 install_headers()
 install_fhicl()
 install_source()
-
-# install macro files in lib
-file(GLOB g4_macros *.mac )
-install_fw( LIST ${g4_macros} )
