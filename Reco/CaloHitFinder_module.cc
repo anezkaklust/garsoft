@@ -58,9 +58,9 @@ namespace gar {
 
             float CalibratetoMeV(float x, float y, float z, double MIP);
 
-            std::array<double, 3U> CalculateStripHitPosition(float x, float y, float z, std::pair<float, float> hitTime, long long int cID);
+            std::array<double, 3U> CalculateStripHitPosition(float x, float y, float z, std::pair<float, float> hitTime, raw::CellID_t cID);
 
-            float CorrectStripHitTime(float x, float y, float z, std::pair<float, float> hitTime, long long int cID);
+            float CorrectStripHitTime(float x, float y, float z, std::pair<float, float> hitTime, raw::CellID_t cID);
 
         private:
 
@@ -114,7 +114,7 @@ namespace gar {
                 float x = digitHit.X();
                 float y = digitHit.Y();
                 float z = digitHit.Z();
-                long long int cellID = digitHit.CellID();
+                raw::CellID_t cellID = digitHit.CellID();
 
                 //Do Calibration of the hit in MIPs
                 float hitMIP = this->CalibrateToMIP(hitADC);
@@ -213,7 +213,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::array<double, 3U> CaloHitFinder::CalculateStripHitPosition(float x, float y, float z, std::pair<float, float> hitTime, long long int cID)
+        std::array<double, 3U> CaloHitFinder::CalculateStripHitPosition(float x, float y, float z, std::pair<float, float> hitTime, raw::CellID_t cID)
         {
             // TGeoNode *node = fGeoManager->FindNode(x, y, z);//Node in cm...
             // double stripLength = fGeo->getStripLength(node, cID); // in mm
@@ -250,7 +250,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        float CaloHitFinder::CorrectStripHitTime(float x, float y, float z, std::pair<float, float> hitTime, long long int cID)
+        float CaloHitFinder::CorrectStripHitTime(float x, float y, float z, std::pair<float, float> hitTime, raw::CellID_t cID)
         {
             TVector3 point(x, y, z);
             double stripLength = fGeo->getStripLength(point, cID); // in cm

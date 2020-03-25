@@ -65,7 +65,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        G4ThreeVector ECALSegmentationGridXYAlg::position(const gar::geo::GeometryCore& geo, const long64& cID) const
+        G4ThreeVector ECALSegmentationGridXYAlg::position(const gar::geo::GeometryCore& geo, const raw::CellID_t& cID) const
         {
             G4ThreeVector cellPosition;
             cellPosition.setX(binToPosition(_decoder->get(cID, _xId), _gridSizeX, _offsetX));
@@ -77,9 +77,9 @@ namespace gar {
 
         //----------------------------------------------------------------------------
         /// determine the cell ID based on the position
-        long64 ECALSegmentationGridXYAlg::cellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const G4ThreeVector& localPosition) const
+        raw::CellID_t ECALSegmentationGridXYAlg::cellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const G4ThreeVector& localPosition) const
         {
-            long64 cID = 0;
+            raw::CellID_t cID = 0;
 
             _decoder->set(cID, "system", det_id);
             _decoder->set(cID, "module", module);
@@ -94,7 +94,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        int ECALSegmentationGridXYAlg::getIDbyCellID(const long64& cID, const char* id) const
+        int ECALSegmentationGridXYAlg::getIDbyCellID(const raw::CellID_t& cID, const char* id) const
         {
             return _decoder->get(cID, id);
         }

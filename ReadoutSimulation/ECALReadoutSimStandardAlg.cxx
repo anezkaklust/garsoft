@@ -88,8 +88,8 @@ namespace gar {
         {
             LOG_DEBUG("ECALReadoutSimStandardAlg") << "DoDigitization()";
 
-            std::unordered_map<long long int, sdp::CaloDeposit*> m_TileSimHits;
-            std::unordered_map<long long int, sdp::CaloDeposit*> m_StripSimHits;
+            std::unordered_map<raw::CellID_t, sdp::CaloDeposit*> m_TileSimHits;
+            std::unordered_map<raw::CellID_t, sdp::CaloDeposit*> m_StripSimHits;
 
             for (const sdp::CaloDeposit *const pSimCaloHit : m_SimCaloHitList)
             {
@@ -115,7 +115,7 @@ namespace gar {
                 float x = SimCaloHit->X();
                 float y = SimCaloHit->Y();
                 float z = SimCaloHit->Z();
-                long long int cellID = SimCaloHit->CellID();
+                raw::CellID_t cellID = SimCaloHit->CellID();
 
                 float new_energy = this->DoPhotonStatistics(x, y, z, energy);
                 float new_time = time;
@@ -144,7 +144,7 @@ namespace gar {
                 float x = SimCaloHit->X();
                 float y = SimCaloHit->Y();
                 float z = SimCaloHit->Z();
-                long long int cellID = SimCaloHit->CellID();
+                raw::CellID_t cellID = SimCaloHit->CellID();
 
                 std::shared_ptr<raw::CaloRawDigit> digihit = this->DoStripDigitization(x, y, z, energy, time, cellID);
                 m_DigitHitVec.push_back(digihit);
@@ -155,7 +155,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::shared_ptr<raw::CaloRawDigit> ECALReadoutSimStandardAlg::DoStripDigitization(float x, float y, float z, float energy, float time, long long int cID) const
+        std::shared_ptr<raw::CaloRawDigit> ECALReadoutSimStandardAlg::DoStripDigitization(float x, float y, float z, float energy, float time, raw::CellID_t cID) const
         {
             LOG_DEBUG("ECALReadoutSimStandardAlg") << "DoStripDigitization()";
 
@@ -244,7 +244,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::array<double, 3U> ECALReadoutSimStandardAlg::CalculateStripPosition(float x, float y, float z, long long int cID) const
+        std::array<double, 3U> ECALReadoutSimStandardAlg::CalculateStripPosition(float x, float y, float z, raw::CellID_t cID) const
         {
             //Find the volume path
             TVector3 point(x, y, z);
@@ -272,7 +272,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::pair<float, float> ECALReadoutSimStandardAlg::DoLightPropagation(float x, float y, float z, float time, long long int cID) const
+        std::pair<float, float> ECALReadoutSimStandardAlg::DoLightPropagation(float x, float y, float z, float time, raw::CellID_t cID) const
         {
             //Find the volume path
             TVector3 point(x, y, z);
@@ -303,7 +303,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        void ECALReadoutSimStandardAlg::FillSimCaloHitMap(const sdp::CaloDeposit *const pSimCaloHit, std::unordered_map<long long int, sdp::CaloDeposit*>& m_SimCaloHits) const
+        void ECALReadoutSimStandardAlg::FillSimCaloHitMap(const sdp::CaloDeposit *const pSimCaloHit, std::unordered_map<raw::CellID_t, sdp::CaloDeposit*>& m_SimCaloHits) const
         {
             if(m_SimCaloHits.count(pSimCaloHit->CellID()) == 0)
             {

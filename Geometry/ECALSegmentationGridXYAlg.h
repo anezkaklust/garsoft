@@ -27,19 +27,19 @@ namespace gar {
 
             virtual void Initialize(const gar::geo::GeometryCore& geo);
 
-            virtual G4ThreeVector position(const gar::geo::GeometryCore& geo, const long64& cID) const;
+            virtual G4ThreeVector position(const gar::geo::GeometryCore& geo, const raw::CellID_t& cID) const;
 
-            virtual long64 cellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const G4ThreeVector& localPosition) const;
+            virtual raw::CellID_t cellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const G4ThreeVector& localPosition) const;
 
-            virtual int getIDbyCellID(const long64& cID, const char* id) const;
+            virtual int getIDbyCellID(const raw::CellID_t& cID, const char* id) const;
 
-            virtual bool isTile(const long long int& cID) const { return true; }
+            virtual bool isTile(const raw::CellID_t& cID) const { return true; }
 
-            virtual double getStripLength(const gar::geo::GeometryCore& geo, const long64& cID) const { return 0.; }
+            virtual double getStripLength(const gar::geo::GeometryCore& geo, const raw::CellID_t& cID) const { return 0.; }
 
-            virtual std::pair<float, float> CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3U> &local, const long64& cID) const { return std::make_pair(0., 0.); }
+            virtual std::pair<float, float> CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3U> &local, const raw::CellID_t& cID) const { return std::make_pair(0., 0.); }
 
-            virtual std::array<double, 3U> ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3U> &local, const float &xlocal, const long64& cID) const { return std::array<double, 3U>{ {0., 0., 0.} }; }
+            virtual std::array<double, 3U> ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3U> &local, const float &xlocal, const raw::CellID_t& cID) const { return std::array<double, 3U>{ {0., 0., 0.} }; }
 
             virtual void PrintParameters() const;
 

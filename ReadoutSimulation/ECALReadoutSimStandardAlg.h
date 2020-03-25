@@ -46,13 +46,13 @@ namespace gar{
 
             float AddElectronicNoise(float energy) const;
 
-            std::shared_ptr<raw::CaloRawDigit> DoStripDigitization(float x, float y, float z, float energy, float time, long long int cID) const;
+            std::shared_ptr<raw::CaloRawDigit> DoStripDigitization(float x, float y, float z, float energy, float time, raw::CellID_t cID) const;
 
-            std::array<double, 3U> CalculateStripPosition(float x, float y, float z, long long int cID) const;
+            std::array<double, 3U> CalculateStripPosition(float x, float y, float z, raw::CellID_t cID) const;
 
-            std::pair<float, float> DoLightPropagation(float x, float y, float z, float time, long long int cID) const;
+            std::pair<float, float> DoLightPropagation(float x, float y, float z, float time, raw::CellID_t cID) const;
 
-            void FillSimCaloHitMap(const sdp::CaloDeposit *const pSimCaloHit, std::unordered_map<long long int, sdp::CaloDeposit*>& m_SimCaloHits) const;
+            void FillSimCaloHitMap(const sdp::CaloDeposit *const pSimCaloHit, std::unordered_map<raw::CellID_t, sdp::CaloDeposit*>& m_SimCaloHits) const;
 
         private:
 
