@@ -346,6 +346,24 @@ void gar::anatest::FillVectors(art::Event const & e) {
             }
         }
     }
+
+
+
+    // Need a non-constant backtracker instance, for now.
+    cheat::BackTrackerCore const* const_bt = gar::providerFrom<cheat::BackTracker>();
+	cheat::BackTrackerCore*             bt = const_cast<cheat::BackTrackerCore*>(const_bt);
+    sim::ParticleList* partList = bt->GetParticleList();
+    int nMotherless = 0;
+    for ( auto const& mcp : (*MCPHandle) ) {
+        if (mcp.Mother() > 0) {
+		    simb::MCParticle* TPCeve = bt->FindTPCEve(mcp.TrackId());
+            if ( TPCeve->TrackId() == mcp.TrackId() ) ++nMotherless;
+		}
+    }
+    std::cout << "Number of children: " << partList->size() << std::endl;
+    std::cout << "Number of motherless children: " << nMotherless << std::endl;
+
+
     return;
 
 

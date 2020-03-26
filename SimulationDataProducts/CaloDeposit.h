@@ -10,6 +10,8 @@
 #include <list>
 #include <vector>
 
+#include "RawDataProducts/CaloRawDigit.h"
+
 namespace gar {
     namespace sdp {
 
@@ -24,7 +26,7 @@ namespace gar {
             float t,
             float e,
             double pos[3],
-            long long int CellID)
+            raw::CellID_t CellID)
             : fTrackID  (trackID)
             , fTime     (t)
             , fEnergy   (e)
@@ -52,7 +54,7 @@ namespace gar {
             double  const& X()         const { return fPos[0];         }
             double  const& Y()         const { return fPos[1];         }
             double  const& Z()         const { return fPos[2];         }
-            long long int  const& CellID()      const { return fCellID;    }
+            raw::CellID_t  const& CellID()      const { return fCellID;    }
             const double* Pos() const { return fPos; }
 
             bool operator  <(gar::sdp::CaloDeposit const& b) const;
@@ -67,7 +69,7 @@ namespace gar {
             float fTime;      ///< time of the energy deposit
             float fEnergy;    ///< energy deposited
             double fPos[3]; ///< position of the energy deposit
-            long long int fCellID; ///< cellID encoded in 64 bits containing det_id, stave, module, layer, slice, cellX and cellY, use Helper to access the values
+            raw::CellID_t fCellID; ///< cellID encoded in 64 bits containing det_id, stave, module, layer, slice, cellX and cellY, use Helper to access the values
         };
 
 

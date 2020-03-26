@@ -43,6 +43,7 @@
 
 // GArSoft libraries
 #include "Geometry/LocalTransformation.h"
+#include "RawDataProducts/CaloRawDigit.h"
 
 // Framework and infrastructure libraries
 #include "fhiclcpp/ParameterSet.h"
@@ -649,23 +650,15 @@ namespace gar {
 
       //@{
       /**
-       * @brief Returns the half width of the TPC (x direction)
-       * @return the value of the half width of the specified TPC
+       * @brief Returns the radius of the TPC (y or z direction)
+       * @return the radius of the TPC (y or z direction)
        */
-      float TPCHalfWidth() const { return fTPCHalfWidth; }
+      float TPCRadius() const { return fTPCRadius; }
       //@}
 
       //@{
       /**
-       * @brief Returns the half height of the TPC (y direction)
-       * @return the value of the half height of the specified TPC
-       */
-      float TPCHalfHeight() const { return fTPCHalfHeight; }
-      //@}
-
-      //@{
-      /**
-       * @brief Returns the length of the TPC (z direction)
+       * @brief Returns the length of the TPC (x direction)
        * @return the value of the length of the specified TPC
        */
       float TPCLength() const { return fTPCLength; }
@@ -851,23 +844,23 @@ namespace gar {
 
       const std::array<double, 3> FindShapeSize(const TGeoNode *node) const;
 
-      long long int GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const;
+      raw::CellID_t GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const;
 
-      std::array<double, 3> GetPosition(const TGeoNode *node, const long long int &cID) const;
+      std::array<double, 3> GetPosition(const TGeoNode *node, const raw::CellID_t &cID) const;
 
-      int getIDbyCellID(const long long int& cID, const char* identifier) const;
+      int getIDbyCellID(const raw::CellID_t& cID, const char* identifier) const;
 
-      bool isTile(const long long int& cID) const;
+      bool isTile(const raw::CellID_t& cID) const;
 
       double getStripWidth() const;
 
       double getTileSize() const;
 
-      double getStripLength(std::array<double, 3> const& point, const long long int &cID) const;
+      double getStripLength(std::array<double, 3> const& point, const raw::CellID_t &cID) const;
 
-      std::pair<float, float> CalculateLightPropagation(std::array<double, 3>const& point, const std::array<double, 3> &local, const long long int &cID) const;
+      std::pair<float, float> CalculateLightPropagation(std::array<double, 3>const& point, const std::array<double, 3> &local, const raw::CellID_t &cID) const;
 
-      std::array<double, 3> ReconstructStripHitPosition(const std::array<double, 3> &local, const float &xlocal, const long long int &cID) const;
+      std::array<double, 3> ReconstructStripHitPosition(const std::array<double, 3> &local, const float &xlocal, const raw::CellID_t &cID) const;
 
     protected:
 
@@ -925,8 +918,9 @@ namespace gar {
                                       ///< to look for the closest wire
       double         fPositionWiggle; ///< accounting for rounding errors when testing positions
 
-      float          fTPCHalfHeight = 0.; ///< half height of the TPC
-      float          fTPCHalfWidth = 0.;   ///< half width of the TPC
+      bool           fPointInWarnings; ///< Generate warnings from failed inputs to PointIn* methods
+
+      float          fTPCRadius = 0.;      ///< Radius of the TPC
       float          fTPCLength = 0.;      ///< length of the TPC
 
       float          fTPCXCent = 0.;       ///< center of TPC: X

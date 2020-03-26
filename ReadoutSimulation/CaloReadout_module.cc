@@ -77,7 +77,7 @@ namespace gar {
 
             void CollectHits(const art::Event &evt, const std::string &label, std::vector< art::Ptr<sdp::CaloDeposit> > &hitVector);
 
-            std::map<long long int, std::vector< art::Ptr<sdp::CaloDeposit> > > MakeCellIDMapArtPtr(std::vector< art::Ptr<sdp::CaloDeposit> > &hitVector);
+            std::map<raw::CellID_t, std::vector< art::Ptr<sdp::CaloDeposit> > > MakeCellIDMapArtPtr(std::vector< art::Ptr<sdp::CaloDeposit> > &hitVector);
 
             std::string                         fG4Label;    ///< label of G4 module
             const gar::geo::GeometryCore*       fGeo;        ///< geometry information
@@ -142,7 +142,7 @@ namespace gar {
             this->CollectHits(evt, fG4Label, artHits);
 
             //Get contributions per cellID for association to digi hit
-            std::map<long long int, std::vector< art::Ptr<sdp::CaloDeposit> > > m_cIDMapArtPtrVec = this->MakeCellIDMapArtPtr(artHits);
+            std::map<raw::CellID_t, std::vector< art::Ptr<sdp::CaloDeposit> > > m_cIDMapArtPtrVec = this->MakeCellIDMapArtPtr(artHits);
 
             //Pass the sim hits to the algo
             fROSimAlg->PrepareAlgo(artHits);
@@ -194,9 +194,9 @@ namespace gar {
         }
 
         //--------------------------------------------------------------------------
-        std::map<long long int, std::vector< art::Ptr<sdp::CaloDeposit> > > CaloReadout::MakeCellIDMapArtPtr(std::vector< art::Ptr<sdp::CaloDeposit> > &hitVector)
+        std::map<raw::CellID_t, std::vector< art::Ptr<sdp::CaloDeposit> > > CaloReadout::MakeCellIDMapArtPtr(std::vector< art::Ptr<sdp::CaloDeposit> > &hitVector)
         {
-            std::map<long long int, std::vector< art::Ptr<sdp::CaloDeposit> > > cIDMapArtPtrVec;
+            std::map<raw::CellID_t, std::vector< art::Ptr<sdp::CaloDeposit> > > cIDMapArtPtrVec;
 
             for (std::vector< art::Ptr<sdp::CaloDeposit> >::const_iterator iter = hitVector.begin(), iterEnd = hitVector.end(); iter != iterEnd; ++iter)
             {

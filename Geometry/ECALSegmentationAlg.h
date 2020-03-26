@@ -10,6 +10,8 @@
 
 #include "CLHEP/Vector/ThreeVector.h"
 
+#include "RawDataProducts/CaloRawDigit.h"
+
 typedef CLHEP::Hep3Vector G4ThreeVector;
 
 namespace fhicl{
@@ -21,7 +23,6 @@ namespace gar {
 
         class GeometryCore;
 
-        typedef long long long64 ;
         typedef unsigned long long ulong64 ;
 
         class ECALSegmentationAlg {
@@ -65,9 +66,9 @@ namespace gar {
 
             virtual std::array<double, 3> GetPosition(const gar::geo::GeometryCore& geo, const long64& cID) const = 0;
 
-            virtual long64 GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const = 0;
+            virtual raw::CellID_t GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const = 0;
 
-            virtual int getIDbyCellID(const long64& cID, const char* id) const = 0;
+            virtual int getIDbyCellID(const raw::CellID_t& cID, const char* id) const = 0;
 
             virtual void PrintParameters() const = 0;
 
@@ -75,18 +76,18 @@ namespace gar {
 
             virtual void setLayerDimXY(const double& dimX, const double& dimY) const = 0;
 
-            virtual double getStripLength(const gar::geo::GeometryCore& geo, const long64& cID) const = 0;
+            virtual double getStripLength(const gar::geo::GeometryCore& geo, const raw::CellID_t& cID) const = 0;
 
-            virtual std::pair<float, float> CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const long64& cID) const = 0;
+            virtual std::pair<float, float> CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const raw::CellID_t& cID) const = 0;
 
-            virtual std::array<double, 3> ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const long64& cID) const = 0;
+            virtual std::array<double, 3> ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const raw::CellID_t& cID) const = 0;
 
         protected:
             ECALSegmentationAlg(fhicl::ParameterSet const& pset);
 
             ECALSegmentationAlg(const BitFieldCoder* decoder, fhicl::ParameterSet const& pset);
 
-            static double binToPosition(long64 bin, double cellSize, double offset = 0);
+            static double binToPosition(raw::CellID_t bin, double cellSize, double offset = 0);
 
             static int positionToBin(double position, double cellSize, double offset = 0);
 

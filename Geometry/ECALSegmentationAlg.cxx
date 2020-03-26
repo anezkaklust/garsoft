@@ -39,7 +39,7 @@ namespace gar {
                 }
 
                 //----------------------------------------------------------------------------
-                double ECALSegmentationAlg::binToPosition(long64 bin, double cellSize, double offset) {
+                double ECALSegmentationAlg::binToPosition(raw::CellID_t bin, double cellSize, double offset) {
                     return bin * cellSize + offset;
                 }
 

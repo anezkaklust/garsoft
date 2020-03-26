@@ -274,10 +274,8 @@ namespace gar{
     void GeometryTestAlg::printDetDim()
     {
       LOG_VERBATIM("GeometryTest")
-      << "  TPC:    width: "
-      << geom->TPCHalfWidth()
-      << "    height: "
-      << geom->TPCHalfHeight()
+      << "  TPC:    radius: "
+      << geom->TPCRadius()
       << "    length: "
       << geom->TPCLength();
 
@@ -396,11 +394,11 @@ namespace gar{
       // in this code for additional testing. The NearestChannel routine
       // is the most frequently called in the simulation, so its execution time
       // is an important component of GArSoft's speed.
-      TStopwatch stopWatch;
-      stopWatch.Start();
+      //TStopwatch stopWatch;
+      //stopWatch.Start();
 
-      float posWorld[3] = {0.};
-      posWorld[1] = 0.5 * geom->TPCHalfHeight();
+      float posWorld[3] = {0.0,0.0,0.0};
+      posWorld[1] = 0.5 * geom->TPCRadius();
       posWorld[2] = 0.5 * geom->TPCLength();
 
       try{
@@ -437,9 +435,9 @@ namespace gar{
         if (fNonFatalExceptions.count(e.category()) == 0) throw;
       }
 
-      stopWatch.Stop();
+      //stopWatch.Stop();
       LOG_DEBUG("GeometryTest") << "\tdone testing nearest channel";
-      stopWatch.Print();
+      //stopWatch.Print();
 
       // trigger an exception with NearestChannel
       LOG_VERBATIM("GeometryTest")

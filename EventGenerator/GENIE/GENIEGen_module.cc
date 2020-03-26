@@ -253,8 +253,8 @@ namespace gar {
       fECons  = tfs->make<TH1F>("fECons", ";#Delta E(#nu,lepton);", 500, -5., 5.);
 
       auto   geo  = gar::providerFrom<geo::Geometry>();
-      double x    = 2.1 * geo->TPCHalfWidth();
-      double y    = 2.1 * geo->TPCHalfHeight();
+      double x    = 2.1 * geo->TPCRadius();
+      double y    = 2.1 * geo->TPCRadius();
       double z    = 2.  * geo->TPCLength();
       int    xdiv = TMath::Nint(2 * x / 5.);
       int    ydiv = TMath::Nint(2 * y / 5.);

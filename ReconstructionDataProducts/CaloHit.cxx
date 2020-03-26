@@ -40,7 +40,7 @@ namespace gar {
 
 
         //--------------------------------------------------------------------------
-        CaloHit::CaloHit(float energy, float time, float *pos, long long int cellID)
+        CaloHit::CaloHit(float energy, float time, float *pos, raw::CellID_t cellID)
         : fEnergy  (energy  )
         , fTime   (time   )
         , fCellID     (cellID  )

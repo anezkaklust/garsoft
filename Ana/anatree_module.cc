@@ -1002,8 +1002,7 @@ void gar::anatree::FillVectors(art::Event const & e) {
             TrkId momTrkId = mcp.Mother();
             Int_t momIndex = -1;
             int momPDG = 0;
-            if (momTrkId>0)
-            {
+            if (momTrkId>0) {
                 //Check if it exists!
                 if(TrackIdToIndex.find(momTrkId) != TrackIdToIndex.end()){
                     momIndex = TrackIdToIndex[momTrkId];

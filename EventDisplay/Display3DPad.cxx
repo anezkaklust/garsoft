@@ -87,8 +87,8 @@ namespace evd{
     if (fPad->GetView()==0) {
       //int irep=0;
       // nb. coordinates are so Y is up, but ROOT thinks Z is up, so report (z,x,y) 
-      double rmin[]={geo->TPCZCent() - 0.7*geo->TPCLength(), geo->TPCXCent() - 0.7*geo->TPCHalfWidth(), geo->TPCYCent() - 0.7*geo->TPCHalfHeight()};
-      double rmax[]={geo->TPCZCent() + 0.7*geo->TPCLength(), geo->TPCXCent() + 0.7*geo->TPCHalfWidth(), geo->TPCYCent() + 0.7*geo->TPCHalfHeight()};
+      double rmin[]={geo->TPCZCent() - 0.7*geo->TPCLength(), geo->TPCXCent() - 0.7*geo->TPCRadius(), geo->TPCYCent() - 0.7*geo->TPCRadius()};
+      double rmax[]={geo->TPCZCent() + 0.7*geo->TPCLength(), geo->TPCXCent() + 0.7*geo->TPCRadius(), geo->TPCYCent() + 0.7*geo->TPCRadius()};
       TView3D* v = new TView3D(1,rmin,rmax);
       v->SetPerspective();
       //v->SetView(-90.0,75.0,0,irep);
