@@ -44,16 +44,15 @@ namespace gar{
 
             private:
 
-                std::vector <const gar::rec::CaloHit*> getVirtualHits(const gar::rec::CaloHit* hit, int Orientation, bool isBarrel);
+                std::vector <const gar::rec::CaloHit*> getVirtualHits(const gar::rec::CaloHit* hit, int orientation, bool isBarrel);
 
-                std::pair < TVector3, TVector3 > getStripEnds(const gar::rec::CaloHit* hit, int Orientation, bool isBarrel);
+                std::pair < TVector3, TVector3 > getStripEnds(const gar::rec::CaloHit* hit, int orientation, bool isBarrel);
 
                 TVector3 stripIntersect(const gar::rec::CaloHit* hit0, TVector3 axis0, const gar::rec::CaloHit* hit1, TVector3 axis1);
 
                 gar::geo::GeometryCore const* fGeo; ///< geometry information
 
                 std::string fSSAAlgName;
-                unsigned int m_Verbose;
                 int fInnerSymmetry;
                 double fStripWidth;
                 double fStripLength;
@@ -65,7 +64,9 @@ namespace gar{
                 std::vector <const gar::rec::CaloHit*> unSplitStripHits;
                 std::vector <const gar::rec::CaloHit*> splitStripHits;
 
-                enum {TRANSVERSE=0, LONGITUDINAL};
+                enum StripOrientation {
+                    TRANSVERSE = 0, LONGITUDINAL
+                };
             };
 
         } // namespace alg

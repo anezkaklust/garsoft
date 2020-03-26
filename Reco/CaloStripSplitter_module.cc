@@ -57,7 +57,6 @@ namespace gar {
             void CollectHits(const art::Event &evt, const std::string &label, std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector);
 
             std::string fCaloHitLabel;  ///< label to find the right reco calo hits
-            int fVerbosity;
 
             const detinfo::DetectorProperties*  fDetProp;      ///< detector properties
             const geo::GeometryCore*            fGeo;          ///< pointer to the geometry
@@ -69,7 +68,6 @@ namespace gar {
         CaloStripSplitter::CaloStripSplitter(fhicl::ParameterSet const & p)
         {
             fCaloHitLabel = p.get<std::string>("CaloHitLabel", "calohit");
-            fVerbosity = p.get<int>("Verbosity", 0);
 
             fGeo     = gar::providerFrom<geo::Geometry>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
@@ -108,10 +106,9 @@ namespace gar {
             for(auto const &it : unsplitHits)
             HitCol->emplace_back(*it);
 
-            if (fVerbosity>0) {
-                std::cout << "Before " << artHits.size() << std::endl;
-                std::cout << "After " << HitCol->size() << std::endl;
-            }
+            LOG_DEBUG("CaloStripSplitter_module")
+            << " Number of hits before the module " << artHits.size()
+            << " Number of hits after the module " << HitCol->size();
 
             e.put(std::move(HitCol));
 

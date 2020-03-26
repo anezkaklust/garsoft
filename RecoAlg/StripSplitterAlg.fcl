@@ -1,5 +1,4 @@
 stripsplitteralg:
 {
 SSAAlgName:                           "Strip Splitter Algorithm"
-Verbose:                               0
 }

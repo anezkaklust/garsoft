@@ -36,7 +36,7 @@ namespace gar{
 
             void DoDigitization();
 
-            std::vector< std::shared_ptr<raw::CaloRawDigit> > GetDigitizedHits() { return m_DigitHitVec; }
+            std::vector< raw::CaloRawDigit > GetDigitizedHits() const { return m_DigitHitVec; }
 
         protected:
 
@@ -46,7 +46,7 @@ namespace gar{
 
             float AddElectronicNoise(float energy) const;
 
-            std::shared_ptr<raw::CaloRawDigit> DoStripDigitization(float x, float y, float z, float energy, float time, raw::CellID_t cID) const;
+            raw::CaloRawDigit DoStripDigitization(float x, float y, float z, float energy, float time, raw::CellID_t cID) const;
 
             std::array<double, 3> CalculateStripPosition(float x, float y, float z, raw::CellID_t cID) const;
 
@@ -60,7 +60,7 @@ namespace gar{
 
             std::list<const sdp::CaloDeposit*> m_SimCaloHitList; ///<used to store the simulated hits
 
-            std::vector< std::shared_ptr<raw::CaloRawDigit> > m_DigitHitVec; ///<vector of digitized hits
+            std::vector< raw::CaloRawDigit > m_DigitHitVec; ///<vector of digitized hits
 
             TGeoManager* fGeoManager;
         };

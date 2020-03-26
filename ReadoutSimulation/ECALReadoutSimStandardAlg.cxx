@@ -108,14 +108,14 @@ namespace gar {
             //Treating tiled hits
             for(auto it : m_TileSimHits)
             {
-                const sdp::CaloDeposit *SimCaloHit = it.second;
+                const sdp::CaloDeposit *pSimCaloHit = it.second;
 
-                float energy = SimCaloHit->Energy();
-                float time = SimCaloHit->Time();
-                float x = SimCaloHit->X();
-                float y = SimCaloHit->Y();
-                float z = SimCaloHit->Z();
-                raw::CellID_t cellID = SimCaloHit->CellID();
+                float energy = pSimCaloHit->Energy();
+                float time = pSimCaloHit->Time();
+                float x = pSimCaloHit->X();
+                float y = pSimCaloHit->Y();
+                float z = pSimCaloHit->Z();
+                raw::CellID_t cellID = pSimCaloHit->CellID();
 
                 float new_energy = this->DoPhotonStatistics(x, y, z, energy);
                 float new_time = time;
@@ -123,9 +123,9 @@ namespace gar {
                 if(fTimeSmearing)
                 new_time = this->DoTimeSmearing(time);
 
-                std::shared_ptr<raw::CaloRawDigit> digihit = std::make_shared<raw::CaloRawDigit>( raw::CaloRawDigit(static_cast<unsigned int>(new_energy), new_time, x, y, z, cellID) );
+                raw::CaloRawDigit digihit( static_cast<unsigned int>(new_energy), new_time, x, y, z, cellID );
 
-                LOG_DEBUG("ECALReadoutSimStandardAlg") << "digihit " << digihit.get()
+                LOG_DEBUG("ECALReadoutSimStandardAlg") << "digihit " << &digihit
                 << " with cellID " << cellID
                 << " has energy " << static_cast<unsigned int>(new_energy)
                 << " time " << new_time << " ns"
@@ -137,16 +137,16 @@ namespace gar {
             //Treating strips "smear energy and naively smeared position"
             for(auto it : m_StripSimHits)
             {
-                const sdp::CaloDeposit *SimCaloHit = it.second;
+                const sdp::CaloDeposit *pSimCaloHit = it.second;
 
-                float energy = SimCaloHit->Energy();
-                float time = SimCaloHit->Time();
-                float x = SimCaloHit->X();
-                float y = SimCaloHit->Y();
-                float z = SimCaloHit->Z();
-                raw::CellID_t cellID = SimCaloHit->CellID();
+                float energy = pSimCaloHit->Energy();
+                float time = pSimCaloHit->Time();
+                float x = pSimCaloHit->X();
+                float y = pSimCaloHit->Y();
+                float z = pSimCaloHit->Z();
+                raw::CellID_t cellID = pSimCaloHit->CellID();
 
-                std::shared_ptr<raw::CaloRawDigit> digihit = this->DoStripDigitization(x, y, z, energy, time, cellID);
+                raw::CaloRawDigit digihit = this->DoStripDigitization(x, y, z, energy, time, cellID);
                 m_DigitHitVec.push_back(digihit);
             }
 
@@ -155,7 +155,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::shared_ptr<raw::CaloRawDigit> ECALReadoutSimStandardAlg::DoStripDigitization(float x, float y, float z, float energy, float time, raw::CellID_t cID) const
+        raw::CaloRawDigit ECALReadoutSimStandardAlg::DoStripDigitization(float x, float y, float z, float energy, float time, raw::CellID_t cID) const
         {
             LOG_DEBUG("ECALReadoutSimStandardAlg") << "DoStripDigitization()";
 
@@ -169,9 +169,9 @@ namespace gar {
             std::array<double, 3> pos = this->CalculateStripPosition(x, y, z, cID);
 
             //make the shared ptr
-            std::shared_ptr<raw::CaloRawDigit> digihit = std::make_shared<raw::CaloRawDigit>( raw::CaloRawDigit(static_cast<unsigned int>(new_energy), times, pos[0], pos[1], pos[2], cID) );
+            raw::CaloRawDigit digihit( static_cast<unsigned int>(new_energy), times, pos[0], pos[1], pos[2], cID );
 
-            LOG_DEBUG("ECALReadoutSimStandardAlg") << "digihit " << digihit.get()
+            LOG_DEBUG("ECALReadoutSimStandardAlg") << "digihit " << &digihit
             << " with cellID " << cID
             << " has energy " << static_cast<unsigned int>(new_energy)
             << " time (" << times.first << ", " << times.second << ")"
@@ -292,9 +292,6 @@ namespace gar {
 
                 //Add the new made hit to the map
                 m_SimCaloHits.emplace(pSimCaloHit->CellID(), hit);
-
-                std::vector<const sdp::CaloDeposit*> pSimVec;
-                pSimVec.push_back(pSimCaloHit);
             }
             else
             {

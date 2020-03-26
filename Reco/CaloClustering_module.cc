@@ -61,7 +61,6 @@ namespace gar {
 
             std::string fTrackLabel;  ///< label to find the reco tracks
             std::string fCaloHitLabel;  ///< label to find the right reco calo hits
-            int fVerbosity;
 
             const detinfo::DetectorProperties*  fDetProp;      ///< detector properties
             const geo::GeometryCore*            fGeo;          ///< pointer to the geometry
@@ -74,7 +73,6 @@ namespace gar {
         {
             fTrackLabel = p.get<std::string>("TrackLabel", "track");
             fCaloHitLabel = p.get<std::string>("CaloHitLabel", "calohit");
-            fVerbosity = p.get<int>("Verbosity", 0);
 
             fGeo     = gar::providerFrom<geo::Geometry>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
@@ -83,6 +81,7 @@ namespace gar {
             auto fClusterAlgoPars = p.get<fhicl::ParameterSet>("ClusterAlgPars");
             fClusterAlgo = std::make_unique<rec::alg::KNNClusterAlg>(fClusterAlgoPars);
 
+            consumes< std::vector<gar::rec::CaloHit> >(fCaloHitLabel);
             produces< std::vector<gar::rec::Cluster> >();
             produces< art::Assns<gar::rec::Cluster, gar::rec::CaloHit> >();
             if (fClusterAlgo->usesTracks()) produces< art::Assns<gar::rec::Cluster, gar::rec::Track> >();
@@ -118,14 +117,17 @@ namespace gar {
 
             art::PtrMaker<gar::rec::Cluster> makeClusterPtr(e);
 
-            if (fVerbosity>0) std::cout << "Found " << ClusterVec.size() << " Clusters" << std::endl;
+            LOG_DEBUG("CaloClustering_module")
+            << "Found " << ClusterVec.size() << " Clusters";
 
             //Copy the clusters to the collection
             for(auto it : ClusterVec)
             {
                 gar::rec::Cluster clus(*it);
 
-                if (fVerbosity>0) std::cout << "Cluster has " << clus.CalorimeterHits().size() << " calo hits" << std::endl;
+                LOG_DEBUG("CaloClustering_module")
+                << "Cluster has " << clus.CalorimeterHits().size() << " calo hits";
+
                 ClusterCol->push_back(clus);
 
                 art::Ptr<gar::rec::Cluster> clusterPtr = makeClusterPtr(ClusterCol->size() - 1);
@@ -143,7 +145,7 @@ namespace gar {
                         ClusterHitAssns->addSingle(clusterPtr, hitpointer);
                     }
                 }
-                
+
                 if (fClusterAlgo->usesTracks()) {
 				    //get list of track associated to the cluster
                     const std::vector< gar::rec::Track* > trkVec = it->Tracks();

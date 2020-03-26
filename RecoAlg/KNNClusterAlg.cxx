@@ -38,7 +38,6 @@ namespace gar {
                 //Algorithm parameters
                 m_EnergyCut = pset.get<float>("EnergyCut", 0.);
                 m_DistanceCut = pset.get<float>("DistanceCut", 5.f);
-                m_Verbose = pset.get<unsigned int>("Verbose", 0);
 
                 return;
             }
@@ -103,12 +102,11 @@ namespace gar {
 
                 // cluster the hits with a nearest neighbour condition
                 cluster( h.begin() , h.end() , std::back_inserter( cl )  , &dist ) ;
-
-                if(m_Verbose > 0){
-                    std::cout << "  passing " << h.size() << " of " << nHit
-                    << "  hits to clustering (E_cut: " << m_EnergyCut << ") "
-                    << "  found  " << cl.size() << " clusters " << std::endl ;
-                }
+                
+                LOG_DEBUG("KNNClusterAlg::DoClustering()")
+                << "  Passing " << h.size() << " of " << nHit
+                << "  hits to clustering (E_cut: " << m_EnergyCut << ") "
+                << "  found  " << cl.size() << " clusters ";
 
                 // create Clusters from the clustered GenericHits
                 std::transform( cl.begin(), cl.end(), std::back_inserter( clusterVector ), converter ) ;

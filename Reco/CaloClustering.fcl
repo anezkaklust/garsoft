@@ -6,5 +6,4 @@ module_type:        CaloClustering
 CaloHitLabel:       "calohit"
 TrackLabel:         "track"
 ClusterAlgPars:     @local::knnclusteralg
-Verbosity:          0
 }

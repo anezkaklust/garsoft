@@ -46,9 +46,6 @@ namespace gar {
             void StripSplitterAlg::reconfigure(fhicl::ParameterSet const& pset)
             {
                 fSSAAlgName = pset.get<std::string>("SSAAlgName");
-                //Algorithm parameters
-                m_Verbose = pset.get<unsigned int>("Verbose", 0);
-
                 return;
             }
 
@@ -67,8 +64,8 @@ namespace gar {
             //----------------------------------------------------------------------------
             void StripSplitterAlg::PrepareAlgo(const std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector)
             {
-                if(m_Verbose)
-                std::cout << "StripSplitterAlg::PrepareAlgo()" << std::endl;
+                LOG_DEBUG("StripSplitterAlg")
+                << "StripSplitterAlg::PrepareAlgo()";
 
                 //Clear the lists
                 ClearLists();
@@ -96,25 +93,26 @@ namespace gar {
             //----------------------------------------------------------------------------
             void StripSplitterAlg::DoStripSplitting()
             {
-                if(m_Verbose)
-                std::cout << "StripSplitterAlg::DoStripSplitting()" << std::endl;
+                LOG_DEBUG("StripSplitterAlg")
+                << "StripSplitterAlg::DoStripSplitting()";
 
+                //Collection to split
                 std::vector <const gar::rec::CaloHit*> toSplit;
-                int Orientation;
+                int orientation;
                 //Orientation
                 //even layers are segmented in Y -> Transverse
                 //odd layers are segmented in X -> Longitudinal
 
                 // loop over strip collections in even and odd layers (assumed to have perpendicular orientations)
-                for (int icol=0; icol<2; icol++)
+                for (int icol = 0; icol < 2; icol++)
                 {
                     switch (icol) {
                     case 0:
-                        Orientation = TRANSVERSE;
+                        orientation = TRANSVERSE;
                         toSplit = m_CaloHitVecEven;
                         break;
                     case 1:
-                        Orientation = LONGITUDINAL;
+                        orientation = LONGITUDINAL;
                         toSplit = m_CaloHitVecOdd;
                         break;
                     default:
@@ -124,11 +122,12 @@ namespace gar {
                         return;
                     }
 
-                    // loop over hits of this type (long/trans)
+                    // loop over hits of this type (long/trans) collection
                     for (uint i = 0; i < toSplit.size(); i++)
                     {
-                        // is this a barrel or endcap collection?
                         const gar::rec::CaloHit *hit = toSplit.at(i);
+
+                        // is this a barrel or endcap collection?
                         TVector3 point(hit->Position()[0], hit->Position()[1], hit->Position()[2]);
                         std::string volname = fGeo->VolumeName(point);
 
@@ -144,7 +143,7 @@ namespace gar {
                         }
 
                         // split the hits
-                        std::vector <const gar::rec::CaloHit*> splitHits = getVirtualHits(hit, Orientation, isBarrel);
+                        std::vector <const gar::rec::CaloHit*> splitHits = getVirtualHits(hit, orientation, isBarrel);
 
                         // add (new) hits to collections
                         if (splitHits.size() == 0) {
@@ -163,10 +162,10 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            std::vector <const gar::rec::CaloHit*> StripSplitterAlg::getVirtualHits(const gar::rec::CaloHit* hit, int Orientation, bool isBarrel)
+            std::vector <const gar::rec::CaloHit*> StripSplitterAlg::getVirtualHits(const gar::rec::CaloHit* hit, int orientation, bool isBarrel)
             {
-                if(m_Verbose)
-                std::cout << "StripSplitterAlg::getVirtualHits()" << std::endl;
+                LOG_DEBUG("StripSplitterAlg")
+                << "StripSplitterAlg::getVirtualHits()";
 
                 std::vector <const gar::rec::CaloHit*> newhits;
 
@@ -181,7 +180,7 @@ namespace gar {
                 fnVirtual = int(fStripLength / fStripWidth);
 
                 // get the ends of this strip
-                std::pair < TVector3, TVector3 > stripEnds = getStripEnds(hit, Orientation, isBarrel);
+                std::pair < TVector3, TVector3 > stripEnds = getStripEnds(hit, orientation, isBarrel);
                 TVector3 stripDir = stripEnds.first - stripEnds.second;
 
                 // decide which collections to use to split the strip
@@ -222,28 +221,29 @@ namespace gar {
                         int module2 = hit2->GetModule();
                         int stave2  = hit2->GetStave();
 
-                        int dlayer = std::abs(layer2-layer);
-                        int dstave = std::abs(stave2-stave);
-                        int dmodule = std::abs(module2-module);
+                        int dlayer = std::abs(layer2 - layer);
+                        int dstave = std::abs(stave2 - stave);
+                        int dmodule = std::abs(module2 - module);
 
                         // are the two hits close enough to look at further?
                         // if hits in same module and same stave, require that only one layer difference
-                        if (dmodule==0 && dstave==0 && dlayer>1) continue;
+                        if (dmodule == 0 && dstave == 0 && dlayer > 1) continue;
 
                         if (isBarrel)
                         {
-                            dstave = std::min( dstave, fInnerSymmetry-dstave);
-                            if ( dstave==0 && dmodule>1 ) continue; // allow same stave and +- 1 module
-                            if ( dmodule==0 && dstave>1 ) continue; // or same module +- 1 stave
-                            if ( dstave==0 && dlayer>1) continue;   // if in same stave, require dlayer==1
+                            dstave = std::min( dstave, fInnerSymmetry - dstave);
+                            if ( dstave == 0 && dmodule > 1 ) continue; // allow same stave and +- 1 module
+                            if ( dmodule == 0 && dstave > 1 ) continue; // or same module +- 1 stave
+                            if ( dstave == 0 && dlayer > 1) continue;   // if in same stave, require dlayer==1
                         }
                         else
                         {
+                            //TODO Check this!
                             //endcap
-                            dstave = std::min( dstave, 4-dstave);
-                            if (dmodule!=0) continue; // different endcap
-                            if (dstave>1) continue;   // more than 1 stave (=quarter endcap) apart
-                            if (dlayer>1) continue;   // more than 1 layer apart
+                            dstave = std::min( dstave, 4 - dstave);
+                            if (dmodule != 0) continue; // different endcap
+                            if (dstave > 1) continue;   // more than 1 stave (=quarter endcap) apart
+                            if (dlayer > 1) continue;   // more than 1 layer apart
                         }
 
                         // simple distance check for remaining hit pairs
@@ -328,7 +328,7 @@ namespace gar {
                 return newhits;
             }
 
-            std::pair < TVector3, TVector3 > StripSplitterAlg::getStripEnds(const gar::rec::CaloHit* hit, int Orientation, bool isBarrel)
+            std::pair < TVector3, TVector3 > StripSplitterAlg::getStripEnds(const gar::rec::CaloHit* hit, int orientation, bool isBarrel)
             {
                 // calculate the positions of the strip ends
                 TVector3 stripcentre(hit->Position()[0], hit->Position()[1], hit->Position()[2]);
@@ -341,13 +341,13 @@ namespace gar {
 
                 if (isBarrel)
                 {
-                    if (Orientation == TRANSVERSE)
+                    if (orientation == TRANSVERSE)
                     {
                         // transverse, along z axis in barrel region
                         stripend1.SetZ(stripcentre.Z() - fStripLength/2.);
                         stripend2.SetZ(stripcentre.Z() + fStripLength/2.);
                     }
-                    else if (Orientation == LONGITUDINAL)
+                    else if (orientation == LONGITUDINAL)
                     {
                         // longitudinal, along x-y in barrel
                         float phiRotAngle = (stave-1)*2.*TMath::Pi()/fInnerSymmetry; // for new ILD models (dd4hep based)
@@ -365,11 +365,11 @@ namespace gar {
                     // are the strips in the slab horizontal?
                     bool horizontalStrip(true);
                     if (horizontalSlab) {
-                        if      (Orientation == LONGITUDINAL) horizontalStrip=false;
-                        else if (Orientation == TRANSVERSE)   horizontalStrip=true;
+                        if      (orientation == LONGITUDINAL) horizontalStrip = false;
+                        else if (orientation == TRANSVERSE)   horizontalStrip = true;
                     } else {
-                        if      (Orientation == LONGITUDINAL) horizontalStrip=true;
-                        else if (Orientation == TRANSVERSE)   horizontalStrip=false;
+                        if      (orientation == LONGITUDINAL) horizontalStrip = true;
+                        else if (orientation == TRANSVERSE)   horizontalStrip = false;
                     }
 
                     if (horizontalStrip) {

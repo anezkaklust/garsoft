@@ -15,8 +15,7 @@ namespace gar {
         CaloHit::CaloHit()
         : fEnergy(0.),
         fTime(0.),
-        fCellID(0.),
-        fPositionVector(0., 0., 0.)
+        fCellID(0.)
         {
             IDNumberGen::create(FirstNumber);
             fIDnumero = IDNumberGen::create()->getNewOne();
@@ -52,14 +51,15 @@ namespace gar {
             fPosition[1] = pos[1];
             fPosition[2] = pos[2];
 
-            fPositionVector = CLHEP::Hep3Vector(pos[0], pos[1], pos[2]);
             return;
         }
 
         //--------------------------------------------------------------------------
         bool CaloHit::operator< (const CaloHit &rhs) const
         {
-            const CLHEP::Hep3Vector deltaPosition(rhs.GetPositionVector() - this->GetPositionVector());
+            const TVector3 rhsPos(rhs.Position()[0], rhs.Position()[1], rhs.Position()[2]);
+            const TVector3 thisPos(this->Position()[0], this->Position()[1], this->Position()[2]);
+            const TVector3 deltaPosition(rhsPos - thisPos);
 
             if (std::fabs(deltaPosition.z()) > std::numeric_limits<float>::epsilon())
             return (deltaPosition.z() > std::numeric_limits<float>::epsilon());

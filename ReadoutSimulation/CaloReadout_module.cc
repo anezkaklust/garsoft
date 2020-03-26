@@ -100,6 +100,7 @@ namespace gar {
 
             this->reconfigure(pset);
 
+            consumes< std::vector<sdp::CaloDeposit> >(fG4Label);
             produces< std::vector<raw::CaloRawDigit> >();
             produces< art::Assns<raw::CaloRawDigit, sdp::CaloDeposit>  >();
 
@@ -151,7 +152,7 @@ namespace gar {
             fROSimAlg->DoDigitization();
 
             //Get the digitized hits
-            std::vector< std::shared_ptr<raw::CaloRawDigit> > digiVec = fROSimAlg->GetDigitizedHits();
+            std::vector< raw::CaloRawDigit > digiVec = fROSimAlg->GetDigitizedHits();
 
             // loop over the lists and put the particles and voxels into the event as collections
             std::unique_ptr< std::vector<raw::CaloRawDigit> > digitCol (new std::vector<raw::CaloRawDigit>);
@@ -159,14 +160,12 @@ namespace gar {
 
             art::PtrMaker<raw::CaloRawDigit> makeDigiPtr(evt);
 
-            for(auto it : digiVec)
+            for(auto const &it : digiVec)
             {
-                raw::CaloRawDigit digihit = raw::CaloRawDigit(it->ADC(), it->Time(), it->X(), it->Y(), it->Z(), it->CellID());
-                digitCol->push_back(digihit);
-
+                digitCol->emplace_back(it);
                 art::Ptr<raw::CaloRawDigit> digiPtr = makeDigiPtr(digitCol->size() - 1);
                 //get the associated vector of art ptr based on cellID
-                std::vector< art::Ptr<sdp::CaloDeposit> > simPtrVec = m_cIDMapArtPtrVec[it->CellID()];
+                std::vector< art::Ptr<sdp::CaloDeposit> > simPtrVec = m_cIDMapArtPtrVec[it.CellID()];
                 for(auto hitpointer : simPtrVec)
                 DigiSimHitsAssns->addSingle(digiPtr, hitpointer);
             }

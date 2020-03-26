@@ -90,6 +90,7 @@ namespace gar {
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fECALUtils = std::make_unique<util::ECALUtils>(fDetProp->EffectivePixel());
 
+            consumes< std::vector<raw::CaloRawDigit> >(fRawDigitLabel);
             produces< std::vector<rec::CaloHit> >();
             produces< art::Assns<rec::CaloHit, raw::CaloRawDigit>  >();
         }

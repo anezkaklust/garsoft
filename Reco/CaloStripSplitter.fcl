@@ -5,5 +5,4 @@ standard_CaloStripSplitter:
 module_type:        CaloStripSplitter
 CaloHitLabel:       "calohit"
 SSAAlgPars:         @local::stripsplitteralg
-Verbosity:          0
 }

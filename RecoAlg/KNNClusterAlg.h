@@ -52,7 +52,7 @@ namespace gar{
 
         void DoClustering();
 
-        ClusterVec GetFoundClusters() { return clusterVector; }
+        ClusterVec GetFoundClusters() const { return clusterVector; }
 
       private:
 
@@ -63,7 +63,6 @@ namespace gar{
         std::string fClusterAlgName;
         float m_EnergyCut;
         float m_DistanceCut;
-        unsigned int m_Verbose;
 
         CaloHitVec m_CaloHitVec;
         TrackVec m_TrackVec;
