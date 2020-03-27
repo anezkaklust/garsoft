@@ -296,6 +296,36 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
+        std::pair<TVector3, TVector3> ECALSegmentationMultiGridStripXYAlg::getStripEnds(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const raw::CellID_t& cID) const
+        {
+            TVector3 stripEnd1(0., 0., 0.);
+            TVector3 stripEnd2(0., 0., 0.);
+
+            //Strip along X (local)
+            if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 2) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 == 0) ) {
+                stripEnd1.SetX(-_layer_dim_X/2.);
+                stripEnd2.SetX(_layer_dim_X/2.);
+
+                stripEnd1.SetY(local[1]);
+                stripEnd2.SetY(local[1]);
+                stripEnd1.SetZ(local[2]);
+                stripEnd2.SetZ(local[2]);
+            }
+            //Strip along Y (local)
+            if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 3) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) ) {
+                stripEnd1.SetY(-_layer_dim_Y/2.);
+                stripEnd2.SetY(_layer_dim_Y/2.);
+
+                stripEnd1.SetX(local[0]);
+                stripEnd2.SetX(local[0]);
+                stripEnd1.SetZ(local[2]);
+                stripEnd2.SetZ(local[2]);
+            }
+
+            return std::make_pair(stripEnd1, stripEnd2);
+        }
+
+        //----------------------------------------------------------------------------
         std::pair<float, float> ECALSegmentationMultiGridStripXYAlg::CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const raw::CellID_t& cID) const
         {
             //Propagate the light to the SiPM on the side
@@ -307,7 +337,7 @@ namespace gar {
             //time2 is right SiPM
             float time2 = 0.;
 
-            //Strip along X
+            //Strip along X (local)
             if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 2) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 == 0) )
             {
                 //Need to check for the sign of the local X?
@@ -317,7 +347,8 @@ namespace gar {
                 time2 = ( _layer_dim_X / 2 - local[0] ) / c;
             }
 
-            if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 3) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) ) //Strip along Y
+            //Strip along Y (local)
+            if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 3) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) )
             {
                 //Need to check for the sign of the local Y?
                 // int sign = (local[1] > 0) ? 1 : ((local[1] < 0) ? -1 : 0);

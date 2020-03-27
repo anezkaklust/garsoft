@@ -23,25 +23,27 @@ namespace gar {
 
             ECALSegmentationMultiGridStripXYAlg(const BitFieldCoder* decoder, fhicl::ParameterSet const& pset);
 
-            virtual ~ECALSegmentationMultiGridStripXYAlg();
+            ~ECALSegmentationMultiGridStripXYAlg();
 
-            virtual void reconfigure(fhicl::ParameterSet const& pset);
+            void reconfigure(fhicl::ParameterSet const& pset) override;
 
-            virtual void Initialize(const gar::geo::GeometryCore& geo);
+            void Initialize(const gar::geo::GeometryCore& geo) override;
 
-            virtual std::array<double, 3> GetPosition(const gar::geo::GeometryCore& geo, const raw::CellID_t& cID) const;
+            std::array<double, 3> GetPosition(const gar::geo::GeometryCore& geo, const raw::CellID_t& cID) const override;
 
-            virtual raw::CellID_t GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const;
+            raw::CellID_t GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const override;
 
-            virtual int getIDbyCellID(const raw::CellID_t& cID, const char* id) const;
+            int getIDbyCellID(const raw::CellID_t& cID, const char* id) const override;
 
-            virtual bool isTile(const raw::CellID_t& cID) const;
+            bool isTile(const raw::CellID_t& cID) const override;
 
-            virtual double getStripLength(const gar::geo::GeometryCore& geo, const raw::CellID_t& cID) const;
+            double getStripLength(const gar::geo::GeometryCore& geo, const raw::CellID_t& cID) const override;
 
-            virtual std::pair<float, float> CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const raw::CellID_t& cID) const;
+            std::pair<TVector3, TVector3> getStripEnds(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const raw::CellID_t& cID) const override;
 
-            virtual std::array<double, 3> ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const raw::CellID_t& cID) const;
+            std::pair<float, float> CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const raw::CellID_t& cID) const override;
+
+            std::array<double, 3> ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const raw::CellID_t& cID) const override;
 
             const double& gridSizeX() const { return _gridSizeX; }
 
@@ -91,7 +93,7 @@ namespace gar {
 
         protected:
 
-            virtual void PrintParameters() const;
+            void PrintParameters() const override;
 
             std::array<std::vector<unsigned int>, 2> TokenizeLayerVectors(std::vector<std::string> grid) const;
 

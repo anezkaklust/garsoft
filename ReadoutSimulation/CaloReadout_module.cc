@@ -152,7 +152,7 @@ namespace gar {
             fROSimAlg->DoDigitization();
 
             //Get the digitized hits
-            std::vector< raw::CaloRawDigit > digiVec = fROSimAlg->GetDigitizedHits();
+            std::vector< raw::CaloRawDigit* > digiVec = fROSimAlg->GetDigitizedHits();
 
             // loop over the lists and put the particles and voxels into the event as collections
             std::unique_ptr< std::vector<raw::CaloRawDigit> > digitCol (new std::vector<raw::CaloRawDigit>);
@@ -162,10 +162,10 @@ namespace gar {
 
             for(auto const &it : digiVec)
             {
-                digitCol->emplace_back(it);
+                digitCol->emplace_back(*it);
                 art::Ptr<raw::CaloRawDigit> digiPtr = makeDigiPtr(digitCol->size() - 1);
                 //get the associated vector of art ptr based on cellID
-                std::vector< art::Ptr<sdp::CaloDeposit> > simPtrVec = m_cIDMapArtPtrVec[it.CellID()];
+                std::vector< art::Ptr<sdp::CaloDeposit> > simPtrVec = m_cIDMapArtPtrVec[it->CellID()];
                 for(auto hitpointer : simPtrVec)
                 DigiSimHitsAssns->addSingle(digiPtr, hitpointer);
             }

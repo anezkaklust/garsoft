@@ -73,7 +73,7 @@ namespace gar {
 
             const detinfo::DetectorProperties*  fDetProp;      ///< detector properties
             const geo::GeometryCore*            fGeo;          ///< pointer to the geometry
-            std::unique_ptr<util::ECALUtils>          fECALUtils;    ///< pointer to the Util fcn for the ECAL containing the desaturation function
+            std::unique_ptr<util::ECALUtils>    fECALUtils;    ///< pointer to the Util fcn for the ECAL containing the desaturation function
         };
 
 
@@ -110,7 +110,7 @@ namespace gar {
             {
                 const raw::CaloRawDigit& digitHit = (*digiCol)[idigit];
 
-                unsigned int hitADC = digitHit.ADC();
+                unsigned int hitADC = digitHit.ADC().first;
                 std::pair<float, float> hitTime = digitHit.Time();
                 float x = digitHit.X();
                 float y = digitHit.Y();

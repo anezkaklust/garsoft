@@ -21,27 +21,19 @@ namespace gar {
 
             ECALSegmentationGridXYAlg(const BitFieldCoder* decoder, fhicl::ParameterSet const& pset);
 
-            virtual ~ECALSegmentationGridXYAlg();
+            ~ECALSegmentationGridXYAlg();
 
-            virtual void reconfigure(fhicl::ParameterSet const& pset);
+            void reconfigure(fhicl::ParameterSet const& pset) override;
 
-            virtual void Initialize(const gar::geo::GeometryCore& geo);
+            void Initialize(const gar::geo::GeometryCore& geo) override;
 
-            virtual std::array<double, 3> GetPosition(const gar::geo::GeometryCore& geo, const raw::CellID_t& cID) const;
+            std::array<double, 3> GetPosition(const gar::geo::GeometryCore& geo, const raw::CellID_t& cID) const override;
 
-            virtual raw::CellID_t GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const;
+            raw::CellID_t GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const override;
 
-            virtual int getIDbyCellID(const raw::CellID_t& cID, const char* id) const;
+            int getIDbyCellID(const raw::CellID_t& cID, const char* id) const override;
 
-            virtual bool isTile(const raw::CellID_t& cID) const { return true; }
-
-            virtual double getStripLength(const gar::geo::GeometryCore& geo, const raw::CellID_t& cID) const { return 0.; }
-
-            virtual std::pair<float, float> CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const raw::CellID_t& cID) const { return std::make_pair(0., 0.); }
-
-            virtual std::array<double, 3> ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const raw::CellID_t& cID) const { return std::array<double, 3>{ {0., 0., 0.} }; }
-
-            virtual void PrintParameters() const;
+            bool isTile(const raw::CellID_t& cID) const override { return true; }
 
             const double& gridSizeX() const { return _gridSizeX; }
 
@@ -70,6 +62,9 @@ namespace gar {
             void setLayerDimXY(const double& dimX, const double& dimY) const { return; }
 
         protected:
+
+            void PrintParameters() const override;
+
             /// the grid size in X
             double _gridSizeX;
             /// the coordinate offset in X

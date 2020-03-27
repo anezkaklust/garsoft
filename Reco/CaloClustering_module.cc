@@ -121,14 +121,12 @@ namespace gar {
             << "Found " << ClusterVec.size() << " Clusters";
 
             //Copy the clusters to the collection
-            for(auto it : ClusterVec)
+            for(auto const &it : ClusterVec)
             {
-                gar::rec::Cluster clus(*it);
-
                 LOG_DEBUG("CaloClustering_module")
-                << "Cluster has " << clus.CalorimeterHits().size() << " calo hits";
+                << "Cluster has " << it->CalorimeterHits().size() << " calo hits";
 
-                ClusterCol->push_back(clus);
+                ClusterCol->emplace_back(*it);
 
                 art::Ptr<gar::rec::Cluster> clusterPtr = makeClusterPtr(ClusterCol->size() - 1);
 

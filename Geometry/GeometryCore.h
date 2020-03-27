@@ -858,6 +858,8 @@ namespace gar {
 
       double getStripLength(std::array<double, 3> const& point, const raw::CellID_t &cID) const;
 
+      std::pair<TVector3, TVector3> GetStripEnds(std::array<double, 3> const& point, const raw::CellID_t &cID) const;
+
       std::pair<float, float> CalculateLightPropagation(std::array<double, 3>const& point, const std::array<double, 3> &local, const raw::CellID_t &cID) const;
 
       std::array<double, 3> ReconstructStripHitPosition(const std::array<double, 3> &local, const float &xlocal, const raw::CellID_t &cID) const;

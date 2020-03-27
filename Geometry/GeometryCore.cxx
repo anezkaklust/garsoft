@@ -604,18 +604,18 @@ namespace gar {
             float halfheight = ((TGeoBBox*)volWorld->GetShape())->GetDY();
             float halfwidth  = ((TGeoBBox*)volWorld->GetShape())->GetDX();
             if (std::abs(point.x()) > halfwidth  ||
-                std::abs(point.y()) > halfheight ||
-                std::abs(point.z()) > halflength){
+            std::abs(point.y()) > halfheight ||
+            std::abs(point.z()) > halflength){
                 if (fPointInWarnings) {
                     LOG_WARNING("GeometryCoreBadInputPoint")
-                        << "point ("
-                        << point.x() << ","
-                        << point.y() << ","
-                        << point.z() << ") "
-                        << "is not inside the world volume "
-                        << " half width = "  << halfwidth
-                        << " half height = " << halfheight
-                        << " half length = " << halflength;
+                    << "point ("
+                    << point.x() << ","
+                    << point.y() << ","
+                    << point.z() << ") "
+                    << "is not inside the world volume "
+                    << " half width = "  << halfwidth
+                    << " half height = " << halfheight
+                    << " half length = " << halflength;
                 }
                 return false;
             }
@@ -628,18 +628,18 @@ namespace gar {
         {
             // check that the given point is in the enclosure volume at least
             if (std::abs(point.x()) > fEnclosureHalfWidth  ||
-                std::abs(point.y()) > fEnclosureHalfHeight ||
-                std::abs(point.z()) > fEnclosureLength){
+            std::abs(point.y()) > fEnclosureHalfHeight ||
+            std::abs(point.z()) > fEnclosureLength){
                 if (fPointInWarnings) {
                     LOG_WARNING("GeometryCoreBadInputPoint")
-                        << "point ("
-                        << point.x() << ","
-                        << point.y() << ","
-                        << point.z() << ") "
-                        << "is not inside the detector enclosure volume "
-                        << " half width = "  << fEnclosureHalfWidth
-                        << " half height = " << fEnclosureHalfHeight
-                        << " half length = " << fEnclosureLength;
+                    << "point ("
+                    << point.x() << ","
+                    << point.y() << ","
+                    << point.z() << ") "
+                    << "is not inside the detector enclosure volume "
+                    << " half width = "  << fEnclosureHalfWidth
+                    << " half height = " << fEnclosureHalfHeight
+                    << " half length = " << fEnclosureLength;
                 }
                 return false;
             }
@@ -654,18 +654,18 @@ namespace gar {
             TVector3 new_point = point - tpc_origin;
             // check that the given point is in the enclosure volume at least
             if (std::abs(new_point.x()) > fMPDHalfWidth  ||
-                std::abs(new_point.y()) > fMPDHalfHeight ||
-                std::abs(new_point.z()) > fMPDLength){
+            std::abs(new_point.y()) > fMPDHalfHeight ||
+            std::abs(new_point.z()) > fMPDLength){
                 if (fPointInWarnings) {
                     LOG_WARNING("GeometryCoreBadInputPoint")
-                        << "point ("
-                        << point.x() << ","
-                        << point.y() << ","
-                        << point.z() << ") "
-                        << "is not inside the MPD volume "
-                        << " half width = "  << fMPDHalfWidth
-                        << " half height = " << fMPDHalfHeight
-                        << " half length = " << fMPDLength;
+                    << "point ("
+                    << point.x() << ","
+                    << point.y() << ","
+                    << point.z() << ") "
+                    << "is not inside the MPD volume "
+                    << " half width = "  << fMPDHalfWidth
+                    << " half height = " << fMPDHalfHeight
+                    << " half length = " << fMPDLength;
                 }
                 return false;
             }
@@ -680,16 +680,16 @@ namespace gar {
             float y = std::abs(point.y() - fTPCYCent);
             float z = std::abs(point.z() - fTPCZCent);
             if (std::abs(point.x() - fTPCXCent) > fTPCLength/2.0  ||
-                std::hypot(z,y)                 > fTPCRadius) {
+            std::hypot(z,y)                 > fTPCRadius) {
                 if (fPointInWarnings) {
                     LOG_WARNING("GeometryCoreBadInputPoint")
-                        << "point ("
-                        << point.x() << ","
-                        << point.y() << ","
-                        << point.z() << ") "
-                        << "is not inside the GArTPC volume "
-                        << " radius = " << fTPCRadius
-                        << " length = " << fTPCLength;
+                    << "point ("
+                    << point.x() << ","
+                    << point.y() << ","
+                    << point.z() << ") "
+                    << "is not inside the GArTPC volume "
+                    << " radius = " << fTPCRadius
+                    << " length = " << fTPCLength;
                 }
                 return false;
             }
@@ -706,18 +706,18 @@ namespace gar {
             float halfheight = ((TGeoBBox*)volLArTPC->GetShape())->GetDY();
             float halfwidth  = ((TGeoBBox*)volLArTPC->GetShape())->GetDX();
             if (std::abs(point.x()) > halfwidth  ||
-                std::abs(point.y()) > halfheight ||
-                std::abs(point.z()) > halflength){
+            std::abs(point.y()) > halfheight ||
+            std::abs(point.z()) > halflength){
                 if (fPointInWarnings) {
                     LOG_WARNING("GeometryCoreBadInputPoint")
-                        << "point ("
-                        << point.x() << ","
-                        << point.y() << ","
-                        << point.z() << ") "
-                        << "is not inside the LArTPC volume "
-                        << " half width = "  << halfwidth
-                        << " half height = " << halfheight
-                        << " half length = " << halflength;
+                    << "point ("
+                    << point.x() << ","
+                    << point.y() << ","
+                    << point.z() << ") "
+                    << "is not inside the LArTPC volume "
+                    << " half width = "  << halfwidth
+                    << " half height = " << halfheight
+                    << " half length = " << halflength;
                 }
                 return false;
             }
@@ -1021,6 +1021,29 @@ namespace gar {
             const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
             fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
             return fECALSegmentationAlg->getStripLength(*this, cID);
+        }
+
+        //----------------------------------------------------------------------------
+        std::pair<TVector3, TVector3> GeometryCore::GetStripEnds(std::array<double, 3> const& point, const raw::CellID_t &cID) const
+        {
+            //Get the matrix to make the transformation from Local to World
+            std::array<double, 3> localtemp;
+            gar::geo::LocalTransformation<TGeoHMatrix> trans;
+            this->WorldToLocal(point, localtemp, trans);
+
+            const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
+            fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+            std::pair<TVector3, TVector3> localStripEnds = fECALSegmentationAlg->getStripEnds(*this, localtemp, cID);
+
+            //Get the world coordinates from both local coordinates of the strip ends
+            std::array<double, 3> stripEnd1local = { localStripEnds.first.X(), localStripEnds.first.Y(), localStripEnds.first.Z() };
+            std::array<double, 3> stripEnd2local = { localStripEnds.second.X(), localStripEnds.second.Y(), localStripEnds.second.Z() };
+            std::array<double, 3> stripEnd1;
+            std::array<double, 3> stripEnd2;
+            this->LocalToWorld(stripEnd1local, stripEnd1, trans);
+            this->LocalToWorld(stripEnd2local, stripEnd2, trans);
+
+            return std::make_pair( TVector3(stripEnd1[0], stripEnd1[1], stripEnd1[2]), TVector3(stripEnd2[0], stripEnd2[1], stripEnd2[2]) );
         }
 
         //----------------------------------------------------------------------------

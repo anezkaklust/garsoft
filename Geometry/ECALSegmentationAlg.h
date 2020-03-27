@@ -1,18 +1,14 @@
 #ifndef ECALSEGMENTATIONALG_H
 #define ECALSEGMENTATIONALG_H
 
-#include "Geometry/BitFieldCoder.h"
-
 #include <vector>
 #include <map>
 
 #include "Geometry/GeometryCore.h"
-
-#include "CLHEP/Vector/ThreeVector.h"
-
+#include "Geometry/BitFieldCoder.h"
 #include "RawDataProducts/CaloRawDigit.h"
 
-typedef CLHEP::Hep3Vector G4ThreeVector;
+#include "TVector3.h"
 
 namespace fhicl{
     class ParameterSet;
@@ -60,6 +56,7 @@ namespace gar {
 
             virtual void setDecoder(const BitFieldCoder* decoder);
 
+            //Pure virtual member functions
             virtual void reconfigure(fhicl::ParameterSet const& pset) = 0;
 
             virtual void Initialize(const gar::geo::GeometryCore& geo) = 0;
@@ -76,11 +73,14 @@ namespace gar {
 
             virtual void setLayerDimXY(const double& dimX, const double& dimY) const = 0;
 
-            virtual double getStripLength(const gar::geo::GeometryCore& geo, const raw::CellID_t& cID) const = 0;
+            //Non-pure virtual member functions
+            virtual double getStripLength(const gar::geo::GeometryCore& geo, const raw::CellID_t& cID) const;
 
-            virtual std::pair<float, float> CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const raw::CellID_t& cID) const = 0;
+            virtual std::pair<TVector3, TVector3> getStripEnds(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const raw::CellID_t& cID) const;
 
-            virtual std::array<double, 3> ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const raw::CellID_t& cID) const = 0;
+            virtual std::pair<float, float> CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const raw::CellID_t& cID) const;
+
+            virtual std::array<double, 3> ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const raw::CellID_t& cID) const;
 
         protected:
             ECALSegmentationAlg(fhicl::ParameterSet const& pset);

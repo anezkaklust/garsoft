@@ -1286,7 +1286,7 @@ void gar::anatree::FillVectors(art::Event const & e) {
                     fDigiHitY.push_back(DigiHit.Y());
                     fDigiHitZ.push_back(DigiHit.Z());
                     fDigiHitTime.push_back( (DigiHit.Time().first + DigiHit.Time().second) / 2.0 );
-                    fDigiHitADC.push_back(DigiHit.ADC());
+                    fDigiHitADC.push_back(DigiHit.ADC().first);
                     fDigiHitCellID.push_back(DigiHit.CellID());
                 }
             }

@@ -18,7 +18,7 @@ namespace gar {
 
     //----------------------------------------------------------------------
     CaloRawDigit::CaloRawDigit()
-    : fADC(0),
+    : fADC(std::make_pair(0., 0.)),
     fTime(std::make_pair(0., 0.)),
     fX(0.),
     fY(0.),
@@ -28,17 +28,28 @@ namespace gar {
 
     //----------------------------------------------------------------------
     CaloRawDigit::CaloRawDigit(unsigned int ADC, float time, float x, float y, float z, CellID_t cellID)
-    : fADC(ADC),
-    fX(x),
+    : fX(x),
     fY(y),
     fZ(z),
     fCellID(cellID)
     {
+        fADC = std::make_pair(ADC, 0.);
         fTime = std::make_pair(time, 0.);
     }
 
     //----------------------------------------------------------------------
     CaloRawDigit::CaloRawDigit(unsigned int ADC, std::pair<float, float> time, float x, float y, float z, CellID_t cellID)
+    : fTime(time),
+    fX(x),
+    fY(y),
+    fZ(z),
+    fCellID(cellID)
+    {
+        fADC = std::make_pair(ADC, 0.);
+    }
+
+    //----------------------------------------------------------------------
+    CaloRawDigit::CaloRawDigit(std::pair<unsigned int, unsigned int> ADC, std::pair<float, float> time, float x, float y, float z, CellID_t cellID)
     : fADC(ADC),
     fTime(time),
     fX(x),

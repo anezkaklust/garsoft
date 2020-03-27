@@ -38,21 +38,25 @@ namespace gar{
 
                 void DoStripSplitting();
 
+                bool GetSaveStripEndsFlag() const { return fSaveStripEnds; }
+
+                std::vector<const gar::rec::CaloHit*> getStripEndsHits() const { return fStripEndsHits; }
+
                 std::vector <const gar::rec::CaloHit*> getSplitHits() const { return splitStripHits; }
 
                 std::vector <const gar::rec::CaloHit*> getUnSplitHits() const { return unSplitStripHits; }
 
             private:
 
-                std::vector <const gar::rec::CaloHit*> getVirtualHits(const gar::rec::CaloHit* hit, int orientation, bool isBarrel);
+                std::vector <const gar::rec::CaloHit*> getVirtualHits(const gar::rec::CaloHit *hit, int orientation, bool isBarrel);
 
-                std::pair < TVector3, TVector3 > getStripEnds(const gar::rec::CaloHit* hit, int orientation, bool isBarrel);
-
-                TVector3 stripIntersect(const gar::rec::CaloHit* hit0, TVector3 axis0, const gar::rec::CaloHit* hit1, TVector3 axis1);
+                TVector3 stripIntersect(const gar::rec::CaloHit *hit0, const TVector3& dir0, const gar::rec::CaloHit *hit1, const TVector3& dir1);
 
                 gar::geo::GeometryCore const* fGeo; ///< geometry information
 
                 std::string fSSAAlgName;
+                bool fSaveStripEnds;
+
                 int fInnerSymmetry;
                 double fStripWidth;
                 double fStripLength;
@@ -61,6 +65,7 @@ namespace gar{
                 std::vector<const gar::rec::CaloHit*> m_CaloHitVecOdd;
                 std::vector<const gar::rec::CaloHit*> m_CaloHitVecEven;
 
+                std::vector<const gar::rec::CaloHit*> fStripEndsHits;
                 std::vector <const gar::rec::CaloHit*> unSplitStripHits;
                 std::vector <const gar::rec::CaloHit*> splitStripHits;
 

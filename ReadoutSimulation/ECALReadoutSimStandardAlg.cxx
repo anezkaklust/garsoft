@@ -59,7 +59,7 @@ namespace gar {
         //----------------------------------------------------------------------------
         void ECALReadoutSimStandardAlg::ClearLists()
         {
-            m_SimCaloHitList.clear();
+            m_SimCaloHitVec.clear();
             m_DigitHitVec.clear();
         }
 
@@ -74,11 +74,11 @@ namespace gar {
             {
                 art::Ptr<sdp::CaloDeposit> hitPtr = *iter;
                 const sdp::CaloDeposit *hit = hitPtr.get();
-                m_SimCaloHitList.push_back(hit);
+                m_SimCaloHitVec.emplace_back(hit);
             }
 
             //Sort the list by time
-            m_SimCaloHitList.sort();
+            std::sort(m_SimCaloHitVec.begin(), m_SimCaloHitVec.end(), [](const sdp::CaloDeposit *rha, const sdp::CaloDeposit *rhb) { return rha->Time() < rhb->Time(); } );
 
             return;
         }
@@ -91,7 +91,7 @@ namespace gar {
             std::unordered_map<raw::CellID_t, sdp::CaloDeposit*> m_TileSimHits;
             std::unordered_map<raw::CellID_t, sdp::CaloDeposit*> m_StripSimHits;
 
-            for (const sdp::CaloDeposit *const pSimCaloHit : m_SimCaloHitList)
+            for (const sdp::CaloDeposit *const pSimCaloHit : m_SimCaloHitVec)
             {
                 if(fGeo->isTile(pSimCaloHit->CellID()))
                 {
@@ -123,18 +123,18 @@ namespace gar {
                 if(fTimeSmearing)
                 new_time = this->DoTimeSmearing(time);
 
-                raw::CaloRawDigit digihit( static_cast<unsigned int>(new_energy), new_time, x, y, z, cellID );
+                raw::CaloRawDigit *digihit = new raw::CaloRawDigit( static_cast<unsigned int>(new_energy), new_time, x, y, z, cellID );
 
-                LOG_DEBUG("ECALReadoutSimStandardAlg") << "digihit " << &digihit
+                LOG_DEBUG("ECALReadoutSimStandardAlg") << "digihit " << digihit
                 << " with cellID " << cellID
                 << " has energy " << static_cast<unsigned int>(new_energy)
                 << " time " << new_time << " ns"
                 << " pos (" << x << ", " <<  y << ", " << z << ")";
 
-                m_DigitHitVec.push_back(digihit);
+                m_DigitHitVec.emplace_back(digihit);
             }
 
-            //Treating strips "smear energy and naively smeared position"
+            //Treating strips
             for(auto it : m_StripSimHits)
             {
                 const sdp::CaloDeposit *pSimCaloHit = it.second;
@@ -146,8 +146,8 @@ namespace gar {
                 float z = pSimCaloHit->Z();
                 raw::CellID_t cellID = pSimCaloHit->CellID();
 
-                raw::CaloRawDigit digihit = this->DoStripDigitization(x, y, z, energy, time, cellID);
-                m_DigitHitVec.push_back(digihit);
+                raw::CaloRawDigit *digihit = this->DoStripDigitization(x, y, z, energy, time, cellID);
+                m_DigitHitVec.emplace_back(digihit);
             }
 
             m_TileSimHits.clear();
@@ -155,7 +155,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        raw::CaloRawDigit ECALReadoutSimStandardAlg::DoStripDigitization(float x, float y, float z, float energy, float time, raw::CellID_t cID) const
+        raw::CaloRawDigit* ECALReadoutSimStandardAlg::DoStripDigitization(float x, float y, float z, float energy, float time, raw::CellID_t cID) const
         {
             LOG_DEBUG("ECALReadoutSimStandardAlg") << "DoStripDigitization()";
 
@@ -169,9 +169,9 @@ namespace gar {
             std::array<double, 3> pos = this->CalculateStripPosition(x, y, z, cID);
 
             //make the shared ptr
-            raw::CaloRawDigit digihit( static_cast<unsigned int>(new_energy), times, pos[0], pos[1], pos[2], cID );
+            raw::CaloRawDigit *digihit = new raw::CaloRawDigit( static_cast<unsigned int>(new_energy), times, pos[0], pos[1], pos[2], cID );
 
-            LOG_DEBUG("ECALReadoutSimStandardAlg") << "digihit " << &digihit
+            LOG_DEBUG("ECALReadoutSimStandardAlg") << "digihit " << digihit
             << " with cellID " << cID
             << " has energy " << static_cast<unsigned int>(new_energy)
             << " time (" << times.first << ", " << times.second << ")"

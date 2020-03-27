@@ -818,7 +818,7 @@ namespace gar{
 
                     std::ostringstream label;
                     label << "Digi Hit " << p << "\n";
-                    label << "Energy: " << rawHit->ADC() << " ADC\n";
+                    label << "Energy: " << rawHit->ADC().first << " ADC\n";
                     label << "Position (" << rawHit->X() << ", " << rawHit->X() << ", " << rawHit->Z() << " ) cm\n";
                     label << "CellID: " << rawHit->CellID();
 
@@ -827,7 +827,7 @@ namespace gar{
                     evehit->SetTitle(label.str().c_str());
                     evehit->SetMarkerSize(0.5);
                     evehit->SetMarkerStyle(20);
-                    evehit->SetMarkerColor(fEvtDisplayUtil->LogColor(rawHit->ADC(), 0, 4096, 5));
+                    evehit->SetMarkerColor(fEvtDisplayUtil->LogColor(rawHit->ADC().first, 0, 4096, 5));
                     evehit->SetPoint(0, rawHit->X(), rawHit->Y(), rawHit->Z());//cm
                     fCaloRawHitList->AddElement(evehit);
                 }

@@ -48,5 +48,25 @@ namespace gar {
                     return int(floor((position + 0.5 * cellSize - offset) / cellSize));
                 }
 
+                //----------------------------------------------------------------------------
+                double ECALSegmentationAlg::getStripLength(const gar::geo::GeometryCore& geo, const raw::CellID_t& cID) const {
+                    return 0.;
+                }
+
+                //----------------------------------------------------------------------------
+                std::pair<TVector3, TVector3> ECALSegmentationAlg::getStripEnds(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const raw::CellID_t& cID) const {
+                    return std::make_pair( TVector3(0, 0, 0), TVector3(0, 0, 0) );
+                }
+
+                //----------------------------------------------------------------------------
+                std::pair<float, float> ECALSegmentationAlg::CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const raw::CellID_t& cID) const {
+                    return std::make_pair( 0., 0. );
+                }
+
+                //----------------------------------------------------------------------------
+                std::array<double, 3> ECALSegmentationAlg::ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const raw::CellID_t& cID) const {
+                    return std::array<double, 3>{ {0., 0., 0.} };
+                }
+
             }//geo
         } //gar

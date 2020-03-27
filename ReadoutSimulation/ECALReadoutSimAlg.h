@@ -37,7 +37,7 @@ namespace gar {
 
             virtual void DoDigitization() = 0;
 
-            virtual std::vector< raw::CaloRawDigit > GetDigitizedHits() const = 0;
+            virtual std::vector< raw::CaloRawDigit* > GetDigitizedHits() const = 0;
 
         protected:
 

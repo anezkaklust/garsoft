@@ -57,6 +57,7 @@ namespace gar {
             void CollectHits(const art::Event &evt, const std::string &label, std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector);
 
             std::string fCaloHitLabel;  ///< label to find the right reco calo hits
+            bool fSaveStripEnds;
 
             const detinfo::DetectorProperties*  fDetProp;      ///< detector properties
             const geo::GeometryCore*            fGeo;          ///< pointer to the geometry
@@ -75,6 +76,12 @@ namespace gar {
             //configure the cluster algorithm
             auto fSSAAlgoPars = p.get<fhicl::ParameterSet>("SSAAlgPars");
             fSSAAlgo = std::make_unique<rec::alg::StripSplitterAlg>(fSSAAlgoPars);
+            fSaveStripEnds = fSSAAlgo->GetSaveStripEndsFlag();
+
+            if(fSaveStripEnds) {
+                LOG_INFO("CaloStripSplitter_module")
+                << " Saving Strip ends flag turned on! ";
+            }
 
             consumes< std::vector<gar::rec::CaloHit> >(fCaloHitLabel);
             produces< std::vector<gar::rec::CaloHit> >();
@@ -105,6 +112,13 @@ namespace gar {
             //Copy the unsplit hits to the collection
             for(auto const &it : unsplitHits)
             HitCol->emplace_back(*it);
+
+            //Copy the strip end hits to the collection
+            if(fSaveStripEnds) {
+                std::vector<const gar::rec::CaloHit*> stripEndsHits = fSSAAlgo->getStripEndsHits();
+                for(auto const &it : stripEndsHits)
+                HitCol->emplace_back(*it);
+            }
 
             LOG_DEBUG("CaloStripSplitter_module")
             << " Number of hits before the module " << artHits.size()

@@ -1,4 +1,5 @@
 stripsplitteralg:
 {
-SSAAlgName:                           "Strip Splitter Algorithm"
+SSAAlgName: "Strip Splitter Algorithm"
+SaveStripEnds: false
 }
