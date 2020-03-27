@@ -63,7 +63,6 @@ physics:
   init:               @local::standard_EventInit
   hit:                @local::standard_CompressedHitFinder
   tpcclusterpass1:    @local::standard_TPCHitCluster
-  calohit:            @local::standard_CaloHitFinder
   vechit:             @local::standard_tpcvechitfinder2
   patrec:             @local::standard_tpcpatrec2
   trackpass1:         @local::standard_tpctrackfit2
@@ -71,6 +70,8 @@ physics:
   tpccluster:         @local::standard_tpccathodestitch  # use unusual name to keep backward compatibility as this module produces tpc clusters
   track:              @local::standard_tpctrackfit2
   vertex:             @local::standard_vertexfinder1
+  calohit:            @local::standard_CaloHitFinder
+  sscalohit:          @local::standard_CaloStripSplitter
   calocluster:        @local::standard_CaloClustering
   trkecalassn:        @local::standard_TPCECALAssociation
  }
@@ -80,7 +81,7 @@ physics:
 
  #Define the producer and filter modules for this path, order matters.  Put init 1st!
  #Filters reject all following items.  ee lines starting physics.producers below
- reco: [init,hit,tpcclusterpass1,vechit,patrec,trackpass1,vertexpass1,tpccluster,track,vertex,calohit,calocluster,trkecalassn]
+ reco: [init,hit,tpcclusterpass1,vechit,patrec,trackpass1,vertexpass1,tpccluster,track,vertex,calohit,sscalohit,calocluster,trkecalassn]
 
  #define the output stream, there could be more than one if using filters
  stream1:  [ out1 ]
@@ -104,3 +105,4 @@ outputs:
 
 physics.producers.track.PatRecLabel: "tpccluster"  # from the stitch step, input to second-pass fit
 physics.producers.vertex.TrackLabel: "track"
+physics.producers.calocluster.CaloHitLabel: "sscalohit"
