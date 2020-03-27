@@ -343,13 +343,13 @@ namespace gar {
                                     virtEnergy[segment] = hit2->Energy();
                                 }
                             } else {
-                                LOG_WARNING ("StripSplitterAlg::getVirtualHits()")
+                                LOG_DEBUG ("StripSplitterAlg::getVirtualHits()")
                                 << "strange segment " << segment
                                 << " frac = " << frac
                                 << " nvirt = " << fnVirtual;
                             }
                         } else {
-                            LOG_WARNING ("StripSplitterAlg::getVirtualHits()")
+                            LOG_DEBUG ("StripSplitterAlg::getVirtualHits()")
                             << "strange frac " << frac;
                         }
                     }
