@@ -1,6 +1,8 @@
 include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
 
-art_make( LIB_LIBRARIES     ${MF_MESSAGELOGGER}
+art_make( BASENAME_ONLY
+          LIBRARY_NAME      GArGeoAlg
+          LIB_LIBRARIES     ${MF_MESSAGELOGGER}
                             ${FHICLCPP}
                             ${CETLIB}
                             ${CETLIB_EXCEPT}
@@ -16,8 +18,8 @@ art_make( LIB_LIBRARIES     ${MF_MESSAGELOGGER}
                             ${ROOT_EGPYTHIA6}
                             ${ROOT_GUI}
                             ${Boost_SYSTEM_LIBRARY}
+                            Geometry
           SERVICE_LIBRARIES Geometry
-                            GArGeoAlg
                             ${ART_FRAMEWORK_CORE}
                             ${ART_FRAMEWORK_IO_SOURCES}
                             ${ART_FRAMEWORK_PRINCIPAL}
@@ -36,6 +38,3 @@ art_make( LIB_LIBRARIES     ${MF_MESSAGELOGGER}
 install_headers()
 install_fhicl()
 install_source()
-
-add_subdirectory(gdml)
-add_subdirectory(SegmentationAlgs)

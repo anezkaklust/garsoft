@@ -248,109 +248,116 @@ namespace gar {
 
                 // loop over splitter cols, find nearby hits
                 // strips, cells
-                std::vector <const gar::rec::CaloHit*> splitter = splitterVec;
-
-                for (uint i = 0; i < splitter.size(); i++)
+                for (int jj = 0; jj < 2; jj++)
                 {
-                    const gar::rec::CaloHit *hit2 = splitter.at(i);
+                    std::vector <const gar::rec::CaloHit*> splitter = splitterVec;
 
-                    int layer2  = hit2->GetLayer();
-                    int module2 = hit2->GetModule();
-                    int stave2  = hit2->GetStave();
-
-                    int dlayer = std::abs(layer2 - layer);
-                    int dstave = std::abs(stave2 - stave);
-                    int dmodule = std::abs(module2 - module);
-
-                    TVector3 point2(hit2->Position()[0], hit2->Position()[1], hit2->Position()[2]);
-                    std::string volname = fGeo->VolumeName(point2);
-
-                    //TODO CHECK!
-                    // are the two hits close enough to look at further?
-                    // if hits in same module and same stave, require that only one layer difference
-                    if (dmodule == 0 && dstave == 0 && dlayer > 1) continue;
-
-                    if (isBarrel)
+                    for (uint i = 0; i < splitter.size(); i++)
                     {
-                        dstave = std::min( dstave, fInnerSymmetry - dstave);
-                        if ( dstave == 0 && dmodule > 1 ) continue; // allow same stave and +- 1 module
-                        if ( dmodule == 0 && dstave > 1 ) continue; // or same module +- 1 stave
-                        if ( dstave == 0 && dlayer > 1) continue;   // if in same stave, require dlayer==1
-                    }
-                    else
-                    {
-                        //TODO Check this!
-                        //endcap
-                        dstave = std::min( dstave, 4 - dstave);
-                        if (dmodule != 0) continue; // different endcap
-                        if (dstave > 1) continue;   // more than 1 stave (=quarter endcap) apart
-                        if (dlayer > 1) continue;   // more than 1 layer apart
-                    }
+                        const gar::rec::CaloHit *hit2 = splitter.at(i);
 
-                    LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
-                    << " Getting hit2 " << i
-                    << " isTile " << fGeo->isTile(hit2->CellID())
-                    << " pointing at " << hit2
-                    << " orientation " << (splitterOrientation == LONGITUDINAL ? "LONGITUDINAL" : "TRANSVERSE")
-                    << " in volume " << volname
-                    << " dtave " << dstave
-                    << " dmodule " << dmodule
-                    << " dlayer " << dlayer;
+                        int layer2  = hit2->GetLayer();
+                        int module2 = hit2->GetModule();
+                        int stave2  = hit2->GetStave();
 
-                    // simple distance check for remaining hit pairs
-                    float dist = std::sqrt( std::pow(hit2->Position()[0] - hit->Position()[0], 2) +
-                    std::pow(hit2->Position()[1] - hit->Position()[1], 2) +
-                    std::pow(hit2->Position()[2] - hit->Position()[2], 2) );
+                        int dlayer = std::abs(layer2 - layer);
+                        int dstave = std::abs(stave2 - stave);
+                        int dmodule = std::abs(module2 - module);
 
-                    if (dist > 2*fStripLength){
+                        TVector3 point2(hit2->Position()[0], hit2->Position()[1], hit2->Position()[2]);
+                        std::string volname = fGeo->VolumeName(point2);
 
-                        LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
-                        << " Distance between hit1 and hit2 " << dist
-                        << " > 2*fStripLength " << 2*fStripLength;
+                        //TODO CHECK!
+                        // are the two hits close enough to look at further?
+                        // if hits in same module and same stave, require that only one layer difference
+                        if (dmodule == 0 && dstave == 0 && dlayer > 1) continue;
 
-                        continue;
-                    }
-
-                    // for remaining hits, check if they overlap
-                    TVector3 stripDir2(0, 0, 0);
-                    //strip
-                    std::array<double, 3> pt2 = { hit2->Position()[0], hit2->Position()[1], hit2->Position()[2] };
-                    std::pair < TVector3, TVector3 > stripEnds2 = fGeo->GetStripEnds(pt2, hit2->CellID());
-                    stripDir2 = stripEnds2.first - stripEnds2.second;
-
-                    // check if strips intersect
-                    TVector3 intercept = stripIntersect(hit, stripDir, hit2, stripDir2);
-                    // intercept found, calculate in which virtual cell
-                    if (intercept.Mag() > 0)
-                    {
-                        nSplitters++;
-                        float frac(-1);
-                        for (int ii = 0; ii < 3; ii++) {
-                            float dx = stripEnds.second[ii] - stripEnds.first[ii];
-                            if (std::fabs(dx) > 0.1) {
-                                frac = ( intercept[ii] - stripEnds.first[ii] ) / dx;
-                                break;
-                            }
+                        if (isBarrel)
+                        {
+                            dstave = std::min( dstave, fInnerSymmetry - dstave);
+                            if ( dstave == 0 && dmodule > 1 ) continue; // allow same stave and +- 1 module
+                            if ( dmodule == 0 && dstave > 1 ) continue; // or same module +- 1 stave
+                            if ( dstave == 0 && dlayer > 1) continue;   // if in same stave, require dlayer==1
+                        }
+                        else
+                        {
+                            //module == 0 or 6 for endcap
+                            //stave is from 1 to 4
+                            //TODO Check this!
+                            //endcap
+                            dstave = std::min( dstave, 4 - dstave);
+                            if (dmodule != 0) continue; // different endcap
+                            if (dstave > 1) continue;   // more than 1 stave (=quarter endcap) apart
+                            if (dlayer > 1) continue;   // more than 1 layer apart
                         }
 
-                        if (frac >= 0.0 && frac <= 1.0)
+                        LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
+                        << " Getting hit2 " << i
+                        << " isTile " << fGeo->isTile(hit2->CellID())
+                        << " pointing at " << hit2
+                        << " orientation " << (splitterOrientation == LONGITUDINAL ? "LONGITUDINAL" : "TRANSVERSE")
+                        << " in volume " << volname
+                        << " dtave " << dstave
+                        << " dmodule " << dmodule
+                        << " dlayer " << dlayer;
+
+                        // simple distance check for remaining hit pairs
+                        float dist = std::sqrt( std::pow(hit2->Position()[0] - hit->Position()[0], 2) +
+                        std::pow(hit2->Position()[1] - hit->Position()[1], 2) +
+                        std::pow(hit2->Position()[2] - hit->Position()[2], 2) );
+
+                        if (dist > 2*fStripLength){
+
+                            LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
+                            << " Distance between hit1 and hit2 " << dist
+                            << " > 2*fStripLength " << 2*fStripLength;
+
+                            continue;
+                        }
+
+                        // for remaining hits, check if they overlap
+                        TVector3 stripDir2(0, 0, 0);
+                        if (jj == 0) {
+                            //strip
+                            std::array<double, 3> pt2 = { hit2->Position()[0], hit2->Position()[1], hit2->Position()[2] };
+                            std::pair < TVector3, TVector3 > stripEnds2 = fGeo->GetStripEnds(pt2, hit2->CellID());
+                            stripDir2 = stripEnds2.first - stripEnds2.second;
+                        }
+
+                        // check if strips intersect
+                        TVector3 intercept = stripIntersect(hit, stripDir, hit2, stripDir2);
+                        // intercept found, calculate in which virtual cell
+                        if (intercept.Mag() > 0)
                         {
-                            int segment = int(frac * fnVirtual);
-                            if (segment >= 0 && segment < fnVirtual) {
-                                if (virtEnergy.find(segment) != virtEnergy.end()) {
-                                    virtEnergy[segment] += hit2->Energy();
+                            nSplitters++;
+                            float frac(-1);
+                            for (int ii = 0; ii < 3; ii++) {
+                                float dx = stripEnds.second[ii] - stripEnds.first[ii];
+                                if (std::fabs(dx) > 0.1) {
+                                    frac = ( intercept[ii] - stripEnds.first[ii] ) / dx;
+                                    break;
+                                }
+                            }
+
+                            if (frac >= 0.0 && frac <= 1.0)
+                            {
+                                int segment = int(frac * fnVirtual);
+                                if (segment >= 0 && segment < fnVirtual) {
+                                    if (virtEnergy.find(segment) != virtEnergy.end()) {
+                                        virtEnergy[segment] += hit2->Energy();
+                                    } else {
+                                        virtEnergy[segment] = hit2->Energy();
+                                    }
                                 } else {
-                                    virtEnergy[segment] = hit2->Energy();
+                                    LOG_DEBUG ("StripSplitterAlg::getVirtualHits()")
+                                    << "strange segment " << segment
+                                    << " frac = " << frac
+                                    << " nvirt = " << fnVirtual;
                                 }
                             } else {
                                 LOG_DEBUG ("StripSplitterAlg::getVirtualHits()")
-                                << "strange segment " << segment
-                                << " frac = " << frac
-                                << " nvirt = " << fnVirtual;
+                                << "strange frac " << frac;
                             }
-                        } else {
-                            LOG_DEBUG ("StripSplitterAlg::getVirtualHits()")
-                            << "strange frac " << frac;
                         }
                     }
                 }

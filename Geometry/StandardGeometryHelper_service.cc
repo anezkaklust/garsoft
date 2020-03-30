@@ -9,8 +9,8 @@
 
 // GArSoft libraries
 #include "Geometry/ChannelMapStandardAlg.h"
-#include "Geometry/ECALSegmentationGridXYAlg.h"
-#include "Geometry/ECALSegmentationMultiGridStripXYAlg.h"
+#include "Geometry/SegmentationAlgs/ECALSegmentationGridXYAlg.h"
+#include "Geometry/SegmentationAlgs/ECALSegmentationMultiGridStripXYAlg.h"
 #include "Geometry/GeometryCore.h"
 
 // C/C++ libraries
@@ -59,9 +59,9 @@ namespace gar
       auto SegmentationAlgName = segParameters.get<std::string>("SegmentationAlgName");
 
       if(SegmentationAlgName.compare("GridXY") == 0)
-      fECALSegmentationAlg = std::make_shared<gar::geo::ECALSegmentationGridXYAlg>(segParameters);
+      fECALSegmentationAlg = std::make_shared<gar::geo::seg::ECALSegmentationGridXYAlg>(segParameters);
       else if(SegmentationAlgName.compare("MultiGridStripXY") == 0)
-      fECALSegmentationAlg = std::make_shared<gar::geo::ECALSegmentationMultiGridStripXYAlg>(segParameters);
+      fECALSegmentationAlg = std::make_shared<gar::geo::seg::ECALSegmentationMultiGridStripXYAlg>(segParameters);
       else{
           throw cet::exception("StandardGeometryHelper::doConfigureECALSegmentationAlg")
           << "Unable to determine which ECAL Segmentation algorithm to use, bail";

@@ -64,7 +64,7 @@ namespace gar
 
       fhicl::ParameterSet fPset; ///< copy of configuration parameter set
       std::shared_ptr<geo::ChannelMapAlg> fChannelMap; ///< channel map algorithm
-      std::shared_ptr<geo::ECALSegmentationAlg> fECALSegmentationAlg; ///< ECAL Segmentation Alg
+      std::shared_ptr<geo::seg::ECALSegmentationAlg> fECALSegmentationAlg; ///< ECAL Segmentation Alg
 
     };
 

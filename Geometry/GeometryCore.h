@@ -74,7 +74,9 @@ namespace gar {
 
     class GeometryCore;
     class ChannelMapAlg;
-    class ECALSegmentationAlg;
+    namespace seg {
+        class ECALSegmentationAlg;
+    }
 
     typedef enum ROCType_ {HFILLER, IROC, IOROC, OOROC} ROCType;
 
@@ -838,31 +840,31 @@ namespace gar {
 
       bool PointInECALEndcap(TVector3 const& point) const;
 
-      void ApplyECALSegmentationAlg(std::shared_ptr<gar::geo::ECALSegmentationAlg> pECALSegmentationAlg);
+      void ApplyECALSegmentationAlg(std::shared_ptr<gar::geo::seg::ECALSegmentationAlg> pECALSegmentationAlg);
 
       const float GetSensVolumeThickness(const TVector3& point) const;
 
       const std::array<double, 3> FindShapeSize(const TGeoNode *node) const;
 
-      raw::CellID_t GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const;
+      gar::raw::CellID_t GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const;
 
-      std::array<double, 3> GetPosition(const TGeoNode *node, const raw::CellID_t &cID) const;
+      std::array<double, 3> GetPosition(const TGeoNode *node, const gar::raw::CellID_t &cID) const;
 
-      int getIDbyCellID(const raw::CellID_t& cID, const char* identifier) const;
+      int getIDbyCellID(const gar::raw::CellID_t& cID, const char* identifier) const;
 
-      bool isTile(const raw::CellID_t& cID) const;
+      bool isTile(const gar::raw::CellID_t& cID) const;
 
       double getStripWidth() const;
 
       double getTileSize() const;
 
-      double getStripLength(std::array<double, 3> const& point, const raw::CellID_t &cID) const;
+      double getStripLength(std::array<double, 3> const& point, const gar::raw::CellID_t &cID) const;
 
-      std::pair<TVector3, TVector3> GetStripEnds(std::array<double, 3> const& point, const raw::CellID_t &cID) const;
+      std::pair<TVector3, TVector3> GetStripEnds(std::array<double, 3> const& point, const gar::raw::CellID_t &cID) const;
 
-      std::pair<float, float> CalculateLightPropagation(std::array<double, 3>const& point, const std::array<double, 3> &local, const raw::CellID_t &cID) const;
+      std::pair<float, float> CalculateLightPropagation(std::array<double, 3>const& point, const std::array<double, 3> &local, const gar::raw::CellID_t &cID) const;
 
-      std::array<double, 3> ReconstructStripHitPosition(const std::array<double, 3> &local, const float &xlocal, const raw::CellID_t &cID) const;
+      std::array<double, 3> ReconstructStripHitPosition(const std::array<double, 3> &local, const float &xlocal, const gar::raw::CellID_t &cID) const;
 
     protected:
 
@@ -873,7 +875,7 @@ namespace gar {
       gar::geo::ChannelMapAlg const* ChannelMap() const { return fChannelMapAlg.get(); }
 
       /// Returns the object handling the channel map
-      gar::geo::ECALSegmentationAlg const* ECALSegmentationAlg() const { return fECALSegmentationAlg.get(); }
+      gar::geo::seg::ECALSegmentationAlg const* ECALSegmentationAlg() const { return fECALSegmentationAlg.get(); }
 
     private:
 
@@ -974,7 +976,7 @@ namespace gar {
       typedef std::shared_ptr<const gar::geo::ChannelMapAlg> ChannelMapPtr;
       ChannelMapPtr  fChannelMapAlg;  ///< Object containing the channel to wire mapping
 
-      typedef std::shared_ptr<const gar::geo::ECALSegmentationAlg> ECALSegmentationAlgPtr;
+      typedef std::shared_ptr<const gar::geo::seg::ECALSegmentationAlg> ECALSegmentationAlgPtr;
       ECALSegmentationAlgPtr fECALSegmentationAlg;  ///< Object containing the segmentation for the ECAL
 
     }; // class GeometryCore

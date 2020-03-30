@@ -38,9 +38,11 @@ namespace gar {
   namespace geo
   {
 
-    class ChannelMapAlg;
-    class ECALSegmentationAlg;
     class GeometryCore;
+    class ChannelMapAlg;
+    namespace seg {
+        class ECALSegmentationAlg;
+    }
 
     /**
      * @brief Interface to a service with detector-specific geometry knowledge
@@ -62,7 +64,7 @@ namespace gar {
     {
     public:
       using ChannelMapAlgPtr_t = std::shared_ptr<const ChannelMapAlg>;
-      using ECALSegmentationAlgPtr_t = std::shared_ptr<const ECALSegmentationAlg>;
+      using ECALSegmentationAlgPtr_t = std::shared_ptr<const seg::ECALSegmentationAlg>;
 
       /// Virtual destructor; does nothing
       virtual ~ExptGeoHelperInterface() = default;
