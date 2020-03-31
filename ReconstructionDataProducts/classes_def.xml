@@ -22,7 +22,7 @@
   <class name="gar::rec::Track"             ClassVersion="20"            >
    <version ClassVersion="20" checksum="2232639809"/>
    <version ClassVersion="19" checksum="2979526872"/>
-<!-- Example of how to not have a data field in a products class appear in output:
+<!-- Example of how to have a data field in a products class not appear in output:
     <field name="IDNumberer" transient="true" />
 -->
     <version ClassVersion="18" checksum="1755497207"/>

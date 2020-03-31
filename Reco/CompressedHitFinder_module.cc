@@ -17,6 +17,7 @@
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "art/Persistency/Common/PtrMaker.h"
 #include "art/Framework/Services/Optional/TFileService.h"
 
 #include "RawDataProducts/RawDigit.h"
@@ -87,7 +88,10 @@ namespace gar {
       fTime    = gar::providerFrom<detinfo::DetectorClocksService>();
       fGeo     = gar::providerFrom<geo::Geometry>();
       fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
+
+      consumes< std::vector<raw::RawDigit> >(fRawDigitLabel);
       produces< std::vector<rec::Hit> >();
+      produces< art::Assns<rec::Hit, raw::RawDigit> >();
 
       art::ServiceHandle<art::TFileService> tfs;
       fAvgPulseLongHist = tfs->make<TH1D>("garAvgPulseLongHist","Pulse ADC Average;tick;ADC Sum",1000,-0.5,999.5);
@@ -99,173 +103,181 @@ namespace gar {
       // create an emtpy output hit collection -- to add to.
       std::unique_ptr<std::vector<Hit> > hitCol (new std::vector<Hit> );
 
+      // create art::Assns between (multiple) rec::Hit and a raw::RawDigit
+      std::unique_ptr< art::Assns<rec::Hit, raw::RawDigit> >
+                          hitDigAssns(new::art::Assns<rec::Hit, raw::RawDigit>);
+
+      auto const hitPtrMaker = art::PtrMaker<rec::Hit>(e);
+
       // the input raw digits
       auto rdCol = e.getValidHandle< std::vector<raw::RawDigit> >(fRawDigitLabel);
 
       for (size_t ird = 0; ird < rdCol->size(); ++ ird)
-	{
-	  auto const& rd = (*rdCol)[ird];
-	  auto channel = rd.Channel();
-	  raw::ADCvector_t adc = rd.ADCs();
-	  if (rd.Compression() == raw::kNone)
-	    {
-	      raw::ZeroSuppression(adc,fADCThreshold,fTicksBefore,fTicksAfter);
-	    }
-	  else if (rd.Compression() == raw::kZeroSuppression)
-	    {
-	      // we already have what we want
-	    }
-	  else
-	    {
-	      LOG_WARNING("CompressedHitFinder") << " Ununderstood compression mode: " << rd.Compression() << " Not making hits.";
-	      e.put(std::move(hitCol));
-	      return;
-	    }
-	  // use the format of the compressed raw digits -- a table of contents of the number of blocks, then all the block sizes, and then all the
-	  // block start locations
-	  if (adc.size() < 2)
-	    {
-	      //LOG_WARNING("CompressedHitFinder") << " adc vector size < 2, skipping channel";
-	      continue;
-	    }
+    {
+      auto const& rd = (*rdCol)[ird];
+      auto channel = rd.Channel();
+      raw::ADCvector_t adc = rd.ADCs();
+      if (rd.Compression() == raw::kNone)
+        {
+          raw::ZeroSuppression(adc,fADCThreshold,fTicksBefore,fTicksAfter);
+        }
+      else if (rd.Compression() == raw::kZeroSuppression)
+        {
+          // we already have what we want
+        }
+      else
+        {
+          LOG_WARNING("CompressedHitFinder") << " Ununderstood compression mode: " << rd.Compression() << " Not making hits.";
+          e.put(std::move(hitCol));
+          e.put(std::move(hitDigAssns));
+          return;
+        }
+      // use the format of the compressed raw digits -- a table of contents of the number of blocks, then all the block sizes, and then all the
+      // block start locations
+      if (adc.size() < 2)
+        {
+          //LOG_WARNING("CompressedHitFinder") << " adc vector size < 2, skipping channel";
+          continue;
+        }
 
-	  // walk through the zero-suppressed raw digits and call each block a hit
+      // walk through the zero-suppressed raw digits and call each block a hit
 
-	  int nblocks = adc[1];
-	  int zerosuppressedindex = nblocks*2 + 2;
-	  float pos[3] = {0,0,0};
-	  fGeo->ChannelToPosition(channel, pos);
-	  float chanposx = pos[0];
+      int nBlocks = adc[1];
+      int zerosuppressedindex = nBlocks*2 + 2;
+      float pos[3] = {0,0,0};
+      fGeo->ChannelToPosition(channel, pos);
+      float chanposx = pos[0];
 
-	  int t0adcblockhist = 0;
+      int t0adcblockhist = 0;
 
-	  for (int i=0; i<nblocks; ++i)
-	    {
-	      double hitSig = 0;
-	      double hitTime = 0;
-	      double hitSumSq = 0;
-	      double hitRMS = 0;
-	      unsigned int begT = adc[2+i];
-	      int blocksize = adc[2+nblocks+i];
-	      if (blocksize<1)
-		{
-		  throw cet::exception("CompressedHitFinder") << "Negative or zero block size in compressed data.";
-		}
-	      unsigned int endT = begT + blocksize;  // will update this as need be.
+      for (int iBlock=0; iBlock<nBlocks; ++iBlock)
+        {
+          double hitSig = 0;
+          double hitTime = 0;
+          double hitSumSq = 0;
+          double hitRMS = 0;
+          unsigned int begT = adc[2+iBlock];
+          int blocksize = adc[2+nBlocks+iBlock];
+          if (blocksize<1)
+        {
+          throw cet::exception("CompressedHitFinder") << "Negative or zero block size in compressed data.";
+        }
+          unsigned int endT = begT + blocksize;  // will update this as need be.
 
-	      // divide the hits up into smaller hits 
+          // divide the hits up into smaller hits 
 
-	      int adcmax = 0;
-	      int jhl = 0;
+          int adcmax = 0;
+          int jhl = 0;
 
-	      float distonetick = fDetProp->DriftVelocity() * (fTime->TPCTick2Time(1) - fTime->TPCTick2Time(0)) ;
+          float distonetick = fDetProp->DriftVelocity() * (fTime->TPCTick2Time(1) - fTime->TPCTick2Time(0)) ;
 
-	      for(int j = 0; j < blocksize; ++j)  // loop over time samples in each block
-		{
-		  ULong64_t t = adc[2+i]+j;
-		  int a = adc[zerosuppressedindex];
-		  zerosuppressedindex++;
+          for(int jInBlock = 0; jInBlock < blocksize; ++jInBlock)  // loop over time samples in each block
+        {
+          ULong64_t t = adc[2+iBlock]+jInBlock;
+          int a = adc[zerosuppressedindex];
+          zerosuppressedindex++;
 
-		  fAvgPulseShortHist->Fill(j,a);
-		  if (t0adcblockhist == 0)
-		    {
-		      t0adcblockhist = t;
-		    }
-		  int deltat = t - t0adcblockhist;
-		  if (deltat < fAvgPulseLongHist->GetNbinsX())
-		    {
-		      fAvgPulseLongHist->Fill(deltat,a);
-		    }
-		  else
-		    {
-		      t0adcblockhist = 0;
-		    }
+          fAvgPulseShortHist->Fill(jInBlock,a);
+          if (t0adcblockhist == 0)
+            {
+              t0adcblockhist = t;
+            }
+          int deltat = t - t0adcblockhist;
+          if (deltat < fAvgPulseLongHist->GetNbinsX())
+            {
+              fAvgPulseLongHist->Fill(deltat,a);
+            }
+          else
+            {
+              t0adcblockhist = 0;
+            }
 
-		  ++jhl;
-		  endT = begT + jhl;
+          ++jhl;
+          endT = begT + jhl;
 
-		  hitSig   += a;
-		  hitTime  += a*t;
-		  hitSumSq += a*t*t;
-		  //std::cout << "  In hit calc: " << t << " " << a << " " << hitSig << " " << hitTime << " " << hitSumSq << std::endl;
+          hitSig   += a;
+          hitTime  += a*t;
+          hitSumSq += a*t*t;
+          //std::cout << "  In hit calc: " << t << " " << a << " " << hitSig << " " << hitTime << " " << hitSumSq << std::endl;
 
-		  // make a new hit if the ADC value drops below a fraction of the max value or if we have exceeded the length limit
-		  // add a check to make sure the ADC value goes back up after the dip, otherwise keep adding to the same hit.
+          // make a new hit if the ADC value drops below a fraction of the max value or if we have exceeded the length limit
+          // add a check to make sure the ADC value goes back up after the dip, otherwise keep adding to the same hit.
 
-		  bool splithit = jhl*distonetick > fHitMaxLen;
-		  if (! splithit)  // only do this calc if we need to
-		    {
+          bool splithit = jhl*distonetick > fHitMaxLen;
+          if (!splithit)  // only do this calc if we need to
+            {
                       if (a < adcmax*fHitFracADCNewHit)
-			{
-			  int zsi2 = zerosuppressedindex;
-			  for (int k=j+1; k<blocksize; ++k)
-			    {
-			      int a2 = adc[zsi2];
-			      zsi2++;
-			      if (a2 > a*fHitFracADCRise)
-				{
-				  splithit = true;
-				  break;
-				}
-			    }
-			} 
-		    }
+            {
+              int zsi2 = zerosuppressedindex;
+              for (int kInBlock=jInBlock+1; kInBlock<blocksize; ++kInBlock)
+                {
+                  int a2 = adc[zsi2];
+                  zsi2++;
+                  if (a2 > a*fHitFracADCRise)
+                {
+                  splithit = true;
+                  break;
+                }
+                }
+            } 
+            }
 
-		  if ( splithit )
-		    {
-		      if (hitSig > 0)  // otherwise leave the values at zero
-			{
-			  hitTime /= hitSig;
-			  hitRMS = TMath::Sqrt(hitSumSq/hitSig - hitTime*hitTime);
-			}
-		      else
-			{
-			  hitTime = 0.5*(begT + endT);
-			  hitRMS = 0;
-			}
-		      if (hitRMS == 0) hitRMS = fMinRMS;
-		      //std::cout << " hit RMS calc: " << hitSumSq << " " << hitSig << " " << hitTime << " " << hitRMS << std::endl;
+          if ( splithit )
+            {
+              if (hitSig > 0)  // otherwise leave the values at zero
+            {
+              hitTime /= hitSig;
+              hitRMS = TMath::Sqrt(hitSumSq/hitSig - hitTime*hitTime);
+            }
+              else
+            {
+              hitTime = 0.5*(begT + endT);
+              hitRMS = 0;
+            }
+              if (hitRMS == 0) hitRMS = fMinRMS;
+              //std::cout << " hit RMS calc: " << hitSumSq << " " << hitSig << " " << hitTime << " " << hitRMS << std::endl;
 
-		      float driftdistance = fDetProp->DriftVelocity() * fTime->TPCTick2Time(hitTime);
-		      if (chanposx < 0)
-			{
-			  pos[0] = chanposx + driftdistance;
-			}
-		      else
-			{
-			  pos[0] = chanposx - driftdistance;
-			}
+              float driftdistance = fDetProp->DriftVelocity() * fTime->TPCTick2Time(hitTime);
+              if (chanposx < 0)
+            {
+              pos[0] = chanposx + driftdistance;
+            }
+              else
+            {
+              pos[0] = chanposx - driftdistance;
+            }
 
-		      if (hitSig < 0)
-			{
-			  LOG_WARNING("CompressedHitFinder") << "Negative Signal in hit finder" << std::endl;
-			}
-		      if (hitSig>0)
-			{
-			  hitCol->emplace_back(channel,
-					       hitSig,
-					       pos,
-					       begT,
-					       endT,
-					       hitTime,
-					       hitRMS);
-			}
-		      jhl = 0;  // reset accumulators so we can make the next hit
-	              hitSig = 0;
-	              hitTime = 0;
-	              hitSumSq = 0;
-		      begT = endT + 1;
-		      endT = begT;
-		      adcmax = 0;
-		    }
-		  adcmax = TMath::Max(adcmax,a);
-		}
-	    }
+              if (hitSig < 0)
+            {
+              LOG_WARNING("CompressedHitFinder") << "Negative Signal in hit finder" << std::endl;
+            }
+              if (hitSig>0)
+            {
+              rec::Hit newHit(channel,hitSig,pos,begT,endT,hitTime,hitRMS);
+              hitCol->emplace_back(newHit);
+
+			  // Make art::Assn<Hit,RawDigit>
+			  art::Ptr<rec::Hit>      hitPtr = hitPtrMaker(hitCol->size()-1);
+			  art::Ptr<raw::RawDigit> digPtr = art::Ptr<raw::RawDigit>(rdCol,ird);
+              hitDigAssns->addSingle(hitPtr,digPtr);
+            }
+              jhl = 0;  // reset accumulators so we can make the next hit
+              hitSig = 0;
+              hitTime = 0;
+              hitSumSq = 0;
+              begT = endT + 1;
+              endT = begT;
+              adcmax = 0;
+            }
+          adcmax = TMath::Max(adcmax,a);
+        }
+        }
         }
 
       // cluster hits if requested
 
       e.put(std::move(hitCol));
+      e.put(std::move(hitDigAssns));
       return;
 
     }

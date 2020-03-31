@@ -139,7 +139,7 @@ namespace gar {
             // a FindMany mapping between the digits and energy deposits if it exists.
             for (auto vec : fChannelToEDepCol) vec.clear();
             fChannelToEDepCol.clear();
-            art::Handle<std::vector<gar::raw::RawDigit> > digCol;
+            art::Handle<std::vector<gar::raw::RawDigit>> digCol;
             evt.getByLabel(fRawTPCDataLabel, digCol);
             if (!digCol.isValid()) {
                 LOG_WARNING("BackTracker_service::RebuildNoSC")
@@ -174,10 +174,10 @@ namespace gar {
 
             // Create the CellID to energy deposit collection.  Start by 
             // looking for the CaloRawDigit collection from the event and create
-            // a FindMany mapping between these digits and CalodDeposits if it exists.
+            // a FindMany mapping between these digits and CaloDeposits if it exists.
             fECALTrackToTPCTrack->clear();
             fCellIDToEDepCol.clear();
-            art::Handle<std::vector<gar::raw::CaloRawDigit> > caloDigCol;
+            art::Handle<std::vector<gar::raw::CaloRawDigit>> caloDigCol;
             evt.getByLabel(fRawCaloDataLabel, caloDigCol);
             if (!caloDigCol.isValid()) {
                 LOG_WARNING("BackTracker_service::RebuildNoSC")

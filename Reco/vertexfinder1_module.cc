@@ -180,7 +180,7 @@ namespace gar {
 
                 // Save vertex & its tracks into vectors that will be written 
                 // to event.
-                vtxCol->emplace_back(xyz.data(),cmv,time);  
+                vtxCol->emplace_back(xyz.data(),cmv,time);
                 auto const vtxpointer = vtxPtrMaker(vtxCol->size()-1);
                 for (size_t i=0; i<trackParEnds.size(); ++i) {
                   TrackEnd endInVertex = std::get<1>(trackParEnds[i]);
