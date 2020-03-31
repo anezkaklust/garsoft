@@ -1099,6 +1099,8 @@ namespace gar {
             std::cout << "ECAL Barrel inner radius: " << GetECALInnerBarrelRadius() << " cm" << std::endl;
             std::cout << "ECAL Barrel outer radius: " << GetECALOuterBarrelRadius() << " cm" << std::endl;
             std::cout << "ECAL inner symmetry: " << GetECALInnerSymmetry() << std::endl;
+            std::cout << "ECAL polyhedra angle: " << GetECALInnerAngle()*180/M_PI << " deg" << std::endl;
+            std::cout << "ECAL polyhedra side length: " << GetECALSideLength() << " cm" << std::endl;
             std::cout << "ECAL Endcap Start X: " << GetECALEndcapStartX() << " cm" << std::endl;
             std::cout << "Pressure Vessel Thickness: " << GetPVThickness() << " cm" << std::endl;
             std::cout << "------------------------------" << std::endl;

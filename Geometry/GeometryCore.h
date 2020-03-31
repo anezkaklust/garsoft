@@ -823,6 +823,12 @@ namespace gar {
       //Returns the number of sides of the barrel
       int GetECALInnerSymmetry() const { return fECALSymmetry; }
 
+      //Returns the inner angle of the polyhedra
+      float GetECALInnerAngle() const { return (( fECALSymmetry - 2 ) * M_PI / fECALSymmetry); }
+
+      //Returns the side length of the polyhedra
+      float GetECALSideLength() const { return ( 2 * std::sin( M_PI / fECALSymmetry ) * fECALRouter ); }
+
       //Returns the ECAL minimum radius of the Outer Barrel
       float GetECALEndcapStartX() const { return fECALEndcapStartX; }
 
