@@ -1,7 +1,7 @@
 #ifndef ECALSEGMENTATIONMULTIGRIDSTRIPXYALG_H
 #define ECALSEGMENTATIONMULTIGRIDSTRIPXYALG_H
 
-#include "Geometry/SegmentationAlgs/ECALSegmentationAlg.h"
+#include "Geometry/ChannelMapAlgs/ECALSegmentationAlg.h"
 
 #include <string>
 #include <vector>

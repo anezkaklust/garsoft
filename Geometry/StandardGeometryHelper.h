@@ -63,7 +63,7 @@ namespace gar
       virtual ECALSegmentationAlgPtr_t doGetECALSegmentationAlg() const override;
 
       fhicl::ParameterSet fPset; ///< copy of configuration parameter set
-      std::shared_ptr<geo::ChannelMapAlg> fChannelMap; ///< channel map algorithm
+      std::shared_ptr<geo::seg::ChannelMapAlg> fChannelMap; ///< channel map algorithm
       std::shared_ptr<geo::seg::ECALSegmentationAlg> fECALSegmentationAlg; ///< ECAL Segmentation Alg
 
     };

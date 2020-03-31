@@ -21,7 +21,7 @@
 #include <vector>
 #include <memory> // std::shared_ptr<>
 
-#include "Geometry/AuxDetChannelMapAlg.h"
+#include "Geometry/ChannelMapAlgs/AuxDetChannelMapAlg.h"
 
 // ROOT class prototypes
 class TGeoManager;
@@ -32,25 +32,25 @@ class TGeoMaterial;
 /// Namespace collecting geometry-related classes utilities
 namespace gar {
   namespace geo {
-    
-    
+
+
     // Forward declarations within namespace.
     class AuxDetGeo;
     class AuxDetSensitiveGeo;
     class AuxDetGeometryCore;
-    
-    
+
+
     /// Data in the geometry description
     struct AuxDetGeometryData_t {
-      
+
       /// Type of list of auxiliary detectors
       using AuxDetList_t = std::vector<AuxDetGeo*>;
-      
+
       AuxDetList_t   auxDets;   ///< The auxiliary detectors
-      
+
     }; // AuxDetGeometryData_t
-    
-    
+
+
     /** **************************************************************************
      * @brief Description of geometry of one set of auxiliary detectors
      *
@@ -97,10 +97,10 @@ namespace gar {
      */
     class AuxDetGeometryCore {
     public:
-      
+
       /// Type of list of auxiliary detectors
       using AuxDetList_t = AuxDetGeometryData_t::AuxDetList_t;
-      
+
       /**
        * @brief Initialize geometry from a given configuration
        * @param pset configuration parameters
@@ -109,17 +109,17 @@ namespace gar {
        * The next step is to do exactly that, by GeometryCore::LoadGeometryFile().
        */
       AuxDetGeometryCore(fhicl::ParameterSet const& pset);
-      
+
       /// Destructor
       ~AuxDetGeometryCore();
-      
+
       // You shall not copy or move or assign me!
       AuxDetGeometryCore(AuxDetGeometryCore const&) = delete;
       AuxDetGeometryCore(AuxDetGeometryCore&&) = delete;
       AuxDetGeometryCore& operator= (AuxDetGeometryCore const&) = delete;
       AuxDetGeometryCore& operator= (AuxDetGeometryCore&&) = delete;
-      
-      
+
+
       /**
        * @brief Returns the full directory path to the geometry file source
        * @return the full directory path to the geometry file source
@@ -128,7 +128,7 @@ namespace gar {
        * relies on.
        */
       std::string ROOTFile() const { return fROOTfile; }
-      
+
       /**
        * @brief Returns the full directory path to the GDML file source
        * @return the full directory path to the GDML file source
@@ -137,21 +137,21 @@ namespace gar {
        * the detector simulation (GEANT).
        */
       std::string GDMLFile() const { return fGDMLfile; }
-      
-      
+
+
       /// Returns a string with the name of the detector, as configured
       std::string DetectorName() const { return fDetectorName; }
-      
+
       //
       // object description and information
       //
-      
+
       /// @todo use a AutDetID_t instead of unsigned int?
-    
+
       //
       // group features
       //
-      
+
       /**
        * @brief Returns the number of auxiliary detectors
        *
@@ -161,7 +161,7 @@ namespace gar {
        * @todo Change return type to size_t
        */
       unsigned int NAuxDets() const { return AuxDets().size(); }
-      
+
       /**
        * @brief Returns the number of sensitive components of auxiliary detector
        * @param aid ID of the auxiliary detector
@@ -169,14 +169,14 @@ namespace gar {
        * @thrws cet::exception (category "Geometry") if aid does not exist
        */
       unsigned int NAuxDetSensitive(size_t const& aid) const;
-      
+
       //
       // access
       //
-      
+
       /// Returns the full list of pointer to the auxiliary detectors
       std::vector<AuxDetGeo*> const& AuxDetGeoVec() const { return AuxDets(); }
-      
+
       /**
        * @brief Returns the specified auxiliary detector
        * @param ad the auxiliary detector index
@@ -186,7 +186,7 @@ namespace gar {
        * @todo remove the default parameter?
        */
       AuxDetGeo const& AuxDet(unsigned int const ad = 0) const;
-      
+
       /**
        * @brief Returns the index of the auxiliary detector at specified location
        * @param worldLoc 3D coordinates of the point (world reference frame)
@@ -195,7 +195,7 @@ namespace gar {
        * @todo replace with numeric_limits<>?
        */
       unsigned int FindAuxDetAtPosition(double const worldLoc[3]) const;
-      
+
       /**
        * @brief Fills the indices of the sensitive auxiliary detector at location
        * @param worldLoc 3D coordinates of the point (world reference frame)
@@ -205,7 +205,7 @@ namespace gar {
       void  FindAuxDetSensitiveAtPosition(double const worldLoc[3],
                                           size_t     & adg,
                                           size_t     & sv) const;
-      
+
       /**
        * @brief Returns the auxiliary detector at specified location
        * @param worldLoc 3D coordinates of the point (world reference frame)
@@ -216,7 +216,7 @@ namespace gar {
        */
       AuxDetGeo const& PositionToAuxDet(double const worldLoc[3],
                                         unsigned int &ad) const;
-      
+
       /**
        * @brief Returns the auxiliary detector at specified location
        * @param worldLoc 3D coordinates of the point (world reference frame)
@@ -229,25 +229,25 @@ namespace gar {
       const AuxDetSensitiveGeo& PositionToAuxDetSensitive(double const worldLoc[3],
                                                           size_t     & ad,
                                                           size_t     & sv) const;
-      
+
       const uint32_t           PositionToAuxDetChannel(double const worldLoc[3],
                                                        size_t     & ad,
                                                        size_t     & sv) const;
       const TVector3           AuxDetChannelToPosition(uint32_t    const& channel,
                                                        std::string const& auxDetName) const;
-      
-      
+
+
       // return the AuxDetSensitiveGeo for the given name and channel
       const AuxDetGeo&         ChannelToAuxDet(std::string const& auxDetName,
                                                uint32_t    const& channel) const;
-      
+
       // return the AuxDetSensitiveGeo for the given
       const AuxDetSensitiveGeo& ChannelToAuxDetSensitive(std::string const& auxDetName,
                                                          uint32_t    const& channel) const;
-      
+
       /// @name Geometry initialization
       /// @{
-      
+
       /**
       * @brief Loads the geometry information from the specified files
       * @param gdmlfile path to file to be used for Geant4 simulation
@@ -271,12 +271,12 @@ namespace gar {
       * channel mapping.
       */
       void LoadGeometryFile(std::string gdmlfile, std::string rootfile);
-      
-      
+
+
       /// Returns whether we have a channel map
       bool hasAuxDetChannelMap() const { return bool(fChannelMapAlg); }
-      
-      
+
+
      /**
       * @brief Initializes the geometry to work with this channel map
       * @param pChannelMap a pointer to the channel mapping algorithm to be used
@@ -295,40 +295,40 @@ namespace gar {
       * This method needs to be called after LoadGeometryFile() to complete the
       * geometry initialization.
       */
-      void ApplyChannelMap(std::shared_ptr<geo::AuxDetChannelMapAlg> pChannelMap);
+      void ApplyChannelMap(std::shared_ptr<geo::seg::AuxDetChannelMapAlg> pChannelMap);
       /// @}
-      
-      
+
+
     protected:
-      
+
       /// Returns the object handling the channel map
-      geo::AuxDetChannelMapAlg const* AuxDetChannelMap() const { return fChannelMapAlg.get(); }
-      
+      geo::seg::AuxDetChannelMapAlg const* AuxDetChannelMap() const { return fChannelMapAlg.get(); }
+
       //@{
       /// Return the internal auxiliary detectors list
       AuxDetList_t&       AuxDets()       { return fGeoData.auxDets; }
       AuxDetList_t const& AuxDets() const { return fGeoData.auxDets; }
       //@}
-      
+
     private:
-      
+
       void FindAuxDet(std::vector<const TGeoNode*>& path, unsigned int depth);
-      
+
       void MakeAuxDet(std::vector<const TGeoNode*>& path, int depth);
-      
+
       /// Deletes the detector geometry structures
       void ClearGeometry();
-      
+
       AuxDetGeometryData_t fGeoData;  ///< The detector description data
-      
+
       std::string    fDetectorName;   ///< Name of the detector.
       std::string    fGDMLfile;       ///< path to geometry file used for Geant4 simulation
       std::string    fROOTfile;       ///< path to geometry file for geometry in GeometryCore
-      std::shared_ptr<const geo::AuxDetChannelMapAlg> fChannelMapAlg;  ///< Object containing the channel to wire mapping
+      std::shared_ptr<const geo::seg::AuxDetChannelMapAlg> fChannelMapAlg;  ///< Object containing the channel to wire mapping
     }; // class GeometryCore
-    
+
   } // namespace geo
-  
+
 } // gar
 
 

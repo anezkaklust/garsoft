@@ -36,7 +36,7 @@
 
 namespace gar {
   namespace geo {
-    
+
     //......................................................................
     // Constructor.
     AuxDetGeometryCore::AuxDetGeometryCore(fhicl::ParameterSet const& pset)
@@ -44,38 +44,38 @@ namespace gar {
     {
       std::transform(fDetectorName.begin(), fDetectorName.end(), fDetectorName.begin(), ::tolower);
     } // AuxDetGeometryCore::AuxDetGeometryCore()
-    
-    
+
+
     //......................................................................
     AuxDetGeometryCore::~AuxDetGeometryCore()
     {
       ClearGeometry();
     } // AuxDetGeometryCore::~AuxDetGeometryCore()
-    
-    
+
+
     //......................................................................
-    void AuxDetGeometryCore::ApplyChannelMap(std::shared_ptr<geo::AuxDetChannelMapAlg> pChannelMap)
+    void AuxDetGeometryCore::ApplyChannelMap(std::shared_ptr<geo::seg::AuxDetChannelMapAlg> pChannelMap)
     {
       pChannelMap->Initialize(fGeoData);
       fChannelMapAlg = pChannelMap;
     } // AuxDetGeometryCore::ApplyChannelMap()
-    
+
     //......................................................................
     void AuxDetGeometryCore::LoadGeometryFile(std::string gdmlfile, std::string rootfile)
     {
-      
+
       if (gdmlfile.empty()) {
         throw cet::exception("AuxDetGeometryCore")
         << "No GDML Geometry file specified!\n";
       }
-      
+
       if (rootfile.empty()) {
         throw cet::exception("AuxDetGeometryCore")
         << "No ROOT Geometry file specified!\n";
       }
-      
+
       ClearGeometry();
-      
+
       // Open the GDML file, and convert it into ROOT TGeoManager format.
       // try to be efficient - if the GeometryCore object already imported
       // the file, then the gGeoManager will be non-null.  If not, import it.
@@ -84,31 +84,31 @@ namespace gar {
         TGeoManager::Import(rootfile.c_str());
         gGeoManager->LockGeometry();
       }
-      
+
       std::vector<const TGeoNode*> path(8);
       path[0] = gGeoManager->GetTopNode();
       FindAuxDet(path, 0);
-      
+
       fGDMLfile = gdmlfile;
       fROOTfile = rootfile;
-      
+
       LOG_INFO("AuxDetGeometryCore")
       << "New detector geometry loaded from "
       << "\n\t" << fROOTfile
       << "\n\t" << fGDMLfile << "\n";
-      
+
     } // AuxDetGeometryCore::LoadGeometryFile()
-    
+
     //......................................................................
     void AuxDetGeometryCore::ClearGeometry()
     {
       // auxiliary detectors
       std::for_each(AuxDets().begin(), AuxDets().end(), std::default_delete<AuxDetGeo>());
       AuxDets().clear();
-      
+
     } // AuxDetGeometryCore::ClearGeometry()
-    
-    
+
+
     //......................................................................
     unsigned int AuxDetGeometryCore::NAuxDetSensitive(size_t const& aid) const
     {
@@ -118,10 +118,10 @@ namespace gar {
         << aid
         << " is out of range: "
         << NAuxDets();
-      
+
       return AuxDets()[aid]->NSensitiveVolume();
     }
-    
+
     //......................................................................
     //
     // Return the geometry description of the ith AuxDet.
@@ -137,27 +137,27 @@ namespace gar {
         throw cet::exception("AuxDetGeometryCore") << "AuxDet "
         << ad
         << " does not exist\n";
-      
+
       return *(AuxDets()[ad]);
     }
-    
-    
+
+
     //......................................................................
     unsigned int AuxDetGeometryCore::FindAuxDetAtPosition(double const  worldPos[3]) const
     {
       return fChannelMapAlg->NearestAuxDet(worldPos, AuxDets());
     } // AuxDetGeometryCore::FindAuxDetAtPosition()
-    
+
     //......................................................................
     const AuxDetGeo& AuxDetGeometryCore::PositionToAuxDet(double const  worldLoc[3],
                                                           unsigned int &ad) const
     {
       // locate the desired Auxiliary Detector
       ad = this->FindAuxDetAtPosition(worldLoc);
-      
+
       return this->AuxDet(ad);
     }
-    
+
     //......................................................................
     void AuxDetGeometryCore::FindAuxDetSensitiveAtPosition(double const worldPos[3],
                                                            size_t     & adg,
@@ -165,10 +165,10 @@ namespace gar {
     {
       adg = this->FindAuxDetAtPosition(worldPos);
       sv  = fChannelMapAlg->NearestSensitiveAuxDet(worldPos, AuxDets(), adg);
-      
+
       return;
     } // AuxDetGeometryCore::FindAuxDetAtPosition()
-    
+
     //......................................................................
     const AuxDetSensitiveGeo& AuxDetGeometryCore::PositionToAuxDetSensitive(double const worldLoc[3],
                                                                             size_t      &ad,
@@ -178,7 +178,7 @@ namespace gar {
       this->FindAuxDetSensitiveAtPosition(worldLoc, ad, sv);
       return this->AuxDet(ad).SensitiveVolume(sv);
     }
-    
+
     //......................................................................
     const uint32_t AuxDetGeometryCore::PositionToAuxDetChannel(double const worldLoc[3],
                                                                size_t      &ad,
@@ -186,14 +186,14 @@ namespace gar {
     {
       return fChannelMapAlg->PositionToAuxDetChannel(worldLoc, AuxDets(), ad, sv);
     }
-    
+
     //......................................................................
     const TVector3 AuxDetGeometryCore::AuxDetChannelToPosition(uint32_t    const& channel,
                                                                std::string const& auxDetName) const
     {
       return fChannelMapAlg->AuxDetChannelToPosition(channel, auxDetName, AuxDets());
     }
-    
+
     //......................................................................
     const AuxDetGeo& AuxDetGeometryCore::ChannelToAuxDet(std::string const& auxDetName,
                                                          uint32_t    const& channel) const
@@ -201,7 +201,7 @@ namespace gar {
       size_t adIdx = fChannelMapAlg->ChannelToAuxDet(AuxDets(), auxDetName, channel);
       return this->AuxDet(adIdx);
     }
-    
+
     //......................................................................
     const AuxDetSensitiveGeo& AuxDetGeometryCore::ChannelToAuxDetSensitive(std::string const& auxDetName,
                                                                            uint32_t    const& channel) const
@@ -209,7 +209,7 @@ namespace gar {
       auto idx = fChannelMapAlg->ChannelToSensitiveAuxDet(AuxDets(), auxDetName, channel);
       return this->AuxDet(idx.first).SensitiveVolume(idx.second);
     }
-    
+
     //......................................................................
     void AuxDetGeometryCore::FindAuxDet(std::vector<const TGeoNode*>& path,
                                         unsigned int depth)
@@ -219,29 +219,29 @@ namespace gar {
         this->MakeAuxDet(path, depth);
         return;
       }
-      
+
       //explore the next layer down
       unsigned int deeper = depth+1;
       if(deeper >= path.size()){
         throw cet::exception("AuxDetGeometryCore")
         << "exceeded maximum TGeoNode depth\n";
       }
-      
+
       const TGeoVolume *v = path[depth]->GetVolume();
       int nd = v->GetNdaughters();
       for(int i = 0; i < nd; ++i){
         path[deeper] = v->GetNode(i);
         this->FindAuxDet(path, deeper);
       }
-      
+
     }
-    
+
     //......................................................................
     void AuxDetGeometryCore::MakeAuxDet(std::vector<const TGeoNode*>& path, int depth)
     {
       AuxDets().push_back(new AuxDetGeo(path, depth));
     }
-    
-    
+
+
   } // namespace geo
 } // gar

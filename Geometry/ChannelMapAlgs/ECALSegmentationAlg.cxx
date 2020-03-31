@@ -1,4 +1,4 @@
-#include "Geometry/SegmentationAlgs/ECALSegmentationAlg.h"
+#include "Geometry/ChannelMapAlgs/ECALSegmentationAlg.h"
 
 #include "fhiclcpp/ParameterSet.h"
 

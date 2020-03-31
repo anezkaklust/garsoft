@@ -7,7 +7,7 @@ art_make_library( LIBRARY_NAME GeometryTestLib
                             TestUtils
                             art_Utilities canvas
                             ${MF_MESSAGELOGGER}
-                            
+                            GArChannelMapAlg
                             ${FHICLCPP}
                             ${CETLIB_EXCEPT}
                             ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
@@ -24,10 +24,10 @@ cet_test(geometry_test
          LIBRARIES Geometry
                    GeometryTestLib
                    ${MF_MESSAGELOGGER}
-                   
+                   GArChannelMapAlg
                    ${FHICLCPP}
                    ${CETLIB_EXCEPT}
-         USE_BOOST_UNIT
+                   USE_BOOST_UNIT
 )
 
 # set FHICL_FILE_PATH and FW_SEARCH_PATH for the case where building without mrb
@@ -35,8 +35,8 @@ cet_test(geometry_test
 set( mrb_build_dir $ENV{MRB_BUILDDIR} )
 if( NOT mrb_build_dir )
   #message(STATUS "MRB_BUILDDIR is undefined, set FHICL_FILE_PATH and FW_SEARCH_PATH")
-  set_tests_properties( geometry geometry_iterator 
-                        PROPERTIES ENVIRONMENT 
+  set_tests_properties( geometry geometry_iterator
+                        PROPERTIES ENVIRONMENT
                         "FHICL_FILE_PATH=.:${CMAKE_BINARY_DIR}/fcl;FW_SEARCH_PATH=${CMAKE_BINARY_DIR}/gdml" )
 endif()
 

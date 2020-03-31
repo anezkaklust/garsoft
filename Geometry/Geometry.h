@@ -20,8 +20,8 @@
 #include "Geometry/GeometryCore.h"
 
 // the following are included for convenience only
-#include "Geometry/ChannelMapAlg.h"
-#include "Geometry/SegmentationAlgs/ECALSegmentationAlg.h"
+#include "Geometry/ChannelMapAlgs/ChannelMapAlg.h"
+#include "Geometry/ChannelMapAlgs/ECALSegmentationAlg.h"
 
 // framework libraries
 #include "fhiclcpp/ParameterSet.h"

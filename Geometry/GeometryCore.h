@@ -73,8 +73,8 @@ namespace gar {
   namespace geo {
 
     class GeometryCore;
-    class ChannelMapAlg;
     namespace seg {
+        class ChannelMapAlg;
         class ECALSegmentationAlg;
     }
 
@@ -806,8 +806,10 @@ namespace gar {
        * This method needs to be called after LoadGeometryFile() to complete the
        * geometry initialization.
        */
-      void ApplyChannelMap(std::shared_ptr<gar::geo::ChannelMapAlg> pChannelMap);
+      void ApplyChannelMap(std::shared_ptr<gar::geo::seg::ChannelMapAlg> pChannelMap);
       /// @}
+
+      void ApplyECALSegmentationAlg(std::shared_ptr<gar::geo::seg::ECALSegmentationAlg> pECALSegmentationAlg);
 
       //Returns the ECAL minimum radius of the Inner Barrel
       float GetECALInnerBarrelRadius() const { return fECALRinner; }
@@ -840,8 +842,6 @@ namespace gar {
 
       bool PointInECALEndcap(TVector3 const& point) const;
 
-      void ApplyECALSegmentationAlg(std::shared_ptr<gar::geo::seg::ECALSegmentationAlg> pECALSegmentationAlg);
-
       const float GetSensVolumeThickness(const TVector3& point) const;
 
       const std::array<double, 3> FindShapeSize(const TGeoNode *node) const;
@@ -872,7 +872,7 @@ namespace gar {
       void SetDetectorName(std::string new_name) { fDetectorName = new_name; }
 
       /// Returns the object handling the channel map
-      gar::geo::ChannelMapAlg const* ChannelMap() const { return fChannelMapAlg.get(); }
+      gar::geo::seg::ChannelMapAlg const* ChannelMap() const { return fChannelMapAlg.get(); }
 
       /// Returns the object handling the channel map
       gar::geo::seg::ECALSegmentationAlg const* ECALSegmentationAlg() const { return fECALSegmentationAlg.get(); }
@@ -973,7 +973,7 @@ namespace gar {
       int fECALSymmetry;              ///< Number of sides of the Barrel
       float fECALEndcapStartX;        ///< Position of the xplane of the ECAL endcap
 
-      typedef std::shared_ptr<const gar::geo::ChannelMapAlg> ChannelMapPtr;
+      typedef std::shared_ptr<const gar::geo::seg::ChannelMapAlg> ChannelMapPtr;
       ChannelMapPtr  fChannelMapAlg;  ///< Object containing the channel to wire mapping
 
       typedef std::shared_ptr<const gar::geo::seg::ECALSegmentationAlg> ECALSegmentationAlgPtr;

@@ -1,7 +1,7 @@
 #ifndef ECALSEGMENTATIONGRIDXYALG_H
 #define ECALSEGMENTATIONGRIDXYALG_H
 
-#include "Geometry/SegmentationAlgs/ECALSegmentationAlg.h"
+#include "Geometry/ChannelMapAlgs/ECALSegmentationAlg.h"
 #include "Geometry/GeometryCore.h"
 
 #include <string>

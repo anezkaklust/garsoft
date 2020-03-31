@@ -2,11 +2,11 @@
 /// \file  AuxDetExptGeoHelperInterface.h
 /// \brief Interface to a service that handles any experiment-specific knowledge
 ///        that is needed by the AuxDetGeometry service.
-/// 
+///
 ///  This is an interface to a service that virtualizes detector or experiment-specific
-///  knowledge that is required by the Geometry service. Experiments implement the 
+///  knowledge that is required by the Geometry service. Experiments implement the
 ///  private virtual functions within a concrete service provider class to perform
-///  the specified actions as appropriate for the particular experiment. It is 
+///  the specified actions as appropriate for the particular experiment. It is
 ///  expected that such requests will occur infrequently within a job. Calculations
 ///  that occur frequently should be handled via interfaces that are passed
 ///  back to the Geometry service.
@@ -35,10 +35,10 @@
 // prototypes of geometry classes
 namespace gar {
   namespace geo{
-    
+
     class AuxDetChannelMapAlg;
     class AuxDetGeometryCore;
-    
+
     /**
      * @brief Interface to a service with detector-specific geometry knowledge
      *
@@ -58,11 +58,11 @@ namespace gar {
     class AuxDetExptGeoHelperInterface
     {
     public:
-      using AuxDetChannelMapAlgPtr_t = std::shared_ptr<const AuxDetChannelMapAlg>;
-      
+      using AuxDetChannelMapAlgPtr_t = std::shared_ptr<const seg::AuxDetChannelMapAlg>;
+
       /// Virtual destructor; does nothing
       virtual ~AuxDetExptGeoHelperInterface() = default;
-      
+
       /**
        * @brief Configure and initialize the channel map
        * @param sortingParameters parameters for the channel map algorithm
@@ -75,33 +75,33 @@ namespace gar {
        */
       void ConfigureAuxDetChannelMapAlg(fhicl::ParameterSet const & sortingParameters,
                                         geo::AuxDetGeometryCore* geom);
-      
+
       /// Returns null pointer if the initialization failed
       /// NOTE:  the sub-class owns the ChannelMapAlg object
       ///
       AuxDetChannelMapAlgPtr_t GetAuxDetChannelMapAlg() const;
-      
+
     private:
-      
+
       /// Implementation of ConfigureChannelMapAlg (pure virtual)
       virtual
       void doConfigureAuxDetChannelMapAlg(fhicl::ParameterSet const & sortingParameters,
                                           geo::AuxDetGeometryCore* geom) = 0;
-      
+
       /// Returns the ChannelMapAlg
       virtual
       AuxDetChannelMapAlgPtr_t doGetAuxDetChannelMapAlg() const    = 0;
-      
+
     }; // end ExptGeoHelperInterface class declaration
-    
-    
+
+
     //-------------------------------------------------------------------------------------------
     inline void AuxDetExptGeoHelperInterface::ConfigureAuxDetChannelMapAlg(fhicl::ParameterSet    const& sortingParameters,
                                                                            geo::AuxDetGeometryCore     * geom)
     {
       doConfigureAuxDetChannelMapAlg(sortingParameters, geom);
     }
-    
+
     inline AuxDetExptGeoHelperInterface::AuxDetChannelMapAlgPtr_t AuxDetExptGeoHelperInterface::GetAuxDetChannelMapAlg() const
     {
       return doGetAuxDetChannelMapAlg();
@@ -112,4 +112,3 @@ namespace gar {
 DECLARE_ART_SERVICE_INTERFACE(gar::geo::AuxDetExptGeoHelperInterface, LEGACY)
 
 #endif // GEO_ExptGeoHelperInterface_h
-

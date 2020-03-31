@@ -6,12 +6,12 @@
 /// \author  brebel@fnal.gov
 ////////////////////////////////////////////////////////////////////////
 
-#include "Geometry/ChannelMapAlg.h"
+#include "Geometry/ChannelMapAlgs/ChannelMapAlg.h"
 
 namespace gar{
-  namespace geo{
-  
-    
-    
-  }
+    namespace geo{
+        namespace seg{
+
+        }
+    }
 } // namespace gar

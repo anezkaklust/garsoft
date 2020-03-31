@@ -17,7 +17,7 @@ art_make( LIB_LIBRARIES     ${MF_MESSAGELOGGER}
                             ${ROOT_GUI}
                             ${Boost_SYSTEM_LIBRARY}
           SERVICE_LIBRARIES Geometry
-                            GArGeoAlg
+                            GArChannelMapAlg
                             ${ART_FRAMEWORK_CORE}
                             ${ART_FRAMEWORK_IO_SOURCES}
                             ${ART_FRAMEWORK_PRINCIPAL}
@@ -38,4 +38,4 @@ install_fhicl()
 install_source()
 
 add_subdirectory(gdml)
-add_subdirectory(SegmentationAlgs)
+add_subdirectory(ChannelMapAlgs)

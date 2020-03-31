@@ -39,8 +39,8 @@ namespace gar {
   {
 
     class GeometryCore;
-    class ChannelMapAlg;
     namespace seg {
+        class ChannelMapAlg;
         class ECALSegmentationAlg;
     }
 
@@ -63,7 +63,7 @@ namespace gar {
     class ExptGeoHelperInterface
     {
     public:
-      using ChannelMapAlgPtr_t = std::shared_ptr<const ChannelMapAlg>;
+      using ChannelMapAlgPtr_t = std::shared_ptr<const seg::ChannelMapAlg>;
       using ECALSegmentationAlgPtr_t = std::shared_ptr<const seg::ECALSegmentationAlg>;
 
       /// Virtual destructor; does nothing

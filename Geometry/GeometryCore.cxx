@@ -8,8 +8,8 @@
 
 // class header
 #include "Geometry/GeometryCore.h"
-#include "Geometry/ChannelMapAlg.h"
-#include "Geometry/SegmentationAlgs/ECALSegmentationAlg.h"
+#include "Geometry/ChannelMapAlgs/ChannelMapAlg.h"
+#include "Geometry/ChannelMapAlgs/ECALSegmentationAlg.h"
 
 // Framework includes
 #include "cetlib_except/exception.h"
@@ -66,7 +66,7 @@ namespace gar {
 
 
         //......................................................................
-        void GeometryCore::ApplyChannelMap(std::shared_ptr<geo::ChannelMapAlg> pChannelMap)
+        void GeometryCore::ApplyChannelMap(std::shared_ptr<geo::seg::ChannelMapAlg> pChannelMap)
         {
             FindWorldVolume();
             FindRockVolume();

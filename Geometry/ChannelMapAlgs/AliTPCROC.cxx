@@ -17,7 +17,7 @@
 /// \class AliTPCROC
 /// \brief Geometry class for a single ROC
 
-#include "AliTPCROC.h"
+#include "Geometry/ChannelMapAlgs/AliTPCROC.h"
 #include "TMath.h"
 
 /// \cond CLASSIMP
@@ -444,7 +444,7 @@ void AliTPCROC::GetPositionGlobal(UInt_t sector, UInt_t row, UInt_t pad, Float_t
 Float_t AliTPCROC::GetIdealPosition(UInt_t sector, UInt_t row, UInt_t pad,  coordType coord){
   //
   // return ideal position accoring hardwired geometry in the class
-  //  
+  //
 
   AliTPCROC *roc = AliTPCROC::Instance();
   Float_t pos[3];
@@ -474,5 +474,5 @@ Float_t AliTPCROC::GetIdealPosition(UInt_t sector, UInt_t row, UInt_t pad,  coor
   }
 
   return 0;
-  
+
 }

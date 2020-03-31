@@ -1,4 +1,4 @@
-#include "Geometry/SegmentationAlgs/ECALSegmentationMultiGridStripXYAlg.h"
+#include "Geometry/ChannelMapAlgs/ECALSegmentationMultiGridStripXYAlg.h"
 
 #include "fhiclcpp/ParameterSet.h"
 

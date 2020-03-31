@@ -1,7 +1,7 @@
 include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
 
 art_make( BASENAME_ONLY
-          LIBRARY_NAME      GArGeoAlg
+          LIBRARY_NAME      GArChannelMapAlg
           LIB_LIBRARIES     ${MF_MESSAGELOGGER}
                             ${FHICLCPP}
                             ${CETLIB}

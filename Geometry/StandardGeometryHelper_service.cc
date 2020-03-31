@@ -8,9 +8,9 @@
 #include "Geometry/StandardGeometryHelper.h"
 
 // GArSoft libraries
-#include "Geometry/ChannelMapStandardAlg.h"
-#include "Geometry/SegmentationAlgs/ECALSegmentationGridXYAlg.h"
-#include "Geometry/SegmentationAlgs/ECALSegmentationMultiGridStripXYAlg.h"
+#include "Geometry/ChannelMapAlgs/ChannelMapStandardAlg.h"
+#include "Geometry/ChannelMapAlgs/ECALSegmentationGridXYAlg.h"
+#include "Geometry/ChannelMapAlgs/ECALSegmentationMultiGridStripXYAlg.h"
 #include "Geometry/GeometryCore.h"
 
 // C/C++ libraries
@@ -35,7 +35,7 @@ namespace gar
     {
       fChannelMap.reset();
 
-      fChannelMap = std::make_shared<geo::ChannelMapStandardAlg>(sortingParameters);
+      fChannelMap = std::make_shared<gar::geo::seg::ChannelMapStandardAlg>(sortingParameters);
 
       if(fChannelMap) geom->ApplyChannelMap(fChannelMap);
 
