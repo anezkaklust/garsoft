@@ -62,6 +62,7 @@ namespace gar {
 
             void LArSteppingAction(const G4Step* );
             void ECALSteppingAction(const G4Step* );
+            void AddECALHits();
 
             std::string GetVolumeName(const G4Track *track);
 
@@ -83,6 +84,7 @@ namespace gar {
             std::string fLArMaterial;                             ///< Material for the LArTPC
             std::vector<std::string>           fLArVolumeName;    ///< volume we will record energy depositions in
 
+            std::map< raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_ECALDeposits;
             std::vector<gar::sdp::CaloDeposit> fECALDeposits;          ///< energy fDeposits for the ECAL
             std::vector<gar::sdp::LArDeposit> fLArDeposits;          ///< energy fDeposits for the LArTPC
 

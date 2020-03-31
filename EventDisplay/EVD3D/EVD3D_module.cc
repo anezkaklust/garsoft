@@ -588,12 +588,12 @@ namespace gar{
                                 if(nodename.find("BarrelECal") != std::string::npos)
                                 {
                                     daugh_fakeShape->SetMainColor(kOrange+10);
-                                    daugh_fakeShape->SetMainTransparency(50);
+                                    daugh_fakeShape->SetMainTransparency(80);
                                 }
                                 else if(nodename.find("EndcapECal") != std::string::npos)
                                 {
-                                    daugh_fakeShape->SetMainColor(kOrange+10);
-                                    daugh_fakeShape->SetMainTransparency(70);
+                                    daugh_fakeShape->SetMainColor(kGreen+1);
+                                    daugh_fakeShape->SetMainTransparency(80);
                                 }
 
                                 TGeoMatrix* currMat = daugh_node->GetMatrix();
@@ -619,7 +619,7 @@ namespace gar{
                             if(nodename.find("TPC") != std::string::npos)
                             {
                                 fakeShape->SetMainColor(kBlue+8);
-                                fakeShape->SetMainTransparency(50);
+                                fakeShape->SetMainTransparency(80);
                             }
                             else if(nodename.find("PV") != std::string::npos)
                             {
@@ -787,7 +787,13 @@ namespace gar{
                     label << "Sim Hit " << p << "\n";
                     label << "Energy: " << simHit->Energy() << " GeV\n";
                     label << "Position (" << simHit->X() << ", " << simHit->X() << ", " << simHit->Z() << " ) cm\n";
-                    label << "Layer: " << fGeometry->getIDbyCellID(simHit->CellID(), "layer");
+                    label << "CellID: " << simHit->CellID() << "\n";
+                    label << "isTile: " << fGeometry->isTile(simHit->CellID()) << "\n";
+                    label << "DetID: " << fGeometry->getIDbyCellID(simHit->CellID(), "system") << "\n";
+                    label << "Stave: " << fGeometry->getIDbyCellID(simHit->CellID(), "stave") << "\n";
+                    label << "Module: " << fGeometry->getIDbyCellID(simHit->CellID(), "module") << "\n";
+                    label << "Layer: " << fGeometry->getIDbyCellID(simHit->CellID(), "layer") << "\n";
+                    label << "Slice: " << fGeometry->getIDbyCellID(simHit->CellID(), "slice");
 
                     TEvePointSet *evehit = new TEvePointSet(1);
                     evehit->SetName(TString::Format("ECAL sim hit %i", p).Data());
@@ -820,7 +826,13 @@ namespace gar{
                     label << "Digi Hit " << p << "\n";
                     label << "Energy: " << rawHit->ADC().first << " ADC\n";
                     label << "Position (" << rawHit->X() << ", " << rawHit->X() << ", " << rawHit->Z() << " ) cm\n";
-                    label << "CellID: " << rawHit->CellID();
+                    label << "CellID: " << rawHit->CellID() << "\n";
+                    label << "isTile: " << fGeometry->isTile(rawHit->CellID()) << "\n";
+                    label << "DetID: " << fGeometry->getIDbyCellID(rawHit->CellID(), "system") << "\n";
+                    label << "Stave: " << fGeometry->getIDbyCellID(rawHit->CellID(), "stave") << "\n";
+                    label << "Module: " << fGeometry->getIDbyCellID(rawHit->CellID(), "module") << "\n";
+                    label << "Layer: " << fGeometry->getIDbyCellID(rawHit->CellID(), "layer") << "\n";
+                    label << "Slice: " << fGeometry->getIDbyCellID(rawHit->CellID(), "slice");
 
                     TEvePointSet *evehit = new TEvePointSet(1);
                     evehit->SetName(TString::Format("ECAL digi hit %i", p).Data());
@@ -853,7 +865,13 @@ namespace gar{
                     label << "Reco Hit " << p << "\n";
                     label << "Energy: " << recoHit->Energy() * 1000 << " MeV\n";
                     label << "Position (" << recoHit->Position()[0] << ", " << recoHit->Position()[1] << ", " << recoHit->Position()[2] << " ) cm\n";
-                    label << "CellID: " << recoHit->CellID();
+                    label << "CellID: " << recoHit->CellID() << "\n";
+                    label << "isTile: " << fGeometry->isTile(recoHit->CellID()) << "\n";
+                    label << "DetID: " << fGeometry->getIDbyCellID(recoHit->CellID(), "system") << "\n";
+                    label << "Stave: " << fGeometry->getIDbyCellID(recoHit->CellID(), "stave") << "\n";
+                    label << "Module: " << fGeometry->getIDbyCellID(recoHit->CellID(), "module") << "\n";
+                    label << "Layer: " << fGeometry->getIDbyCellID(recoHit->CellID(), "layer") << "\n";
+                    label << "Slice: " << fGeometry->getIDbyCellID(recoHit->CellID(), "slice");
 
                     TEvePointSet *evehit = new TEvePointSet(1);
                     evehit->SetName(TString::Format("ECAL reco hit %i", p));

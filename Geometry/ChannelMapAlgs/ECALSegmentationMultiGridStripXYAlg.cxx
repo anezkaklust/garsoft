@@ -113,15 +113,14 @@ namespace gar {
                             cellPosition[2] = 0.;
                         }
                         else {
-                            if( ( cellIndexY + 0.5 ) * _stripSizeY < geo.GetECALSideLength() / 2.) {
-                                cellPosition[0] = ( cellIndexX + 0.5 ) * (_layer_dim_X / nCellsX );
-                            } else {
+                            cellPosition[1] = ( cellIndexY + 0.5 ) * _stripSizeY;
+                            cellPosition[0] = ( cellIndexX + 0.5 ) * (_layer_dim_X / nCellsX );
+                            if( cellPosition[1] > geo.GetECALSideLength() / 2.) {
                                 //Correct for the endcap
                                 float angle = geo.GetECALInnerAngle() - M_PI/2;
                                 int n = std::round( ( ( cellIndexY + 0.5 ) * _stripSizeY ) / ( geo.GetECALSideLength() / 2. ) );
-                                cellPosition[0] = ( cellIndexX + 0.5 ) * (_layer_dim_X / nCellsX ) - ( n * ( _stripSizeX / std::tan(angle) ) );
+                                cellPosition[0] -= n * ( _stripSizeX / std::tan(angle) );
                             }
-                            cellPosition[1] = ( cellIndexY + 0.5 ) * _stripSizeY;
                             cellPosition[2] = 0.;
                         }
                     }
@@ -139,13 +138,12 @@ namespace gar {
                         }
                         else {
                             cellPosition[0] = ( cellIndexX + 0.5 ) * _stripSizeX;
-                            if( ( cellIndexX + 0.5 ) * _stripSizeX < geo.GetECALSideLength() / 2.) {
-                                cellPosition[1] = ( cellIndexY + 0.5 ) * (_layer_dim_Y / nCellsY );
-                            } else {
+                            cellPosition[1] = ( cellIndexY + 0.5 ) * (_layer_dim_Y / nCellsY );
+                            if( cellPosition[0] > geo.GetECALSideLength() / 2.) {
                                 //Correct for the endcap
                                 float angle = geo.GetECALInnerAngle() - M_PI/2;
                                 int n = std::round( ( ( cellIndexX + 0.5 ) * _stripSizeX ) / ( geo.GetECALSideLength() / 2. ) );
-                                cellPosition[1] = ( cellIndexY + 0.5 ) * (_layer_dim_Y / nCellsY ) - ( n * ( _stripSizeY / std::tan(angle) ) );
+                                cellPosition[1] -= n * ( _stripSizeY / std::tan(angle) );
                             }
                             cellPosition[2] = 0.;
                         }
@@ -350,13 +348,11 @@ namespace gar {
                         stripEnd2.SetX(_layer_dim_X/2.);
                     } else {
                         stripEnd1.SetX(0.);
-                        if(local[1] < geo.GetECALSideLength()/2.) {
-                            stripEnd2.SetX(_layer_dim_X);//not perfect at the edges...
-                        }
-                        else {
+                        stripEnd2.SetX(_layer_dim_X);//not perfect at the edges...
+                        if(local[1] > geo.GetECALSideLength()/2.) {
                             float angle = geo.GetECALInnerAngle() - M_PI/2;
                             int n = std::round( local[1] / ( geo.GetECALSideLength() / 2. ) );
-                            stripEnd2.SetX(_layer_dim_X - ( n * ( _stripSizeX / std::tan(angle) ) ) );//not perfect at the edges...
+                            stripEnd2.SetX(_layer_dim_X - ( n * ( _stripSizeX / std::tan(angle) ) ) );
                         }
                     }
 
@@ -373,10 +369,8 @@ namespace gar {
                         stripEnd2.SetY(_layer_dim_Y/2.);
                     } else {
                         stripEnd1.SetY(0.);
-                        if(local[0] < geo.GetECALSideLength()/2.) {
-                            stripEnd2.SetY(_layer_dim_Y);//not perfect at the edges...
-                        }
-                        else {
+                        stripEnd2.SetY(_layer_dim_Y);//not perfect at the edges...
+                        if(local[0] > geo.GetECALSideLength()/2.) {
                             float angle = geo.GetECALInnerAngle() - M_PI/2;
                             int n = std::round( local[0] / ( geo.GetECALSideLength() / 2. ) );
                             stripEnd2.SetY(_layer_dim_Y - ( n * ( _stripSizeY / std::tan(angle) ) ) );//not perfect at the edges...

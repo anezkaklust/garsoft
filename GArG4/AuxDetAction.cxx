@@ -81,6 +81,7 @@ namespace gar {
         void AuxDetAction::BeginOfEventAction(const G4Event*)
         {
             // Clear any previous information.
+            m_ECALDeposits.clear();
             fECALDeposits.clear();
             fLArDeposits.clear();
         }
@@ -112,6 +113,7 @@ namespace gar {
         //------------------------------------------------------------------------------
         void AuxDetAction::EndOfEventAction(const G4Event*)
         {
+            this->AddECALHits();
             //sort per time the hits
             std::sort(fECALDeposits.begin(), fECALDeposits.end());
             std::sort(fLArDeposits.begin(), fLArDeposits.end());
@@ -262,27 +264,14 @@ namespace gar {
             G4ThreeVector G4Local = this->globalToLocal(step, G4Global);
             //Transform in cm
             std::array<double, 3> G4Localcm = {G4Local.x() / CLHEP::cm, G4Local.y() / CLHEP::cm, G4Local.z() / CLHEP::cm};
-
             //Get cellID
-            raw::CellID_t  cellID = fGeo->GetCellID(node, det_id, stave, module, layer, slice, G4Localcm);//encoding the cellID on 64 bits
+            raw::CellID_t cellID = fGeo->GetCellID(node, det_id, stave, module, layer, slice, G4Localcm);//encoding the cellID on 64 bits
 
-            //Correct the position of the tiles only -> center of a tile
-            //Leave strips alone for now
+            //Don't correct for the strip or tile position yet
             double G4Pos[3] = {0., 0., 0.}; // in cm
-            if(fGeo->isTile(cellID))
-            {
-                std::array<double, 3> SegLocalcm = fGeo->GetPosition(node, cellID);//in cm
-                G4ThreeVector SegLocal(SegLocalcm[0] * CLHEP::cm, SegLocalcm[1] * CLHEP::cm, SegLocalcm[2] * CLHEP::cm);
-                G4ThreeVector SegGlobal = this->localToGlobal(step, SegLocal);
-
-                G4Pos[0] = SegGlobal.x() / CLHEP::cm;
-                G4Pos[1] = SegGlobal.y() / CLHEP::cm;
-                G4Pos[2] = SegGlobal.z() / CLHEP::cm;
-            } else {
-                G4Pos[0] = G4Global.x() / CLHEP::cm;
-                G4Pos[1] = G4Global.y() / CLHEP::cm;
-                G4Pos[2] = G4Global.z() / CLHEP::cm;
-            }
+            G4Pos[0] = G4Global.x() / CLHEP::cm;
+            G4Pos[1] = G4Global.y() / CLHEP::cm;
+            G4Pos[2] = G4Global.z() / CLHEP::cm;
 
             // get the track id for this step
             auto trackID = ParticleListAction::GetCurrentTrackID();
@@ -299,11 +288,15 @@ namespace gar {
             << edep
             << " GeV";
 
-            fECALDeposits.emplace_back(trackID,
-            time,
-            edep,
-            G4Pos,
-            cellID);
+            //Create a map of cellID to SimHit
+            gar::sdp::CaloDeposit hit( trackID, time, edep, G4Pos, cellID );
+            if(m_ECALDeposits.find(cellID) != m_ECALDeposits.end())
+            m_ECALDeposits[cellID].push_back(hit);
+            else {
+                std::vector<gar::sdp::CaloDeposit> vechit;
+                vechit.push_back(hit);
+                m_ECALDeposits.emplace(cellID, vechit);
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -404,6 +397,29 @@ namespace gar {
             energyDeposition,
             niel);
             return engyVis;
+        }
+
+        //------------------------------------------------------------------------------
+        void AuxDetAction::AddECALHits()
+        {
+            //Loop over the hits in the map and add them together
+            for(auto const &it : m_ECALDeposits) {
+
+                raw::CellID_t cellID = it.first;
+                std::vector<gar::sdp::CaloDeposit> vechit = it.second;
+                std::sort(vechit.begin(), vechit.end()); //sort per time
+
+                float esum = 0.;
+                float time = vechit.at(0).Time();
+                int trackID = vechit.at(0).TrackID();
+                double pos[3] = { vechit.at(0).X(), vechit.at(0).Y(), vechit.at(0).Z() };
+
+                for(auto const &hit : vechit) {
+                    esum += hit.Energy();
+                }
+
+                fECALDeposits.emplace_back( trackID, time, esum, pos, cellID );
+            }
         }
 
     } // garg4

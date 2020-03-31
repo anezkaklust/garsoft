@@ -55,7 +55,7 @@ namespace gar {
             double  const& Y()         const { return fPos[1];         }
             double  const& Z()         const { return fPos[2];         }
             raw::CellID_t  const& CellID()      const { return fCellID;    }
-            const double* Pos() const { return fPos; }
+            double const* Pos() const { return &fPos[0]; }
 
             bool operator  <(gar::sdp::CaloDeposit const& b) const;
 
