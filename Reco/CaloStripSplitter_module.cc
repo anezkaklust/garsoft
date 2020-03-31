@@ -57,6 +57,7 @@ namespace gar {
             void CollectHits(const art::Event &evt, const std::string &label, std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector);
 
             std::string fCaloHitLabel;  ///< label to find the right reco calo hits
+            bool fSaveStripEndsOnly;
             bool fSaveStripEnds;
 
             const detinfo::DetectorProperties*  fDetProp;      ///< detector properties
@@ -72,6 +73,7 @@ namespace gar {
 
             fGeo     = gar::providerFrom<geo::Geometry>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
+            fSaveStripEndsOnly = p.get<bool>("SaveStripEndsOnly", false);
 
             //configure the cluster algorithm
             auto fSSAAlgoPars = p.get<fhicl::ParameterSet>("SSAAlgPars");
@@ -105,13 +107,15 @@ namespace gar {
             // make an art::PtrVector of the hits
             std::unique_ptr< std::vector<gar::rec::CaloHit> > HitCol(new std::vector<gar::rec::CaloHit>);
 
-            //Copy the split hits to the collection
-            for(auto const &it : splitHits)
-            HitCol->emplace_back(*it);
+            if(not fSaveStripEndsOnly) {
+                //Copy the split hits to the collection
+                for(auto const &it : splitHits)
+                HitCol->emplace_back(*it);
 
-            //Copy the unsplit hits to the collection
-            for(auto const &it : unsplitHits)
-            HitCol->emplace_back(*it);
+                //Copy the unsplit hits to the collection
+                for(auto const &it : unsplitHits)
+                HitCol->emplace_back(*it);
+            }
 
             //Copy the strip end hits to the collection
             if(fSaveStripEnds) {

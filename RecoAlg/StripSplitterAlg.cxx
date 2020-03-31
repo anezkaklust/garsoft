@@ -159,8 +159,14 @@ namespace gar {
                             isBarrel = false;
                         } else {
                             LOG_ERROR("StripSplitterAlg::DoStripSplitting")
-                            << "cannot tell if hit is in barrel or endcap..." << volname;
+                            << " Problem with Hit " << i
+                            << " isTile " << fGeo->isTile(hit->CellID())
+                            << " pointing at " << hit
+                            << " at position ( " << hit->Position()[0] << " cm , " << hit->Position()[1] << " cm , " << hit->Position()[2] << " cm )"
+                            << " orientation " << (orientation == LONGITUDINAL ? "LONGITUDINAL" : "TRANSVERSE")
+                            << " in volume " << volname;
                             throw cet::exception("StripSplitterAlg::DoStripSplitting");
+                            // continue;
                         }
 
                         // split the hits

@@ -277,14 +277,25 @@ namespace gar {
         const std::array<double, 3> GeometryCore::FindShapeSize(const TGeoNode *node) const
         {
             TGeoVolume *vol = node->GetVolume();
+            //Check if it is ECAL endcap -> layer size is not the BBox! It is the apothem
+            std::string volname = vol->GetName();
+            bool isBarrel = true;
+            if(volname.find("endcap") != std::string::npos || volname.find("Endcap") != std::string::npos ) isBarrel = false;
+
             std::array<double, 3> shape;
 
             if(vol)
             {
                 TGeoBBox *box = (TGeoBBox*)(vol->GetShape());
 
-                shape[0] = box->GetDX();
-                shape[1] = box->GetDY();
+                if(isBarrel) {
+                    shape[0] = box->GetDX();
+                    shape[1] = box->GetDY();
+                } else {
+                    shape[0] = GetECALApothemLength() / 2.;
+                    shape[1] = GetECALApothemLength() / 2.;
+                }
+
                 shape[2] = box->GetDZ();
 
                 return shape; //return half size in cm
@@ -1022,11 +1033,15 @@ namespace gar {
         //----------------------------------------------------------------------------
         double GeometryCore::getStripLength(std::array<double, 3> const& point, const gar::raw::CellID_t &cID) const
         {
+            std::array<double, 3> localtemp;
+            gar::geo::LocalTransformation<TGeoHMatrix> trans;
+            this->WorldToLocal(point, localtemp, trans);
+
             const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
 
             fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
 
-            return fECALSegmentationAlg->getStripLength(*this, cID);
+            return fECALSegmentationAlg->getStripLength(*this, localtemp, cID);
         }
 
         //----------------------------------------------------------------------------
@@ -1101,6 +1116,7 @@ namespace gar {
             std::cout << "ECAL inner symmetry: " << GetECALInnerSymmetry() << std::endl;
             std::cout << "ECAL polyhedra angle: " << GetECALInnerAngle()*180/M_PI << " deg" << std::endl;
             std::cout << "ECAL polyhedra side length: " << GetECALSideLength() << " cm" << std::endl;
+            std::cout << "ECAL polyhedra apothem length: " << GetECALApothemLength() << " cm" << std::endl;
             std::cout << "ECAL Endcap Start X: " << GetECALEndcapStartX() << " cm" << std::endl;
             std::cout << "Pressure Vessel Thickness: " << GetPVThickness() << " cm" << std::endl;
             std::cout << "------------------------------" << std::endl;

@@ -77,7 +77,7 @@ namespace gar {
                 virtual void setLayerDimXY(const double& dimX, const double& dimY) const = 0;
 
                 //Non-pure virtual member functions
-                virtual double getStripLength(const gar::geo::GeometryCore& geo, const gar::raw::CellID_t& cID) const;
+                virtual double getStripLength(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const;
 
                 virtual std::pair<TVector3, TVector3> getStripEnds(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const;
 

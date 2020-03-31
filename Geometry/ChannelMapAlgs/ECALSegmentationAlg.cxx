@@ -50,7 +50,7 @@ namespace gar {
                     }
 
                     //----------------------------------------------------------------------------
-                    double ECALSegmentationAlg::getStripLength(const gar::geo::GeometryCore& geo, const gar::raw::CellID_t& cID) const {
+                    double ECALSegmentationAlg::getStripLength(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const {
                         return 0.;
                     }
 

@@ -829,6 +829,9 @@ namespace gar {
       //Returns the side length of the polyhedra
       float GetECALSideLength() const { return ( 2 * std::sin( M_PI / fECALSymmetry ) * fECALRouter ); }
 
+      //Returns the apothem length of the polyhedra
+      float GetECALApothemLength() const { return ( std::cos( M_PI / fECALSymmetry ) * fECALRouter ); }
+
       //Returns the ECAL minimum radius of the Outer Barrel
       float GetECALEndcapStartX() const { return fECALEndcapStartX; }
 

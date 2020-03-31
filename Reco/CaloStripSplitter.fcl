@@ -4,5 +4,6 @@ standard_CaloStripSplitter:
 {
 module_type:        CaloStripSplitter
 CaloHitLabel:       "calohit"
+SaveStripEndsOnly:  false
 SSAAlgPars:         @local::stripsplitteralg
 }

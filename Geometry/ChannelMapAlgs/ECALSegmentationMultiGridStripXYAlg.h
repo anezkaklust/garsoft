@@ -38,7 +38,7 @@ namespace gar {
 
                 bool isBarrel(const gar::raw::CellID_t& cID) const override;
 
-                double getStripLength(const gar::geo::GeometryCore& geo, const gar::raw::CellID_t& cID) const override;
+                double getStripLength(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const override;
 
                 std::pair<TVector3, TVector3> getStripEnds(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const override;
 
