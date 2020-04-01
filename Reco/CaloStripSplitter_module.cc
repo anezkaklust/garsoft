@@ -58,6 +58,7 @@ namespace gar {
 
             std::string fCaloHitLabel;  ///< label to find the right reco calo hits
             bool fSaveStripEndsOnly;
+            bool fSaveUnsplitHits;
             bool fSaveStripEnds;
 
             const detinfo::DetectorProperties*  fDetProp;      ///< detector properties
@@ -74,6 +75,7 @@ namespace gar {
             fGeo     = gar::providerFrom<geo::Geometry>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fSaveStripEndsOnly = p.get<bool>("SaveStripEndsOnly", false);
+            fSaveUnsplitHits = p.get<bool>("SaveUnsplitHits", false);
 
             //configure the cluster algorithm
             auto fSSAAlgoPars = p.get<fhicl::ParameterSet>("SSAAlgPars");
@@ -112,9 +114,11 @@ namespace gar {
                 for(auto const &it : splitHits)
                 HitCol->emplace_back(*it);
 
-                //Copy the unsplit hits to the collection
-                for(auto const &it : unsplitHits)
-                HitCol->emplace_back(*it);
+                if( fSaveUnsplitHits ) {
+                    //Copy the unsplit hits to the collection
+                    for(auto const &it : unsplitHits)
+                    HitCol->emplace_back(*it);
+                }
             }
 
             //Copy the strip end hits to the collection

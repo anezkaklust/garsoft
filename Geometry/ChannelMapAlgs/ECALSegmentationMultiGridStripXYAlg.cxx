@@ -453,13 +453,24 @@ namespace gar {
             //----------------------------------------------------------------------------
             std::array<double, 3> ECALSegmentationMultiGridStripXYAlg::ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const gar::raw::CellID_t& cID) const
             {
+                float pos = xlocal;
+                //Need to check if the local position is bigger than the strip length!
+                bool isBarrel = this->isBarrel(cID);
+                float stripLength = this->getStripLength(geo, local, cID);
+
+                if(isBarrel) {
+                    if( std::abs(pos) > stripLength / 2. ) pos = (pos > 0) ? stripLength / 2. : -stripLength / 2.;
+                } else {
+                    if( std::abs(pos) > stripLength ) pos = (pos > 0) ? stripLength : 0.;
+                }
+
                 std::array<double, 3> newlocal;
 
                 if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 2) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 == 0) )
-                newlocal = {xlocal, local[1], local[2]};
+                newlocal = {pos, local[1], local[2]};
 
                 if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 3) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) ) //Strip along Y
-                newlocal = {local[0], xlocal, local[2]};
+                newlocal = {local[0], pos, local[2]};
 
                 return newlocal;
             }

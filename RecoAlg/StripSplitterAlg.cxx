@@ -81,7 +81,7 @@ namespace gar {
                     const gar::rec::CaloHit *hit = hitPtr.get();
 
                     if(fGeo->isTile(hit->CellID())) {
-                        unSplitStripHits.emplace_back( hit );
+                        splitStripHits.emplace_back( hit );
                         continue;
                     }
 
@@ -122,11 +122,11 @@ namespace gar {
 
                     switch (icol) {
                     case 0:
-                        orientation = TRANSVERSE;
+                        orientation = TRANSVERSE;//even layers
                         toSplit = m_CaloHitVecEven;
                         break;
                     case 1:
-                        orientation = LONGITUDINAL;
+                        orientation = LONGITUDINAL;//odd layers
                         toSplit = m_CaloHitVecOdd;
                         break;
                     default:
@@ -175,7 +175,12 @@ namespace gar {
                         // add (new) hits to collections
                         if (splitHits.size() == 0) {
                             LOG_DEBUG("StripSplitterAlg")
-                            << "adding unsplithit hit " << hit;
+                            << " Adding unsplit hit1 " << i
+                            << " isTile " << fGeo->isTile(hit->CellID())
+                            << " pointing at " << hit
+                            << " orientation " << (orientation == LONGITUDINAL ? "LONGITUDINAL" : "TRANSVERSE")
+                            << " in volume " << volname;
+
                             // not split, add original hit
                             unSplitStripHits.emplace_back(hit);
                         } else {
@@ -314,7 +319,7 @@ namespace gar {
 
                         if (dist > 2*fStripLength){
 
-                            LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
+                            LOG_INFO("StripSplitterAlg::getVirtualHits()")
                             << " Distance between hit1 and hit2 " << dist
                             << " > 2*fStripLength " << 2*fStripLength;
 
