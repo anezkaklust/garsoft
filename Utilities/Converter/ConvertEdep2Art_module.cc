@@ -44,6 +44,7 @@
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "SimulationDataProducts/CaloDeposit.h"
 #include "SimulationDataProducts/LArDeposit.h"
+#include "RawDataProducts/CaloRawDigit.h"
 #include "Geometry/GeometryCore.h"
 #include "Geometry/Geometry.h"
 #include "Geometry/LocalTransformation.h"
@@ -95,6 +96,7 @@ namespace util {
         double VisibleEnergyDeposition(const TG4HitSegment *hit, bool applyBirks) const;
         bool CheckProcess( std::string process_name ) const;
         unsigned int GetParentage( unsigned int trkid ) const;
+        void AddECALHits();
 
         std::string fEDepSimfile;
         std::string fGhepfile;
@@ -122,6 +124,7 @@ namespace util {
         const gar::detinfo::ECALProperties*      fEcalProp;
 
         std::vector<simb::MCParticle> fMCParticles;
+        std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_ECALDeposits;
         std::vector<gar::sdp::CaloDeposit> fECALDeposits;
         std::vector<gar::sdp::EnergyDeposit> fGArDeposits;
 
@@ -361,6 +364,29 @@ namespace util {
         return parentid;
     }
 
+    //------------------------------------------------------------------------------
+    void ConvertEdep2Art::AddECALHits()
+    {
+        //Loop over the hits in the map and add them together
+        for(auto const &it : m_ECALDeposits) {
+
+            gar::raw::CellID_t cellID = it.first;
+            std::vector<gar::sdp::CaloDeposit> vechit = it.second;
+            std::sort(vechit.begin(), vechit.end()); //sort per time
+
+            float esum = 0.;
+            float time = vechit.at(0).Time();
+            int trackID = vechit.at(0).TrackID();
+            double pos[3] = { vechit.at(0).X(), vechit.at(0).Y(), vechit.at(0).Z() };
+
+            for(auto const &hit : vechit) {
+                esum += hit.Energy();
+            }
+
+            fECALDeposits.emplace_back( trackID, time, esum, pos, cellID );
+        }
+    }
+
     //--------------------------------------------------------------------------
     void ConvertEdep2Art::produce(::art::Event& evt)
     {
@@ -520,6 +546,7 @@ namespace util {
         std::unique_ptr< art::Assns<gar::sdp::EnergyDeposit, simb::MCParticle> > ghmcassn(new art::Assns<gar::sdp::EnergyDeposit, simb::MCParticle>);
         std::unique_ptr< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> > ehmcassn(new art::Assns<gar::sdp::CaloDeposit, simb::MCParticle>);
 
+        m_ECALDeposits.clear();
         fGArDeposits.clear();
         fECALDeposits.clear();
 
@@ -595,32 +622,21 @@ namespace util {
                     << " layer " << layer
                     << " slice " << slice;
 
-                    long long int cellID = fGeo->GetCellID(node, det_id, stave, module, layer, slice, LocalPosCM);//encoding the cellID on 64 bits
+                    gar::raw::CellID_t cellID = fGeo->GetCellID(node, det_id, stave, module, layer, slice, LocalPosCM);//encoding the cellID on 64 bits
 
                     double G4Pos[3] = {0., 0., 0.}; // in cm
-                    if(fGeo->isTile(cellID))
-                    {
-                        std::array<double, 3> SegLocalCM = fGeo->GetPosition(node, cellID);//in cm
-                        std::array<double, 3> SegGlobalCM;
-                        fGeo->LocalToWorld(SegLocalCM, SegGlobalCM, trans);
+                    G4Pos[0] = GlobalPosCM[0];
+                    G4Pos[1] = GlobalPosCM[1];
+                    G4Pos[2] = GlobalPosCM[2];
 
-                        LOG_DEBUG("ConvertEdep2Art")
-                        << " Point in node " << node->GetName()
-                        << " Global before " << GlobalPosCM[0] << " " << GlobalPosCM[1] << " " << GlobalPosCM[2]
-                        << " Local before " << LocalPosCM[0] << " " << LocalPosCM[1] << " " << LocalPosCM[2]
-                        << " Local after " << SegLocalCM[0] << " " << SegLocalCM[1] << " " << SegLocalCM[2]
-                        << " Global after " << SegGlobalCM[0] << " " << SegGlobalCM[1] << " " << SegGlobalCM[2];
-
-                        G4Pos[0] = SegGlobalCM[0];
-                        G4Pos[1] = SegGlobalCM[1];
-                        G4Pos[2] = SegGlobalCM[2];
-                    } else {
-                        G4Pos[0] = GlobalPosCM[0];
-                        G4Pos[1] = GlobalPosCM[1];
-                        G4Pos[2] = GlobalPosCM[2];
+                    gar::sdp::CaloDeposit calohit( trackID, time, edep, G4Pos, cellID );
+                    if(m_ECALDeposits.find(cellID) != m_ECALDeposits.end())
+                    m_ECALDeposits[cellID].push_back(calohit);
+                    else {
+                        std::vector<gar::sdp::CaloDeposit> vechit;
+                        vechit.push_back(calohit);
+                        m_ECALDeposits.emplace(cellID, vechit);
                     }
-
-                    fECALDeposits.emplace_back(trackID, time, edep, G4Pos, cellID);
                 }
             }
             else{
@@ -633,6 +649,7 @@ namespace util {
 
         //--------------------------------------------------------------------------
 
+        this->AddECALHits();
         std::sort(fGArDeposits.begin(), fGArDeposits.end());
         std::sort(fECALDeposits.begin(), fECALDeposits.end());
 
