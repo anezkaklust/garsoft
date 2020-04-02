@@ -108,7 +108,7 @@ namespace gar {
                 << "StripSplitterAlg::DoStripSplitting()";
 
                 //Collection to split
-                std::vector <const gar::rec::CaloHit*> toSplit;
+                std::vector <const gar::rec::CaloHit*> *toSplit;
                 int orientation;
                 //Orientation
                 //even layers are segmented in Y (local) -> Transverse
@@ -123,11 +123,11 @@ namespace gar {
                     switch (icol) {
                     case 0:
                         orientation = TRANSVERSE;//even layers
-                        toSplit = m_CaloHitVecEven;
+                        toSplit = &m_CaloHitVecEven;
                         break;
                     case 1:
                         orientation = LONGITUDINAL;//odd layers
-                        toSplit = m_CaloHitVecOdd;
+                        toSplit = &m_CaloHitVecOdd;
                         break;
                     default:
                         LOG_ERROR("StripSplitterAlg::DoStripSplitting")
@@ -137,9 +137,9 @@ namespace gar {
                     }
 
                     // loop over hits of this type (long/trans) collection
-                    for (uint i = 0; i < toSplit.size(); i++)
+                    for (uint i = 0; i < toSplit->size(); i++)
                     {
-                        const gar::rec::CaloHit* hit = toSplit.at(i);
+                        const gar::rec::CaloHit* hit = toSplit->at(i);
 
                         // is this a barrel or endcap collection?
                         TVector3 point(hit->Position()[0], hit->Position()[1], hit->Position()[2]);
@@ -170,10 +170,11 @@ namespace gar {
                         }
 
                         // split the hits
-                        std::vector <const gar::rec::CaloHit*> splitHits = getVirtualHits(hit, orientation, isBarrel);
+                        std::vector <const gar::rec::CaloHit*> virtualhits;
+                        getVirtualHits(hit, orientation, isBarrel, virtualhits);
 
                         // add (new) hits to collections
-                        if (splitHits.size() == 0) {
+                        if (virtualhits.size() == 0) {
                             LOG_DEBUG("StripSplitterAlg")
                             << " Adding unsplit hit1 " << i
                             << " isTile " << fGeo->isTile(hit->CellID())
@@ -185,12 +186,12 @@ namespace gar {
                             unSplitStripHits.emplace_back(hit);
                         } else {
                             // split was split, add the virtual hits
-                            for (uint hh = 0; hh < splitHits.size(); hh++) {
+                            for (uint hh = 0; hh < virtualhits.size(); hh++) {
 
                                 LOG_DEBUG("StripSplitterAlg")
                                 << "adding virtual hit " << hh;
 
-                                splitStripHits.emplace_back(splitHits.at(hh));
+                                splitStripHits.emplace_back(virtualhits.at(hh));
                             }
                         }
                     } // loop over hits
@@ -200,13 +201,11 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            std::vector <const gar::rec::CaloHit*> StripSplitterAlg::getVirtualHits(const gar::rec::CaloHit *hit, int orientation, bool isBarrel)
+            void StripSplitterAlg::getVirtualHits(const gar::rec::CaloHit *hit, int orientation, bool isBarrel, std::vector <const gar::rec::CaloHit*> &virtualhits)
             {
                 LOG_DEBUG("StripSplitterAlg")
                 << "StripSplitterAlg::getVirtualHits()";
-
-                std::vector <const gar::rec::CaloHit*> newhits;
-
+                
                 // this splits the strip into zero or more hits along its length
                 // by looking at nearby hits with different orientation (trans/long or square)
                 int layer  = hit->GetLayer();
@@ -241,16 +240,16 @@ namespace gar {
 
                 // decide which collections to use to split the strip
                 int splitterOrientation;
-                std::vector <const gar::rec::CaloHit*> splitterVec;
+                std::vector <const gar::rec::CaloHit*> *splitterVec;
 
                 if ( layer%2 == 0 )
                 {
-                    splitterVec = m_CaloHitVecOdd;
+                    splitterVec = &m_CaloHitVecOdd;
                     splitterOrientation = LONGITUDINAL;
                 }
                 else
                 {
-                    splitterVec = m_CaloHitVecEven;
+                    splitterVec = &m_CaloHitVecEven;
                     splitterOrientation = TRANSVERSE;
                 }
 
@@ -261,11 +260,11 @@ namespace gar {
                 // strips, cells
                 for (int jj = 0; jj < 2; jj++)
                 {
-                    std::vector <const gar::rec::CaloHit*> splitter = splitterVec;
+                    std::vector <const gar::rec::CaloHit*> *splitter = splitterVec;
 
-                    for (uint i = 0; i < splitter.size(); i++)
+                    for (uint i = 0; i < splitter->size(); i++)
                     {
-                        const gar::rec::CaloHit *hit2 = splitter.at(i);
+                        const gar::rec::CaloHit *hit2 = splitter->at(i);
 
                         int layer2  = hit2->GetLayer();
                         int module2 = hit2->GetModule();
@@ -313,18 +312,16 @@ namespace gar {
                         << " dlayer " << dlayer;
 
                         // simple distance check for remaining hit pairs
-                        float dist = std::sqrt( std::pow(hit2->Position()[0] - hit->Position()[0], 2) +
-                        std::pow(hit2->Position()[1] - hit->Position()[1], 2) +
-                        std::pow(hit2->Position()[2] - hit->Position()[2], 2) );
+                        // float dist = std::sqrt( std::pow(hit2->Position()[0] - hit->Position()[0], 2) + std::pow(hit2->Position()[1] - hit->Position()[1], 2) + std::pow(hit2->Position()[2] - hit->Position()[2], 2) );
 
-                        if (dist > 2*fStripLength){
-
-                            LOG_INFO("StripSplitterAlg::getVirtualHits()")
-                            << " Distance between hit1 and hit2 " << dist
-                            << " > 2*fStripLength " << 2*fStripLength;
-
-                            continue;
-                        }
+                        // if (dist > 2*fStripLength){
+                        //
+                        //     LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
+                        //     << " Distance between hit1 and hit2 " << dist
+                        //     << " > 2*fStripLength " << 2*fStripLength;
+                        //
+                        //     continue;
+                        // }
 
                         // for remaining hits, check if they overlap
                         TVector3 stripDir2(0, 0, 0);
@@ -377,14 +374,12 @@ namespace gar {
                 << " Number of splitters " << nSplitters;
 
                 // now create the virtual cells, and assign energy
-                std::map <int, float>::iterator it;
-
                 float totenergy(0);
-                for (it = virtEnergy.begin(); it != virtEnergy.end(); it++) {
+                for (std::map <int, float>::iterator it = virtEnergy.begin(); it != virtEnergy.end(); it++) {
                     totenergy += it->second;
                 }
 
-                for (it = virtEnergy.begin(); it != virtEnergy.end(); it++) {
+                for (std::map <int, float>::iterator it = virtEnergy.begin(); it != virtEnergy.end(); it++) {
                     // energy of hit
                     float energy = hit->Energy() * it->second / totenergy;
                     // position of hit
@@ -405,12 +400,11 @@ namespace gar {
                     << " Energy " << energy
                     << " Position " << pos[0] << " " << pos[1] << " " << pos[2];
 
-                    newhits.emplace_back(newhit);
+                    virtualhits.emplace_back(newhit);
                 }
-
-                return newhits;
             }
 
+            //----------------------------------------------------------------------------
             TVector3 StripSplitterAlg::stripIntersect(const gar::rec::CaloHit *hit0, const TVector3& dir0, const gar::rec::CaloHit *hit1, const TVector3& dir1)
             {
                 // find intercept of hit1 with hit0

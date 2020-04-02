@@ -24,6 +24,7 @@
 #include "TGeoPgon.h"
 #include "TGeoVolume.h"
 #include "TGeoTube.h"
+#include "TGeoCompositeShape.h"
 
 // C/C++ includes
 #include <cstddef> // size_t
@@ -292,8 +293,8 @@ namespace gar {
                     shape[0] = box->GetDX();
                     shape[1] = box->GetDY();
                 } else {
-                    shape[0] = GetECALApothemLength() / 2.;
-                    shape[1] = GetECALApothemLength() / 2.;
+                    shape[0] = GetECALEndcapApothemLength() / 2.;
+                    shape[1] = GetECALEndcapApothemLength() / 2.;
                 }
 
                 shape[2] = box->GetDZ();
@@ -908,6 +909,8 @@ namespace gar {
 
             this->FindECALInnerBarrelRadius();
             this->FindECALOuterBarrelRadius();
+            this->FindECALInnerEndcapRadius();
+            this->FindECALOuterEndcapRadius();
             this->FindPVThickness();
             this->FindECALInnerSymmetry();
             this->FindECALEndcapStartX();
@@ -937,6 +940,34 @@ namespace gar {
             return false;
 
             fECALRouter = ((TGeoPgon*)vol->GetShape())->GetRmax(0);
+
+            return true;
+        }
+
+        //----------------------------------------------------------------------------
+        bool GeometryCore::FindECALInnerEndcapRadius()
+        {
+            TGeoVolume *vol = gGeoManager->FindVolumeFast("EndcapECal_vol");
+            if(!vol)
+            vol = gGeoManager->FindVolumeFast("volEndcapECal");
+            if(!vol)
+            return false;
+
+            fECALECapRinner = 0.;
+
+            return true;
+        }
+
+        //----------------------------------------------------------------------------
+        bool GeometryCore::FindECALOuterEndcapRadius()
+        {
+            TGeoVolume *vol = gGeoManager->FindVolumeFast("EndcapECal_vol");
+            if(!vol)
+            vol = gGeoManager->FindVolumeFast("volEndcapECal");
+            if(!vol)
+            return false;
+
+            fECALECapRouter = ((TGeoBBox*)vol->GetShape())->GetDX();
 
             return true;
         }
@@ -1111,12 +1142,16 @@ namespace gar {
             std::cout << "TPC Active Volume Size (R, L) " << TPCRadius() << " cm " << TPCLength() << " cm" << std::endl;
             std::cout << "------------------------------" << std::endl;
             std::cout << "ECAL Geometry" << std::endl;
-            std::cout << "ECAL Barrel inner radius: " << GetECALInnerBarrelRadius() << " cm" << std::endl;
-            std::cout << "ECAL Barrel outer radius: " << GetECALOuterBarrelRadius() << " cm" << std::endl;
+            std::cout << "ECAL Barrel inner radius (Barrel): " << GetECALInnerBarrelRadius() << " cm" << std::endl;
+            std::cout << "ECAL Barrel outer radius (Barrel): " << GetECALOuterBarrelRadius() << " cm" << std::endl;
+            std::cout << "ECAL Barrel inner radius (Endcap): " << GetECALInnerEndcapRadius() << " cm" << std::endl;
+            std::cout << "ECAL Barrel outer radius (Endcap): " << GetECALOuterEndcapRadius() << " cm" << std::endl;
             std::cout << "ECAL inner symmetry: " << GetECALInnerSymmetry() << std::endl;
             std::cout << "ECAL polyhedra angle: " << GetECALInnerAngle()*180/M_PI << " deg" << std::endl;
-            std::cout << "ECAL polyhedra side length: " << GetECALSideLength() << " cm" << std::endl;
-            std::cout << "ECAL polyhedra apothem length: " << GetECALApothemLength() << " cm" << std::endl;
+            std::cout << "ECAL polyhedra side length (Barrel): " << GetECALBarrelSideLength() << " cm" << std::endl;
+            std::cout << "ECAL polyhedra apothem length (Barrel): " << GetECALBarrelApothemLength() << " cm" << std::endl;
+            std::cout << "ECAL polyhedra side length (Endcap): " << GetECALEndcapSideLength() << " cm" << std::endl;
+            std::cout << "ECAL polyhedra apothem length (Endcap): " << GetECALEndcapApothemLength() << " cm" << std::endl;
             std::cout << "ECAL Endcap Start X: " << GetECALEndcapStartX() << " cm" << std::endl;
             std::cout << "Pressure Vessel Thickness: " << GetPVThickness() << " cm" << std::endl;
             std::cout << "------------------------------" << std::endl;
@@ -1150,6 +1185,8 @@ namespace gar {
 
             fECALRinner = 0.;
             fECALRouter = 0.;
+            fECALECapRouter = 0.;
+            fECALECapRouter = 0.;
             fPVThickness = 0.;
             fECALSymmetry = -1;
             fECALEndcapStartX = 0.;

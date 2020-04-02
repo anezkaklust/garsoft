@@ -817,6 +817,12 @@ namespace gar {
       //Returns the ECAL minimum radius of the Outer Barrel
       float GetECALOuterBarrelRadius() const { return fECALRouter; }
 
+      //Returns the ECAL minimum radius of the Inner Endcap
+      float GetECALInnerEndcapRadius() const { return fECALECapRinner; }
+
+      //Returns the ECAL minimum radius of the Outer Endcap
+      float GetECALOuterEndcapRadius() const { return fECALECapRouter; }
+
       //Returns the PV thickness
       float GetPVThickness() const { return fPVThickness; }
 
@@ -827,10 +833,16 @@ namespace gar {
       float GetECALInnerAngle() const { return (( fECALSymmetry - 2 ) * M_PI / fECALSymmetry); }
 
       //Returns the side length of the polyhedra
-      float GetECALSideLength() const { return ( 2 * std::sin( M_PI / fECALSymmetry ) * fECALRouter ); }
+      float GetECALBarrelSideLength() const { return ( 2 * std::sin( M_PI / fECALSymmetry ) * fECALRouter ); }
 
       //Returns the apothem length of the polyhedra
-      float GetECALApothemLength() const { return ( std::cos( M_PI / fECALSymmetry ) * fECALRouter ); }
+      float GetECALBarrelApothemLength() const { return ( std::cos( M_PI / fECALSymmetry ) * fECALRouter ); }
+
+      //Returns the side length of the polyhedra
+      float GetECALEndcapSideLength() const { return ( 2 * std::sin( M_PI / fECALSymmetry ) * fECALECapRouter ); }
+
+      //Returns the apothem length of the polyhedra
+      float GetECALEndcapApothemLength() const { return ( std::cos( M_PI / fECALSymmetry ) * fECALECapRouter ); }
 
       //Returns the ECAL minimum radius of the Outer Barrel
       float GetECALEndcapStartX() const { return fECALEndcapStartX; }
@@ -914,6 +926,12 @@ namespace gar {
       //Sets the ECAL outer barrel minimum radius
       bool FindECALOuterBarrelRadius();
 
+      //Sets the ECAL inner endcap minimum radius
+      bool FindECALInnerEndcapRadius();
+
+      //Sets the ECAL outer endcap minimum radius
+      bool FindECALOuterEndcapRadius();
+
       //Sets the PV thickness
       bool FindPVThickness();
 
@@ -978,6 +996,8 @@ namespace gar {
       //Related to the ECAL
       float fECALRinner;              ///< Minimum radius of the ECAL inner barrel
       float fECALRouter;              ///< Minimum radius of the ECAL outer barrel
+      float fECALECapRinner;
+      float fECALECapRouter;
       float fPVThickness;             ///< Pressure Vessel thickness
       int fECALSymmetry;              ///< Number of sides of the Barrel
       float fECALEndcapStartX;        ///< Position of the xplane of the ECAL endcap

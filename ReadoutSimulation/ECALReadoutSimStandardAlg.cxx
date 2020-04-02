@@ -234,14 +234,28 @@ namespace gar {
         {
             //Use the segmentation algo to get the position
             std::array<double, 3> point = {x, y, z};
+            TGeoNode *node = fGeo->FindNode(point);//Node in cm...
+            std::string nodename = node->GetName();
             std::array<double, 3> pointLocal;
             gar::geo::LocalTransformation<TGeoHMatrix> trans;
             fGeo->WorldToLocal(point, pointLocal, trans);
 
-            TGeoNode *node = fGeo->FindNode(point);//Node in cm...
             std::array<double, 3> pointLocal_back = fGeo->GetPosition(node, cID);//returns in cm
             std::array<double, 3> point_back;
             fGeo->LocalToWorld(pointLocal_back, point_back, trans);
+            TGeoNode *new_node = fGeo->FindNode(point_back);//Node in cm...
+            std::string newnodename = new_node->GetName();
+
+            if( newnodename != nodename ){
+                LOG_DEBUG("ECALReadoutSimStandardAlg") << "CalculatePosition()"
+                << " isTile " << fGeo->isTile(cID) << "\n"
+                << " Strip length " << fGeo->getStripLength(point, cID) << "\n"
+                << " CellIndexX " << fGeo->getIDbyCellID(cID, "cellX") << "\n"
+                << " CellIndexY " << fGeo->getIDbyCellID(cID, "cellY") << "\n"
+                << " Layer " << fGeo->getIDbyCellID(cID, "layer") << "\n"
+                << " Local Point before new position ( " << pointLocal[0] << ", " << pointLocal[1] << ", " << pointLocal[2] << " ) in node " << nodename << "\n"
+                << " Local Point after new position ( " << pointLocal_back[0] << ", " << pointLocal_back[1] << ", " << pointLocal_back[2] << " ) in node " << newnodename;
+            }
 
             return point_back;
         }

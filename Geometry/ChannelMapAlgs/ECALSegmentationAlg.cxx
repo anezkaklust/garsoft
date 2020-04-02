@@ -46,7 +46,7 @@ namespace gar {
 
                     //----------------------------------------------------------------------------
                     int ECALSegmentationAlg::positionToBin(double position, double cellSize, double offset) {
-                        return int(floor((position + 0.5 * cellSize - offset) / cellSize));
+                        return int( floor((position + 0.5 * cellSize - offset) / cellSize) );
                     }
 
                     //----------------------------------------------------------------------------

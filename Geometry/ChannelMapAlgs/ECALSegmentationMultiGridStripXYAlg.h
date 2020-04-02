@@ -118,6 +118,8 @@ namespace gar {
                 double _stripSizeX;
                 /// the strip size in Y
                 double _stripSizeY;
+                /// fraction of tiles to remove at the edge
+                double _frac;
 
                 /// the layers (start::end) for grid in Barrel
                 std::vector<std::string> _gridBarrelLayers;

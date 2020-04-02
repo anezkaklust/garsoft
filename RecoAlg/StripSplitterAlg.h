@@ -48,7 +48,7 @@ namespace gar{
 
             private:
 
-                std::vector <const gar::rec::CaloHit*> getVirtualHits(const gar::rec::CaloHit *hit, int orientation, bool isBarrel);
+                void getVirtualHits(const gar::rec::CaloHit *hit, int orientation, bool isBarrel, std::vector <const gar::rec::CaloHit*> &virtualhits);
 
                 TVector3 stripIntersect(const gar::rec::CaloHit *hit0, const TVector3& dir0, const gar::rec::CaloHit *hit1, const TVector3& dir1);
 

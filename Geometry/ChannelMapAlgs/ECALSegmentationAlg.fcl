@@ -18,8 +18,8 @@ SegmentationAlgName: "MultiGridStripXY"
 cellEncoding: "system:3,module:3,stave:4,layer:7,slice:3,cellX:32:-16,cellY:-16"
 grid_size_x: 2.5 # cm
 grid_size_y: 2.5 # cm
-offset_x: 0. # cm
-offset_y: 0. # cm
+offset_x: 1.25 # cm for the tiles only
+offset_y: 1.25 # cm for the tiles only
 identifier_x: "cellX"
 identifier_y: "cellY"
 identifier_layer: "layer"
