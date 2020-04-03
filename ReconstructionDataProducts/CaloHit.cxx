@@ -98,11 +98,17 @@ namespace gar {
         }
 
         //--------------------------------------------------------------------------
+        const unsigned int CaloHit::GetDetectorID() const
+        {
+            gar::geo::GeometryCore const* fGeo = gar::providerFrom<geo::Geometry>();
+            return fGeo->getIDbyCellID(this->CellID(), "system");
+        }
+
+        //--------------------------------------------------------------------------
         const unsigned int CaloHit::GetLayer() const
         {
             gar::geo::GeometryCore const* fGeo = gar::providerFrom<geo::Geometry>();
             return fGeo->getIDbyCellID(this->CellID(), "layer");
-            delete fGeo;
         }
 
         //--------------------------------------------------------------------------
@@ -110,7 +116,6 @@ namespace gar {
         {
             gar::geo::GeometryCore const* fGeo = gar::providerFrom<geo::Geometry>();
             return fGeo->getIDbyCellID(this->CellID(), "module");
-            delete fGeo;
         }
 
         //--------------------------------------------------------------------------
@@ -118,7 +123,6 @@ namespace gar {
         {
             gar::geo::GeometryCore const* fGeo = gar::providerFrom<geo::Geometry>();
             return fGeo->getIDbyCellID(this->CellID(), "stave");
-            delete fGeo;
         }
 
         //--------------------------------------------------------------------------
@@ -135,8 +139,6 @@ namespace gar {
                 std::array<double, 3> point = {this->Position()[0], this->Position()[1], this->Position()[2]};
                 return std::sqrt( fGeo->getStripWidth() * fGeo->getStripLength(point, this->CellID()) );
             }
-
-            delete fGeo;
         }
 
     } // rec

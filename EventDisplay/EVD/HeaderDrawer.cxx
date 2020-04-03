@@ -84,14 +84,14 @@ namespace evd{
     sprintf(eventbuff,"Event: %d",event);
     events = eventbuff;
 
-    sprintf(datebuff, "UTC %s %s %d, %d",
+    sprintf(datebuff, "UTC %s %s %u, %u",
             days[dayofweek],
             months[month],
             day,
             year);
     dates = datebuff;
 
-    sprintf(timebuff, "%.2d:%.2d:%2.9f",
+    sprintf(timebuff, "%.2u:%.2u:%2.9f",
             hour,
             minute,
             (float)second+(float)nano/1.0E9);

@@ -124,7 +124,7 @@ void gar::evd::CalorPad::Draw(const char* /*opt*/)
            if(fcurvetype == 1) AnalysisBaseDraw()->DrawDeDx         (*evt, fView);
       else if(fcurvetype == 0) AnalysisBaseDraw()->DrawKineticEnergy(*evt, fView);
     }
-    catch (cet::exception e){
+    catch (cet::exception &e){
       if(fcurvetype==1) writeErrMsg("Draw->DrawDeDx",e);
       else if (fcurvetype==0) writeErrMsg("Draw->DrawKineticEnergy",e);
       else if (fcurvetype==2) writeErrMsg("Draw->CalorShower",e);

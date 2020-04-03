@@ -1392,8 +1392,8 @@ namespace gar{
 
                 sprintf(runbuff,  "Run:   %d/%d\n", run, srun);
                 sprintf(eventbuff,"Event: %d\n", evt);
-                sprintf(datebuff, "UTC %s %s %d, %d\n", days[dayofweek], months[month], day, year);
-                sprintf(timebuff, "%.2d:%.2d:%2.9f\n", hour, minute, (float)second+(float)nano/1.0E9);
+                sprintf(datebuff, "UTC %s %s %u, %u\n", days[dayofweek], months[month], day, year);
+                sprintf(timebuff, "%.2u:%.2u:%2.9f\n", hour, minute, (float)second+(float)nano/1.0E9);
 
                 //Final char
                 char annotation[256];

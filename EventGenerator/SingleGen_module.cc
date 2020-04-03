@@ -57,30 +57,30 @@ namespace simb { class MCTruth; }
 
 namespace gar{
   namespace evgen {
-    
+
       /// module to produce single or multiple specified particles in the detector
     class SingleGen : public ::art::EDProducer {
-      
+
     public:
       explicit SingleGen(fhicl::ParameterSet const& pset);
       virtual ~SingleGen();
-      
+
         // This is called for each event.
       void produce(::art::Event& evt);
       void beginRun(::art::Run& run);
       void reconfigure(fhicl::ParameterSet const& p);
-      
+
     private:
-      
+
       void SampleOne(unsigned int         i,
                      simb::MCTruth & mct);
       void Sample(simb::MCTruth & mct);
       void printVecs(std::vector<std::string> const& list);
       bool PadVector(std::vector<double> &vec);
-      
+
       static const int kUNIF = 0;
       static const int kGAUS = 1;
-      
+
       int                 fMode;           ///< Particle Selection Mode
                                            ///< 0--generate a list of all particles,
                                            ///< 1--generate a single particle selected randomly from the list
@@ -112,36 +112,36 @@ namespace gar{
       rndm::NuRandomService::seed_t fSeed;  ///< override seed with a fcl parameter not equal to zero
 
     };
-    
+
     //____________________________________________________________________________
-    SingleGen::SingleGen(fhicl::ParameterSet const& pset) : 
+    SingleGen::SingleGen(fhicl::ParameterSet const& pset) :
     art::EDProducer{pset}
     {
-      
+
       this->reconfigure(pset);
-      
+
       // create a default random engine; obtain the random seed
       // unless overridden in configuration with key "Seed"
       //int seed = pset.get< unsigned int >("Seed", evgb::GetRandomNumberSeed());
-      
+
       //createEngine( seed );
 
       produces< std::vector<simb::MCTruth> >();
       produces< sumdata::RunData, ::art::InRun >();
-      
+
     }
-    
+
     //____________________________________________________________________________
     SingleGen::~SingleGen()
     {
     }
-    
+
     //____________________________________________________________________________
     void SingleGen::reconfigure(fhicl::ParameterSet const& p)
     {
       // do not put seed in reconfigure because we don't want to reset
       // the seed midstream
-      
+
       fPadOutVectors = p.get< bool                >("PadOutVectors");
       fMode          = p.get< int                 >("ParticleSelectionMode");
       fPDG           = p.get< std::vector<int>    >("PDG");
@@ -164,7 +164,7 @@ namespace gar{
       fSigmaThetaYZ  = p.get< std::vector<double> >("SigmaThetaYZ");
       fAngleDist     = p.get< int                 >("AngleDist");
       fSeed          = p.get< rndm::NuRandomService::seed_t >("Seed",0);
-      
+
       std::vector<std::string> vlist(15);
       vlist[0]  = "PDG";
       vlist[1]  = "P0";
@@ -181,8 +181,8 @@ namespace gar{
       vlist[12] = "SigmaThetaYZ";
       vlist[13] = "T0";
       vlist[14] = "SigmaT";
-      
-      
+
+
       // begin tests for multiple particle error possibilities
       std::string list;
       if( !this->PadVector(fP0          ) ) list.append(vlist[1] .append(", \n"));
@@ -199,9 +199,9 @@ namespace gar{
       if( !this->PadVector(fSigmaThetaYZ) ) list.append(vlist[12].append("  \n"));
       if( !this->PadVector(fT0          ) ) list.append(vlist[13].append(", \n"));
       if( !this->PadVector(fSigmaT      ) ) list.append(vlist[14].append(", \n"));
-      
-      
-      
+
+
+
       if(list.size() > 0)
         throw cet::exception("SingleGen") << "The "<< list
         << "\n vector(s) defined in the fhicl files has/have "
@@ -209,9 +209,9 @@ namespace gar{
         << "\n and it has (they have) more than one value, "
         << "\n disallowing sensible padding "
         << " and/or you have set fPadOutVectors to false. \n";
-      
+
       if(fPDG.size() > 1 && fPadOutVectors) this->printVecs(vlist);
-      
+
     // create a default random engine; obtain the random seed from NuRandomService,
     // unless overridden in configuration with key "Seed"
     art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this);
@@ -225,7 +225,7 @@ namespace gar{
 
       return;
     }
-    
+
     //____________________________________________________________________________
     bool SingleGen::PadVector(std::vector<double> &vec)
     {
@@ -237,66 +237,66 @@ namespace gar{
         // the exception is thrown in the reconfigure method
         // that calls this one
         if     (!fPadOutVectors) return false;
-        else if( fPadOutVectors){
+        else {
           // if padding of vectors is desired but the vector in
           // question has more than one entry it isn't clear
           // what the padded values should be so cause
           // an exception
           if(vec.size() != 1) return false;
-          
+
           // pad it out
           vec.resize(fPDG.size(), vec[0]);
-          
+
         }// end if padding out vectors
       }// end if the vector size is not the same as fPDG
-      
+
       return true;
     }
-    
+
     //____________________________________________________________________________
     void SingleGen::beginRun(::art::Run& run)
     {
-      
+
       // grab the geometry object to see what geometry we are using
       auto geo = gar::providerFrom<geo::Geometry>();
       std::string name(geo->DetectorName());
       std::unique_ptr<gar::sumdata::RunData> runcol(new gar::sumdata::RunData(name));
-      
+
       run.put(std::move(runcol));
-      
+
       return;
     }
-    
+
     //____________________________________________________________________________
     void SingleGen::produce(::art::Event& evt)
     {
-      
+
       ///unique_ptr allows ownership to be transferred to the ::art::Event after the put statement
       std::unique_ptr< std::vector<simb::MCTruth> > truthcol(new std::vector<simb::MCTruth>);
-      
+
       simb::MCTruth truth;
       truth.SetOrigin(simb::kSingleParticle);
       Sample(truth);
-      
+
       LOG_DEBUG("SingleGen") << truth;
-      
+
       truthcol->push_back(truth);
-      
+
       evt.put(std::move(truthcol));
-      
+
       return;
     }
-    
+
     //____________________________________________________________________________
     // Draw the type, momentum and position of a single particle from the
     // FCIHL description
     void SingleGen::SampleOne(unsigned int    i,
                               simb::MCTruth & mct){
-      
+
       // get the random number generator service and make some CLHEP generators
       CLHEP::RandFlat   flat(*fEngine);
       CLHEP::RandGaussQ gauss(*fEngine);
-      
+
         // Choose momentum
       double p = 0.0;
       double m = 0.0;
@@ -306,11 +306,11 @@ namespace gar{
       else {
         p = fP0[i] + fSigmaP[i]*(2.0*flat.fire()-1.0);
       }
-      
+
       static TDatabasePDG  pdgt;
       TParticlePDG* pdgp = pdgt.GetParticle(fPDG[i]);
       if (pdgp) m = pdgp->Mass();
-      
+
         // Choose position
       TVector3 x;
       if (fPosDist == kGAUS) {
@@ -323,7 +323,7 @@ namespace gar{
         x[1] = fY0[i] + fSigmaY[i]*(2.0*flat.fire()-1.0);
         x[2] = fZ0[i] + fSigmaZ[i]*(2.0*flat.fire()-1.0);
       }
-      
+
       double t = 0.;
       if(fTDist==kGAUS){
         t = gauss.fire(fT0[i], fSigmaT[i]);
@@ -331,61 +331,61 @@ namespace gar{
       else{
         t = fT0[i] + fSigmaT[i]*(2.0*flat.fire()-1.0);
       }
-      
+
       TLorentzVector pos(x[0], x[1], x[2], t);
-      
+
       // Choose angles
       double thxz = 0;
       double thyz = 0;
-      
+
       double thyzrads = 0;
       double thyzradsplussigma = 0;
       double thyzradsminussigma = 0;
-      
+
       if (fAngleDist == kGAUS) {
         thxz = gauss.fire(fTheta0XZ[i], fSigmaThetaXZ[i]);
         thyz = gauss.fire(fTheta0YZ[i], fSigmaThetaYZ[i]);
       }
       else {
-        
+
         // Choose angles flat in phase space, which is flat in theta_xz
         // and flat in sin(theta_yz).
-        
+
         thxz = fTheta0XZ[i] + fSigmaThetaXZ[i]*(2.0*flat.fire()-1.0);
-        
+
         //Taking asin of sin gives value between -Pi/2 and Pi/2 regardless of user input
         thyzrads           = std::asin(std::sin((M_PI/180.)*(fTheta0YZ[i])));
         thyzradsplussigma  = TMath::Min((thyzrads + ((M_PI/180.)*fabs(fSigmaThetaYZ[i]))), M_PI/2.);
         thyzradsminussigma = TMath::Max((thyzrads - ((M_PI/180.)*fabs(fSigmaThetaYZ[i]))), -M_PI/2.);
-        
+
         double sinthyzmin = std::sin(thyzradsminussigma);
         double sinthyzmax = std::sin(thyzradsplussigma);
         double sinthyz    = sinthyzmin + flat.fire() * (sinthyzmax - sinthyzmin);
         thyz = (180. / M_PI) * std::asin(sinthyz);
       }
-      
+
       double thxzrad = thxz*M_PI/180.0;
       double thyzrad = thyz*M_PI/180.0;
-      
+
       TLorentzVector pvec(p*std::cos(thyzrad)*std::sin(thxzrad),
                           p*std::sin(thyzrad),
                           p*std::cos(thxzrad)*std::cos(thyzrad),
                           std::sqrt(p*p+m*m));
-      
+
       // set track id to -i as these are all primary particles and have id <= 0
       int trackid = -1 * (i + 1);
       std::string primary("primary");
-      
+
       simb::MCParticle part(trackid, fPDG[i], primary);
       part.AddTrajectoryPoint(pos, pvec);
-      
+
       mct.Add(part);
     }
-    
+
     //____________________________________________________________________________
     void SingleGen::Sample(simb::MCTruth & mct)
     {
-      
+
       switch (fMode) {
         case 0: // List generation mode: every event will have one of each
                 // particle species in the fPDG array
@@ -397,7 +397,7 @@ namespace gar{
                 // selected randomly from the fPDG array
         {
           CLHEP::RandFlat flat(*fEngine);
-          
+
           unsigned int i=flat.fireInt(fPDG.size());
           SampleOne(i,mct);
         }
@@ -408,27 +408,27 @@ namespace gar{
           << fMode;
           break;
       } // switch on fMode
-      
+
       return;
     }
-    
+
     //____________________________________________________________________________
     void SingleGen::printVecs(std::vector<std::string> const& list)
     {
-      
+
       LOG_INFO("SingleGen")
       << " You are using vector values for SingleGen configuration.\n   "
       << " Some of the configuration vectors may have been padded out ,"
       << " because they (weren't) as long as the pdg vector"
       << " in your configuration. \n"
       << " The new input particle configuration is:\n" ;
-      
+
       std::string values;
       for(size_t i = 0; i < list.size(); ++i){
-        
+
         values.append(list[i]);
-        values.append(": [ ");      
-        
+        values.append(": [ ");
+
         for(size_t e = 0; e < fPDG.size(); ++e){
           std::stringstream buf;
           buf.width(10);
@@ -450,19 +450,19 @@ namespace gar{
           if(i == 14) buf << fSigmaT[e]       << ", ";
           values.append(buf.str());
         }
-        
+
         values.erase(values.find_last_of(","));
         values.append(" ] \n");
-        
+
       }// end loop over vector names in list
-      
+
       LOG_INFO("SingleGen") << values;
-      
+
       return;
     }
-    
+
     DEFINE_ART_MODULE(SingleGen)
-    
+
   }//end namespace evgen
 }// namespace gar
 

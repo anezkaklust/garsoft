@@ -25,6 +25,7 @@ namespace gar {
 
       // let the compiler provide the dtor
 
+      const unsigned int GetDetectorID() const;
       const unsigned int GetLayer() const;
       const unsigned int GetModule() const;
       const unsigned int GetStave() const;

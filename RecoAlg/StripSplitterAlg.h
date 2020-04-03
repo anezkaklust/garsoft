@@ -42,6 +42,8 @@ namespace gar{
 
                 std::vector<const gar::rec::CaloHit*> getStripEndsHits() const { return fStripEndsHits; }
 
+                std::vector<const gar::rec::CaloHit*> getIntersectionHits() const { return fIntersectionHits; }
+
                 std::vector <const gar::rec::CaloHit*> getSplitHits() const { return splitStripHits; }
 
                 std::vector <const gar::rec::CaloHit*> getUnSplitHits() const { return unSplitStripHits; }
@@ -66,6 +68,7 @@ namespace gar{
                 std::vector<const gar::rec::CaloHit*> m_CaloHitVecEven;
 
                 std::vector<const gar::rec::CaloHit*> fStripEndsHits;
+                std::vector<const gar::rec::CaloHit*> fIntersectionHits;
                 std::vector <const gar::rec::CaloHit*> unSplitStripHits;
                 std::vector <const gar::rec::CaloHit*> splitStripHits;
 

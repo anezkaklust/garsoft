@@ -132,7 +132,7 @@ gar::anatest::anatest(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
     fClusterLabel     = p.get<std::string>("ClusterLabel","calocluster");
     fECALAssnLabel    = p.get<std::string>("ECALAssnLabel","trkecalassn");
 
-
+    fTree = nullptr;
 
     if (usegenlabels) {
         for (size_t i=0; i<fGeneratorLabels.size(); ++i) {
@@ -148,7 +148,7 @@ gar::anatest::anatest(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
 
     consumes<std::vector<rec::Hit> >(fHitLabel);
     consumes<std::vector<rec::TPCCluster> >(fTPCClusterLabel);
-    consumes<std::vector<rec::Track> >(fTrackLabel);    
+    consumes<std::vector<rec::Track> >(fTrackLabel);
     consumes<art::Assns<rec::Track, rec::TPCCluster> >(fTPCClusterLabel);
     consumes<std::vector<rec::Vertex> >(fVertexLabel);
     consumes<art::Assns<rec::Track, rec::Vertex> >(fVertexLabel);
@@ -158,7 +158,7 @@ gar::anatest::anatest(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
     consumes<std::vector<rec::CaloHit> >(fCaloHitLabel);
     consumes<std::vector<rec::Cluster> >(fClusterLabel);
     consumes<art::Assns<rec::Cluster, rec::Track>>(fECALAssnLabel);
-    
+
     return;
 } // end constructor
 

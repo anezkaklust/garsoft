@@ -331,6 +331,8 @@ gar::anatree::anatree(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
     fClusterLabel     = p.get<std::string>("ClusterLabel","calocluster");
     fECALAssnLabel    = p.get<std::string>("ECALAssnLabel","trkecalassn");
 
+    fTree = nullptr;
+
     // What to write
     fWriteMCinfo              = p.get<bool>("WriteMCinfo",       true);
     fWriteMCPTrajectory       = p.get<bool>("WriteMCPTrajectory",true);

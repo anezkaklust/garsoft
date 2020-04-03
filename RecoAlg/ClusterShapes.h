@@ -173,14 +173,14 @@ namespace util {
     float _xgr = 0.0;
     float _ygr = 0.0;
     float _zgr = 0.0;
-    float _analogGravity[3] = {0.0, 0.0,0.0};
+    float _analogGravity[3] = {0.0, 0.0, 0.0};
 
     int   _ifNotWidth = 1;
     float _analogWidth = 0.0;
 
     int   _ifNotInertia = 1;
-    float _ValAnalogInertia[3];
-    float _VecAnalogInertia[9];
+    float _ValAnalogInertia[3] = {0., 0., 0.};
+    float _VecAnalogInertia[9] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
 
     int   _ifNotElipsoid = 1;
     float _r1            = 0.0;  // Cluster spatial axis length -- the largest

@@ -57,7 +57,7 @@ int main( int argc, char const *argv[] )
             p++;
         }
         else if( argv[p] == std::string("--originTPC") ){
-            if( argc > 8 && argc == 11 )
+            if( argc == 11 )
             {
                 x = argv[p+1];
                 y = argv[p+2];

@@ -126,11 +126,11 @@ namespace gar {
                 std::vector<const gar::rec::CaloHit*> stripEndsHits = fSSAAlgo->getStripEndsHits();
                 for(auto const &it : stripEndsHits)
                 HitCol->emplace_back(*it);
-            }
 
-            LOG_DEBUG("CaloStripSplitter_module")
-            << " Number of hits before the module " << artHits.size()
-            << " Number of hits after the module " << HitCol->size();
+                std::vector<const gar::rec::CaloHit*> stripInterHits = fSSAAlgo->getIntersectionHits();
+                for(auto const &it : stripInterHits)
+                HitCol->emplace_back(*it);
+            }
 
             e.put(std::move(HitCol));
 

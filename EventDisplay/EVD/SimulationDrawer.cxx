@@ -325,7 +325,7 @@ namespace gar {
       // draw the trajectories
       std::map<const simb::MCParticle*, std::vector<std::vector<double> > >::iterator partToPosMapItr;
 
-      for(partToPosMapItr = partToPosMap.begin(); partToPosMapItr != partToPosMap.end(); partToPosMapItr++)
+      for(partToPosMapItr = partToPosMap.begin(); partToPosMapItr != partToPosMap.end(); ++partToPosMapItr)
 	{
 	  // Recover the McParticle, we'll need to access several data members so may as well dereference it
 	  const simb::MCParticle* mcPart = partToPosMapItr->first;

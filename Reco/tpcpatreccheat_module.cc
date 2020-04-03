@@ -74,7 +74,7 @@ namespace gar {
     };
 
 
-    tpcpatreccheat::tpcpatreccheat(fhicl::ParameterSet const& p) : EDProducer{p}  
+    tpcpatreccheat::tpcpatreccheat(fhicl::ParameterSet const& p) : EDProducer{p}
       {
         fHitLabel           = p.get<std::string>("HitLabel","hit");
         fTPCClusterLabel    = p.get<std::string>("TPCClusterLabel","tpccluster");
@@ -103,7 +103,6 @@ namespace gar {
         throw cet::exception("tpcpatreccheat")
         << "Attempting to cheat the track pattern recognition for real data, "
         << "that will never work";
-        return;
       }
 
       auto TPCClusterHandle = e.getValidHandle< std::vector<gar::rec::TPCCluster> >(fTPCClusterLabel);
@@ -233,14 +232,14 @@ namespace gar {
 
       std::vector<float> tparbeg(6,0);
       float xother = 0;
-      if ( gar::rec::initial_trackpar_estimate(trackTPCClusters, hlf, tparbeg[2], tparbeg[4], 
-					       tparbeg[3], tparbeg[5], tparbeg[0], tparbeg[1], xother, fInitialTPNTPCClusters, fPrintLevel) != 0) 
+      if ( gar::rec::initial_trackpar_estimate(trackTPCClusters, hlf, tparbeg[2], tparbeg[4],
+					       tparbeg[3], tparbeg[5], tparbeg[0], tparbeg[1], xother, fInitialTPNTPCClusters, fPrintLevel) != 0)
 	{
 	  return 1;
 	}
 
       std::vector<float> tparend(6,0);
-      if ( gar::rec::initial_trackpar_estimate(trackTPCClusters, hlb, tparend[2], tparend[4], 
+      if ( gar::rec::initial_trackpar_estimate(trackTPCClusters, hlb, tparend[2], tparend[4],
 					       tparend[3], tparend[5], tparend[0], tparend[1], xother, fInitialTPNTPCClusters, fPrintLevel) != 0)
 	{
 	  return 1;
@@ -274,6 +273,6 @@ namespace gar {
 
     DEFINE_ART_MODULE(tpcpatreccheat)
 
-    
+
   } // namespace rec
 } // namespace gar

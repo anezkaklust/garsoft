@@ -1148,10 +1148,10 @@ void ConvertToGHepMock(void)
     stripped_event -> SetWeight     (event.Weight());
     stripped_event -> SetVertex     (*event.Vertex());
 
-    GHepParticle * p = 0;
+    GHepParticle * p = nullptr;
     TIter iter(&event);
     while( (p = (GHepParticle *)iter.Next()) ) {
-       if(!p) continue;
+       if(nullptr == p) continue;
        GHepStatus_t ist = p->Status();
        if(ist!=kIStStableFinalState) continue;
        stripped_event->AddParticle(
