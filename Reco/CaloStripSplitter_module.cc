@@ -55,6 +55,7 @@ namespace gar {
 
             // Declare member data here.
             void CollectHits(const art::Event &evt, const std::string &label, std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector);
+            std::array<double, 3> CalculateStripHitPosition(float x, float y, float z, float time, raw::CellID_t cID);
 
             std::string fCaloHitLabel;  ///< label to find the right reco calo hits
             bool fSaveStripEndsOnly;
@@ -67,7 +68,7 @@ namespace gar {
             std::unique_ptr<rec::alg::StripSplitterAlg> fSSAAlgo; //Cluster algorithm
         };
 
-
+        //----------------------------------------------------------------------------
         CaloStripSplitter::CaloStripSplitter(fhicl::ParameterSet const & p)
         {
             fCaloHitLabel = p.get<std::string>("CaloHitLabel", "calohit");
@@ -91,6 +92,7 @@ namespace gar {
             produces< std::vector<gar::rec::CaloHit> >();
         }
 
+        //----------------------------------------------------------------------------
         void CaloStripSplitter::produce(art::Event & e)
         {
             //Collect the hits to be passed to the algo
@@ -116,8 +118,27 @@ namespace gar {
 
                 if( fSaveUnsplitHits ) {
                     //Copy the unsplit hits to the collection
-                    for(auto const &it : unsplitHits)
-                    HitCol->emplace_back(*it);
+                    for(auto const &it : unsplitHits) {
+
+                        // float energy = it->Energy();
+                        // float time = it->Time();
+                        // raw::CellID_t cellID = it->CellID();
+                        // const float *pos = it->Position();
+                        // float newpos[3] = { pos[0], pos[1], pos[2] };
+                        //
+                        // if(not fGeo->isTile(cellID)) {
+                        //     //Need to correct for the position of these based on time information
+                        //     std::array<double, 3> strip_pos = this->CalculateStripHitPosition(pos[0], pos[1], pos[2], time, cellID);
+                        //     newpos[0] = strip_pos[0];
+                        //     newpos[1] = strip_pos[1];
+                        //     newpos[2] = strip_pos[2];
+                        // }
+                        //
+                        // rec::CaloHit hit(energy, time, newpos, cellID);
+                        //
+                        // HitCol->emplace_back(hit);
+                        HitCol->emplace_back(*it);
+                    }
                 }
             }
 
@@ -137,6 +158,7 @@ namespace gar {
             return;
         }
 
+        //----------------------------------------------------------------------------
         void CaloStripSplitter::CollectHits(const art::Event &evt, const std::string &label, std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector)
         {
             art::Handle< std::vector<gar::rec::CaloHit> > theHits;
@@ -151,6 +173,26 @@ namespace gar {
                 hitVector.push_back(hit);
             }
         }
+
+        //----------------------------------------------------------------------------
+        std::array<double, 3> CaloStripSplitter::CalculateStripHitPosition(float x, float y, float z, float time, raw::CellID_t cID)
+        {
+            std::array<double, 3> point = {x, y, z};
+            std::array<double, 3> pointLocal;
+            gar::geo::LocalTransformation<TGeoHMatrix> trans;
+            fGeo->WorldToLocal(point, pointLocal, trans);
+
+            //Calculate the position of the hit based on the corrected time along the strip
+            float c = (CLHEP::c_light * CLHEP::mm / CLHEP::ns) / CLHEP::cm; // in cm/ns
+            float xlocal = c * time;
+
+            std::array<double, 3> local_back = fGeo->ReconstructStripHitPosition(pointLocal, xlocal, cID);
+            std::array<double, 3> world_back;
+            fGeo->LocalToWorld(local_back, world_back, trans);
+
+            return world_back;
+        }
+
 
         DEFINE_ART_MODULE(CaloStripSplitter)
 

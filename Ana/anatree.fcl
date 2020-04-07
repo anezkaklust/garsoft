@@ -24,7 +24,7 @@ standard_anatree:
  TrackLabel:               "track"
  VertexLabel:              "vertex"
  RawCaloHitLabel:          "daqecal"
- CaloHitLabel:             "calohit"
+ CaloHitLabel:             "sscalohit"
  ClusterLabel:             "calocluster"
  ECALAssnLabel:            "trkecalassn"
 
