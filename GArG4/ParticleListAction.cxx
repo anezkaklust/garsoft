@@ -179,7 +179,7 @@ namespace gar {
 				       process_name.find("eIoni")           != std::string::npos  ||
 				       process_name.find("ionIoni")         != std::string::npos  ||
 				       (process_name.find("Ion")             != std::string::npos  &&
-					process_name.find("mu")              != std::string::npos) ||
+					    process_name.find("mu")              != std::string::npos) ||
 				       process_name.find("annihil")         != std::string::npos );
 	const G4ThreeVector& trackpos = track->GetPosition();
 	std::string matname = "";

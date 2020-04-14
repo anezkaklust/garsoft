@@ -25,9 +25,12 @@
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "RawDataProducts/RawDigit.h"
 #include "ReconstructionDataProducts/Hit.h"
+#include "ReconstructionDataProducts/TPCCluster.h"
+#include "ReconstructionDataProducts/Track.h"
 #include "SimulationDataProducts/CaloDeposit.h"
 #include "ReconstructionDataProducts/CaloHit.h"
 #include "RawDataProducts/CaloRawDigit.h"
+#include "ReconstructionDataProducts/Cluster.h"
 #include "Geometry/Geometry.h"
 
 #include <unordered_map>
@@ -48,7 +51,7 @@ namespace gar{
 
         // Two helper classes structs for doing backtracking analyses
         struct HitIDE {
-            int   trackID;      ///< Geant4 supplied trackID
+            int   trackID;      ///< Geant4 trackID, as modified by ParticleListAction::PreTrackingAction
             float energyFrac;   ///< fraction of gar::rec::Hit energy from the particle with this trackID
             float energyTot;    ///< total energy for this trackID.  In units of probably-GeV.
 
@@ -58,7 +61,7 @@ namespace gar{
                 : trackID(id), energyFrac(ef), energyTot(e) {}
         };
         struct CalIDE {
-            int   trackID;      ///< Geant4 supplied trackID
+            int   trackID;      ///< Geant4 trackID, as modified by ParticleListAction::PreTrackingAction
             float energyFrac;   ///< fraction of gar::rec::CaloHit energy from particle with this trackID
             float energyTot;    ///< total energy for this trackID.  In units of probably-GeV.
 
@@ -92,7 +95,8 @@ namespace gar{
             }
 
             // Returns a bare pointer to the MCParticle corresponding to a given TrackID
-            // Negative trackID values work just fine.
+            // Negative trackID values, corresponding to EM shower particles, return
+            // the parent particle.
             simb::MCParticle* const TrackIDToParticle(int const& id) const;
 
             simb::MCParticle* const FindMother(simb::MCParticle* const p) const {
@@ -120,12 +124,12 @@ namespace gar{
 
             // These methods will return HitIDE structures containing the Geant4 track IDs of
             // the particles contributing ionization electrons to the input hit
-            std::vector<HitIDE> HitToHitIDEs(art::Ptr<gar::rec::Hit> const& hit) const;
-            std::vector<HitIDE> HitToHitIDEs(         gar::rec::Hit  const& hit) const;
+            std::vector<HitIDE> HitToHitIDEs(art::Ptr<rec::Hit> const& hit) const;
+            std::vector<HitIDE> HitToHitIDEs(         rec::Hit  const& hit) const;
 
-            std::vector<art::Ptr<gar::rec::Hit>>
+            std::vector<art::Ptr<rec::Hit>>
             ParticleToHits(simb::MCParticle* const p,
-                           std::vector<art::Ptr<gar::rec::Hit>> const& allhits,
+                           std::vector<art::Ptr<rec::Hit>> const& allhits,
                            bool checkNeutrals=false) const;
 
             // Find the fraction of hits in a collection that come from the specified MCParticle
@@ -133,15 +137,15 @@ namespace gar{
             // the usual primitive algorithm, which is not obviously right to me.
             std::pair<double,double>
             HitPurity(simb::MCParticle* const p,
-                      std::vector<art::Ptr<gar::rec::Hit>> const& hits,
+                      std::vector<art::Ptr<rec::Hit>> const& hits,
                       bool weightByCharge=false) const;
 
             // method to return the fraction of all hits in an event from a specific set of 
             // Geant4 track IDs that arerepresented in a collection of hits
             std::pair<double,double>
             HitEfficiency(simb::MCParticle* const p,
-                          std::vector<art::Ptr<gar::rec::Hit> > const& hits,
-                          std::vector<art::Ptr<gar::rec::Hit> > const& allhits,
+                          std::vector<art::Ptr<rec::Hit> > const& hits,
+                          std::vector<art::Ptr<rec::Hit> > const& allhits,
                           bool weightByCharge=false) const;
 
 
@@ -151,42 +155,63 @@ namespace gar{
 
             // These methods will return HitIDE structures containing the Geant4 track IDs of
             // the TPC-originating particles contributing ionization electrons to the input hit.
-            std::vector<CalIDE> CaloHitToCalIDEs(art::Ptr<gar::rec::CaloHit> const& hit) const;
-            std::vector<CalIDE> CaloHitToCalIDEs(         gar::rec::CaloHit  const& hit) const;
+            std::vector<CalIDE> CaloHitToCalIDEs(art::Ptr<rec::CaloHit> const& hit) const;
+            std::vector<CalIDE> CaloHitToCalIDEs(         rec::CaloHit  const& hit) const;
 
-            std::vector<art::Ptr<gar::rec::CaloHit>>
+            std::vector<art::Ptr<rec::CaloHit>>
             ParticleToCaloHits(simb::MCParticle* const p,
-                               std::vector<art::Ptr<gar::rec::CaloHit>> const& allhits) const;
+                               std::vector<art::Ptr<rec::CaloHit>> const& allhits) const;
 
             // Find the fraction of CaloHits in a collection that come from the specified 
             // MCParticle with statistical uncertainty.  Binomial uncertainty in weighted 
             // events is from the usual primitive algorithm, which is not obviously right to me.
             std::pair<double,double>
             CaloHitPurity(simb::MCParticle* const p,
-                          std::vector<art::Ptr<gar::rec::CaloHit>> const& hits,
+                          std::vector<art::Ptr<rec::CaloHit>> const& hits,
                           bool weightByCharge=false) const;
 
             // method to return the fraction of all hits in an event from a specific set of 
             // Geant4 track IDs that arerepresented in a collection of hits
             std::pair<double,double>
             CaloHitEfficiency(simb::MCParticle* const p,
-                              std::vector<art::Ptr<gar::rec::CaloHit> > const& hits,
-                              std::vector<art::Ptr<gar::rec::CaloHit> > const& allhits,
+                              std::vector<art::Ptr<rec::CaloHit>> const& hits,
+                              std::vector<art::Ptr<rec::CaloHit>> const& allhits,
                               bool weightByCharge=false) const;
 
 
 
+            // Following should work as long as there are reconstructed Track and Hit
+            // data products in the event, and suitable Assns between them
+            std::vector<art::Ptr<rec::Hit>> const TrackToHits(rec::Track* const t);
+
+            std::vector<std::pair<simb::MCParticle*,float>> TrackToMCParticles(rec::Track* const t);
+
+            std::vector<art::Ptr<rec::Track>>
+            MCParticleToTracks(simb::MCParticle* const p,
+                              std::vector<art::Ptr<rec::Track>> const& tracks);
+
+
+
+            // Following should work as long as there are reconstructed Cluster and CaloHit
+            // data products in the event, and suitable Assns between them
+            std::vector<art::Ptr<rec::CaloHit>> const ClusterToCaloHits(rec::Cluster* const c);
+
+            std::vector<std::pair<simb::MCParticle*,float>> ClusterToMCParticles(rec::Cluster* const c);
+
+            std::vector<art::Ptr<rec::Cluster>>
+            MCParticleToClusters(simb::MCParticle* const p,
+                              std::vector<art::Ptr<rec::Cluster>> const& clusters);
 
 
       
         private:
 
             std::vector<HitIDE>
-            ChannelToHitIDEs(gar::raw::Channel_t const& channel,
+            ChannelToHitIDEs(raw::Channel_t const& channel,
                              double const start, double const stop) const;
 
             std::vector<CalIDE>
-            CellIDToCalIDEs(gar::raw::CellID_t const& cellID, float const time) const;
+            CellIDToCalIDEs(raw::CellID_t const& cellID, float const time) const;
 
 
 
@@ -197,23 +222,24 @@ namespace gar{
             const detinfo::DetectorClocks*                      fClocks;                ///< Detector clock information
             const geo::GeometryCore*                            fGeo;                   ///< pointer to the geometry
 
+            bool                                                fDisableRebuild;        ///< for switching off backtracker's rebuild of the MCParticle tables
             std::string                                         fG4ModuleLabel;         ///< label for geant4 module
             std::string                                         fRawTPCDataLabel;       ///< label for TPC readout module
             std::string                                         fRawCaloDataLabel;      ///< label for ECAL readout module
             double                                              fECALtimeResolution;    ///< time resolution for hits in ECAL, nsec.
-            double                                              fMinHitEnergyFraction;  ///< min frac of E a track has to count in a TPC hit
-            double                                              fMinCaloHitEnergyFrac;  ///< min frac of E a track has to count in a CaloHit
+            double                                              fMinHitEnergyFraction;  ///< min frac of ionization a track has to count in a TPC hit
+            double                                              fMinCaloHitEnergyFrac;  ///< min frac of ionization a track has to count in a CaloHit
+            std::string                                         fTrackLabel;            ///< label for final track producing module
+            std::string                                         fTPCClusterLabel;       ///< label for TPCCluster producing module
+            double                                              fTrackFracMCP;          ///< min frac of ionization in a track for matching to an MCParticle
+            std::string                                         fClusterLabel;          ///< label for ECAL cluster producing module
+            double                                              fClusterFracMCP;        ///< min frac of ionization in a cluster for matching to an MCParticle
 
-
-            bool                                                fDisableRebuild;        ///< for switching off backtracker's rebuild of the MCParticle tables
-                                                                                        ///< contribute to a hit to be counted in
-                                                                                        ///< purity and efficiency calculations
-                                                                                        ///< based on hit collections
-
-            sim::ParticleList                                   fParticleList;          ///< ParticleList to map track ID to sim::Particle
+            sim::ParticleList                                   fParticleList;          ///< Maps MCParticle::TrackId() to same MCParticle
             std::vector<art::Ptr<simb::MCTruth>>                fMCTruthList;           ///< all the MCTruths for the event
-            std::unordered_map<int, int>                        fTrackIDToMCTruthIndex; ///< map of track ids to MCTruthList entry
-            std::unordered_map<int, int>*                       fECALTrackToTPCTrack;    ///< results of previous FindTPCEve calls
+            std::unordered_map<int, int>                        fTrackIDToMCTruthIndex; ///< map of track ids to MCTruthList entry.  Track Ids from MCParticle
+                                                                                        ///< table in event store (no track ID <0)
+            std::unordered_map<int, int>*                       fECALTrackToTPCTrack;   ///< results of previous FindTPCEve calls
 
             double                                              fInverseVelocity;       ///< inverse drift velocity
             double                                              fLongDiffConst;         ///< longitudinal diffusion constant
@@ -222,7 +248,13 @@ namespace gar{
 
             // ECAL max channel id is something like 2^56.  Try an unordered map, not a vector.
             std::unordered_map<raw::CellID_t,std::vector<const sdp::CaloDeposit*>>
-                                                                fCellIDToEDepCol;      ///< convenience collections of EnergyDeposit for each cell
+                                                                fCellIDToEDepCol;       ///< convenience collections of EnergyDeposit for each cell
+
+            // Mapping final reco products to their constituents
+            std::unordered_map< rec::IDNumber, std::vector<art::Ptr<rec::Hit>> >
+                                                                fTrackIDToHits;         ///< Reco track ID to track's hits
+            std::unordered_map< rec::IDNumber, std::vector<art::Ptr<rec::CaloHit>> >
+                                                                fClusterIDToCaloHits;   ///< Reco ECAL cluster ID to CaloHits
 
         };
     } // namespace

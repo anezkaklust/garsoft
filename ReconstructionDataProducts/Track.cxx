@@ -160,8 +160,8 @@ namespace gar {
         , fNHits(nhits)
         , fTime(time)
         {
-            IDNumberGen::create(FirstNumber);
-            fIDnumero = IDNumberGen::create()->getNewOne();
+          IDNumberGen::create(FirstNumber);
+          fIDnumero = IDNumberGen::create()->getNewOne();
 
           art::ServiceHandle<mag::MagneticField> magFieldService;
           G4ThreeVector zerovec(0,0,0);

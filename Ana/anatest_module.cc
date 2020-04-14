@@ -148,7 +148,7 @@ gar::anatest::anatest(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
 
     consumes<std::vector<rec::Hit> >(fHitLabel);
     consumes<std::vector<rec::TPCCluster> >(fTPCClusterLabel);
-    consumes<std::vector<rec::Track> >(fTrackLabel);
+    consumes<std::vector<rec::Track> >(fTrackLabel);    
     consumes<art::Assns<rec::Track, rec::TPCCluster> >(fTPCClusterLabel);
     consumes<std::vector<rec::Vertex> >(fVertexLabel);
     consumes<art::Assns<rec::Track, rec::Vertex> >(fVertexLabel);
@@ -158,7 +158,7 @@ gar::anatest::anatest(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
     consumes<std::vector<rec::CaloHit> >(fCaloHitLabel);
     consumes<std::vector<rec::Cluster> >(fClusterLabel);
     consumes<art::Assns<rec::Cluster, rec::Track>>(fECALAssnLabel);
-
+    
     return;
 } // end constructor
 
@@ -347,29 +347,66 @@ void gar::anatest::FillVectors(art::Event const & e) {
         }
     }
 
-
-
     // Need a non-constant backtracker instance, for now.
     cheat::BackTrackerCore const* const_bt = gar::providerFrom<cheat::BackTracker>();
-	cheat::BackTrackerCore*             bt = const_cast<cheat::BackTrackerCore*>(const_bt);
+    cheat::BackTrackerCore*             bt = const_cast<cheat::BackTrackerCore*>(const_bt);
+
+	bool const dumpMCP = false;
     sim::ParticleList* partList = bt->GetParticleList();
     int nMotherless = 0;
-    for ( auto const& mcp : (*MCPHandle) ) {
+    for ( auto const& mcp : *MCPHandle ) {
         if (mcp.Mother() > 0) {
-		    simb::MCParticle* TPCeve = bt->FindTPCEve(mcp.TrackId());
+            simb::MCParticle* TPCeve = bt->FindTPCEve(mcp.TrackId());
             if ( TPCeve->TrackId() == mcp.TrackId() ) ++nMotherless;
+        }
+		if (dumpMCP) {
+	        std::cout << "TrackID: " << mcp.TrackId() << " is PDG: " << mcp.PdgCode() <<
+				" with mother " << mcp.Mother() << " produced by process " << mcp.Process()
+				<< std::endl;
 		}
     }
-    std::cout << "Number of children: " << partList->size() << std::endl;
-    std::cout << "Number of motherless children: " << nMotherless << std::endl;
+    if (dumpMCP) {
+		std::cout << "Number of children: " << partList->size() << std::endl;
+		std::cout << "Number of motherless children: " << nMotherless << std::endl;
+	}
+
+
+
+
+
+
+	for ( rec::Cluster cluster : *RecoClusterHandle ) {
+		std::vector<std::pair<simb::MCParticle*,float>> whatMatches;
+		whatMatches = bt->ClusterToMCParticles(&cluster);
+		std::cout << "\nCluster No. " << cluster.getIDNumber() << " is made of MCParticles: " << std::endl;
+		for (auto itr = whatMatches.begin(); itr!=whatMatches.end(); ++itr) {
+			std::cout << "G4 track number " << itr->first->TrackId() << "\thas PDG code " <<
+				itr->first->PdgCode() << "\tand its mother is G4 track " << itr->first->Mother()
+				<< "\tand energy fraction " << 100*(itr->second) << "%\n";
+		}
+    }
+
+	std::vector<art::Ptr<rec::Cluster>> clusterCol;
+	art::PtrMaker<rec::Cluster> makeClusterPtr(e,RecoClusterHandle.id());
+	for (size_t iCluster=0; iCluster<RecoClusterHandle->size(); ++iCluster ) {
+		art::Ptr<rec::Cluster> aPtr = makeClusterPtr(iCluster);
+		clusterCol.push_back(aPtr);
+    }
+    for ( simb::MCParticle mcp : *MCPHandle ) {
+        if (mcp.Mother() == 0) {
+            std::cout << "Particle PDG: " << mcp.PdgCode() << " matches to\n";
+            std::vector<art::Ptr<rec::Cluster>> clusterList =
+                bt->MCParticleToClusters(&mcp, clusterCol);
+            for (art::Ptr<rec::Cluster> iCluster : clusterList)
+                std::cout << iCluster->getIDNumber() << std::endl;
+        }
+    }
+
+
+
 
 
     return;
-
-
-
-
-
 }
 
 

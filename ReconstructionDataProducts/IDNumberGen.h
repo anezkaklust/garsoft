@@ -12,10 +12,10 @@
 //      #include "IDNumberGen.h"
 //  in the header for your ReconstructionDataProducts class.  Then put
 //      IDNumberGen::IDNumber fIDnumero;
-//  in the private part of the definition of your class; then put
+//  in the private part of the definition of said class; then put
 //      IDNumberGen::create(firstNumber);
 //      fIDnumero = IDNumberGen::create()->getNewOne();
-//  in the constructor.  Be sure to do this also in the default constructor, 
+//  in its constructor.  Be sure to do this also in the default constructor, 
 //  which can be invoked by art.  IDNumber is just a typedef to size_t.
 //  The firstNumber is just that; maybe you want to count tracks numbering
 //  from 100000, clusters from 200000 and vertices from 300000.  Maybe you want
@@ -25,7 +25,7 @@
 //  value such as 100100000 or 100200000.  If there is already an instance of a
 //  ReconstructionDataProducts class with the same fIDnumero as firstNumber,
 //  then you will have two objects out there with the same ID.  They are probably
-//  of different classes, so the rest of your analysis code might work.  Maybe.
+//  of different classes, so the rest of your analysis code might well work.
 //
 //  Then implement an operator==(const ...& rhs), an operator!=(const ...& rhs)
 //  and a IDNumber <T>::getIDNumber() as public in the reconstruction data
@@ -36,7 +36,18 @@
 //  sequenced to be at the start of the trigger_path in the fcl file and which, 
 //  in its produce method, has the line
 //     IDNumberGen::create()->newEventReset();
-
+//
+//  UPGRADE NEEDED!  The underlying assumption is that one makes all the instances
+//     of a given ReconstructionDataProducts class at once; e.g. the tracking
+//     module will make all the tracks, then the vertexer module makes all the
+//     vertices etc.  That is, the only way to reset nextOneToMake is to create
+//     a new class in ReconstructionDataProducts/ with a new firstNumber.  As 
+//     of Apr 2020 however, we create some Tracks, create some Vertexes, and 
+//     then in the track stitcher we go back and create some more Tracks.
+//     Because nextOneToMake is then somewhat over 200000, we have tracks with 
+//     numbers that are supposed to be for Vertexes; there is no way to go
+//     back to the value of nextOneToMake for the last track made in track fitting.
+//
 
 
 #ifndef GAR_RECONSTRUCTIONDATAPRODUCTS_IDNumber_h

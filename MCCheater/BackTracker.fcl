@@ -2,19 +2,29 @@ BEGIN_PROLOG
 
 standard_backtracker:
 {
- G4ModuleLabel:            "geant"   # module that produced the sim::Particle and sim::SimChannel objects
- RawTPCDataLabel:          "daq"     # module that made the RawDigits for the TPC
- RawCaloDataLabel:         "daqecal" # module that made the CaloRawDigits for the ECAL
- ECALtimeResolution:        1.0      # time resolution for hits in ECAL, nsec. (3, 4 sigma, OK?)
- MinHitEnergyFraction:      0.1      # min frac of total E a G4 track contributes to a TPC hit to be counted
- MinCaloHitEnergyFrac:      0.1      # min frac of total E a G4 track contributes to a CaloHit to be counted
-                                     # 
- DisableRebuild:            false    # switches off Backtracker functionality
+ DisableRebuild:            false        # switches off Backtracker functionality
+
+ G4ModuleLabel:            "geant"       # module that produced the sim::Particle and sim::SimChannel objects
+
+ RawTPCDataLabel:          "daq"         # module that made the RawDigits for the TPC
+
+ RawCaloDataLabel:         "daqecal"     # module that made the CaloRawDigits for the ECAL
+ ECALtimeResolution:        1.0          # time resolution for hits in ECAL, nsec. (3, 4 sigma, OK?)
+ MinHitEnergyFraction:      0.1          # min frac of total E a G4 track contributes to a TPC hit to be counted
+ MinCaloHitEnergyFrac:      0.1          # min frac of total E a G4 track contributes to a CaloHit to be counted
+
+ TrackLabel:               "track"       # module that produced the TPC tracks
+ TPCClusterLabel:          "tpccluster"  # module that produced the TPCClusters - the stitcher as it happens.
+ TrackFracMCP:              0.8          # Fraction of track's ionization to be tagged as from given MCParticle
+
+ ClusterLabel:             "calocluster" # module that produced the ECAL clusters
+ ClusterFracMCP:            0.8          # Fraction of ECAL cluster's ionization to be tagged as from given MCParticle
+
 }
 
-standard_backtrackerloader:
-{
- module_type:            "BackTrackerLoader"
-}
+#standard_backtrackerloader:
+#{
+# module_type:            "BackTrackerLoader"
+#}
 
 END_PROLOG
