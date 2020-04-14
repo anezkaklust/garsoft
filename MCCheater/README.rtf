@@ -1,0 +1,549 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf600
+{\fonttbl\f0\fswiss\fcharset0 Helvetica-Oblique;\f1\fswiss\fcharset0 Helvetica;\f2\fmodern\fcharset0 Courier;
+}
+{\colortbl;\red255\green255\blue255;\red15\green112\blue1;\red15\green112\blue2;\red0\green0\blue255;
+\red41\green111\blue34;\red16\green112\blue1;\red0\green128\blue0;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c50000\c0;\cssrgb\c166\c50000\c257;\cssrgb\c1680\c19835\c100000;
+\cssrgb\c19828\c50000\c17774;\cssrgb\c1680\c50000\c0;\csgenericrgb\c0\c50000\c0;\cssrgb\c0\c0\c0;}
+\margl1440\margr1440\vieww23020\viewh12820\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+
+\f0\i\fs28 \cf2 The following should always work 
+\f1\i0 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+\f2 \
+explicit BackTrackerCore(fhicl::ParameterSet const& pset);
+\f1 			But of course.\
+
+\f2 ~BackTrackerCore();\
+\
+void\
+	AdoptEveIdCalculator(sim::EveIdCalculator* ec);
+\f1 					One of the functions of the 
+\f2 ParticleList
+\f1  class is to find Eve, the mother of all\
+												
+\f2 				
+\f1 mother particles.  The algorithm for determining Eve is declared with this\
+												
+\f2 				
+\f1 method; the only algorithm that exists now is the nutools 
+\f2 EmEveIdCalculator
+\f1 \
+												
+\f2 				
+\f1 which moves up the tree until it finds a particle not produced by one of the\
+												
+\f2 				
+\f1 GEANT processes \{
+\f2 conv
+\f1 , 
+\f2 LowEnConversion
+\f1 , 
+\f2 Pair
+\f1 , 
+\f2 compt
+\f1 , 
+\f2 Compt
+\f1 , 
+\f2 Brem
+\f1 ,\
+												
+\f2 				phot
+\f1 , 
+\f2 Photo
+\f1 , 
+\f2 Ion
+\f1 , 
+\f2 Annihil
+\f1 \}.  Other functions of 
+\f2 ParticleList
+\f1  are less useful\
+																for us.\
+\
+\
+\
+
+\f0\i The following should work as long as there are 
+\f2\i0 MCParticle
+\f0\i  and 
+\f2\i0 MCTruth
+\f0\i  data products in the event, with an 
+\f2\i0 art::Assns
+\f0\i  between them 
+\f1\i0 ---------------------------------------------
+\f2 \
+sim::ParticleList*\
+	GetParticleList() const;										
+\f1 The backtracker uses the nutools 
+\f2 ParticleList
+\f1  class (more recently, in nug4)\
+												
+\f2 				
+\f1 as an augmentation of 
+\f2 std::map<int, simbMCParticle*>
+\f1 , where the int\
+												
+\f2 				
+\f1 is the GEANT trackID.  This method returns a pointer to the instance of the 
+\f2 ParticleList
+\f1  \
+																class which is in 
+\f2 BackTrackerCore
+\f1  and is filled by the 
+\f2 RebuildNoSC
+\f1  method.
+\f2 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+
+\f1 \cf2 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+
+\f2 \cf2 simb::MCParticle* const\
+	TrackIDToParticle(int const& id) const;						
+\f1 From a GEANT TrackID to an 
+\f2 MCParticle
+\f1 .  The reverse process is just \
+																
+\f2 MCP\cf3 article::TrackID()
+\f1 .  Negative GEANT TrackIDs are believed to be\
+																EM shower parti\cf2 cles.  Will return 
+\f2 nullptr
+\f1  on error condition.\cf3 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+\cf4 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+
+\f2 \cf5 simb::MCParticle* const\
+	FindMother(simb::MCParticle* const p) const;					
+\f1 From an 
+\f2 MCParticle
+\f1  to its mother particle.  The 
+\f2 MCParticle
+\f1  class has a \
+																
+\f2 Mother()
+\f1  method, but it returns a track ID not an 
+\f2 MCParticle
+\f1 .
+\f2 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+
+\f1 \cf4 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+
+\f2 \cf2 simb::MCParticle* const\
+	FindEve(simb::MCParticle* const p) const;						
+\f1 From an 
+\f2 MCParticle
+\f1  to its Eve 
+\f2 MCParticle
+\f1 , using the adopted 
+\f2 EveIdCalculator
+\f1 .\
+																Will return 
+\f2 nullptr
+\f1  on error condition in 
+\f2 TrackIDToParticle
+\f1 .\
+\
+
+\f2 simb::MCParticle*													
+\f1 From an 
+\f2 MCParticle
+\f1  to the progenitor 
+\f2 MCParticle
+\f1  which exited the TPC or is a primary.
+\f2 \
+	FindTPCEve(simb::MCParticle* const p);
+\f1 							Uses the 
+\f2 GeometryCore::PointInMPD
+\f1  to find if one end of the particle is in the TPC and \
+																the other is not.  Will return 
+\f2 nullptr
+\f1  on error condition in 
+\f2 TrackIDToParticle
+\f1 .\
+
+\f2 simb::MCParticle*													
+\f1 Signature using  mostly for calling from 
+\f2 CellIDToCalIDEs
+\f1  but may as well make it
+\f2 \
+	FindTPCEve(int const trackID);
+\f1 								public.\
+\
+
+\f2 bool IsDescendedFrom(simb::MCParticle* const p, simb::MCParticle* const c) const;
+\f1 \
+																Is 
+\f2 MCParticle c
+\f1  in the descent tree of 
+\f2 MCParticle p
+\f1 ? Does NOT use the\
+																adopted 
+\f2 EveIdCalculator
+\f1 ; just walks up the tree.  MCParticle equality is \
+																tested by comparison of the 
+\f2 MCParticle::TrackID()
+\f1  fields.  Returns 
+\f2 true
+\f1 \
+																if 
+\f2 p==c
+\f1 .\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+\cf4 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+
+\f2 \cf6 art::Ptr\cf2 <simb::MCTruth> const&									
+\f1 From an 
+\f2 MCParticle
+\f1  to the 
+\f2 MCTruth
+\f1  that it originates from.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+
+\f2 \cf2 	ParticleToMCTruth(simb::MCParticle* const p) const;
+\f1 \
+\
+\
+
+\f2 \
+
+\f0\i The following should work as long as there are also 
+\f2\i0 RawDigit
+\f0\i  and  
+\f2\i0 EnergyDeposit
+\f0\i  data products in the event, with an 
+\f2\i0 art::Assns
+\f0\i  between them 
+\f1\i0 -------------------------------
+\f2 \
+std::vector<HitIDE>\
+	HitToHitIDE(art::Ptr<rec::Hit> const& hit) const;
+\f1 				This is the 
+\f2 HitToTrackID
+\f1  method used in 
+\f2 tpcpatreccheat_module.cc,
+\f1 \
+
+\f2 std::vector<HitIDE>												
+\f1 but we change the name for clarity.  The returned 
+\f2 cheat::HitIDE
+\f1  is a
+\f2 \
+	HitToHitIDE(         rec::Hit  const& hit) const;				
+\f1 struct defined in 
+\f2 BackTrackerCore.h
+\f1  and it includes the GEANT track ID,
+\f2 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+
+\f1 \cf2 																a fraction of the 
+\f2 RawDigit
+\f1  energy from the particle with that track ID, and an\
+																\'93ionization\'94 which seems to be charge in that channel but outside a certain time\
+																window.\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+
+\f2 \cf2 \
+std::vector<art::Ptr<rec::Hit>> const
+\f1 								Returns all the TPC hits that have some energy from a particle.  If you want to find the
+\f2 \
+	ParticleToHits(simb::MCParticle* const p,
+\f1 						fraction of the energy in a hit from that particle, you need a 
+\f2 HitIDE
+\f1 , found with
+\f2 \
+				  std::vector<art::Ptr<rec::Hit>> const& allhits,\
+				  checkNeutrals=false) const;
+\f1 						
+\f2 HitToHitIDEs
+\f1 , above and this method only returns hits with that fraction over\
+																the value given by fMinHitEnergyFraction, which is specified in 
+\f2 BackTracker.fcl
+\f1 ;\
+																the default value of 0.1 is probably fine.  I guess.  If 
+\f2 checkNeutrals==false
+\f1 , will\
+																return immediately for input particle is a photon, neutron, pi0 or either a mu or e\
+																neutrino thereby returning an empty vector promptly.\
+
+\f2 \
+std::vector<HitIDE>\
+	ChannelToHitIDEs(raw::Channel_t const& channel,					
+\f1 The above 3 public methods are wrappers to this private one.  It works by looping
+\f2 \
+					double const start, double const stop) const);	
+\f1 through all the 
+\f2 EnergyDeposits
+\f1  for the channel as given by 
+\f2 fChannelToEDepCol
+\f1 ,\
+																which in turn is filled by 
+\f2 RebuildNoSC
+\f1 .\
+\
+\
+
+\f2 double HitPurity(simb::MCParticle* const p,
+\f1 						Basically the same as the existing method of the same name, except the input is
+\f2 \
+              std::vector<art::Ptr<rec::Hit>> const& hits,
+\f1 			a single 
+\f2 MCParticle
+\f1 .
+\f2 \
+              bool weightByCharge=false) const;\
+\
+double HitEfficiency(simb::MCParticle* const p,
+\f1 						Basically the same as the existing method of the same name, except the input is
+\f2 \
+                  std::vector<art::Ptr<rec::Hit>> const& hits,
+\f1 		a single 
+\f2 MCParticle
+\f1 .\
+				  
+\f2 std::vector<art::Ptr<rec::Hit>> const& allhits,\
+                  bool weightByCharge=false) const;\
+\
+\
+\
+
+\f0\i The following should work as long as there are also 
+\f2\i0 CaloRawDigit
+\f0\i  and  
+\f2\i0 CaloDeposit
+\f0\i  data products in the event, with an 
+\f2\i0 art::Assns
+\f0\i  between them 
+\f1\i0 ---------------------------
+\f0\i \
+\
+\
+First we\'92ll need to define an analog to 
+\f2\i0 HitsIDE:\
+struct CalIDE \{\
+      int   trackID;      ///< Geant4 supplied trackID\
+      float energyFrac;   ///< fraction of CaloRawDigit energy from the particle with this trackID\
+      CalIDE()\
+      \{\}\
+      CalIDE(int id, float ef)\
+      : trackID(id), energyFrac(ef)\
+      \{\}\
+\};																
+\f1 Similar to the 
+\f2 HitIDE
+\f1  structure of the tracker.
+\f2 \
+\
+\
+
+\f0\i Second, create a 
+\f2\i0 typedef raw::CellID
+\f0\i  for 
+\f2\i0 long long int
+\f0\i .  It\'92s in 
+\f2\i0 CaloRawDigit.h
+\f0\i .  Including this is a small but ugly addition to our dependencies.  We should collect\
+all these typedefs in one place.  I\'92ve put that on the task list.
+\f2\i0 \
+\
+std::vector<CalIDE>\
+	CaloHitToCalIDE(art::Ptr<rec::CaloHit> const& hit);\
+std::vector<CalIDE>												
+\f1 Similar to 
+\f2 TPCHitToHitIDEs
+\f1  except that the 
+\f2 CaloDeposit::TrackID
+\f1  should be the\
+
+\f2 	CaloHitToCalIDE(         rec::CaloHit  const& hit); 			
+\f1 track ID of the particle coming into the calorimeter.  That chase up the tree has to be done in\
+																
+\f2 CellIDToCalIDEs
+\f1 .  Eldwan says he built this into 
+\f2 edepsim
+\f1 .\
+\
+
+\f2 std::vector<::art::Ptr<rec::CaloHit>> const
+\f1 						Returns all the calorimeter hits that have some energy from a gas-leaving particle.  If you \
+
+\f2 	ParticleToCaloHits(simb::MCParticle* const p					
+\f1 want to find
+\f2  
+\f1 the fraction of the energy in a hit from that particle, you need a 
+\f2 CalIDE
+\f1 , found 
+\f2 \
+					  std::vector<art::Ptr<rec::CaloHit>> const& allhits) const;
+\f1 \
+																with 
+\f2 CaloHitToCalIDEs
+\f1 , above.  Uses 
+\f2 fCellIDToHits
+\f1  and \
+																
+\f2 MCParticle::TrackID()
+\f1 .\cf7 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+
+\f2 \cf7 std::vector<CalIDE>&\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+\cf2 	CellIDToCalIDEs(raw::CellID_t const& cellID, float const time);	\
+																
+\f1 The above 3 methods are wrappers to this one.  Works by looping through all the \
+																
+\f2 CaloDep\cf7 osit
+\f1 s for the CellID as given by 
+\f2 fCellIDToCaloDepCol
+\f1 .  Uses 
+\f2 FindTPCEve
+\f1 .\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+
+\f2 \cf7 double CaloHitPurity(simb::MCParticle* const p,
+\f1 						Corresponding to 
+\f2 HitCollectionPurity
+\f1 , except on the calorimeter side.\
+
+\f2                   vector<art::Ptr<rec::CaloHit>> const& hits,
+\f1 \
+
+\f2                   bool weightByCharge=false) const;\
+\
+double CaloHitEfficiency(simb::MCParticle* const p,
+\f1 					Corresponding to 
+\f2 HitCollectionEfficiency
+\f1 , except on the calorimeter side.
+\f2 \
+                      vector<art::Ptr<rec::CaloHit>> const& hits,
+\f1 \
+					 
+\f2 std::vector<art::Ptr<rec::CaloHit>> const& allhits,\
+                      bool weightByCharge=false) const;				                      \
+
+\f1 \
+\
+
+\f2 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+
+\f0\i \cf7 The following should work as long as there are also 
+\f2\i0 Track
+\f0\i  data products in the event, with (presumably chained) 
+\f2\i0 art::Assns
+\f0\i  back to the 
+\f2\i0 Hits
+\f0\i  
+\f1\i0 --------------------------------------
+\f2 \
+std::vector<art::Ptr<rec::Hit>>
+\f1 									Uses the chained associations to get a collection of 
+\f2 Hits
+\f1  for this 
+\f2 Track
+\f1 .
+\f2 \
+	TrackToHits(rec::Track* const t) const;
+\f1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+
+\f2 \cf7 std::vector<std::pair<simb::MCParticle*,float>
+\f1 >						Uses 
+\f2 TrackToHits
+\f1  and then 
+\f2 HitToHitIDEs
+\f1  to get energy fractions for each 
+\f2 \
+	TrackToMCParticles(rec::Track* const t);
+\f1  						
+\f2 MCParticle
+\f1  that might match the track; and returns a list of candidate 
+\f2 MCParticles
+\f1 \
+																sorted by their contribution.  Electrons that have parents that are one of the other \
+																candidate 
+\f2 MCParticles
+\f1  get their ionization included in with that parent.  The float\
+																in the returned vector is the fraction of the reconstructed 
+\f2 track
+\f1 \'92s energy attributed to\
+																each 
+\f2 MCParticle
+\f1 .\
+\
+
+\f2 vector<art::Ptr<rec::Track>>
+\f1 										The inverse operation to 
+\f2 TrackToMCParticles
+\f1 .  Just loop over the input array of
+\f2 \
+	MCParticleToTracks(simb::MCParticle* const p,
+\f1 					reconstructed tracks and see which tracks have more than 
+\f2 fTrackFracMCP
+\f1  of their
+\f2 \
+					 vector<art::Ptr<rec::Track>> const&);
+\f1 			ionization energy from the input 
+\f2 MCParticle
+\f1 .\
+\
+
+\f2 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+
+\f0\i \cf7 The following should work as long as there are also 
+\f2\i0 Cluster
+\f0\i  data products in the event, with (presumably chained) 
+\f2\i0 art::Assns
+\f0\i  back to the 
+\f2\i0 CaloHits
+\f0\i  
+\f1\i0 ---------------------------
+\f2 \
+std::vector<art::Ptr<rec::CaloHit>> const
+\f1 							Uses the chained associations to get a collection of 
+\f2 CaloHits
+\f1  for this 
+\f2 Cluster
+\f1 .
+\f2 	ClusterToCaloHits(rec::Cluster* const c) const;
+\f1 \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\tx9333\tx10076\tx10793\tx11520\tx12233\tx12943\pardirnatural\partightenfactor0
+
+\f2 \cf7 std::vector<std::pair<simb::MCParticle*,float>
+\f1 >						Uses 
+\f2 ClusterToHits
+\f1  and then 
+\f2 CaloHitToCalIDEs
+\f1  to get energy fractions for each  \
+
+\f2 	ClusterToMCParticles(rec::Cluster* const c);
+\f1 					
+\f2 MCParticle
+\f1  that might match the cluster; and returns a list of candidate 
+\f2 MCParticles
+\f1 \
+																sorted by their contribution.    Gets the 
+\f2 MCParticle
+\f1  entering the calorimeter using\
+																
+\f2 FoundTPCEve
+\f1 .\
+
+\f2 vector<art::Ptr<rec::Cluster>>\
+	MCParticleToClusters(simb::MCParticle* const p,
+\f1 					The inverse operation.  Again, uses the 
+\f2 MCParticle
+\f1  entering the calorimeter from\
+					        
+\f2 vector<art::Ptr<rec::Cluster>> const&);		FoundTPCEve
+\f1 .\cf8 \
+}
