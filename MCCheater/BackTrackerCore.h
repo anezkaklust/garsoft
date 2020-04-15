@@ -86,6 +86,8 @@ namespace gar{
 
 
 
+
+
             // Following should work as long as there are MCParticles and MCTruth
             // data products in the event, and suitable Assns between them
 
@@ -116,6 +118,8 @@ namespace gar{
       
             // Returns an ::art::Ptr<> to simb::MCTruth
             art::Ptr<simb::MCTruth> const ParticleToMCTruth(simb::MCParticle* const p) const;
+
+
 
 
 
@@ -150,6 +154,8 @@ namespace gar{
 
 
 
+
+
             // Following should work as long as there are CaloRawDigit and CaloDeposit
             // data products in the event, and suitable Assns between them
 
@@ -180,6 +186,8 @@ namespace gar{
 
 
 
+
+
             // Following should work as long as there are reconstructed Track and Hit
             // data products in the event, and suitable Assns between them
             std::vector<art::Ptr<rec::Hit>> const TrackToHits(rec::Track* const t);
@@ -189,6 +197,8 @@ namespace gar{
             std::vector<art::Ptr<rec::Track>>
             MCParticleToTracks(simb::MCParticle* const p,
                               std::vector<art::Ptr<rec::Track>> const& tracks);
+
+
 
 
 

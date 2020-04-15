@@ -780,12 +780,12 @@ namespace gar{
                 }
             );
 
-			// Make the returned vector
+            // Make the returned vector
             float Etot = 0.0;
-			auto iTrackSet = setOfTracks.begin();
-			for (; iTrackSet!=setOfTracks.end(); ++iTrackSet) {
-				Etot += iTrackSet->second;   // Can't do this in loop on lTrackIdToEnergy
-			}
+            auto iTrackSet = setOfTracks.begin();
+            for (; iTrackSet!=setOfTracks.end(); ++iTrackSet) {
+                Etot += iTrackSet->second;   // Can't do this in loop on lTrackIdToEnergy
+            }
 
             std::pair<simb::MCParticle*,float> emptee(nullptr,0.0);
             std::vector<std::pair<simb::MCParticle*,float>> retval(lTrackIdToEnergy.size(),emptee);
@@ -877,12 +877,12 @@ namespace gar{
                 }
             );
 
-			// Make the returned vector.  Could have no tracks at all?
+            // Make the returned vector.  Could have no tracks at all?
             float Etot = 0.0;
-			auto iTrackSet = setOfTracks.begin();
-			for (; iTrackSet!=setOfTracks.end(); ++iTrackSet) {
-				Etot += iTrackSet->second;   // Can't do this in loop on lClusterIdToEnergy
-			}
+            auto iTrackSet = setOfTracks.begin();
+            for (; iTrackSet!=setOfTracks.end(); ++iTrackSet) {
+                Etot += iTrackSet->second;   // Can't do this in loop on lClusterIdToEnergy
+            }
 
             std::pair<simb::MCParticle*,float> emptee(nullptr,0.0);
             std::vector<std::pair<simb::MCParticle*,float>> retval(lClusterIdToEnergy.size(),emptee);

@@ -22,9 +22,4 @@ standard_backtracker:
 
 }
 
-#standard_backtrackerloader:
-#{
-# module_type:            "BackTrackerLoader"
-#}
-
 END_PROLOG
