@@ -192,6 +192,7 @@ drawTracks           : 0
 drawVertices         : 0
 drawMCTruth          : 1
 drawMCCaloTruth      : 1
+drawMCTPCTruth       : 1
 VolumesToShow        : ["volGArTPC_0", "volPVBarrel_0", "volPVEndcap_0", "volBarrelECal_0", "volEndcapECal_0"]
 
 G4ModuleLabel             : "geant"

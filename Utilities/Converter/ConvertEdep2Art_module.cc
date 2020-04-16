@@ -462,7 +462,7 @@ namespace util {
             int parentID = t->GetParentId();
             int pdg = t->GetPDGCode();
             std::string name = t->GetName();
-            double mass = pdglib->Find(pdg)->Mass();
+            double mass = pdglib->Find(pdg)->Mass();//in GeV
 
             std::string process_name = "unknown";
             //Could be linked to the MCTruth primary with fEvent->Primaries.Particles
@@ -517,9 +517,13 @@ namespace util {
             for (std::vector<TG4TrajectoryPoint>::const_iterator p = t->Points.begin(); p != t->Points.end(); ++p)
             {
                 TLorentzVector position = p->GetPosition();
-                TLorentzVector fourPos(position.X() / CLHEP::cm, position.Y() / CLHEP::cm, position.Z() / CLHEP::cm, position.T() / CLHEP::s );
+
+                TLorentzVector fourPos(position.X() / CLHEP::cm, position.Y() / CLHEP::cm, position.Z() / CLHEP::cm, position.T() );
                 TVector3 momentum = p->GetMomentum();
-                TLorentzVector fourMom(momentum.x() * CLHEP::MeV / CLHEP::GeV, momentum.y() * CLHEP::MeV / CLHEP::GeV, momentum.z() * CLHEP::MeV / CLHEP::GeV, 0.);
+                double px = momentum.x() * CLHEP::MeV / CLHEP::GeV;
+                double py = momentum.y() * CLHEP::MeV / CLHEP::GeV;
+                double pz = momentum.z() * CLHEP::MeV / CLHEP::GeV;
+                TLorentzVector fourMom(px, py, pz, std::sqrt( px*px + py*py + pz*pz + mass*mass ));
                 std::string process = p->GetProcessName();
 
                 if(p == t->Points.begin()) process = "Start";

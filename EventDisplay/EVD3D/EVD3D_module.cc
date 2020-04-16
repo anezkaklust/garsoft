@@ -74,6 +74,7 @@
 
 #include "RecoAlg/TrackPropagator.h"
 
+#include "SimulationDataProducts/EnergyDeposit.h"
 #include "SimulationDataProducts/CaloDeposit.h"
 
 #include "RawDataProducts/CaloRawDigit.h"
@@ -162,6 +163,7 @@ namespace gar{
             std::unique_ptr<evd3d::EventDisplay3DUtils> fEvtDisplayUtil;
 
             // Set by parameter set variables.
+            int fDrawMCTPC;
             int fDrawMCCaloTruth;
             int fDrawECALRawHits;
             int fDrawECALRecoHits;
@@ -187,6 +189,9 @@ namespace gar{
 
             TGTextEntry      *fTeRun, *fTeEvt;
             TGLabel          *fTlRun, *fTlEvt;
+
+            //TPC
+            TEveElementList* fTPCSimHitList;
 
             //Calo specific
             TEveElementList* fCaloSimHitList;
@@ -215,6 +220,8 @@ namespace gar{
 
             void DrawMCTruth(const art::Event& event);
 
+            void DrawMCTPCTruth(const art::Event& event);
+
             void DrawMCCaloTruth(const art::Event& event);
 
             void DrawRawHits(const art::Event& event);
@@ -230,6 +237,9 @@ namespace gar{
             void DrawHelix3D(const float *trackpar, const float xpar, const float xother, TEveLine* &eve_track, int color);
 
             void DrawArrow3D(const float *fVertex, const float *fDir, int color, TEveArrow* &arrow);
+
+            //get sim hits from the event handle
+            void GetSimTPCHits(std::vector<const sdp::EnergyDeposit*> &simTPC, const art::Event& event);
 
             //get sim hits from the event handle
             void GetSimCaloHits(std::vector<const sdp::CaloDeposit*> &simCalo, const art::Event& event);
@@ -293,6 +303,7 @@ namespace gar{
                 fDrawTracks                = pset.get<int                       > ("drawTracks"           , 0);
                 fDrawVertices              = pset.get<int                       > ("drawVertices"         , 0);
                 fDrawMCTruth               = pset.get<int                       > ("drawMCTruth"          , 1);
+                fDrawMCTPC                 = pset.get<int                       > ("drawMCTPCTruth"          , 1);
                 fDrawMCCaloTruth           = pset.get<int                       > ("drawMCCaloTruth"      , 1);
                 fVolumesToShow             = pset.get< std::vector<std::string> > ("VolumesToShow"           );
 
@@ -454,6 +465,9 @@ namespace gar{
                 //Draw MCTruth
                 if(fDrawMCTruth)
                 this->DrawMCTruth(event);
+
+                if(fDrawMCTPC)
+                this->DrawMCTPCTruth(event);
 
                 //Draw MCTruth
                 if(fDrawMCCaloTruth)
@@ -767,6 +781,38 @@ namespace gar{
                 }
 
                 fEve->AddElement(fMCTrajectoryList);
+            }
+
+            //----------------------------------------------------
+            void EventDisplay3D::DrawMCTPCTruth(const art::Event& event)
+            {
+                std::vector<const sdp::EnergyDeposit*> simlist;
+                this->GetSimTPCHits(simlist, event);
+
+                fTPCSimHitList = new TEveElementList("TPC Hits", "Simulated TPC hits");
+                fTPCSimHitList->SetMainColor(kRed);
+                fTPCSimHitList->SetMainAlpha(1.0);
+
+                for(unsigned int p = 0; p < simlist.size(); ++p)
+                {
+                    const sdp::EnergyDeposit* simHit = simlist[p];
+
+                    std::ostringstream label;
+                    label << "Sim Hit " << p << "\n";
+                    label << "Energy: " << simHit->Energy() << " GeV\n";
+                    label << "Position (" << simHit->X() << ", " << simHit->X() << ", " << simHit->Z() << " ) cm\n";
+
+                    TEvePointSet *evehit = new TEvePointSet(1);
+                    evehit->SetName(TString::Format("TPC sim hit %i", p).Data());
+                    evehit->SetTitle(label.str().c_str());
+                    evehit->SetMarkerSize(0.7);
+                    evehit->SetMarkerStyle(20);
+                    evehit->SetMarkerColor(fEvtDisplayUtil->LogColor(simHit->Energy(), 0, 1., 5));
+                    evehit->SetPoint(0, simHit->X(), simHit->Y(), simHit->Z());//cm
+                    fTPCSimHitList->AddElement(evehit);
+                }
+
+                fEve->AddElement(fTPCSimHitList);
             }
 
             //----------------------------------------------------
@@ -1192,6 +1238,23 @@ namespace gar{
                 arrow->SetConeR(0.2);
 
                 return;
+            }
+
+            //----------------------------------------------------
+            void EventDisplay3D::GetSimTPCHits(std::vector<const sdp::EnergyDeposit*> &simTPC, const art::Event& event)
+            {
+                simTPC.clear();
+                std::vector<const sdp::EnergyDeposit*> tempTPC;
+
+                try
+                {
+                    event.getView(fG4Label, tempTPC);
+                    for(size_t t = 0; t < tempTPC.size(); ++t)
+                    simTPC.push_back(tempTPC[t]);
+                }
+                catch(cet::exception& e){
+                    writeErrMsg("GetSim TPC", e);
+                }
             }
 
             //----------------------------------------------------
