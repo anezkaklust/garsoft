@@ -1219,8 +1219,8 @@ void CAF::loop()
             }
 
             //Check truepdg and recopdg
-            if( (std::fabs(truepdg.at(i)) == 11 || std::fabs(truepdg.at(i)) == 13 || std::fabs(truepdg.at(i)) == 211) && recopid.at(i) == 0 && trkLen.at(i) > 0)
-            std::cout << "truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << " trk length " << trkLen.at(i) << std::endl;
+            // if( (std::fabs(truepdg.at(i)) == 11 || std::fabs(truepdg.at(i)) == 13 || std::fabs(truepdg.at(i)) == 211) && recopid.at(i) == 0 && trkLen.at(i) > 0)
+            // std::cout << "truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << " trk length " << trkLen.at(i) << std::endl;
         } // closes the MC truth loop
 
         _nFSP.push_back(nFSP);
