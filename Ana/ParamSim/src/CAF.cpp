@@ -93,6 +93,8 @@ bool CAF::BookTFile()
         //MC Particle info
         cafMVA->Branch("detected", &detected);
         cafMVA->Branch("pdgmother", &pdgmother);
+        cafMVA->Branch("motherid", &motherid);
+        cafMVA->Branch("mctrkid", &mctrkid);
         cafMVA->Branch("MCPTime", &mctime);
         cafMVA->Branch("MCPStartX", &_MCPStartX);
         cafMVA->Branch("MCPStartY", &_MCPStartY);
@@ -183,6 +185,7 @@ void CAF::ClearVectors()
     truepdg.clear();
     mctime.clear();
     mctrkid.clear();
+    motherid.clear();
     _MCPStartX.clear();
     _MCPStartY.clear();
     _MCPStartZ.clear();
@@ -280,6 +283,8 @@ void CAF::loop()
     std::vector<float> *Weight=0;
 
     std::vector<int>     *PDG = 0;
+    std::vector<int>     *MCPTrkID=0;
+    std::vector<int>     *MCMotherIndex=0;
     std::vector<int>     *PDGMother=0;
     std::vector<float>   *MCPTime = 0;
     std::vector<float>   *MCPStartX = 0;
@@ -326,6 +331,8 @@ void CAF::loop()
     //MC info
     _inttree->SetBranchAddress("PDG", &PDG);
     _inttree->SetBranchAddress("MCPTime", &MCPTime);
+    _inttree->SetBranchAddress("MCTrkID", &MCPTrkID);
+    _inttree->SetBranchAddress("MotherIndex", &MCMotherIndex);
     _inttree->SetBranchAddress("MCPStartX", &MCPStartX);
     _inttree->SetBranchAddress("MCPStartY", &MCPStartY);
     _inttree->SetBranchAddress("MCPStartZ", &MCPStartZ);
@@ -472,7 +479,7 @@ void CAF::loop()
             // float pt = (mcp.Cross(xhat)).Mag();
             // float px = mcp.X();
             // float py = mcp.Y();
-            //float mctrackid = MCPTrkID->at(i);
+            // float mctrackid = MCPTrkID->at(i);
             // angle with respect to the incoming neutrino
             float angle  = atan(mcp.X() / mcp.Z());
             float time = _util->GaussianSmearing(MCPTime->at(i), ECAL_time_resolution);
@@ -529,7 +536,8 @@ void CAF::loop()
                     anglereco.push_back(0);
                     recopidecal.push_back(2112);
                     for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
-                    // mctrkid.push_back(MCPTrkID->at(i));
+                    mctrkid.push_back(MCPTrkID->at(i));
+                    motherid.push_back(MCMotherIndex->at(i));
 
                     // std::cout << "Neutron detected in ECAL, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                 }
@@ -568,7 +576,8 @@ void CAF::loop()
                     anglereco.push_back(0);
                     recopidecal.push_back(0);
                     for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
-                    // mctrkid.push_back(MCPTrkID->at(i));
+                    mctrkid.push_back(MCPTrkID->at(i));
+                    motherid.push_back(MCMotherIndex->at(i));
 
                     // std::cout << "Neutron not detected in ECAL, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                 }
@@ -613,7 +622,8 @@ void CAF::loop()
                 anglereco.push_back(0);
                 recopidecal.push_back(0);//TODO??
                 for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
-                //mctrkid.push_back(MCPTrkID->at(i));
+                mctrkid.push_back(MCPTrkID->at(i));
+                motherid.push_back(MCMotherIndex->at(i));
 
                 // std::cout << "pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
             }
@@ -668,7 +678,8 @@ void CAF::loop()
                         recopidecal.push_back(22);
 
                         for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
-                        //mctrkid.push_back(MCPTrkID->at(i));
+                        mctrkid.push_back(MCPTrkID->at(i));
+                        motherid.push_back(MCMotherIndex->at(i));
 
                         // std::cout << "gamma detected in ECAL not from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                     }
@@ -709,6 +720,8 @@ void CAF::loop()
                         //converted so not seen in ECAL
                         recopidecal.push_back(0);
                         for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
+                        mctrkid.push_back(MCPTrkID->at(i));
+                        motherid.push_back(MCMotherIndex->at(i));
 
                         // std::cout << "gamma converted in ECAL not from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                     }
@@ -760,6 +773,8 @@ void CAF::loop()
 
                         for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
 
+                        mctrkid.push_back(MCPTrkID->at(i));
+                        motherid.push_back(MCMotherIndex->at(i));
                         // std::cout << "gamma detected in ECAL from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                     }
                     else{
@@ -800,6 +815,8 @@ void CAF::loop()
                         recopidecal.push_back(0);
                         for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
 
+                        mctrkid.push_back(MCPTrkID->at(i));
+                        motherid.push_back(MCMotherIndex->at(i));
                         // std::cout << "gamma converted in ECAL from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                     }
                 }
@@ -848,7 +865,8 @@ void CAF::loop()
                         _MCProc.push_back(mcp_process);
                         _MCEndProc.push_back(mcp_endprocess);
                         mctime.push_back(time);
-                        //mctrkid.push_back(MCPTrkID->at(i));
+                        mctrkid.push_back(MCPTrkID->at(i));
+                        motherid.push_back(MCMotherIndex->at(i));
 
                         //Case for range, the end point of the mcp is in the tracker, does not reach the ecal
                         if( _util->hasOriginInTracker(epoint) )
@@ -1163,6 +1181,8 @@ void CAF::loop()
                             recopidecal.push_back(0);
                             for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
 
+                            mctrkid.push_back(MCPTrkID->at(i));
+                            motherid.push_back(MCMotherIndex->at(i));
                             // std::cout << "particle seen in TPC but not {#pi, #mu, p, K, d, e}, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << " trk length " << trkLen.at(i) << std::endl;
 
                             break;
@@ -1213,6 +1233,9 @@ void CAF::loop()
                     recopid.push_back(0);
                     recopidecal.push_back(0);
                     for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
+
+                    mctrkid.push_back(MCPTrkID->at(i));
+                    motherid.push_back(MCMotherIndex->at(i));
 
                     // std::cout << "particle not seen in TPC, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << " trk length " << trkLen.at(i) << std::endl;
                 }
