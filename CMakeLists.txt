@@ -83,6 +83,7 @@ add_subdirectory (TestUtils)
 add_subdirectory (Reco)
 add_subdirectory (RecoAlg)
 add_subdirectory (Ana)
+add_subdirectory (Filters)
 
 # tests
 add_subdirectory (test)

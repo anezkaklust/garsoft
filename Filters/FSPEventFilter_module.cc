@@ -1,0 +1,120 @@
+////////////////////////////////////////////////////////////////////////
+//
+// GENIEEventFilter_module class:
+// Algoritm to produce a filtered event file having
+// events with user-defined GENIE final state
+//
+// eldwan.brianne@desy.de
+//
+////////////////////////////////////////////////////////////////////////
+
+//Framework Includes
+#include "art/Framework/Core/EDFilter.h"
+#include "art/Framework/Core/ModuleMacros.h"
+#include "art/Framework/Principal/Event.h"
+#include "art/Framework/Principal/Handle.h"
+#include "canvas/Persistency/Common/Ptr.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
+#include "art/Persistency/Common/PtrMaker.h"
+#include "canvas/Utilities/InputTag.h"
+#include "fhiclcpp/ParameterSet.h"
+#include "canvas/Persistency/Common/FindOne.h"
+#include "canvas/Persistency/Common/FindOneP.h"
+#include "canvas/Persistency/Common/FindMany.h"
+#include "canvas/Persistency/Common/FindManyP.h"
+
+//nusim Includes
+#include "nusimdata/SimulationBase/GTruth.h"
+#include "nusimdata/SimulationBase/MCTruth.h"
+#include "nusimdata/SimulationBase/MCParticle.h"
+
+namespace gar{
+    namespace filt {
+
+        class FSPEventFilter : public art::EDFilter  {
+
+        public:
+
+            explicit FSPEventFilter(fhicl::ParameterSet const& );
+
+            // Filters should not be copied or assigned.
+            FSPEventFilter(FSPEventFilter const &) = delete;
+            FSPEventFilter(FSPEventFilter &&) = delete;
+            FSPEventFilter & operator = (FSPEventFilter const &) = delete;
+            FSPEventFilter & operator = (FSPEventFilter &&) = delete;
+
+            bool filter(art::Event& evt);
+            void beginJob();
+
+        private:
+
+            std::string fGeantLabel;
+            std::vector<int> fPDG;
+
+            bool isSubset(std::vector<int> const& a, std::vector<int> const& b) const;
+
+        }; // class GENIEEventFilter
+
+        //-------------------------------------------------
+        FSPEventFilter::FSPEventFilter(fhicl::ParameterSet const & pset)
+        : EDFilter{pset}
+        {
+            fGeantLabel = pset.get< std::string      >("GeantModuleLabel","geant");
+            fPDG                  = pset.get< std::vector<int> >("PDG");
+        }
+
+        //-------------------------------------------------
+        void FSPEventFilter::beginJob()
+        {
+
+        }
+
+        //-------------------------------------------------
+        bool FSPEventFilter::filter(art::Event &evt)
+        {
+            art::Handle< std::vector<simb::MCParticle> > MCPHandle;
+
+            if (!evt.getByLabel(fGeantLabel, MCPHandle)) {
+                throw cet::exception("FSPEventFilter") << " No simb::MCParticle branch."
+                << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+            }
+
+            std::vector<int> FSP;
+
+            //get a vector of final state particles
+            for ( auto const& mcp : (*MCPHandle) ) {
+                if(mcp.StatusCode() == 1) //particle is tracked
+                FSP.push_back(mcp.PdgCode());
+            }
+
+            return isSubset(fPDG, FSP); // returns true if the user-defined fPDG exist(s) in the final state particles
+        }
+
+        //------------------------------------------------
+        bool FSPEventFilter::isSubset(std::vector<int> const& a, std::vector<int> const& b) const
+        {
+            for (auto const a_int : a) {
+                bool found = false;
+                for (auto const b_int : b) {
+                    if (a_int == b_int) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found){
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+    } //namespace filt
+} //namespace gar
+
+//--------------------------------------------------
+namespace gar {
+    namespace filt {
+        DEFINE_ART_MODULE(FSPEventFilter)
+    } //namespace gar
+} //namespace filt

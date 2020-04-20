@@ -1,0 +1,10 @@
+BEGIN_PROLOG
+
+standard_fspevtfilter:
+{
+ module_type:              "FSPEventFilter"
+ GeantModuleLabel:         "geant"
+ PDG:                      [111]   #pdg codes of final state particles in an event that you want to pick
+}
+
+END_PROLOG
