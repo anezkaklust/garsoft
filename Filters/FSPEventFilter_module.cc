@@ -48,7 +48,7 @@ namespace gar{
 
         private:
 
-            std::string fGeantLabel;
+            std::string fGeneratorLabel;
             std::vector<int> fPDG;
 
             bool isSubset(std::vector<int> const& a, std::vector<int> const& b) const;
@@ -59,8 +59,8 @@ namespace gar{
         FSPEventFilter::FSPEventFilter(fhicl::ParameterSet const & pset)
         : EDFilter{pset}
         {
-            fGeantLabel = pset.get< std::string      >("GeantModuleLabel","geant");
-            fPDG                  = pset.get< std::vector<int> >("PDG");
+            fGeneratorLabel = pset.get< std::string      >("GeneratorModuleLabel", "genie");
+            fPDG            = pset.get< std::vector<int> >("PDG");
         }
 
         //-------------------------------------------------
@@ -72,19 +72,21 @@ namespace gar{
         //-------------------------------------------------
         bool FSPEventFilter::filter(art::Event &evt)
         {
-            art::Handle< std::vector<simb::MCParticle> > MCPHandle;
+            art::Handle< std::vector<simb::MCTruth> > mcthandlelist;
 
-            if (!evt.getByLabel(fGeantLabel, MCPHandle)) {
-                throw cet::exception("FSPEventFilter") << " No simb::MCParticle branch."
+            if (!evt.getByLabel(fGeneratorLabel, mcthandlelist)) {
+                throw cet::exception("FSPEventFilter") << " No simb::MCTruth branch."
                 << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
             }
 
+            art::Ptr<simb::MCTruth> mcp(mcthandlelist, 0);
             std::vector<int> FSP;
 
-            //get a vector of final state particles
-            for ( auto const& mcp : (*MCPHandle) ) {
-                if(mcp.StatusCode() == 1) //particle is tracked
-                FSP.push_back(mcp.PdgCode());
+            for(int i = 0; i < mcp->NParticles(); ++i){
+                simb::MCParticle part(mcp->GetParticle(i));
+
+                if(part.StatusCode()== 1)
+                FSP.push_back(part.PdgCode());
             }
 
             return isSubset(fPDG, FSP); // returns true if the user-defined fPDG exist(s) in the final state particles
