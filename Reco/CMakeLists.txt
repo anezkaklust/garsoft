@@ -10,8 +10,8 @@ art_make(BASENAME_ONLY
                        GArRecoAlg
                        SimulationDataProducts
                        RawDataProducts
-		       ReconstructionDataProducts
-		       nutools_MagneticField_MagneticField_service
+		                   ReconstructionDataProducts
+		                   nutools_MagneticField_MagneticField_service
                        ${ART_FRAMEWORK_PRINCIPAL}
                        ${ART_FRAMEWORK_SERVICES_REGISTRY}
                        ${ART_FRAMEWORK_SERVICES_OPTIONAL}
@@ -27,18 +27,19 @@ art_make(BASENAME_ONLY
                        ${ROOT_BASIC_LIB_LIST}
                        ${CLHEP}
                        ${Boost_SYSTEM_LIBRARY}
+                       MCCheater_BackTracker_service
       MODULE_LIBRARIES Geometry
                        GArG4
                        GArReco
-		       GArRecoAlg
+		                   GArRecoAlg
                        ReadoutSimulation
                        SimulationDataProducts
                        RawDataProducts
-		       ReconstructionDataProducts
+		                   ReconstructionDataProducts
                        MCCheater_BackTracker_service
                        nusimdata_SimulationBase
                        nutools_RandomUtils_NuRandomService_service
-		       nutools_MagneticField_MagneticField_service
+		                   nutools_MagneticField_MagneticField_service
                        ${ART_FRAMEWORK_CORE}
                        ${ART_FRAMEWORK_IO_SOURCES}
                        ${ART_FRAMEWORK_PRINCIPAL}
