@@ -18,8 +18,8 @@
 //  in its constructor.  Be sure to do this also in the default constructor, 
 //  which can be invoked by art.  IDNumber is just a typedef to size_t.
 //  The firstNumber is just that; maybe you want to count tracks numbering
-//  from 100000, clusters from 200000 and vertices from 300000.  Maybe you want
-//  to define the firstNumber as a static IDNumberGen::IDNumber const in the 
+//  from 100000, ECAL clusters from 300000 and vertices from 400000.  Maybe you
+//  want to define the firstNumber as a static IDNumberGen::IDNumber const in the 
 //  private section of the class definition.  Probably you want firstNumber
 //  for lower level objects like a TPC cluster or a CaloHit to start with a higher
 //  value such as 100100000 or 100200000.  If there is already an instance of a
@@ -37,16 +37,17 @@
 //  in its produce method, has the line
 //     IDNumberGen::create()->newEventReset();
 //
-//  UPGRADE NEEDED!  The underlying assumption is that one makes all the instances
-//     of a given ReconstructionDataProducts class at once; e.g. the tracking
-//     module will make all the tracks, then the vertexer module makes all the
-//     vertices etc.  That is, the only way to reset nextOneToMake is to create
-//     a new class in ReconstructionDataProducts/ with a new firstNumber.  As 
-//     of Apr 2020 however, we create some Tracks, create some Vertexes, and 
-//     then in the track stitcher we go back and create some more Tracks.
-//     Because nextOneToMake is then somewhat over 200000, we have tracks with 
-//     numbers that are supposed to be for Vertexes; there is no way to go
-//     back to the value of nextOneToMake for the last track made in track fitting.
+//  Asute reader!  You have noticed the suggestion that vertices be numbered
+//     from 400000 rather than 200000.  The underlying assumption is that one
+//     makes all the instances  of a given ReconstructionDataProducts class at
+//     once; e.g. the tracking module will make all the tracks, then the vertexer
+//     module makes all the vertices etc.  That is, the only way to reset
+//     nextOneToMake is to create a new class in ReconstructionDataProducts with
+//     a new firstNumber.  As of Apr 2020 however, we create some Tracks, create
+//     some Vertexes, and then in the track stitcher we go back and create some
+//     more Tracks.  Because nextOneToMake is then somewhat over 200000, we have
+//     stitched tracks with numbers starting from 200000.  So we number vertices
+//     from 400000.
 //
 
 

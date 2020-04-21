@@ -1,0 +1,19 @@
+BEGIN_PROLOG
+
+standard_performancestudy:
+{
+ module_type:               MomentumPerformance
+
+ GEANTLabel:               "geant"
+ HitLabel:                 "hit"
+ TPCClusterLabel:          "tpccluster"
+ TrackLabel:               "track"
+
+
+# dE/dx algorithms are still here in the analysis code; hence the IonizeTruncate
+# parameter.
+ IonizTruncate:             1.00
+
+}
+
+END_PROLOG

@@ -26,7 +26,7 @@ namespace gar {
       // let the compiler provide the dtor
       
     private:
-      static gar::rec::IDNumber const FirstNumber = 200000;
+      static gar::rec::IDNumber const FirstNumber = 400000;
       gar::rec::IDNumber fIDnumero;
       
       float                     fPosition[3];    ///< position of vertex
