@@ -28,6 +28,7 @@
 #include "nusimdata/SimulationBase/GTruth.h"
 #include "nusimdata/SimulationBase/MCFlux.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
+#include "nutools/ParticleNavigation/ParticleList.h"
 #include "nutools/EventGeneratorBase/evgenbase.h"
 #include "nutools/EventGeneratorBase/GENIE/GENIE2ART.h"
 #include "nutools/EventGeneratorBase/GENIE/EVGBAssociationUtil.h"
@@ -40,7 +41,7 @@
 #include "PDG/PDGLibrary.h"
 
 // GArSoft Includes
-#include "Utilities/AssociationUtil.h"
+// #include "Utilities/AssociationUtil.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "SimulationDataProducts/CaloDeposit.h"
 #include "SimulationDataProducts/LArDeposit.h"
@@ -98,6 +99,8 @@ namespace util {
         unsigned int GetParentage( unsigned int trkid ) const;
         void AddECALHits();
 
+        std::map<int, size_t> TrackIDToMCTruthIndexMap() const { return fTrackIDToMCTruthIndex; }
+
         std::string fEDepSimfile;
         std::string fGhepfile;
         bool fOverlay;
@@ -123,7 +126,7 @@ namespace util {
         const gar::geo::GeometryCore*            fGeo;               ///< geometry information
         const gar::detinfo::ECALProperties*      fEcalProp;
 
-        std::vector<simb::MCParticle> fMCParticles;
+        sim::ParticleList* fParticleList;
         std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_ECALDeposits;
         std::vector<gar::sdp::CaloDeposit> fECALDeposits;
         std::vector<gar::sdp::EnergyDeposit> fGArDeposits;
@@ -133,6 +136,7 @@ namespace util {
         std::vector<int> fStopSpill;
 
         std::map<unsigned int, unsigned int> fTrkIDParent;
+        std::map<int, size_t> fTrackIDToMCTruthIndex;
     };
 
 } // namespace util
@@ -155,13 +159,15 @@ namespace util {
     fMCRec(nullptr),
     fEvent(nullptr),
     fkeepEMShowers( pset.get< bool >("keepEMShowers", true) ),
-    fEMShowerDaughterMatRegex( pset.get< std::string >("EMShowerDaughterMatRegex", ".*") )
+    fEMShowerDaughterMatRegex( pset.get< std::string >("EMShowerDaughterMatRegex", ".*") ),
+    fParticleList(new sim::ParticleList())
     {
         pdglib = genie::PDGLibrary::Instance();
 
         produces< std::vector<simb::MCTruth> >();
         produces< std::vector<simb::GTruth>  >();
         produces< art::Assns<simb::MCTruth, simb::GTruth> >();
+        produces< art::Assns<simb::MCTruth, simb::MCParticle> >();
 
         produces< std::vector<simb::MCParticle> >();
         produces< std::vector<gar::sdp::EnergyDeposit> >();
@@ -398,9 +404,12 @@ namespace util {
             return;
         }
 
-        std::unique_ptr< std::vector<simb::MCTruth> > mctruthcol(new std::vector<simb::MCTruth>);
-        std::unique_ptr< std::vector<simb::GTruth> > gtruthcol(new std::vector<simb::GTruth>);
-        std::unique_ptr< art::Assns<simb::MCTruth, simb::GTruth> > tgassn(new art::Assns<simb::MCTruth, simb::GTruth>);
+        std::unique_ptr< std::vector<simb::MCTruth> > mctruthcol( new std::vector<simb::MCTruth> );
+        std::unique_ptr< std::vector<simb::GTruth> > gtruthcol( new std::vector<simb::GTruth> );
+        std::unique_ptr< art::Assns<simb::MCTruth, simb::GTruth> > tgassn( new art::Assns<simb::MCTruth, simb::GTruth> );
+
+        art::PtrMaker<simb::MCTruth> makeMCTruthPtr(evt);
+        std::vector< ::art::Ptr<simb::MCTruth> > mctPtrs;
 
         //--------------------------------------------------------------------------
         if(fOverlay){
@@ -424,6 +433,10 @@ namespace util {
                 mctruthcol->push_back(mctruth);
                 gtruthcol->push_back(gtruth);
 
+                //Make a vector of mctruth art ptr
+                art::Ptr<simb::MCTruth> MCTruthPtr = makeMCTruthPtr(mctruthcol->size() - 1);
+                mctPtrs.push_back(MCTruthPtr);
+
                 evgb::util::CreateAssn(*this, evt, *mctruthcol, *gtruthcol, *tgassn, gtruthcol->size()-1, gtruthcol->size());
             }
         }
@@ -443,6 +456,10 @@ namespace util {
             mctruthcol->push_back(mctruth);
             gtruthcol->push_back(gtruth);
 
+            //Make a vector of mctruth art ptr
+            art::Ptr<simb::MCTruth> MCTruthPtr = makeMCTruthPtr(mctruthcol->size() - 1);
+            mctPtrs.push_back(MCTruthPtr);
+
             evgb::util::CreateAssn(*this, evt, *mctruthcol, *gtruthcol, *tgassn, gtruthcol->size()-1, gtruthcol->size());
         }
 
@@ -451,68 +468,41 @@ namespace util {
         //Starts at 0, evt starts at 1
         fTreeChain->GetEntry(eventnumber-1);
 
-        std::unique_ptr< std::vector<simb::MCParticle> > partCol(new std::vector<simb::MCParticle> );
+        std::unique_ptr< std::vector<simb::MCParticle> > partCol( new std::vector<simb::MCParticle> );
+        std::unique_ptr< art::Assns<simb::MCTruth, simb::MCParticle> > tpassn( new art::Assns<simb::MCTruth, simb::MCParticle> );
 
-        fMCParticles.clear();
+        fParticleList->clear();
         fTrkIDParent.clear();
+        fTrackIDToMCTruthIndex.clear();
 
         for (std::vector<TG4Trajectory>::const_iterator t = fEvent->Trajectories.begin(); t != fEvent->Trajectories.end(); ++t)
         {
-            int trkID = t->GetTrackId();
+            int trackID = t->GetTrackId();
             int parentID = t->GetParentId();
             int pdg = t->GetPDGCode();
             std::string name = t->GetName();
             double mass = pdglib->Find(pdg)->Mass();//in GeV
 
             std::string process_name = "unknown";
-            //Could be linked to the MCTruth primary with fEvent->Primaries.Particles
-            if(parentID == -1) { process_name = "primary"; parentID = 0; }
-            else{
+
+            if(parentID == -1) {
+                process_name = "primary";
+                parentID = 0;
+            }
+            else {
                 //Get the first point that created this particle
                 process_name = t->Points.at(0).GetProcessName();
-            }
-
-            TLorentzVector part_start = t->Points.at(0).GetPosition();
-            TGeoNode *node = fGeo->FindNode(part_start.X() / CLHEP::cm, part_start.Y() / CLHEP::cm, part_start.Z() / CLHEP::cm);
-            std::string material_name = "";
-
-            if(node)
-            material_name = node->GetMedium()->GetMaterial()->GetName();
+            }// end if not a primary particle
 
             LOG_DEBUG("ConvertEdep2Art")
             << " Particle " << name
             << " with pdg " << pdg
-            << " trackID " << trkID
+            << " trackID " << trackID
             << " parent id " << parentID
             << " created with process [ " << process_name << " ]"
-            << " is EM " << CheckProcess( process_name )
-            << " in material " << material_name;
+            << " is EM " << CheckProcess( process_name );
 
-            //Skip the creation of the mcp if it is part of shower (based on process name) and only if it is not matching the material
-            //TODO debug as it does not work for anatree at the moment, problem related to pdg mom exception
-            //Maybe need to keep relation trackid, parentid
-
-            if(not fkeepEMShowers){
-                bool isEMShowerProcess = CheckProcess( process_name );
-                std::regex const re_material(fEMShowerDaughterMatRegex);
-                if( isEMShowerProcess && not std::regex_match(material_name, re_material) ) {
-
-                    //link trkid and parent id to be able to go back in history only for these and stop at the parent that created the shower
-                    fTrkIDParent[trkID] = parentID;
-
-                    LOG_DEBUG("ConvertEdep2Art")
-                    << " Skipping EM shower daughter " << name
-                    << " with trackID " << trkID
-                    << " with parent id " << parentID
-                    << " Ultimate parentage " << GetParentage(trkID)
-                    << " created with process [ " << process_name << " ]"
-                    << " in material " << material_name;
-
-                    continue;
-                }
-            }
-
-            simb::MCParticle mcpart(trkID, pdg, process_name, parentID, mass);
+            simb::MCParticle *fParticle = new simb::MCParticle(trackID, pdg, process_name, parentID, mass);
 
             for (std::vector<TG4TrajectoryPoint>::const_iterator p = t->Points.begin(); p != t->Points.end(); ++p)
             {
@@ -527,21 +517,126 @@ namespace util {
                 std::string process = p->GetProcessName();
 
                 if(p == t->Points.begin()) process = "Start";
-                mcpart.AddTrajectoryPoint(fourPos, fourMom, process);
+                fParticle->AddTrajectoryPoint(fourPos, fourMom, process);
             }
 
             std::string end_process = t->Points.at(t->Points.size()-1).GetProcessName();
-            mcpart.SetEndProcess(end_process);
+            fParticle->SetEndProcess(end_process);
 
-            fMCParticles.push_back( mcpart );
+            fParticleList->Add( fParticle );
         }
 
-        for(auto const& mcpart : fMCParticles)
+        size_t mcTruthIndex = 0;
+        int fCurrentTrackID = 0;
+        //Work on MCParticle list
+        for (std::map<int, simb::MCParticle*>::iterator itPart = fParticleList->begin(); itPart != fParticleList->end(); ++itPart)
         {
+            simb::MCParticle &part = *(itPart->second);
+            int parentID = part.Mother();
+            int trackID = part.TrackId();
+            fCurrentTrackID = trackID;
+            std::string process_name = part.Process();
+
+            if( process_name == "primary" )
+            {
+                mcTruthIndex = 0; //need tp get the correct mctruth index
+            }
+            else {
+
+                TLorentzVector part_start = part.Trajectory().Position(0);
+                TGeoNode *node = fGeo->FindNode(part_start.X(), part_start.Y(), part_start.Z());
+                std::string material_name = "";
+
+                if(node)
+                material_name = node->GetMedium()->GetMaterial()->GetName();
+
+                //Skip the creation of the mcp if it is part of shower (based on process name) and only if it is not matching the material
+                //TODO debug as it does not work for anatree at the moment, problem related to pdg mom exception
+                //Maybe need to keep relation trackid, parentid
+                if(not fkeepEMShowers){
+                    bool isEMShowerProcess = CheckProcess( process_name );
+                    std::regex const re_material(fEMShowerDaughterMatRegex);
+                    if( isEMShowerProcess && not std::regex_match(material_name, re_material) ) {
+
+                        //link trkid and parent id to be able to go back in history only for these and stop at the parent that created the shower
+                        fTrkIDParent[trackID] = parentID;
+                        fCurrentTrackID = -1 * GetParentage(trackID);
+
+                        LOG_DEBUG("ConvertEdep2Art")
+                        << " Skipping EM shower daughter "
+                        << " with trackID " << trackID
+                        << " with parent id " << parentID
+                        << " Ultimate parentage " << GetParentage(trackID)
+                        << " created with process [ " << process_name << " ]";
+
+                        fParticleList->Archive(itPart->second);
+                        continue;
+                    }
+                }//end not keep EM Shower particles
+
+                if( not fParticleList->KnownParticle(parentID) ) {
+                    // do add the particle to the parent id map
+                    // just in case it makes a daughter that we have to track as well
+                    fTrkIDParent[trackID] = parentID;
+                    int pid = GetParentage(parentID);
+
+                    // if we still can't find the parent in the particle navigator,
+                    // we have to give up
+                    if( not fParticleList->KnownParticle(pid) ) {
+                        LOG_WARNING("ConvertEdep2Art")
+                        << "can't find parent id: "
+                        << parentID << " in the particle list, or fTrkIDParent."
+                        << " Make " << parentID << " the mother ID for track ID "
+                        << fCurrentTrackID << " in the hope that it will aid debugging.";
+                    }
+                    else
+                    parentID = pid;
+                }
+
+                // Attempt to find the MCTruth index corresponding to the
+                // current particle.  If the fCurrentTrackID is not in the
+                // map try the parent ID, if that is not there, throw an
+                // exception
+                if(fTrackIDToMCTruthIndex.count(fCurrentTrackID) > 0 )
+                mcTruthIndex = fTrackIDToMCTruthIndex.at(fCurrentTrackID);
+                else if(fTrackIDToMCTruthIndex.count(parentID) > 0 )
+                mcTruthIndex = fTrackIDToMCTruthIndex.at(parentID);
+                else
+                throw cet::exception("ConvertEdep2Art")
+                << "Cannot find MCTruth index for track id "
+                << fCurrentTrackID << " or " << parentID;
+            } //end not primary particle
+
+            fTrackIDToMCTruthIndex[fCurrentTrackID] = mcTruthIndex;
+        }
+
+        // Make link between MCTruth and MCParticles
+        size_t nGeneratedParticles = 0;
+        const std::map<int, size_t> fTrackIDToMCTruthIndex = this->TrackIDToMCTruthIndexMap(); //Need to make trackID to MCTruth index map
+
+        for (std::map<int, simb::MCParticle*>::iterator itPart = fParticleList->begin(); itPart != fParticleList->end(); ++itPart)
+        {
+            simb::MCParticle& p = *(itPart->second);
+
             LOG_DEBUG("ConvertEdep2Art")
             << "adding mc particle with track id: "
-            << mcpart.TrackId();
-            partCol->emplace_back(mcpart);
+            << p.TrackId();
+
+            int trackID = p.TrackId();
+            partCol->push_back(std::move(p));
+
+            if( fTrackIDToMCTruthIndex.count(trackID) > 0) {
+                size_t mctidx = fTrackIDToMCTruthIndex.find(trackID)->second;
+                evgb::util::CreateAssn(*this, evt, *partCol, mctPtrs.at(mctidx), *tpassn, nGeneratedParticles);
+            }
+            else {
+                throw cet::exception("ConvertEdep2Art")
+                << "Cannot find MCTruth for Track Id: " << trackID
+                << " to create association between Particle and MCTruth";
+            }
+
+            fParticleList->Archive(itPart->second);
+            ++nGeneratedParticles;
         }
 
         //--------------------------------------------------------------------------
@@ -709,6 +804,7 @@ namespace util {
         evt.put(std::move(mctruthcol));
         evt.put(std::move(gtruthcol));
         evt.put(std::move(tgassn));
+        evt.put(std::move(tpassn));
 
         evt.put(std::move(partCol));
         evt.put(std::move(TPCCol));
