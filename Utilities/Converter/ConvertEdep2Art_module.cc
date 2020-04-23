@@ -7,6 +7,7 @@
 #include <map>
 #include <set>
 #include <iostream>
+#include <limits>
 
 // Framework includes
 #include "art/Framework/Core/EDProducer.h"
@@ -100,6 +101,9 @@ namespace util {
         void AddECALHits();
 
         std::map<int, size_t> TrackIDToMCTruthIndexMap() const { return fTrackIDToMCTruthIndex; }
+
+        bool isMCPMatch(const simb::MCParticle& p1, const simb::MCParticle& p2) const;
+        size_t FindMCTruthIndex(std::vector<simb::MCTruth> *mctruthcol, const simb::MCParticle& part) const;
 
         std::string fEDepSimfile;
         std::string fGhepfile;
@@ -205,15 +209,13 @@ namespace util {
 
     //----------------------------------------------------------------------
     // Destructor
-    ConvertEdep2Art::~ConvertEdep2Art()
-    {
+    ConvertEdep2Art::~ConvertEdep2Art() {
         if ( fTreeChain ) delete fTreeChain;
         if ( fGTreeChain ) delete fGTreeChain;
     }
 
     //----------------------------------------------------------------------
-    void ConvertEdep2Art::beginJob()
-    {
+    void ConvertEdep2Art::beginJob() {
         if(fOverlay){
             //need to get where is the end of the spill
             for(int ientry = 0; ientry < fGTreeChain->GetEntries(); ientry++)
@@ -250,27 +252,22 @@ namespace util {
     }
 
     //--------------------------------------------------------------------------
-    void ConvertEdep2Art::beginRun(::art::Run& run)
-    {
-
+    void ConvertEdep2Art::beginRun(::art::Run& run) {
         return;
     }
 
     //------------------------------------------------------------------------------
-    unsigned int ConvertEdep2Art::GetLayerNumber(std::string volname) const
-    {
+    unsigned int ConvertEdep2Art::GetLayerNumber(std::string volname) const {
         return std::atoi( (volname.substr( volname.find("layer_") + 6, 2)).c_str() );
     }
 
     //------------------------------------------------------------------------------
-    unsigned int ConvertEdep2Art::GetSliceNumber(std::string volname) const
-    {
+    unsigned int ConvertEdep2Art::GetSliceNumber(std::string volname) const {
         return std::atoi( (volname.substr( volname.find("slice") + 5, 1)).c_str() );
     }
 
     //------------------------------------------------------------------------------
-    unsigned int ConvertEdep2Art::GetDetNumber(std::string volname) const
-    {
+    unsigned int ConvertEdep2Art::GetDetNumber(std::string volname) const {
         unsigned int det_id = 0;
         if( volname.find("Barrel") !=  std::string::npos )
         det_id = 1;
@@ -280,20 +277,17 @@ namespace util {
     }
 
     //------------------------------------------------------------------------------
-    unsigned int ConvertEdep2Art::GetStaveNumber(std::string volname) const
-    {
+    unsigned int ConvertEdep2Art::GetStaveNumber(std::string volname) const {
         return std::atoi( (volname.substr( volname.find("_stave") + 6, 2)).c_str() );
     }
 
     //------------------------------------------------------------------------------
-    unsigned int ConvertEdep2Art::GetModuleNumber(std::string volname) const
-    {
+    unsigned int ConvertEdep2Art::GetModuleNumber(std::string volname) const {
         return std::atoi( (volname.substr( volname.find("_module") + 7, 2)).c_str() );
     }
 
     //------------------------------------------------------------------------------
-    double ConvertEdep2Art::VisibleEnergyDeposition(const TG4HitSegment *hit, bool applyBirks) const
-    {
+    double ConvertEdep2Art::VisibleEnergyDeposition(const TG4HitSegment *hit, bool applyBirks) const {
         double edep = hit->GetEnergyDeposit();//MeV
         double niel = hit->GetSecondaryDeposit();//MeV
         double length = hit->GetTrackLength();//mm
@@ -325,8 +319,7 @@ namespace util {
     }
 
     //--------------------------------------------------------------------------
-    bool ConvertEdep2Art::CheckProcess( std::string process_name ) const
-    {
+    bool ConvertEdep2Art::CheckProcess( std::string process_name ) const {
         bool isEMShowerProcess = false;
 
         //avoid false positive
@@ -354,8 +347,7 @@ namespace util {
     }
 
     //--------------------------------------------------------------------------
-    unsigned int ConvertEdep2Art::GetParentage(unsigned int trkid) const
-    {
+    unsigned int ConvertEdep2Art::GetParentage(unsigned int trkid) const {
         unsigned int parentid = -1;
         std::map<unsigned int, unsigned int>::const_iterator it = fTrkIDParent.find(trkid);
         while ( it != fTrkIDParent.end() )
@@ -371,8 +363,7 @@ namespace util {
     }
 
     //------------------------------------------------------------------------------
-    void ConvertEdep2Art::AddECALHits()
-    {
+    void ConvertEdep2Art::AddECALHits() {
         //Loop over the hits in the map and add them together
         for(auto const &it : m_ECALDeposits) {
 
@@ -393,9 +384,43 @@ namespace util {
         }
     }
 
-    //--------------------------------------------------------------------------
-    void ConvertEdep2Art::produce(::art::Event& evt)
+    //------------------------------------------------------------------------------
+    bool ConvertEdep2Art::isMCPMatch(const simb::MCParticle& p1, const simb::MCParticle& p2) const
     {
+        int ulp = 2;
+        if( std::fabs(p1.E() - p2.E()) <= std::numeric_limits<float>::epsilon() * std::fabs(p1.E()+p2.E()) * ulp && p1.PdgCode() == p2.PdgCode() )
+        return true;
+
+        return false;
+    }
+
+    //------------------------------------------------------------------------------
+    size_t ConvertEdep2Art::FindMCTruthIndex(std::vector<simb::MCTruth>* mctruthcol, const simb::MCParticle& part) const {
+
+        size_t mctruthindex = 0;
+        bool found = false;
+        for(size_t index = 0; index < mctruthcol->size(); index++) {
+            simb::MCTruth mctrh = mctruthcol->at(index);
+            for( size_t ipart = 0; ipart < (size_t)mctrh.NParticles(); ipart++ ) {
+                if( isMCPMatch(mctrh.GetParticle(ipart), part) ) {
+
+                    LOG_DEBUG("ConvertEdep2Art") << "FindMCTruthIndex() \n"
+                    << mctrh.GetParticle(ipart) << "\n"
+                    << part << "\n";
+
+                    mctruthindex = index;
+                    found = true;
+                    break;
+                }
+            }
+            if( found ) break;
+        }
+
+        return mctruthindex;
+    }
+
+    //--------------------------------------------------------------------------
+    void ConvertEdep2Art::produce(::art::Event& evt) {
         LOG_DEBUG("ConvertEdep2Art") << "produce()";
         art::EventNumber_t eventnumber = evt.id().event();
 
@@ -413,6 +438,7 @@ namespace util {
 
         //--------------------------------------------------------------------------
         if(fOverlay){
+            size_t index = 0;
             for(int ientry = fStartSpill[eventnumber-1]; ientry < fStopSpill[eventnumber-1]; ientry++)
             {
                 fGTreeChain->GetEntry(ientry);
@@ -438,6 +464,7 @@ namespace util {
                 mctPtrs.push_back(MCTruthPtr);
 
                 evgb::util::CreateAssn(*this, evt, *mctruthcol, *gtruthcol, *tgassn, gtruthcol->size()-1, gtruthcol->size());
+                index++;
             }
         }
         else{
@@ -482,7 +509,6 @@ namespace util {
             int pdg = t->GetPDGCode();
             std::string name = t->GetName();
             double mass = pdglib->Find(pdg)->Mass();//in GeV
-
             std::string process_name = "unknown";
 
             if(parentID == -1) {
@@ -539,7 +565,12 @@ namespace util {
 
             if( process_name == "primary" )
             {
-                mcTruthIndex = 0; //need tp get the correct mctruth index
+                if(not fOverlay) {
+                    mcTruthIndex = 0;
+                } else {
+                    //Need to get the index correctly... Check the list of mctruth and g4 particles, match them according to type and energy and pos?
+                    mcTruthIndex = FindMCTruthIndex(mctruthcol.get(), part);
+                }
             }
             else {
 
