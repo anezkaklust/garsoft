@@ -39,6 +39,7 @@ namespace gar {
             : BackTrackerCore(pset) {
             reg.sPreProcessEvent.watch(this, &BackTracker::Rebuild);
             fHasMC = fHasHits = fHasCalHits = fHasTracks = fHasClusters = false;
+            fSTFU = 0;
         }
 
         //----------------------------------------------------------------------
@@ -75,17 +76,23 @@ namespace gar {
             // get the MCParticles from the event
             auto partCol = evt.getValidHandle<std::vector<simb::MCParticle> >(fG4ModuleLabel);
             if (partCol.failedToGet()) {
-                LOG_WARNING("BackTracker_service::RebuildNoSC")
-                    << "failed to get handle to simb::MCParticle from " << fG4ModuleLabel
-                    << ", return";
+                ++fSTFU;
+                if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
+                    LOG_WARNING("BackTracker_service::RebuildNoSC")
+                        << "failed to get handle to simb::MCParticle from " << fG4ModuleLabel
+                        << ", return";
+                }
                 return;
             }
             // get mapping from MCParticles to MCTruths; loop to fill fTrackIDToMCTruthIndex
             art::FindOneP<simb::MCTruth> fo(partCol, evt, fG4ModuleLabel);
             if( !fo.isValid() ){
-               LOG_WARNING("BackTracker_service::RebuildNoSC")
-                    << "failed to associate MCTruth to MCParticle with " << fG4ModuleLabel
-                    << "; all attempts to backtrack will fail\n";
+                ++fSTFU;
+                if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
+                    LOG_WARNING("BackTracker_service::RebuildNoSC")
+                        << "failed to associate MCTruth to MCParticle with " << fG4ModuleLabel
+                        << "; all attempts to backtrack will fail\n";
+                }
                 return;        
 
             } else {
@@ -113,11 +120,14 @@ namespace gar {
                         fTrackIDToMCTruthIndex[partCol->at(iPart).TrackId()] = fMCTruthList.size() - 1;
                     }
                     catch (cet::exception &ex) {
-                        LOG_WARNING("BackTracker_service::RebuildNoSC")
-                            << "unable to find MCTruth from ParticleList created in "
-                            << fG4ModuleLabel
-                            << "; all attempts to backtrack will fail\n"
-                            << "message from caught exception:\n" << ex;
+                         ++fSTFU;
+                         if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
+                             LOG_WARNING("BackTracker_service::RebuildNoSC")
+                                 << "unable to find MCTruth from ParticleList created in "
+                                 << fG4ModuleLabel
+                                 << "; all attempts to backtrack will fail\n"
+                                 << "message from caught exception:\n" << ex;
+                         }
                     }
                 } // end loop over MCParticles
             }
@@ -148,23 +158,32 @@ namespace gar {
             art::Handle<std::vector<raw::RawDigit>> digCol;
             evt.getByLabel(fRawTPCDataLabel, digCol);
             if (!digCol.isValid()) {
-                LOG_WARNING("BackTracker_service::RebuildNoSC")
-                    << "Unable to find RawDigits in " << fRawTPCDataLabel <<
-                    "; no backtracking in TPC will be possible";
+                ++fSTFU;
+                if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
+                    LOG_WARNING("BackTracker_service::RebuildNoSC")
+                        << "Unable to find RawDigits in " << fRawTPCDataLabel <<
+                        "; no backtracking in TPC will be possible";
+                }
 
             } else {
                 art::FindMany<sdp::EnergyDeposit> fmEnergyDep(digCol, evt, fRawTPCDataLabel);
                 if (!fmEnergyDep.isValid()) {
-                    LOG_WARNING("BackTracker_service::RebuildNoSC")
-                        << "Unable to find valid association between RawDigits and "
-                        << "energy deposits in " << fRawTPCDataLabel <<
-                        "; no backtracking in TPC will be possible";
+                    ++fSTFU;
+                    if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
+                        LOG_WARNING("BackTracker_service::RebuildNoSC")
+                            << "Unable to find valid association between RawDigits and "
+                           << "energy deposits in " << fRawTPCDataLabel <<
+                           "; no backtracking in TPC will be possible";
+                    }
  
                 } else {
                     fChannelToEDepCol.resize(fGeo->NChannels());
-                    LOG_DEBUG("BackTracker_service::RebuildNoSC")
-                        << "There are " << fChannelToEDepCol.size()
-                        << " channels in the geometry";
+                    ++fSTFU;
+                    if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
+                        LOG_DEBUG("BackTracker_service::RebuildNoSC")
+                            << "There are " << fChannelToEDepCol.size()
+                            << " channels in the geometry";
+                    }
 
                     std::vector<const sdp::EnergyDeposit*> eDeps;
                     for (size_t iDig = 0; iDig < digCol->size(); ++iDig) {
@@ -187,17 +206,23 @@ namespace gar {
             art::Handle<std::vector<raw::CaloRawDigit>> caloDigCol;
             evt.getByLabel(fRawCaloDataLabel, caloDigCol);
             if (!caloDigCol.isValid()) {
-                LOG_WARNING("BackTracker_service::RebuildNoSC")
-                    << "Unable to find CaloRawDigits in " << fRawCaloDataLabel <<
-                    "; no backtracking in ECAL will be possible";            
+                ++fSTFU;
+                if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
+                    LOG_WARNING("BackTracker_service::RebuildNoSC")
+                        << "Unable to find CaloRawDigits in " << fRawCaloDataLabel <<
+                        "; no backtracking in ECAL will be possible";
+                }            
 
             } else {
                 art::FindMany<sdp::CaloDeposit> fmCaloDep(caloDigCol, evt, fRawCaloDataLabel);
                 if (!fmCaloDep.isValid()) {
-                    LOG_WARNING("BackTracker_service::RebuildNoSC")
-                        << "Unable to find valid association between CaloRawDigits and "
-                        << "calorimeter energy deposits in " << fRawCaloDataLabel <<
-                        "; no backtracking in ECAL will be possible";
+                    ++fSTFU;
+                    if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
+                        LOG_WARNING("BackTracker_service::RebuildNoSC")
+                            << "Unable to find valid association between CaloRawDigits and "
+                            << "calorimeter energy deposits in " << fRawCaloDataLabel <<
+                            "; no backtracking in ECAL will be possible";
+                    }
 
                 } else {
                     std::vector<const sdp::CaloDeposit*> CeDeps;
@@ -220,17 +245,23 @@ namespace gar {
             art::Handle<std::vector<rec::Track>> recoTrackCol;
             evt.getByLabel(fTrackLabel, recoTrackCol);
             if (!recoTrackCol.isValid()) {
-                LOG_WARNING("BackTracker_service::RebuildNoSC")
-                    << "Unable to find rec::Tracks in " << fTrackLabel <<
-                    "; no backtracking of reconstructed tracks will be possible";            
+                ++fSTFU;
+                if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
+                    LOG_WARNING("BackTracker_service::RebuildNoSC")
+                        << "Unable to find rec::Tracks in " << fTrackLabel <<
+                        "; no backtracking of reconstructed tracks will be possible";
+                }        
 
             } else {
                 art::FindMany<rec::TPCCluster> fmTPCClusts(recoTrackCol, evt, fTrackLabel);
                 if (!fmTPCClusts.isValid()) {
-                    LOG_WARNING("BackTracker_service::RebuildNoSC")
-                        << "Unable to find valid association between Tracks and "
-                        << "TPCClusters in " << fTrackLabel <<
-                        "; no backtracking of reconstructed tracks will be possible";
+                    ++fSTFU;
+                    if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
+                        LOG_WARNING("BackTracker_service::RebuildNoSC")
+                            << "Unable to find valid association between Tracks and "
+                            << "TPCClusters in " << fTrackLabel <<
+                            "; no backtracking of reconstructed tracks will be possible";
+                    }
 
                 } else {
                     std::vector<const rec::TPCCluster*> tpclusThisTrack;
@@ -248,17 +279,23 @@ namespace gar {
             art::Handle<std::vector<rec::TPCCluster>> tpclusCol;
             evt.getByLabel(fTPCClusterLabel, tpclusCol);
             if (!tpclusCol.isValid()) {
-                LOG_WARNING("BackTracker_service::RebuildNoSC")
-                    << "Unable to find rec::TPCClusters in " << fTPCClusterLabel <<
-                    "; no backtracking of reconstructed tracks will be possible";            
+                ++fSTFU;
+                if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
+                    LOG_WARNING("BackTracker_service::RebuildNoSC")
+                        << "Unable to find rec::TPCClusters in " << fTPCClusterLabel <<
+                        "; no backtracking of reconstructed tracks will be possible";
+                }
 
             } else {
                  art::FindManyP<rec::Hit> fmHits(tpclusCol, evt, fTPCClusterLabel);
                  if (!fmHits.isValid()) {
-                    LOG_WARNING("BackTracker_service::RebuildNoSC")
-                        << "Unable to find valid association between TPCClusters and "
-                        << "Hits in " << fTPCClusterLabel <<
-                        "; no backtracking of reconstructed tracks will be possible";
+                    ++fSTFU;
+                    if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
+                        LOG_WARNING("BackTracker_service::RebuildNoSC")
+                            << "Unable to find valid association between TPCClusters and "
+                            << "Hits in " << fTPCClusterLabel <<
+                            "; no backtracking of reconstructed tracks will be possible";
+                    }
 
                 } else {
                     std::vector<art::Ptr<rec::Hit>> hitsThisTPCCluster;
@@ -297,17 +334,23 @@ namespace gar {
             art::Handle<std::vector<rec::Cluster>> recoClusterCol;
             evt.getByLabel(fClusterLabel, recoClusterCol);
             if (!recoClusterCol.isValid()) {
-                LOG_WARNING("BackTracker_service::RebuildNoSC")
-                    << "Unable to find rec::Clusters in " << fClusterLabel <<
-                    "; no backtracking of reconstructed ECAL clusters will be possible";            
+                ++fSTFU;
+                if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
+                    LOG_WARNING("BackTracker_service::RebuildNoSC")
+                        << "Unable to find rec::Clusters in " << fClusterLabel <<
+                        "; no backtracking of reconstructed ECAL clusters will be possible";
+	            }
 
             } else {
                 art::FindManyP<rec::CaloHit> fmCaloHits(recoClusterCol, evt, fClusterLabel);
                 if (!fmCaloHits.isValid()) {
-                    LOG_WARNING("BackTracker_service::RebuildNoSC")
-                        << "Unable to find valid association between Clusters and "
-                        << "CaloHits in " << fTrackLabel <<
-                        "; no backtracking of reconstructed tracks will be possible";
+                    ++fSTFU;
+                    if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
+                        LOG_WARNING("BackTracker_service::RebuildNoSC")
+                            << "Unable to find valid association between Clusters and "
+                            << "CaloHits in " << fTrackLabel <<
+                            "; no backtracking of reconstructed tracks will be possible";
+                    }
 
                 } else {
                     std::vector<art::Ptr<rec::CaloHit>> caloHitsThisCluster;

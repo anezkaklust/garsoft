@@ -75,12 +75,12 @@ namespace gar {
         void FillVectors(art::Event const & e);
 
         void processIonizationInfo(rec::TrackIoniz& ion, float ionizeTruncate,
-        float& forwardIonVal, float& backwardIonVal);
+                                   float& forwardIonVal, float& backwardIonVal);
         float processOneDirection(std::vector<std::pair<float,float>> SigData,
-        float ionizeTruncate);
+                                  float ionizeTruncate);
         // Helper method for processOneDirection
         static bool lessThan_byE(std::pair<float,float> a, std::pair<float,float> b)
-        {return a.first < b.first;}
+            {return a.first < b.first;}
 
         // Compute T for coherent pion analysis
         float computeT( simb::MCTruth theMCTruth );
@@ -1052,46 +1052,45 @@ void gar::anatree::FillVectors(art::Event const & e) {
         fMCPVertIndex.resize(nMCParticles);
         for (; iMCParticle<nMCParticles; ++iMCParticle) {
             foundMCvert:
-                // Assign noprimary to start with
-                fMCPVertIndex[iMCParticle] = -1;
-                // Do the primaries first
-                if (fMCMotherIndex[iMCParticle]!=-1) break;
-                Float_t trackX = fMCPStartX[iMCParticle];
-                Float_t trackY = fMCPStartY[iMCParticle];
-                Float_t trackZ = fMCPStartZ[iMCParticle];
-                int vertexIndex = 0;
-                for (size_t imchl = 0; imchl < mcthandlelist.size(); ++imchl) {
-                    for ( auto const& mct : (*mcthandlelist.at(imchl)) ) {
-                        if (mct.NeutrinoSet()) {
-                            simb::MCNeutrino nuw = mct.GetNeutrino();
-                            Float_t vertX = nuw.Nu().EndX();
-                            Float_t vertY = nuw.Nu().EndY();
-                            Float_t vertZ = nuw.Nu().EndZ();
-                            Float_t dist = std::hypot(trackX-vertX,
-                            std::hypot(trackY-vertY,trackZ-vertZ));
-                            if ( dist <= fMatchMCPtoVertDist ) {
-                                fMCPVertIndex[iMCParticle] = vertexIndex;
-                                ++iMCParticle; goto foundMCvert;
-                            }
+            // Assign noprimary to start with
+            fMCPVertIndex[iMCParticle] = -1;
+            // Do the primaries first
+            if (fMCMotherIndex[iMCParticle]!=-1) break;
+            Float_t trackX = fMCPStartX[iMCParticle];
+            Float_t trackY = fMCPStartY[iMCParticle];
+            Float_t trackZ = fMCPStartZ[iMCParticle];
+            int vertexIndex = 0;
+            for (size_t imchl = 0; imchl < mcthandlelist.size(); ++imchl) {
+                for ( auto const& mct : (*mcthandlelist.at(imchl)) ) {
+                    if (mct.NeutrinoSet()) {
+                        simb::MCNeutrino nuw = mct.GetNeutrino();
+                        Float_t vertX = nuw.Nu().EndX();
+                        Float_t vertY = nuw.Nu().EndY();
+                        Float_t vertZ = nuw.Nu().EndZ();
+                        Float_t dist = std::hypot(trackX-vertX,
+                        std::hypot(trackY-vertY,trackZ-vertZ));
+                        if ( dist <= fMatchMCPtoVertDist ) {
+                            fMCPVertIndex[iMCParticle] = vertexIndex;
+                            ++iMCParticle; goto foundMCvert;
                         }
-                        ++vertexIndex;
                     }
+                    ++vertexIndex;
                 }
             }
-            // Now the secondaries.  As they are after the primaries, do not re-init iMCParticle
-            for (; iMCParticle<nMCParticles; ++iMCParticle) {
-                int momIndex = fMCMotherIndex[iMCParticle];        int lastMCParticle = iMCParticle;
-                while (momIndex != -1) {
-                    lastMCParticle = momIndex;
-                    momIndex       = fMCMotherIndex[momIndex];
-                }
-                fMCPVertIndex[iMCParticle] = fMCPVertIndex[lastMCParticle];
+        }
+        // Now the secondaries.  As they are after the primaries, do not re-init iMCParticle
+        for (; iMCParticle<nMCParticles; ++iMCParticle) {
+            int momIndex = fMCMotherIndex[iMCParticle];        int lastMCParticle = iMCParticle;
+            while (momIndex != -1) {
+                lastMCParticle = momIndex;
+                momIndex       = fMCMotherIndex[momIndex];
             }
+            fMCPVertIndex[iMCParticle] = fMCPVertIndex[lastMCParticle];
         }
 
 
 
-        if(fWriteMCPTrajectory) {
+        if (fWriteMCPTrajectory) {
             // It's in the MCParticle table
             Int_t mcpIndex = 0;
             for ( auto const& mcp : (*MCPHandle) ) {
@@ -1134,352 +1133,352 @@ void gar::anatree::FillVectors(art::Event const & e) {
                 fSimEnergySum += SimHit.Energy();
             }
         }
+    } // End if (fWriteMCinfo)
 
 
-
-        // save hits in the TPC
-        if (fWriteHits) {
-            for ( auto const& Hit : (*HitHandle) ) {
-                fHitX.push_back(Hit.Position()[0]);
-                fHitY.push_back(Hit.Position()[1]);
-                fHitZ.push_back(Hit.Position()[2]);
-                fHitSig.push_back(Hit.Signal());
-                fHitRMS.push_back(Hit.RMS());
-            }
+    // save hits in the TPC
+    if (fWriteHits) {
+        for ( auto const& Hit : (*HitHandle) ) {
+            fHitX.push_back(Hit.Position()[0]);
+            fHitY.push_back(Hit.Position()[1]);
+            fHitZ.push_back(Hit.Position()[2]);
+            fHitSig.push_back(Hit.Signal());
+            fHitRMS.push_back(Hit.RMS());
         }
+    }
 
 
 
-        // save clusters in the TPC. For some reason, can't get FindOneP<rec::Track> or
-        // FindManyP<rec::Track> to work; seems the underlying Assn isn't found.  Have
-        // to FindManyP<TPCCluster> instead and  iterate if (fWriteTracks).  :(
-        if (fWriteTPCClusters) {
-            for ( auto const& TPCCluster : (*TPCClusterHandle) ) {
-                fTPCClusterX.push_back(TPCCluster.Position()[0]);
-                fTPCClusterY.push_back(TPCCluster.Position()[1]);
-                fTPCClusterZ.push_back(TPCCluster.Position()[2]);
-                fTPCClusterSig.push_back(TPCCluster.Signal());
-                fTPCClusterRMS.push_back(TPCCluster.RMS());
+    // save clusters in the TPC. For some reason, can't get FindOneP<rec::Track> or
+    // FindManyP<rec::Track> to work; seems the underlying Assn isn't found.  Have
+    // to FindManyP<TPCCluster> instead and  iterate if (fWriteTracks).  :(
+    if (fWriteTPCClusters) {
+        for ( auto const& TPCCluster : (*TPCClusterHandle) ) {
+            fTPCClusterX.push_back(TPCCluster.Position()[0]);
+            fTPCClusterY.push_back(TPCCluster.Position()[1]);
+            fTPCClusterZ.push_back(TPCCluster.Position()[2]);
+            fTPCClusterSig.push_back(TPCCluster.Signal());
+            fTPCClusterRMS.push_back(TPCCluster.RMS());
 
-                Int_t trackForThisTPCluster = -1;
-                if (fWriteTracks) {
-                    size_t iTrack = 0;
-                    for ( auto const& track : (*TrackHandle) ) {
-                        for (size_t iCluster=0; iCluster<track.NHits(); iCluster++) {
-                            auto const& trackedCluster =
-                                *(findManyTPCClusters->at(iTrack).at(iCluster));
-                            if (TPCCluster==trackedCluster) {
-                                trackForThisTPCluster = track.getIDNumber();
-                                // No cluster is in 2 tracks (don't mess up dE/dx!)
-                                goto pushit;   // break 2 loops
-                            }
-                        }
-                        iTrack++;
-                    }
-                }
-                pushit:
-                    fTPCClusterTrkIDNumber.push_back(trackForThisTPCluster);
-                }
-            }
-
-
-
-            // save per-track info
+            Int_t trackForThisTPCluster = -1;
             if (fWriteTracks) {
                 size_t iTrack = 0;
                 for ( auto const& track : (*TrackHandle) ) {
-                    // track is a rec::Track, not a rec::TrackPar
-                    fTrackIDNumber.push_back(track.getIDNumber());
-
-                    fTrackStartX.push_back(track.Vertex()[0]);
-                    fTrackStartY.push_back(track.Vertex()[1]);
-                    fTrackStartZ.push_back(track.Vertex()[2]);
-                    fTrackStartPX.push_back(track.Momentum_beg()*track.VtxDir()[0]);
-                    fTrackStartPY.push_back(track.Momentum_beg()*track.VtxDir()[1]);
-                    fTrackStartPZ.push_back(track.Momentum_beg()*track.VtxDir()[2]);
-                    fTrackStartQ.push_back(track.ChargeBeg());
-
-                    fTrackEndX.push_back(track.End()[0]);
-                    fTrackEndY.push_back(track.End()[1]);
-                    fTrackEndZ.push_back(track.End()[2]);
-                    fTrackEndPX.push_back(track.Momentum_end()*track.EndDir()[0]);
-                    fTrackEndPY.push_back(track.Momentum_end()*track.EndDir()[1]);
-                    fTrackEndPZ.push_back(track.Momentum_end()*track.EndDir()[2]);
-                    fTrackEndQ.push_back(track.ChargeEnd());
-
-                    fTrackLenF.push_back(track.LengthForward());
-                    fTrackLenB.push_back(track.LengthBackward());
-                    fNTPCClustersOnTrack.push_back(track.NHits());
-
-                    if (findIonization->isValid()) {
-                        // No calibration for now.  Someday this should all be in reco
-                        rec::TrackIoniz ionization = *(findIonization->at(iTrack));
-                        float avgIonF, avgIonB;
-                        processIonizationInfo(ionization, fIonizTruncate, avgIonF, avgIonB);
-                        fTrackAvgIonF.push_back( avgIonF );
-                        fTrackAvgIonB.push_back( avgIonB );
-                    } else {
-                        // must push_back something so that fTrackAvgIonF,B are of correct size.
-                        fTrackAvgIonF.push_back( 0.0 );
-                        fTrackAvgIonB.push_back( 0.0 );
-                    }
-
-                    iTrack++;
-                } // end loop over TrackHandle
-            }
-
-
-
-            // save Vertex and Track-Vertex association info
-            if (fWriteVertices) {
-                size_t iVertex = 0;
-                for ( auto const& vertex : (*VertexHandle) ) {
-                    fVertexIDNumber.push_back(vertex.getIDNumber());
-                    fVertexX.push_back(vertex.Position()[0]);
-                    fVertexY.push_back(vertex.Position()[1]);
-                    fVertexZ.push_back(vertex.Position()[2]);
-                    fVertexT.push_back(vertex.Time());
-
-                    int nVertexedTracks = 0;
-                    if ( findManyTrackEnd->isValid() ) {
-                        nVertexedTracks = findManyTrackEnd->at(iVertex).size();
-                    }
-                    fVertexN.push_back(nVertexedTracks);
-
-                    int vertexCharge = 0;
-                    for (int iVertexedTrack=0; iVertexedTrack<nVertexedTracks; ++iVertexedTrack) {
-                        fVTAssn_VertIDNumber.push_back(vertex.getIDNumber());
-
-                        // Get this vertexed track.
-                        rec::Track track = *(findManyTrackEnd->at(iVertex).at(iVertexedTrack));
-                        fVTAssn_TrackIDNumber.push_back(track.getIDNumber());
-
-                        // Get the end of the track in the vertex.  It isn't that odd for the end
-                        // of the track not used in the vertex to be closer to the vertex than the
-                        // one actually used; you might have a very short stub track in a 3 track
-                        // vertex with small opening angles and the other 2 tracks might pull the
-                        // vertex some distance towards the far end of the stub track
-                        rec::TrackEnd fee = *(findManyTrackEnd->data(iVertex).at(iVertexedTrack));
-                        // TrackEnd is defined in Track.h; 1 means use Beg values, 0 means use End
-                        fVTAssn_TrackEnd.push_back(fee);
-
-                        if (fee==rec::TrackEndBeg) {
-                            vertexCharge += track.ChargeBeg();
-                        } else {
-                            vertexCharge += track.ChargeEnd();
+                    for (size_t iCluster=0; iCluster<track.NHits(); iCluster++) {
+                        auto const& trackedCluster =
+                            *(findManyTPCClusters->at(iTrack).at(iCluster));
+                        if (TPCCluster==trackedCluster) {
+                            trackForThisTPCluster = track.getIDNumber();
+                            // No cluster is in 2 tracks (don't mess up dE/dx!)
+                            goto pushit;   // break 2 loops
                         }
                     }
-                    fVertexQ.push_back(vertexCharge);
-                    ++iVertex;
-                } // end loop over VertexHandle
-            }
-
-
-
-            // save calorimetry raw digits info
-            if (fWriteCaloDigits) {
-                //Save Digit Hit info
-                for ( auto const& DigiHit : (*RawHitHandle) ) {
-                    fDiginHits++;
-                    fDigiHitX.push_back(DigiHit.X());
-                    fDigiHitY.push_back(DigiHit.Y());
-                    fDigiHitZ.push_back(DigiHit.Z());
-                    fDigiHitTime.push_back( (DigiHit.Time().first + DigiHit.Time().second) / 2.0 );
-                    fDigiHitADC.push_back(DigiHit.ADC().first);
-                    fDigiHitCellID.push_back(DigiHit.CellID());
+                    iTrack++;
                 }
             }
+            pushit:
+            fTPCClusterTrkIDNumber.push_back(trackForThisTPCluster);
+        }
+    }
 
 
 
-            // save reco'd Calorimetry hits
-            if (fWriteCaloHits) {
-                for ( auto const& Hit : (*RecoHitHandle) ) {
-                    fReconHits++;
-                    fReconHitIDNumber.push_back(Hit.getIDNumber());
-                    fRecoHitX.push_back(Hit.Position()[0]);
-                    fRecoHitY.push_back(Hit.Position()[1]);
-                    fRecoHitZ.push_back(Hit.Position()[2]);
-                    fRecoHitTime.push_back(Hit.Time());
-                    fRecoHitEnergy.push_back(Hit.Energy());
-                    fRecoHitCellID.push_back(Hit.CellID());
-                    fRecoEnergySum += Hit.Energy();
-                }
+    // save per-track info
+    if (fWriteTracks) {
+        size_t iTrack = 0;
+        for ( auto const& track : (*TrackHandle) ) {
+            // track is a rec::Track, not a rec::TrackPar
+            fTrackIDNumber.push_back(track.getIDNumber());
+
+            fTrackStartX.push_back(track.Vertex()[0]);
+            fTrackStartY.push_back(track.Vertex()[1]);
+            fTrackStartZ.push_back(track.Vertex()[2]);
+            fTrackStartPX.push_back(track.Momentum_beg()*track.VtxDir()[0]);
+            fTrackStartPY.push_back(track.Momentum_beg()*track.VtxDir()[1]);
+            fTrackStartPZ.push_back(track.Momentum_beg()*track.VtxDir()[2]);
+            fTrackStartQ.push_back(track.ChargeBeg());
+
+            fTrackEndX.push_back(track.End()[0]);
+            fTrackEndY.push_back(track.End()[1]);
+            fTrackEndZ.push_back(track.End()[2]);
+            fTrackEndPX.push_back(track.Momentum_end()*track.EndDir()[0]);
+            fTrackEndPY.push_back(track.Momentum_end()*track.EndDir()[1]);
+            fTrackEndPZ.push_back(track.Momentum_end()*track.EndDir()[2]);
+            fTrackEndQ.push_back(track.ChargeEnd());
+
+            fTrackLenF.push_back(track.LengthForward());
+            fTrackLenB.push_back(track.LengthBackward());
+            fNTPCClustersOnTrack.push_back(track.NHits());
+
+            if (findIonization->isValid()) {
+                // No calibration for now.  Someday this should all be in reco
+                rec::TrackIoniz ionization = *(findIonization->at(iTrack));
+                float avgIonF, avgIonB;
+                processIonizationInfo(ionization, fIonizTruncate, avgIonF, avgIonB);
+                fTrackAvgIonF.push_back( avgIonF );
+                fTrackAvgIonB.push_back( avgIonB );
+            } else {
+                // must push_back something so that fTrackAvgIonF,B are of correct size.
+                fTrackAvgIonF.push_back( 0.0 );
+                fTrackAvgIonB.push_back( 0.0 );
             }
 
+            iTrack++;
+        } // end loop over TrackHandle
+    }
 
 
-            // save Cluster info
-            if (fWriteCaloClusters) {
-                for ( auto const& cluster : (*RecoClusterHandle) ) {
-                    fnCluster++;
-                    fClusterIDNumber.push_back(cluster.getIDNumber());
-                    fClusterNhits.push_back(cluster.CalorimeterHits().size());
-                    fClusterEnergy.push_back(cluster.Energy());
-                    fClusterTime.push_back(cluster.Time());
-                    fClusterTimeDiffFirstLast.push_back(cluster.TimeDiffFirstLast());
-                    fClusterX.push_back(cluster.Position()[0]);
-                    fClusterY.push_back(cluster.Position()[1]);
-                    fClusterZ.push_back(cluster.Position()[2]);
-                    fClusterTheta.push_back(cluster.ITheta());
-                    fClusterPhi.push_back(cluster.IPhi());
-                    fClusterPID.push_back(cluster.ParticleID());
-                    // fClusterShape.push_back(cluster.Shape());
-                    fClusterMainAxisX.push_back(cluster.EigenVectors()[0]);
-                    fClusterMainAxisY.push_back(cluster.EigenVectors()[1]);
-                    fClusterMainAxisZ.push_back(cluster.EigenVectors()[2]);
+
+    // save Vertex and Track-Vertex association info
+    if (fWriteVertices) {
+        size_t iVertex = 0;
+        for ( auto const& vertex : (*VertexHandle) ) {
+            fVertexIDNumber.push_back(vertex.getIDNumber());
+            fVertexX.push_back(vertex.Position()[0]);
+            fVertexY.push_back(vertex.Position()[1]);
+            fVertexZ.push_back(vertex.Position()[2]);
+            fVertexT.push_back(vertex.Time());
+
+            int nVertexedTracks = 0;
+            if ( findManyTrackEnd->isValid() ) {
+                nVertexedTracks = findManyTrackEnd->at(iVertex).size();
+            }
+            fVertexN.push_back(nVertexedTracks);
+
+            int vertexCharge = 0;
+            for (int iVertexedTrack=0; iVertexedTrack<nVertexedTracks; ++iVertexedTrack) {
+                fVTAssn_VertIDNumber.push_back(vertex.getIDNumber());
+
+                // Get this vertexed track.
+                rec::Track track = *(findManyTrackEnd->at(iVertex).at(iVertexedTrack));
+                fVTAssn_TrackIDNumber.push_back(track.getIDNumber());
+
+                // Get the end of the track in the vertex.  It isn't that odd for the end
+                // of the track not used in the vertex to be closer to the vertex than the
+                // one actually used; you might have a very short stub track in a 3 track
+                // vertex with small opening angles and the other 2 tracks might pull the
+                // vertex some distance towards the far end of the stub track
+                rec::TrackEnd fee = *(findManyTrackEnd->data(iVertex).at(iVertexedTrack));
+                // TrackEnd is defined in Track.h; 1 means use Beg values, 0 means use End
+                fVTAssn_TrackEnd.push_back(fee);
+
+                if (fee==rec::TrackEndBeg) {
+                    vertexCharge += track.ChargeBeg();
+                } else {
+                    vertexCharge += track.ChargeEnd();
                 }
             }
+            fVertexQ.push_back(vertexCharge);
+            ++iVertex;
+        } // end loop over VertexHandle
+    }
 
 
 
-            // Write info for ECAL-matched tracks
-            if (fWriteMatchedTracks) {
-                size_t iCluster = 0;
-                for ( auto const& cluster : (*RecoClusterHandle) ) {
-                    int nCALedTracks(0);
-                    if ( findManyCALTrackEnd->isValid() ) {
-                        nCALedTracks = findManyCALTrackEnd->at(iCluster).size();
-                    }
-                    for (int iCALedTrack=0; iCALedTrack<nCALedTracks; ++iCALedTrack) {
-                        fCALAssn_ClusIDNumber.push_back(cluster.getIDNumber());
-                        rec::Track track  = *(findManyCALTrackEnd->at(iCluster).at(iCALedTrack));
-                        fCALAssn_TrackIDNumber.push_back( track.getIDNumber() );
-
-                        rec::TrackEnd fee = *(findManyCALTrackEnd->data(iCluster).at(iCALedTrack));
-                        fCALAssn_TrackEnd.push_back(fee);    // The rec::TrackEnd (see Track.h) that extrapolated to cluster
-                    }
-                    iCluster++;
-                }
+    // save calorimetry raw digits info
+    if (fWriteCaloDigits) {
+        //Save Digit Hit info
+        for ( auto const& DigiHit : (*RawHitHandle) ) {
+            fDiginHits++;
+            fDigiHitX.push_back(DigiHit.X());
+            fDigiHitY.push_back(DigiHit.Y());
+            fDigiHitZ.push_back(DigiHit.Z());
+            fDigiHitTime.push_back( (DigiHit.Time().first + DigiHit.Time().second) / 2.0 );
+            fDigiHitADC.push_back(DigiHit.ADC().first);
+            fDigiHitCellID.push_back(DigiHit.CellID());
+        }
+    }
 
 
 
-            } // end branch on fWriteCaloInfo
-        } // end :anatree::FillVectors
+    // save reco'd Calorimetry hits
+    if (fWriteCaloHits) {
+        for ( auto const& Hit : (*RecoHitHandle) ) {
+            fReconHits++;
+            fReconHitIDNumber.push_back(Hit.getIDNumber());
+            fRecoHitX.push_back(Hit.Position()[0]);
+            fRecoHitY.push_back(Hit.Position()[1]);
+            fRecoHitZ.push_back(Hit.Position()[2]);
+            fRecoHitTime.push_back(Hit.Time());
+            fRecoHitEnergy.push_back(Hit.Energy());
+            fRecoHitCellID.push_back(Hit.CellID());
+            fRecoEnergySum += Hit.Energy();
+        }
+    }
 
 
 
-        //==============================================================================
-        //==============================================================================
-        //==============================================================================
-        // Process ionization.  Eventually this moves into the reco code.
-        void gar::anatree::processIonizationInfo(rec::TrackIoniz& ion, float ionizeTruncate,
-        float& forwardIonVal, float& backwardIonVal) {
+    // save Cluster info
+    if (fWriteCaloClusters) {
+        for ( auto const& cluster : (*RecoClusterHandle) ) {
+            fnCluster++;
+            fClusterIDNumber.push_back(cluster.getIDNumber());
+            fClusterNhits.push_back(cluster.CalorimeterHits().size());
+            fClusterEnergy.push_back(cluster.Energy());
+            fClusterTime.push_back(cluster.Time());
+            fClusterTimeDiffFirstLast.push_back(cluster.TimeDiffFirstLast());
+            fClusterX.push_back(cluster.Position()[0]);
+            fClusterY.push_back(cluster.Position()[1]);
+            fClusterZ.push_back(cluster.Position()[2]);
+            fClusterTheta.push_back(cluster.ITheta());
+            fClusterPhi.push_back(cluster.IPhi());
+            fClusterPID.push_back(cluster.ParticleID());
+            // fClusterShape.push_back(cluster.Shape());
+            fClusterMainAxisX.push_back(cluster.EigenVectors()[0]);
+            fClusterMainAxisY.push_back(cluster.EigenVectors()[1]);
+            fClusterMainAxisZ.push_back(cluster.EigenVectors()[2]);
+        }
+    }
 
-            // NO CALIBRATION SERVICE FOR NOW
 
-            std::vector<std::pair<float,float>> SigData = ion.getFWD_dSigdXs();
-            forwardIonVal = processOneDirection(SigData, ionizeTruncate);
 
-            SigData = ion.getBAK_dSigdXs();
-            backwardIonVal = processOneDirection(SigData, ionizeTruncate);
+    // Write info for ECAL-matched tracks
+    if (fWriteMatchedTracks) {
+        size_t iCluster = 0;
+        for ( auto const& cluster : (*RecoClusterHandle) ) {
+            int nCALedTracks(0);
+            if ( findManyCALTrackEnd->isValid() ) {
+                nCALedTracks = findManyCALTrackEnd->at(iCluster).size();
+            }
+            for (int iCALedTrack=0; iCALedTrack<nCALedTracks; ++iCALedTrack) {
+                fCALAssn_ClusIDNumber.push_back(cluster.getIDNumber());
+                rec::Track track  = *(findManyCALTrackEnd->at(iCluster).at(iCALedTrack));
+                fCALAssn_TrackIDNumber.push_back( track.getIDNumber() );
 
-            return;
+                rec::TrackEnd fee = *(findManyCALTrackEnd->data(iCluster).at(iCALedTrack));
+                fCALAssn_TrackEnd.push_back(fee);    // The rec::TrackEnd (see Track.h) that extrapolated to cluster
+            }
+            iCluster++;
+        }
+    } // end branch on fWriteCaloInfo
+
+
+
+} // end :anatree::FillVectors
+
+
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
+// Process ionization.  Eventually this moves into the reco code.
+void gar::anatree::processIonizationInfo(rec::TrackIoniz& ion, float ionizeTruncate,
+float& forwardIonVal, float& backwardIonVal) {
+
+    // NO CALIBRATION SERVICE FOR NOW
+
+    std::vector<std::pair<float,float>> SigData = ion.getFWD_dSigdXs();
+    forwardIonVal = processOneDirection(SigData, ionizeTruncate);
+
+    SigData = ion.getBAK_dSigdXs();
+    backwardIonVal = processOneDirection(SigData, ionizeTruncate);
+
+    return;
+}
+
+
+
+float gar::anatree::processOneDirection(std::vector<std::pair<float,float>> SigData, float ionizeTruncate) {
+
+    std::vector<std::pair<float,float>> dEvsX;    // Ionization vs distance along track
+
+    // The first hit on the track never had its ionization info stored.  Not a problem
+    // really.  Each pair is a hit and the step along the track that ends at the hit
+    // For the last hit, just take the step from the n-1 hit; don't guess some distance
+    // to (nonexistant!) n+1 hit.  Using pointer arithmetic because you are a real K&R
+    // C nerd!  Except that C++ doesn't know you are such a nerd and if
+    //  SigData.size()==0, then SigData.end()-1 is 0xFFFFFFFFFFFFFFF8.
+    if (SigData.size()==0) return 0.0;
+    float distAlongTrack = 0;
+    std::vector<std::pair<float,float>>::iterator littlebit = SigData.begin();
+    for (; littlebit<(SigData.end()-1); ++littlebit) {
+        float dE =   std::get<0>(*littlebit);
+        // tpctrackfit2_module.cc fills the TrackIoniz data product so that
+        // this quantity is really dL > 0 not dX, a coordinate on the drift axis
+        float dX  = std::get<1>(*littlebit);
+        distAlongTrack += dX;    // But count full step to get hit position on track
+        // Take dX to be 1/2 the previous + last segment
+        dX += std::get<1>(*(littlebit+1));
+        float dEdX = dE/(0.5*dX);
+
+        std::pair pushme = std::make_pair(dEdX,distAlongTrack);
+        dEvsX.push_back( pushme );
+    }
+
+    // Get the truncated mean; first sort then take mean
+    std::sort(dEvsX.begin(),dEvsX.end(), lessThan_byE);
+
+    // Get the dEdX vs length data, truncated.
+    int goUpTo = ionizeTruncate * dEvsX.size() +0.5;
+    if (goUpTo > (int)dEvsX.size()) goUpTo = dEvsX.size();
+    int i = 1;        float returnvalue = 0;
+    littlebit = dEvsX.begin();
+    for (; littlebit<dEvsX.end(); ++littlebit) {
+        returnvalue += std::get<0>(*littlebit);
+        ++i;
+        if (i>goUpTo) break;
+    }
+    returnvalue /= goUpTo;
+    return returnvalue;
+}
+
+
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
+// Coherent pion analysis specific code
+float gar::anatree::computeT( simb::MCTruth theMCTruth ) {
+    // Warning.  You probably want the absolute value of t, not t.
+    int nPart = theMCTruth.NParticles();
+    enum { nu, mu, pi};
+    float E[3], Px[3], Py[3], Pz[3];
+    E[nu] = E[mu] = E[pi] = -1e42;
+
+    for (int i=0; i<3;++i) {
+        Px[i] = 0;
+        Py[i] = 0;
+        Pz[i] = 0;
+        E[i]  = 0;
+    }
+    // Find t from the MCParticles via the
+    for (int iPart=0; iPart<nPart; iPart++) {
+        simb::MCParticle Part = theMCTruth.GetParticle(iPart);
+        int code = Part.PdgCode();
+        int mom  = Part.Mother();
+
+        // get the neutrino
+        if ( abs(code) == 12 || abs(code) == 14 || abs(code) == 16 ) {
+            if (mom == -1) {
+                E[nu] = Part.E();   Px[nu] = Part.Px();   Py[nu] = Part.Py();   Pz[nu] = Part.Pz();
+            }
         }
 
-
-
-        float gar::anatree::processOneDirection(std::vector<std::pair<float,float>> SigData, float ionizeTruncate) {
-
-            std::vector<std::pair<float,float>> dEvsX;    // Ionization vs distance along track
-
-            // The first hit on the track never had its ionization info stored.  Not a problem
-            // really.  Each pair is a hit and the step along the track that ends at the hit
-            // For the last hit, just take the step from the n-1 hit; don't guess some distance
-            // to (nonexistant!) n+1 hit.  Using pointer arithmetic because you are a real K&R
-            // C nerd!  Except that C++ doesn't know you are such a nerd and if
-            //  SigData.size()==0, then SigData.end()-1 is 0xFFFFFFFFFFFFFFF8.
-            if (SigData.size()==0) return 0.0;
-            float distAlongTrack = 0;
-            std::vector<std::pair<float,float>>::iterator littlebit = SigData.begin();
-            for (; littlebit<(SigData.end()-1); ++littlebit) {
-                float dE =   std::get<0>(*littlebit);
-                // tpctrackfit2_module.cc fills the TrackIoniz data product so that
-                // this quantity is really dL > 0 not dX, a coordinate on the drift axis
-                float dX  = std::get<1>(*littlebit);
-                distAlongTrack += dX;    // But count full step to get hit position on track
-                // Take dX to be 1/2 the previous + last segment
-                dX += std::get<1>(*(littlebit+1));
-                float dEdX = dE/(0.5*dX);
-
-                std::pair pushme = std::make_pair(dEdX,distAlongTrack);
-                dEvsX.push_back( pushme );
+        // get the lepton
+        if ( abs(code) == 11 || abs(code) == 13 || abs(code) == 15 ) {
+            if (mom == 0) {
+                E[mu] = Part.E();   Px[mu] = Part.Px();   Py[mu] = Part.Py();   Pz[mu] = Part.Pz();
             }
-
-            // Get the truncated mean; first sort then take mean
-            std::sort(dEvsX.begin(),dEvsX.end(), lessThan_byE);
-
-            // Get the dEdX vs length data, truncated.
-            int goUpTo = ionizeTruncate * dEvsX.size() +0.5;
-            if (goUpTo > (int)dEvsX.size()) goUpTo = dEvsX.size();
-            int i = 1;        float returnvalue = 0;
-            littlebit = dEvsX.begin();
-            for (; littlebit<dEvsX.end(); ++littlebit) {
-                returnvalue += std::get<0>(*littlebit);
-                ++i;
-                if (i>goUpTo) break;
-            }
-            returnvalue /= goUpTo;
-            return returnvalue;
         }
 
-
-
-        //==============================================================================
-        //==============================================================================
-        //==============================================================================
-        // Coherent pion analysis specific code
-        float gar::anatree::computeT( simb::MCTruth theMCTruth ) {
-            // Warning.  You probably want the absolute value of t, not t.
-            int nPart = theMCTruth.NParticles();
-            enum { nu, mu, pi};
-            float E[3], Px[3], Py[3], Pz[3];
-            E[nu] = E[mu] = E[pi] = -1e42;
-
-            for (int i=0; i<3;++i) {
-                Px[i] = 0;
-                Py[i] = 0;
-                Pz[i] = 0;
-                E[i]  = 0;
+        // get the pion
+        if ( code==111 || abs(code)==211 ) {
+            if (mom == 1) {
+                E[pi] = Part.E();   Px[pi] = Part.Px();   Py[pi] = Part.Py();   Pz[pi] = Part.Pz();
             }
-            // Find t from the MCParticles via the
-            for (int iPart=0; iPart<nPart; iPart++) {
-                simb::MCParticle Part = theMCTruth.GetParticle(iPart);
-                int code = Part.PdgCode();
-                int mom  = Part.Mother();
-
-                // get the neutrino
-                if ( abs(code) == 12 || abs(code) == 14 || abs(code) == 16 ) {
-                    if (mom == -1) {
-                        E[nu] = Part.E();   Px[nu] = Part.Px();   Py[nu] = Part.Py();   Pz[nu] = Part.Pz();
-                    }
-                }
-
-                // get the lepton
-                if ( abs(code) == 11 || abs(code) == 13 || abs(code) == 15 ) {
-                    if (mom == 0) {
-                        E[mu] = Part.E();   Px[mu] = Part.Px();   Py[mu] = Part.Py();   Pz[mu] = Part.Pz();
-                    }
-                }
-
-                // get the pion
-                if ( code==111 || abs(code)==211 ) {
-                    if (mom == 1) {
-                        E[pi] = Part.E();   Px[pi] = Part.Px();   Py[pi] = Part.Py();   Pz[pi] = Part.Pz();
-                    }
-                }
-
-                // get outa here
-                if ( E[nu]!=0 && E[mu]!=0 && E[pi]!=0) break;
-
-            }
-
-            // Compute t; reuse nu 4-vector to get first q, then t.
-            E[nu] -= E[mu];   Px[nu] -= Px[mu];   Py[nu] -= Py[mu];   Pz[nu] -= Pz[mu];
-            E[nu] -= E[pi];   Px[nu] -= Px[pi];   Py[nu] -= Py[pi];   Pz[nu] -= Pz[pi];
-            float t = E[nu]*E[nu] -Px[nu]*Px[nu] -Py[nu]*Py[nu] -Pz[nu]*Pz[nu];
-            return t;
         }
 
+        // get outa here
+        if ( E[nu]!=0 && E[mu]!=0 && E[pi]!=0) break;
 
-        DEFINE_ART_MODULE(gar::anatree)
+    }
+
+    // Compute t; reuse nu 4-vector to get first q, then t.
+    E[nu] -= E[mu];   Px[nu] -= Px[mu];   Py[nu] -= Py[mu];   Pz[nu] -= Pz[mu];
+    E[nu] -= E[pi];   Px[nu] -= Px[pi];   Py[nu] -= Py[pi];   Pz[nu] -= Pz[pi];
+    float t = E[nu]*E[nu] -Px[nu]*Px[nu] -Py[nu]*Py[nu] -Pz[nu]*Pz[nu];
+    return t;
+}
+
+
+DEFINE_ART_MODULE(gar::anatree)

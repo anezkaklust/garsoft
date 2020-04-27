@@ -228,6 +228,7 @@ namespace gar{
         protected:
 
             bool fHasMC, fHasHits, fHasCalHits, fHasTracks, fHasClusters;
+            int  fSTFU;
 
             const detinfo::DetectorClocks*                      fClocks;                ///< Detector clock information
             const geo::GeometryCore*                            fGeo;                   ///< pointer to the geometry

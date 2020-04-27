@@ -31,7 +31,7 @@ standard_anatree:
 # What to save? ==============================================
 # MC info is: (a) MCTruth, GTruth, MCParticle if WriteMCinfo; (b) MCPtrajectory if
 # (WriteMCPTrajectory && WriteMCinfo); and (c) MC info in calorimeter if
-# (WriteMCCaloHits && WriteMCinfo).
+# (WriteMCCaloInfo && WriteMCinfo).
  WriteMCinfo:               true
  WriteMCPTrajectory:        false
  WriteMCCaloInfo:           true
