@@ -108,17 +108,17 @@ namespace gar {
 		// product.
 		// Use Rtypes.h here, as these data get used by root
 
-		std::vector<Int_t>			  fNeutrinoType;
-		std::vector<Int_t>			  fCCNC;
-		std::vector<Int_t>			  fMode;
-		std::vector<Int_t>			  fInteractionType;
+		std::vector<Int_t>				fNeutrinoType;
+		std::vector<Int_t>				fCCNC;
+		std::vector<Int_t>				fMode;
+		std::vector<Int_t>				fInteractionType;
 		std::vector<Float_t>			fMCVertexX;
 		std::vector<Float_t>			fMCVertexY;
 		std::vector<Float_t>			fMCVertexZ;
 
 		// MCParticle data
-		std::vector<Int_t>			  fMCTrkID;
-		std::vector<Int_t>			  fMCPDG;
+		std::vector<Int_t>				fMCTrkID;
+		std::vector<Int_t>				fMCPDG;
 		std::vector<Float_t>			fMCPX;
 		std::vector<Float_t>			fMCPY;
 		std::vector<Float_t>			fMCPZ;
@@ -128,16 +128,16 @@ namespace gar {
 		std::vector<Float_t>			fMCPTime;
 
 		// track data
-		std::vector<ULong64_t>		  fTrackIDNumber;
+		std::vector<ULong64_t>			fTrackIDNumber;
 		std::vector<Float_t>			fTrackX;
 		std::vector<Float_t>			fTrackY;
 		std::vector<Float_t>			fTrackZ;
 		std::vector<Float_t>			fTrackPX;
 		std::vector<Float_t>			fTrackPY;
 		std::vector<Float_t>			fTrackPZ;
-		std::vector<Int_t>			  fTrackQ;
+		std::vector<Int_t>				fTrackQ;
 		std::vector<Float_t>			fTrackLen;
-		std::vector<Int_t>			  fNTPCClustersOnTrack;
+		std::vector<Int_t>				fNTPCClustersOnTrack;
 		std::vector<Float_t>			fTrackAvgIon;
 
 	};
@@ -190,40 +190,40 @@ void gar::MomentumPerformance::beginJob() {
 
 
 
-	fTree->Branch("Run",				   &fRun, 	"Run/I");
-	fTree->Branch("SubRun",				&fSubRun,"SubRun/I");
-	fTree->Branch("Event",				 &fEvent, "Event/I");
+	fTree->Branch("Run",					&fRun, 	"Run/I");
+	fTree->Branch("SubRun",					&fSubRun,"SubRun/I");
+	fTree->Branch("Event",					&fEvent, "Event/I");
 
-	fTree->Branch("NType",				 &fNeutrinoType);
-	fTree->Branch("CCNC",				  &fCCNC);
-	fTree->Branch("Mode",				  &fMode);
-	fTree->Branch("InterT",				&fInteractionType);
-	fTree->Branch("MCVertX",			   &fMCVertexX);
-	fTree->Branch("MCVertY",			   &fMCVertexY);
-	fTree->Branch("MCVertZ",			   &fMCVertexZ);
+	fTree->Branch("NType",					&fNeutrinoType);
+	fTree->Branch("CCNC",					&fCCNC);
+	fTree->Branch("Mode",					&fMode);
+	fTree->Branch("InterT",					&fInteractionType);
+	fTree->Branch("MCVertX",				&fMCVertexX);
+	fTree->Branch("MCVertY",				&fMCVertexY);
+	fTree->Branch("MCVertZ",				&fMCVertexZ);
 
-	fTree->Branch("MCTrkID",			   &fMCTrkID);
-	fTree->Branch("PDG",				   &fMCPDG);
-	fTree->Branch("MCPX",				  &fMCPX);
-	fTree->Branch("MCPY",				  &fMCPY);
-	fTree->Branch("MCPZ",				  &fMCPZ);
-	fTree->Branch("MCPPX",				 &fMCPPX);
-	fTree->Branch("MCPPY",				 &fMCPPY);
-	fTree->Branch("MCPPZ",				 &fMCPPZ);
-	fTree->Branch("MCPTime",			   &fMCPTime);
+	fTree->Branch("MCTrkID",				&fMCTrkID);
+	fTree->Branch("PDG",					&fMCPDG);
+	fTree->Branch("MCPX",					&fMCPX);
+	fTree->Branch("MCPY",					&fMCPY);
+	fTree->Branch("MCPZ",					&fMCPZ);
+	fTree->Branch("MCPPX",					&fMCPPX);
+	fTree->Branch("MCPPY",					&fMCPPY);
+	fTree->Branch("MCPPZ",					&fMCPPZ);
+	fTree->Branch("MCPTime",				&fMCPTime);
 
-	fTree->Branch("TrackIDNumber",		 &fTrackIDNumber);
-	fTree->Branch("TrackX", 			   &fTrackX);
-	fTree->Branch("TrackY", 			   &fTrackY);
-	fTree->Branch("TrackZ", 			   &fTrackZ);
-	fTree->Branch("TrackPX",			   &fTrackPX);
-	fTree->Branch("TrackPY",			   &fTrackPY);
-	fTree->Branch("TrackPZ",			   &fTrackPZ);
-	fTree->Branch("TrackQ", 			   &fTrackQ);
+	fTree->Branch("TrackIDNumber",			&fTrackIDNumber);
+	fTree->Branch("TrackX",					&fTrackX);
+	fTree->Branch("TrackY", 				&fTrackY);
+	fTree->Branch("TrackZ", 				&fTrackZ);
+	fTree->Branch("TrackPX",				&fTrackPX);
+	fTree->Branch("TrackPY",				&fTrackPY);
+	fTree->Branch("TrackPZ",				&fTrackPZ);
+	fTree->Branch("TrackQ", 				&fTrackQ);
 
-	fTree->Branch("TrackLen",			  &fTrackLen);
-	fTree->Branch("NTPCClustersOnTrack",   &fNTPCClustersOnTrack);
-	fTree->Branch("TrackAvgIon",		   &fTrackAvgIon);
+	fTree->Branch("TrackLen",				&fTrackLen);
+	fTree->Branch("NTPCClustersOnTrack",	&fNTPCClustersOnTrack);
+	fTree->Branch("TrackAvgIon",			&fTrackAvgIon);
 
 	return;
 }  // End of :MomentumPerformance::beginJob
@@ -360,19 +360,18 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 	for ( simb::MCParticle mcp : *MCPHandle ) {
 		// If mcp.Mother() == 0, particle is from initial vertex;
 		TrkId momTrkId = mcp.Mother();
-		int momPDG = -1;
+		int momPDG = 0;
 		if (momTrkId>0) {
-			//Check if it exists!
 			if(TrackIdToIndex.find(momTrkId) != TrackIdToIndex.end()){
 				Int_t momIndex = TrackIdToIndex[momTrkId];
 				momPDG   = (*MCPHandle).at(momIndex).PdgCode();
 			} else {
-				LOG_DEBUG("Anatree_module")
-				<< " mcp trkid " << mcp.TrackId()
-				<< " pdg code " << mcp.PdgCode()
-				<< " could not find mother trk id " << momTrkId
-				<< " in the TrackIdToIndex map"
-				<< " creating process is [ " << mcp.Process() << " ]";
+				throw cet::exception("MomentumPerformance") << " mcp trackid "
+					<< mcp.TrackId() << " pdg code " << mcp.PdgCode()
+					<< " could not find mother trk id " << momTrkId
+					<< " in the TrackIdToIndex map; creating process is "
+					<< mcp.Process() << "\nLine " << __LINE__ << " in file "
+					<< __FILE__ << std::endl;
 			}
 		}
 		if (momPDG != 0) continue;
@@ -399,8 +398,8 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 
 		// OK get the matching tracks from the backtracker.  First collect yer tracks
 		std::vector<art::Ptr<rec::Track>> allTracks;
-		auto const trackPtrMaker = art::PtrMaker<rec::Track>(event);
-		for (int iTrack=0; TrackHandle->size(); ++iTrack ) {
+		auto const trackPtrMaker = art::PtrMaker<rec::Track>(event,TrackHandle.id());
+		for (size_t iTrack=0; iTrack<TrackHandle->size(); ++iTrack ) {
 			allTracks.push_back( trackPtrMaker(iTrack) );
 		}
 
@@ -433,7 +432,7 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 				}
 			}
 		}
-
+		if (pickedTrack == -1) continue;
 
 
 		// Save that tracks info
@@ -461,9 +460,25 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 		}
 		fNTPCClustersOnTrack.push_back(theTrack.NHits());
 
-		if (findIonization->isValid()) {
+		float dirOK = theTrack.EndDir()[0]*momentumMCP.Px()
+					 +theTrack.EndDir()[1]*momentumMCP.Py()
+					 +theTrack.EndDir()[2]*momentumMCP.Pz();
+		dirOK /= momentumMCP.P();
+		if (dirOK <0) std::cout << "Oh, really?" << std::endl;
+
+
+		// Need to determine which track in TrackHandle is the one
+		// picked from matchedTracks
+		int iPickedTrack = -1;
+		for (size_t iTrack=0; iTrack<TrackHandle->size(); ++iTrack ) {
+			if ( allTracks[iTrack]->getIDNumber() == theTrack.getIDNumber() ) {
+				iPickedTrack = iTrack;
+				break;
+			}
+		}
+		if (iPickedTrack>=0 && findIonization->isValid()) {
 			// No calibration for now.  Someday this should all be in reco
-			rec::TrackIoniz ionization = *(findIonization->at(pickedTrack));
+			rec::TrackIoniz ionization = *(findIonization->at(iPickedTrack));
 			float avgIonF, avgIonB;
 			processIonizationInfo(ionization, fIonizTruncate, avgIonF, avgIonB);
 			if (kate==rec::TrackEndBeg) {
