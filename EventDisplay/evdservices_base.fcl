@@ -185,14 +185,14 @@ evd_message:
 standard_evd3D:
 {
 module_type          : EVD3D
-drawECALRawHits      : 0
-drawECALRecoHits     : 0
-drawECALClusters     : 0
-drawTracks           : 0
-drawVertices         : 0
-drawMCTruth          : 1
-drawMCCaloTruth      : 1
-drawMCTPCTruth       : 1
+drawECALRawHits      : false
+drawECALRecoHits     : false
+drawECALClusters     : false
+drawTracks           : false
+drawVertices         : false
+drawMCTruth          : true
+drawMCCaloTruth      : true
+drawMCTPCTruth       : true
 VolumesToShow        : ["volGArTPC_0", "volPVBarrel_0", "volPVEndcap_0", "volBarrelECal_0", "volEndcapECal_0"]
 
 G4ModuleLabel             : "geant"
@@ -202,8 +202,9 @@ CaloClusterModuleLabels   : ["calocluster"]
 TrackModuleLabels         : ["track"]
 VertexModuleLabels        : ["vertex"]
 
-Scalingfactor         : 2.
-drawIntersection      : 0
+Scalingfactor         : 1.
+drawIntersection      : false
+drawNeutronTrajectories : false
 }
 
 

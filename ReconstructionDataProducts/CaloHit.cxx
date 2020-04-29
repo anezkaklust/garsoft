@@ -14,7 +14,6 @@ namespace gar {
         //--------------------------------------------------------------------------
         CaloHit::CaloHit()
         : fEnergy(0.),
-        fTime(0.),
         fCellID(0.)
         {
             IDNumberGen::create(FirstNumber);
@@ -23,6 +22,9 @@ namespace gar {
             fPosition[0] = 0.;
             fPosition[1] = 0.;
             fPosition[2] = 0.;
+
+            fTime = std::make_pair(0., 0.);
+
             return;
         }
 
@@ -37,11 +39,27 @@ namespace gar {
         gar::rec::IDNumber CaloHit::getIDNumber() const {return fIDnumero;}
 
 
-
         //--------------------------------------------------------------------------
         CaloHit::CaloHit(float energy, float time, float *pos, raw::CellID_t cellID)
         : fEnergy  (energy  )
-        , fTime   (time   )
+        , fCellID     (cellID  )
+        {
+            IDNumberGen::create(FirstNumber);
+            fIDnumero = IDNumberGen::create()->getNewOne();
+
+            fPosition[0] = pos[0];
+            fPosition[1] = pos[1];
+            fPosition[2] = pos[2];
+
+            fTime = std::make_pair(time, 0.);
+
+            return;
+        }
+
+        //--------------------------------------------------------------------------
+        CaloHit::CaloHit(float energy, std::pair<float, float> time, float *pos, raw::CellID_t cellID)
+        : fEnergy  (energy  )
+        , fTime(time)
         , fCellID     (cellID  )
         {
             IDNumberGen::create(FirstNumber);
@@ -90,7 +108,7 @@ namespace gar {
             << "\n\tenergy = "
             << h.Energy()
             << "\n\t time: "
-            << h.Time()
+            << h.Time().first << " " << h.Time().second
             << " cellID: "
             << h.CellID();
 

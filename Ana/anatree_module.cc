@@ -1299,7 +1299,7 @@ void gar::anatree::FillVectors(art::Event const & e) {
             fRecoHitX.push_back(Hit.Position()[0]);
             fRecoHitY.push_back(Hit.Position()[1]);
             fRecoHitZ.push_back(Hit.Position()[2]);
-            fRecoHitTime.push_back(Hit.Time());
+            fRecoHitTime.push_back(Hit.Time().first);
             fRecoHitEnergy.push_back(Hit.Energy());
             fRecoHitCellID.push_back(Hit.CellID());
             fRecoEnergySum += Hit.Energy();
