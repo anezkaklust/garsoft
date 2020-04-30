@@ -114,8 +114,23 @@ namespace gar {
 
             if(not fSaveStripEndsOnly) {
                 //Copy the split hits to the collection
-                for(auto const &it : splitHits)
-                HitCol->emplace_back(*it);
+                for(auto const &it : splitHits) {
+
+                    //Need to correct the time for the strips
+                    float energy = it->Energy();
+                    std::pair<float, float> time = it->Time();
+                    raw::CellID_t cellID = it->CellID();
+                    const float *pos = it->Position();
+                    float newpos[3] = { pos[0], pos[1], pos[2] };
+                    float newtime = time.first;
+
+                    if(not fGeo->isTile(cellID)) {
+                        newtime = this->CorrectStripHitTime(newpos[0], newpos[1], newpos[2], time, cellID);
+                    }
+
+                    rec::CaloHit hit(energy, newtime, newpos, cellID);
+                    HitCol->emplace_back(hit);
+                }
 
                 if( fSaveUnsplitHits ) {
                     //Copy the unsplit hits to the collection
@@ -127,17 +142,18 @@ namespace gar {
                         raw::CellID_t cellID = it->CellID();
                         const float *pos = it->Position();
                         float newpos[3] = { pos[0], pos[1], pos[2] };
+                        float newtime = time.first;
 
-                        // if(not fGeo->isTile(cellID)) {
-                        //     // Need to correct for the position of these based on time information
-                        //     std::array<double, 3> strip_pos = this->CalculateStripHitPosition(newpos[0], newpos[1], newpos[2], time, cellID);
-                        //     newpos[0] = strip_pos[0];
-                        //     newpos[1] = strip_pos[1];
-                        //     newpos[2] = strip_pos[2];
-                        //     newtime = this->CorrectStripHitTime(newpos[0], newpos[1], newpos[2], time, cellID);
-                        // }
+                        if(not fGeo->isTile(cellID)) {
+                            // Need to correct for the position of these based on time information
+                            std::array<double, 3> strip_pos = this->CalculateStripHitPosition(newpos[0], newpos[1], newpos[2], time, cellID);
+                            newpos[0] = strip_pos[0];
+                            newpos[1] = strip_pos[1];
+                            newpos[2] = strip_pos[2];
+                            newtime = this->CorrectStripHitTime(newpos[0], newpos[1], newpos[2], time, cellID);
+                        }
 
-                        rec::CaloHit hit(energy, time, newpos, cellID);
+                        rec::CaloHit hit(energy, newtime, newpos, cellID);
 
                         HitCol->emplace_back(hit);
                     }
