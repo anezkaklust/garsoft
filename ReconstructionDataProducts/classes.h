@@ -20,6 +20,7 @@
 #include "ReconstructionDataProducts/TrackIoniz.h"
 #include "ReconstructionDataProducts/Shower.h"
 #include "ReconstructionDataProducts/Vertex.h"
+#include "ReconstructionDataProducts/Vee.h"
 #include "ReconstructionDataProducts/Cluster.h"
 #include "ReconstructionDataProducts/TPCCluster.h"
 
