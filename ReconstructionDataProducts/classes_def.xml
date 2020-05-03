@@ -54,7 +54,8 @@
    <version ClassVersion="11" checksum="3429623877"/>
     <version ClassVersion="10" checksum="898086095"/>
   </class>
-  <class name="gar::rec::Vee"            ClassVersion="10"            >
+  <class name="gar::rec::Vee"            ClassVersion="11"            >
+   <version ClassVersion="11" checksum="1396988897"/>
    <version ClassVersion="10" checksum="1423137287"/>
   </class>
   <class name="gar::rec::CaloHit"            ClassVersion="18"           >

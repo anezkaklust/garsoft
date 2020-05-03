@@ -32,6 +32,7 @@ namespace gar {
       float        fVertexPos[3];     ///< position of the vertex, in cm
       float        fVertexCov[3][3];  ///< uncertainties on vertex position, in cm
       double       fTime;
+      float        fChisq;
       TLorentzVector fFourMomentum[3]; // four-momentum of vee, one for each hypothesis, in GeV
 
 
@@ -41,6 +42,7 @@ namespace gar {
       
       Vee(const float          *pos,
           const float          *vertexcov,
+	  const float          chisq,
 	  const double         time,
 	  const TLorentzVector *fourmomentum);
       
@@ -48,7 +50,8 @@ namespace gar {
       const float*           VertexCov()  const;
       double                 Time()       const;
       const TLorentzVector&  FourMomentum(const size_t i) const;
- 
+      float                  Chisq()      const;
+
       bool operator==(const Vee& rhs) const;
       bool operator!=(const Vee& rhs) const;
       gar::rec::IDNumber getIDNumber() const;
@@ -59,9 +62,10 @@ namespace gar {
       
     };
     
-    inline const  float* Vee::Position()   const { return &fVertexPos[0]; }
+    inline const  float* Vee::Position()    const { return &fVertexPos[0]; }
     inline const  float* Vee::VertexCov()   const { return &(fVertexCov[0][0]); }
-    inline double        Vee::Time()       const { return fTime;        }
+    inline double        Vee::Time()        const { return fTime;        }
+    inline float         Vee::Chisq()       const { return fChisq;        }
     inline const TLorentzVector& Vee::FourMomentum(const size_t i)  const { return fFourMomentum[i]; }
   } // rec
 } // gar

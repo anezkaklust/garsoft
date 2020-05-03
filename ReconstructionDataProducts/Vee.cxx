@@ -12,10 +12,12 @@ namespace gar {
     //--------------------------------------------------------------------------
     Vee::Vee(const float *pos,
              const float *covmat,
+	     const float chisq,
 	     const double  time,
 	     const TLorentzVector *FourMomentum)
-      : fTime(time)
     {
+      fChisq = chisq;
+      fTime = time;
       IDNumberGen::create(FirstNumber);
       fIDnumero = IDNumberGen::create()->getNewOne();
 
