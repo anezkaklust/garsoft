@@ -4,6 +4,7 @@
 // File:        veefinder1_module.cc
 //
 // created 3 May 2020 Thomas Junk based on the vertex finder module
+// use Susan Born's analysis cuts
 // from cetlib version v3_03_01.
 ////////////////////////////////////////////////////////////////////////
 
