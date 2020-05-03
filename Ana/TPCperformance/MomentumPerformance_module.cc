@@ -409,7 +409,7 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 
 		// Which track end you want?
 		float minDist = 1e6;
-		int pickedTrack = -1;		rec::TrackEnd kate;
+		int pickedTrack = -1;		rec::TrackEnd kate = rec::TrackEndBeg;
 		for (size_t iTrack=0; iTrack<matchedTracks.size(); ++iTrack) {
 			rec::Track track = *(matchedTracks[iTrack]);
 			float distStart = std::hypot(track.Vertex()[0] -positionMCP[0],
