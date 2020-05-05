@@ -178,7 +178,6 @@ namespace gar {
 			  std::vector<float> dcas;
 			  std::vector<float> vpos;
 			  std::vector<std::vector<float>> covmat;
-			  std::vector<TrackEnd> usebeg;
 			  double time;
 			  float chisquared;
 			  int iret = fitVertex(tplist,vpos,chisquared,covmat,time,usebeg,dcas);
