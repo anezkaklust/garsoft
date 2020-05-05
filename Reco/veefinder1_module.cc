@@ -167,8 +167,12 @@ namespace gar {
 			      thatP = tmpv2;
 			    }
 
+			  if (fPrintLevel>1) std::cout << "veefinder: got a pair of tracks" << std::endl;
 			  if ( (thisEndinSpace-thatEndinSpace).Mag() > fDCut ) continue;
-			  if ( thisP.Angle(thatP) > fOpenAngCut) continue;
+			  if (fPrintLevel>1) std::cout << "veefinder: passed the endpoint distance cut" << std::endl;
+			  if (fPrintLevel>1) std::cout << "veefinder: opening angle: " << thisP.Angle(thatP) << std::endl;
+			  if ( thisP.Angle(thatP) < fOpenAngCut) continue;
+			  if (fPrintLevel>1) std::cout << "veefinder: passed the angle cut" << std::endl;
 
 			  tplist.resize(1);
 			  tplist.emplace_back(thatTrack);
@@ -181,8 +185,11 @@ namespace gar {
 			  double time;
 			  float chisquared;
 			  int iret = fitVertex(tplist,vpos,chisquared,covmat,time,usebeg,dcas);
+			  if (fPrintLevel>1) std::cout << "veefinder: vertex fitted" << std::endl;
 			  if (iret != 0) continue;
+			  if (fPrintLevel>1) std::cout << "veefinder: vertex retcode okay" << std::endl;
 			  if (dcas[0] > fRCut || dcas[1] > fRCut) continue;
+			  if (fPrintLevel>1) std::cout << "veefinder: tracks passed rcut" << std::endl;
 
 			  std::vector<TLorentzVector> fourmomentumvec;
 			  TVector3 sumP = thisP + thatP;
