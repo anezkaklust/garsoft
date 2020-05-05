@@ -145,14 +145,14 @@ namespace gar {
 
                 //Position reconstruction based on time for the strips
                 float pos[3] = {0., 0., 0.};
-                float time = 0.;
+                std::pair<float, float> time;
 
                 if(fGeo->isTile(cellID))
                 {
                     pos[0] = x;
                     pos[1] = y;
                     pos[2] = z;
-                    time = hitTime.first;
+                    time = hitTime;
                 }
                 else{
                     if(fUseTimePositionReco){
@@ -160,13 +160,13 @@ namespace gar {
                         pos[0] = strip_pos[0];
                         pos[1] = strip_pos[1];
                         pos[2] = strip_pos[2];
+                        time = std::make_pair( this->CorrectStripHitTime(pos[0], pos[1], pos[2], hitTime, cellID), 0. );
                     } else {
                         pos[0] = x;
                         pos[1] = y;
                         pos[2] = z;
+                        time = hitTime;
                     }
-                    //Correct the time based on the strip length
-                    time = this->CorrectStripHitTime(x, y, z, hitTime, cellID);
                 }
 
                 //Store the hit (energy in GeV, time in ns, pos in cm and cellID)
@@ -176,7 +176,6 @@ namespace gar {
                 LOG_DEBUG("CaloHitFinder") << "recohit " << &hit
                 << " with cellID " << cellID
                 << " has energy " << factorSamplingGeV * energy * CLHEP::MeV / CLHEP::GeV
-                << " time " << time << " ns"
                 << " pos (" << pos[0] << ", " <<  pos[1] << ", " << pos[2] << ")";
 
                 //Make association between digi hits and reco hits

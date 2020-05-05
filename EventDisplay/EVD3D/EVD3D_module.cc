@@ -163,14 +163,15 @@ namespace gar{
             std::unique_ptr<evd3d::EventDisplay3DUtils> fEvtDisplayUtil;
 
             // Set by parameter set variables.
-            int fDrawMCTPC;
-            int fDrawMCCaloTruth;
-            int fDrawECALRawHits;
-            int fDrawECALRecoHits;
-            int fDrawECALClusters;
-            int fDrawTracks;
-            int fDrawVertices;
-            int fDrawMCTruth;
+            bool fDrawMCTPC;
+            bool fDrawMCCaloTruth;
+            bool fDrawECALRawHits;
+            bool fDrawECALRecoHits;
+            bool fDrawECALClusters;
+            bool fDrawTracks;
+            bool fDrawVertices;
+            bool fDrawMCTruth;
+            bool fDrawNeutronTraj;
 
             std::string fG4Label;                                       ///< module label that produced G4 hits
             std::vector<std::string> fSimHitLabels;     		        ///< module labels that produced sim hits
@@ -209,7 +210,7 @@ namespace gar{
             //scaling factor for cluster axis
             float fScalingfactor;
             //draw track calo intersections
-            int fDrawIntersection;
+            bool fDrawIntersection;
 
             //Create the navigation panel
             void makeNavPanel();
@@ -297,15 +298,15 @@ namespace gar{
             //......................................................................
             void EventDisplay3D::reconfigure(fhicl::ParameterSet const& pset)
             {
-                fDrawECALRawHits           = pset.get<int                       > ("drawECALRawHits"      , 0);
-                fDrawECALRecoHits          = pset.get<int                       > ("drawECALRecoHits"     , 0);
-                fDrawECALClusters          = pset.get<int                       > ("drawECALClusters"     , 0);
-                fDrawTracks                = pset.get<int                       > ("drawTracks"           , 0);
-                fDrawVertices              = pset.get<int                       > ("drawVertices"         , 0);
-                fDrawMCTruth               = pset.get<int                       > ("drawMCTruth"          , 1);
-                fDrawMCTPC                 = pset.get<int                       > ("drawMCTPCTruth"          , 1);
-                fDrawMCCaloTruth           = pset.get<int                       > ("drawMCCaloTruth"      , 1);
-                fVolumesToShow             = pset.get< std::vector<std::string> > ("VolumesToShow"           );
+                fDrawECALRawHits           = pset.get<bool                       > ("drawECALRawHits"      , false);
+                fDrawECALRecoHits          = pset.get<bool                       > ("drawECALRecoHits"     , false);
+                fDrawECALClusters          = pset.get<bool                       > ("drawECALClusters"     , false);
+                fDrawTracks                = pset.get<bool                       > ("drawTracks"           , false);
+                fDrawVertices              = pset.get<bool                       > ("drawVertices"         , false);
+                fDrawMCTruth               = pset.get<bool                       > ("drawMCTruth"          , true);
+                fDrawMCTPC                 = pset.get<bool                       > ("drawMCTPCTruth"       , true);
+                fDrawMCCaloTruth           = pset.get<bool                       > ("drawMCCaloTruth"      , true);
+                fVolumesToShow             = pset.get< std::vector<std::string>  > ("VolumesToShow"              );
 
                 fG4Label                   = pset.get< std::string              > ("G4ModuleLabel"           );
                 fRawHitLabels              = pset.get< std::vector<std::string> > ("RawHitModuleLabels"      );
@@ -315,7 +316,8 @@ namespace gar{
                 fVertexLabels     	       = pset.get< std::vector<std::string> > ("VertexModuleLabels"    	 );
 
                 fScalingfactor      	   = pset.get<float                     > ("Scalingfactor",       1.0);
-                fDrawIntersection          = pset.get<int                       > ("drawIntersection"     , 0);
+                fDrawIntersection          = pset.get<bool                      > ("drawIntersection"     , false);
+                fDrawNeutronTraj           = pset.get<bool                    > ("drawNeutronTrajectories", false);
             }
 
             //----------------------------------------------------
@@ -693,8 +695,9 @@ namespace gar{
                     double        partEnergy = mcPart->E();
 
                     if(nullptr == partPDG) continue;
+                    if(pdgCode == 2112 && not fDrawNeutronTraj) continue;
 
-                    if (!mcTraj.empty() && partEnergy > minPartEnergy && mcPart->TrackId() < 100000000)
+                    if (!mcTraj.empty() && partEnergy > minPartEnergy)
                     {
                         // collect the points from this particle
                         int numTrajPoints = mcTraj.size();
@@ -971,6 +974,7 @@ namespace gar{
 
                         std::ostringstream label;
                         label << "Cluster " << p << "\n";
+                        label << "PID " << clus->ParticleID() << "\n";
                         label << "Energy: " << clus->Energy() * 1000 << " MeV\n";
                         label << "Position (" << clus->Position()[0] << ", " << clus->Position()[1] << ", " << clus->Position()[2] << " ) cm\n";
                         label << "Shape: r_forw " << shape[0] << ", r_bck " << shape[1] << ", r2 " << shape[2] << ", r3 " << shape[3] << ", vol " << shape[4] << ", width " << shape[5];

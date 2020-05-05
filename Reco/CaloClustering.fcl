@@ -7,3 +7,11 @@ CaloHitLabel:       "calohit"
 TrackLabel:         "track"
 ClusterAlgPars:     @local::knnclusteralg
 }
+
+standard_CaloClusterCheater:
+{
+module_type:        CaloClusterCheater
+CaloHitModuleLabel: "calohit"
+MinHits:            1
+IgnoreNeutrons:     true
+}

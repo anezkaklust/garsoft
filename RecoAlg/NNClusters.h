@@ -359,7 +359,7 @@ namespace gar{
             T* hit = (*hi)->first ;
 
             a[i] = hit->Energy() ;
-            t[i] = hit->Time() ;
+            t[i] = hit->Time().first ;
             x[i] = hit->Position()[0] ;
             y[i] = hit->Position()[1] ;
             z[i] = hit->Position()[2] ;

@@ -27,7 +27,7 @@
 
 namespace gar{
     namespace cheat{
-    
+
         //--------------------------------------------------------------------------
         BackTrackerCore::BackTrackerCore(fhicl::ParameterSet const& pset)
           : fClocks(nullptr), fGeo(nullptr) {
@@ -61,11 +61,11 @@ namespace gar{
 
         //--------------------------------------------------------------------------
         BackTrackerCore::~BackTrackerCore() {}
-    
 
 
 
-    
+
+
         //----------------------------------------------------------------------
         simb::MCParticle* const BackTrackerCore::TrackIDToParticle(int const& id) const {
             if (!fHasMC) {
@@ -123,7 +123,7 @@ namespace gar{
             while ( walker != nullptr &&
                 !fGeo->PointInGArTPC( TVector3(walker->Vx(),walker->Vy(),walker->Vz()) ) ) {
                 // Walk up the ParticleList not the event store so someday somebody can
-                // change the ParticleList and this will still work.  
+                // change the ParticleList and this will still work.
                 int mommaTID = fParticleList[walker->TrackId()]->Mother();
                 if (mommaTID == 0) {
                     // you are at the top of the tree
@@ -157,7 +157,7 @@ namespace gar{
             while ( walker != nullptr &&
                 !fGeo->PointInGArTPC( TVector3(walker->Vx(),walker->Vy(),walker->Vz()) ) ) {
                 // Walk up the ParticleList not the event store so someday somebody can
-                // change the ParticleList and this will still work.  
+                // change the ParticleList and this will still work.
                int mommaTID = fParticleList[walker->TrackId()]->Mother();
                if (mommaTID == 0) {
                     // you are at the top of the tree
@@ -187,7 +187,7 @@ namespace gar{
             int walker  = afterbear->TrackId();
             while ( walker!=stopper ) {
                 // Walk up the ParticleList not the event store so someday somebody can
-                // change the ParticleList and this will still work.  
+                // change the ParticleList and this will still work.
                 int momma = fParticleList[walker]->Mother();
                 if (momma == 0) {
                     return false;
@@ -234,7 +234,7 @@ namespace gar{
             }
 
             // By cutting on the StartTime and EndTime for this hit, we get only the
-            // IDEs for this hit; ides.size() should basically be the number of 
+            // IDEs for this hit; ides.size() should basically be the number of
             // MCParticles that contributed to this hit.
             std::vector<HitIDE> ides;
             ides = this->ChannelToHitIDEs(hit->Channel(),hit->StartTime(),hit->EndTime());
@@ -250,7 +250,7 @@ namespace gar{
             }
 
             // By cutting on the StartTime and EndTime for this hit, we get only the
-            // IDEs for this hit; ides.size() should basically be the number of 
+            // IDEs for this hit; ides.size() should basically be the number of
             // MCParticles that contributed to this hit.
             std::vector<HitIDE> ides;
             ides = this->ChannelToHitIDEs(hit.Channel(),hit.StartTime(),hit.EndTime());
@@ -280,7 +280,7 @@ namespace gar{
 
             int tkID = p->TrackId();
             std::vector<HitIDE> hids;
-            
+
             for (auto hit : allhits) {
                 hids.clear();
 
@@ -338,7 +338,7 @@ namespace gar{
 
                 if (edep->TrackID() == sdp::NoParticleId) continue;
 
-                tdc = fClocks->TPCG4Time2TDC 
+                tdc = fClocks->TPCG4Time2TDC
                         (edep->Time() +TMath::Abs(edep->X()-chanpos[0]) *fInverseVelocity);
                 if ( (unsigned int)start <= tdc && tdc <= (unsigned int)stop) {
                     float energy = edep->Energy();
@@ -358,7 +358,7 @@ namespace gar{
                 }
             }
 
-            // Why was this here? 
+            // Why was this here?
             //if (totalE < 1.0e-5) totalE = 1.0;
 
             /* DEB hits without edeps
@@ -490,7 +490,7 @@ namespace gar{
 
             // Cut on Time for this hit +/- ECAL time resolution given in BackTracker.fcl
             std::vector<CalIDE> ides;
-            ides = this->CellIDToCalIDEs(hit->CellID(),hit->Time());
+            ides = this->CellIDToCalIDEs(hit->CellID(),hit->Time().first);
             return ides;
         }
 
@@ -504,7 +504,7 @@ namespace gar{
 
             // Cut on Time for this hit +/- ECALtimeResolution given in BackTracker.fcl
             std::vector<CalIDE> ides;
-            ides = this->CellIDToCalIDEs(hit.CellID(),hit.Time());
+            ides = this->CellIDToCalIDEs(hit.CellID(),hit.Time().first);
             return ides;
         }
 
@@ -529,15 +529,15 @@ namespace gar{
             std::vector<art::Ptr<rec::CaloHit>> calHitList;
             int tkID = p->TrackId();
             std::vector<CalIDE> calhids;
-            
+
             for (auto hit : allhits) {
                 calhids.clear();
 
                 // Timing
-                //start   = high_resolution_clock::now();           
-                calhids = this->CellIDToCalIDEs(hit->CellID(),hit->Time());
+                //start   = high_resolution_clock::now();
+                calhids = this->CellIDToCalIDEs(hit->CellID(),hit->Time().first);
                 // Timing
-                //totalThere += high_resolution_clock::now() -start;     
+                //totalThere += high_resolution_clock::now() -start;
 
                 for (auto const& hid : calhids) {
                     if ( hid.trackID==tkID && hid.energyFrac>fMinCaloHitEnergyFrac ) {
@@ -590,7 +590,7 @@ namespace gar{
                     totalEallTracks += energy;
                     int tid = edep->TrackID();
                     // Chase the tid up to the parent which started in the gas.
-                    // tid < 0 is possible here, but FindTPCEve calls 
+                    // tid < 0 is possible here, but FindTPCEve calls
                     // TrackIDToParticle, which fixes that little issue.
                     simb::MCParticle* TPCEve = FindTPCEve(tid);
                     int tidTPC;

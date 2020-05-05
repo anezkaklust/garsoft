@@ -83,11 +83,6 @@ namespace gar {
                     art::Ptr<gar::rec::CaloHit> hitPtr = *iter;
                     const gar::rec::CaloHit *hit = hitPtr.get();
 
-                    // if(fGeo->isTile(hit->CellID())) {
-                    //     splitStripHits.emplace_back( hit );
-                    //     continue;
-                    // }
-
                     //check the layer
                     unsigned int layer = hit->GetLayer();
                     if(layer%2 == 0)

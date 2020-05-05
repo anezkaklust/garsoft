@@ -55,7 +55,8 @@ namespace gar {
 
             // Declare member data here.
             void CollectHits(const art::Event &evt, const std::string &label, std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector);
-            std::array<double, 3> CalculateStripHitPosition(float x, float y, float z, float time, raw::CellID_t cID);
+            std::array<double, 3> CalculateStripHitPosition(float x, float y, float z, std::pair<float, float> time, raw::CellID_t cID);
+            float CorrectStripHitTime(float x, float y, float z, std::pair<float, float> hitTime, raw::CellID_t cID);
 
             std::string fCaloHitLabel;  ///< label to find the right reco calo hits
             bool fSaveStripEndsOnly;
@@ -76,7 +77,7 @@ namespace gar {
             fGeo     = gar::providerFrom<geo::Geometry>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fSaveStripEndsOnly = p.get<bool>("SaveStripEndsOnly", false);
-            fSaveUnsplitHits = p.get<bool>("SaveUnsplitHits", false);
+            fSaveUnsplitHits = p.get<bool>("SaveUnsplitHits", true);
 
             //configure the cluster algorithm
             auto fSSAAlgoPars = p.get<fhicl::ParameterSet>("SSAAlgPars");
@@ -113,31 +114,48 @@ namespace gar {
 
             if(not fSaveStripEndsOnly) {
                 //Copy the split hits to the collection
-                for(auto const &it : splitHits)
-                HitCol->emplace_back(*it);
+                for(auto const &it : splitHits) {
+
+                    //Need to correct the time for the strips
+                    float energy = it->Energy();
+                    std::pair<float, float> time = it->Time();
+                    raw::CellID_t cellID = it->CellID();
+                    const float *pos = it->Position();
+                    float newpos[3] = { pos[0], pos[1], pos[2] };
+                    float newtime = time.first;
+
+                    if(not fGeo->isTile(cellID)) {
+                        newtime = this->CorrectStripHitTime(newpos[0], newpos[1], newpos[2], time, cellID);
+                    }
+
+                    rec::CaloHit hit(energy, newtime, newpos, cellID);
+                    HitCol->emplace_back(hit);
+                }
 
                 if( fSaveUnsplitHits ) {
                     //Copy the unsplit hits to the collection
                     for(auto const &it : unsplitHits) {
 
-                        // float energy = it->Energy();
-                        // float time = it->Time();
-                        // raw::CellID_t cellID = it->CellID();
-                        // const float *pos = it->Position();
-                        // float newpos[3] = { pos[0], pos[1], pos[2] };
-                        //
-                        // if(not fGeo->isTile(cellID)) {
-                        //     //Need to correct for the position of these based on time information
-                        //     std::array<double, 3> strip_pos = this->CalculateStripHitPosition(pos[0], pos[1], pos[2], time, cellID);
-                        //     newpos[0] = strip_pos[0];
-                        //     newpos[1] = strip_pos[1];
-                        //     newpos[2] = strip_pos[2];
-                        // }
-                        //
-                        // rec::CaloHit hit(energy, time, newpos, cellID);
-                        //
-                        // HitCol->emplace_back(hit);
-                        HitCol->emplace_back(*it);
+                        //Need to correct the position of the un-used strips
+                        float energy = it->Energy();
+                        std::pair<float, float> time = it->Time();
+                        raw::CellID_t cellID = it->CellID();
+                        const float *pos = it->Position();
+                        float newpos[3] = { pos[0], pos[1], pos[2] };
+                        float newtime = time.first;
+
+                        if(not fGeo->isTile(cellID)) {
+                            // Need to correct for the position of these based on time information
+                            std::array<double, 3> strip_pos = this->CalculateStripHitPosition(newpos[0], newpos[1], newpos[2], time, cellID);
+                            newpos[0] = strip_pos[0];
+                            newpos[1] = strip_pos[1];
+                            newpos[2] = strip_pos[2];
+                            newtime = this->CorrectStripHitTime(newpos[0], newpos[1], newpos[2], time, cellID);
+                        }
+
+                        rec::CaloHit hit(energy, newtime, newpos, cellID);
+
+                        HitCol->emplace_back(hit);
                     }
                 }
             }
@@ -175,7 +193,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::array<double, 3> CaloStripSplitter::CalculateStripHitPosition(float x, float y, float z, float time, raw::CellID_t cID)
+        std::array<double, 3> CaloStripSplitter::CalculateStripHitPosition(float x, float y, float z, std::pair<float, float> time, raw::CellID_t cID)
         {
             std::array<double, 3> point = {x, y, z};
             std::array<double, 3> pointLocal;
@@ -184,7 +202,7 @@ namespace gar {
 
             //Calculate the position of the hit based on the corrected time along the strip
             float c = (CLHEP::c_light * CLHEP::mm / CLHEP::ns) / CLHEP::cm; // in cm/ns
-            float xlocal = c * time;
+            float xlocal = c * ( time.first - time.second ) / 2.;
 
             std::array<double, 3> local_back = fGeo->ReconstructStripHitPosition(pointLocal, xlocal, cID);
             std::array<double, 3> world_back;
@@ -193,6 +211,17 @@ namespace gar {
             return world_back;
         }
 
+        //----------------------------------------------------------------------------
+        float CaloStripSplitter::CorrectStripHitTime(float x, float y, float z, std::pair<float, float> hitTime, raw::CellID_t cID)
+        {
+            std::array<double, 3> point = {x, y, z};
+            double stripLength = fGeo->getStripLength(point, cID); // in cm
+
+            float c = (CLHEP::c_light * CLHEP::mm / CLHEP::ns) / CLHEP::cm; // in cm/ns
+            float time = (hitTime.first + hitTime.second) / 2. - (stripLength / (2 * c));
+
+            return time;
+        }
 
         DEFINE_ART_MODULE(CaloStripSplitter)
 

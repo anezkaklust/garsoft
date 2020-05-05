@@ -1,0 +1,15 @@
+BEGIN_PROLOG
+
+standard_veefinder1:
+{
+ module_type:            veefinder1
+ TrackLabel:             "track"
+ NTPCClusPerTrack:       100   # number of TPC clusters to require on a track
+ PCut:                   0.1   # momentum cut in GeV
+ OpenAngCut:             0.1   # minimum opening angle cut in radians
+ RCut:                   1.0   # in cm -- track extrapolations must miss the common vertex by no more than this
+ DCut:                   20    # in cm -- how far away from each other the track endpoints can be (max cut)
+ PrintLevel:             0     # 0: quiet, 1: more print, 2: print everything
+}
+
+END_PROLOG
