@@ -139,7 +139,8 @@ namespace gar {
 		std::vector<Float_t>			fTrackLen;
 		std::vector<Int_t>				fNTPCClustersOnTrack;
 		std::vector<Float_t>			fTrackAvgIon;
-
+		std::vector<Float_t>			fTrackMCcosT;
+		std::vector<Float_t>			fTrackMCdelX;
 	};
 }
 
@@ -159,6 +160,7 @@ gar::MomentumPerformance::MomentumPerformance(fhicl::ParameterSet const & p) : E
 	fIonizTruncate	 = p.get<float>("IonizTruncate",    0.70);
 
 
+
 	consumesMany<std::vector<simb::MCTruth> >();
 	consumes<std::vector<simb::MCParticle> >(fGeantLabel);
 
@@ -168,6 +170,7 @@ gar::MomentumPerformance::MomentumPerformance(fhicl::ParameterSet const & p) : E
 	consumes<std::vector<rec::Track> >(fTrackLabel);
 	consumes<std::vector<rec::TrackIoniz>>(fTrackLabel);
 	consumes<art::Assns<rec::TrackIoniz, rec::Track>>(fTrackLabel);
+
 } // end constructor
 
 
@@ -220,11 +223,12 @@ void gar::MomentumPerformance::beginJob() {
 	fTree->Branch("TrackPY",				&fTrackPY);
 	fTree->Branch("TrackPZ",				&fTrackPZ);
 	fTree->Branch("TrackQ", 				&fTrackQ);
-
 	fTree->Branch("TrackLen",				&fTrackLen);
 	fTree->Branch("NTPCClustersOnTrack",	&fNTPCClustersOnTrack);
 	fTree->Branch("TrackAvgIon",			&fTrackAvgIon);
 
+	fTree->Branch("TrackMCcosT",			&fTrackMCcosT);
+	fTree->Branch("TrackMCdelX",			&fTrackMCdelX);
 	return;
 }  // End of :MomentumPerformance::beginJob
 
@@ -275,10 +279,12 @@ void gar::MomentumPerformance::ClearVectors() {
 	fTrackPY.clear();
 	fTrackPZ.clear();
 	fTrackQ.clear();
-
 	fTrackLen.clear();
 	fTrackAvgIon.clear();
 	fNTPCClustersOnTrack.clear();
+
+	fTrackMCcosT.clear();
+	fTrackMCdelX.clear();
 
 } // end :MomentumPerformance::ClearVectors
 
@@ -439,6 +445,7 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 		rec::Track theTrack = *(matchedTracks[pickedTrack]);
 
 		fTrackIDNumber.push_back(theTrack.getIDNumber());
+		TVector3* trackInPhase;	TVector3* trackInSpace;
 		if (kate==rec::TrackEndBeg) {
 			fTrackX.push_back  (theTrack.Vertex()[0]);
 			fTrackY.push_back  (theTrack.Vertex()[1]);
@@ -448,6 +455,8 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 			fTrackPZ.push_back (theTrack.Momentum_beg()*theTrack.VtxDir()[2]);
 			fTrackQ.push_back  (theTrack.ChargeBeg());
 			fTrackLen.push_back(theTrack.LengthForward());
+			trackInPhase = new TVector3( theTrack.VtxDir() );
+			trackInSpace = new TVector3( theTrack.Vertex() );
 		} else {
 			fTrackX.push_back  (theTrack.End()[0]);
 			fTrackY.push_back  (theTrack.End()[1]);
@@ -457,14 +466,23 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 			fTrackPZ.push_back (theTrack.Momentum_end()*theTrack.EndDir()[2]);
 			fTrackQ.push_back  (theTrack.ChargeEnd());
 			fTrackLen.push_back(theTrack.LengthBackward());		
+			trackInPhase = new TVector3( theTrack.EndDir() );
+			trackInSpace = new TVector3( theTrack.End() );
 		}
 		fNTPCClustersOnTrack.push_back(theTrack.NHits());
 
-		float dirOK = theTrack.EndDir()[0]*momentumMCP.Px()
-					 +theTrack.EndDir()[1]*momentumMCP.Py()
-					 +theTrack.EndDir()[2]*momentumMCP.Pz();
-		dirOK /= momentumMCP.P();
-		if (dirOK <0) std::cout << "Oh, really?" << std::endl;
+		float cosT = (*trackInPhase)[0]*momentumMCP.Px()
+					+(*trackInPhase)[1]*momentumMCP.Py()
+					+(*trackInPhase)[2]*momentumMCP.Pz();
+		cosT /= momentumMCP.P();
+		fTrackMCcosT.push_back(cosT);
+
+		TVector3 vecX( (*trackInSpace)[0] -positionMCP.X(),
+					   (*trackInSpace)[1] -positionMCP.Y(),
+					   (*trackInSpace)[2] -positionMCP.Z() );
+		float delX = vecX.Cross(*trackInPhase).Mag();
+		fTrackMCdelX.push_back(delX);
+
 
 
 		// Need to determine which track in TrackHandle is the one
