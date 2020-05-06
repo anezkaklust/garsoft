@@ -117,15 +117,14 @@ namespace gar {
 		std::vector<Float_t>			fMCVertexZ;
 
 		// MCParticle data
-		std::vector<Int_t>				fMCTrkID;
-		std::vector<Int_t>				fMCPDG;
-		std::vector<Float_t>			fMCPX;
-		std::vector<Float_t>			fMCPY;
-		std::vector<Float_t>			fMCPZ;
-		std::vector<Float_t>			fMCPPX;
-		std::vector<Float_t>			fMCPPY;
-		std::vector<Float_t>			fMCPPZ;
-		std::vector<Float_t>			fMCPTime;
+		std::vector<Int_t>				fMCP_PDG;
+		std::vector<Float_t>			fMCP_X;
+		std::vector<Float_t>			fMCP_Y;
+		std::vector<Float_t>			fMCP_Z;
+		std::vector<Float_t>			fMCP_PX;
+		std::vector<Float_t>			fMCP_PY;
+		std::vector<Float_t>			fMCP_PZ;
+		std::vector<Float_t>			fMCP_Time;
 
 		// track data
 		std::vector<ULong64_t>			fTrackIDNumber;
@@ -205,15 +204,14 @@ void gar::MomentumPerformance::beginJob() {
 	fTree->Branch("MCVertY",				&fMCVertexY);
 	fTree->Branch("MCVertZ",				&fMCVertexZ);
 
-	fTree->Branch("MCTrkID",				&fMCTrkID);
-	fTree->Branch("PDG",					&fMCPDG);
-	fTree->Branch("MCPX",					&fMCPX);
-	fTree->Branch("MCPY",					&fMCPY);
-	fTree->Branch("MCPZ",					&fMCPZ);
-	fTree->Branch("MCPPX",					&fMCPPX);
-	fTree->Branch("MCPPY",					&fMCPPY);
-	fTree->Branch("MCPPZ",					&fMCPPZ);
-	fTree->Branch("MCPTime",				&fMCPTime);
+	fTree->Branch("MCP_PDG",				&fMCP_PDG);
+	fTree->Branch("MCP_X",					&fMCP_X);
+	fTree->Branch("MCP_Y",					&fMCP_Y);
+	fTree->Branch("MCP_Z",					&fMCP_Z);
+	fTree->Branch("MCP_PX",					&fMCP_PX);
+	fTree->Branch("MCP_PY",					&fMCP_PY);
+	fTree->Branch("MCP_PZ",					&fMCP_PZ);
+	fTree->Branch("MCP_Time",				&fMCP_Time);
 
 	fTree->Branch("TrackIDNumber",			&fTrackIDNumber);
 	fTree->Branch("TrackX",					&fTrackX);
@@ -261,15 +259,14 @@ void gar::MomentumPerformance::ClearVectors() {
 	fMCVertexY.clear();
 	fMCVertexZ.clear();
 
-	fMCTrkID.clear();
-	fMCPDG.clear();
-	fMCPX.clear();
-	fMCPY.clear();
-	fMCPZ.clear();
-	fMCPPX.clear();
-	fMCPPY.clear();
-	fMCPPZ.clear();
-	fMCPTime.clear();
+	fMCP_PDG.clear();
+	fMCP_X.clear();
+	fMCP_Y.clear();
+	fMCP_Z.clear();
+	fMCP_PX.clear();
+	fMCP_PY.clear();
+	fMCP_PZ.clear();
+	fMCP_Time.clear();
 
 	fTrackIDNumber.clear();
 	fTrackX.clear();
@@ -356,7 +353,7 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 	typedef int TrkId;
 	std::unordered_map<TrkId, Int_t> TrackIdToIndex;
 	Int_t index = 0;
-	for ( auto const& mcp : (*MCPHandle) ) {
+	for ( auto const& mcp : *MCPHandle ) {
 		int TrackId = mcp.TrackId();
 		TrackIdToIndex[TrackId] = index++;
 	}
@@ -390,15 +387,16 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 			abs(thisPDG)==13 || abs(thisPDG)==11 || abs(thisPDG)==211 || abs(thisPDG)==2212;
 		if (!isTrackable) continue;
 
+		fMCP_PDG.push_back(thisPDG);
 		const TLorentzVector& positionMCP = mcp.Position(0);
 		const TLorentzVector& momentumMCP = mcp.Momentum(0);
-		fMCPX.push_back(positionMCP.X());
-		fMCPY.push_back(positionMCP.Y());
-		fMCPZ.push_back(positionMCP.Z());
-		fMCPPX.push_back(momentumMCP.Px());
-		fMCPPY.push_back(momentumMCP.Py());
-		fMCPPZ.push_back(momentumMCP.Pz());
-		fMCPTime.push_back(mcp.T());
+		fMCP_X.push_back(positionMCP.X());
+		fMCP_Y.push_back(positionMCP.Y());
+		fMCP_Z.push_back(positionMCP.Z());
+		fMCP_PX.push_back(momentumMCP.Px());
+		fMCP_PY.push_back(momentumMCP.Py());
+		fMCP_PZ.push_back(momentumMCP.Pz());
+		fMCP_Time.push_back(mcp.T());
 
 
 
@@ -415,7 +413,7 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 
 		// Which track end you want?
 		float minDist = 1e6;
-		int pickedTrack = -1;		rec::TrackEnd kate = rec::TrackEndBeg;
+		int pickedTrack = -1;		rec::TrackEnd kate;
 		for (size_t iTrack=0; iTrack<matchedTracks.size(); ++iTrack) {
 			rec::Track track = *(matchedTracks[iTrack]);
 			float distStart = std::hypot(track.Vertex()[0] -positionMCP[0],
@@ -443,8 +441,8 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 
 		// Save that tracks info
 		rec::Track theTrack = *(matchedTracks[pickedTrack]);
-
 		fTrackIDNumber.push_back(theTrack.getIDNumber());
+
 		TVector3* trackInPhase;	TVector3* trackInSpace;
 		if (kate==rec::TrackEndBeg) {
 			fTrackX.push_back  (theTrack.Vertex()[0]);
