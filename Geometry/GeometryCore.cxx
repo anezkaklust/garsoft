@@ -75,6 +75,10 @@ namespace gar {
             FindMPDVolume();
             FindActiveTPCVolume();
 
+            //For the LArTPC
+            FindLArTPCVolume();
+            FindActiveLArTPCVolume();
+
             pChannelMap->Initialize(*this);
             fChannelMapAlg = pChannelMap;
         } // GeometryCore::ApplyChannelMap()
@@ -201,6 +205,32 @@ namespace gar {
         }
 
         //......................................................................
+        void GeometryCore::FindLArTPCVolume()
+        {
+            std::vector<TGeoNode const*> path = this->FindVolumePath("volArgonCubeDetector");
+            if(path.size() == 0)
+            return;
+
+            const TGeoNode *lar_node = path.at(path.size()-1);
+            if(lar_node == nullptr) {
+                std::cout << "Cannot find node volArgonCubeDetector_0" << std::endl;
+                return;
+            }
+
+            const double *origin = lar_node->GetMatrix()->GetTranslation();
+
+            fLArTPCX = origin[0];
+            fLArTPCY = origin[1];
+            fLArTPCZ = origin[2];
+
+            fLArTPCHalfWidth = ((TGeoBBox*)lar_node->GetVolume()->GetShape())->GetDZ();
+            fLArTPCHalfHeight = ((TGeoBBox*)lar_node->GetVolume()->GetShape())->GetDY();
+            fLArTPCLength = 2.0 * ((TGeoBBox*)lar_node->GetVolume()->GetShape())->GetDX();
+
+            return;
+        }
+
+        //......................................................................
         void GeometryCore::FindMPDVolume()
         {
             std::vector<TGeoNode const*> path = this->FindVolumePath("volMPD");
@@ -222,6 +252,38 @@ namespace gar {
             fMPDHalfWidth = ((TGeoBBox*)mpd_node->GetVolume()->GetShape())->GetDZ();
             fMPDHalfHeight = ((TGeoBBox*)mpd_node->GetVolume()->GetShape())->GetDY();
             fMPDLength = 2.0 * ((TGeoBBox*)mpd_node->GetVolume()->GetShape())->GetDX();
+
+            return;
+        }
+
+
+        //......................................................................
+        void GeometryCore::FindActiveLArTPCVolume()
+        {
+            // check if the current level of the detector is the active TPC volume, if
+            // not, then dig a bit deeper
+            std::vector<TGeoNode const*> path = this->FindVolumePath("volArgonCubeActive");
+            if(path.size() == 0)
+            return;
+
+            const TGeoNode *LArTPC_node = path.at(path.size()-1);
+            if(LArTPC_node == nullptr) {
+                std::cout << "Cannot find node volArgonCubeActive_0" << std::endl;
+                return;
+            }
+
+            TGeoMatrix *mat = LArTPC_node->GetMatrix();
+            const double *origin = mat->GetTranslation();
+
+            //Get the origin correctly
+            fLArTPCXCent =  fWorldX + fRockX + fEnclosureX + fLArTPCX + origin[0];
+            fLArTPCYCent =  fWorldY + fRockY + fEnclosureY + fLArTPCY + origin[1];
+            fLArTPCZCent =  fWorldZ + fRockZ + fEnclosureZ + fLArTPCZ + origin[2];
+
+            //Get the dimension of the active volume
+            fLArTPCActiveHalfWidth = ((TGeoBBox*)LArTPC_node->GetVolume()->GetShape())->GetDZ();
+            fLArTPCActiveHalfHeight = ((TGeoBBox*)LArTPC_node->GetVolume()->GetShape())->GetDY();
+            fLArTPCActiveLength = 2.0 * ((TGeoBBox*)LArTPC_node->GetVolume()->GetShape())->GetDX();
 
             return;
         }
@@ -713,7 +775,8 @@ namespace gar {
         bool GeometryCore::PointInLArTPC(TVector3 const& point) const
         {
             //Name to change depending on the detector..
-            TGeoVolume *volLArTPC = gGeoManager->FindVolumeFast("volLArTPC");
+            TGeoVolume *volLArTPC = gGeoManager->FindVolumeFast("volArgonCubeActive");
+
             float halflength = ((TGeoBBox*)volLArTPC->GetShape())->GetDZ();
             float halfheight = ((TGeoBBox*)volLArTPC->GetShape())->GetDY();
             float halfwidth  = ((TGeoBBox*)volLArTPC->GetShape())->GetDX();
@@ -1132,6 +1195,19 @@ namespace gar {
             std::cout << "Enclosure Geometry" << std::endl;
             std::cout << "Enclosure Origin (x, y, z) " << GetEnclosureX() << " cm " << GetEnclosureY() << " cm " << GetEnclosureZ() << " cm" << std::endl;
             std::cout << "Enclosure Size (H, W, L) " << GetEnclosureHalfWidth() << " cm " << GetEnclosureHalfHeight() << " cm " << GetEnclosureLength() << " cm" << std::endl;
+
+            if(GetLArTPCX() != 0 && GetLArTPCY() != 0 && GetLArTPCZ() != 0) {
+                std::cout << "------------------------------" << std::endl;
+                std::cout << "LArArgonCube Geometry" << std::endl;
+                std::cout << "LArTPC Origin (x, y, z) " << GetLArTPCX() << " cm " << GetLArTPCY() << " cm " << GetLArTPCZ() << " cm" << std::endl;
+                std::cout << "LArTPC Size (H, W, L) " << GetLArTPCHalfWidth() << " cm " << GetLArTPCHalfHeight() << " cm " << GetLArTPCLength() << " cm" << std::endl;
+                std::cout << "------------------------------" << std::endl;
+                std::cout << "LArActiveArgonCube Geometry" << std::endl;
+                std::cout << "LArTPCActive Origin (x, y, z) " << GetActiveLArTPCX() << " cm " << GetActiveLArTPCY() << " cm " << GetActiveLArTPCZ() << " cm" << std::endl;
+                std::cout << "LArTPCActive Size (H, W, L) " << GetActiveLArTPCHalfWidth() << " cm " << GetActiveLArTPCHalfHeight() << " cm " << GetActiveLArTPCLength() << " cm" << std::endl;
+                std::cout << "------------------------------" << std::endl;
+            }
+
             std::cout << "------------------------------" << std::endl;
             std::cout << "MPD Geometry" << std::endl;
             std::cout << "MPD Origin (x, y, z) " << GetMPDX() << " cm " << GetMPDY() << " cm " << GetMPDZ() << " cm" << std::endl;
@@ -1141,6 +1217,8 @@ namespace gar {
             std::cout << "TPC Origin (x, y, z) " << TPCXCent() << " cm " << TPCYCent() << " cm " << TPCZCent() << " cm" << std::endl;
             std::cout << "TPC Active Volume Size (R, L) " << TPCRadius() << " cm " << TPCLength() << " cm" << std::endl;
             std::cout << "------------------------------" << std::endl;
+
+
             std::cout << "ECAL Geometry" << std::endl;
             std::cout << "ECAL Barrel inner radius (Barrel): " << GetECALInnerBarrelRadius() << " cm" << std::endl;
             std::cout << "ECAL Barrel outer radius (Barrel): " << GetECALOuterBarrelRadius() << " cm" << std::endl;
@@ -1172,6 +1250,14 @@ namespace gar {
             fMPDY = 0.;
             fMPDZ = 0.;
 
+            fLArTPCX = 0.;
+            fLArTPCY = 0.;
+            fLArTPCZ = 0.;
+
+            fLArTPCXCent = 0.;
+            fLArTPCYCent = 0.;
+            fLArTPCZCent = 0.;
+
             fTPCRadius = 9999.;
             fTPCLength = 9999.;
 
@@ -1182,6 +1268,14 @@ namespace gar {
             fMPDHalfWidth = 9999.;
             fMPDHalfHeight = 9999.;
             fMPDLength = 9999.;
+
+            fLArTPCHalfWidth = 0.;
+            fLArTPCHalfHeight = 0.;
+            fLArTPCLength = 0.;
+
+            fLArTPCActiveHalfWidth = 0.;
+            fLArTPCActiveHalfHeight = 0.;
+            fLArTPCActiveLength = 0.;
 
             fECALRinner = 0.;
             fECALRouter = 0.;

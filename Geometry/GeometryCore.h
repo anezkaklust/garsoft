@@ -539,6 +539,30 @@ namespace gar {
 
       float GetMPDLength() const  { return fMPDLength; }
 
+      float GetLArTPCX() const { return fLArTPCX; }
+
+      float GetLArTPCY() const { return fLArTPCY; }
+
+      float GetLArTPCZ() const { return fLArTPCZ; }
+
+      float GetActiveLArTPCX() const { return fLArTPCXCent; }
+
+      float GetActiveLArTPCY() const { return fLArTPCYCent; }
+
+      float GetActiveLArTPCZ() const { return fLArTPCZCent; }
+
+      float GetLArTPCHalfWidth() const { return fLArTPCHalfWidth; }
+
+      float GetLArTPCHalfHeight() const { return fLArTPCHalfHeight; }
+
+      float GetLArTPCLength() const { return fLArTPCLength; }
+
+      float GetActiveLArTPCHalfWidth() const { return fLArTPCActiveHalfWidth; }
+      
+      float GetActiveLArTPCHalfHeight() const { return fLArTPCActiveHalfHeight; }
+
+      float GetActiveLArTPCLength() const { return fLArTPCActiveLength; }
+
       /**
        * @brief Returns the name of the deepest volume containing specified point
        * @param point the location to query, in world coordinates
@@ -916,7 +940,11 @@ namespace gar {
 
       void FindMPDVolume();
 
+      void FindLArTPCVolume();
+
       void FindActiveTPCVolume();
+
+      void FindActiveLArTPCVolume();
 
       void StoreECALParameters();
 
@@ -974,6 +1002,14 @@ namespace gar {
       float          fMPDY = 0.;
       float          fMPDZ = 0.;
 
+      float          fLArTPCX = 0.;
+      float          fLArTPCY = 0.;
+      float          fLArTPCZ = 0.;
+
+      float          fLArTPCXCent = 0.;
+      float          fLArTPCYCent = 0.;
+      float          fLArTPCZCent = 0.;
+
       float          fWorldHalfWidth = 0.;
       float          fWorldHalfHeight = 0.;
       float          fWorldLength = 0.;
@@ -989,6 +1025,14 @@ namespace gar {
       float          fMPDHalfWidth = 0.;
       float          fMPDHalfHeight = 0.;
       float          fMPDLength = 0.;
+
+      float          fLArTPCHalfWidth = 0.;
+      float          fLArTPCHalfHeight = 0.;
+      float          fLArTPCLength = 0.;
+
+      float          fLArTPCActiveHalfWidth = 0.;
+      float          fLArTPCActiveHalfHeight = 0.;
+      float          fLArTPCActiveLength = 0.;
 
       std::vector<const TGeoNode*> fECALBarrelNodePath; ///< Stored vector of nodes for the ecal barrel
       std::vector<const TGeoNode*> fECALEndcapNodePath; ///< Stored vector of nodes for the ecal endcap
