@@ -95,26 +95,20 @@ namespace gar {
 
 
 
+		// The analysis tree. Use Rtypes.h here, as these data get used by root
 		// global event info
-		Int_t fRun;		  ///< number of the run being processed
-		Int_t fSubRun;	   ///< number of the sub-run being processed
-		Int_t fEvent;		///< number of the event being processed
+		Int_t	fRun;
+		Int_t	fSubRun;
+		Int_t	fEvent;
 
-		// MCTruth data.
-		// GENIE kinematics computed ignoring Fermi momentum and the off-shellness
-		// of the bound nucleon.  Well, that's what the documentation says.  Might
-		// not be true!  But to get the right kinematics here, t has to be computed.
-		// Mode and InteractionType given in simb::MCNeutrino.h of the nusimdata
-		// product.
-		// Use Rtypes.h here, as these data get used by root
-
-		std::vector<Int_t>				fNeutrinoType;
-		std::vector<Int_t>				fCCNC;
-		std::vector<Int_t>				fMode;
-		std::vector<Int_t>				fInteractionType;
-		std::vector<Float_t>			fMCVertexX;
-		std::vector<Float_t>			fMCVertexY;
-		std::vector<Float_t>			fMCVertexZ;
+		// MCTruth data; this analysis assumes that there is only 1 neutrino
+		Int_t	fNeutrinoType;
+		Int_t	fCCNC;
+		Int_t	fMode;
+		Int_t	fInteractionType;
+		Float_t	fMCVertexX;
+		Float_t	fMCVertexY;
+		Float_t	fMCVertexZ;
 
 		// MCParticle data
 		std::vector<Int_t>				fMCP_PDG;
@@ -192,17 +186,17 @@ void gar::MomentumPerformance::beginJob() {
 
 
 
-	fTree->Branch("Run",					&fRun, 	"Run/I");
-	fTree->Branch("SubRun",					&fSubRun,"SubRun/I");
-	fTree->Branch("Event",					&fEvent, "Event/I");
+	fTree->Branch("Run",					&fRun,				"Run/I");
+	fTree->Branch("SubRun",					&fSubRun,			"SubRun/I");
+	fTree->Branch("Event",					&fEvent,			"Event/I");
 
-	fTree->Branch("NType",					&fNeutrinoType);
-	fTree->Branch("CCNC",					&fCCNC);
-	fTree->Branch("Mode",					&fMode);
-	fTree->Branch("InterT",					&fInteractionType);
-	fTree->Branch("MCVertX",				&fMCVertexX);
-	fTree->Branch("MCVertY",				&fMCVertexY);
-	fTree->Branch("MCVertZ",				&fMCVertexZ);
+	fTree->Branch("NType",					&fNeutrinoType,		"Event/I");
+	fTree->Branch("CCNC",					&fCCNC,				"Event/I");
+	fTree->Branch("Mode",					&fMode,				"Event/I");
+	fTree->Branch("InterT",					&fInteractionType,	"Event/I");
+	fTree->Branch("MCVertX",				&fMCVertexX,		"Event/F");
+	fTree->Branch("MCVertY",				&fMCVertexY,		"Event/F");
+	fTree->Branch("MCVertZ",				&fMCVertexZ,		"Event/F");
 
 	fTree->Branch("MCP_PDG",				&fMCP_PDG);
 	fTree->Branch("MCP_X",					&fMCP_X);
@@ -250,15 +244,6 @@ void gar::MomentumPerformance::analyze(art::Event const & event) {
 //==============================================================================
 void gar::MomentumPerformance::ClearVectors() {
 	// clear out all our vectors
-	fNeutrinoType.clear();
-	fCCNC.clear();
-	fMode.clear();
-	fInteractionType.clear();
-
-	fMCVertexX.clear();
-	fMCVertexY.clear();
-	fMCVertexZ.clear();
-
 	fMCP_PDG.clear();
 	fMCP_X.clear();
 	fMCP_Y.clear();
@@ -295,12 +280,13 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 
 
 	// =============  Get art handles ==========================================
-	// Get handles for MCinfo, also good for MCPTrajectory
+	// Get handles for MCinfo, also good for MCPTrajectory.  Want to get all
+	// MCTruths, regardless of generator label.
 	std::vector< art::Handle< std::vector<simb::MCTruth> > > mctruthHandles;
 	art::Handle< std::vector<simb::MCParticle> > MCPHandle;
 	event.getManyByType(mctruthHandles);
-	if (mctruthHandles.size()==0) {
-		throw cet::exception("MomentumPerformance") << " No simb::MCTruth"
+	if (mctruthHandles.size()!=1) {
+		throw cet::exception("MomentumPerformance") << " Need just 1 simb::MCTruth"
 		<< " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
 	}
 
@@ -335,20 +321,17 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 
 
 	// save MCTruth info.  This analysis is designed for single-interaction MC
-	for (size_t imchl = 0; imchl < mctruthHandles.size(); ++imchl) {
-		for ( auto const& mct : (*mctruthHandles.at(imchl)) ) {
-			if (mct.NeutrinoSet()) {
-				simb::MCNeutrino nuw = mct.GetNeutrino();
-				fNeutrinoType.push_back(nuw.Nu().PdgCode());
-				fCCNC.push_back(nuw.CCNC());
-				fMode.push_back(nuw.Mode());
-				fInteractionType.push_back(nuw.InteractionType());
-				fMCVertexX.push_back(nuw.Nu().EndX());
-				fMCVertexY.push_back(nuw.Nu().EndY());
-				fMCVertexZ.push_back(nuw.Nu().EndZ());
-		   }  // end MC info from MCTruth
-		}
-	}
+	for ( simb::MCTruth const& mct : *(mctruthHandles.at(0)) ) {
+		if (!mct.NeutrinoSet()) return;
+		simb::MCNeutrino nuw = mct.GetNeutrino();
+		fNeutrinoType	 = nuw.Nu().PdgCode();
+		fCCNC			 = nuw.CCNC();
+		fMode			 = nuw.Mode();
+		fInteractionType = nuw.InteractionType();
+		fMCVertexX		 = nuw.Nu().EndX();
+		fMCVertexY		 = nuw.Nu().EndY();
+		fMCVertexZ		 = nuw.Nu().EndZ();
+	}  // end MC info from MCTruth
 
 	typedef int TrkId;
 	std::unordered_map<TrkId, Int_t> TrackIdToIndex;
@@ -387,16 +370,8 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 			abs(thisPDG)==13 || abs(thisPDG)==11 || abs(thisPDG)==211 || abs(thisPDG)==2212;
 		if (!isTrackable) continue;
 
-		fMCP_PDG.push_back(thisPDG);
 		const TLorentzVector& positionMCP = mcp.Position(0);
 		const TLorentzVector& momentumMCP = mcp.Momentum(0);
-		fMCP_X.push_back(positionMCP.X());
-		fMCP_Y.push_back(positionMCP.Y());
-		fMCP_Z.push_back(positionMCP.Z());
-		fMCP_PX.push_back(momentumMCP.Px());
-		fMCP_PY.push_back(momentumMCP.Py());
-		fMCP_PZ.push_back(momentumMCP.Pz());
-		fMCP_Time.push_back(mcp.T());
 
 
 
@@ -439,7 +414,16 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 		if (pickedTrack == -1) continue;
 
 
-		// Save that tracks info
+		// Save that tracks info; but first you need the corresponding MC info
+		fMCP_PDG.push_back(thisPDG);
+		fMCP_X.push_back(positionMCP.X());
+		fMCP_Y.push_back(positionMCP.Y());
+		fMCP_Z.push_back(positionMCP.Z());
+		fMCP_PX.push_back(momentumMCP.Px());
+		fMCP_PY.push_back(momentumMCP.Py());
+		fMCP_PZ.push_back(momentumMCP.Pz());
+		fMCP_Time.push_back(mcp.T());
+
 		rec::Track theTrack = *(matchedTracks[pickedTrack]);
 		fTrackIDNumber.push_back(theTrack.getIDNumber());
 
