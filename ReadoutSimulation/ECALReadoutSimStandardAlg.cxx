@@ -247,7 +247,7 @@ namespace gar {
             std::string newnodename = new_node->GetName();
 
             if( newnodename != nodename ){
-                LOG_DEBUG("ECALReadoutSimStandardAlg") << "CalculatePosition()"
+                LOG_ERROR("ECALReadoutSimStandardAlg") << "CalculatePosition()"
                 << " isTile " << fGeo->isTile(cID) << "\n"
                 << " Strip length " << fGeo->getStripLength(point, cID) << "\n"
                 << " CellIndexX " << fGeo->getIDbyCellID(cID, "cellX") << "\n"
@@ -255,6 +255,12 @@ namespace gar {
                 << " Layer " << fGeo->getIDbyCellID(cID, "layer") << "\n"
                 << " Local Point before new position ( " << pointLocal[0] << ", " << pointLocal[1] << ", " << pointLocal[2] << " ) in node " << nodename << "\n"
                 << " Local Point after new position ( " << pointLocal_back[0] << ", " << pointLocal_back[1] << ", " << pointLocal_back[2] << " ) in node " << newnodename;
+
+                //Dirty fix
+                LOG_ERROR("ECALReadoutSimStandardAlg") << "CalculatePosition()"
+                << "Dirty fix...";
+                pointLocal_back = { pointLocal[0], pointLocal[1], 0. };
+                fGeo->LocalToWorld(pointLocal_back, point_back, trans);
             }
 
             return point_back;

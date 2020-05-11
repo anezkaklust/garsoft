@@ -803,7 +803,7 @@ namespace gar{
                     std::ostringstream label;
                     label << "Sim Hit " << p << "\n";
                     label << "Energy: " << simHit->Energy() << " GeV\n";
-                    label << "Position (" << simHit->X() << ", " << simHit->X() << ", " << simHit->Z() << " ) cm\n";
+                    label << "Position (" << simHit->X() << ", " << simHit->Y() << ", " << simHit->Z() << " ) cm\n";
 
                     TEvePointSet *evehit = new TEvePointSet(1);
                     evehit->SetName(TString::Format("TPC sim hit %i", p).Data());
@@ -835,7 +835,7 @@ namespace gar{
                     std::ostringstream label;
                     label << "Sim Hit " << p << "\n";
                     label << "Energy: " << simHit->Energy() << " GeV\n";
-                    label << "Position (" << simHit->X() << ", " << simHit->X() << ", " << simHit->Z() << " ) cm\n";
+                    label << "Position (" << simHit->X() << ", " << simHit->Y() << ", " << simHit->Z() << " ) cm\n";
                     label << "CellID: " << simHit->CellID() << "\n";
                     label << "isTile: " << fGeometry->isTile(simHit->CellID()) << "\n";
                     label << "DetID: " << fGeometry->getIDbyCellID(simHit->CellID(), "system") << "\n";
@@ -874,7 +874,7 @@ namespace gar{
                     std::ostringstream label;
                     label << "Digi Hit " << p << "\n";
                     label << "Energy: " << rawHit->ADC().first << " ADC\n";
-                    label << "Position (" << rawHit->X() << ", " << rawHit->X() << ", " << rawHit->Z() << " ) cm\n";
+                    label << "Position (" << rawHit->X() << ", " << rawHit->Y() << ", " << rawHit->Z() << " ) cm\n";
                     label << "CellID: " << rawHit->CellID() << "\n";
                     label << "isTile: " << fGeometry->isTile(rawHit->CellID()) << "\n";
                     label << "DetID: " << fGeometry->getIDbyCellID(rawHit->CellID(), "system") << "\n";

@@ -1024,13 +1024,14 @@ namespace gar {
         //----------------------------------------------------------------------------
         bool GeometryCore::FindECALOuterEndcapRadius()
         {
-            TGeoVolume *vol = gGeoManager->FindVolumeFast("EndcapECal_vol");
-            if(!vol)
-            vol = gGeoManager->FindVolumeFast("volEndcapECal");
-            if(!vol)
-            return false;
+            // TGeoVolume *vol = gGeoManager->FindVolumeFast("EndcapECal_vol");
+            // if(!vol)
+            // vol = gGeoManager->FindVolumeFast("volEndcapECal");
+            // if(!vol)
+            // return false;
 
-            fECALECapRouter = ((TGeoBBox*)vol->GetShape())->GetDX();
+            // fECALECapRouter = ((TGeoBBox*)vol->GetShape())->GetDX();//Not great as the shape is not a tube...
+            fECALECapRouter = fECALRouter; //should be equal
 
             return true;
         }
