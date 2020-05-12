@@ -116,9 +116,9 @@ namespace gar {
                     }
 
                     //TODO
-                    //More complicated as the endcap is currently one big layer and no sub-modules within the endcap structure
-                    //Will need modification once the endcap is finalyzed
-                    //Need to check first if x > endcap side length / 2. -> need to modify y accordingly 
+                    //Problem here is that the full layer is the endcap stave, no "layer shape"
+                    //the problem will occur for hits that are at the limit
+                    //checking if x or y are over the layer dim does not work (as the stave is not a square/rectangle)
                     if( not isBarrel ) {
 
                         float r_point = std::sqrt( cellPosition[0]*cellPosition[0] + cellPosition[1]*cellPosition[1] );
@@ -126,31 +126,20 @@ namespace gar {
                         //Check if the point is outside.... layer_dim_x = layer_dim_y = apothem
                         if(r_point > _layer_dim_Y) {
 
-                            if( cellPosition[0] > geo.GetECALEndcapSideLength() / 2. && cellPosition[1] > geo.GetECALEndcapSideLength() / 2. ) {
+                            if( std::fabs(cellPosition[0]) < geo.GetECALEndcapSideLength() / 2. || std::fabs(cellPosition[1]) < geo.GetECALEndcapSideLength() / 2. ) {
 
-                                // int nX = std::round( ( cellPosition[0] - ( geo.GetECALEndcapSideLength() / 2. ) ) / _gridSizeX );
-                                // int nY = std::round( ( cellPosition[1] - ( geo.GetECALEndcapSideLength() / 2. ) ) / _gridSizeY );
+                                if( std::fabs(cellPosition[0]) < geo.GetECALEndcapSideLength() / 2. && std::fabs(cellPosition[1]) > _layer_dim_Y ) {
 
-                                // //which coordinate is outside???
-                                // if( cellPosition[0] > _layer_dim_X - (nX * _gridSizeX) ) {
-                                    
-                                //     //X is outside
-                                //     LOG_ERROR("ECALSegmentationMultiGridStripXYAlg::GetPosition")
-                                //     << " cellPosition[0] " << cellPosition[0] << " Max Length " << _layer_dim_X - (nX * _gridSizeX) << "\n"
-                                //     << " n " << nX << "\n"
-                                //     << " cellPosition[1] " << cellPosition[1] << "\n"
-                                //     << " new r " << std::sqrt( cellPosition[0]*cellPosition[0] + cellPosition[1]*cellPosition[1] );
-                                // }
+                                    cellPosition[1] = cellPosition[1] / std::fabs(cellPosition[1]) * ( _layer_dim_Y - _frac ) ;
+                                }
 
-                                // if( cellPosition[1] > _layer_dim_Y - (nY * _gridSizeY) ) {
-                                    
-                                //     //Y is outside
-                                //     LOG_ERROR("ECALSegmentationMultiGridStripXYAlg::GetPosition")
-                                //     << " cellPosition[1] " << cellPosition[1] << " Max Length " << _layer_dim_Y - (nY * _gridSizeY) << "\n"
-                                //     << " n " << nY << "\n"
-                                //     << " cellPosition[0] " << cellPosition[0] << "\n"
-                                //     << " new r " << std::sqrt( cellPosition[0]*cellPosition[0] + cellPosition[1]*cellPosition[1] );
-                                // }
+                                if( std::fabs(cellPosition[1]) < geo.GetECALEndcapSideLength() / 2. && std::fabs(cellPosition[0]) > _layer_dim_X ) {
+
+                                    cellPosition[0] = cellPosition[0] / std::fabs(cellPosition[0]) * ( _layer_dim_X - _frac ) ;
+                                }
+
+                            } else if ( std::fabs(cellPosition[0]) > geo.GetECALEndcapSideLength() / 2. && std::fabs(cellPosition[1]) > geo.GetECALEndcapSideLength() / 2. ) {
+                                //Complicated part //do NOTHING the hit will be dropped
                             }
                         }
                     }

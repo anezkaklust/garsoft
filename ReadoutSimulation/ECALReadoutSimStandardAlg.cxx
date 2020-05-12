@@ -124,10 +124,14 @@ namespace gar {
             float new_time = time;
 
             if(fTimeSmearing)
-            new_time = this->DoTimeSmearing(time);
+                new_time = this->DoTimeSmearing(time);
 
             //Calculate the position of the tile
             std::array<double, 3> pos = this->CalculatePosition(x, y, z, cID);
+            //Check if need to drop the hit
+            if ( pos[0] == 99999. ) {
+                return nullptr;
+            }
 
             raw::CaloRawDigit *digihit = new raw::CaloRawDigit( static_cast<unsigned int>(new_energy), new_time, pos[0], pos[1], pos[2], cID );
 
@@ -153,6 +157,10 @@ namespace gar {
 
             //Calculate the position of the strip
             std::array<double, 3> pos = this->CalculatePosition(x, y, z, cID);
+            //Check if need to drop the hit
+            if ( pos[0] == 99999. ) {
+                return nullptr;
+            }
 
             //make the shared ptr
             raw::CaloRawDigit *digihit = new raw::CaloRawDigit( static_cast<unsigned int>(new_energy), times, pos[0], pos[1], pos[2], cID );
@@ -184,9 +192,9 @@ namespace gar {
             //Saturation
             float sat_pixel = 0.;
             if(fSaturation)
-            sat_pixel = fECALUtils->Saturate(pixel);
+                sat_pixel = fECALUtils->Saturate(pixel);
             else
-            sat_pixel = pixel;
+                sat_pixel = pixel;
 
             //Binomial Smearing
             double prob = sat_pixel / fDetProp->EffectivePixel();
@@ -195,16 +203,16 @@ namespace gar {
             float smeared_px_noise = smeared_px;
             //Add noise
             if(fAddNoise)
-            smeared_px_noise = this->AddElectronicNoise(smeared_px);
+                smeared_px_noise = this->AddElectronicNoise(smeared_px);
 
             //Convertion to ADC
             float ADC = 0.;
 
             if(smeared_px_noise > 0)
-            ADC = smeared_px_noise * fDetProp->SiPMGain();
+                ADC = smeared_px_noise * fDetProp->SiPMGain();
 
             if(ADC > fDetProp->IntercalibrationFactor() * fDetProp->ADCSaturation())
-            ADC = fDetProp->IntercalibrationFactor() * fDetProp->ADCSaturation();
+                ADC = fDetProp->IntercalibrationFactor() * fDetProp->ADCSaturation();
 
             return ADC;
         }
@@ -246,7 +254,11 @@ namespace gar {
             TGeoNode *new_node = fGeo->FindNode(point_back);//Node in cm...
             std::string newnodename = new_node->GetName();
 
-            if( newnodename != nodename ){
+            //get the base of the node names (slice can be added in the new node)
+            std::string base_node_name = nodename.substr(0, nodename.find("_layer_") + 9);
+            std::string base_new_node_name = newnodename.substr(0, newnodename.find("_layer_") + 9);
+
+            if( base_new_node_name != base_node_name ){
                 LOG_ERROR("ECALReadoutSimStandardAlg") << "CalculatePosition()"
                 << " isTile " << fGeo->isTile(cID) << "\n"
                 << " Strip length " << fGeo->getStripLength(point, cID) << "\n"
@@ -254,13 +266,11 @@ namespace gar {
                 << " CellIndexY " << fGeo->getIDbyCellID(cID, "cellY") << "\n"
                 << " Layer " << fGeo->getIDbyCellID(cID, "layer") << "\n"
                 << " Local Point before new position ( " << pointLocal[0] << ", " << pointLocal[1] << ", " << pointLocal[2] << " ) in node " << nodename << "\n"
-                << " Local Point after new position ( " << pointLocal_back[0] << ", " << pointLocal_back[1] << ", " << pointLocal_back[2] << " ) in node " << newnodename;
+                << " Local Point after new position ( " << pointLocal_back[0] << ", " << pointLocal_back[1] << ", " << pointLocal_back[2] << " ) in node " << newnodename << "\n"
+                << " Dropping the hit ";
 
-                //Dirty fix
-                LOG_ERROR("ECALReadoutSimStandardAlg") << "CalculatePosition()"
-                << "Dirty fix...";
-                pointLocal_back = { pointLocal[0], pointLocal[1], 0. };
-                fGeo->LocalToWorld(pointLocal_back, point_back, trans);
+                //Drop the hit
+                point_back = { 99999., 99999., 99999. };
             }
 
             return point_back;
