@@ -752,6 +752,18 @@ namespace gar {
 
       //@{
       /**
+       * @brief radii query methods passing through to the channel map algorithm
+       */
+      float GetIROCInnerRadius() const;
+      float GetIROCOuterRadius() const;
+      float GetOROCInnerRadius() const;
+      float GetOROCOuterRadius() const;
+      float GetOROCPadHeightChangeRadius() const;
+      //@}
+
+
+      //@{
+      /**
        * @brief Returns the ID of the channel representing a gap
        * if you call NearestChannel and get this channel number, then charge is lost
        */

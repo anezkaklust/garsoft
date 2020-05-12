@@ -913,6 +913,33 @@ namespace gar {
             return columnD;
         }
 
+
+        //--------------------------------------------------------------------
+      float GeometryCore::GetIROCInnerRadius() const
+      {
+	return fChannelMapAlg->GetIROCInnerRadius();
+      }
+        //--------------------------------------------------------------------
+      float GeometryCore::GetIROCOuterRadius() const
+      {
+	return fChannelMapAlg->GetIROCOuterRadius();
+      }
+        //--------------------------------------------------------------------
+      float GeometryCore::GetOROCInnerRadius() const
+      {
+	return fChannelMapAlg->GetOROCInnerRadius();
+      }
+        //--------------------------------------------------------------------
+      float GeometryCore::GetOROCPadHeightChangeRadius() const
+      {
+	return fChannelMapAlg->GetOROCPadHeightChangeRadius();
+      }
+        //--------------------------------------------------------------------
+      float GeometryCore::GetOROCOuterRadius() const
+      {
+	return fChannelMapAlg->GetOROCOuterRadius();
+      }
+
         //--------------------------------------------------------------------
         unsigned int GeometryCore::NearestChannel(const float worldLoc[3]) const
         {

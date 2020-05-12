@@ -11,6 +11,7 @@ standard_tpcvechitfinder2:
 # all parameters below are indexed by pass number
 
  TPCClusterRCut:       [ 280.0, 280.0 ]  # in cm.  To remove the outer pads which may have distorted hits.  No longer needed with new sim
+ TPCClusterGapCut:     [   5.0,   5.0 ]  # in cm -- skip TPC clusters within this distance of a gap
  MaxVecHitLen:         [  20.0,  20.0 ]  # max vector hit length in cm for patrec alg #2
  VecHitRoad:           [   2.0,   2.0 ]  # max dist from a vector hit to a hit to assign it. for patrec alg #2.  in cm.
  VecHitMinTPCClusters: [    10,     5 ]  # minimum number of hits for a vector hit to be considered

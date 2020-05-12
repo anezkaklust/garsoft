@@ -59,13 +59,16 @@ namespace gar {
 
       // Declare member data here.
 
-      std::string fHitLabel;     ///< label of module making hits
-      std::string fTPCClusterLabel; /// label of module for input TPC clusters
-      int    fPrintLevel;           ///< debug printout:  0: none, 1: selected, 2: all
-      size_t fMinNumTPCClusters;           ///< minimum number of hits for a patrec track
+      std::string fHitLabel;         ///< label of module making hits
+      std::string fTPCClusterLabel;  /// label of module for input TPC clusters
+      int    fPrintLevel;            ///< debug printout:  0: none, 1: selected, 2: all
+      size_t fMinNumTPCClusters;     ///< minimum number of hits for a patrec track
 
-      float  fSortTransWeight;      ///< for use in the hit sorting algorithm -- transverse distance weight factor
-      float  fSortDistBack;         ///< for use in the hit sorting algorithm -- how far to go back before raising the distance figure of merit
+      float  fSortTransWeight;       ///< for use in the hit sorting algorithm -- transverse distance weight factor
+      float  fSortDistBack;          ///< for use in the hit sorting algorithm -- how far to go back before raising the distance figure of merit
+      float  fTPCClusterRCut;        ///< maximum radius from center of TPC in YZ to take a cluster
+      float  fTPCClusterGapCut;      ///< in cm -- skip TPC clusters within this distance of a gap
+
       unsigned int fInitialTPNTPCClusters; ///< number of hits to use for initial trackpar estimate, if present
 
       // rough estimate of track parameters
@@ -76,13 +79,15 @@ namespace gar {
 
     tpcpatreccheat::tpcpatreccheat(fhicl::ParameterSet const& p) : EDProducer{p}
       {
-        fHitLabel           = p.get<std::string>("HitLabel","hit");
-        fTPCClusterLabel    = p.get<std::string>("TPCClusterLabel","tpccluster");
-        fPrintLevel         = p.get<int>("PrintLevel",0);
-        fMinNumTPCClusters  = p.get<size_t>("MinNumTPCClusters",20);
+        fHitLabel                 = p.get<std::string>("HitLabel","hit");
+        fTPCClusterLabel          = p.get<std::string>("TPCClusterLabel","tpccluster");
+        fPrintLevel               = p.get<int>("PrintLevel",0);
+        fMinNumTPCClusters        = p.get<size_t>("MinNumTPCClusters",20);
         fInitialTPNTPCClusters    = p.get<unsigned int>("InitialTPNTPCClusters",100);
-        fSortTransWeight    = p.get<float>("SortTransWeight",0.1);
-        fSortDistBack       = p.get<float>("SortDistBack",2.0);
+	fTPCClusterRCut           = p.get<float>("TPCClusterRCut",280.0);
+	fTPCClusterGapCut           = p.get<float>("TPCClusterGapCut",5.0);
+        fSortTransWeight          = p.get<float>("SortTransWeight",0.1);
+        fSortDistBack             = p.get<float>("SortDistBack",2.0);
 
         art::InputTag hitTag(fHitLabel);
         art::InputTag TPCClusterTag(fTPCClusterLabel);
@@ -101,8 +106,8 @@ namespace gar {
 
       if( e.isRealData() ){
         throw cet::exception("tpcpatreccheat")
-        << "Attempting to cheat the track pattern recognition for real data, "
-        << "that will never work";
+        << "Attempting to cheat the track pattern recognition for real data. "
+        << "That will not work";
       }
 
       auto TPCClusterHandle = e.getValidHandle< std::vector<gar::rec::TPCCluster> >(fTPCClusterLabel);
@@ -118,7 +123,9 @@ namespace gar {
 
       auto bt = gar::providerFrom<cheat::BackTracker>();
       auto geo = gar::providerFrom<geo::Geometry>();
-      float xtpccent = geo->TPCXCent();
+      TVector3 xhat(1,0,0);
+      TVector3 tpccent(geo->TPCXCent(),geo->TPCYCent(),geo->TPCZCent());
+
 
       // Do everything separately for the two sides -- do not make a single track out of pieces on either side of the cathode
 
@@ -127,6 +134,27 @@ namespace gar {
 	  std::map<int, std::set<size_t> > trackIDclusmap;
 	  for (size_t iclus = 0; iclus<TPCClusters.size(); ++iclus)
 	    {
+	      TVector3 cluspos(TPCClusters.at(iclus).Position());
+	      TVector3 cprel = cluspos - tpccent;
+	      float rclus = (cprel.Cross(xhat)).Mag();
+	      if ( rclus > fTPCClusterRCut ) continue;
+
+	      // logic to see if a hit is close to a gap and skip if it is
+	      if ( rclus > geo->GetIROCInnerRadius())
+		{
+		  float phi = TMath::ATan2(cprel.Z(),cprel.Y());
+		  if (phi<0) phi += 2.0*TMath::Pi();
+		  float phisc = phi/( TMath::Pi()/9.0 );
+		  UInt_t isector = TMath::Floor(phisc); // assumes the sector boundary is at phi=0  // goes from 0 to 17
+		  // rotate this back down to a single sector
+		  float rotang = ( isector*TMath::Pi()/9.0 );
+		  float crot = TMath::Cos(rotang);
+		  float srot = TMath::Sin(rotang);
+		  //float zrot =    cprel.Z()*crot + cprel.Y()*srot;
+		  float yrot =  - cprel.Z()*srot + cprel.Y()*crot;
+		  if (TMath::Abs(yrot) < fTPCClusterGapCut) continue;
+		}
+
 	      float totcharge = 0;
 	      std::map<int, float> chargemap;  // trackID to charge map -- charge is in electrons
 	      auto hits = HitsFromTPCClusters.at(iclus);
@@ -136,7 +164,7 @@ namespace gar {
 		  float chanpos[3];
 		  geo->ChannelToPosition(channel,chanpos);
 		  int hitside = 1;
-		  if (chanpos[0] < xtpccent)
+		  if (chanpos[0] < tpccent.X())
 		    {
 		      hitside = -1;
 		    }
