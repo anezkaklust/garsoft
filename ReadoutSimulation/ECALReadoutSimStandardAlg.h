@@ -50,7 +50,7 @@ namespace gar{
 
             raw::CaloRawDigit* DoStripDigitization(float x, float y, float z, float energy, float time, raw::CellID_t cID) const;
 
-            std::array<double, 3> CalculatePosition(float x, float y, float z, raw::CellID_t cID) const;
+            std::pair< std::array<double, 3>, bool > CalculatePosition(float x, float y, float z, raw::CellID_t cID) const;
 
             std::pair<float, float> DoLightPropagation(float x, float y, float z, float time, raw::CellID_t cID) const;
 

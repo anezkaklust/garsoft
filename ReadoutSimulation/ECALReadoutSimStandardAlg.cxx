@@ -126,12 +126,14 @@ namespace gar {
             if(fTimeSmearing)
                 new_time = this->DoTimeSmearing(time);
 
-            //Calculate the position of the tile
-            std::array<double, 3> pos = this->CalculatePosition(x, y, z, cID);
+            //Calculate the position of the strip
+            std::pair< std::array<double, 3>, bool > calc_pos = this->CalculatePosition(x, y, z, cID);
             //Check if need to drop the hit
-            if ( pos[0] == 99999. ) {
+            if ( calc_pos.second ) {
                 return nullptr;
             }
+
+            std::array<double, 3> pos = calc_pos.first;
 
             raw::CaloRawDigit *digihit = new raw::CaloRawDigit( static_cast<unsigned int>(new_energy), new_time, pos[0], pos[1], pos[2], cID );
 
@@ -156,11 +158,13 @@ namespace gar {
             float new_energy = this->DoPhotonStatistics(x, y, z, energy);
 
             //Calculate the position of the strip
-            std::array<double, 3> pos = this->CalculatePosition(x, y, z, cID);
+            std::pair< std::array<double, 3>, bool > calc_pos = this->CalculatePosition(x, y, z, cID);
             //Check if need to drop the hit
-            if ( pos[0] == 99999. ) {
+            if ( calc_pos.second ) {
                 return nullptr;
             }
+
+            std::array<double, 3> pos = calc_pos.first;
 
             //make the shared ptr
             raw::CaloRawDigit *digihit = new raw::CaloRawDigit( static_cast<unsigned int>(new_energy), times, pos[0], pos[1], pos[2], cID );
@@ -238,8 +242,10 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::array<double, 3> ECALReadoutSimStandardAlg::CalculatePosition(float x, float y, float z, raw::CellID_t cID) const
+        std::pair< std::array<double, 3>, bool > ECALReadoutSimStandardAlg::CalculatePosition(float x, float y, float z, raw::CellID_t cID) const
         {
+            bool drop = false;
+
             //Use the segmentation algo to get the position
             std::array<double, 3> point = {x, y, z};
             TGeoNode *node = fGeo->FindNode(point);//Node in cm...
@@ -270,10 +276,10 @@ namespace gar {
                 << " Dropping the hit ";
 
                 //Drop the hit
-                point_back = { 99999., 99999., 99999. };
+                drop = true;
             }
 
-            return point_back;
+            return std::make_pair(point_back, drop);
         }
 
         //----------------------------------------------------------------------------
