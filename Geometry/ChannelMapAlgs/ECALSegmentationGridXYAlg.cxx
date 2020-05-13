@@ -54,6 +54,8 @@ namespace gar {
                 _offsetX = pset.get<double>("offset_x");
                 _offsetY = pset.get<double>("offset_y");
 
+                _nLayers = pset.get<unsigned int>("nlayers");
+
                 PrintParameters();
 
                 return;

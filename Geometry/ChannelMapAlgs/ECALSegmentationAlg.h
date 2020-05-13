@@ -55,6 +55,11 @@ namespace gar {
                     return _stripSizeX;
                 }
 
+
+                virtual const unsigned int& nLayers() const {
+                    return _nLayers;
+                }
+
                 virtual void setDecoder(const BitFieldCoder* decoder);
 
                 //Pure virtual member functions
@@ -104,6 +109,8 @@ namespace gar {
 
                 double _stripSizeX;
 
+                unsigned int _nLayers;
+                
                 const BitFieldCoder* _decoder = 0;
 
             private:

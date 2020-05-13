@@ -23,7 +23,7 @@ namespace gar {
                 _type = "MultiGridStripXY";
                 _description = "Cartesian segmentation in the local XY-plane, containing integer number of tiles/strips/cells";
 
-                std::cout << " ######### gar::geo::seg::ECALSegmentationMultiGridStripXYAlg() " << std::endl ;
+                std::cout << "######### gar::geo::seg::ECALSegmentationMultiGridStripXYAlg() " << std::endl ;
 
                 this->reconfigure(pset);
             }
@@ -36,7 +36,7 @@ namespace gar {
                 _type = "MultiGridStripXY";
                 _description = "Cartesian segmentation in the local XY-plane, containing integer number of tiles/strips/cells";
 
-                std::cout << " ######### gar::geo::seg::ECALSegmentationMultiGridStripXYAlg() " << std::endl ;
+                std::cout << "######### gar::geo::seg::ECALSegmentationMultiGridStripXYAlg() " << std::endl ;
 
                 this->reconfigure(pset);
             }
@@ -68,6 +68,8 @@ namespace gar {
 
                 _gridEndcapLayers = pset.get< std::vector<std::string> >("grid_endcap_layers");
                 _stripEndcapLayers = pset.get< std::vector<std::string> >("strip_endcap_layers");
+
+                _nLayers = pset.get<unsigned int>("nlayers");
 
                 _frac = 1./3.;
 

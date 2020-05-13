@@ -70,6 +70,8 @@ namespace gar {
 
                 const std::string& fieldNameSlice() const { return _sliceId; }
 
+                const unsigned int& nLayers() const { return _nLayers; }
+
                 void setGridSizeX(double cellSize) { _gridSizeX = cellSize; }
 
                 void setGridSizeY(double cellSize) { _gridSizeY = cellSize; }
@@ -120,6 +122,8 @@ namespace gar {
                 double _stripSizeY;
                 /// fraction of tiles to remove at the edge
                 double _frac;
+                /// number of layers
+                unsigned int _nLayers;
 
                 /// the layers (start::end) for grid in Barrel
                 std::vector<std::string> _gridBarrelLayers;

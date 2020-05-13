@@ -8,6 +8,7 @@ grid_size_x: 1. # cm
 grid_size_y: 1. # cm
 offset_x: 0. # cm
 offset_y: 0. # cm
+nlayers: 60
 identifier_x: "x"
 identifier_y: "y"
 }
@@ -20,6 +21,8 @@ grid_size_x: 2.5 # cm
 grid_size_y: 2.5 # cm
 offset_x: 1.25 # cm for the tiles only
 offset_y: 1.25 # cm for the tiles only
+nlayers: 60
+
 identifier_x: "cellX"
 identifier_y: "cellY"
 identifier_layer: "layer"

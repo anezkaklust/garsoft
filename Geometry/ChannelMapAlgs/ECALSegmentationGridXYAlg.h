@@ -50,6 +50,8 @@ namespace gar {
 
                 const std::string& fieldNameY() const { return _yId; }
 
+                const unsigned int& nLayers() const { return _nLayers; }
+
                 void setGridSizeX(double cellSize) { _gridSizeX = cellSize; }
 
                 void setGridSizeY(double cellSize) { _gridSizeY = cellSize; }
@@ -80,6 +82,8 @@ namespace gar {
                 std::string _xId;
                 /// the field name used for Y
                 std::string _yId;
+                /// number of layers
+                unsigned int _nLayers;
 
                 /// layer dimension in X
                 mutable double _layer_dim_X;
