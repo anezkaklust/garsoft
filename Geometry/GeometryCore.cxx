@@ -1080,6 +1080,12 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
+        std::string GeometryCore::GetCellIDEncoding() const
+        {
+            return fECALSegmentationAlg->cellEncoding();
+        }
+
+        //----------------------------------------------------------------------------
         std::array<double, 3> GeometryCore::GetPosition(const TGeoNode *node, const gar::raw::CellID_t &cID) const
         {
             const std::array<double, 3> shape = this->FindShapeSize(node);
@@ -1087,12 +1093,6 @@ namespace gar {
             fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
 
             return fECALSegmentationAlg->GetPosition(*this, cID);
-        }
-
-        //----------------------------------------------------------------------------
-        int GeometryCore::getIDbyCellID(const gar::raw::CellID_t& cID, const char* identifier) const
-        {
-            return fECALSegmentationAlg->getIDbyCellID(cID, identifier);
         }
 
         //----------------------------------------------------------------------------

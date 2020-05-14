@@ -14,7 +14,8 @@ namespace gar {
         //--------------------------------------------------------------------------
         CaloHit::CaloHit()
         : fEnergy(0.),
-        fCellID(0.)
+        fCellID(0.),
+        fLayer(0.)
         {
             IDNumberGen::create(FirstNumber);
             fIDnumero = IDNumberGen::create()->getNewOne();
@@ -40,9 +41,10 @@ namespace gar {
 
 
         //--------------------------------------------------------------------------
-        CaloHit::CaloHit(float energy, float time, float *pos, raw::CellID_t cellID)
+        CaloHit::CaloHit(float energy, float time, float *pos, raw::CellID_t cellID, unsigned int layer)
         : fEnergy  (energy  )
-        , fCellID     (cellID  )
+        , fCellID  (cellID  )
+        , fLayer   (layer   )
         {
             IDNumberGen::create(FirstNumber);
             fIDnumero = IDNumberGen::create()->getNewOne();
@@ -57,10 +59,11 @@ namespace gar {
         }
 
         //--------------------------------------------------------------------------
-        CaloHit::CaloHit(float energy, std::pair<float, float> time, float *pos, raw::CellID_t cellID)
-        : fEnergy  (energy  )
-        , fTime(time)
-        , fCellID     (cellID  )
+        CaloHit::CaloHit(float energy, std::pair<float, float> time, float *pos, raw::CellID_t cellID, unsigned int layer)
+        : fEnergy (energy  )
+        , fTime   (time    )
+        , fCellID (cellID  )
+        , fLayer  (layer   )
         {
             IDNumberGen::create(FirstNumber);
             fIDnumero = IDNumberGen::create()->getNewOne();
@@ -116,46 +119,16 @@ namespace gar {
         }
 
         //--------------------------------------------------------------------------
-        const unsigned int CaloHit::GetDetectorID() const
-        {
-            gar::geo::GeometryCore const* fGeo = gar::providerFrom<geo::Geometry>();
-            return fGeo->getIDbyCellID(this->CellID(), "system");
-        }
-
-        //--------------------------------------------------------------------------
-        const unsigned int CaloHit::GetLayer() const
-        {
-            gar::geo::GeometryCore const* fGeo = gar::providerFrom<geo::Geometry>();
-            return fGeo->getIDbyCellID(this->CellID(), "layer");
-        }
-
-        //--------------------------------------------------------------------------
-        const unsigned int CaloHit::GetModule() const
-        {
-            gar::geo::GeometryCore const* fGeo = gar::providerFrom<geo::Geometry>();
-            return fGeo->getIDbyCellID(this->CellID(), "module");
-        }
-
-        //--------------------------------------------------------------------------
-        const unsigned int CaloHit::GetStave() const
-        {
-            gar::geo::GeometryCore const* fGeo = gar::providerFrom<geo::Geometry>();
-            return fGeo->getIDbyCellID(this->CellID(), "stave");
-        }
-
-        //--------------------------------------------------------------------------
         const unsigned int CaloHit::GetCellLengthScale() const
         {
-            gar::geo::GeometryCore const* fGeo = gar::providerFrom<geo::Geometry>();
-
-            if(fGeo->isTile(this->CellID()))
+            if(gar::providerFrom<geo::Geometry>()->isTile(this->CellID()))
             {
-                return std::sqrt( fGeo->getTileSize() * fGeo->getTileSize() );
+                return std::sqrt( gar::providerFrom<geo::Geometry>()->getTileSize() * gar::providerFrom<geo::Geometry>()->getTileSize() );
             }
             else
             {
                 std::array<double, 3> point = {this->Position()[0], this->Position()[1], this->Position()[2]};
-                return std::sqrt( fGeo->getStripWidth() * fGeo->getStripLength(point, this->CellID()) );
+                return std::sqrt( gar::providerFrom<geo::Geometry>()->getStripWidth() * gar::providerFrom<geo::Geometry>()->getStripLength(point, this->CellID()) );
             }
         }
 

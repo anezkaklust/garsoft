@@ -27,7 +27,6 @@ namespace gar {
             StripSplitterAlg::StripSplitterAlg(fhicl::ParameterSet const& pset)
             {
                 ClearLists();
-                this->reconfigure(pset);
 
                 fGeo = gar::providerFrom<geo::Geometry>();
                 fInnerSymmetry = fGeo->GetECALInnerSymmetry();
@@ -35,12 +34,15 @@ namespace gar {
                 fStripLength = -1;//cm
                 fnVirtual = 1;
 
+                this->reconfigure(pset);
+
                 return;
             }
 
             //----------------------------------------------------------------------------
             StripSplitterAlg::~StripSplitterAlg()
             {
+                if ( fFieldDecoder ) delete fFieldDecoder;
                 return;
             }
 
@@ -49,6 +51,9 @@ namespace gar {
             {
                 fSSAAlgName = pset.get<std::string>("SSAAlgName");
                 fSaveStripEnds = pset.get<bool>("SaveStripEnds", false);
+
+                std::string fEncoding = fGeo->GetCellIDEncoding();
+                fFieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
 
                 return;
             }
@@ -69,6 +74,12 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
+            bool StripSplitterAlg::SortByLayer(const gar::rec::CaloHit* rha, const gar::rec::CaloHit* rhb)
+            {
+                return rha->Layer() < rhb->Layer() ;
+            }
+
+            //----------------------------------------------------------------------------
             void StripSplitterAlg::PrepareAlgo(const std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector)
             {
                 LOG_DEBUG("StripSplitterAlg")
@@ -84,17 +95,17 @@ namespace gar {
                     const gar::rec::CaloHit *hit = hitPtr.get();
 
                     //check the layer
-                    unsigned int layer = hit->GetLayer();
+                    unsigned int layer = hit->Layer();
                     if(layer%2 == 0)
-                    m_CaloHitVecEven.emplace_back( hit );
+                        m_CaloHitVecEven.emplace_back( hit );
                     else{
                         m_CaloHitVecOdd.emplace_back( hit );
                     }
                 }
 
                 //Sort the hits by layer
-                std::sort( m_CaloHitVecEven.begin(), m_CaloHitVecEven.end(), [](const gar::rec::CaloHit* rha, const gar::rec::CaloHit* rhb) { return rha->GetLayer() < rhb->GetLayer();} );
-                std::sort( m_CaloHitVecOdd.begin(), m_CaloHitVecOdd.end(), [](const gar::rec::CaloHit* rha, const gar::rec::CaloHit* rhb) { return rha->GetLayer() < rhb->GetLayer();} );
+                std::sort( m_CaloHitVecEven.begin(), m_CaloHitVecEven.end(), StripSplitterAlg::SortByLayer );
+                std::sort( m_CaloHitVecOdd.begin(), m_CaloHitVecOdd.end(), StripSplitterAlg::SortByLayer );
 
                 return;
             }
@@ -118,16 +129,17 @@ namespace gar {
                     LOG_DEBUG("StripSplitterAlg")
                     << "Start Loop " << icol;
 
-                    switch (icol) {
-                    case 0:
+                    switch (icol) 
+                    {
+                        case 0:
                         orientation = TRANSVERSE;//even layers
                         toSplit = &m_CaloHitVecEven;
                         break;
-                    case 1:
+                        case 1:
                         orientation = LONGITUDINAL;//odd layers
                         toSplit = &m_CaloHitVecOdd;
                         break;
-                    default:
+                        default:
                         LOG_ERROR("StripSplitterAlg::DoStripSplitting")
                         << "Crazy stuff!";
                         throw cet::exception("StripSplitterAlg::DoStripSplitting");
@@ -140,46 +152,42 @@ namespace gar {
 
                         // is this a barrel or endcap collection?
                         TVector3 point(hit->Position()[0], hit->Position()[1], hit->Position()[2]);
-                        std::string volname = fGeo->VolumeName(point);
+                        //1 == Barrel, 2 == Endcap
+                        unsigned int det_id = fFieldDecoder->get(hit->CellID(), "system");
 
-                        LOG_DEBUG("StripSplitterAlg")
-                        << " Getting hit1 " << i
-                        << " isTile " << fGeo->isTile(hit->CellID())
-                        << " pointing at " << hit
-                        << " orientation " << (orientation == LONGITUDINAL ? "LONGITUDINAL" : "TRANSVERSE")
-                        << " in volume " << volname;
-
-                        bool isBarrel = hit->GetDetectorID() == 0 ? true : false; //0 == Barrel, 1 == Endcap
-                        if ( volname.find("Barrel") == std::string::npos && volname.find("barrel") == std::string::npos && volname.find("Endcap") == std::string::npos && volname.find("endcap") == std::string::npos ) {
+                        if ( det_id != 1 && det_id != 2 ) 
+                        {
                             LOG_ERROR("StripSplitterAlg::DoStripSplitting")
+                            << " Check det it " << det_id
                             << " Problem with Hit " << i
                             << " isTile " << fGeo->isTile(hit->CellID())
                             << " pointing at " << hit
                             << " at position ( " << hit->Position()[0] << " cm , " << hit->Position()[1] << " cm , " << hit->Position()[2] << " cm )"
-                            << " orientation " << (orientation == LONGITUDINAL ? "LONGITUDINAL" : "TRANSVERSE")
-                            << " in volume " << volname;
+                            << " orientation " << (orientation == LONGITUDINAL ? "LONGITUDINAL" : "TRANSVERSE");
                             throw cet::exception("StripSplitterAlg::DoStripSplitting");
-                            // continue;
                         }
 
                         // split the hits
                         std::vector <const gar::rec::CaloHit*> virtualhits;
+                        bool isBarrel = det_id == 0 ? true : false; 
                         getVirtualHits(hit, orientation, isBarrel, virtualhits);
 
                         // add (new) hits to collections
-                        if (virtualhits.size() == 0) {
+                        if (virtualhits.size() == 0) 
+                        {
+
                             LOG_DEBUG("StripSplitterAlg")
                             << " Adding unsplit hit1 " << i
                             << " isTile " << fGeo->isTile(hit->CellID())
                             << " pointing at " << hit
-                            << " orientation " << (orientation == LONGITUDINAL ? "LONGITUDINAL" : "TRANSVERSE")
-                            << " in volume " << volname;
+                            << " orientation " << (orientation == LONGITUDINAL ? "LONGITUDINAL" : "TRANSVERSE");
 
                             // not split, add original hit
                             unSplitStripHits.emplace_back(hit);
                         } else {
                             // split was split, add the virtual hits
-                            for (uint hh = 0; hh < virtualhits.size(); hh++) {
+                            for (uint hh = 0; hh < virtualhits.size(); hh++) 
+                            {
 
                                 LOG_DEBUG("StripSplitterAlg")
                                 << "adding virtual hit " << hh;
@@ -201,10 +209,11 @@ namespace gar {
 
                 // this splits the strip into zero or more hits along its length
                 // by looking at nearby hits with different orientation (trans/long or square)
-                int detid = hit->GetDetectorID();
-                int layer  = hit->GetLayer();
-                int module = hit->GetModule();
-                int stave  = hit->GetStave();
+
+                int detid = fFieldDecoder->get(hit->CellID(), "system");
+                int layer  = hit->Layer();
+                int module = fFieldDecoder->get(hit->CellID(), "module");
+                int stave  = fFieldDecoder->get(hit->CellID(), "stave");
 
                 std::array<double, 3> pt = { hit->Position()[0], hit->Position()[1], hit->Position()[2] };
                 fStripLength = fGeo->getStripLength(pt, hit->CellID());
@@ -225,14 +234,14 @@ namespace gar {
                     ppp[1] = stripEnds.first.Y();
                     ppp[2] = stripEnds.first.Z();
 
-                    const gar::rec::CaloHit* StripEndHit1 = new gar::rec::CaloHit(0.01, 0., ppp, 0.);
+                    const gar::rec::CaloHit* StripEndHit1 = new gar::rec::CaloHit(0.01, 0., ppp, 0., 0);
                     fStripEndsHits.emplace_back(StripEndHit1);
 
                     ppp[0] = stripEnds.second.X();
                     ppp[1] = stripEnds.second.Y();
                     ppp[2] = stripEnds.second.Z();
 
-                    const gar::rec::CaloHit* StripEndHit2 = new gar::rec::CaloHit(0.01, 0., ppp, 0.);
+                    const gar::rec::CaloHit* StripEndHit2 = new gar::rec::CaloHit(0.01, 0., ppp, 0., 0);
                     fStripEndsHits.emplace_back(StripEndHit2);
                 }
 
@@ -256,276 +265,277 @@ namespace gar {
 
                 // loop over splitter cols, find nearby hits
                 // strips, cells
-                for (int jj = 0; jj < 2; jj++) {
-                std::vector <const gar::rec::CaloHit*> *splitter = splitterVec;
-
-                for (uint i = 0; i < splitter->size(); i++)
+                for (int jj = 0; jj < 2; jj++) 
                 {
-                    const gar::rec::CaloHit *hit2 = splitter->at(i);
+                    std::vector <const gar::rec::CaloHit*> *splitter = splitterVec;
 
-                    int detid2 = hit2->GetDetectorID();
-                    int layer2  = hit2->GetLayer();
-                    int module2 = hit2->GetModule();
-                    int stave2  = hit2->GetStave();
-
-                    int ddetid = std::abs(detid2 - detid);
-                    int dlayer = std::abs(layer2 - layer);
-                    int dstave = std::abs(stave2 - stave);
-                    int dmodule = std::abs(module2 - module);
-
-                    TVector3 point2(hit2->Position()[0], hit2->Position()[1], hit2->Position()[2]);
-                    std::string volname = fGeo->VolumeName(point2);
-
-                    //if they are in different part of the det, ignore
-                    if(ddetid != 0) continue;
-
-                    //TODO CHECK!
-                    // are the two hits close enough to look at further?
-                    // if hits in same module and same stave, require that only one layer difference
-                    if (dmodule == 0 && dstave == 0 && dlayer > 1) continue;
-
-                    if (isBarrel)
+                    for (uint i = 0; i < splitter->size(); i++)
                     {
-                        dstave = std::min( dstave, fInnerSymmetry - dstave);
-                        if ( dstave == 0 && dmodule > 1 ) continue; // allow same stave and +- 1 module
-                        if ( dmodule == 0 && dstave > 1 ) continue; // or same module +- 1 stave
-                        if ( dstave == 0 && dlayer > 1) continue;   // if in same stave, require dlayer==1
-                    }
-                    else
-                    {
-                        //module == 0 or 6 for endcap
-                        //stave is from 1 to 4
-                        //TODO Check this!
-                        //endcap
-                        dstave = std::min( dstave, 4 - dstave);
-                        if (dmodule != 0) continue; // different endcap
-                        if (dstave > 1) continue;   // more than 1 stave (=quarter endcap) apart
-                        if (dlayer > 1) continue;   // more than 1 layer apart
-                    }
+                        const gar::rec::CaloHit *hit2 = splitter->at(i);
 
-                    LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
-                    << " Getting hit2 " << i
-                    << " isTile " << fGeo->isTile(hit2->CellID())
-                    << " pointing at " << hit2
-                    << " orientation " << (splitterOrientation == LONGITUDINAL ? "LONGITUDINAL" : "TRANSVERSE")
-                    << " in volume " << volname
-                    << " dtave " << dstave
-                    << " dmodule " << dmodule
-                    << " dlayer " << dlayer;
+                        int detid2 = fFieldDecoder->get(hit2->CellID(), "system");
+                        int layer2  = hit2->Layer();
+                        int module2 = fFieldDecoder->get(hit2->CellID(), "module");
+                        int stave2  = fFieldDecoder->get(hit2->CellID(), "stave");
 
-                    // simple distance check for remaining hit pairs
-                    float dist = std::sqrt( std::pow(hit2->Position()[0] - hit->Position()[0], 2) + std::pow(hit2->Position()[1] - hit->Position()[1], 2) + std::pow(hit2->Position()[2] - hit->Position()[2], 2) );
+                        int ddetid = std::abs(detid2 - detid);
+                        int dlayer = std::abs(layer2 - layer);
+                        int dstave = std::abs(stave2 - stave);
+                        int dmodule = std::abs(module2 - module);
 
-                    if (dist > 2*fStripLength) {
-                        LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
-                        << " Distance between hit1 and hit2 " << dist
-                        << " > 2*fStripLength " << 2*fStripLength;
-                        continue;
-                    }
+                        TVector3 point2(hit2->Position()[0], hit2->Position()[1], hit2->Position()[2]);
 
-                    // for remaining hits, check if they overlap
-                    TVector3 stripDir2(0, 0, 0);
-                    if (jj == 0) {
-                        //strip
-                        std::array<double, 3> pt2 = { hit2->Position()[0], hit2->Position()[1], hit2->Position()[2] };
-                        std::pair < TVector3, TVector3 > stripEnds2 = fGeo->GetStripEnds(pt2, hit2->CellID());
-                        stripDir2 = stripEnds2.first - stripEnds2.second;
-                    }
+                        //if they are in different part of the det, ignore
+                        if(ddetid != 0) continue;
 
-                    // check if strips intersect
-                    TVector3 intercept = stripIntersect(hit, stripDir, hit2, stripDir2);
-                    // intercept found, calculate in which virtual cell
-                    if (intercept.Mag() > 0)
-                    {
-                        nSplitters++;
-                        float frac(-1);
-                        for (int ii = 0; ii < 3; ii++) {
-                            float dx = stripEnds.second[ii] - stripEnds.first[ii];
-                            if (std::fabs(dx) > 0.1) {
-                                frac = ( intercept[ii] - stripEnds.first[ii] ) / dx;
-                                break;
-                            }
+                        //TODO CHECK!
+                        // are the two hits close enough to look at further?
+                        // if hits in same module and same stave, require that only one layer difference
+                        if (dmodule == 0 && dstave == 0 && dlayer > 1) continue;
+
+                        if (isBarrel)
+                        {
+                            dstave = std::min( dstave, fInnerSymmetry - dstave);
+                            if ( dstave == 0 && dmodule > 1 ) continue; // allow same stave and +- 1 module
+                            if ( dmodule == 0 && dstave > 1 ) continue; // or same module +- 1 stave
+                            if ( dstave == 0 && dlayer > 1) continue;   // if in same stave, require dlayer==1
+                        }
+                        else
+                        {
+                            //module == 0 or 6 for endcap
+                            //stave is from 1 to 4
+                            //TODO Check this!
+                            //endcap
+                            dstave = std::min( dstave, 4 - dstave);
+                            if (dmodule != 0) continue; // different endcap
+                            if (dstave > 1) continue;   // more than 1 stave (=quarter endcap) apart
+                            if (dlayer > 1) continue;   // more than 1 layer apart
                         }
 
-                        if (frac >= 0.0 && frac <= 1.0)
+                        LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
+                        << " Getting hit2 " << i
+                        << " isTile " << fGeo->isTile(hit2->CellID())
+                        << " pointing at " << hit2
+                        << " orientation " << (splitterOrientation == LONGITUDINAL ? "LONGITUDINAL" : "TRANSVERSE")
+                        << " dtave " << dstave
+                        << " dmodule " << dmodule
+                        << " dlayer " << dlayer;
+
+                        // simple distance check for remaining hit pairs
+                        float dist = std::sqrt( std::pow(hit2->Position()[0] - hit->Position()[0], 2) + std::pow(hit2->Position()[1] - hit->Position()[1], 2) + std::pow(hit2->Position()[2] - hit->Position()[2], 2) );
+
+                        if (dist > 2*fStripLength) {
+                            LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
+                            << " Distance between hit1 and hit2 " << dist
+                            << " > 2*fStripLength " << 2*fStripLength;
+                            continue;
+                        }
+
+                        // for remaining hits, check if they overlap
+                        TVector3 stripDir2(0, 0, 0);
+                        if (jj == 0) {
+                            //strip
+                            std::array<double, 3> pt2 = { hit2->Position()[0], hit2->Position()[1], hit2->Position()[2] };
+                            std::pair < TVector3, TVector3 > stripEnds2 = fGeo->GetStripEnds(pt2, hit2->CellID());
+                            stripDir2 = stripEnds2.first - stripEnds2.second;
+                        }
+
+                        // check if strips intersect
+                        TVector3 intercept = stripIntersect(hit, stripDir, hit2, stripDir2);
+                        // intercept found, calculate in which virtual cell
+                        if (intercept.Mag() > 0)
                         {
-                            int segment = int(frac * fnVirtual);
-                            if (segment >= 0 && segment < fnVirtual) {
-                                if (virtEnergy.find(segment) != virtEnergy.end()) {
-                                    virtEnergy[segment] += hit2->Energy();
-                                } else {
-                                    virtEnergy[segment] = hit2->Energy();
+                            nSplitters++;
+                            float frac(-1);
+                            for (int ii = 0; ii < 3; ii++) {
+                                float dx = stripEnds.second[ii] - stripEnds.first[ii];
+                                if (std::fabs(dx) > 0.1) {
+                                    frac = ( intercept[ii] - stripEnds.first[ii] ) / dx;
+                                    break;
                                 }
+                            }
 
-                                if(fSaveStripEnds)
+                            if (frac >= 0.0 && frac <= 1.0)
+                            {
+                                int segment = int(frac * fnVirtual);
+                                if (segment >= 0 && segment < fnVirtual) 
                                 {
-                                    float pos[3];
-                                    pos[0] = intercept.X();
-                                    pos[1] = intercept.Y();
-                                    pos[2] = intercept.Z();
+                                    if (virtEnergy.find(segment) != virtEnergy.end()) 
+                                    {
+                                        virtEnergy[segment] += hit2->Energy();
+                                    } else {
+                                        virtEnergy[segment] = hit2->Energy();
+                                    }
 
-                                    const gar::rec::CaloHit* interhit = new gar::rec::CaloHit(0.1, 0., pos, 0.);
-                                    fIntersectionHits.emplace_back(interhit);
+                                    if(fSaveStripEnds)
+                                    {
+                                        float pos[3];
+                                        pos[0] = intercept.X();
+                                        pos[1] = intercept.Y();
+                                        pos[2] = intercept.Z();
+
+                                        const gar::rec::CaloHit* interhit = new gar::rec::CaloHit(0.1, 0., pos, 0., 0);
+                                        fIntersectionHits.emplace_back(interhit);
+                                    }
+
+                                } else {
+                                    LOG_DEBUG ("StripSplitterAlg::getVirtualHits()")
+                                    << "strange segment " << segment
+                                    << " frac = " << frac
+                                    << " nvirt = " << fnVirtual;
                                 }
-
                             } else {
                                 LOG_DEBUG ("StripSplitterAlg::getVirtualHits()")
-                                << "strange segment " << segment
-                                << " frac = " << frac
-                                << " nvirt = " << fnVirtual;
+                                << "strange frac " << frac;
                             }
-                        } else {
-                            LOG_DEBUG ("StripSplitterAlg::getVirtualHits()")
-                            << "strange frac " << frac;
                         }
                     }
                 }
-            }
-
-            LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
-            << " Number of splitters " << nSplitters;
-
-            // now create the virtual cells, and assign energy
-            float totenergy(0);
-            for (std::map <int, float>::iterator it = virtEnergy.begin(); it != virtEnergy.end(); ++it) {
-                totenergy += it->second;
-            }
-
-            for (std::map <int, float>::iterator it = virtEnergy.begin(); it != virtEnergy.end(); ++it) {
-                // energy of hit
-                float energy = hit->Energy() * it->second / totenergy;
-                // position of hit
-                TVector3 virtualCentre = stripEnds.second - stripEnds.first;
-                virtualCentre *= (it->first + 0.5) / fnVirtual;
-                virtualCentre += stripEnds.first;
-
-                float pos[3];
-                pos[0] = virtualCentre.X();
-                pos[1] = virtualCentre.Y();
-                pos[2] = virtualCentre.Z();
-
-                // make the new hit
-                const gar::rec::CaloHit* newhit = new gar::rec::CaloHit(energy, hit->Time(), pos, hit->CellID());
 
                 LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
-                << " Creating new virtual hit pointing at " << newhit
-                << " Energy " << energy
-                << " Position " << pos[0] << " " << pos[1] << " " << pos[2];
+                << " Number of splitters " << nSplitters;
 
-                virtualhits.emplace_back(newhit);
+                // now create the virtual cells, and assign energy
+                float totenergy(0);
+                for (std::map <int, float>::iterator it = virtEnergy.begin(); it != virtEnergy.end(); ++it) {
+                    totenergy += it->second;
+                }
+
+                for (std::map <int, float>::iterator it = virtEnergy.begin(); it != virtEnergy.end(); ++it) {
+                // energy of hit
+                    float energy = hit->Energy() * it->second / totenergy;
+                // position of hit
+                    TVector3 virtualCentre = stripEnds.second - stripEnds.first;
+                    virtualCentre *= (it->first + 0.5) / fnVirtual;
+                    virtualCentre += stripEnds.first;
+
+                    float pos[3];
+                    pos[0] = virtualCentre.X();
+                    pos[1] = virtualCentre.Y();
+                    pos[2] = virtualCentre.Z();
+
+                // make the new hit
+                    const gar::rec::CaloHit* newhit = new gar::rec::CaloHit(energy, hit->Time(), pos, hit->CellID(), hit->Layer());
+
+                    LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
+                    << " Creating new virtual hit pointing at " << newhit
+                    << " Energy " << energy
+                    << " Position " << pos[0] << " " << pos[1] << " " << pos[2];
+
+                    virtualhits.emplace_back(newhit);
+                }
             }
-        }
 
         //----------------------------------------------------------------------------
-        TVector3 StripSplitterAlg::stripIntersect(const gar::rec::CaloHit *hit0, const TVector3& dir0, const gar::rec::CaloHit *hit1, const TVector3& dir1)
-        {
-            // find intercept of hit1 with hit0
-            // hit0 must be a strip
-            // hit1 can be an orthogonal strip, or a cell
-            // dir0,1 are direction of strip
-
-            // centre position of cell/strip
-            TVector3 stripCentre[2];
-            stripCentre[0].SetXYZ( hit0->Position()[0], hit0->Position()[1], hit0->Position()[2] );
-            stripCentre[1].SetXYZ( hit1->Position()[0], hit1->Position()[1], hit1->Position()[2] );
-
-            std::array<double, 3> pt = { hit0->Position()[0], hit0->Position()[1], hit0->Position()[2] };
-            fStripLength = fGeo->getStripLength(pt, hit0->CellID());
-
-            // direction of strip long axis
-            // 0,0,0 for square cell
-            TVector3 stripDir[2];
-            stripDir[0] = dir0;
-            stripDir[1] = dir1;
-
-            // deal with cell case
-            // define it's direction as perpendicular to strip and vector cell centre to origin
-            bool isStrip[2];
-            for (int i = 0; i < 2; i++)
+            TVector3 StripSplitterAlg::stripIntersect(const gar::rec::CaloHit *hit0, const TVector3& dir0, const gar::rec::CaloHit *hit1, const TVector3& dir1)
             {
-                if ( stripDir[i].Mag() > 1e-10 ) {
-                    isStrip[i] = true;
-                } else {
-                    isStrip[i] = false;
-                    stripDir[i] = stripDir[1-i].Cross(stripCentre[i]);
+                // find intercept of hit1 with hit0
+                // hit0 must be a strip
+                // hit1 can be an orthogonal strip, or a cell
+                // dir0,1 are direction of strip
+
+                // centre position of cell/strip
+                TVector3 stripCentre[2];
+                stripCentre[0].SetXYZ( hit0->Position()[0], hit0->Position()[1], hit0->Position()[2] );
+                stripCentre[1].SetXYZ( hit1->Position()[0], hit1->Position()[1], hit1->Position()[2] );
+
+                std::array<double, 3> pt = { hit0->Position()[0], hit0->Position()[1], hit0->Position()[2] };
+                fStripLength = fGeo->getStripLength(pt, hit0->CellID());
+
+                // direction of strip long axis
+                // 0,0,0 for square cell
+                TVector3 stripDir[2];
+                stripDir[0] = dir0;
+                stripDir[1] = dir1;
+
+                // deal with cell case
+                // define it's direction as perpendicular to strip and vector cell centre to origin
+                bool isStrip[2];
+                for (int i = 0; i < 2; i++)
+                {
+                    if ( stripDir[i].Mag() > 1e-10 ) {
+                        isStrip[i] = true;
+                    } else {
+                        isStrip[i] = false;
+                        stripDir[i] = stripDir[1-i].Cross(stripCentre[i]);
+                    }
+                    // ensure dir is normalised
+                    stripDir[i] *= 1. / stripDir[i].Mag();
                 }
-                // ensure dir is normalised
-                stripDir[i] *= 1. / stripDir[i].Mag();
-            }
 
-            if (not isStrip[0]) {
-                LOG_ERROR ("StripSplitterAlg::stripIntersect")
-                << "first hit should be a strip";
-                throw cet::exception("StripSplitterAlg::stripIntersect");
-            }
-
-            TVector3 p[2][2]; // ends of strips
-            for (int j = 0; j < 2; j++) {
-                for (int i = 0; i < 2; i++) {
-                    float ll = isStrip[j] ? fStripLength : fStripWidth*1.1; // inflate a little for cells
-                    p[j][i] = stripCentre[j] - std::pow(-1, i) * 0.5 * ll * stripDir[j];
+                if (not isStrip[0]) {
+                    LOG_ERROR ("StripSplitterAlg::stripIntersect")
+                    << "first hit should be a strip";
+                    throw cet::exception("StripSplitterAlg::stripIntersect");
                 }
-            }
 
-            TVector3 pNorm[2][2];
-            for (int j = 0; j < 2; j++) {
-                for (int i = 0; i < 2; i++) {
-                    float mm = p[j][i].Mag();
-                    pNorm[j][i] = p[j][i];
-                    pNorm[j][i] *= 1./mm;
-                }
-            }
-
-            TVector3 inPlane[2]; // difference between points: line inside plane
-            for (int j = 0; j < 2; j++) {
-                inPlane[j] = p[j][0] - p[j][1];
-            }
-
-            // vector normal to both lines (this is normal to the plane we're interested in)
-            TVector3 normal = inPlane[0].Cross(inPlane[1]);
-            float mag = normal.Mag();
-            normal *= 1./mag;
-
-            // point on line [0]
-            TVector3 point(p[0][0] + p[0][1]);
-            point *= 0.5;
-
-            // calculate the projected positions of ends of [1] on
-            // the plane which contains "point" with normal "normal"
-            TVector3 qPrime[2];
-            for (int i = 0; i < 2; i++) {
-                float d = ((point - p[1][i]).Dot(normal)) / (pNorm[1][i].Dot(normal));
-                qPrime[i] = p[1][i] + d * pNorm[1][i];
-            }
-
-            // find the intersection of lines qPrime and p (they are in same plane)
-            TVector3 a(p[0][1] - p[0][0]);
-            TVector3 b(qPrime[1] - qPrime[0]);
-            TVector3 c(qPrime[0] - p[0][0]);
-
-            float factor = ( c.Cross(b) ).Dot( a.Cross(b) ) / ( ( a.Cross(b) ).Mag2() );
-
-            TVector3 x = p[0][0] + a*factor;
-
-            // check that two lines really intercept
-            bool intersect = true;
-            for (int ii = 0; ii < 2; ii++) {
-                for (int j = 0; j < 3; j++) {
-                    float d0 = ii ==0 ? x[j] - p[0][0][j] : x[j] - qPrime[0][j];
-                    float d1 = ii ==0 ? x[j] - p[0][1][j] : x[j] - qPrime[1][j];
-                    if ( d0 * d1 > 1e-10 ) {
-                        intersect = false;
+                TVector3 p[2][2]; // ends of strips
+                for (int j = 0; j < 2; j++) {
+                    for (int i = 0; i < 2; i++) {
+                        float ll = isStrip[j] ? fStripLength : fStripWidth*1.1; // inflate a little for cells
+                        p[j][i] = stripCentre[j] - std::pow(-1, i) * 0.5 * ll * stripDir[j];
                     }
                 }
+
+                TVector3 pNorm[2][2];
+                for (int j = 0; j < 2; j++) {
+                    for (int i = 0; i < 2; i++) {
+                        float mm = p[j][i].Mag();
+                        pNorm[j][i] = p[j][i];
+                        pNorm[j][i] *= 1./mm;
+                    }
+                }
+
+                TVector3 inPlane[2]; // difference between points: line inside plane
+                for (int j = 0; j < 2; j++) {
+                    inPlane[j] = p[j][0] - p[j][1];
+                }
+
+                // vector normal to both lines (this is normal to the plane we're interested in)
+                TVector3 normal = inPlane[0].Cross(inPlane[1]);
+                float mag = normal.Mag();
+                normal *= 1./mag;
+
+                // point on line [0]
+                TVector3 point(p[0][0] + p[0][1]);
+                point *= 0.5;
+
+                // calculate the projected positions of ends of [1] on
+                // the plane which contains "point" with normal "normal"
+                TVector3 qPrime[2];
+                for (int i = 0; i < 2; i++) {
+                    float d = ((point - p[1][i]).Dot(normal)) / (pNorm[1][i].Dot(normal));
+                    qPrime[i] = p[1][i] + d * pNorm[1][i];
+                }
+
+                // find the intersection of lines qPrime and p (they are in same plane)
+                TVector3 a(p[0][1] - p[0][0]);
+                TVector3 b(qPrime[1] - qPrime[0]);
+                TVector3 c(qPrime[0] - p[0][0]);
+
+                float factor = ( c.Cross(b) ).Dot( a.Cross(b) ) / ( ( a.Cross(b) ).Mag2() );
+
+                TVector3 x = p[0][0] + a*factor;
+
+                // check that two lines really intercept
+                bool intersect = true;
+                for (int ii = 0; ii < 2; ii++) {
+                    for (int j = 0; j < 3; j++) {
+                        float d0 = ii ==0 ? x[j] - p[0][0][j] : x[j] - qPrime[0][j];
+                        float d1 = ii ==0 ? x[j] - p[0][1][j] : x[j] - qPrime[1][j];
+                        if ( d0 * d1 > 1e-10 ) {
+                            intersect = false;
+                        }
+                    }
+                }
+
+                LOG_DEBUG ("StripSplitterAlg::stripIntersect")
+                << "Intersection found " << intersect;
+
+                if (intersect) return x;
+                else return TVector3(0,0,0);
             }
 
-            LOG_DEBUG ("StripSplitterAlg::stripIntersect")
-            << "Intersection found " << intersect;
-
-            if (intersect) return x;
-            else return TVector3(0,0,0);
-        }
-
-    }// end namespace alg
-}// end namespace rec
+        }// end namespace alg
+    }// end namespace rec
 }// end namespace gar

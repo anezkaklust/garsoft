@@ -14,12 +14,12 @@ namespace gar {
 
             //----------------------------------------------------------------------------
             ECALSegmentationAlg::ECALSegmentationAlg(fhicl::ParameterSet const& pset) :
-                _name("Segmentation"), _type("Segmentation"), _decoder(new BitFieldCoder(pset.get<std::string>("cellEncoding"))) {
+                _name("Segmentation"), _type("Segmentation"), _encoding(pset.get<std::string>("cellEncoding")), _decoder(new BitFieldCoder(pset.get<std::string>("cellEncoding"))) {
                 }
 
                 //----------------------------------------------------------------------------
                 ECALSegmentationAlg::ECALSegmentationAlg(const BitFieldCoder* newDecoder, fhicl::ParameterSet const& pset) :
-                    _name("Segmentation"), _type("Segmentation"), _decoder(newDecoder) {
+                    _name("Segmentation"), _type("Segmentation"), _encoding(pset.get<std::string>("cellEncoding")), _decoder(newDecoder) {
                     }
 
                     //----------------------------------------------------------------------------

@@ -904,9 +904,9 @@ namespace gar {
 
       gar::raw::CellID_t GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const;
 
-      std::array<double, 3> GetPosition(const TGeoNode *node, const gar::raw::CellID_t &cID) const;
+      std::string GetCellIDEncoding() const;
 
-      int getIDbyCellID(const gar::raw::CellID_t& cID, const char* identifier) const;
+      std::array<double, 3> GetPosition(const TGeoNode *node, const gar::raw::CellID_t &cID) const;
 
       bool isTile(const gar::raw::CellID_t& cID) const;
 

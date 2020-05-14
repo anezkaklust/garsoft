@@ -54,6 +54,7 @@ namespace gar {
 
                 _stripSizeX = pset.get<double>("strip_size_x");
                 _stripSizeY = pset.get<double>("strip_size_y");
+                _encoding = pset.get<std::string>("cellEncoding");
 
                 _offsetX = pset.get<double>("offset_x");
                 _offsetY = pset.get<double>("offset_y");
@@ -259,14 +260,9 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            int ECALSegmentationMultiGridStripXYAlg::getIDbyCellID(const gar::raw::CellID_t& cID, const char* id) const
-            {
-                return _decoder->get(cID, id);
-            }
-
-            //----------------------------------------------------------------------------
             void ECALSegmentationMultiGridStripXYAlg::PrintParameters() const
             {
+                std::cout << "cell encoding: " << _encoding << std::endl;
                 std::cout << "identifier_x: " << _xId << std::endl;
                 std::cout << "identifier_y: " << _yId << std::endl;
                 std::cout << "grid_size_x: " << _gridSizeX << " cm" << std::endl;
@@ -360,8 +356,8 @@ namespace gar {
             {
                 bool isBarrel = true;
 
-                int det_id = getIDbyCellID(cID, "system");
-                int module = getIDbyCellID(cID, "module");
+                int det_id = _decoder->get(cID, "system");
+                int module = _decoder->get(cID, "module");
                 if( det_id == 2 && (module == 0 || module == 6) ) isBarrel = false;
 
                 return isBarrel;

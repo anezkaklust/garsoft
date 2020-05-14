@@ -32,8 +32,6 @@ namespace gar {
 
                 gar::raw::CellID_t GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const override;
 
-                int getIDbyCellID(const gar::raw::CellID_t& cID, const char* id) const override;
-
                 bool isTile(const gar::raw::CellID_t& cID) const override { return true; }
 
                 bool isBarrel(const gar::raw::CellID_t& cID) const override;
@@ -82,6 +80,8 @@ namespace gar {
                 std::string _xId;
                 /// the field name used for Y
                 std::string _yId;
+                /// the encoding string
+                std::string _encoding;
                 /// number of layers
                 unsigned int _nLayers;
 
