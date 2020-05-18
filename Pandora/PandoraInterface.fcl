@@ -1,0 +1,11 @@
+BEGIN_PROLOG
+
+standard_pandora:
+{
+module_type:        PandoraInterface
+CaloHitLabel:       "sscalohit"
+TrackLabel:         "track"
+PandoraXML:         "PandoraSettingsBasic.xml"
+}
+
+END_PROLOG
