@@ -134,6 +134,10 @@ namespace gar {
 		std::vector<Float_t>			fTrackAvgIon;
 		std::vector<Float_t>			fTrackMCcosT;
 		std::vector<Float_t>			fTrackMCdelX;
+
+		// track-hit matching data
+		std::vector<Int_t>				fNhitPicked;
+		std::vector<Int_t>				fNhitMatched;
 	};
 }
 
@@ -221,6 +225,10 @@ void gar::MomentumPerformance::beginJob() {
 
 	fTree->Branch("TrackMCcosT",			&fTrackMCcosT);
 	fTree->Branch("TrackMCdelX",			&fTrackMCdelX);
+
+	fTree->Branch("NhitPicked",				&fNhitPicked);
+	fTree->Branch("NhitMatched",			&fNhitMatched);
+
 	return;
 }  // End of :MomentumPerformance::beginJob
 
@@ -268,6 +276,10 @@ void gar::MomentumPerformance::ClearVectors() {
 	fTrackMCcosT.clear();
 	fTrackMCdelX.clear();
 
+	fNhitPicked.clear();
+	fNhitMatched.clear();
+
+	return;
 } // end :MomentumPerformance::ClearVectors
 
 
@@ -412,6 +424,21 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 			}
 		}
 		if (pickedTrack == -1) continue;
+
+
+
+		// What fraction of the hits matched as a whole to the track are in
+		// the pickedTrack
+		int num, den;		num = den = 0;
+		for (int iTrack=0; iTrack<(int)matchedTracks.size(); ++iTrack) {
+			rec::Track thisTrack = *(matchedTracks[iTrack]);
+			std::vector<art::Ptr<rec::Hit>> umlazi = bt->TrackToHits(&thisTrack);
+			den += umlazi.size();
+			if (iTrack == pickedTrack) num += umlazi.size();
+		}
+		fNhitPicked.push_back(num);
+		fNhitMatched.push_back(den);
+
 
 
 		// Save that tracks info; but first you need the corresponding MC info
