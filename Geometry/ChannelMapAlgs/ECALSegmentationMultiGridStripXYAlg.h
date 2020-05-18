@@ -32,8 +32,6 @@ namespace gar {
 
                 gar::raw::CellID_t GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const override;
 
-                int getIDbyCellID(const gar::raw::CellID_t& cID, const char* id) const override;
-
                 bool isTile(const gar::raw::CellID_t& cID) const override;
 
                 bool isBarrel(const gar::raw::CellID_t& cID) const override;
@@ -69,6 +67,8 @@ namespace gar {
                 const std::string& fieldNameLayer() const { return _layerId; }
 
                 const std::string& fieldNameSlice() const { return _sliceId; }
+
+                const unsigned int& nLayers() const { return _nLayers; }
 
                 void setGridSizeX(double cellSize) { _gridSizeX = cellSize; }
 
@@ -114,12 +114,16 @@ namespace gar {
                 std::string _layerId;
                 /// the field name used for slice
                 std::string _sliceId;
+                /// the encoding string
+                std::string _encoding;
                 /// the strip size in X
                 double _stripSizeX;
                 /// the strip size in Y
                 double _stripSizeY;
                 /// fraction of tiles to remove at the edge
                 double _frac;
+                /// number of layers
+                unsigned int _nLayers;
 
                 /// the layers (start::end) for grid in Barrel
                 std::vector<std::string> _gridBarrelLayers;

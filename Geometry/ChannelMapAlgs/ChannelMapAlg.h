@@ -58,8 +58,13 @@ namespace gar{
                 // the first channel returned is the closest, but all the nearest neighbors in the ROC are given too.
                 virtual void          NearestChannelInfo(float const* xyz, gar::geo::ChanWithNeighbors &cwn)  const = 0;
                 virtual unsigned int  GapChannelNumber()                   const = 0;
-                virtual void          ChannelToPosition(unsigned int chan,
-                float*       xyz)  const = 0;
+                virtual void          ChannelToPosition(unsigned int chan, float* xyz)  const = 0;
+                virtual float GetIROCInnerRadius() const = 0;
+                virtual float GetIROCOuterRadius() const = 0;
+                virtual float GetOROCInnerRadius() const = 0;
+                virtual float GetOROCOuterRadius() const = 0;
+                virtual float GetOROCPadHeightChangeRadius() const = 0;
+
 
             protected:
                 

@@ -71,7 +71,8 @@ namespace gar {
       std::vector<float>           fVecHitRoad;                  ///< max dist from a vector hit to a TPCCluster to assign it. for patrec alg 2.  in cm.
       std::vector<unsigned int>    fVecHitMinTPCClusters;        ///< minimum number of TPCClusters on a vector hit for it to be considered
       std::vector<float>           fTPCClusterRCut;              ///< only take TPCClusters within rcut of the center of the detector
-      std::vector<float>           fC2Cut;                ///< "chisquared" per ndof cut to reassign TPCClusters
+      std::vector<float>           fTPCClusterGapCut;            ///< in cm -- skip TPC clusters within this distance of a gap
+      std::vector<float>           fC2Cut;                       ///< "chisquared" per ndof cut to reassign TPCClusters
 
       int                          fLineFitAlg;           ///< Line Fit switch.  0: six least-squares, 1: PCA
 
@@ -92,7 +93,8 @@ namespace gar {
       fMaxVecHitLen             = p.get<std::vector<float>>("MaxVecHitLen",{20.0,20.0});
       fVecHitRoad               = p.get<std::vector<float>>("VecHitRoad",{2.0,2.0});
       fVecHitMinTPCClusters     = p.get<std::vector<unsigned int>>("VecHitMinTPCClusters",{10,5});
-      fTPCClusterRCut           = p.get<std::vector<float>>("TPCClusterRCut",{280.,280});
+      fTPCClusterRCut           = p.get<std::vector<float>>("TPCClusterRCut",{280.0,280.0});
+      fTPCClusterGapCut         = p.get<std::vector<float>>("TPCClusterGapCut",{5.0,5.0});
       fC2Cut                    = p.get<std::vector<float>>("C2Cut",{0.5,0.5});
       fLineFitAlg               = p.get<int>("LineFitAlg",0);
 
@@ -142,8 +144,29 @@ namespace gar {
 	      int iTPCCluster = hsi[iTPCClusterxs];  // access TPCClusters sorted in X but keep original indices
 	      const float *hpos = TPCClusters[iTPCCluster].Position();
 	      TVector3 hpvec(hpos);
-	      if ( ((hpvec - tpccent).Cross(xhat)).Mag() > fTPCClusterRCut.at(ipass) ) continue;  // skip TPCClusters if they are too far away from center as the
+	      TVector3 cprel = hpvec - tpccent;
+	      float rclus = (cprel.Cross(xhat)).Mag();
+
+              // skip TPCClusters if they are too far away from center as the
 	      // last few pad rows may have distorted TPCClusters
+
+	      if ( rclus > fTPCClusterRCut.at(ipass) ) continue;  
+
+	      // logic to see if a hit is close to a gap and skip if it is
+	      if ( rclus > geo->GetIROCInnerRadius())
+		{
+		  float phi = TMath::ATan2(cprel.Z(),cprel.Y());
+		  if (phi<0) phi += 2.0*TMath::Pi();
+		  float phisc = phi/( TMath::Pi()/9.0 );
+		  UInt_t isector = TMath::Floor(phisc); // assumes the sector boundary is at phi=0  // goes from 0 to 17
+		  // rotate this back down to a single sector
+		  float rotang = ( isector*TMath::Pi()/9.0 );
+		  float crot = TMath::Cos(rotang);
+		  float srot = TMath::Sin(rotang);
+		  //float zrot =    cprel.Z()*crot + cprel.Y()*srot;
+		  float yrot =  - cprel.Z()*srot + cprel.Y()*crot;
+		  if (TMath::Abs(yrot) < fTPCClusterGapCut.at(ipass)) continue;
+		}
 
 	      bool matched=false;
 	      vechit_t proposedvh;

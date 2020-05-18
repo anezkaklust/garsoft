@@ -10,6 +10,7 @@
 
 #include "art/Framework/Core/ModuleMacros.h"
 #include "Geometry/GeometryCore.h"
+#include "Geometry/BitFieldCoder.h"
 
 #include "ReconstructionDataProducts/CaloHit.h"
 
@@ -50,11 +51,14 @@ namespace gar{
 
             private:
 
+                static bool SortByLayer(const gar::rec::CaloHit* rha, const gar::rec::CaloHit* rhb);
+
                 void getVirtualHits(const gar::rec::CaloHit *hit, int orientation, bool isBarrel, std::vector <const gar::rec::CaloHit*> &virtualhits);
 
                 TVector3 stripIntersect(const gar::rec::CaloHit *hit0, const TVector3& dir0, const gar::rec::CaloHit *hit1, const TVector3& dir1);
 
                 gar::geo::GeometryCore const* fGeo; ///< geometry information
+                gar::geo::BitFieldCoder const* fFieldDecoder;
 
                 std::string fSSAAlgName;
                 bool fSaveStripEnds;

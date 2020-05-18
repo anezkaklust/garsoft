@@ -36,6 +36,7 @@
 #include <limits> // std::numeric_limits<>
 #include <memory> // std::default_deleter<>
 #include <regex>
+#include <csignal>
 
 #include <boost/format.hpp>
 
@@ -94,9 +95,7 @@ namespace gar {
         } // GeometryCore::ApplyECALSegmentationAlg()
 
         //......................................................................
-        void GeometryCore::LoadGeometryFile(std::string const& gdmlfile,
-        std::string const& rootfile,
-        bool bForceReload /* = false*/)
+        void GeometryCore::LoadGeometryFile(std::string const& gdmlfile, std::string const& rootfile, bool bForceReload /* = false*/)
         {
             if (gdmlfile.empty()) {
                 throw cet::exception("GeometryCore")
@@ -209,7 +208,7 @@ namespace gar {
         {
             std::vector<TGeoNode const*> path = this->FindVolumePath("volArgonCubeDetector");
             if(path.size() == 0)
-            return;
+                return;
 
             const TGeoNode *lar_node = path.at(path.size()-1);
             if(lar_node == nullptr) {
@@ -235,7 +234,7 @@ namespace gar {
         {
             std::vector<TGeoNode const*> path = this->FindVolumePath("volMPD");
             if(path.size() == 0)
-            return;
+                return;
 
             const TGeoNode *mpd_node = path.at(path.size()-1);
             if(mpd_node == nullptr) {
@@ -264,7 +263,7 @@ namespace gar {
             // not, then dig a bit deeper
             std::vector<TGeoNode const*> path = this->FindVolumePath("volArgonCubeActive");
             if(path.size() == 0)
-            return;
+                return;
 
             const TGeoNode *LArTPC_node = path.at(path.size()-1);
             if(LArTPC_node == nullptr) {
@@ -295,9 +294,9 @@ namespace gar {
             // not, then dig a bit deeper
             std::vector<TGeoNode const*> path = this->FindVolumePath("TPCGas_vol");
             if(path.size() == 0)
-            path = this->FindVolumePath("volTPCGas");
+                path = this->FindVolumePath("volTPCGas");
             if(path.size() == 0)
-            return;
+                return;
 
             const TGeoNode *GArTPC_node = path.at(path.size()-1);
             if(GArTPC_node == nullptr) {
@@ -439,20 +438,9 @@ namespace gar {
         //......................................................................
         std::vector<TGeoNode const*> GeometryCore::FindVolumePath(std::string const& vol_name) const
         {
-            std::vector<TGeoNode const*> path;
-
-            if( vol_name.find("BarrelECal") != std::string::npos && fECALBarrelNodePath.size() != 0 ) {
-                path.assign(fECALBarrelNodePath.begin(), fECALBarrelNodePath.end());
-                // if(!FindECALFirstVolume(vol_name, path)) path.clear();
-            }
-            else if( vol_name.find("EndcapECal") != std::string::npos && fECALEndcapNodePath.size() != 0 ) {
-                path.assign(fECALEndcapNodePath.begin(), fECALEndcapNodePath.end());
-                // if(!FindECALFirstVolume(vol_name, path)) path.clear();
-            }
-            else
-            path = { ROOTGeoManager()->GetTopNode() };
-
+            std::vector<TGeoNode const*> path = { ROOTGeoManager()->GetTopNode() };
             if (!FindFirstVolume(vol_name, path)) path.clear();
+
             return path;
         } // GeometryCore::FindVolumePath()
 
@@ -461,12 +449,13 @@ namespace gar {
         {
             assert(!path.empty());
             auto const* pCurrent = path.back();
+            auto const* pCurrentVolume = pCurrent->GetVolume();
+
             // first check the current layer
-            if (strncmp(name.c_str(), pCurrent->GetName(), name.length()) == 0)
-            return true;
+            if (strncmp(name.c_str(), pCurrentVolume->GetName(), name.length()) == 0)
+                return true;
 
             //explore the next layer down
-            auto const* pCurrentVolume = pCurrent->GetVolume();
             unsigned int nd = pCurrentVolume->GetNdaughters();
             for(unsigned int i = 0; i < nd; ++i) {
                 path.push_back(pCurrentVolume->GetNode(i));
@@ -477,69 +466,30 @@ namespace gar {
         } // GeometryCore::FindFirstVolume()
 
         //......................................................................
-        bool GeometryCore::FindECALFirstVolume(std::string const& name, std::vector<const TGeoNode*>& path) const
-        {
-            assert(!path.empty());
-            auto const* pCurrent = path.back();
-            // first check the current layer
-            if (strncmp(name.c_str(), pCurrent->GetName(), name.length()) == 0)
-            return true;
+        void GeometryCore::StoreECALNodes(std::map<std::string, std::vector<const TGeoNode*>> &map) const {
 
-            //special check for ECAL
-            //check if the string is of form <Type>ECal_staveXX_moduleYY_layer_ZZ_slice2_vol_0
-            //if yes, extract the numbers XX, YY and ZZ
-            //get the corresponding nodes above using the numbers and push them back into the vector
-            std::regex re("ECal_stave[0-9]+_module[0-9]+_layer_[0-9]+_slice[0-9]_vol");
-            if(std::regex_search(name, re))
-            {
-                int det_id = 0;
-                if( name.find("Barrel") !=  std::string::npos )
-                det_id = 1;
-                if( name.find("Endcap") !=  std::string::npos )
-                det_id = 2;
+            //Loop over all nodes for the ecal active volume and store it in a map
+            //Active volume has the form [Barrel-Endcap]ECal_staveXX_moduleYY_layer_ZZ_slice2_vol
+            std::string det[2] = { "Barrel", "Endcap" };
+            unsigned int nstave = GetECALInnerSymmetry() + 1;
+            unsigned int nmodule = 7;
+            unsigned int nlayer = fECALSegmentationAlg->nLayers() + 1;
 
-                std::string pathname = "/";
-                for(auto const &it : path)
-                {
-                    pathname += it->GetName();
-                    pathname += "/";
+            for(unsigned int idet = 0; idet < 2; idet++) {
+                for(unsigned int istave = 0; istave < nstave; istave++) {
+                    for(unsigned int imodule = 0; imodule < nmodule; imodule++) {
+                        for(unsigned int ilayer = 0; ilayer < nlayer; ilayer++) {
+                            boost::format bname = boost::format("%sECal_stave%02i_module%02i_layer_%02i_slice2_vol") % det[idet].c_str() % istave % imodule % ilayer;
+                            std::string vol_name = bname.str();
+                            std::vector<const TGeoNode*> path = FindVolumePath(vol_name);
+                            if(!path.empty()) map.emplace(vol_name, path); //insert in the map
+                        }
+                    }
                 }
-
-                int stave = std::atoi( (name.substr( name.find("_stave") + 6, 2)).c_str() );
-                int module = std::atoi( (name.substr( name.find("_module") + 7, 2)).c_str() );
-                int layer = std::atoi( (name.substr( name.find("layer_") + 6, 2)).c_str() );
-
-                pathname += (det_id == 1) ? "BarrelECal_" : "EndcapECal_";
-                boost::format bnodename = boost::format("stave%02i_module%02i_vol_0") % stave % module;
-                std::string nodename = bnodename.str();
-                std::string fullpath = pathname+nodename;
-                if( ROOTGeoManager()->CheckPath( fullpath.c_str() ) ) {
-                    ROOTGeoManager()->cd( fullpath.c_str() );
-                    path.push_back(ROOTGeoManager()->GetCurrentNode());
-                }
-
-                fullpath += (det_id == 1) ? "/BarrelECal_" : "/EndcapECal_";
-                bnodename = boost::format("stave%02i_module%02i_layer%02i_vol_0") % stave % module % layer;
-                nodename = bnodename.str();
-                fullpath += nodename;
-                if( ROOTGeoManager()->CheckPath( fullpath.c_str() ) ) {
-                    ROOTGeoManager()->cd( fullpath.c_str() );
-                    path.push_back(ROOTGeoManager()->GetCurrentNode());
-                }
-
-                fullpath += (det_id == 1) ? "/BarrelECal_" : "/EndcapECal_";
-                bnodename = boost::format("stave%02i_module%02i_layer%02i_slice2_vol_0") % stave % module % layer;
-                nodename = bnodename.str();
-                fullpath += nodename;
-                if( ROOTGeoManager()->CheckPath( fullpath.c_str() ) ) {
-                    ROOTGeoManager()->cd( fullpath.c_str() );
-                    path.push_back(ROOTGeoManager()->GetCurrentNode());
-                }
-
-                return true;
             }
-            return false;
-        }
+
+            return;
+        } // GeometryCore::StoreECALNodes()
 
         //......................................................................
         std::vector<TGeoNode const*> GeometryCore::FindAllVolumes(std::set<std::string> const& vol_names) const
@@ -603,11 +553,21 @@ namespace gar {
         {
             TVector3 point(world[0], world[1], world[2]);
             std::string name = VolumeName(point);
-            auto const& path = FindVolumePath(name);
+            std::vector<const TGeoNode*> path;
+
+            // std::cout << "WorldToLocal -- Finding volume " << name << " ..." << std::endl;
+            if( fECALNodePath.find(name) != fECALNodePath.end() ) {
+                // std::cout << "Found volume " << name << " in fECALNodePath" << std::endl;
+                path = fECALNodePath.at(name);
+            } else {
+                path = FindVolumePath(name);
+            }
+
             if (path.empty()){
                 throw cet::exception("GeometryCore::WorldToLocal") << " can't find volume '" << name << "'\n";
                 return false;
             }
+
             //Change to local frame
             trans.SetPath(path, path.size() - 1);
             std::array<double, 3> wd{ {world[0], world[1], world[2]} }, loc;
@@ -648,12 +608,12 @@ namespace gar {
         // \param zhi : On return, upper bound on z positions
         //
         void GeometryCore::WorldBox(float* xlo, float* xhi,
-        float* ylo, float* yhi,
-        float* zlo, float* zhi) const
+            float* ylo, float* yhi,
+            float* zlo, float* zhi) const
         {
             const TGeoShape* s = gGeoManager->GetVolume("volWorld")->GetShape();
             if(!s)
-            throw cet::exception("GeometryCore") << "no pointer to world volume TGeoShape\n";
+                throw cet::exception("GeometryCore") << "no pointer to world volume TGeoShape\n";
 
             if (xlo || xhi) {
                 double x1, x2;
@@ -678,8 +638,8 @@ namespace gar {
             float halfheight = ((TGeoBBox*)volWorld->GetShape())->GetDY();
             float halfwidth  = ((TGeoBBox*)volWorld->GetShape())->GetDX();
             if (std::abs(point.x()) > halfwidth  ||
-            std::abs(point.y()) > halfheight ||
-            std::abs(point.z()) > halflength){
+                std::abs(point.y()) > halfheight ||
+                std::abs(point.z()) > halflength){
                 if (fPointInWarnings) {
                     LOG_WARNING("GeometryCoreBadInputPoint")
                     << "point ("
@@ -702,8 +662,8 @@ namespace gar {
         {
             // check that the given point is in the enclosure volume at least
             if (std::abs(point.x()) > fEnclosureHalfWidth  ||
-            std::abs(point.y()) > fEnclosureHalfHeight ||
-            std::abs(point.z()) > fEnclosureLength){
+                std::abs(point.y()) > fEnclosureHalfHeight ||
+                std::abs(point.z()) > fEnclosureLength){
                 if (fPointInWarnings) {
                     LOG_WARNING("GeometryCoreBadInputPoint")
                     << "point ("
@@ -728,8 +688,8 @@ namespace gar {
             TVector3 new_point = point - tpc_origin;
             // check that the given point is in the enclosure volume at least
             if (std::abs(new_point.x()) > fMPDHalfWidth  ||
-            std::abs(new_point.y()) > fMPDHalfHeight ||
-            std::abs(new_point.z()) > fMPDLength){
+                std::abs(new_point.y()) > fMPDHalfHeight ||
+                std::abs(new_point.z()) > fMPDLength){
                 if (fPointInWarnings) {
                     LOG_WARNING("GeometryCoreBadInputPoint")
                     << "point ("
@@ -754,7 +714,7 @@ namespace gar {
             float y = std::abs(point.y() - fTPCYCent);
             float z = std::abs(point.z() - fTPCZCent);
             if (std::abs(point.x() - fTPCXCent) > fTPCLength/2.0  ||
-            std::hypot(z,y)                 > fTPCRadius) {
+                std::hypot(z,y)                 > fTPCRadius) {
                 if (fPointInWarnings) {
                     LOG_WARNING("GeometryCoreBadInputPoint")
                     << "point ("
@@ -781,8 +741,8 @@ namespace gar {
             float halfheight = ((TGeoBBox*)volLArTPC->GetShape())->GetDY();
             float halfwidth  = ((TGeoBBox*)volLArTPC->GetShape())->GetDX();
             if (std::abs(point.x()) > halfwidth  ||
-            std::abs(point.y()) > halfheight ||
-            std::abs(point.z()) > halflength){
+                std::abs(point.y()) > halfheight ||
+                std::abs(point.z()) > halflength){
                 if (fPointInWarnings) {
                     LOG_WARNING("GeometryCoreBadInputPoint")
                     << "point ("
@@ -806,7 +766,7 @@ namespace gar {
             std::string vol_name = this->VolumeName(point);
 
             if( vol_name.find("barrel") == std::string::npos || vol_name.find("Barrel") == std::string::npos)
-            return false;
+                return false;
 
             return true;
         }
@@ -817,7 +777,7 @@ namespace gar {
             std::string vol_name = this->VolumeName(point);
 
             if( vol_name.find("endcap") == std::string::npos || vol_name.find("Endcap") == std::string::npos)
-            return false;
+                return false;
 
             return true;
         }
@@ -830,7 +790,7 @@ namespace gar {
                 return unknown;
             }
 
-            const std::string name(this->FindNode(point)->GetName());
+            const std::string name(this->FindNode(point)->GetVolume()->GetName());
             return name;
         }
 
@@ -882,8 +842,8 @@ namespace gar {
 
             //first initialize a track - get the direction cosines
             double length = std::sqrt( sqr(p2[0]-p1[0])
-            + sqr(p2[1]-p1[1])
-            + sqr(p2[2]-p1[2]));
+                + sqr(p2[1]-p1[1])
+                + sqr(p2[2]-p1[2]));
             double dxyz[3] = {(p2[0]-p1[0])/length, (p2[1]-p1[1])/length, (p2[2]-p1[2])/length};
 
             gGeoManager->InitTrack(p1,dxyz);
@@ -906,11 +866,41 @@ namespace gar {
             //get the distance between the current point and the last one
             const double *current = gGeoManager->GetCurrentPoint();
             length = std::sqrt(sqr(p2[0]-current[0]) +
-            sqr(p2[1]-current[1]) +
-            sqr(p2[2]-current[2]));
+                sqr(p2[1]-current[1]) +
+                sqr(p2[2]-current[2]));
             columnD += length*node->GetMedium()->GetMaterial()->GetDensity();
 
             return columnD;
+        }
+
+        //--------------------------------------------------------------------
+        float GeometryCore::GetIROCInnerRadius() const
+        {
+           return fChannelMapAlg->GetIROCInnerRadius();
+        }
+
+        //--------------------------------------------------------------------
+        float GeometryCore::GetIROCOuterRadius() const
+        {
+            return fChannelMapAlg->GetIROCOuterRadius();
+        }
+
+        //--------------------------------------------------------------------
+        float GeometryCore::GetOROCInnerRadius() const
+        {
+            return fChannelMapAlg->GetOROCInnerRadius();
+        }
+
+        //--------------------------------------------------------------------
+        float GeometryCore::GetOROCPadHeightChangeRadius() const
+        {
+            return fChannelMapAlg->GetOROCPadHeightChangeRadius();
+        }
+
+        //--------------------------------------------------------------------
+        float GeometryCore::GetOROCOuterRadius() const
+        {
+            return fChannelMapAlg->GetOROCOuterRadius();
         }
 
         //--------------------------------------------------------------------
@@ -922,9 +912,7 @@ namespace gar {
         //--------------------------------------------------------------------
         unsigned int GeometryCore::NearestChannel(std::vector<float> const& worldLoc) const
         {
-            float loc[3] = {worldLoc[0],
-            worldLoc[1],
-            worldLoc[2]};
+            float loc[3] = {worldLoc[0], worldLoc[1], worldLoc[2]};
 
             return this->NearestChannel(loc);
         }
@@ -932,9 +920,7 @@ namespace gar {
         //--------------------------------------------------------------------
         unsigned int GeometryCore::NearestChannel(TVector3 const& worldLoc) const
         {
-            float loc[3] = {(float)worldLoc[0],
-            (float)worldLoc[1],
-            (float)worldLoc[2]};
+            float loc[3] = {(float)worldLoc[0], (float)worldLoc[1], (float)worldLoc[2]};
 
             return this->NearestChannel(loc);
         }
@@ -954,8 +940,7 @@ namespace gar {
 
 
         //--------------------------------------------------------------------
-        void GeometryCore::ChannelToPosition(unsigned int const channel,
-        float*       const worldLoc) const
+        void GeometryCore::ChannelToPosition(unsigned int const channel, float* const worldLoc) const
         {
             return fChannelMapAlg->ChannelToPosition(channel, worldLoc);
         }
@@ -963,13 +948,6 @@ namespace gar {
         //----------------------------------------------------------------------------
         void GeometryCore::StoreECALParameters()
         {
-            std::cout << "------------------------------" << std::endl;
-            fECALBarrelNodePath = this->FindVolumePath("volBarrelECal");
-            std::cout << "ECAL Barrel node path filled with " << fECALBarrelNodePath.size() << " entries" << std::endl;
-            fECALEndcapNodePath = this->FindVolumePath("volEndcapECal");
-            std::cout << "ECAL Endcap node path filled with " << fECALEndcapNodePath.size() << " entries" << std::endl;
-            std::cout << "------------------------------" << std::endl;
-
             this->FindECALInnerBarrelRadius();
             this->FindECALOuterBarrelRadius();
             this->FindECALInnerEndcapRadius();
@@ -977,6 +955,11 @@ namespace gar {
             this->FindPVThickness();
             this->FindECALInnerSymmetry();
             this->FindECALEndcapStartX();
+                        
+            StoreECALNodes(fECALNodePath);
+            std::cout << "Stored " << fECALNodePath.size() << " ECAL nodes in memory" << std::endl;
+
+            // std::raise(SIGINT);
         }
 
         //----------------------------------------------------------------------------
@@ -984,9 +967,9 @@ namespace gar {
         {
             TGeoVolume *vol = gGeoManager->FindVolumeFast("BarrelECal_vol");
             if(!vol)
-            vol = gGeoManager->FindVolumeFast("volBarrelECal");
+                vol = gGeoManager->FindVolumeFast("volBarrelECal");
             if(!vol)
-            return false;
+                return false;
 
             fECALRinner = ((TGeoPgon*)vol->GetShape())->GetRmin(0);
 
@@ -998,9 +981,9 @@ namespace gar {
         {
             TGeoVolume *vol = gGeoManager->FindVolumeFast("BarrelECal_vol");
             if(!vol)
-            vol = gGeoManager->FindVolumeFast("volBarrelECal");
+                vol = gGeoManager->FindVolumeFast("volBarrelECal");
             if(!vol)
-            return false;
+                return false;
 
             fECALRouter = ((TGeoPgon*)vol->GetShape())->GetRmax(0);
 
@@ -1012,9 +995,9 @@ namespace gar {
         {
             TGeoVolume *vol = gGeoManager->FindVolumeFast("EndcapECal_vol");
             if(!vol)
-            vol = gGeoManager->FindVolumeFast("volEndcapECal");
+                vol = gGeoManager->FindVolumeFast("volEndcapECal");
             if(!vol)
-            return false;
+                return false;
 
             fECALECapRinner = 0.;
 
@@ -1024,13 +1007,14 @@ namespace gar {
         //----------------------------------------------------------------------------
         bool GeometryCore::FindECALOuterEndcapRadius()
         {
-            TGeoVolume *vol = gGeoManager->FindVolumeFast("EndcapECal_vol");
-            if(!vol)
-            vol = gGeoManager->FindVolumeFast("volEndcapECal");
-            if(!vol)
-            return false;
+            // TGeoVolume *vol = gGeoManager->FindVolumeFast("EndcapECal_vol");
+            // if(!vol)
+            // vol = gGeoManager->FindVolumeFast("volEndcapECal");
+            // if(!vol)
+            // return false;
 
-            fECALECapRouter = ((TGeoBBox*)vol->GetShape())->GetDX();
+            // fECALECapRouter = ((TGeoBBox*)vol->GetShape())->GetDX();//Not great as the shape is not a tube...
+            fECALECapRouter = fECALRouter; //should be equal
 
             return true;
         }
@@ -1040,9 +1024,9 @@ namespace gar {
         {
             TGeoVolume *vol = gGeoManager->FindVolumeFast("PVBarrel_vol");
             if(!vol)
-            vol = gGeoManager->FindVolumeFast("volPVBarrel");
+                vol = gGeoManager->FindVolumeFast("volPVBarrel");
             if(!vol)
-            { fPVThickness = 0.; return false; }
+                { fPVThickness = 0.; return false; }
 
             float min = ((TGeoTube*)vol->GetShape())->GetRmin();
             float max = ((TGeoTube*)vol->GetShape())->GetRmax();
@@ -1057,10 +1041,9 @@ namespace gar {
         {
             TGeoVolume *vol = gGeoManager->FindVolumeFast("BarrelECal_vol");
             if(!vol)
+                vol = gGeoManager->FindVolumeFast("volBarrelECal");
             if(!vol)
-            vol = gGeoManager->FindVolumeFast("volBarrelECal");
-            if(!vol)
-            return false;
+                return false;
 
             fECALSymmetry = ((TGeoPgon*)vol->GetShape())->GetNedges();
 
@@ -1073,9 +1056,9 @@ namespace gar {
             //Find the PV Endcap
             TGeoVolume *vol_pv = gGeoManager->FindVolumeFast("PVEndcap_vol");
             if(!vol_pv)
-            vol_pv = gGeoManager->FindVolumeFast("volPVEndcap");
+                vol_pv = gGeoManager->FindVolumeFast("volPVEndcap");
             if(!vol_pv)
-            return false;
+                return false;
 
             TGeoVolume *vol_tpc_chamber = gGeoManager->FindVolumeFast("volGArTPC");
             if(!vol_tpc_chamber) return false;
@@ -1097,6 +1080,12 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
+        std::string GeometryCore::GetCellIDEncoding() const
+        {
+            return fECALSegmentationAlg->cellEncoding();
+        }
+
+        //----------------------------------------------------------------------------
         std::array<double, 3> GeometryCore::GetPosition(const TGeoNode *node, const gar::raw::CellID_t &cID) const
         {
             const std::array<double, 3> shape = this->FindShapeSize(node);
@@ -1104,12 +1093,6 @@ namespace gar {
             fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
 
             return fECALSegmentationAlg->GetPosition(*this, cID);
-        }
-
-        //----------------------------------------------------------------------------
-        int GeometryCore::getIDbyCellID(const gar::raw::CellID_t& cID, const char* identifier) const
-        {
-            return fECALSegmentationAlg->getIDbyCellID(cID, identifier);
         }
 
         //----------------------------------------------------------------------------
@@ -1195,9 +1178,9 @@ namespace gar {
             std::cout << "Enclosure Geometry" << std::endl;
             std::cout << "Enclosure Origin (x, y, z) " << GetEnclosureX() << " cm " << GetEnclosureY() << " cm " << GetEnclosureZ() << " cm" << std::endl;
             std::cout << "Enclosure Size (H, W, L) " << GetEnclosureHalfWidth() << " cm " << GetEnclosureHalfHeight() << " cm " << GetEnclosureLength() << " cm" << std::endl;
+            std::cout << "------------------------------" << std::endl;
 
             if(GetLArTPCX() != 0 && GetLArTPCY() != 0 && GetLArTPCZ() != 0) {
-                std::cout << "------------------------------" << std::endl;
                 std::cout << "LArArgonCube Geometry" << std::endl;
                 std::cout << "LArTPC Origin (x, y, z) " << GetLArTPCX() << " cm " << GetLArTPCY() << " cm " << GetLArTPCZ() << " cm" << std::endl;
                 std::cout << "LArTPC Size (H, W, L) " << GetLArTPCHalfWidth() << " cm " << GetLArTPCHalfHeight() << " cm " << GetLArTPCLength() << " cm" << std::endl;
@@ -1208,7 +1191,7 @@ namespace gar {
                 std::cout << "------------------------------" << std::endl;
             }
 
-            std::cout << "------------------------------" << std::endl;
+
             std::cout << "MPD Geometry" << std::endl;
             std::cout << "MPD Origin (x, y, z) " << GetMPDX() << " cm " << GetMPDY() << " cm " << GetMPDZ() << " cm" << std::endl;
             std::cout << "MPD Size (H, W, L) " << GetMPDHalfWidth() << " cm " << GetMPDHalfHeight() << " cm " << GetMPDLength() << " cm" << std::endl;
@@ -1216,7 +1199,7 @@ namespace gar {
             std::cout << "TPC Geometry" << std::endl;
             std::cout << "TPC Origin (x, y, z) " << TPCXCent() << " cm " << TPCYCent() << " cm " << TPCZCent() << " cm" << std::endl;
             std::cout << "TPC Active Volume Size (R, L) " << TPCRadius() << " cm " << TPCLength() << " cm" << std::endl;
-            std::cout << "------------------------------" << std::endl;
+            std::cout << "------------------------------\n" << std::endl;
 
 
             std::cout << "ECAL Geometry" << std::endl;
@@ -1232,7 +1215,7 @@ namespace gar {
             std::cout << "ECAL polyhedra apothem length (Endcap): " << GetECALEndcapApothemLength() << " cm" << std::endl;
             std::cout << "ECAL Endcap Start X: " << GetECALEndcapStartX() << " cm" << std::endl;
             std::cout << "Pressure Vessel Thickness: " << GetPVThickness() << " cm" << std::endl;
-            std::cout << "------------------------------" << std::endl;
+            std::cout << "------------------------------\n" << std::endl;
         }
 
         //----------------------------------------------------------------------------
@@ -1285,8 +1268,7 @@ namespace gar {
             fECALSymmetry = -1;
             fECALEndcapStartX = 0.;
 
-            fECALBarrelNodePath.clear();
-            fECALEndcapNodePath.clear();
+            fECALNodePath.clear();
         }
 
         //--------------------------------------------------------------------
@@ -1324,7 +1306,7 @@ namespace gar {
             std::vector<TGeoNode const*> node_path(current_path.size());
 
             std::transform(current_path.begin(), current_path.end(), node_path.begin(),
-            [](NodeInfo_t const& node_info){ return node_info.self; });
+                [](NodeInfo_t const& node_info){ return node_info.self; });
             return node_path;
 
         } // ROOTGeoNodeForwardIterator::path()

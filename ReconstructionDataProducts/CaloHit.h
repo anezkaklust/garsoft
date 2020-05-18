@@ -24,11 +24,6 @@ namespace gar {
             CaloHit();
 
             // let the compiler provide the dtor
-
-            const unsigned int GetDetectorID() const;
-            const unsigned int GetLayer() const;
-            const unsigned int GetModule() const;
-            const unsigned int GetStave() const;
             const unsigned int GetCellLengthScale() const;
 
             bool operator< (const CaloHit &rhs) const;
@@ -42,14 +37,15 @@ namespace gar {
             float                            fPosition[3]; ///< position of the calo hit in cm
             std::pair<float, float>          fTime;        ///< time of the calo hit in ns
             raw::CellID_t                    fCellID;      ///< cellID
+            unsigned int                     fLayer;       ///< Layer
 
             #ifndef __GCCXML__
 
         public:
 
-            CaloHit(float energy, float time, float *pos, raw::CellID_t cellID);
+            CaloHit(float energy, float time, float *pos, raw::CellID_t cellID, unsigned int layer);
 
-            CaloHit(float energy, std::pair<float, float> time, float *pos, raw::CellID_t cellID);
+            CaloHit(float energy, std::pair<float, float> time, float *pos, raw::CellID_t cellID, unsigned int layer);
 
             //Copy constructor
             CaloHit(const gar::rec::CaloHit &) = default;
@@ -62,6 +58,7 @@ namespace gar {
             float                         Energy()    const;
             std::pair<float, float>       Time()      const;
             raw::CellID_t                 CellID()    const;
+            unsigned int                  Layer()     const;
 
             friend std::ostream& operator << (std::ostream & o, gar::rec::CaloHit const& h);
 
@@ -69,10 +66,11 @@ namespace gar {
 
         };
 
-        inline float                         gar::rec::CaloHit::Energy()                   const { return fEnergy;      }
+        inline float                         gar::rec::CaloHit::Energy()                   const { return fEnergy;       }
         inline const float*                  gar::rec::CaloHit::Position()                 const { return &fPosition[0]; }
-        inline std::pair<float, float>       gar::rec::CaloHit::Time()                     const { return fTime;       }
-        inline raw::CellID_t                 gar::rec::CaloHit::CellID()                   const { return fCellID;    }
+        inline std::pair<float, float>       gar::rec::CaloHit::Time()                     const { return fTime;         }
+        inline raw::CellID_t                 gar::rec::CaloHit::CellID()                   const { return fCellID;       }
+        inline unsigned int                  gar::rec::CaloHit::Layer()                    const { return fLayer;        }
 
     } // rec
 } // gar

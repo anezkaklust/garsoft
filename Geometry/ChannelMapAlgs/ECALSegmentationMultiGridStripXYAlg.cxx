@@ -2,6 +2,8 @@
 
 #include "fhiclcpp/ParameterSet.h"
 
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
 #include "Geometry/GeometryCore.h"
 
 #include <algorithm>
@@ -21,7 +23,7 @@ namespace gar {
                 _type = "MultiGridStripXY";
                 _description = "Cartesian segmentation in the local XY-plane, containing integer number of tiles/strips/cells";
 
-                std::cout << " ######### gar::geo::seg::ECALSegmentationMultiGridStripXYAlg() " << std::endl ;
+                std::cout << "######### gar::geo::seg::ECALSegmentationMultiGridStripXYAlg() " << std::endl ;
 
                 this->reconfigure(pset);
             }
@@ -34,7 +36,7 @@ namespace gar {
                 _type = "MultiGridStripXY";
                 _description = "Cartesian segmentation in the local XY-plane, containing integer number of tiles/strips/cells";
 
-                std::cout << " ######### gar::geo::seg::ECALSegmentationMultiGridStripXYAlg() " << std::endl ;
+                std::cout << "######### gar::geo::seg::ECALSegmentationMultiGridStripXYAlg() " << std::endl ;
 
                 this->reconfigure(pset);
             }
@@ -52,6 +54,7 @@ namespace gar {
 
                 _stripSizeX = pset.get<double>("strip_size_x");
                 _stripSizeY = pset.get<double>("strip_size_y");
+                _encoding = pset.get<std::string>("cellEncoding");
 
                 _offsetX = pset.get<double>("offset_x");
                 _offsetY = pset.get<double>("offset_y");
@@ -66,6 +69,8 @@ namespace gar {
 
                 _gridEndcapLayers = pset.get< std::vector<std::string> >("grid_endcap_layers");
                 _stripEndcapLayers = pset.get< std::vector<std::string> >("strip_endcap_layers");
+
+                _nLayers = pset.get<unsigned int>("nlayers");
 
                 _frac = 1./3.;
 
@@ -96,22 +101,51 @@ namespace gar {
                 if(isTile) {
                     //Need to check if the tile is at the edge of the layer!
                     cellPosition[0] = binToPosition(_decoder->get(cID, _xId), _gridSizeX, _offsetX);
-                    if( isBarrel && std::fabs(cellPosition[0]) > _layer_dim_X/2. ) {
-                        cellPosition[0] = cellPosition[0] / std::fabs(cellPosition[0]) * ( _layer_dim_X - _frac ) / 2.;
-                    }
-                    if( not isBarrel && std::fabs(cellPosition[0]) > _layer_dim_X ) {
-                        cellPosition[0] = cellPosition[0] / std::fabs(cellPosition[0]) * ( _layer_dim_X - _frac );
-                    }
-
                     cellPosition[1] = binToPosition(_decoder->get(cID, _yId), _gridSizeY, _offsetY);
-                    if( isBarrel && std::fabs(cellPosition[1]) > _layer_dim_Y/2. ) {
-                        cellPosition[1] = cellPosition[1] / std::fabs(cellPosition[1]) * ( _layer_dim_Y - _frac ) / 2.;
-                    }
-                    if( not isBarrel && std::fabs(cellPosition[1]) > _layer_dim_Y ) {
-                        cellPosition[1] = cellPosition[1] / std::fabs(cellPosition[1]) * ( _layer_dim_Y - _frac );
+                    cellPosition[2] = 0.;
+
+                    if( isBarrel ) {
+
+                        //Check if the position is outside of the layer size
+                        if( std::fabs(cellPosition[0]) > _layer_dim_X/2. ) {
+
+                            cellPosition[0] = cellPosition[0] / std::fabs(cellPosition[0]) * ( _layer_dim_X - _frac ) / 2.;
+                        }
+
+                        if(std::fabs(cellPosition[1]) > _layer_dim_Y/2. ) {
+
+                            cellPosition[1] = cellPosition[1] / std::fabs(cellPosition[1]) * ( _layer_dim_Y - _frac ) / 2.;
+                        }
                     }
 
-                    cellPosition[2] = 0.;
+                    //TODO
+                    //Problem here is that the full layer is the endcap stave, no "layer shape"
+                    //the problem will occur for hits that are at the limit
+                    //checking if x or y are over the layer dim does not work (as the stave is not a square/rectangle)
+                    if( not isBarrel ) {
+
+                        float r_point = std::sqrt( cellPosition[0]*cellPosition[0] + cellPosition[1]*cellPosition[1] );
+
+                        //Check if the point is outside.... layer_dim_x = layer_dim_y = apothem
+                        if(r_point > _layer_dim_Y) {
+
+                            if( std::fabs(cellPosition[0]) < geo.GetECALEndcapSideLength() / 2. || std::fabs(cellPosition[1]) < geo.GetECALEndcapSideLength() / 2. ) {
+
+                                if( std::fabs(cellPosition[0]) < geo.GetECALEndcapSideLength() / 2. && std::fabs(cellPosition[1]) > _layer_dim_Y ) {
+
+                                    cellPosition[1] = cellPosition[1] / std::fabs(cellPosition[1]) * ( _layer_dim_Y - _frac ) ;
+                                }
+
+                                if( std::fabs(cellPosition[1]) < geo.GetECALEndcapSideLength() / 2. && std::fabs(cellPosition[0]) > _layer_dim_X ) {
+
+                                    cellPosition[0] = cellPosition[0] / std::fabs(cellPosition[0]) * ( _layer_dim_X - _frac ) ;
+                                }
+
+                            } else if ( std::fabs(cellPosition[0]) > geo.GetECALEndcapSideLength() / 2. && std::fabs(cellPosition[1]) > geo.GetECALEndcapSideLength() / 2. ) {
+                                //Complicated part //do NOTHING the hit will be dropped
+                            }
+                        }
+                    }
                 }
                 else
                 {
@@ -226,14 +260,9 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            int ECALSegmentationMultiGridStripXYAlg::getIDbyCellID(const gar::raw::CellID_t& cID, const char* id) const
-            {
-                return _decoder->get(cID, id);
-            }
-
-            //----------------------------------------------------------------------------
             void ECALSegmentationMultiGridStripXYAlg::PrintParameters() const
             {
+                std::cout << "cell encoding: " << _encoding << std::endl;
                 std::cout << "identifier_x: " << _xId << std::endl;
                 std::cout << "identifier_y: " << _yId << std::endl;
                 std::cout << "grid_size_x: " << _gridSizeX << " cm" << std::endl;
@@ -248,22 +277,22 @@ namespace gar {
 
                 std::cout << "grid_barrel_layers: ";
                 for(unsigned int i = 0; i < _gridBarrelLayers.size(); i++)
-                std::cout << _gridBarrelLayers.at(i) << " ";
+                    std::cout << _gridBarrelLayers.at(i) << " ";
                 std::cout << std::endl;
 
                 std::cout << "strip_barrel_layers: ";
                 for(unsigned int i = 0; i < _stripBarrelLayers.size(); i++)
-                std::cout << _stripBarrelLayers.at(i) << " ";
+                    std::cout << _stripBarrelLayers.at(i) << " ";
                 std::cout << std::endl;
 
                 std::cout << "grid_endcap_layers: ";
                 for(unsigned int i = 0; i < _gridEndcapLayers.size(); i++)
-                std::cout << _gridEndcapLayers.at(i) << " ";
+                    std::cout << _gridEndcapLayers.at(i) << " ";
                 std::cout << std::endl;
 
                 std::cout << "strip_endcap_layers: ";
                 for(unsigned int i = 0; i < _stripEndcapLayers.size(); i++)
-                std::cout << _stripEndcapLayers.at(i) << " ";
+                    std::cout << _stripEndcapLayers.at(i) << " ";
                 std::cout << std::endl;
 
                 std::cout << "strip_on_same_layer: " << _OnSameLayer << std::endl;
@@ -302,9 +331,9 @@ namespace gar {
                 std::array<std::vector<unsigned int>, 2> _list;
 
                 if(det_id == 1)
-                _list = TokenizeLayerVectors(_gridBarrelLayers);
+                    _list = TokenizeLayerVectors(_gridBarrelLayers);
                 if(det_id == 2)
-                _list =  TokenizeLayerVectors(_gridEndcapLayers);
+                    _list =  TokenizeLayerVectors(_gridEndcapLayers);
 
                 //Check if it is tile configuration
                 for(unsigned int i = 0; i < _list.at(0).size(); i++)
@@ -327,8 +356,8 @@ namespace gar {
             {
                 bool isBarrel = true;
 
-                int det_id = getIDbyCellID(cID, "system");
-                int module = getIDbyCellID(cID, "module");
+                int det_id = _decoder->get(cID, "system");
+                int module = _decoder->get(cID, "module");
                 if( det_id == 2 && (module == 0 || module == 6) ) isBarrel = false;
 
                 return isBarrel;
@@ -484,10 +513,10 @@ namespace gar {
                 std::array<double, 3> newlocal;
 
                 if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 2) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 == 0) )
-                newlocal = {pos, local[1], local[2]};
+                    newlocal = {pos, local[1], local[2]};
 
                 if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 3) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) ) //Strip along Y
-                newlocal = {local[0], pos, local[2]};
+                    newlocal = {local[0], pos, local[2]};
 
                 return newlocal;
             }

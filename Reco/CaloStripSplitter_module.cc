@@ -123,12 +123,13 @@ namespace gar {
                     const float *pos = it->Position();
                     float newpos[3] = { pos[0], pos[1], pos[2] };
                     float newtime = time.first;
+                    unsigned int layer = it->Layer();
 
                     if(not fGeo->isTile(cellID)) {
                         newtime = this->CorrectStripHitTime(newpos[0], newpos[1], newpos[2], time, cellID);
                     }
 
-                    rec::CaloHit hit(energy, newtime, newpos, cellID);
+                    rec::CaloHit hit(energy, newtime, newpos, cellID, layer);
                     HitCol->emplace_back(hit);
                 }
 
@@ -143,6 +144,7 @@ namespace gar {
                         const float *pos = it->Position();
                         float newpos[3] = { pos[0], pos[1], pos[2] };
                         float newtime = time.first;
+                        unsigned int layer = it->Layer();
 
                         if(not fGeo->isTile(cellID)) {
                             // Need to correct for the position of these based on time information
@@ -153,7 +155,7 @@ namespace gar {
                             newtime = this->CorrectStripHitTime(newpos[0], newpos[1], newpos[2], time, cellID);
                         }
 
-                        rec::CaloHit hit(energy, newtime, newpos, cellID);
+                        rec::CaloHit hit(energy, newtime, newpos, cellID, layer);
 
                         HitCol->emplace_back(hit);
                     }

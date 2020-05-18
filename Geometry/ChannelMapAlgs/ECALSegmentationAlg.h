@@ -55,6 +55,15 @@ namespace gar {
                     return _stripSizeX;
                 }
 
+
+                virtual const unsigned int& nLayers() const {
+                    return _nLayers;
+                }
+
+                virtual const std::string& cellEncoding() const {
+                    return _encoding;
+                }
+
                 virtual void setDecoder(const BitFieldCoder* decoder);
 
                 //Pure virtual member functions
@@ -65,8 +74,6 @@ namespace gar {
                 virtual std::array<double, 3> GetPosition(const gar::geo::GeometryCore& geo, const gar::raw::CellID_t& cID) const = 0;
 
                 virtual gar::raw::CellID_t GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const = 0;
-
-                virtual int getIDbyCellID(const gar::raw::CellID_t& cID, const char* id) const = 0;
 
                 virtual void PrintParameters() const = 0;
 
@@ -100,10 +107,14 @@ namespace gar {
 
                 std::string _description;
 
+                std::string _encoding;
+
                 double _gridSizeX;
 
                 double _stripSizeX;
 
+                unsigned int _nLayers;
+                
                 const BitFieldCoder* _decoder = 0;
 
             private:

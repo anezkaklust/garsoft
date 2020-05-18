@@ -36,8 +36,6 @@ set(G4LIBS ${G4FR}
            ${G4ZLIB}
     )
 
-MESSAGE(STATUS "G4LIBS is ${G4LIBS}")
-
 art_make(LIB_LIBRARIES      nutools_ParticleNavigation
                             nutools_G4Base
                             nusimdata_SimulationBase

@@ -25,6 +25,7 @@
 #include "DetectorInfo/DetectorClocksService.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "Geometry/LocalTransformation.h"
+#include "Geometry/BitFieldCoder.h"
 
 #include "RecoAlg/ECALUtils.h"
 
@@ -74,6 +75,7 @@ namespace gar {
             const detinfo::DetectorProperties*  fDetProp;      ///< detector properties
             const geo::GeometryCore*            fGeo;          ///< pointer to the geometry
             std::unique_ptr<util::ECALUtils>    fECALUtils;    ///< pointer to the Util fcn for the ECAL containing the desaturation function
+            gar::geo::BitFieldCoder const* fFieldDecoder;
         };
 
 
@@ -89,6 +91,9 @@ namespace gar {
             fGeo     = gar::providerFrom<geo::Geometry>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fECALUtils = std::make_unique<util::ECALUtils>(fDetProp->EffectivePixel());
+
+            std::string fEncoding = fGeo->GetCellIDEncoding();
+            fFieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
 
             consumes< std::vector<raw::CaloRawDigit> >(fRawDigitLabel);
             produces< std::vector<rec::CaloHit> >();
@@ -170,7 +175,8 @@ namespace gar {
                 }
 
                 //Store the hit (energy in GeV, time in ns, pos in cm and cellID)
-                rec::CaloHit hit(factorSamplingGeV * energy * CLHEP::MeV / CLHEP::GeV, time, pos, cellID);
+                unsigned int layer = fFieldDecoder->get(cellID, "layer");
+                rec::CaloHit hit(factorSamplingGeV * energy * CLHEP::MeV / CLHEP::GeV, time, pos, cellID, layer);
                 hitCol->emplace_back(hit);
 
                 LOG_DEBUG("CaloHitFinder") << "recohit " << &hit
