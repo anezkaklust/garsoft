@@ -53,13 +53,22 @@ namespace gar {
       float fPCut;                ///< min momentum for a track to be identified as part of a vee
       float fRCut;                ///< DCA cut from track to vee vertex
       float fDCut;                ///< distance cut from endpoints of tracks
+      size_t fRequireNearTrack;   ///< number of nearby tracks to require (primary vertex)
+      size_t fNearTrackNTPCClus;  ///< number of nearby tracks' TPC cluster count requirement
+      float fNearTrackDMinCut;    ///< minimum distance of nearby track to the vee vertex
+      float fNearTrackDMaxCut;    ///< maximum distance of nearby track to the vee vertex
+      float fNearTrackAngCut;     ///< pointing requirement of the vee at the nearby track endpoint
       int fPrintLevel;            ///< module print level
       float fOpenAngCut;          ///< opening angle cut in 3D
       std::string fTrackLabel;    ///< track module label
 
-      // check that the track passes requirements
+      // check that the track passes requirements for association with a vee
 
       bool goodTrack(Track &trk, TrackEnd usebeg);
+
+      // check that a track passes requirements for being another nearby track (primary vertex candidate)
+
+      bool goodOtherTrack(Track &trk, TrackEnd usebeg, TVector3 &veepos, TVector3 &veep);
 
       // fit two tracks to a single vertex
 
@@ -71,12 +80,17 @@ namespace gar {
 
     veefinder1::veefinder1(fhicl::ParameterSet const & p)
     {
-      fTrackLabel       = p.get<std::string>("TrackLabel","track");
-      fPCut             = p.get<float>("PCut",0.1);  // in GeV
-      fRCut             = p.get<float>("RCut", 0.1); // in cm
-      fDCut             = p.get<float>("DCut",20.); // in cm
-      fOpenAngCut       = p.get<float>("OpenAngCut", 0.1); // in radians
-      fNTPCClusPerTrack = p.get<size_t>("NTPCClusPerTrack",100);
+      fTrackLabel         = p.get<std::string>("TrackLabel","track");
+      fPCut               = p.get<float>("PCut",0.1);  // in GeV
+      fRCut               = p.get<float>("RCut", 0.1); // in cm
+      fDCut               = p.get<float>("DCut",20.); // in cm
+      fOpenAngCut         = p.get<float>("OpenAngCut", 0.1); // in radians
+      fNTPCClusPerTrack   = p.get<size_t>("NTPCClusPerTrack",100);
+      fRequireNearTrack   = p.get<size_t>("RequireNearTrack",0);      
+      fNearTrackNTPCClus  = p.get<size_t>("NearTrackNTPCClus",100);     
+      fNearTrackDMinCut   = p.get<float>("NearTrackDMinCut",2.0);    
+      fNearTrackDMaxCut   = p.get<float>("NearTrackDMaxCut",20.0);    
+      fNearTrackAngCut    = p.get<float>("NearTrackAngCut",0.2);
 
       fPrintLevel = p.get<int>("PrintLevel",0);
 
@@ -102,8 +116,8 @@ namespace gar {
 
       size_t nTrack = tracks.size();
 
-      const float m_prot = 0.9382723;
-      const float m_pi = 0.13957018;
+      const float m_prot = 0.9382723; // in GeV
+      const float m_pi = 0.13957018;  // in GeV
 
       // For each end of each track, look for candidate vees.  Only two tracks per vee, i and j, or this and that
 
@@ -167,6 +181,8 @@ namespace gar {
 			      thatP = tmpv2;
 			    }
 
+			  // distance and opening angle cuts
+
 			  if (fPrintLevel>1) std::cout << "veefinder: got a pair of tracks" << std::endl;
 			  if ( (thisEndinSpace-thatEndinSpace).Mag() > fDCut ) continue;
 			  if (fPrintLevel>1) std::cout << "veefinder: passed the endpoint distance cut" << std::endl;
@@ -191,8 +207,31 @@ namespace gar {
 			  if (dcas[0] > fRCut || dcas[1] > fRCut) continue;
 			  if (fPrintLevel>1) std::cout << "veefinder: tracks passed rcut" << std::endl;
 
-			  std::vector<TLorentzVector> fourmomentumvec;
 			  TVector3 sumP = thisP + thatP;
+			  TVector3 vposv(vpos.data());
+
+			  // see if there are nearby tracks that might be from the primary vertex
+
+			  if (fRequireNearTrack > 0)
+			    {
+			      size_t otherTrackCount = 0;
+			      for (size_t kTrack=0; kTrack<nTrack; ++kTrack)
+			        {
+				  if (kTrack == iTrack || kTrack == jTrack) continue;
+				  Track otherTrack = tracks.at(kTrack);
+				  for (int kEnd = 0; kEnd<2; ++kEnd)
+				    {
+				      TrackEnd kTrackEnd(kEnd);
+				      if (!goodOtherTrack(otherTrack,kTrackEnd,vposv,sumP)) continue;
+				      ++otherTrackCount;
+				      break;
+				    }				   
+			        }
+			      if (otherTrackCount < fRequireNearTrack) continue;
+			    }
+			  // calculate invariant masses for the three hypotheses
+
+			  std::vector<TLorentzVector> fourmomentumvec;
 			  float energy_kshort_hyp = 
 			    TMath::Sqrt(thisP.Mag2() + m_pi*m_pi) +
 			    TMath::Sqrt(thatP.Mag2() + m_pi*m_pi);
@@ -363,7 +402,6 @@ namespace gar {
     }
 
     //--------------------------------------------------------------------------------------------------
-
     // goodTrack returns true if the track can be used in vertexing
 
     bool veefinder1::goodTrack(Track &trk, TrackEnd usebeg)
@@ -383,6 +421,34 @@ namespace gar {
 
       return true;     // if we got here, then the track passed all the cuts
     }
+
+    //--------------------------------------------------------------------------------------------------
+    // goodOtherTrack returns true if this track is consistent with being a primary vertex track
+    // that is, not part of the vee but close ot it.  There is no requirement on the primary vertex
+    // as we might not even really have one -- it may consist of just one track.
+
+    bool veefinder1::goodOtherTrack(Track &trk, TrackEnd usebeg, TVector3 &veepos, TVector3 &veep)
+    {
+      if (trk.NHits() < fNearTrackNTPCClus)   // historically-named NHits gets the number of TPC clusters
+	{ return false; }
+      TVector3 tep(0,0,0);
+      if (usebeg == TrackEndBeg)
+	{
+	  tep.SetXYZ(trk.Vertex()[0],trk.Vertex()[1],trk.Vertex()[2]);
+	}
+      else
+	{
+	  tep.SetXYZ(trk.End()[0],trk.End()[1],trk.End()[2]);
+	}
+      TVector3 dv = tep - veepos;
+      float dve = dv.Mag();
+      if (dve < fNearTrackDMinCut || dve > fNearTrackDMaxCut)
+	{ return false; }
+      if (dv.Angle(veep) > fNearTrackAngCut)
+	{ return false; }
+      return true;
+    }
+
 
     DEFINE_ART_MODULE(veefinder1)
 

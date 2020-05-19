@@ -9,6 +9,11 @@ standard_veefinder1:
  OpenAngCut:             0.1   # minimum opening angle cut in radians
  RCut:                   1.0   # in cm -- track extrapolations must miss the common vertex by no more than this
  DCut:                   20    # in cm -- how far away from each other the track endpoints can be (max cut)
+ RequireNearTrack:       1     # number of nearby tracks to require
+ NearTrackNTPCClus:      100   # nubmer of TPC clusters reqired on nearby track
+ NearTrackDMinCut:       2.0   # minimum distance of nearby track to the vee vertex
+ NearTrackDMaxCut:       20.0  # maximum sitance of nearby track to the vee vertex
+ NearTrackAngCut:         0.2  # pointing angle between vee momentum and near track end
  PrintLevel:             0     # 0: quiet, 1: more print, 2: print everything
 }
 
