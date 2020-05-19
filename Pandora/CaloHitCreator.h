@@ -17,7 +17,6 @@ namespace gar {
         class CaloHitCreator
         {
         public:
-            typedef std::vector<std::string> StringVector;
             typedef std::vector<float> FloatVector;
 
             class Settings
@@ -25,53 +24,27 @@ namespace gar {
             public:
                 Settings();
 
-                StringVector    m_CaloHitCollections;               ///< The calorimeter hit collections
-                StringVector    m_MuIDCaloHitCollections;           ///< The muon id calorimeter hit collections
+                std::string     m_CaloHitCollection;               ///< The calorimeter hit collection
                 
                 float           m_eCalToMip;                            ///< The calibration from deposited ECal energy to mip
-                float           m_hCalToMip;                            ///< The calibration from deposited HCal energy to mip
-                float           m_muonToMip;                            ///< The calibration from deposited Muon energy to mip
                 float           m_eCalMipThreshold;                     ///< Threshold for creating calo hits in the ECal, units mip
-                float           m_hCalMipThreshold;                     ///< Threshold for creating calo hits in the HCal, units mip
-                float           m_muonMipThreshold;                     ///< Threshold for creating calo hits in the HCal, units mip
 
                 float           m_eCalToEMGeV;                          ///< The calibration from deposited ECal energy to EM energy
                 float           m_eCalToHadGeVBarrel;                   ///< The calibration from deposited ECal barrel energy to hadronic energy
                 float           m_eCalToHadGeVEndCap;                   ///< The calibration from deposited ECal endcap energy to hadronic energy
-                float           m_hCalToEMGeV;                          ///< The calibration from deposited HCal energy to EM energy
-                float           m_hCalToHadGeV;                         ///< The calibration from deposited HCal energy to hadronic energy
 
-                float           m_maxHCalHitHadronicEnergy;             ///< The maximum hadronic energy allowed for a single hcal hit
+                float           m_maxECalHitHadronicEnergy;             ///< The maximum hadronic energy allowed for a single hcal hit
                 int             m_nOuterSamplingLayers;                 ///< Number of layers from edge for hit to be flagged as an outer layer hit
                 float           m_layersFromEdgeMaxRearDistance;        ///< Maximum number of layers from candidate outer layer hit to rear of detector
 
-                int             m_hCalEndCapInnerSymmetryOrder;         ///< HCal end cap inner symmetry order
-                float           m_hCalEndCapInnerPhiCoordinate;         ///< HCal end cap inner phi coordinate
+                float           m_eCalBarrelInnerPhi0;              ///< ECal barrel inner phi0 coordinate
+                unsigned int    m_eCalBarrelInnerSymmetry;          ///< ECal barrel inner symmetry order
 
-                // For Strip Splitting method.
-                int             m_stripSplittingOn;                     ///< To use SSA, this should be true (default is false)
-                
-                float                         m_eCalBarrelOuterZ;                 ///< ECal barrel outer z coordinate
-                float                         m_hCalBarrelOuterZ;                 ///< HCal barrel outer z coordinate
-                float                         m_muonBarrelOuterZ;                 ///< Muon barrel outer z coordinate
-                float                         m_coilOuterR;                       ///< Coil outer r coordinate
-
-                float                         m_eCalBarrelInnerPhi0;              ///< ECal barrel inner phi0 coordinate
-                unsigned int                  m_eCalBarrelInnerSymmetry;          ///< ECal barrel inner symmetry order
-                float                         m_hCalBarrelInnerPhi0;              ///< HCal barrel inner phi0 coordinate
-                unsigned int                  m_hCalBarrelInnerSymmetry;          ///< HCal barrel inner symmetry order
-                float                         m_muonBarrelInnerPhi0;              ///< Muon barrel inner phi0 coordinate
-                unsigned int                  m_muonBarrelInnerSymmetry;          ///< Muon barrel inner symmetry order
-
-                float                         m_hCalEndCapOuterR;                 ///< HCal endcap outer r coordinate
-                float                         m_hCalEndCapOuterZ;                 ///< HCal endcap outer z coordinate
-                float                         m_hCalBarrelOuterR;                 ///< HCal barrel outer r coordinate
-                float                         m_hCalBarrelOuterPhi0;              ///< HCal barrel outer phi0 coordinate
-                unsigned int                  m_hCalBarrelOuterSymmetry;          ///< HCal barrel outer symmetry order
+                float           m_eCalEndCapOuterR;                 ///< ECal endcap outer r coordinate
+                float           m_eCalEndCapOuterX;                 ///< ECal endcap outer x coordinate
+                float           m_eCalBarrelOuterR;                 ///< ECal barrel outer r coordinate
 
                 FloatVector m_eCalBarrelNormalVector;
-                FloatVector m_hCalBarrelNormalVector;
-                FloatVector m_muonBarrelNormalVector;
             };
 
             CaloHitCreator(const Settings &settings, const pandora::Pandora *const pPandora);
@@ -98,8 +71,8 @@ namespace gar {
 
             const pandora::Pandora &            m_pandora;                          ///< Reference to the pandora object to create calo hits
 
-            float                               m_hCalBarrelLayerThickness;         ///< HCal barrel layer thickness
-            float                               m_hCalEndCapLayerThickness;         ///< HCal endcap layer thickness
+            float                               m_eCalBarrelLayerThickness;         ///< ECal barrel layer thickness
+            float                               m_eCalEndCapLayerThickness;         ///< ECal endcap layer thickness
 
             CalorimeterHitVector                m_calorimeterHitVector;             ///< The calorimeter hit vector
 

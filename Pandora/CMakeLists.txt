@@ -1,9 +1,12 @@
+include_directories( $ENV{GEANT4_FQ_DIR}/include )
+include_directories( $ENV{NUTOOLS_DIR}/include   )
 include_directories( $ENV{PANDORA_INC} )
 include_directories( $ENV{LCPANDORACONTENT_INC} )
 
 art_make(BASENAME_ONLY
           LIBRARY_NAME GArPandora
-          LIB_LIBRARIES 
+          LIB_LIBRARIES
+          GArG4
           nusimdata_SimulationBase
           Geometry
           SimulationDataProducts
@@ -29,6 +32,7 @@ art_make(BASENAME_ONLY
 
           MODULE_LIBRARIES 
           Geometry
+          GArG4
           SimulationDataProducts
           RawDataProducts
           ReconstructionDataProducts

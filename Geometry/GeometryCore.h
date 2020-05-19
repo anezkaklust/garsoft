@@ -879,8 +879,11 @@ namespace gar {
       //Returns the apothem length of the polyhedra
       float GetECALEndcapApothemLength() const { return ( std::cos( M_PI / fECALSymmetry ) * fECALECapRouter ); }
 
-      //Returns the ECAL minimum radius of the Outer Barrel
+      //Returns the ECAL start of the endcap
       float GetECALEndcapStartX() const { return fECALEndcapStartX; }
+
+      //Returns the ECAL outer x of the endcap
+      float GetECALEndcapOuterX() const { return fECALEndcapOuterX; }
 
       std::string GetWorldVolumeName() const { return "volWorld"; }
 
@@ -980,6 +983,9 @@ namespace gar {
       //Sets the position of the xplane of the ECAL endcap
       bool FindECALEndcapStartX();
 
+      //Sets the position of the xplan of the end of the ECAL endcap
+      bool FindECALEndcapOuterX();
+
       double         fSurfaceY;       ///< The point where air meets earth for this detector.
       std::string    fDetectorName;   ///< Name of the detector.
       std::string    fGDMLfile;       ///< path to geometry file used for Geant4 simulation
@@ -1054,7 +1060,8 @@ namespace gar {
       float fECALECapRouter;
       float fPVThickness;             ///< Pressure Vessel thickness
       int fECALSymmetry;              ///< Number of sides of the Barrel
-      float fECALEndcapStartX;        ///< Position of the xplane of the ECAL endcap
+      float fECALEndcapStartX;        ///< Position of the start xplane of the ECAL endcap
+      float fECALEndcapOuterX;        ///< Position of the end xplane of the ECAL endcap
 
       typedef std::shared_ptr<const gar::geo::seg::ChannelMapAlg> ChannelMapPtr;
       ChannelMapPtr  fChannelMapAlg;  ///< Object containing the channel to wire mapping

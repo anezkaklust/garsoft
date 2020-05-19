@@ -45,9 +45,9 @@ namespace gar {
         //------------------------------------------------------------------------------------------------------------------------------------------
 
         MCParticleCreator::Settings::Settings():
-        m_mcParticleCollections( StringVector() ),
-        m_CaloHitRelationCollections( StringVector() ),
-        m_TrackRelationCollections( StringVector() )
+        m_mcParticleCollection( "" ),
+        m_CaloHitRelationCollection( "" ),
+        m_TrackRelationCollection( "" )
 
         {
         }

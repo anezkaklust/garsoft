@@ -3,6 +3,7 @@
 
 #include "Plugins/BFieldPlugin.h"
 #include "Objects/CartesianVector.h"
+#include "nutools/MagneticField/MagneticField.h"
 
 namespace gar {
     namespace gar_pandora {
@@ -10,12 +11,14 @@ namespace gar {
         class BFieldPlugin : public pandora::BFieldPlugin
         {
         public:
-            BFieldPlugin();
+            BFieldPlugin(art::ServiceHandle<mag::MagneticField> &magFieldService);
             float GetBField(const pandora::CartesianVector &positionVector) const;
 
         private:
             pandora::StatusCode Initialize();
             pandora::StatusCode ReadSettings(const pandora::TiXmlHandle xmlHandle);
+
+            art::ServiceHandle<mag::MagneticField> fieldService;
         };
     }
 }

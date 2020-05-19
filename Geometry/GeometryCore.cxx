@@ -955,6 +955,7 @@ namespace gar {
             this->FindPVThickness();
             this->FindECALInnerSymmetry();
             this->FindECALEndcapStartX();
+            this->FindECALEndcapOuterX();
                         
             StoreECALNodes(fECALNodePath);
             std::cout << "Stored " << fECALNodePath.size() << " ECAL nodes in memory" << std::endl;
@@ -1065,6 +1066,22 @@ namespace gar {
 
             //The start of the endcap is after the pv endcap -> sum of tpc chamber length and pressure vessel bulge
             fECALEndcapStartX = ((TGeoBBox*)vol_pv->GetShape())->GetDZ()*2 + ((TGeoBBox*)vol_tpc_chamber->GetShape())->GetDZ();
+
+            return true;
+        }
+
+        //----------------------------------------------------------------------------
+        bool GeometryCore::FindECALEndcapOuterX()
+        {
+            //Find the ecal Endcap
+            TGeoVolume *vol_e = gGeoManager->FindVolumeFast("EndcapECal_vol");
+            if(!vol_e)
+                vol_e = gGeoManager->FindVolumeFast("volEndcapECal");
+            if(!vol_e)
+                return false;
+
+            //The start of the endcap is after the pv endcap -> sum of tpc chamber length and pressure vessel bulge
+            fECALEndcapOuterX = ((TGeoBBox*)vol_e->GetShape())->GetDZ() - fECALEndcapStartX;
 
             return true;
         }
@@ -1214,6 +1231,7 @@ namespace gar {
             std::cout << "ECAL polyhedra side length (Endcap): " << GetECALEndcapSideLength() << " cm" << std::endl;
             std::cout << "ECAL polyhedra apothem length (Endcap): " << GetECALEndcapApothemLength() << " cm" << std::endl;
             std::cout << "ECAL Endcap Start X: " << GetECALEndcapStartX() << " cm" << std::endl;
+            std::cout << "ECAL Endcap Outer X: " << GetECALEndcapOuterX() << " cm" << std::endl;
             std::cout << "Pressure Vessel Thickness: " << GetPVThickness() << " cm" << std::endl;
             std::cout << "------------------------------\n" << std::endl;
         }

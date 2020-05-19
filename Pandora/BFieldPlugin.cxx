@@ -5,7 +5,8 @@
 namespace gar {
     namespace gar_pandora {
 
-        BFieldPlugin::BFieldPlugin()
+        BFieldPlugin::BFieldPlugin(art::ServiceHandle<mag::MagneticField> &magFieldService) :
+        fieldService(magFieldService)
         {
             /* nop */
         }
@@ -14,8 +15,9 @@ namespace gar {
 
         float BFieldPlugin::GetBField(const pandora::CartesianVector &positionVector) const
         {
-            double bfield[3] = {0.5, 0., 0.};
-            return bfield[0];
+            G4ThreeVector PosVec(positionVector.GetX(), positionVector.GetY(), positionVector.GetZ());
+            G4ThreeVector magfield = fieldService->FieldAtPoint(PosVec);
+            return magfield[0];
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------

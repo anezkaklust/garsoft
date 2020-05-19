@@ -43,14 +43,8 @@ namespace gar {
         //------------------------------------------------------------------------------------------------------------------------------------------
 
         PfoCreator::Settings::Settings():
-        m_clusterCollectionName(""),
-        m_pfoCollectionName(""),
-        m_startVertexCollectionName(""),
-        m_startVertexAlgName(""),
         m_emStochasticTerm(0.17f),
-        m_hadStochasticTerm(0.6f),
-        m_emConstantTerm(0.01f),
-        m_hadConstantTerm(0.03f)
+        m_emConstantTerm(0.01f)
         {
         }
     }

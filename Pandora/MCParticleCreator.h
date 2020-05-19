@@ -14,16 +14,15 @@ namespace gar {
         class MCParticleCreator
         {
         public:
-            typedef std::vector<std::string> StringVector;
 
             class Settings
             {
             public:
                 Settings();
 
-                StringVector    m_mcParticleCollections;                ///< The mc particle collections
-                StringVector    m_CaloHitRelationCollections;         ///< The SimCaloHit to CaloHit particle relations
-                StringVector    m_TrackRelationCollections;           ///< The SimTrackerHit to TrackerHit particle relations
+                std::string    m_mcParticleCollection;              ///< The mc particle collection
+                std::string    m_CaloHitRelationCollection;         ///< The SimCaloHit to CaloHit particle relation
+                std::string    m_TrackRelationCollection;           ///< The SimTrackerHit to TrackerHit particle relation
             };
 
             MCParticleCreator(const Settings &settings, const pandora::Pandora *const pPandora);
