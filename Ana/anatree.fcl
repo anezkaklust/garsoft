@@ -52,7 +52,7 @@ standard_anatree:
  WriteTPCClusters:          true
  WriteTracks:               true
  WriteVertices:             true
- WriteVees:                 false
+ WriteVees:                 true
 
 # Calorimetry info is: (a) calorimeter digits if WriteCaloDigits; (b) hits if
 # WriteCaloHits; (c) clusters if WriteCaloClusters (d) associations to tracks if
