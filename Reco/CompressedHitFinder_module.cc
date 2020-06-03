@@ -169,7 +169,7 @@ namespace gar {
               int adcmax = 0;
               int jhl = 0;
 
-              float distonetick = fDetProp->DriftVelocity() * (fTime->TPCTick2Time(1) - fTime->TPCTick2Time(0)) ;
+              double distonetick = fDetProp->DriftVelocity() * (fTime->TPCTick2Time(1) - fTime->TPCTick2Time(0)) ;
 
               for(int jInBlock = 0; jInBlock < blocksize; ++jInBlock)  // loop over time samples in each block
                 {
@@ -239,7 +239,7 @@ namespace gar {
                       if (hitRMS == 0) hitRMS = fMinRMS;
                       //std::cout << " hit RMS calc: " << hitSumSq << " " << hitSig << " " << hitTime << " " << hitRMS << std::endl;
 
-                      float driftdistance = fDetProp->DriftVelocity() * fTime->TPCTick2Time(hitTime);
+                      double driftdistance = fDetProp->DriftVelocity() * fTime->TPCTick2Time(hitTime);
                       if (chanposx < 0)
                         {
                           pos[0] = chanposx + driftdistance;

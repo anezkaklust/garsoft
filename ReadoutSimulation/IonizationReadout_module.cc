@@ -360,6 +360,7 @@ namespace gar {
         // for this energy deposition
         fDriftAlg->DriftElectronsToReadout(edepCol[e], driftInfo);
 
+        // auto is double in this case.
         auto clusterXPos = driftInfo.ClusterXPos();
         auto clusterYPos = driftInfo.ClusterYPos();
         auto clusterZPos = driftInfo.ClusterZPos();

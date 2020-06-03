@@ -164,9 +164,9 @@ namespace gar {
       // get the distance corresponding to one ADC tick so we can report the time in ticks
 
       auto detProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
-      float DriftVelocity = detProp->DriftVelocity(detProp->Efield(),detProp->Temperature());       // in cm per microsecond
+      double DriftVelocity = detProp->DriftVelocity(detProp->Efield(),detProp->Temperature());       // in cm per microsecond
       //auto clockService = gar::providerFrom<detinfo::DetectorClocksService>();
-      //float distonetick = DriftVelocity * (clockService->TPCTick2Time(1) - clockService->TPCTick2Time(0)) ;
+      //double distonetick = DriftVelocity * (clockService->TPCTick2Time(1) - clockService->TPCTick2Time(0)) ;
 
       // output collections
 
