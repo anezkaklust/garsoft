@@ -65,10 +65,10 @@ namespace gar {
 
       // The geometry has x = 0 at the cathode plane. Compute the drift time appropriately
 
-      float driftD       = std::abs(std::abs(xyz[0]) - fGeo->TPCLength()/2.0);  // assume cathode is at x=0
-      float driftT       = driftD * fInverseVelocity;  // in cm
-      float sqrtDriftD   = std::sqrt(driftD);
-      float lifetimeCorr = std::exp(driftT / fLifetimeCorrection);
+      double driftD       = std::abs(std::abs(xyz[0]) - fGeo->TPCLength()/2.0);  // assume cathode is at x=0
+      double driftT       = driftD * fInverseVelocity;  // in cm
+      double sqrtDriftD   = std::sqrt(driftD);
+      double lifetimeCorr = std::exp(driftT / fLifetimeCorrection);
       
       // how many electrons do we expect to make it to the readout?
       float  nElectrons = electrons * lifetimeCorr;
@@ -87,8 +87,8 @@ namespace gar {
       // the last cluster may have fewer electrons than the configured amount
       nElec.back() = nElectrons - (nClusters - 1) * ourelectronspercluster;
      
-      float longDiffSigma = sqrtDriftD * fLongDiffConst;
-      float transDiffSigma = sqrtDriftD * fTransDiffConst;
+      double longDiffSigma = sqrtDriftD * fLongDiffConst;
+      double transDiffSigma = sqrtDriftD * fTransDiffConst;
 
       GaussRand.fireArray(nClusters, &XDiff[0], 0., longDiffSigma);
       GaussRand.fireArray(nClusters, &YDiff[0], 0., transDiffSigma);
@@ -96,7 +96,7 @@ namespace gar {
       
       // set the times and the positions of each cluster
       for(size_t c = 0; c < nClusters; ++c){
-        TDiff[c]  = g4time + driftT + (float)XDiff[c] * fInverseVelocity;
+        TDiff[c]  = g4time + driftT + XDiff[c] * fInverseVelocity;
         XDiff[c]  = xyz[0];
         YDiff[c] += xyz[1];
         ZDiff[c] += xyz[2];

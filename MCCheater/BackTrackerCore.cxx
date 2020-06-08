@@ -20,9 +20,6 @@
 
 #include "TMath.h"
 
-// For timing studies
-//#include <chrono>
-//using namespace std::chrono;
 
 
 namespace gar{
@@ -361,10 +358,11 @@ namespace gar{
             // Why was this here?
             //if (totalE < 1.0e-5) totalE = 1.0;
 
-            /* DEB hits without edeps
-            std::cout << "Channel at (" << chanpos[0] << ", " << chanpos[1] <<
-                ", " << chanpos[2] << ")  has " << chanEDeps.size() << "\t edeps, and "
-                << hitIDEs.size() << " are in-time\n"; */
+            // DEB hits without edeps
+            std::cout << "Channel " << channel << ", at (z,y) = (" << chanpos[2] << ", "
+				<< chanpos[1] << ") has " << chanEDeps.size() << " edeps, and " << 
+				hitIDEs.size() << " are in-time between " << start << " and " << stop
+				<< std::endl; //
 
             // loop over the hitIDEs to set the fractional energy for each TrackID
             for (size_t i = 0; i < hitIDEs.size(); ++i) {
@@ -517,10 +515,6 @@ namespace gar{
             // returns a subset of the CaloHits in the allhits collection that match
             // the MC particle passed as an argument
 
-            // Timing
-            //time_point start(std::chrono::high_resolution_clock::now());
-            //auto totalThere = start -start;
-
             if (!fHasMC || !fHasHits) {
                 throw cet::exception("BackTrackerCore::ParticleToCaloHits")
                     << "Attempting to backtrack without MC truth or gar::rec::CaloHit information";
@@ -533,11 +527,7 @@ namespace gar{
             for (auto hit : allhits) {
                 calhids.clear();
 
-                // Timing
-                //start   = high_resolution_clock::now();
                 calhids = this->CellIDToCalIDEs(hit->CellID(),hit->Time().first);
-                // Timing
-                //totalThere += high_resolution_clock::now() -start;
 
                 for (auto const& hid : calhids) {
                     if ( hid.trackID==tkID && hid.energyFrac>fMinCaloHitEnergyFrac ) {
@@ -545,10 +535,6 @@ namespace gar{
                    }
                 }
             }
-            // Timing
-            //duration<double, std::micro> dA = totalThere;
-            //std::cout << "Time in ChannelToHitIDEs: " <<
-            //    dA.count() << " for " << allhits.size() << " hits" << std::endl;
             return calHitList;
         }
 

@@ -20,6 +20,7 @@
 #include "tpctrackfit2.fcl"
 #include "tpccathodestitch.fcl"
 #include "vertexfinder1.fcl"
+#include "veefinder1.fcl"
 #include "CaloHitFinder.fcl"
 #include "CaloClustering.fcl"
 #include "CaloStripSplitter.fcl"
@@ -70,6 +71,7 @@ physics:
   tpccluster:         @local::standard_tpccathodestitch  # use unusual name to keep backward compatibility as this module produces tpc clusters
   track:              @local::standard_tpctrackfit2
   vertex:             @local::standard_vertexfinder1
+  veefinder1:         @local::standard_veefinder1
   calohit:            @local::standard_CaloHitFinder
   sscalohit:          @local::standard_CaloStripSplitter
   calocluster:        @local::standard_CaloClustering
@@ -81,7 +83,7 @@ physics:
 
  #Define the producer and filter modules for this path, order matters.  Put init 1st!
  #Filters reject all following items.  ee lines starting physics.producers below
- reco: [init,hit,tpcclusterpass1,vechit,patrec,trackpass1,vertexpass1,tpccluster,track,vertex,calohit,sscalohit,calocluster,trkecalassn]
+ reco: [init,hit,tpcclusterpass1,vechit,patrec,trackpass1,vertexpass1,tpccluster,track,vertex,veefinder1,calohit,sscalohit,calocluster,trkecalassn]
  #reco: [init,hit,tpcclusterpass1,vechit,patrec,trackpass1,vertexpass1,tpccluster,track,vertex,calohit,calocluster,trkecalassn]
 
  #define the output stream, there could be more than one if using filters

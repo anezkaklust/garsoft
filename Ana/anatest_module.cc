@@ -373,9 +373,22 @@ void gar::anatest::FillVectors(art::Event const & e) {
 
 
 
+    std::vector<art::Ptr<rec::Hit>> allhits;
+    art::PtrMaker<rec::Hit> makeHitPtr(e,HitHandle.id());
+    for (size_t iHit=0; iHit<HitHandle->size(); ++iHit) {
+        art::Ptr<rec::Hit> aPtr = makeHitPtr(iHit);
+        allhits.push_back(aPtr);
+    }
+    for (simb::MCParticle mcp : *MCPHandle) {
+		if ( mcp.Mother() > 0 ) continue;
+	    if ( abs(mcp.PdgCode()) == 13 ) bt->ParticleToHits(&mcp,allhits);
+	}
+ 
+ 
+ 
 
 
-    for ( rec::Cluster cluster : *RecoClusterHandle ) {
+/*  for ( rec::Cluster cluster : *RecoClusterHandle ) {
         std::vector<std::pair<simb::MCParticle*,float>> whatMatches;
         whatMatches = bt->ClusterToMCParticles(&cluster);
         std::cout << "\nCluster No. " << cluster.getIDNumber() << " is made of MCParticles: " << std::endl;
@@ -400,7 +413,7 @@ void gar::anatest::FillVectors(art::Event const & e) {
             for (art::Ptr<rec::Cluster> iCluster : clusterList)
                 std::cout << iCluster->getIDNumber() << std::endl;
         }
-    }
+    } */
 
 
 

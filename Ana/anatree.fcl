@@ -27,6 +27,7 @@ standard_anatree:
  CaloHitLabel:             "sscalohit"
  ClusterLabel:             "calocluster"
  ECALAssnLabel:            "trkecalassn"
+ VeeLabel:                 "veefinder1"
 
 # What to save? ==============================================
 # MC info is: (a) MCTruth, GTruth, MCParticle if WriteMCinfo; (b) MCPtrajectory if
@@ -51,6 +52,7 @@ standard_anatree:
  WriteTPCClusters:          true
  WriteTracks:               true
  WriteVertices:             true
+ WriteVees:                 true
 
 # Calorimetry info is: (a) calorimeter digits if WriteCaloDigits; (b) hits if
 # WriteCaloHits; (c) clusters if WriteCaloClusters (d) associations to tracks if
