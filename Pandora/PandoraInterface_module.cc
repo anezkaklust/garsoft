@@ -286,6 +286,7 @@ namespace gar {
             m_caloHitCreatorSettings.m_eCalBarrelInnerPhi0          = 0.;
             m_caloHitCreatorSettings.m_eCalBarrelInnerSymmetry      = fGeo->GetECALInnerSymmetry();
             m_caloHitCreatorSettings.m_eCalBarrelOuterR             = fGeo->GetECALOuterBarrelRadius();
+            m_caloHitCreatorSettings.m_eCalEndCapInnerX             = fGeo->GetECALEndcapStartX();
             m_caloHitCreatorSettings.m_eCalEndCapOuterX             = fGeo->GetECALEndcapOuterX();
             m_caloHitCreatorSettings.m_eCalEndCapOuterR             = fGeo->GetECALOuterEndcapRadius();
         }

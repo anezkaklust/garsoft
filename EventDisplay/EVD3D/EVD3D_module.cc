@@ -515,7 +515,7 @@ namespace gar{
             {
                 //Check if top volume is rock hall
                 bool hasHall = false;
-                std::vector<const TGeoNode*> topnodes = fGeometry->FindVolumePath("rockBox_lv_0");
+                std::vector<const TGeoNode*> topnodes = fGeometry->FindVolumePath("rockBox_lv");
                 TGeoScale nullmatgm;
                 TGeoMatrix* topHall = &nullmatgm;
                 if(topnodes.size() != 0) hasHall = true;
@@ -528,7 +528,7 @@ namespace gar{
                     for(unsigned int i = 0; i < topnodes.size(); i++)
                     {
                         std::string nodename(topnodes.at(i)->GetName());
-                        if(nodename.find("rockBox_lv_0") == std::string::npos) continue;
+                        if(nodename.find("rockBox_lv") == std::string::npos) continue;
 
                         const TGeoNode *top = topnodes.at(i);
                         topHall = top->GetMatrix();
@@ -537,7 +537,7 @@ namespace gar{
 
                 //Check if the top volume is Enclosure or ND
                 bool hasEnclosure = false;
-                topnodes = fGeometry->FindVolumePath("volDetEnclosure_0");
+                topnodes = fGeometry->FindVolumePath("volDetEnclosure");
                 TGeoMatrix* topEnclosure = &nullmatgm;
                 if(topnodes.size() != 0) hasEnclosure = true;
 
@@ -549,7 +549,7 @@ namespace gar{
                     for(unsigned int i = 0; i < topnodes.size(); i++)
                     {
                         std::string nodename(topnodes.at(i)->GetName());
-                        if(nodename.find("volDetEnclosure_0") == std::string::npos) continue;
+                        if(nodename.find("volDetEnclosure") == std::string::npos) continue;
 
                         const TGeoNode *top = topnodes.at(i);
                         topEnclosure = top->GetMatrix();
@@ -557,7 +557,7 @@ namespace gar{
                 }
 
                 //Get the matrix of the top volume (rotation of the full ND)
-                topnodes = fGeometry->FindVolumePath("volMPD_0");
+                topnodes = fGeometry->FindVolumePath("volMPD");
                 //Matrix ND
                 TGeoMatrix* topND = &nullmatgm;
                 for(unsigned int i = 0; i < topnodes.size(); i++)
@@ -570,13 +570,13 @@ namespace gar{
                 }
 
                 //Get the matrix of the top volume (rotation of the full ND)
-                topnodes = fGeometry->FindVolumePath("volNDHPgTPC_0");
+                topnodes = fGeometry->FindVolumePath("volNDHPgTPC");
                 //Matrix ND
                 TGeoMatrix* topND2 = &nullmatgm;
                 for(unsigned int i = 0; i < topnodes.size(); i++)
                 {
                     std::string nodename(topnodes.at(i)->GetName());
-                    if(nodename.find("volNDHPgTPC_0") == std::string::npos) continue;
+                    if(nodename.find("volNDHPgTPC") == std::string::npos) continue;
 
                     const TGeoNode *top = topnodes.at(i);
                     topND2 = top->GetMatrix();

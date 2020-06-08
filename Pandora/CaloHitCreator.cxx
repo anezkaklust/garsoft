@@ -4,6 +4,8 @@
 #include <cmath>
 #include <limits>
 
+#include "CoreUtils/ServiceUtil.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace gar {
     namespace gar_pandora {
@@ -11,11 +13,13 @@ namespace gar {
         CaloHitCreator::CaloHitCreator(const Settings &settings, const pandora::Pandora *const pPandora) :
         m_settings(settings),
         m_pandora(*pPandora),
-        m_eCalBarrelLayerThickness(0.f),
-        m_eCalEndCapLayerThickness(0.f),
+        m_eCalBarrelLayerThickness(0.8),
+        m_eCalEndCapLayerThickness(0.8),
         m_calorimeterHitVector(0)
         {
-            m_eCalEndCapLayerThickness = 20.;
+            fGeo = gar::providerFrom<geo::Geometry>();
+            std::string fEncoding = fGeo->GetCellIDEncoding();
+            m_fieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
 
             if ((m_eCalEndCapLayerThickness < std::numeric_limits<float>::epsilon()))
                 throw pandora::StatusCodeException(pandora::STATUS_CODE_INVALID_PARAMETER);
@@ -25,6 +29,7 @@ namespace gar {
 
         CaloHitCreator::~CaloHitCreator()
         {
+            if ( m_fieldDecoder ) delete m_fieldDecoder;
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -40,6 +45,74 @@ namespace gar {
 
         pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const art::Event *const pEvent)
         {
+            std::vector<art::Ptr<gar::rec::CaloHit>> hitVector;
+            art::Handle< std::vector<gar::rec::CaloHit> > theHits;
+            pEvent->getByLabel(m_settings.m_CaloHitCollection, theHits);
+
+            if (!theHits.isValid())
+            {
+                LOG_DEBUG("CaloHitCreator") << "  Failed to find hits... " << std::endl;
+                return pandora::STATUS_CODE_FAILURE;
+            }
+            else
+            {
+                LOG_DEBUG("CaloHitCreator") << "  Found: " << theHits->size() << " Hits " << std::endl;
+            }
+
+            for (unsigned int i = 0; i < theHits->size(); ++i)
+            {
+                const art::Ptr<gar::rec::CaloHit> hit(theHits, i);
+                hitVector.push_back(hit);
+            }
+
+            for (std::vector<art::Ptr<gar::rec::CaloHit>>::const_iterator iter = hitVector.begin(), iterEnd = hitVector.end(); iter != iterEnd; ++iter)
+            {
+                art::Ptr<gar::rec::CaloHit> artPtrCaloHit = *iter;
+                const gar::rec::CaloHit *pCaloHit = artPtrCaloHit.get();
+
+                PandoraApi::CaloHit::Parameters caloHitParameters;
+                caloHitParameters.m_hitType = pandora::ECAL;
+                caloHitParameters.m_isDigital = false;
+                caloHitParameters.m_layer = m_fieldDecoder->get(pCaloHit->CellID(), "layer");
+                caloHitParameters.m_isInOuterSamplingLayer = false;
+                this->GetCommonCaloHitProperties(pCaloHit, caloHitParameters);
+
+                float absorberCorrection(1.);
+
+                if (std::fabs(pCaloHit->Position()[2]) < m_settings.m_eCalEndCapInnerX)
+                {
+                    LOG_DEBUG("CaloHitCreator") << "IDS " << iter
+                    << std::setw(15) << pCaloHit->CellID()
+                    << std::setw(15) << pCaloHit->Position()[0]
+                    << std::setw(15) << pCaloHit->Position()[1]
+                    << std::setw(15) << pCaloHit->Position()[2]
+                    << std::setw(5) << m_fieldDecoder->get(pCaloHit->CellID(), "system")
+                    << std::setw(5) << m_fieldDecoder->get(pCaloHit->CellID(), "module")
+                    << std::setw(5) << m_fieldDecoder->get(pCaloHit->CellID(), "stave")
+                    << std::setw(5) << m_fieldDecoder->get(pCaloHit->CellID(), "layer")
+                    << std::setw(5) << m_fieldDecoder->get(pCaloHit->CellID(), "cellX")
+                    << std::setw(5) << m_fieldDecoder->get(pCaloHit->CellID(), "cellY")
+                    << std::endl;
+
+                    // this->GetBarrelCaloHitProperties(pCaloHit, barrelLayers, m_settings.m_eCalBarrelInnerSymmetry, caloHitParameters, m_settings.m_eCalBarrelNormalVector, absorberCorrection);
+                    caloHitParameters.m_hadronicEnergy = m_settings.m_eCalToHadGeVBarrel * pCaloHit->Energy();
+                }
+                else
+                {
+                    // this->GetEndCapCaloHitProperties(pCaloHit, endcapLayers, caloHitParameters, absorberCorrection);
+                    caloHitParameters.m_hadronicEnergy = m_settings.m_eCalToHadGeVEndCap * pCaloHit->Energy();
+                }
+
+                caloHitParameters.m_mipEquivalentEnergy = pCaloHit->Energy() * m_settings.m_eCalToMip * absorberCorrection;
+
+                if (caloHitParameters.m_mipEquivalentEnergy.Get() < m_settings.m_eCalMipThreshold)
+                    continue;
+
+                caloHitParameters.m_electromagneticEnergy = m_settings.m_eCalToEMGeV * pCaloHit->Energy();
+
+                PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::CaloHit::Create(m_pandora, caloHitParameters));
+                m_calorimeterHitVector.push_back(pCaloHit);
+            }
 
             return pandora::STATUS_CODE_SUCCESS;
         }

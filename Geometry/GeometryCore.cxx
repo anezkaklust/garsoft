@@ -1081,7 +1081,7 @@ namespace gar {
                 return false;
 
             //The start of the endcap is after the pv endcap -> sum of tpc chamber length and pressure vessel bulge
-            fECALEndcapOuterX = ((TGeoBBox*)vol_e->GetShape())->GetDZ() - fECALEndcapStartX;
+            fECALEndcapOuterX = ((TGeoBBox*)vol_e->GetShape())->GetDZ()*2 - fECALEndcapStartX;
 
             return true;
         }

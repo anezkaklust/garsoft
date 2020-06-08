@@ -4,15 +4,15 @@
 #include "art/Framework/Principal/Event.h"
 
 #include "Geometry/Geometry.h"
+#include "Geometry/BitFieldCoder.h"
 #include "ReconstructionDataProducts/CaloHit.h"
 
 #include "Api/PandoraApi.h"
 
-
 namespace gar {
     namespace gar_pandora {
 
-        typedef std::vector<gar::rec::CaloHit *> CalorimeterHitVector;
+        typedef std::vector<const gar::rec::CaloHit *> CalorimeterHitVector;
 
         class CaloHitCreator
         {
@@ -41,6 +41,7 @@ namespace gar {
                 unsigned int    m_eCalBarrelInnerSymmetry;          ///< ECal barrel inner symmetry order
 
                 float           m_eCalEndCapOuterR;                 ///< ECal endcap outer r coordinate
+                float           m_eCalEndCapInnerX;                 ///< ECal endcap inner x coordinate
                 float           m_eCalEndCapOuterX;                 ///< ECal endcap outer x coordinate
                 float           m_eCalBarrelOuterR;                 ///< ECal barrel outer r coordinate
 
@@ -77,6 +78,7 @@ namespace gar {
             CalorimeterHitVector                m_calorimeterHitVector;             ///< The calorimeter hit vector
 
             const geo::GeometryCore*            fGeo; //Geometry Manager
+            gar::geo::BitFieldCoder const*      m_fieldDecoder;
         };
 
         //------------------------------------------------------------------------------------------------------------------------------------------
