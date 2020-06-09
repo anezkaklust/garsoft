@@ -15,7 +15,7 @@ namespace gar {
             class Settings
             {
             public:
-                Settings();        
+                Settings();
             };
 
             GeometryCreator(const Settings &settings, const pandora::Pandora *const pPandora);
@@ -28,8 +28,16 @@ namespace gar {
             typedef std::map<pandora::SubDetectorType, PandoraApi::Geometry::SubDetector::Parameters> SubDetectorTypeMap;
             typedef std::map<std::string, PandoraApi::Geometry::SubDetector::Parameters> SubDetectorNameMap;
 
+            void SetMandatorySubDetectorParameters(SubDetectorTypeMap &subDetectorTypeMap) const;
+
+            void SetAdditionalSubDetectorParameters(SubDetectorNameMap &subDetectorNameMap) const;
+
+            void SetDefaultSubDetectorParameters(const std::string &subDetectorName, const pandora::SubDetectorType subDetectorType, PandoraApi::Geometry::SubDetector::Parameters &parameters) const;
+
             const Settings          m_settings;                     ///< The geometry creator settings
             const pandora::Pandora &m_pPandora;                     ///< Address of the pandora object to create the geometry
+
+            const geo::GeometryCore* fGeo;                          ///< Geometry provider
         };
     }
 }
