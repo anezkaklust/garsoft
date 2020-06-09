@@ -74,7 +74,7 @@ namespace gar {
       float  nElectrons = electrons * lifetimeCorr;
       size_t nClusters  = (size_t)std::ceil(nElectrons / fElectronsPerCluster);
       nClusters = std::min( (size_t) std::ceil(nElectrons),std::max(nClusters,fMinClusters));
-      int ourelectronspercluster = nElectrons/nClusters;
+      int ourelectronspercluster = nearbyint(nElectrons/nClusters);
 
       // drift them in sets.  The X(Y)(Z)Diff vectors contain the additional
       // distance to add to the step midpoint to account for diffusion.
