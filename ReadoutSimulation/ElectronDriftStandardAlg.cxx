@@ -85,7 +85,7 @@ namespace gar {
       std::vector<int   > nElec(nClusters, ourelectronspercluster);
       
       // the last cluster may have fewer electrons than the configured amount
-      nElec.back() = nElectrons - (nClusters - 1) * ourelectronspercluster;
+      nElec.back() = nearbyint(nElectrons - (nClusters - 1) * ourelectronspercluster);
      
       double longDiffSigma = sqrtDriftD * fLongDiffConst;
       double transDiffSigma = sqrtDriftD * fTransDiffConst;
