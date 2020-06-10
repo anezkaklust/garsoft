@@ -11,6 +11,7 @@
 #include "Geometry/ChannelMapAlgs/ChannelMapStandardAlg.h"
 #include "Geometry/ChannelMapAlgs/ECALSegmentationGridXYAlg.h"
 #include "Geometry/ChannelMapAlgs/ECALSegmentationMultiGridStripXYAlg.h"
+#include "Geometry/ChannelMapAlgs/MinervaSegmentationAlg.h"
 #include "Geometry/GeometryCore.h"
 
 // C/C++ libraries
@@ -62,12 +63,16 @@ namespace gar
       fECALSegmentationAlg = std::make_shared<gar::geo::seg::ECALSegmentationGridXYAlg>(segParameters);
       else if(SegmentationAlgName.compare("MultiGridStripXY") == 0)
       fECALSegmentationAlg = std::make_shared<gar::geo::seg::ECALSegmentationMultiGridStripXYAlg>(segParameters);
+      else if(SegmentationAlgName.compare("Minerva") == 0)
+      fECALSegmentationAlg = std::make_shared<gar::geo::seg::MinervaSegmentationAlg>(segParameters);
       else{
           throw cet::exception("StandardGeometryHelper::doConfigureECALSegmentationAlg")
           << "Unable to determine which ECAL Segmentation algorithm to use, bail";
       }
 
-      if(fECALSegmentationAlg) geom->ApplyECALSegmentationAlg(fECALSegmentationAlg);
+      if(fECALSegmentationAlg && SegmentationAlgName.compare("Minerva") != 0) geom->ApplyECALSegmentationAlg(fECALSegmentationAlg);
+      //Case for Minerva segmentation algorithm
+      if(fECALSegmentationAlg && SegmentationAlgName.compare("Minerva") == 0) geom->ApplyMinervaSegmentationAlg(fECALSegmentationAlg);
 
       return;
 

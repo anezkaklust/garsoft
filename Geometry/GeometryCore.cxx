@@ -95,6 +95,14 @@ namespace gar {
         } // GeometryCore::ApplyECALSegmentationAlg()
 
         //......................................................................
+        void GeometryCore::ApplyMinervaSegmentationAlg(std::shared_ptr<geo::seg::ECALSegmentationAlg> pMinervaSegmentationAlg)
+        {
+            pMinervaSegmentationAlg->Initialize(*this);
+            fMinervaSegmentationAlg = pMinervaSegmentationAlg;
+
+        } // GeometryCore::ApplyMinervaSegmentationAlg()
+
+        //......................................................................
         void GeometryCore::LoadGeometryFile(std::string const& gdmlfile, std::string const& rootfile, bool bForceReload /* = false*/)
         {
             if (gdmlfile.empty()) {
@@ -955,7 +963,7 @@ namespace gar {
             this->FindPVThickness();
             this->FindECALInnerSymmetry();
             this->FindECALEndcapStartX();
-                        
+
             StoreECALNodes(fECALNodePath);
             std::cout << "Stored " << fECALNodePath.size() << " ECAL nodes in memory" << std::endl;
 
@@ -1067,6 +1075,12 @@ namespace gar {
             fECALEndcapStartX = ((TGeoBBox*)vol_pv->GetShape())->GetDZ()*2 + ((TGeoBBox*)vol_tpc_chamber->GetShape())->GetDZ();
 
             return true;
+        }
+
+        //----------------------------------------------------------------------------
+        gar::raw::CellID_t GeometryCore::GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
+        {
+            return fMinervaSegmentationAlg->GetCellID(*this, det_id, 0, 0, layer, slice, localPosition);
         }
 
         //----------------------------------------------------------------------------

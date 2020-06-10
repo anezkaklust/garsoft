@@ -558,7 +558,7 @@ namespace gar {
       float GetLArTPCLength() const { return fLArTPCLength; }
 
       float GetActiveLArTPCHalfWidth() const { return fLArTPCActiveHalfWidth; }
-      
+
       float GetActiveLArTPCHalfHeight() const { return fLArTPCActiveHalfHeight; }
 
       float GetActiveLArTPCLength() const { return fLArTPCActiveLength; }
@@ -846,6 +846,8 @@ namespace gar {
 
       void ApplyECALSegmentationAlg(std::shared_ptr<gar::geo::seg::ECALSegmentationAlg> pECALSegmentationAlg);
 
+      void ApplyMinervaSegmentationAlg(std::shared_ptr<gar::geo::seg::ECALSegmentationAlg> pMinervaSegmentationAlg);
+
       //Returns the ECAL minimum radius of the Inner Barrel
       float GetECALInnerBarrelRadius() const { return fECALRinner; }
 
@@ -902,6 +904,8 @@ namespace gar {
 
       const std::array<double, 3> FindShapeSize(const TGeoNode *node) const;
 
+      gar::raw::CellID_t GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const;
+
       gar::raw::CellID_t GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const;
 
       std::string GetCellIDEncoding() const;
@@ -932,6 +936,8 @@ namespace gar {
 
       /// Returns the object handling the channel map
       gar::geo::seg::ECALSegmentationAlg const* ECALSegmentationAlg() const { return fECALSegmentationAlg.get(); }
+
+      gar::geo::seg::ECALSegmentationAlg const* MinervaSegmentationAlg() const { return fMinervaSegmentationAlg.get(); }
 
     private:
 
@@ -1045,7 +1051,7 @@ namespace gar {
       float          fLArTPCActiveHalfHeight = 0.;
       float          fLArTPCActiveLength = 0.;
 
-      std::map<std::string, std::vector<const TGeoNode*> > fECALNodePath; ///< Stored map of vectors of nodes for the ecal to speedup node searching 
+      std::map<std::string, std::vector<const TGeoNode*> > fECALNodePath; ///< Stored map of vectors of nodes for the ecal to speedup node searching
 
       //Related to the ECAL
       float fECALRinner;              ///< Minimum radius of the ECAL inner barrel
@@ -1061,6 +1067,9 @@ namespace gar {
 
       typedef std::shared_ptr<const gar::geo::seg::ECALSegmentationAlg> ECALSegmentationAlgPtr;
       ECALSegmentationAlgPtr fECALSegmentationAlg;  ///< Object containing the segmentation for the ECAL
+
+      typedef std::shared_ptr<const gar::geo::seg::ECALSegmentationAlg> MinervaSegmentationAlgPtr;
+      MinervaSegmentationAlgPtr fMinervaSegmentationAlg;  ///< Object containing the segmentation for the ECAL
 
     }; // class GeometryCore
 
