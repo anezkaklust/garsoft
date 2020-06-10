@@ -191,9 +191,8 @@ namespace gar {
                     {
                       t0adcblockhist = 0;
                     }
-
-                  ++jhl;
                   endT = begT + jhl;
+                  ++jhl;
 
                   hitSig   += a;
                   hitTime  += a*t;
