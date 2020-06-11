@@ -193,7 +193,7 @@ drawVertices         : false
 drawMCTruth          : true
 drawMCCaloTruth      : true
 drawMCTPCTruth       : true
-VolumesToShow        : ["volGArTPC_0", "volPVBarrel_0", "volPVEndcap_0", "volBarrelECal_0", "volEndcapECal_0"]
+VolumesToShow        : ["volGArTPC", "volPVBarrel", "volPVEndcap", "volBarrelECal", "volEndcapECal"]
 
 G4ModuleLabel             : "geant"
 RawHitModuleLabels        : ["daqecal"]
