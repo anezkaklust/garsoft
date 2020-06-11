@@ -69,6 +69,9 @@ private:
     //Reco values
     std::vector<int> recopid, recopidecal;
     std::vector<float> prob_arr, partereco, anglereco, _preco, erecon, etime;
+    //Geometry
+    std::vector<int> isFidStart, isTPCStart, isCaloStart, isThroughCaloStart;
+    std::vector<int> isFidEnd, isTPCEnd, isCaloEnd, isThroughCaloEnd;
 };
 
 #endif

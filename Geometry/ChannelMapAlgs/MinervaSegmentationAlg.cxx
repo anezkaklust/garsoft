@@ -55,6 +55,7 @@ namespace gar {
 
                 _xId = pset.get<std::string>("identifier_x");
                 _yId = pset.get<std::string>("identifier_y");
+                _zId = pset.get<std::string>("identifier_z");
                 _layerId = pset.get<std::string>("identifier_layer");
                 _sliceId = pset.get<std::string>("identifier_slice");
 
@@ -93,8 +94,8 @@ namespace gar {
                 gar::raw::CellID_t cID = 0;
 
                 _decoder->set(cID, "system", det_id);
-                _decoder->set(cID, "layer", layer);
-                _decoder->set(cID, "slice", slice);
+                _decoder->set(cID, _layerId, layer);
+                _decoder->set(cID, _sliceId, slice);
 
                 double localX = localPosition[0];
                 double localY = localPosition[1];
@@ -111,6 +112,7 @@ namespace gar {
 
                     _decoder->set(cID, _xId, _cellIndexX);
                     _decoder->set(cID, _yId, _cellIndexY);
+                    _decoder->set(cID, _zId, 0);
                 }
 
                 if( slice == 1 && localZ >= 0 )
@@ -124,6 +126,7 @@ namespace gar {
 
                     _decoder->set(cID, _xId, _cellIndexX);
                     _decoder->set(cID, _yId, _cellIndexY);
+                    _decoder->set(cID, _zId, 1);
                 }
 
                 return cID;
@@ -135,6 +138,7 @@ namespace gar {
                 std::cout << "cell encoding: " << _encoding << std::endl;
                 std::cout << "identifier_x: " << _xId << std::endl;
                 std::cout << "identifier_y: " << _yId << std::endl;
+                std::cout << "identifier_z: " << _zId << std::endl;
                 std::cout << "strip_size_x: " << _stripSizeX << " cm" << std::endl;
                 std::cout << "strip_size_y: " << _stripSizeY << " cm" << std::endl;
 

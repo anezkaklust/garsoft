@@ -905,57 +905,66 @@ namespace util {
 
         //--------------------------------------------------------------------------
 
-        if(m_ECALDeposits.size() > 0)
-        this->AddHits(m_ECALDeposits, fECALDeposits);
-        if(m_TrackerDeposits.size() > 0)
-        this->AddHits(m_TrackerDeposits, fTrackerDeposits);
-        if(m_MuIDDeposits.size() > 0)
-        this->AddHits(m_MuIDDeposits, fMuIDDeposits);
+        bool hasGAr, hasECAL, hasTrackerSc, hasMuID = false;
+        if(fGArDeposits.size() > 0) hasGAr = true;
+        if(m_ECALDeposits.size() > 0) hasECAL = true;
+        if(m_TrackerDeposits.size() > 0) hasTrackerSc = true;
+        if(m_MuIDDeposits.size() > 0) hasMuID = true;
 
-        if(fGArDeposits.size() > 0)
-        std::sort(fGArDeposits.begin(), fGArDeposits.end());
-        if(fECALDeposits.size() > 0)
-        std::sort(fECALDeposits.begin(), fECALDeposits.end());
-        if(fTrackerDeposits.size() > 0)
-        std::sort(fTrackerDeposits.begin(), fTrackerDeposits.end());
-        if(fMuIDDeposits.size() > 0)
-        std::sort(fMuIDDeposits.begin(), fMuIDDeposits.end());
+        if(hasGAr) {
+            std::sort(fGArDeposits.begin(), fGArDeposits.end());
 
-        for(auto const& garhit : fGArDeposits)
-        {
-            LOG_DEBUG("ConvertEdep2Art")
-            << "adding GAr deposits for track id: "
-            << garhit.TrackID();
-            TPCCol->emplace_back(garhit);
+            for(auto const& garhit : fGArDeposits)
+            {
+                LOG_DEBUG("ConvertEdep2Art")
+                << "adding GAr deposits for track id: "
+                << garhit.TrackID();
+                TPCCol->emplace_back(garhit);
+            }
         }
 
-        for(auto const& ecalhit : fECALDeposits)
-        {
-            LOG_DEBUG("ConvertEdep2Art")
-            << "adding calo deposits for track id: "
-            << ecalhit.TrackID();
+        if(hasECAL) {
+            this->AddHits(m_ECALDeposits, fECALDeposits);
+            std::sort(fECALDeposits.begin(), fECALDeposits.end());
 
-            ECALCol->emplace_back(ecalhit);
+            for(auto const& ecalhit : fECALDeposits)
+            {
+                LOG_DEBUG("ConvertEdep2Art")
+                << "adding calo deposits for track id: "
+                << ecalhit.TrackID();
+
+                ECALCol->emplace_back(ecalhit);
+            }
         }
 
-        for(auto const& trkhit : fTrackerDeposits)
-        {
-            LOG_DEBUG("ConvertEdep2Art")
-            << "adding tracker Sc deposits for track id: "
-            << trkhit.TrackID();
+        if(hasTrackerSc) {
+            this->AddHits(m_TrackerDeposits, fTrackerDeposits);
+            std::sort(fTrackerDeposits.begin(), fTrackerDeposits.end());
 
-            TrackerCol->emplace_back(trkhit);
+            for(auto const& trkhit : fTrackerDeposits)
+            {
+                LOG_DEBUG("ConvertEdep2Art")
+                << "adding tracker Sc deposits for track id: "
+                << trkhit.TrackID();
+
+                TrackerCol->emplace_back(trkhit);
+            }
         }
 
-        for(auto const& muidhit : fMuIDDeposits)
-        {
-            LOG_DEBUG("ConvertEdep2Art")
-            << "adding muID deposits for track id: "
-            << muidhit.TrackID();
+        if(hasMuID) {
+            this->AddHits(m_MuIDDeposits, fMuIDDeposits);
+            std::sort(fMuIDDeposits.begin(), fMuIDDeposits.end());
 
-            MuIDCol->emplace_back(muidhit);
+            for(auto const& muidhit : fMuIDDeposits)
+            {
+                LOG_DEBUG("ConvertEdep2Art")
+                << "adding muID deposits for track id: "
+                << muidhit.TrackID();
+
+                MuIDCol->emplace_back(muidhit);
+            }
         }
-
+       
         //Create assn between hits and mcp
         art::PtrMaker<simb::MCParticle> makeMCPPtr(evt);
         art::PtrMaker<gar::sdp::EnergyDeposit> makeEnergyDepositPtr(evt);
@@ -971,38 +980,51 @@ namespace util {
             unsigned int iecalhit = 0;
             unsigned int itrkhit = 0;
             unsigned int imuidhit = 0;
-            for(auto const& gashit : *TPCCol)
-            {
-                if(mpc_trkid == gashit.TrackID()){
-                    art::Ptr<gar::sdp::EnergyDeposit> gashitPtr = makeEnergyDepositPtr(igashit);
-                    ghmcassn->addSingle(gashitPtr, partPtr);
+            
+            if(hasGAr) {
+                for(auto const& gashit : *TPCCol)
+                {
+                    if(mpc_trkid == gashit.TrackID()){
+                        art::Ptr<gar::sdp::EnergyDeposit> gashitPtr = makeEnergyDepositPtr(igashit);
+                        ghmcassn->addSingle(gashitPtr, partPtr);
+                    }
+                    igashit++;
                 }
-                igashit++;
             }
-            for(auto const& ecalhit : *ECALCol)
-            {
-                if(mpc_trkid == ecalhit.TrackID()){
-                    art::Ptr<gar::sdp::CaloDeposit> ecalhitPtr = makeCaloDepositPtr(iecalhit);
-                    ehmcassn->addSingle(ecalhitPtr, partPtr);
+
+            if(hasECAL) {
+                for(auto const& ecalhit : *ECALCol)
+                {
+                    if(mpc_trkid == ecalhit.TrackID()){
+                        art::Ptr<gar::sdp::CaloDeposit> ecalhitPtr = makeCaloDepositPtr(iecalhit);
+                        ehmcassn->addSingle(ecalhitPtr, partPtr);
+                    }
+                    iecalhit++;
                 }
-                iecalhit++;
             }
-            for(auto const& trkhit : *TrackerCol)
-            {
-                if(mpc_trkid == trkhit.TrackID()){
-                    art::Ptr<gar::sdp::CaloDeposit> trkhitPtr = makeCaloDepositPtr(itrkhit);
-                    thmcassn->addSingle(trkhitPtr, partPtr);
+
+            if(hasTrackerSc) {
+                for(auto const& trkhit : *TrackerCol)
+                {
+                    if(mpc_trkid == trkhit.TrackID()){
+                        art::Ptr<gar::sdp::CaloDeposit> trkhitPtr = makeCaloDepositPtr(itrkhit);
+                        thmcassn->addSingle(trkhitPtr, partPtr);
+                    }
+                    itrkhit++;
                 }
-                itrkhit++;
             }
-            for(auto const& muidhit : *MuIDCol)
-            {
-                if(mpc_trkid == muidhit.TrackID()){
-                    art::Ptr<gar::sdp::CaloDeposit> muIDhitPtr = makeCaloDepositPtr(imuidhit);
-                    mhmcassn->addSingle(muIDhitPtr, partPtr);
+
+            if(hasMuID) {
+                for(auto const& muidhit : *MuIDCol)
+                {
+                    if(mpc_trkid == muidhit.TrackID()){
+                        art::Ptr<gar::sdp::CaloDeposit> muIDhitPtr = makeCaloDepositPtr(imuidhit);
+                        mhmcassn->addSingle(muIDhitPtr, partPtr);
+                    }
+                    imuidhit++;
                 }
-                imuidhit++;
             }
+
             imcp++;
         }
 
@@ -1012,10 +1034,15 @@ namespace util {
         evt.put(std::move(tpassn));
 
         evt.put(std::move(partCol));
-        evt.put(std::move(TPCCol));
-        evt.put(std::move(ECALCol));
-        evt.put(std::move(TrackerCol));
-        evt.put(std::move(MuIDCol));
+
+        if(hasGAr)
+            evt.put(std::move(TPCCol));
+        if(hasECAL)
+            evt.put(std::move(ECALCol));
+        if(hasTrackerSc)
+            evt.put(std::move(TrackerCol));
+        if(hasMuID)
+            evt.put(std::move(MuIDCol));
         // evt.put(std::move(LArCol));
 
         evt.put(std::move(ghmcassn));

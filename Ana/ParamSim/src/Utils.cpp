@@ -62,7 +62,7 @@ bool Utils::PointInCalo(TVector3 point)
     bool isInCalo = false;
     float r_point = std::sqrt( point.Y()*point.Y() + point.Z()*point.Z() );
     //in the Barrel
-    if( r_point > _ECALInnerRadius && r_point < _ECALOuterRadius ) isInCalo = true;
+    if( r_point > _ECALInnerRadius && r_point < _ECALOuterRadius && std::abs(point.X()) < _ECALStartX ) isInCalo = true;
     //in the Endcap
     if( r_point < _ECALInnerRadius && std::abs(point.X()) > _ECALStartX && std::abs(point.X()) < _ECALEndX ) isInCalo = true;
 
@@ -71,7 +71,7 @@ bool Utils::PointInCalo(TVector3 point)
 
 bool Utils::isThroughCalo(TVector3 point)
 {
-    return !PointInFiducial(point) && !PointInCalo(point);
+    return !PointInTPC(point) && !PointInCalo(point);
 }
 
 bool Utils::hasDecayedInCalo(TVector3 epoint)

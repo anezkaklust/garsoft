@@ -118,7 +118,17 @@ bool CAF::BookTFile()
         cafMVA->Branch("preco", &_preco);
         cafMVA->Branch("anglereco", &anglereco);
         cafMVA->Branch("erecon", &erecon);
+        cafMVA->Branch("etime", &etime);
         cafMVA->Branch("prob_arr", &prob_arr);
+        //Geometry
+        cafMVA->Branch("isFidStart", &isFidStart);
+        cafMVA->Branch("isTPCStart", &isTPCStart);
+        cafMVA->Branch("isCaloStart", &isCaloStart);
+        cafMVA->Branch("isThroughCaloStart", &isThroughCaloStart);
+        cafMVA->Branch("isFidEnd", &isFidEnd);
+        cafMVA->Branch("isTPCEnd", &isTPCEnd);
+        cafMVA->Branch("isCaloEnd", &isCaloEnd);
+        cafMVA->Branch("isThroughCaloEnd", &isThroughCaloEnd);
 
         return true;
     }
@@ -210,6 +220,17 @@ void CAF::ClearVectors()
     anglereco.clear();
     _preco.clear();
     erecon.clear();
+    etime.clear();
+
+    //Geometry
+    isFidStart.clear();
+    isTPCStart.clear();
+    isCaloStart.clear();
+    isThroughCaloStart.clear();
+    isFidEnd.clear();
+    isTPCEnd.clear();
+    isCaloEnd.clear();
+    isThroughCaloEnd.clear();
 }
 
 // main loop function
@@ -495,10 +516,23 @@ void CAF::loop()
             float ecaltime = _util->GaussianSmearing(MCPTime->at(i), ECAL_time_resolution);
             float time = MCPTime->at(i);
 
+            TVector3 spoint(MCPStartX->at(i)- _util->GetOrigin()[0], MCPStartY->at(i)- _util->GetOrigin()[1], MCPStartZ->at(i)- _util->GetOrigin()[2]);
+            TVector3 epoint(MCPEndX->at(i)- _util->GetOrigin()[0], MCPEndY->at(i)- _util->GetOrigin()[1], MCPEndZ->at(i)- _util->GetOrigin()[2]);
+
+            //Check where start point is for the mcp
+            isFidStart.push_back(_util->PointInFiducial(spoint));
+            isTPCStart.push_back(_util->PointInTPC(spoint));
+            isCaloStart.push_back(_util->PointInCalo(spoint));
+            isThroughCaloStart.push_back(_util->isThroughCalo(spoint));
+            //Check where endpoint of mcp is
+            isFidEnd.push_back(_util->PointInFiducial(epoint));
+            isTPCEnd.push_back(_util->PointInTPC(epoint));
+            isCaloEnd.push_back(_util->PointInCalo(epoint));
+            isThroughCaloEnd.push_back(_util->isThroughCalo(epoint));
+
             //for neutrons
             if(pdg == 2112)
             {
-                TVector3 epoint(MCPEndX->at(i)- _util->GetOrigin()[0], MCPEndY->at(i)- _util->GetOrigin()[1], MCPEndZ->at(i)- _util->GetOrigin()[2]);
                 if(_util->PointInCalo(epoint)) {
 
                     //check if it can be detected by the ECAL
@@ -652,7 +686,6 @@ void CAF::loop()
                 //TODO check if they are not from a pi0 or decayed in the TPC and hit the ECAL!
                 if( PDGMother->at(i) != 111 )
                 {
-                    TVector3 epoint(MCPEndX->at(i)- _util->GetOrigin()[0], MCPEndY->at(i)- _util->GetOrigin()[1], MCPEndZ->at(i)- _util->GetOrigin()[2]);
                     //Endpoint is in the ECAL
                     if(_util->PointInCalo(epoint))
                     {
@@ -747,7 +780,6 @@ void CAF::loop()
                 }
                 else{
                     //case they are from pi0
-                    TVector3 epoint(MCPEndX->at(i)- _util->GetOrigin()[0], MCPEndY->at(i)- _util->GetOrigin()[1], MCPEndZ->at(i)- _util->GetOrigin()[2]);
                     //Endpoint is not in the tracker, reaches the ecal
                     if(_util->PointInCalo(epoint))
                     {
@@ -852,7 +884,6 @@ void CAF::loop()
                         //Use range instead of Gluckstern for stopping tracks
                         //TODO is that correct? What if it is a scatter in the TPC? Need to check if daughter is same particle
                         float preco = 0;
-                        TVector3 epoint(MCPEndX->at(i)- _util->GetOrigin()[0], MCPEndY->at(i)- _util->GetOrigin()[1], MCPEndZ->at(i)- _util->GetOrigin()[2]);
 
                         // save the true PDG, parametrized PID comes later
                         truepdg.push_back(pdg);

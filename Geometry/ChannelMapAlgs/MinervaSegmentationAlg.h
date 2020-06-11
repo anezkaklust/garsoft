@@ -46,6 +46,8 @@ namespace gar {
 
                 const std::string& fieldNameY() const { return _yId; }
 
+                const std::string& fieldNameZ() const { return _zId; }
+
                 const std::string& fieldNameLayer() const { return _layerId; }
 
                 const std::string& fieldNameSlice() const { return _sliceId; }
@@ -76,6 +78,8 @@ namespace gar {
                 std::string _xId;
                 /// the field name used for Y
                 std::string _yId;
+                /// the field name used for Z
+                std::string _zId;
                 /// the field name used for layer
                 std::string _layerId;
                 /// the field name used for slice
