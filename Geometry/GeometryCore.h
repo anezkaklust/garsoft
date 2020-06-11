@@ -75,7 +75,7 @@ namespace gar {
     class GeometryCore;
     namespace seg {
         class ChannelMapAlg;
-        class ECALSegmentationAlg;
+        class SegmentationAlg;
     }
 
     typedef enum ROCType_ {HFILLER, IROC, IOROC, OOROC} ROCType;
@@ -844,9 +844,11 @@ namespace gar {
       void ApplyChannelMap(std::shared_ptr<gar::geo::seg::ChannelMapAlg> pChannelMap);
       /// @}
 
-      void ApplyECALSegmentationAlg(std::shared_ptr<gar::geo::seg::ECALSegmentationAlg> pECALSegmentationAlg);
+      void ApplyECALSegmentationAlg(std::shared_ptr<gar::geo::seg::SegmentationAlg> pECALSegmentationAlg);
 
-      void ApplyMinervaSegmentationAlg(std::shared_ptr<gar::geo::seg::ECALSegmentationAlg> pMinervaSegmentationAlg);
+      void ApplyMinervaSegmentationAlg(std::shared_ptr<gar::geo::seg::SegmentationAlg> pMinervaSegmentationAlg);
+
+      void ApplyMuIDSegmentationAlg(std::shared_ptr<gar::geo::seg::SegmentationAlg> pMuIDSegmentationAlg);
 
       //Returns the ECAL minimum radius of the Inner Barrel
       float GetECALInnerBarrelRadius() const { return fECALRinner; }
@@ -904,8 +906,6 @@ namespace gar {
 
       const std::array<double, 3> FindShapeSize(const TGeoNode *node) const;
 
-      gar::raw::CellID_t GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const;
-
       gar::raw::CellID_t GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const;
 
       std::string GetCellIDEncoding() const;
@@ -934,10 +934,14 @@ namespace gar {
       /// Returns the object handling the channel map
       gar::geo::seg::ChannelMapAlg const* ChannelMap() const { return fChannelMapAlg.get(); }
 
-      /// Returns the object handling the channel map
-      gar::geo::seg::ECALSegmentationAlg const* ECALSegmentationAlg() const { return fECALSegmentationAlg.get(); }
+      /// Returns the object handling the ECAL segmentation
+      gar::geo::seg::SegmentationAlg const* ECALSegmentationAlg() const { return fECALSegmentationAlg.get(); }
 
-      gar::geo::seg::ECALSegmentationAlg const* MinervaSegmentationAlg() const { return fMinervaSegmentationAlg.get(); }
+      ///Returns the object handling the Sc Tracker segmentation
+      gar::geo::seg::SegmentationAlg const* MinervaSegmentationAlg() const { return fMinervaSegmentationAlg.get(); }
+
+      ///Returns the object handling the MuID segmentation
+      gar::geo::seg::SegmentationAlg const* MuIDSegmentationAlg() const { return fMuIDSegmentationAlg.get(); }
 
     private:
 
@@ -1065,11 +1069,14 @@ namespace gar {
       typedef std::shared_ptr<const gar::geo::seg::ChannelMapAlg> ChannelMapPtr;
       ChannelMapPtr  fChannelMapAlg;  ///< Object containing the channel to wire mapping
 
-      typedef std::shared_ptr<const gar::geo::seg::ECALSegmentationAlg> ECALSegmentationAlgPtr;
+      typedef std::shared_ptr<const gar::geo::seg::SegmentationAlg> ECALSegmentationAlgPtr;
       ECALSegmentationAlgPtr fECALSegmentationAlg;  ///< Object containing the segmentation for the ECAL
 
-      typedef std::shared_ptr<const gar::geo::seg::ECALSegmentationAlg> MinervaSegmentationAlgPtr;
-      MinervaSegmentationAlgPtr fMinervaSegmentationAlg;  ///< Object containing the segmentation for the ECAL
+      typedef std::shared_ptr<const gar::geo::seg::SegmentationAlg> MinervaSegmentationAlgPtr;
+      MinervaSegmentationAlgPtr fMinervaSegmentationAlg;  ///< Object containing the segmentation for the Sc Tracker
+
+      typedef std::shared_ptr<const gar::geo::seg::SegmentationAlg> MuIDSegmentationAlgPtr;
+      MuIDSegmentationAlgPtr fMuIDSegmentationAlg;  ///< Object containing the segmentation for the Sc Tracker
 
     }; // class GeometryCore
 

@@ -1,4 +1,4 @@
-#include "Geometry/ChannelMapAlgs/ECALSegmentationMultiGridStripXYAlg.h"
+#include "Geometry/ChannelMapAlgs/SegmentationMultiGridStripXYAlg.h"
 
 #include "fhiclcpp/ParameterSet.h"
 
@@ -17,37 +17,37 @@ namespace gar {
 
             //----------------------------------------------------------------------------
             /// Default constructor used by derived classes passing the encoding string
-            ECALSegmentationMultiGridStripXYAlg::ECALSegmentationMultiGridStripXYAlg(fhicl::ParameterSet const& pset)
-            : ECALSegmentationAlg(pset)
+            SegmentationMultiGridStripXYAlg::SegmentationMultiGridStripXYAlg(fhicl::ParameterSet const& pset)
+            : SegmentationAlg(pset)
             {
                 _type = "MultiGridStripXY";
                 _description = "Cartesian segmentation in the local XY-plane, containing integer number of tiles/strips/cells";
 
-                std::cout << "######### gar::geo::seg::ECALSegmentationMultiGridStripXYAlg() " << std::endl ;
+                std::cout << "######### gar::geo::seg::SegmentationMultiGridStripXYAlg() " << std::endl ;
 
                 this->reconfigure(pset);
             }
 
             //----------------------------------------------------------------------------
             /// Default constructor used by derived classes passing an existing decoder
-            ECALSegmentationMultiGridStripXYAlg::ECALSegmentationMultiGridStripXYAlg(const BitFieldCoder* decode, fhicl::ParameterSet const& pset)
-            : ECALSegmentationAlg(decode, pset)
+            SegmentationMultiGridStripXYAlg::SegmentationMultiGridStripXYAlg(const BitFieldCoder* decode, fhicl::ParameterSet const& pset)
+            : SegmentationAlg(decode, pset)
             {
                 _type = "MultiGridStripXY";
                 _description = "Cartesian segmentation in the local XY-plane, containing integer number of tiles/strips/cells";
 
-                std::cout << "######### gar::geo::seg::ECALSegmentationMultiGridStripXYAlg() " << std::endl ;
+                std::cout << "######### gar::geo::seg::SegmentationMultiGridStripXYAlg() " << std::endl ;
 
                 this->reconfigure(pset);
             }
 
             //----------------------------------------------------------------------------
-            ECALSegmentationMultiGridStripXYAlg::~ECALSegmentationMultiGridStripXYAlg()
+            SegmentationMultiGridStripXYAlg::~SegmentationMultiGridStripXYAlg()
             {
             }
 
             //----------------------------------------------------------------------------
-            void ECALSegmentationMultiGridStripXYAlg::reconfigure(fhicl::ParameterSet const& pset)
+            void SegmentationMultiGridStripXYAlg::reconfigure(fhicl::ParameterSet const& pset)
             {
                 _gridSizeX = pset.get<double>("grid_size_x");
                 _gridSizeY = pset.get<double>("grid_size_y");
@@ -82,13 +82,13 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            void ECALSegmentationMultiGridStripXYAlg::Initialize(const gar::geo::GeometryCore& geo)
+            void SegmentationMultiGridStripXYAlg::Initialize(const gar::geo::GeometryCore& geo)
             {
 
             }
 
             //----------------------------------------------------------------------------
-            std::array<double, 3> ECALSegmentationMultiGridStripXYAlg::GetPosition(const gar::geo::GeometryCore& geo, const gar::raw::CellID_t& cID) const
+            std::array<double, 3> SegmentationMultiGridStripXYAlg::GetPosition(const gar::geo::GeometryCore& geo, const gar::raw::CellID_t& cID) const
             {
                 //Local origin for the Barrel in the middle of the layer
                 //Local origin for the Endcal at the corner of the full stave
@@ -206,7 +206,7 @@ namespace gar {
 
             //----------------------------------------------------------------------------
             /// determine the cell ID based on the position
-            gar::raw::CellID_t ECALSegmentationMultiGridStripXYAlg::GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
+            gar::raw::CellID_t SegmentationMultiGridStripXYAlg::GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
             {
                 gar::raw::CellID_t cID = 0;
 
@@ -260,7 +260,7 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            void ECALSegmentationMultiGridStripXYAlg::PrintParameters() const
+            void SegmentationMultiGridStripXYAlg::PrintParameters() const
             {
                 std::cout << "cell encoding: " << _encoding << std::endl;
                 std::cout << "identifier_x: " << _xId << std::endl;
@@ -299,7 +299,7 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            std::array<std::vector<unsigned int>, 2> ECALSegmentationMultiGridStripXYAlg::TokenizeLayerVectors(std::vector<std::string> grid) const
+            std::array<std::vector<unsigned int>, 2> SegmentationMultiGridStripXYAlg::TokenizeLayerVectors(std::vector<std::string> grid) const
             {
                 std::vector<unsigned int> _gridFirst;
                 std::vector<unsigned int> _gridLast;
@@ -321,7 +321,7 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            bool ECALSegmentationMultiGridStripXYAlg::isTile(const gar::raw::CellID_t& cID) const
+            bool SegmentationMultiGridStripXYAlg::isTile(const gar::raw::CellID_t& cID) const
             {
                 bool isTile = false;
 
@@ -352,7 +352,7 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            bool ECALSegmentationMultiGridStripXYAlg::isBarrel(const gar::raw::CellID_t& cID) const
+            bool SegmentationMultiGridStripXYAlg::isBarrel(const gar::raw::CellID_t& cID) const
             {
                 bool isBarrel = true;
 
@@ -364,7 +364,7 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            double ECALSegmentationMultiGridStripXYAlg::getStripLength(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
+            double SegmentationMultiGridStripXYAlg::getStripLength(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
             {
                 double stripLength = 0.;
                 bool isBarrel = this->isBarrel(cID);
@@ -396,7 +396,7 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            std::pair<TVector3, TVector3> ECALSegmentationMultiGridStripXYAlg::getStripEnds(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
+            std::pair<TVector3, TVector3> SegmentationMultiGridStripXYAlg::getStripEnds(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
             {
                 //Local origin for the Barrel in the middle of the layer
                 //Local origin for the Endcal at the corner of the full stave
@@ -448,7 +448,7 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            std::pair<float, float> ECALSegmentationMultiGridStripXYAlg::CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
+            std::pair<float, float> SegmentationMultiGridStripXYAlg::CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
             {
                 //Propagate the light to the SiPM on the side
                 //convert c to mm/ns
@@ -497,7 +497,7 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            std::array<double, 3> ECALSegmentationMultiGridStripXYAlg::ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const gar::raw::CellID_t& cID) const
+            std::array<double, 3> SegmentationMultiGridStripXYAlg::ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const gar::raw::CellID_t& cID) const
             {
                 float pos = xlocal;
                 //Need to check if the local position is bigger than the strip length!

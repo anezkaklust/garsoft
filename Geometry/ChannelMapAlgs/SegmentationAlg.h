@@ -22,10 +22,10 @@ namespace gar {
 
         namespace seg {
 
-            class ECALSegmentationAlg {
+            class SegmentationAlg {
 
             public:
-                virtual ~ECALSegmentationAlg();
+                virtual ~SegmentationAlg();
 
                 virtual const std::string& name() const {
                     return _name;
@@ -93,9 +93,9 @@ namespace gar {
                 virtual std::array<double, 3> ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const gar::raw::CellID_t& cID) const;
 
             protected:
-                ECALSegmentationAlg(fhicl::ParameterSet const& pset);
+                SegmentationAlg(fhicl::ParameterSet const& pset);
 
-                ECALSegmentationAlg(const BitFieldCoder* decoder, fhicl::ParameterSet const& pset);
+                SegmentationAlg(const BitFieldCoder* decoder, fhicl::ParameterSet const& pset);
 
                 static double binToPosition(gar::raw::CellID_t bin, double cellSize, double offset = 0);
 
@@ -114,11 +114,11 @@ namespace gar {
                 double _stripSizeX;
 
                 unsigned int _nLayers;
-                
+
                 const BitFieldCoder* _decoder = 0;
 
             private:
-                ECALSegmentationAlg(const ECALSegmentationAlg&);
+                SegmentationAlg(const SegmentationAlg&);
             };
         }
     }

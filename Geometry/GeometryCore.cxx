@@ -9,7 +9,7 @@
 // class header
 #include "Geometry/GeometryCore.h"
 #include "Geometry/ChannelMapAlgs/ChannelMapAlg.h"
-#include "Geometry/ChannelMapAlgs/ECALSegmentationAlg.h"
+#include "Geometry/ChannelMapAlgs/SegmentationAlg.h"
 
 // Framework includes
 #include "cetlib_except/exception.h"
@@ -85,7 +85,7 @@ namespace gar {
         } // GeometryCore::ApplyChannelMap()
 
         //......................................................................
-        void GeometryCore::ApplyECALSegmentationAlg(std::shared_ptr<geo::seg::ECALSegmentationAlg> pECALSegmentationAlg)
+        void GeometryCore::ApplyECALSegmentationAlg(std::shared_ptr<geo::seg::SegmentationAlg> pECALSegmentationAlg)
         {
             pECALSegmentationAlg->Initialize(*this);
             fECALSegmentationAlg = pECALSegmentationAlg;
@@ -95,12 +95,20 @@ namespace gar {
         } // GeometryCore::ApplyECALSegmentationAlg()
 
         //......................................................................
-        void GeometryCore::ApplyMinervaSegmentationAlg(std::shared_ptr<geo::seg::ECALSegmentationAlg> pMinervaSegmentationAlg)
+        void GeometryCore::ApplyMinervaSegmentationAlg(std::shared_ptr<geo::seg::SegmentationAlg> pMinervaSegmentationAlg)
         {
             pMinervaSegmentationAlg->Initialize(*this);
             fMinervaSegmentationAlg = pMinervaSegmentationAlg;
 
         } // GeometryCore::ApplyMinervaSegmentationAlg()
+
+        //......................................................................
+        void GeometryCore::ApplyMuIDSegmentationAlg(std::shared_ptr<geo::seg::SegmentationAlg> pMuIDSegmentationAlg)
+        {
+            pMuIDSegmentationAlg->Initialize(*this);
+            fMuIDSegmentationAlg = pMuIDSegmentationAlg;
+
+        } // GeometryCore::ApplyMuIDSegmentationAlg()
 
         //......................................................................
         void GeometryCore::LoadGeometryFile(std::string const& gdmlfile, std::string const& rootfile, bool bForceReload /* = false*/)
@@ -347,8 +355,9 @@ namespace gar {
         const std::array<double, 3> GeometryCore::FindShapeSize(const TGeoNode *node) const
         {
             TGeoVolume *vol = node->GetVolume();
-            //Check if it is ECAL endcap -> layer size is not the BBox! It is the apothem
             std::string volname = vol->GetName();
+
+            //Check if it is ECAL endcap -> layer size is not the BBox! It is the apothem
             bool isBarrel = true;
             if(volname.find("endcap") != std::string::npos || volname.find("Endcap") != std::string::npos ) isBarrel = false;
 
@@ -1078,19 +1087,25 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        gar::raw::CellID_t GeometryCore::GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
-        {
-            return fMinervaSegmentationAlg->GetCellID(*this, det_id, 0, 0, layer, slice, localPosition);
-        }
-
-        //----------------------------------------------------------------------------
         gar::raw::CellID_t GeometryCore::GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
         {
-            const std::array<double, 3> shape = this->FindShapeSize(node);
-
-            fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-
-            return fECALSegmentationAlg->GetCellID(*this, det_id, stave, module, layer, slice, localPosition);
+            if(det_id == 1 || det_id == 2) {
+                const std::array<double, 3> shape = this->FindShapeSize(node);
+                fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                return fECALSegmentationAlg->GetCellID(*this, det_id, stave, module, layer, slice, localPosition);
+            } else if(det_id == 3) {
+                const std::array<double, 3> shape = this->FindShapeSize(node);
+                fMinervaSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                return fMinervaSegmentationAlg->GetCellID(*this, det_id, 0, 0, layer, slice, localPosition);
+            } else if(det_id == 4) {
+                const std::array<double, 3> shape = this->FindShapeSize(node);
+                fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                return fMuIDSegmentationAlg->GetCellID(*this, det_id, stave, module, layer, slice, localPosition);
+            } else {
+                LOG_WARNING("GeometryCore::GetCellID") << "Detector id "
+                << det_id << " unknown!";
+                return 0.;
+            }
         }
 
         //----------------------------------------------------------------------------
@@ -1103,9 +1118,7 @@ namespace gar {
         std::array<double, 3> GeometryCore::GetPosition(const TGeoNode *node, const gar::raw::CellID_t &cID) const
         {
             const std::array<double, 3> shape = this->FindShapeSize(node);
-
             fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-
             return fECALSegmentationAlg->GetPosition(*this, cID);
         }
 
@@ -1127,11 +1140,8 @@ namespace gar {
             std::array<double, 3> localtemp;
             gar::geo::LocalTransformation<TGeoHMatrix> trans;
             this->WorldToLocal(point, localtemp, trans);
-
             const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
-
             fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-
             return fECALSegmentationAlg->getStripLength(*this, localtemp, cID);
         }
 
@@ -1144,9 +1154,7 @@ namespace gar {
             this->WorldToLocal(point, localtemp, trans);
 
             const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
-
             fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-
             std::pair<TVector3, TVector3> localStripEnds = fECALSegmentationAlg->getStripEnds(*this, localtemp, cID);
 
             //Get the world coordinates from both local coordinates of the strip ends
@@ -1164,9 +1172,7 @@ namespace gar {
         std::pair<float, float> GeometryCore::CalculateLightPropagation(std::array<double, 3> const& point, const std::array<double, 3> &local, const gar::raw::CellID_t &cID) const
         {
             const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
-
             fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-
             return fECALSegmentationAlg->CalculateLightPropagation(*this, local, cID);
         }
 

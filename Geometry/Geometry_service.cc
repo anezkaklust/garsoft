@@ -91,12 +91,11 @@ namespace gar {
             LoadNewGeometry(DetectorName() + ".gdml", DetectorName() + ".gdml", true);
         } // Geometry::preBeginRun()
 
-
         //......................................................................
-        void Geometry::InitializeChannelMap()
+        void Geometry::InitializeSegmentations()
         {
             // the channel map is responsible of calling the channel map configuration
-            // of the geometry
+            // of the TPC geometry
             ::art::ServiceHandle<geo::ExptGeoHelperInterface>()->ConfigureChannelMapAlg(fSortingParameters, this);
 
             if ( ! ChannelMap() ) {
@@ -104,18 +103,40 @@ namespace gar {
                 << " failed to load new channel map";
             }
 
-        } // Geometry::InitializeChannelMap()
-
-        //......................................................................
-        void Geometry::InitializeSegmentation()
-        {
             // the channel map is responsible of calling the channel map configuration
-            // of the geometry
-            ::art::ServiceHandle<geo::ExptGeoHelperInterface>()->ConfigureECALSegmentationAlg(fSegParameters, this);
+            // of the ECAL geometry
+            fECALSegParameters = fSegParameters.get<fhicl::ParameterSet>("ECALSegmentationAlgPars", fhicl::ParameterSet());
+            if(not fECALSegParameters.is_empty()) {
+                ::art::ServiceHandle<geo::ExptGeoHelperInterface>()->ConfigureECALSegmentationAlg(fECALSegParameters, this);
 
-            if ( ! ECALSegmentationAlg() ) {
-                throw cet::exception("ECALSegmentationAlgLoadFailed")
-                << " failed to load the ECAL segmentation";
+                if ( ! ECALSegmentationAlg() ) {
+                    throw cet::exception("ECALSegmentationAlgLoadFailed")
+                    << " failed to load the ECAL segmentation";
+                }
+            }
+
+            // the channel map is responsible of calling the channel map configuration
+            // of the Tracker Sc geometry
+            fMinervaSegParameters = fSegParameters.get<fhicl::ParameterSet>("MinervaSegmentationAlgPars", fhicl::ParameterSet());
+            if(not fMinervaSegParameters.is_empty()) {
+                ::art::ServiceHandle<geo::ExptGeoHelperInterface>()->ConfigureMinervaSegmentationAlg(fMinervaSegParameters, this);
+
+                if ( ! MinervaSegmentationAlg() ) {
+                    throw cet::exception("MinervaSegmentationAlgLoadFailed")
+                    << " failed to load the Minerva segmentation";
+                }
+            }
+
+            // the channel map is responsible of calling the channel map configuration
+            // of the MuID geometry
+            fMuIDSegParameters = fSegParameters.get<fhicl::ParameterSet>("MuIDSegmentationAlgPars", fhicl::ParameterSet());
+            if(not fMuIDSegParameters.is_empty()) {
+                ::art::ServiceHandle<geo::ExptGeoHelperInterface>()->ConfigureMuIDSegmentationAlg(fMuIDSegParameters, this);
+
+                if ( ! MuIDSegmentationAlg() ) {
+                    throw cet::exception("MuIDSegmentationAlgLoadFailed")
+                    << " failed to load the MuID segmentation";
+                }
             }
 
         } // Geometry::InitializeSegmentation()
@@ -165,11 +186,8 @@ namespace gar {
             // initialize the geometry with the files we have found
             LoadGeometryFile(GDMLfile, ROOTfile, bForceReload);
 
-            // now update the channel map
-            InitializeChannelMap();
-
-            // now init the ECAL Segmentation
-            InitializeSegmentation();
+            // now init the detector Segmentations (Channel Map, ECAL etc...)
+            InitializeSegmentations();
 
         } // Geometry::LoadNewGeometry()
 

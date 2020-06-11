@@ -60,11 +60,23 @@ namespace gar
       virtual void doConfigureECALSegmentationAlg
       (fhicl::ParameterSet const& segParameters, geo::GeometryCore* geom)
       override;
-      virtual ECALSegmentationAlgPtr_t doGetECALSegmentationAlg() const override;
+      virtual SegmentationAlgPtr_t doGetECALSegmentationAlg() const override;
+
+      virtual void doConfigureMinervaSegmentationAlg
+      (fhicl::ParameterSet const& segParameters, geo::GeometryCore* geom)
+      override;
+      virtual SegmentationAlgPtr_t doGetMinervaSegmentationAlg() const override;
+
+      virtual void doConfigureMuIDSegmentationAlg
+      (fhicl::ParameterSet const& segParameters, geo::GeometryCore* geom)
+      override;
+      virtual SegmentationAlgPtr_t doGetMuIDSegmentationAlg() const override;
 
       fhicl::ParameterSet fPset; ///< copy of configuration parameter set
       std::shared_ptr<geo::seg::ChannelMapAlg> fChannelMap; ///< channel map algorithm
-      std::shared_ptr<geo::seg::ECALSegmentationAlg> fECALSegmentationAlg; ///< ECAL Segmentation Alg
+      std::shared_ptr<geo::seg::SegmentationAlg> fECALSegmentationAlg; ///< ECAL Segmentation Alg
+      std::shared_ptr<geo::seg::SegmentationAlg> fMinervaSegmentationAlg; ///< Tracker Sc Segmentation Alg
+      std::shared_ptr<geo::seg::SegmentationAlg> fMuIDSegmentationAlg; ///< MuID Segmentation Alg
 
     };
 

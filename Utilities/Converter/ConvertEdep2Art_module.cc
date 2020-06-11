@@ -805,7 +805,7 @@ namespace util {
 
                     unsigned int layer = GetLayerNumber(VolumeName); //get layer number
                     unsigned int slice = GetSliceNumber(VolumeName); // get slice number
-                    unsigned int det_id = 1;
+                    unsigned int det_id = 3;
 
                     std::array<double, 3> GlobalPosCM = {x, y, z};
                     std::array<double, 3> LocalPosCM;
@@ -820,7 +820,7 @@ namespace util {
                     << " layer " << layer
                     << " slice " << slice;
 
-                    gar::raw::CellID_t cellID = fGeo->GetCellID(node, det_id, layer, slice, LocalPosCM);//encoding the cellID on 64 bits
+                    gar::raw::CellID_t cellID = fGeo->GetCellID(node, det_id, 0, 0, layer, slice, LocalPosCM);//encoding the cellID on 64 bits
 
                     double G4Pos[3] = {0., 0., 0.}; // in cm
                     G4Pos[0] = GlobalPosCM[0];
@@ -964,7 +964,7 @@ namespace util {
                 MuIDCol->emplace_back(muidhit);
             }
         }
-       
+
         //Create assn between hits and mcp
         art::PtrMaker<simb::MCParticle> makeMCPPtr(evt);
         art::PtrMaker<gar::sdp::EnergyDeposit> makeEnergyDepositPtr(evt);
@@ -980,7 +980,7 @@ namespace util {
             unsigned int iecalhit = 0;
             unsigned int itrkhit = 0;
             unsigned int imuidhit = 0;
-            
+
             if(hasGAr) {
                 for(auto const& gashit : *TPCCol)
                 {

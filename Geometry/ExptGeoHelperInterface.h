@@ -35,109 +35,159 @@
 // prototypes of geometry classes
 namespace gar {
 
-  namespace geo
-  {
-
-    class GeometryCore;
-    namespace seg {
-        class ChannelMapAlg;
-        class ECALSegmentationAlg;
-    }
-
-    /**
-     * @brief Interface to a service with detector-specific geometry knowledge
-     *
-     * This is an interface to a service that virtualizes detector or
-     * experiment-specific knowledge that is required by the Geometry service.
-     * Experiments implement the private virtual functions within a concrete
-     * service provider class to perform the specified actions as appropriate for
-     * the particular experiment.
-     * It is expected that such requests will occur infrequently within a job.
-     * Calculations that occur frequently should be handled via interfaces that
-     * are passed back to the Geometry service.
-     *
-     * @note The public interface for this service cannot be overriden.
-     * The experiment-specific sub-classes should implement only the private
-     * methods without promoting their visibility.
-     */
-    class ExptGeoHelperInterface
+    namespace geo
     {
-    public:
-      using ChannelMapAlgPtr_t = std::shared_ptr<const seg::ChannelMapAlg>;
-      using ECALSegmentationAlgPtr_t = std::shared_ptr<const seg::ECALSegmentationAlg>;
 
-      /// Virtual destructor; does nothing
-      virtual ~ExptGeoHelperInterface() = default;
+        class GeometryCore;
+        namespace seg {
+            class ChannelMapAlg;
+            class SegmentationAlg;
+        }
 
-      /**
-       * @brief Configure and initialize the channel map
-       * @param sortingParameters parameters for the channel map algorithm
-       * @param geom pointer to a geometry description object
-       * @return a (shared) pointer to the channel mapping algorithm
-       *
-       * This method creates a new ChannelMapAlg according to the geometry and
-       * specified configuration, then it configures the geometry itself
-       * according to the channel map (usually, it resorts the data).
-       */
-      void ConfigureChannelMapAlg
-      (fhicl::ParameterSet const & sortingParameters, geo::GeometryCore* geom);
+        /**
+        * @brief Interface to a service with detector-specific geometry knowledge
+        *
+        * This is an interface to a service that virtualizes detector or
+        * experiment-specific knowledge that is required by the Geometry service.
+        * Experiments implement the private virtual functions within a concrete
+        * service provider class to perform the specified actions as appropriate for
+        * the particular experiment.
+        * It is expected that such requests will occur infrequently within a job.
+        * Calculations that occur frequently should be handled via interfaces that
+        * are passed back to the Geometry service.
+        *
+        * @note The public interface for this service cannot be overriden.
+        * The experiment-specific sub-classes should implement only the private
+        * methods without promoting their visibility.
+        */
+        class ExptGeoHelperInterface
+        {
+        public:
+            using ChannelMapAlgPtr_t = std::shared_ptr<const seg::ChannelMapAlg>;
+            using SegmentationAlgPtr_t = std::shared_ptr<const seg::SegmentationAlg>;
 
-      /// Returns null pointer if the initialization failed
-      /// NOTE:  the sub-class owns the ChannelMapAlg object
-      ///
-      ChannelMapAlgPtr_t GetChannelMapAlg() const;
+            /// Virtual destructor; does nothing
+            virtual ~ExptGeoHelperInterface() = default;
 
-      void ConfigureECALSegmentationAlg
-      (fhicl::ParameterSet const & segParameters, geo::GeometryCore* geom);
+            /**
+            * @brief Configure and initialize the channel map
+            * @param sortingParameters parameters for the channel map algorithm
+            * @param geom pointer to a geometry description object
+            * @return a (shared) pointer to the channel mapping algorithm
+            *
+            * This method creates a new ChannelMapAlg according to the geometry and
+            * specified configuration, then it configures the geometry itself
+            * according to the channel map (usually, it resorts the data).
+            */
+            void ConfigureChannelMapAlg
+            (fhicl::ParameterSet const & sortingParameters, geo::GeometryCore* geom);
 
-      ECALSegmentationAlgPtr_t GetECALSegmentationAlg() const;
+            /// Returns null pointer if the initialization failed
+            /// NOTE:  the sub-class owns the ChannelMapAlg object
+            ///
+            ChannelMapAlgPtr_t GetChannelMapAlg() const;
 
-    private:
+            void ConfigureECALSegmentationAlg
+            (fhicl::ParameterSet const & segParameters, geo::GeometryCore* geom);
 
-        /// Implementation of ConfigureChannelMapAlg (pure virtual)
-      virtual void doConfigureChannelMapAlg(fhicl::ParameterSet const & sortingParameters,
-                                            gar::geo::GeometryCore* geom) = 0;
+            SegmentationAlgPtr_t GetECALSegmentationAlg() const;
 
-      /// Returns the ChannelMapAlg
-      virtual ChannelMapAlgPtr_t doGetChannelMapAlg() const    = 0;
+            void ConfigureMinervaSegmentationAlg
+            (fhicl::ParameterSet const & segParameters, geo::GeometryCore* geom);
 
-      /// Implementation of ConfigureECALSegmentationAlg (pure virtual)
-    virtual void doConfigureECALSegmentationAlg(fhicl::ParameterSet const & segParameters,
-                                          gar::geo::GeometryCore* geom) = 0;
+            SegmentationAlgPtr_t GetMinervaSegmentationAlg() const;
 
-    /// Returns the ECALSegmentationAlg
-    virtual ECALSegmentationAlgPtr_t doGetECALSegmentationAlg() const    = 0;
+            void ConfigureMuIDSegmentationAlg
+            (fhicl::ParameterSet const & segParameters, geo::GeometryCore* geom);
 
-    }; // end ExptGeoHelperInterface class declaration
+            SegmentationAlgPtr_t GetMuIDSegmentationAlg() const;
+
+        private:
+
+            /// Implementation of ConfigureChannelMapAlg (pure virtual)
+            virtual void doConfigureChannelMapAlg(fhicl::ParameterSet const & sortingParameters,
+            gar::geo::GeometryCore* geom) = 0;
+
+            /// Returns the ChannelMapAlg
+            virtual ChannelMapAlgPtr_t doGetChannelMapAlg() const    = 0;
+
+            /// Implementation of ConfigureECALSegmentationAlg (pure virtual)
+            virtual void doConfigureECALSegmentationAlg(fhicl::ParameterSet const & segParameters,
+            gar::geo::GeometryCore* geom) = 0;
+
+            /// Returns the ECAL SegmentationAlg
+            virtual SegmentationAlgPtr_t doGetECALSegmentationAlg() const    = 0;
+
+            /// Implementation of ConfigureECALSegmentationAlg (pure virtual)
+            virtual void doConfigureMinervaSegmentationAlg(fhicl::ParameterSet const & segParameters,
+            gar::geo::GeometryCore* geom) = 0;
+
+            /// Returns the Tracker Sc SegmentationAlg
+            virtual SegmentationAlgPtr_t doGetMinervaSegmentationAlg() const    = 0;
+
+            /// Implementation of ConfigureECALSegmentationAlg (pure virtual)
+            virtual void doConfigureMuIDSegmentationAlg(fhicl::ParameterSet const & segParameters,
+            gar::geo::GeometryCore* geom) = 0;
+
+            /// Returns the MuID SegmentationAlg
+            virtual SegmentationAlgPtr_t doGetMuIDSegmentationAlg() const    = 0;
+
+        }; // end ExptGeoHelperInterface class declaration
 
 
 
-    //-------------------------------------------------------------------------------------------
-    inline void ExptGeoHelperInterface::ConfigureChannelMapAlg(fhicl::ParameterSet const& sortingParameters,
-                                                               gar::geo::GeometryCore* geom)
-    {
-      doConfigureChannelMapAlg(sortingParameters, geom);
+        //-------------------------------------------------------------------------------------------
+        inline void ExptGeoHelperInterface::ConfigureChannelMapAlg(fhicl::ParameterSet const& sortingParameters,
+        gar::geo::GeometryCore* geom)
+        {
+            doConfigureChannelMapAlg(sortingParameters, geom);
+        }
+
+        //-------------------------------------------------------------------------------------------
+        inline ExptGeoHelperInterface::ChannelMapAlgPtr_t ExptGeoHelperInterface::GetChannelMapAlg() const
+        {
+            return doGetChannelMapAlg();
+        }
+
+        //-------------------------------------------------------------------------------------------
+        inline void ExptGeoHelperInterface::ConfigureECALSegmentationAlg(fhicl::ParameterSet const& segParameters,
+        gar::geo::GeometryCore* geom)
+        {
+            doConfigureECALSegmentationAlg(segParameters, geom);
+        }
+
+        //-------------------------------------------------------------------------------------------
+        inline ExptGeoHelperInterface::SegmentationAlgPtr_t ExptGeoHelperInterface::GetECALSegmentationAlg() const
+        {
+            return doGetECALSegmentationAlg();
+        }
+
+        //-------------------------------------------------------------------------------------------
+        inline void ExptGeoHelperInterface::ConfigureMinervaSegmentationAlg(fhicl::ParameterSet const& segParameters,
+        gar::geo::GeometryCore* geom)
+        {
+            doConfigureMinervaSegmentationAlg(segParameters, geom);
+        }
+
+        //-------------------------------------------------------------------------------------------
+        inline ExptGeoHelperInterface::SegmentationAlgPtr_t ExptGeoHelperInterface::GetMinervaSegmentationAlg() const
+        {
+            return doGetMinervaSegmentationAlg();
+        }
+
+        //-------------------------------------------------------------------------------------------
+        inline void ExptGeoHelperInterface::ConfigureMuIDSegmentationAlg(fhicl::ParameterSet const& segParameters,
+        gar::geo::GeometryCore* geom)
+        {
+            doConfigureMuIDSegmentationAlg(segParameters, geom);
+        }
+
+        //-------------------------------------------------------------------------------------------
+        inline ExptGeoHelperInterface::SegmentationAlgPtr_t ExptGeoHelperInterface::GetMuIDSegmentationAlg() const
+        {
+            return doGetMuIDSegmentationAlg();
+        }
     }
-
-    //-------------------------------------------------------------------------------------------
-    inline ExptGeoHelperInterface::ChannelMapAlgPtr_t ExptGeoHelperInterface::GetChannelMapAlg() const
-    {
-      return doGetChannelMapAlg();
-    }
-
-    //-------------------------------------------------------------------------------------------
-    inline void ExptGeoHelperInterface::ConfigureECALSegmentationAlg(fhicl::ParameterSet const& segParameters,
-                                                               gar::geo::GeometryCore* geom)
-    {
-      doConfigureECALSegmentationAlg(segParameters, geom);
-    }
-
-    //-------------------------------------------------------------------------------------------
-    inline ExptGeoHelperInterface::ECALSegmentationAlgPtr_t ExptGeoHelperInterface::GetECALSegmentationAlg() const
-    {
-      return doGetECALSegmentationAlg();
-    }
-  }
 } // gar
 
 DECLARE_ART_SERVICE_INTERFACE(gar::geo::ExptGeoHelperInterface, LEGACY)

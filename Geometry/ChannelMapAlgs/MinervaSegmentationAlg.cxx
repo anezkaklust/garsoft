@@ -18,7 +18,7 @@ namespace gar {
             //----------------------------------------------------------------------------
             /// Default constructor used by derived classes passing the encoding string
             MinervaSegmentationAlg::MinervaSegmentationAlg(fhicl::ParameterSet const& pset)
-            : ECALSegmentationAlg(pset)
+            : SegmentationAlg(pset)
             {
                 _type = "StripXY";
                 _description = "Cartesian segmentation in the local XY-plane, containing integer number of strips";
@@ -31,7 +31,7 @@ namespace gar {
             //----------------------------------------------------------------------------
             /// Default constructor used by derived classes passing an existing decoder
             MinervaSegmentationAlg::MinervaSegmentationAlg(const BitFieldCoder* decode, fhicl::ParameterSet const& pset)
-            : ECALSegmentationAlg(decode, pset)
+            : SegmentationAlg(decode, pset)
             {
                 _type = "StripXY";
                 _description = "Cartesian segmentation in the local XY-plane, containing integer number of strips";
@@ -69,10 +69,7 @@ namespace gar {
             //----------------------------------------------------------------------------
             void MinervaSegmentationAlg::Initialize(const gar::geo::GeometryCore& geo)
             {
-                //Get the layer shape
-                _layer_dim_X = 600.;
-                _layer_dim_Y = 500.;
-                _layer_dim_Z = 4.;
+                
             }
 
             //----------------------------------------------------------------------------
@@ -94,14 +91,14 @@ namespace gar {
                 gar::raw::CellID_t cID = 0;
 
                 _decoder->set(cID, "system", det_id);
-                _decoder->set(cID, _layerId, layer);
-                _decoder->set(cID, _sliceId, slice);
+                _decoder->set(cID, "layer", layer);
+                _decoder->set(cID, "slice", slice);
 
                 double localX = localPosition[0];
                 double localY = localPosition[1];
                 double localZ = localPosition[2];
 
-                if( slice == 1 && localZ < 0 )
+                if( localZ < 0 )
                 {
                     //Segmentation in Y
                     int nCellsX = 1;
@@ -115,7 +112,7 @@ namespace gar {
                     _decoder->set(cID, _zId, 0);
                 }
 
-                if( slice == 1 && localZ >= 0 )
+                if( localZ >= 0 )
                 {
                     //Segmentation in X
                     int nCellsX = int(_layer_dim_X / _stripSizeX);

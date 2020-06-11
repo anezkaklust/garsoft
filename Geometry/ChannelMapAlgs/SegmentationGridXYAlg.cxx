@@ -1,4 +1,4 @@
-#include "Geometry/ChannelMapAlgs/ECALSegmentationGridXYAlg.h"
+#include "Geometry/ChannelMapAlgs/SegmentationGridXYAlg.h"
 
 #include "fhiclcpp/ParameterSet.h"
 
@@ -13,37 +13,37 @@ namespace gar {
 
             //----------------------------------------------------------------------------
             /// Default constructor used by derived classes passing the encoding string
-            ECALSegmentationGridXYAlg::ECALSegmentationGridXYAlg(fhicl::ParameterSet const& pset)
-            : ECALSegmentationAlg(pset)
+            SegmentationGridXYAlg::SegmentationGridXYAlg(fhicl::ParameterSet const& pset)
+            : SegmentationAlg(pset)
             {
                 _type = "GridXY";
                 _description = "Cartesian segmentation in the local XY-plane";
 
-                std::cout << " ######### gar::geo::seg::ECALSegmentationGridXYAlg() " << std::endl ;
+                std::cout << " ######### gar::geo::seg::SegmentationGridXYAlg() " << std::endl ;
 
                 this->reconfigure(pset);
             }
 
             //----------------------------------------------------------------------------
             /// Default constructor used by derived classes passing an existing decoder
-            ECALSegmentationGridXYAlg::ECALSegmentationGridXYAlg(const BitFieldCoder* decode, fhicl::ParameterSet const& pset)
-            : ECALSegmentationAlg(decode, pset)
+            SegmentationGridXYAlg::SegmentationGridXYAlg(const BitFieldCoder* decode, fhicl::ParameterSet const& pset)
+            : SegmentationAlg(decode, pset)
             {
                 _type = "GridXY";
                 _description = "Cartesian segmentation in the local XY-plane";
 
-                std::cout << " ######### gar::geo::seg::ECALSegmentationGridXYAlg() " << std::endl ;
+                std::cout << " ######### gar::geo::seg::SegmentationGridXYAlg() " << std::endl ;
 
                 this->reconfigure(pset);
             }
 
             //----------------------------------------------------------------------------
-            ECALSegmentationGridXYAlg::~ECALSegmentationGridXYAlg()
+            SegmentationGridXYAlg::~SegmentationGridXYAlg()
             {
             }
 
             //----------------------------------------------------------------------------
-            void ECALSegmentationGridXYAlg::reconfigure(fhicl::ParameterSet const& pset)
+            void SegmentationGridXYAlg::reconfigure(fhicl::ParameterSet const& pset)
             {
                 _xId = pset.get<std::string>("identifier_x");
                 _yId = pset.get<std::string>("identifier_y");
@@ -63,13 +63,13 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            void ECALSegmentationGridXYAlg::Initialize(const gar::geo::GeometryCore& geo)
+            void SegmentationGridXYAlg::Initialize(const gar::geo::GeometryCore& geo)
             {
 
             }
 
             //----------------------------------------------------------------------------
-            std::array<double, 3> ECALSegmentationGridXYAlg::GetPosition(const gar::geo::GeometryCore& geo, const gar::raw::CellID_t& cID) const
+            std::array<double, 3> SegmentationGridXYAlg::GetPosition(const gar::geo::GeometryCore& geo, const gar::raw::CellID_t& cID) const
             {
                 std::array<double, 3> cellPosition;
                 cellPosition[0] = binToPosition(_decoder->get(cID, _xId), _gridSizeX, _offsetX);
@@ -81,7 +81,7 @@ namespace gar {
 
             //----------------------------------------------------------------------------
             /// determine the cell ID based on the position
-            gar::raw::CellID_t ECALSegmentationGridXYAlg::GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
+            gar::raw::CellID_t SegmentationGridXYAlg::GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
             {
                 gar::raw::CellID_t cID = 0;
 
@@ -98,7 +98,7 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            bool ECALSegmentationGridXYAlg::isBarrel(const gar::raw::CellID_t& cID) const
+            bool SegmentationGridXYAlg::isBarrel(const gar::raw::CellID_t& cID) const
             {
                 bool isBarrel = true;
 
@@ -110,7 +110,7 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            void ECALSegmentationGridXYAlg::PrintParameters() const
+            void SegmentationGridXYAlg::PrintParameters() const
             {
                 std::cout << "cell encoding: " << _encoding << std::endl;
                 std::cout << "identifier_x: " << _xId << std::endl;
