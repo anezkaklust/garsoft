@@ -1,0 +1,15 @@
+BEGIN_PROLOG
+
+standard_muidsegalgpars:
+{
+SegmentationAlgName: "SegmentationStripYAlg"
+cellEncoding: "system:3,layer:3,slice:3,cellX:32:-16,cellY:-16"
+identifier_x: "cellX"
+identifier_y: "cellY"
+identifier_layer: "layer"
+identifier_slice: "slice"
+strip_size_y: 4.0 # cm
+nlayers: 3
+}
+
+END_PROLOG

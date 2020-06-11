@@ -98,7 +98,7 @@ namespace util {
         double VisibleEnergyDeposition(const TG4HitSegment *hit, bool applyBirks) const;
         bool CheckProcess( std::string process_name ) const;
         unsigned int GetParentage( unsigned int trkid ) const;
-        void AddECALHits();
+        void AddHits(const std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits);
 
         std::map<int, size_t> TrackIDToMCTruthIndexMap() const { return fTrackIDToMCTruthIndex; }
 
@@ -132,8 +132,13 @@ namespace util {
 
         sim::ParticleList* fParticleList;
         std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_ECALDeposits;
+        std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_TrackerDeposits;
+        std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_MuIDDeposits;
+
         std::vector<gar::sdp::CaloDeposit> fECALDeposits;
         std::vector<gar::sdp::EnergyDeposit> fGArDeposits;
+        std::vector<gar::sdp::CaloDeposit> fTrackerDeposits;
+        std::vector<gar::sdp::CaloDeposit> fMuIDDeposits;
 
         int fSpillCount;
         std::vector<int> fStartSpill;
@@ -363,9 +368,10 @@ namespace util {
     }
 
     //------------------------------------------------------------------------------
-    void ConvertEdep2Art::AddECALHits() {
+    void ConvertEdep2Art::AddHits(const std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits)
+    {
         //Loop over the hits in the map and add them together
-        for(auto const &it : m_ECALDeposits) {
+        for(auto const &it : m_Deposits) {
 
             gar::raw::CellID_t cellID = it.first;
             std::vector<gar::sdp::CaloDeposit> vechit = it.second;
@@ -380,7 +386,7 @@ namespace util {
                 esum += hit.Energy();
             }
 
-            fECALDeposits.emplace_back( trackID, time, esum, pos, cellID );
+            fDeposits.emplace_back( trackID, time, esum, pos, cellID );
         }
     }
 
@@ -673,10 +679,16 @@ namespace util {
         //--------------------------------------------------------------------------
         std::unique_ptr< std::vector< gar::sdp::EnergyDeposit>  > TPCCol(new std::vector<gar::sdp::EnergyDeposit> );
         std::unique_ptr< std::vector< gar::sdp::CaloDeposit > > ECALCol(new std::vector<gar::sdp::CaloDeposit> );
+        std::unique_ptr< std::vector< gar::sdp::CaloDeposit > > TrackerCol(new std::vector<gar::sdp::CaloDeposit> );
+        std::unique_ptr< std::vector< gar::sdp::CaloDeposit > > MuIDCol(new std::vector<gar::sdp::CaloDeposit> );
         std::unique_ptr< art::Assns<gar::sdp::EnergyDeposit, simb::MCParticle> > ghmcassn(new art::Assns<gar::sdp::EnergyDeposit, simb::MCParticle>);
-        std::unique_ptr< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> > ehmcassn(new art::Assns<gar::sdp::CaloDeposit, simb::MCParticle>);
+        std::unique_ptr< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> > ehmcassn(new art::Assns<gar::sdp::CaloDeposit, simb::MCParticle>); //ECAL
+        std::unique_ptr< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> > thmcassn(new art::Assns<gar::sdp::CaloDeposit, simb::MCParticle>); //TrackerSc
+        std::unique_ptr< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> > mhmcassn(new art::Assns<gar::sdp::CaloDeposit, simb::MCParticle>); //MuID
 
         m_ECALDeposits.clear();
+        m_TrackerDeposits.clear();
+        m_MuIDDeposits.clear();
         fGArDeposits.clear();
         fECALDeposits.clear();
 
@@ -769,6 +781,120 @@ namespace util {
                     }
                 }
             }
+            else if( d->first == "Tracker_vol" ) {
+                //Minerva Style Sc Tracker for temporary det -> triangle of base 4 cm and height 2 cm
+                for (std::vector<TG4HitSegment>::const_iterator h = d->second.begin(); h != d->second.end(); ++h)
+                {
+                    const TG4HitSegment *hit = &(*h);
+
+                    int trackID = hit->GetPrimaryId();
+                    double edep = VisibleEnergyDeposition(hit, fApplyBirks) * CLHEP::MeV / CLHEP::GeV;
+                    double time = (hit->GetStart().T() + hit->GetStop().T())/2 / CLHEP::s;
+                    double x = (hit->GetStart().X() + hit->GetStop().X())/2 /CLHEP::cm;
+                    double y = (hit->GetStart().Y() + hit->GetStop().Y())/2 /CLHEP::cm;
+                    double z = (hit->GetStart().Z() + hit->GetStop().Z())/2 /CLHEP::cm;
+
+                    if(edep == 0 || edep < fEnergyCut)
+                    continue;
+
+                    //Check if it is in the active material of the ECAL
+                    TGeoNode *node = fGeo->FindNode(x, y, z);//Node in cm...
+                    std::string VolumeName  = node->GetVolume()->GetName();
+                    std::string volmaterial = node->GetMedium()->GetMaterial()->GetName();
+                    if ( ! std::regex_match(volmaterial, std::regex(fECALMaterial)) ) continue;
+
+                    unsigned int layer = GetLayerNumber(VolumeName); //get layer number
+                    unsigned int slice = GetSliceNumber(VolumeName); // get slice number
+                    unsigned int det_id = 3;
+
+                    std::array<double, 3> GlobalPosCM = {x, y, z};
+                    std::array<double, 3> LocalPosCM;
+                    gar::geo::LocalTransformation<TGeoHMatrix> trans;
+                    fGeo->WorldToLocal(GlobalPosCM, LocalPosCM, trans);
+
+                    LOG_DEBUG("ConvertEdep2Art")
+                    << "Hit " << hit
+                    << " in volume " << VolumeName
+                    << " in material " << volmaterial
+                    << " det_id " << det_id
+                    << " layer " << layer
+                    << " slice " << slice;
+
+                    gar::raw::CellID_t cellID = fGeo->GetCellID(node, det_id, 0, 0, layer, slice, LocalPosCM);//encoding the cellID on 64 bits
+
+                    double G4Pos[3] = {0., 0., 0.}; // in cm
+                    G4Pos[0] = GlobalPosCM[0];
+                    G4Pos[1] = GlobalPosCM[1];
+                    G4Pos[2] = GlobalPosCM[2];
+
+                    gar::sdp::CaloDeposit calohit( trackID, time, edep, G4Pos, cellID );
+                    if(m_TrackerDeposits.find(cellID) != m_TrackerDeposits.end())
+                    m_TrackerDeposits[cellID].push_back(calohit);
+                    else {
+                        std::vector<gar::sdp::CaloDeposit> vechit;
+                        vechit.push_back(calohit);
+                        m_TrackerDeposits.emplace(cellID, vechit);
+                    }
+                }
+            }
+            else if( d->first == "MuID_vol" ) {
+                //MuonID detector in the SPY
+                for (std::vector<TG4HitSegment>::const_iterator h = d->second.begin(); h != d->second.end(); ++h)
+                {
+                    const TG4HitSegment *hit = &(*h);
+
+                    int trackID = hit->GetPrimaryId();
+                    double edep = VisibleEnergyDeposition(hit, fApplyBirks) * CLHEP::MeV / CLHEP::GeV;
+                    double time = (hit->GetStart().T() + hit->GetStop().T())/2 / CLHEP::s;
+                    double x = (hit->GetStart().X() + hit->GetStop().X())/2 /CLHEP::cm;
+                    double y = (hit->GetStart().Y() + hit->GetStop().Y())/2 /CLHEP::cm;
+                    double z = (hit->GetStart().Z() + hit->GetStop().Z())/2 /CLHEP::cm;
+
+                    if(edep == 0 || edep < fEnergyCut)
+                    continue;
+
+                    //Check if it is in the active material of the ECAL
+                    TGeoNode *node = fGeo->FindNode(x, y, z);//Node in cm...
+                    std::string VolumeName  = node->GetVolume()->GetName();
+                    std::string volmaterial = node->GetMedium()->GetMaterial()->GetName();
+                    if ( ! std::regex_match(volmaterial, std::regex(fECALMaterial)) ) continue;
+
+                    unsigned int layer = GetLayerNumber(VolumeName); //get layer number
+                    unsigned int slice = GetSliceNumber(VolumeName); // get slice number
+                    unsigned int det_id = 4;
+                    unsigned int stave = GetStaveNumber(VolumeName);
+                    unsigned int module = GetModuleNumber(VolumeName);
+
+                    std::array<double, 3> GlobalPosCM = {x, y, z};
+                    std::array<double, 3> LocalPosCM;
+                    gar::geo::LocalTransformation<TGeoHMatrix> trans;
+                    fGeo->WorldToLocal(GlobalPosCM, LocalPosCM, trans);
+
+                    LOG_DEBUG("ConvertEdep2Art")
+                    << "Hit " << hit
+                    << " in volume " << VolumeName
+                    << " in material " << volmaterial
+                    << " det_id " << det_id
+                    << " layer " << layer
+                    << " slice " << slice;
+
+                    gar::raw::CellID_t cellID = fGeo->GetCellID(node, det_id, stave, module, layer, slice, LocalPosCM);//encoding the cellID on 64 bits
+
+                    double G4Pos[3] = {0., 0., 0.}; // in cm
+                    G4Pos[0] = GlobalPosCM[0];
+                    G4Pos[1] = GlobalPosCM[1];
+                    G4Pos[2] = GlobalPosCM[2];
+
+                    gar::sdp::CaloDeposit calohit( trackID, time, edep, G4Pos, cellID );
+                    if(m_MuIDDeposits.find(cellID) != m_MuIDDeposits.end())
+                    m_MuIDDeposits[cellID].push_back(calohit);
+                    else {
+                        std::vector<gar::sdp::CaloDeposit> vechit;
+                        vechit.push_back(calohit);
+                        m_MuIDDeposits.emplace(cellID, vechit);
+                    }
+                }
+            }
             else{
                 LOG_DEBUG("ConvertEdep2Art")
                 << "Ignoring hits for sensitive material: "
@@ -779,25 +905,64 @@ namespace util {
 
         //--------------------------------------------------------------------------
 
-        this->AddECALHits();
-        std::sort(fGArDeposits.begin(), fGArDeposits.end());
-        std::sort(fECALDeposits.begin(), fECALDeposits.end());
+        bool hasGAr, hasECAL, hasTrackerSc, hasMuID = false;
+        if(fGArDeposits.size() > 0) hasGAr = true;
+        if(m_ECALDeposits.size() > 0) hasECAL = true;
+        if(m_TrackerDeposits.size() > 0) hasTrackerSc = true;
+        if(m_MuIDDeposits.size() > 0) hasMuID = true;
 
-        for(auto const& garhit : fGArDeposits)
-        {
-            LOG_DEBUG("ConvertEdep2Art")
-            << "adding GAr deposits for track id: "
-            << garhit.TrackID();
-            TPCCol->emplace_back(garhit);
+        if(hasGAr) {
+            std::sort(fGArDeposits.begin(), fGArDeposits.end());
+
+            for(auto const& garhit : fGArDeposits)
+            {
+                LOG_DEBUG("ConvertEdep2Art")
+                << "adding GAr deposits for track id: "
+                << garhit.TrackID();
+                TPCCol->emplace_back(garhit);
+            }
         }
 
-        for(auto const& ecalhit : fECALDeposits)
-        {
-            LOG_DEBUG("ConvertEdep2Art")
-            << "adding calo deposits for track id: "
-            << ecalhit.TrackID();
+        if(hasECAL) {
+            this->AddHits(m_ECALDeposits, fECALDeposits);
+            std::sort(fECALDeposits.begin(), fECALDeposits.end());
 
-            ECALCol->emplace_back(ecalhit);
+            for(auto const& ecalhit : fECALDeposits)
+            {
+                LOG_DEBUG("ConvertEdep2Art")
+                << "adding calo deposits for track id: "
+                << ecalhit.TrackID();
+
+                ECALCol->emplace_back(ecalhit);
+            }
+        }
+
+        if(hasTrackerSc) {
+            this->AddHits(m_TrackerDeposits, fTrackerDeposits);
+            std::sort(fTrackerDeposits.begin(), fTrackerDeposits.end());
+
+            for(auto const& trkhit : fTrackerDeposits)
+            {
+                LOG_DEBUG("ConvertEdep2Art")
+                << "adding tracker Sc deposits for track id: "
+                << trkhit.TrackID();
+
+                TrackerCol->emplace_back(trkhit);
+            }
+        }
+
+        if(hasMuID) {
+            this->AddHits(m_MuIDDeposits, fMuIDDeposits);
+            std::sort(fMuIDDeposits.begin(), fMuIDDeposits.end());
+
+            for(auto const& muidhit : fMuIDDeposits)
+            {
+                LOG_DEBUG("ConvertEdep2Art")
+                << "adding muID deposits for track id: "
+                << muidhit.TrackID();
+
+                MuIDCol->emplace_back(muidhit);
+            }
         }
 
         //Create assn between hits and mcp
@@ -813,22 +978,53 @@ namespace util {
 
             unsigned int igashit = 0;
             unsigned int iecalhit = 0;
-            for(auto const& gashit : *TPCCol)
-            {
-                if(mpc_trkid == gashit.TrackID()){
-                    art::Ptr<gar::sdp::EnergyDeposit> gashitPtr = makeEnergyDepositPtr(igashit);
-                    ghmcassn->addSingle(gashitPtr, partPtr);
+            unsigned int itrkhit = 0;
+            unsigned int imuidhit = 0;
+
+            if(hasGAr) {
+                for(auto const& gashit : *TPCCol)
+                {
+                    if(mpc_trkid == gashit.TrackID()){
+                        art::Ptr<gar::sdp::EnergyDeposit> gashitPtr = makeEnergyDepositPtr(igashit);
+                        ghmcassn->addSingle(gashitPtr, partPtr);
+                    }
+                    igashit++;
                 }
-                igashit++;
             }
-            for(auto const& ecalhit : *ECALCol)
-            {
-                if(mpc_trkid == ecalhit.TrackID()){
-                    art::Ptr<gar::sdp::CaloDeposit> ecalhitPtr = makeCaloDepositPtr(iecalhit);
-                    ehmcassn->addSingle(ecalhitPtr, partPtr);
+
+            if(hasECAL) {
+                for(auto const& ecalhit : *ECALCol)
+                {
+                    if(mpc_trkid == ecalhit.TrackID()){
+                        art::Ptr<gar::sdp::CaloDeposit> ecalhitPtr = makeCaloDepositPtr(iecalhit);
+                        ehmcassn->addSingle(ecalhitPtr, partPtr);
+                    }
+                    iecalhit++;
                 }
-                iecalhit++;
             }
+
+            if(hasTrackerSc) {
+                for(auto const& trkhit : *TrackerCol)
+                {
+                    if(mpc_trkid == trkhit.TrackID()){
+                        art::Ptr<gar::sdp::CaloDeposit> trkhitPtr = makeCaloDepositPtr(itrkhit);
+                        thmcassn->addSingle(trkhitPtr, partPtr);
+                    }
+                    itrkhit++;
+                }
+            }
+
+            if(hasMuID) {
+                for(auto const& muidhit : *MuIDCol)
+                {
+                    if(mpc_trkid == muidhit.TrackID()){
+                        art::Ptr<gar::sdp::CaloDeposit> muIDhitPtr = makeCaloDepositPtr(imuidhit);
+                        mhmcassn->addSingle(muIDhitPtr, partPtr);
+                    }
+                    imuidhit++;
+                }
+            }
+
             imcp++;
         }
 
@@ -838,12 +1034,21 @@ namespace util {
         evt.put(std::move(tpassn));
 
         evt.put(std::move(partCol));
-        evt.put(std::move(TPCCol));
-        evt.put(std::move(ECALCol));
+
+        if(hasGAr)
+            evt.put(std::move(TPCCol));
+        if(hasECAL)
+            evt.put(std::move(ECALCol));
+        if(hasTrackerSc)
+            evt.put(std::move(TrackerCol));
+        if(hasMuID)
+            evt.put(std::move(MuIDCol));
         // evt.put(std::move(LArCol));
 
         evt.put(std::move(ghmcassn));
         evt.put(std::move(ehmcassn));
+        evt.put(std::move(thmcassn));
+        evt.put(std::move(mhmcassn));
 
         return;
     }

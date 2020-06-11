@@ -321,14 +321,14 @@ void MCP_Skimmer::SkimMCParticle()
                 // - breamstrahlung photons / delta rays
 
                 //keep D0s and V0s from decays, conversions (a lot of compton or Ioni)
-                if( std::find(daughtersToKeep.begin(), daughtersToKeep.end(), PDGMother->at(i)) != daughtersToKeep.end() && _util->hasOriginInTracker(spoint) && (process == "Decay" || process == "conv") ) {
+                if( std::find(daughtersToKeep.begin(), daughtersToKeep.end(), PDGMother->at(i)) != daughtersToKeep.end() && _util->PointInTPC(spoint) && (process == "Decay" || process == "conv") ) {
                     if(_debug){
                         std::cout << "Keeping D0 or V0" << std::endl;
                         std::cout << "Index " << i << " TrkID " << MCPTrkID->at(i) << " pdg " << PDG->at(i) << " mother pdg " << PDGMother->at(i);
                         std::cout << " process " << process << " endprocess " << endprocess << std::endl;
                         std::cout << " Start point X: " << spoint.X() << " Y: " << spoint.Y() << " Z: " << spoint.Z() << std::endl;
                         std::cout << " End point X: " << epoint.X() << " Y: " << epoint.Y() << " Z: " << epoint.Z() << std::endl;
-                        std::cout << " Origin in tracker " << _util->hasOriginInTracker(spoint) << std::endl;
+                        std::cout << " Origin in tracker " << _util->PointInTPC(spoint) << std::endl;
                         std::cout << " Decayed in Calo " << _util->hasDecayedInCalo(epoint) << std::endl;
                     }
                     IndexesToKeep.push_back(i);
@@ -341,7 +341,7 @@ void MCP_Skimmer::SkimMCParticle()
                         std::cout << " process " << process << " endprocess " << endprocess << std::endl;
                         std::cout << " Start point X: " << spoint.X() << " Y: " << spoint.Y() << " Z: " << spoint.Z() << std::endl;
                         std::cout << " End point X: " << epoint.X() << " Y: " << epoint.Y() << " Z: " << epoint.Z() << std::endl;
-                        std::cout << " Origin in tracker " << _util->hasOriginInTracker(spoint) << std::endl;
+                        std::cout << " Origin in tracker " << _util->PointInTPC(spoint) << std::endl;
                         std::cout << " Decayed in Calo " << _util->hasDecayedInCalo(epoint) << std::endl;
                     }
                     IndexesToKeep.push_back(i);
@@ -354,7 +354,7 @@ void MCP_Skimmer::SkimMCParticle()
                         std::cout << " process " << process << " endprocess " << endprocess << std::endl;
                         std::cout << " Start point X: " << spoint.X() << " Y: " << spoint.Y() << " Z: " << spoint.Z() << std::endl;
                         std::cout << " End point X: " << epoint.X() << " Y: " << epoint.Y() << " Z: " << epoint.Z() << std::endl;
-                        std::cout << " Origin in tracker " << _util->hasOriginInTracker(spoint) << std::endl;
+                        std::cout << " Origin in tracker " << _util->PointInTPC(spoint) << std::endl;
                         std::cout << " Decayed in Calo " << _util->hasDecayedInCalo(epoint) << std::endl;
                     }
                     IndexesToKeep.push_back(i);
@@ -372,7 +372,7 @@ void MCP_Skimmer::SkimMCParticle()
                     std::cout << " process " << process << " endprocess " << endprocess << std::endl;
                     std::cout << " Start point X: " << spoint.X() << " Y: " << spoint.Y() << " Z: " << spoint.Z() << std::endl;
                     std::cout << " End point X: " << epoint.X() << " Y: " << epoint.Y() << " Z: " << epoint.Z() << std::endl;
-                    std::cout << " Origin in tracker " << _util->hasOriginInTracker(spoint) << std::endl;
+                    std::cout << " Origin in tracker " << _util->PointInTPC(spoint) << std::endl;
                     std::cout << " Decayed in Calo " << _util->hasDecayedInCalo(epoint) << std::endl;
                 }
                 IndexesToKeep.push_back(i);

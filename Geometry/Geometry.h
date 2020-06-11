@@ -21,7 +21,7 @@
 
 // the following are included for convenience only
 #include "Geometry/ChannelMapAlgs/ChannelMapAlg.h"
-#include "Geometry/ChannelMapAlgs/ECALSegmentationAlg.h"
+#include "Geometry/ChannelMapAlgs/SegmentationAlg.h"
 
 // framework libraries
 #include "fhiclcpp/ParameterSet.h"
@@ -120,9 +120,7 @@ namespace gar {
                            std::string const& rootfile,
                            bool               bForceReload = false);
 
-      void InitializeChannelMap();
-
-      void InitializeSegmentation();
+      void InitializeSegmentations();
 
       std::string               fRelPath;          ///< Relative path added to FW_SEARCH_PATH to search for
                                                    ///< geometry file
@@ -130,7 +128,10 @@ namespace gar {
                                                    ///< files specified in the fcl file
       fhicl::ParameterSet       fSortingParameters;///< Parameter set to define the channel map sorting
 
-      fhicl::ParameterSet       fSegParameters;    ///< Parameter set to define the segmentation algorithm
+      fhicl::ParameterSet       fSegParameters;    ///< Parameter set to define the segmentation algorithms
+      fhicl::ParameterSet       fECALSegParameters; ///< Parameters for the ECAL Segmentation
+      fhicl::ParameterSet       fMinervaSegParameters; ///< Parameters for the Tracker Sc Segmentation
+      fhicl::ParameterSet       fMuIDSegParameters; ///< Parameters for the MuID Segmentation
     };
 
   } // namespace geo

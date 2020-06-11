@@ -1,7 +1,7 @@
-#ifndef ECALSEGMENTATIONGRIDXYALG_H
-#define ECALSEGMENTATIONGRIDXYALG_H
+#ifndef SEGMENTATIONGRIDXYALG_H
+#define SEGMENTATIONGRIDXYALG_H
 
-#include "Geometry/ChannelMapAlgs/ECALSegmentationAlg.h"
+#include "Geometry/ChannelMapAlgs/SegmentationAlg.h"
 #include "Geometry/GeometryCore.h"
 
 #include <string>
@@ -15,14 +15,14 @@ namespace gar {
     namespace geo {
         namespace seg {
 
-            class ECALSegmentationGridXYAlg: public ECALSegmentationAlg {
+            class SegmentationGridXYAlg: public SegmentationAlg {
 
             public:
-                ECALSegmentationGridXYAlg(fhicl::ParameterSet const& pset);
+                SegmentationGridXYAlg(fhicl::ParameterSet const& pset);
 
-                ECALSegmentationGridXYAlg(const BitFieldCoder* decoder, fhicl::ParameterSet const& pset);
+                SegmentationGridXYAlg(const BitFieldCoder* decoder, fhicl::ParameterSet const& pset);
 
-                ~ECALSegmentationGridXYAlg();
+                ~SegmentationGridXYAlg();
 
                 void reconfigure(fhicl::ParameterSet const& pset) override;
 
@@ -84,7 +84,6 @@ namespace gar {
                 std::string _encoding;
                 /// number of layers
                 unsigned int _nLayers;
-
                 /// layer dimension in X
                 mutable double _layer_dim_X;
                 /// layer dimension in Y

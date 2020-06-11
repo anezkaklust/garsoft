@@ -1,4 +1,4 @@
-#include "ECALSegmentationAlg.fcl"
+#include "SegmentationAlgs.fcl"
 
 BEGIN_PROLOG
 
@@ -10,7 +10,7 @@ standard_geo:
   PixelActiveSize: 0.3      # cm
   PixelPitch:      0.333333 # cm
  }
- SegmentationAlgPars: @local::standard_ecalmultigridstripxysegalgpars
+ SegmentationAlgPars: @local::standard_mpd_segals
  RelativePath:      ""
  GDML:              "nd_hall_mpd_only/nd_hall_mpd_only_ECalOctagon_60l_UniformMagnet.gdml"
  ROOT:              "nd_hall_mpd_only/nd_hall_mpd_only_ECalOctagon_60l_UniformMagnet.gdml"
