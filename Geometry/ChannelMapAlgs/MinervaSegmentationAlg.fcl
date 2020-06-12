@@ -3,7 +3,7 @@ BEGIN_PROLOG
 standard_minervasegalgpars:
 {
 SegmentationAlgName: "Minerva"
-cellEncoding: "system:3,layer:3,slice:1,cellX:32:-16,cellY:-16,cellZ:1"
+cellEncoding: "system:3,layer:3,slice:1,cellZ:1,cellX:32:-16,cellY:-16"
 identifier_x: "cellX"
 identifier_y: "cellY"
 identifier_z: "cellZ"

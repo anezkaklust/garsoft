@@ -8,6 +8,7 @@
 #include <set>
 #include <iostream>
 #include <limits>
+#include <exception>
 
 // Framework includes
 #include "art/Framework/Core/EDProducer.h"
@@ -131,6 +132,8 @@ namespace util {
         const gar::detinfo::ECALProperties*      fEcalProp;
 
         sim::ParticleList* fParticleList;
+        bool fHasGHEP;
+
         std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_ECALDeposits;
         std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_TrackerDeposits;
         std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_MuIDDeposits;
@@ -169,36 +172,28 @@ namespace util {
     fEvent(nullptr),
     fkeepEMShowers( pset.get< bool >("keepEMShowers", true) ),
     fEMShowerDaughterMatRegex( pset.get< std::string >("EMShowerDaughterMatRegex", ".*") ),
-    fParticleList(new sim::ParticleList())
+    fParticleList(new sim::ParticleList()),
+    fHasGHEP(false)
     {
         pdglib = genie::PDGLibrary::Instance();
 
-        produces< std::vector<simb::MCTruth> >();
-        produces< std::vector<simb::GTruth>  >();
-        produces< art::Assns<simb::MCTruth, simb::GTruth> >();
-        produces< art::Assns<simb::MCTruth, simb::MCParticle> >();
-
-        produces< std::vector<simb::MCParticle> >();
-        produces< std::vector<gar::sdp::EnergyDeposit> >();
-        produces< std::vector<gar::sdp::CaloDeposit> >();
-        // produces< std::vector<sdp::LArDeposit> >();
-
-        produces< art::Assns<gar::sdp::EnergyDeposit, simb::MCParticle> >();
-        produces< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> >();
-
-        if(fEDepSimfile.empty() || fGhepfile.empty())
+        if(fEDepSimfile.empty())
         {
             throw cet::exception("ConvertEdep2Art")
-            << "Empty edep-sim file or ghep file";
+            << "Empty edep-sim file";
+        }
+
+        //If ghep file is provided
+        if(not fGhepfile.empty()) {
+            fGTreeChain->Add(fGhepfile.c_str());
+            nEntriesGhep = fTreeChain->GetEntries();
+            fGTreeChain->SetBranchAddress("gmcrec", &fMCRec);
+            fHasGHEP = true;
         }
 
         fTreeChain->Add(fEDepSimfile.c_str());
         nEntries = fTreeChain->GetEntries();
         fTreeChain->SetBranchAddress("Event", &fEvent);
-
-        fGTreeChain->Add(fGhepfile.c_str());
-        nEntriesGhep = fTreeChain->GetEntries();
-        fGTreeChain->SetBranchAddress("gmcrec", &fMCRec);
 
         fGeo = gar::providerFrom<gar::geo::Geometry>();
         fEcalProp = gar::providerFrom<gar::detinfo::ECALPropertiesService>();
@@ -207,9 +202,29 @@ namespace util {
         fSpillCount = 0;
 
         if(!fkeepEMShowers){
-            LOG_INFO("ConvertEdep2Art")
+            LOG_DEBUG("ConvertEdep2Art")
             << " Will not keep EM shower daughters!";
         }
+
+        produces< std::vector<simb::MCTruth> >();
+        if(fHasGHEP) {
+            produces< std::vector<simb::GTruth>  >();
+            produces< art::Assns<simb::MCTruth, simb::GTruth> >();
+        }
+        produces< art::Assns<simb::MCTruth, simb::MCParticle> >();
+        produces< std::vector<simb::MCParticle> >();
+
+        produces< std::vector<gar::sdp::EnergyDeposit> >();
+        produces< std::vector<gar::sdp::CaloDeposit> >("ECAL");
+        produces< std::vector<gar::sdp::CaloDeposit> >("TrackerSc");
+        produces< std::vector<gar::sdp::CaloDeposit> >("MuID");
+        // produces< std::vector<gar::sdp::LArDeposit> >();
+
+        produces< art::Assns<gar::sdp::EnergyDeposit, simb::MCParticle> >();
+        produces< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> >("ECAL");
+        produces< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> >("TrackerSc");
+        produces< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> >("MuID");
+        // produces< art::Assns<gar::sdp::LArDeposit, simb::MCParticle> >();
     }
 
     //----------------------------------------------------------------------
@@ -221,7 +236,7 @@ namespace util {
 
     //----------------------------------------------------------------------
     void ConvertEdep2Art::beginJob() {
-        if(fOverlay){
+        if(fOverlay && fHasGHEP){
             //need to get where is the end of the spill
             for(int ientry = 0; ientry < fGTreeChain->GetEntries(); ientry++)
             {
@@ -248,7 +263,7 @@ namespace util {
                 }
             }
 
-            mf::LogInfo("ConvertEdep2Art::beginJob()")
+            LOG_INFO("ConvertEdep2Art::beginJob()")
             << "Number of spills in the ghep file "
             << fSpillCount;
         }
@@ -443,7 +458,12 @@ namespace util {
         std::vector< ::art::Ptr<simb::MCTruth> > mctPtrs;
 
         //--------------------------------------------------------------------------
-        if(fOverlay){
+        //Get the event
+        //Starts at 0, evt starts at 1
+        fTreeChain->GetEntry(eventnumber-1);
+
+        //--------------------------------------------------------------------------
+        if(fOverlay && fHasGHEP){
             size_t index = 0;
             for(int ientry = fStartSpill[eventnumber-1]; ientry < fStopSpill[eventnumber-1]; ientry++)
             {
@@ -473,7 +493,7 @@ namespace util {
                 index++;
             }
         }
-        else{
+        else if(not fOverlay && fHasGHEP){
             //Starts at 0, evt starts at 1
             fGTreeChain->GetEntry(eventnumber-1);
 
@@ -494,12 +514,45 @@ namespace util {
             mctPtrs.push_back(MCTruthPtr);
 
             evgb::util::CreateAssn(*this, evt, *mctruthcol, *gtruthcol, *tgassn, gtruthcol->size()-1, gtruthcol->size());
+        } else {
+
+            //Case where things are made from particle gun! no ghep file provided. Need to create MCTruth object / GTruth object
+            simb::MCTruth truth;
+            truth.SetOrigin(simb::kSingleParticle);
+
+            for (std::vector<TG4PrimaryVertex>::const_iterator t = fEvent->Primaries.begin(); t != fEvent->Primaries.end(); ++t)
+            {
+                TLorentzVector pos(t->Position.X() / CLHEP::cm, t->Position.Y() / CLHEP::cm, t->Position.Z() / CLHEP::cm, t->Position.T());
+
+                for (std::vector<TG4PrimaryParticle>::const_iterator p = t->Particles.begin(); p != t->Particles.end(); ++p) {
+                    int trackid = p->GetTrackId();
+                    std::string primary("primary");
+
+                    TLorentzVector pvec(p->Momentum.Px() * CLHEP::MeV / CLHEP::GeV, p->Momentum.Py() * CLHEP::MeV / CLHEP::GeV, p->Momentum.Pz() * CLHEP::MeV / CLHEP::GeV, p->Momentum.E() * CLHEP::MeV / CLHEP::GeV);
+
+                    simb::MCParticle part(trackid, p->GetPDGCode(), primary);
+                    part.AddTrajectoryPoint(pos, pvec);
+
+                    LOG_DEBUG("ConvertEdep2Art") << "Adding primary particle with "
+                    << " momentum " << part.P()
+                    << " position " << part.Vx() << " " << part.Vy() << " " << part.Vz();
+
+                    truth.Add(part);
+                }
+            }
+
+            LOG_DEBUG("ConvertEdep2Art") << "Adding mctruth with "
+            << " nParticles " << truth.NParticles()
+            << " Origin " << truth.Origin();
+
+            mctruthcol->push_back(truth);
+
+            //Make a vector of mctruth art ptr
+            art::Ptr<simb::MCTruth> MCTruthPtr = makeMCTruthPtr(mctruthcol->size() - 1);
+            mctPtrs.push_back(MCTruthPtr);
         }
 
-        //--------------------------------------------------------------------------
-        //Get the event
-        //Starts at 0, evt starts at 1
-        fTreeChain->GetEntry(eventnumber-1);
+        //-----------------------------------
 
         std::unique_ptr< std::vector<simb::MCParticle> > partCol( new std::vector<simb::MCParticle> );
         std::unique_ptr< art::Assns<simb::MCTruth, simb::MCParticle> > tpassn( new art::Assns<simb::MCTruth, simb::MCParticle> );
@@ -620,7 +673,7 @@ namespace util {
                     // if we still can't find the parent in the particle navigator,
                     // we have to give up
                     if( not fParticleList->KnownParticle(pid) ) {
-                        LOG_WARNING("ConvertEdep2Art")
+                        LOG_DEBUG("ConvertEdep2Art")
                         << "can't find parent id: "
                         << parentID << " in the particle list, or fTrkIDParent."
                         << " Make " << parentID << " the mother ID for track ID "
@@ -634,14 +687,19 @@ namespace util {
                 // current particle.  If the fCurrentTrackID is not in the
                 // map try the parent ID, if that is not there, throw an
                 // exception
-                if(fTrackIDToMCTruthIndex.count(fCurrentTrackID) > 0 )
-                mcTruthIndex = fTrackIDToMCTruthIndex.at(fCurrentTrackID);
-                else if(fTrackIDToMCTruthIndex.count(parentID) > 0 )
-                mcTruthIndex = fTrackIDToMCTruthIndex.at(parentID);
-                else
-                throw cet::exception("ConvertEdep2Art")
-                << "Cannot find MCTruth index for track id "
-                << fCurrentTrackID << " or " << parentID;
+                try {
+                    if(fTrackIDToMCTruthIndex.count(fCurrentTrackID) > 0 )
+                    mcTruthIndex = fTrackIDToMCTruthIndex.at(fCurrentTrackID);
+                    else if(fTrackIDToMCTruthIndex.count(parentID) > 0 )
+                    mcTruthIndex = fTrackIDToMCTruthIndex.at(parentID);
+                }
+                catch (std::exception& e) {
+                    LOG_DEBUG("ConvertEdep2Art")
+                    << "Cannot find MCTruth index for track id "
+                    << fCurrentTrackID << " or " << parentID
+                    << " exception " << e.what();
+                    throw;
+                }
             } //end not primary particle
 
             fTrackIDToMCTruthIndex[fCurrentTrackID] = mcTruthIndex;
@@ -662,29 +720,38 @@ namespace util {
             int trackID = p.TrackId();
             partCol->push_back(std::move(p));
 
-            if( fTrackIDToMCTruthIndex.count(trackID) > 0) {
-                size_t mctidx = fTrackIDToMCTruthIndex.find(trackID)->second;
-                evgb::util::CreateAssn(*this, evt, *partCol, mctPtrs.at(mctidx), *tpassn, nGeneratedParticles);
+            try {
+                if( fTrackIDToMCTruthIndex.count(trackID) > 0) {
+                    size_t mctidx = fTrackIDToMCTruthIndex.find(trackID)->second;
+                    evgb::util::CreateAssn(*this, evt, *partCol, mctPtrs.at(mctidx), *tpassn, nGeneratedParticles);
+                }
             }
-            else {
-                throw cet::exception("ConvertEdep2Art")
+            catch ( std::exception& e ) {
+                LOG_DEBUG("ConvertEdep2Art")
                 << "Cannot find MCTruth for Track Id: " << trackID
-                << " to create association between Particle and MCTruth";
+                << " to create association between Particle and MCTruth"
+                << " exception " << e.what();
+                throw;
             }
 
             fParticleList->Archive(itPart->second);
             ++nGeneratedParticles;
         }
 
+        LOG_DEBUG("ConvertEdep2Art") << "Finished linking MCTruth and MCParticles";
+
         //--------------------------------------------------------------------------
         std::unique_ptr< std::vector< gar::sdp::EnergyDeposit>  > TPCCol(new std::vector<gar::sdp::EnergyDeposit> );
         std::unique_ptr< std::vector< gar::sdp::CaloDeposit > > ECALCol(new std::vector<gar::sdp::CaloDeposit> );
         std::unique_ptr< std::vector< gar::sdp::CaloDeposit > > TrackerCol(new std::vector<gar::sdp::CaloDeposit> );
         std::unique_ptr< std::vector< gar::sdp::CaloDeposit > > MuIDCol(new std::vector<gar::sdp::CaloDeposit> );
+        std::unique_ptr< std::vector< gar::sdp::LArDeposit > > LArCol(new std::vector<gar::sdp::LArDeposit> );
+
         std::unique_ptr< art::Assns<gar::sdp::EnergyDeposit, simb::MCParticle> > ghmcassn(new art::Assns<gar::sdp::EnergyDeposit, simb::MCParticle>);
         std::unique_ptr< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> > ehmcassn(new art::Assns<gar::sdp::CaloDeposit, simb::MCParticle>); //ECAL
         std::unique_ptr< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> > thmcassn(new art::Assns<gar::sdp::CaloDeposit, simb::MCParticle>); //TrackerSc
         std::unique_ptr< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> > mhmcassn(new art::Assns<gar::sdp::CaloDeposit, simb::MCParticle>); //MuID
+        // std::unique_ptr< art::Assns<gar::sdp::LArDeposit, simb::MCParticle> > lhmcassn(new art::Assns<gar::sdp::LArDeposit, simb::MCParticle>); //LAr
 
         m_ECALDeposits.clear();
         m_TrackerDeposits.clear();
@@ -755,7 +822,8 @@ namespace util {
                     fGeo->WorldToLocal(GlobalPosCM, LocalPosCM, trans);
 
                     LOG_DEBUG("ConvertEdep2Art")
-                    << "Hit " << hit
+                    << "Sensitive volume " << d->first
+                    << " Hit " << hit
                     << " in volume " << VolumeName
                     << " in material " << volmaterial
                     << " det_id " << det_id
@@ -813,7 +881,8 @@ namespace util {
                     fGeo->WorldToLocal(GlobalPosCM, LocalPosCM, trans);
 
                     LOG_DEBUG("ConvertEdep2Art")
-                    << "Hit " << hit
+                    << "Sensitive volume " << d->first
+                    << " Hit " << hit
                     << " in volume " << VolumeName
                     << " in material " << volmaterial
                     << " det_id " << det_id
@@ -871,12 +940,15 @@ namespace util {
                     fGeo->WorldToLocal(GlobalPosCM, LocalPosCM, trans);
 
                     LOG_DEBUG("ConvertEdep2Art")
-                    << "Hit " << hit
+                    << "Sensitive volume " << d->first
+                    << " Hit " << hit
                     << " in volume " << VolumeName
                     << " in material " << volmaterial
                     << " det_id " << det_id
                     << " layer " << layer
-                    << " slice " << slice;
+                    << " slice " << slice
+                    << " stave " << stave
+                    << " module " << module;
 
                     gar::raw::CellID_t cellID = fGeo->GetCellID(node, det_id, stave, module, layer, slice, LocalPosCM);//encoding the cellID on 64 bits
 
@@ -903,9 +975,11 @@ namespace util {
             }
         }
 
+        LOG_DEBUG("ConvertEdep2Art") << "Finished collection sensitive hits";
+
         //--------------------------------------------------------------------------
 
-        bool hasGAr, hasECAL, hasTrackerSc, hasMuID = false;
+        bool hasGAr, hasECAL, hasTrackerSc, hasMuID, hasLAr = false;
         if(fGArDeposits.size() > 0) hasGAr = true;
         if(m_ECALDeposits.size() > 0) hasECAL = true;
         if(m_TrackerDeposits.size() > 0) hasTrackerSc = true;
@@ -968,7 +1042,9 @@ namespace util {
         //Create assn between hits and mcp
         art::PtrMaker<simb::MCParticle> makeMCPPtr(evt);
         art::PtrMaker<gar::sdp::EnergyDeposit> makeEnergyDepositPtr(evt);
-        art::PtrMaker<gar::sdp::CaloDeposit> makeCaloDepositPtr(evt);
+        art::PtrMaker<gar::sdp::CaloDeposit> makeCaloDepositPtr(evt, "ECAL");
+        art::PtrMaker<gar::sdp::CaloDeposit> makeTrackerDepositPtr(evt, "TrackerSc");
+        art::PtrMaker<gar::sdp::CaloDeposit> makeMuIDDepositPtr(evt, "MuID");
 
         unsigned int imcp = 0;
         for(auto const &part : *partCol)
@@ -1007,7 +1083,7 @@ namespace util {
                 for(auto const& trkhit : *TrackerCol)
                 {
                     if(mpc_trkid == trkhit.TrackID()){
-                        art::Ptr<gar::sdp::CaloDeposit> trkhitPtr = makeCaloDepositPtr(itrkhit);
+                        art::Ptr<gar::sdp::CaloDeposit> trkhitPtr = makeTrackerDepositPtr(itrkhit);
                         thmcassn->addSingle(trkhitPtr, partPtr);
                     }
                     itrkhit++;
@@ -1018,7 +1094,7 @@ namespace util {
                 for(auto const& muidhit : *MuIDCol)
                 {
                     if(mpc_trkid == muidhit.TrackID()){
-                        art::Ptr<gar::sdp::CaloDeposit> muIDhitPtr = makeCaloDepositPtr(imuidhit);
+                        art::Ptr<gar::sdp::CaloDeposit> muIDhitPtr = makeMuIDDepositPtr(imuidhit);
                         mhmcassn->addSingle(muIDhitPtr, partPtr);
                     }
                     imuidhit++;
@@ -1029,26 +1105,33 @@ namespace util {
         }
 
         evt.put(std::move(mctruthcol));
-        evt.put(std::move(gtruthcol));
-        evt.put(std::move(tgassn));
+        if(fHasGHEP) {
+            evt.put(std::move(gtruthcol));
+            evt.put(std::move(tgassn));
+        }
         evt.put(std::move(tpassn));
-
         evt.put(std::move(partCol));
 
-        if(hasGAr)
+        if(hasGAr) {
             evt.put(std::move(TPCCol));
-        if(hasECAL)
-            evt.put(std::move(ECALCol));
-        if(hasTrackerSc)
-            evt.put(std::move(TrackerCol));
-        if(hasMuID)
-            evt.put(std::move(MuIDCol));
-        // evt.put(std::move(LArCol));
-
-        evt.put(std::move(ghmcassn));
-        evt.put(std::move(ehmcassn));
-        evt.put(std::move(thmcassn));
-        evt.put(std::move(mhmcassn));
+            evt.put(std::move(ghmcassn));
+        }
+        if(hasECAL) {
+            evt.put(std::move(ECALCol), "ECAL");
+            evt.put(std::move(ehmcassn), "ECAL");
+        }
+        if(hasTrackerSc) {
+            evt.put(std::move(TrackerCol), "TrackerSc");
+            evt.put(std::move(thmcassn), "TrackerSc");
+        }
+        if(hasMuID) {
+            evt.put(std::move(MuIDCol), "MuID");
+            evt.put(std::move(mhmcassn), "MuID");
+        }
+        if(hasLAr) {
+            // evt.put(std::move(LArCol));
+            // evt.put(std::move(lhmcassn));
+        }
 
         return;
     }
