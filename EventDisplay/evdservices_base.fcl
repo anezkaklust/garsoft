@@ -29,9 +29,9 @@ standard_recodrawingopt:
 {
  DrawHits:                  0          # 0 = off, 1 = on, will not draw if DrawRawOrReco is set to 0
  DrawTPCClusters:           0          # 0 = off, 1 = on, will not draw if DrawRawOrReco is set to 0
- DrawCaloClusters:          1          # 0 = off, 1 = on, will not draw if DrawRawOrReco is set to 0
- DrawCaloHits:              0          # 0 = off, 1 = on, will not draw if DrawRawOrReco is set to 0
- DrawTracks:                1  	       # 0 = off, 1 = on
+ DrawCaloClusters:          0          # 0 = off, 1 = on, will not draw if DrawRawOrReco is set to 0
+ DrawCaloHits:              1          # 0 = off, 1 = on, will not draw if DrawRawOrReco is set to 0
+ DrawTracks:                2  	       # 0 = off, 1 = on (helices) 2, fitted trajectories
  TrackWidth:                1  	       # used in TPolyLine3D::SetLineWidth
  DrawTrackTrajectoryPoints: 0  	       # 0 = off, 1 = on
  DrawShowers:               0  	       # 0 = off, 1 = on
