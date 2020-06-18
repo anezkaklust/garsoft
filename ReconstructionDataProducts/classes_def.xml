@@ -35,6 +35,10 @@
     <version ClassVersion="11" checksum="325077414"/>
     <version ClassVersion="10" checksum="2676520567"/>
   </class>
+  <class name="std::vector < TVector3 >"/>
+  <class name="gar::rec::TrackTrajectory"        ClassVersion="10"            >
+   <version ClassVersion="10" checksum="1080363265"/>
+  </class>
   <class name="std::vector < std::pair<float,float> >"/>
   <class name="gar::rec::TrackIoniz"        ClassVersion="12"            >
    <version ClassVersion="12" checksum="1311515521"/>
@@ -90,6 +94,7 @@
   <class name="std::vector<gar::rec::Track >"                            />
   <class name="std::vector<gar::rec::Track* >"                           />
   <class name="std::vector<gar::rec::TrackIoniz >"                       />
+  <class name="std::vector<gar::rec::TrackTrajectory >"                  />
   <class name="std::vector<gar::rec::Shower>"                            />
   <class name="std::vector<gar::rec::Vertex>"                            />
   <class name="std::vector<gar::rec::Vee>"                               />
@@ -98,15 +103,16 @@
   <class name="std::vector<gar::rec::Cluster>"                           />
 
   <class name="art::Wrapper< std::vector<gar::rec::Hit   > >"                  />
-  <class name="art::Wrapper< std::vector<gar::rec::TPCCluster   > >"          />
-  <class name="art::Wrapper< std::vector<gar::rec::VecHit   > >"              />
+  <class name="art::Wrapper< std::vector<gar::rec::TPCCluster   > >"           />
+  <class name="art::Wrapper< std::vector<gar::rec::VecHit   > >"               />
   <class name="art::Wrapper< std::vector<gar::rec::Track > >"                  />
-  <class name="art::Wrapper< std::vector<gar::rec::TrackIoniz > >"              />
+  <class name="art::Wrapper< std::vector<gar::rec::TrackIoniz > >"             />
+  <class name="art::Wrapper< std::vector<gar::rec::TrackTrajectory > >"        />
   <class name="art::Wrapper< std::vector<gar::rec::Shower> >"                  />
   <class name="art::Wrapper< std::vector<gar::rec::Vertex> >"                  />
   <class name="art::Wrapper< std::vector<gar::rec::Vee> >"                     />
-  <class name="art::Wrapper< std::vector<gar::rec::CaloHit> >"                  />
-  <class name="art::Wrapper< std::vector<gar::rec::Cluster> >"                  />
+  <class name="art::Wrapper< std::vector<gar::rec::CaloHit> >"                 />
+  <class name="art::Wrapper< std::vector<gar::rec::Cluster> >"                 />
 
   <class name="std::pair< art::Ptr<simb::MCParticle>, art::Ptr<gar::rec::Hit>      >"   />
   <class name="std::pair< art::Ptr<gar::rec::Hit>,    art::Ptr<simb::MCParticle> >"     />
@@ -255,5 +261,12 @@
   <class name="art::Assns<gar::rec::Track, gar::rec::TrackIoniz>"                              />
   <class name="art::Wrapper<art::Assns<gar::rec::TrackIoniz,   gar::rec::Track> >"             />
   <class name="art::Wrapper<art::Assns<gar::rec::Track, gar::rec::TrackIoniz> >"               />
+
+  <class name="std::pair< art::Ptr<gar::rec::TrackTrajectory>,   art::Ptr<gar::rec::Track> >"       />
+  <class name="std::pair< art::Ptr<gar::rec::Track>, art::Ptr<gar::rec::TrackTrajectory>   >"       />
+  <class name="art::Assns<gar::rec::TrackTrajectory,   gar::rec::Track>"                            />
+  <class name="art::Assns<gar::rec::Track, gar::rec::TrackTrajectory>"                              />
+  <class name="art::Wrapper<art::Assns<gar::rec::TrackTrajectory,   gar::rec::Track> >"             />
+  <class name="art::Wrapper<art::Assns<gar::rec::Track, gar::rec::TrackTrajectory> >"               />
 
 </lcgdict>
