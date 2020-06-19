@@ -111,7 +111,7 @@ namespace gar {
                     int _cellIndexY = int ( localY / ( _layer_dim_Y / nCellsY ) );
 
                     //Transform the localX/Y to the local of this cell
-                    double cellOriginX = 0.;
+                    // double cellOriginX = 0.;
                     double cellOriginY = ( _cellIndexY + 0.5 ) * (_stripSizeY * 2);
                     double cellOriginZ = - 1.;
 
@@ -176,7 +176,7 @@ namespace gar {
 
                     //Transform the localX/Y to the local of this cell
                     double cellOriginX = ( _cellIndexX + 0.5 ) * (_stripSizeX * 2);
-                    double cellOriginY = 0.;
+                    // double cellOriginY = 0.;
                     double cellOriginZ = 1.;
 
                     localX = localX - cellOriginX; //transform it

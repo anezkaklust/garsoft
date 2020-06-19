@@ -323,7 +323,7 @@ namespace gar{
                 fDrawIntersection          = pset.get<bool                      > ("drawIntersection"     , false);
                 fDrawNeutronTraj           = pset.get<bool                    > ("drawNeutronTrajectories", false);
 
-                std::string fEncoding = fGeometry->GetCellIDEncoding();
+                std::string fEncoding = fGeometry->GetECALCellIDEncoding();
                 fFieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
             }
 

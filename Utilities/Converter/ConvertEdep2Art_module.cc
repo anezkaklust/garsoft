@@ -51,6 +51,7 @@
 #include "Geometry/GeometryCore.h"
 #include "Geometry/Geometry.h"
 #include "Geometry/LocalTransformation.h"
+#include "Geometry/BitFieldCoder.h"
 #include "CoreUtils/ServiceUtil.h"
 #include "DetectorInfo/DetectorProperties.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
@@ -100,6 +101,7 @@ namespace util {
         bool CheckProcess( std::string process_name ) const;
         unsigned int GetParentage( unsigned int trkid ) const;
         void AddHits(const std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits);
+        void AddHitsMinerva(const std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits);
 
         std::map<int, size_t> TrackIDToMCTruthIndexMap() const { return fTrackIDToMCTruthIndex; }
 
@@ -386,6 +388,7 @@ namespace util {
     void ConvertEdep2Art::AddHits(const std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits)
     {
         //Loop over the hits in the map and add them together
+
         for(auto const &it : m_Deposits) {
 
             gar::raw::CellID_t cellID = it.first;
@@ -403,6 +406,96 @@ namespace util {
 
             fDeposits.emplace_back( trackID, time, esum, pos, cellID );
         }
+    }
+
+    //------------------------------------------------------------------------------
+    void ConvertEdep2Art::AddHitsMinerva(const std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits)
+    {
+        std::string fEncoding = fGeo->GetMinervaCellIDEncoding();
+        gar::geo::BitFieldCoder *fFieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
+
+        //Loop over the hits in the map and add them together
+        for(auto const &it : m_Deposits) {
+            gar::raw::CellID_t cellID = it.first;
+
+            //Check this cellID
+            //if it is a triangle = 0 or 3, add all
+            //if it is triangle = 1 or 2, need to look for the complementary cellID, add them to this hit and remove from the deposits (to avoid double hit creation)
+
+            int triangleNb = fFieldDecoder->get(cellID, "triangle");
+            if(triangleNb == 0 || triangleNb == 3) {
+                std::vector<gar::sdp::CaloDeposit> vechit = it.second;
+                std::sort(vechit.begin(), vechit.end()); //sort per time
+
+                float esum = 0.;
+                float time = vechit.at(0).Time();
+                int trackID = vechit.at(0).TrackID();
+                double pos[3] = { vechit.at(0).X(), vechit.at(0).Y(), vechit.at(0).Z() };
+
+                for(auto const &hit : vechit) {
+                    esum += hit.Energy();
+                }
+
+                fDeposits.emplace_back( trackID, time, esum, pos, cellID );
+            }
+
+            // if(triangleNb == 1 || triangleNb == 2)
+            // {
+            //     if(triangleNb == 1) {
+            //         std::vector<gar::sdp::CaloDeposit> vechit = it.second;
+            //         std::sort(vechit.begin(), vechit.end()); //sort per time
+            //
+            //         float esum = 0.;
+            //         float time = vechit.at(0).Time();
+            //         int trackID = vechit.at(0).TrackID();
+            //         double pos[3] = { vechit.at(0).X(), vechit.at(0).Y(), vechit.at(0).Z() };
+            //
+            //         for(auto const &hit : vechit) {
+            //             esum += hit.Energy();
+            //         }
+            //
+            //         gar::raw::CellID_t complementary_cellID = 0.;
+            //         auto find = m_Deposits.find( complementary_cellID );
+            //         if(find != m_Deposits.end()) {
+            //             std::vector<gar::sdp::CaloDeposit> vechit_comp = m_Deposits[complementary_cellID];
+            //             std::sort(vechit_comp.begin(), vechit_comp.end()); //sort per time
+            //
+            //             for(auto const &hit : vechit_comp) {
+            //                 esum += hit.Energy();
+            //             }
+            //         }
+            //         fDeposits.emplace_back( trackID, time, esum, pos, cellID );
+            //     }
+            //
+            //     if(triangleNb == 2) {
+            //         std::vector<gar::sdp::CaloDeposit> vechit = it.second;
+            //         std::sort(vechit.begin(), vechit.end()); //sort per time
+            //
+            //         float esum = 0.;
+            //         float time = vechit.at(0).Time();
+            //         int trackID = vechit.at(0).TrackID();
+            //         double pos[3] = { vechit.at(0).X(), vechit.at(0).Y(), vechit.at(0).Z() };
+            //
+            //         for(auto const &hit : vechit) {
+            //             esum += hit.Energy();
+            //         }
+            //
+            //         gar::raw::CellID_t complementary_cellID = 0.;
+            //         auto find = m_Deposits.find( complementary_cellID );
+            //         if(find != m_Deposits.end()) {
+            //             std::vector<gar::sdp::CaloDeposit> vechit_comp = m_Deposits[complementary_cellID];
+            //             std::sort(vechit_comp.begin(), vechit_comp.end()); //sort per time
+            //
+            //             for(auto const &hit : vechit_comp) {
+            //                 esum += hit.Energy();
+            //             }
+            //         }
+            //         fDeposits.emplace_back( trackID, time, esum, pos, cellID );
+            //     }
+            // }
+        }
+
+        delete fFieldDecoder;
     }
 
     //------------------------------------------------------------------------------
@@ -1012,7 +1105,7 @@ namespace util {
         }
 
         if(hasTrackerSc) {
-            this->AddHits(m_TrackerDeposits, fTrackerDeposits);
+            this->AddHitsMinerva(m_TrackerDeposits, fTrackerDeposits);
             std::sort(fTrackerDeposits.begin(), fTrackerDeposits.end());
 
             for(auto const& trkhit : fTrackerDeposits)
