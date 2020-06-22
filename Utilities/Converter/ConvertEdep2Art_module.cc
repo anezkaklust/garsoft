@@ -626,7 +626,7 @@ namespace util {
             }
 
             //remove the element from the map now
-            m_Deposits.erase(it->first);
+            m_Deposits.erase(it.first);
         }
     }
 
