@@ -36,12 +36,12 @@ namespace gar {
     public:
       
       TPCCluster(
-          float        sig,
-          float       *pos,
-          float        startT,
-          float        endT,
-	      float        Time,
-	      float        RMS);
+                 float        sig,
+                 float       *pos,
+                 float        startT,
+                 float        endT,
+                 float        Time,
+                 float        RMS);
       
       bool operator==(const TPCCluster& rhs) const;
       bool operator!=(const TPCCluster& rhs) const;
