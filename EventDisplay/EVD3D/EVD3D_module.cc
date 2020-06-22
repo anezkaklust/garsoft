@@ -175,6 +175,7 @@ namespace gar{
             bool fDrawNeutronTraj;
 
             std::string fG4Label;                                       ///< module label that produced G4 hits
+            std::vector<std::string> fG4InstanceName;
             std::vector<std::string> fSimHitLabels;     		        ///< module labels that produced sim hits
             std::vector<std::string> fRawHitLabels;     		        ///< module labels that produced raw hits
             std::vector<std::string> fRecoHitLabels;     		        ///< module labels that produced reco hits
@@ -313,6 +314,7 @@ namespace gar{
                 fVolumesToShow             = pset.get< std::vector<std::string>  > ("VolumesToShow"              );
 
                 fG4Label                   = pset.get< std::string              > ("G4ModuleLabel"           );
+                fG4InstanceName            = pset.get< std::vector<std::string> > ("G4InstanceName"          );
                 fRawHitLabels              = pset.get< std::vector<std::string> > ("RawHitModuleLabels"      );
                 fRecoHitLabels             = pset.get< std::vector<std::string> > ("RecoHitModuleLabels"     );
                 fCaloClusterLabels         = pset.get< std::vector<std::string> > ("CaloClusterModuleLabels" );
@@ -323,7 +325,7 @@ namespace gar{
                 fDrawIntersection          = pset.get<bool                      > ("drawIntersection"     , false);
                 fDrawNeutronTraj           = pset.get<bool                    > ("drawNeutronTrajectories", false);
 
-                std::string fEncoding = fGeometry->GetCellIDEncoding();
+                std::string fEncoding = fGeometry->GetECALCellIDEncoding();
                 fFieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
             }
 
@@ -844,12 +846,12 @@ namespace gar{
                     label << "Energy: " << simHit->Energy() << " GeV\n";
                     label << "Position (" << simHit->X() << ", " << simHit->Y() << ", " << simHit->Z() << " ) cm\n";
                     label << "CellID: " << simHit->CellID() << "\n";
-                    label << "isTile: " << fGeometry->isTile(simHit->CellID()) << "\n";
-                    label << "DetID: " << fFieldDecoder->get(simHit->CellID(), "system") << "\n";
-                    label << "Stave: " << fFieldDecoder->get(simHit->CellID(), "stave") << "\n";
-                    label << "Module: " << fFieldDecoder->get(simHit->CellID(), "module") << "\n";
-                    label << "Layer: " << fFieldDecoder->get(simHit->CellID(), "layer") << "\n";
-                    label << "Slice: " << fFieldDecoder->get(simHit->CellID(), "slice");
+                    // label << "isTile: " << fGeometry->isTile(simHit->CellID()) << "\n";
+                    // label << "DetID: " << fFieldDecoder->get(simHit->CellID(), "system") << "\n";
+                    // label << "Stave: " << fFieldDecoder->get(simHit->CellID(), "stave") << "\n";
+                    // label << "Module: " << fFieldDecoder->get(simHit->CellID(), "module") << "\n";
+                    // label << "Layer: " << fFieldDecoder->get(simHit->CellID(), "layer") << "\n";
+                    // label << "Slice: " << fFieldDecoder->get(simHit->CellID(), "slice");
 
                     TEvePointSet *evehit = new TEvePointSet(1);
                     evehit->SetName(TString::Format("ECAL sim hit %i", p).Data());
@@ -1276,9 +1278,11 @@ namespace gar{
 
                 try
                 {
-                    event.getView(fG4Label, tempCalo);
-                    for(size_t t = 0; t < tempCalo.size(); ++t)
-                    simCalo.push_back(tempCalo[t]);
+                    for(unsigned int i = 0; i < fG4InstanceName.size(); i++) {
+                        event.getView(fG4Label, fG4InstanceName.at(i), tempCalo);
+                        for(size_t t = 0; t < tempCalo.size(); ++t)
+                        simCalo.push_back(tempCalo[t]);
+                    }
                 }
                 catch(cet::exception& e){
                     writeErrMsg("GetSim Calo", e);

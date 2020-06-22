@@ -1109,9 +1109,30 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::string GeometryCore::GetCellIDEncoding() const
+        std::string GeometryCore::GetECALCellIDEncoding() const
         {
+            if(fECALSegmentationAlg)
             return fECALSegmentationAlg->cellEncoding();
+            else
+            return "";
+        }
+
+        //----------------------------------------------------------------------------
+        std::string GeometryCore::GetMinervaCellIDEncoding() const
+        {
+            if(fMinervaSegmentationAlg)
+            return fMinervaSegmentationAlg->cellEncoding();
+            else
+            return "";
+        }
+
+        //----------------------------------------------------------------------------
+        std::string GeometryCore::GetMuIDCellIDEncoding() const
+        {
+            if(fMuIDSegmentationAlg)
+            return fMuIDSegmentationAlg->cellEncoding();
+            else
+            return "";
         }
 
         //----------------------------------------------------------------------------

@@ -51,6 +51,7 @@
 #include "Geometry/GeometryCore.h"
 #include "Geometry/Geometry.h"
 #include "Geometry/LocalTransformation.h"
+#include "Geometry/BitFieldCoder.h"
 #include "CoreUtils/ServiceUtil.h"
 #include "DetectorInfo/DetectorProperties.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
@@ -99,12 +100,15 @@ namespace util {
         double VisibleEnergyDeposition(const TG4HitSegment *hit, bool applyBirks) const;
         bool CheckProcess( std::string process_name ) const;
         unsigned int GetParentage( unsigned int trkid ) const;
-        void AddHits(const std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits);
+        void AddHits(std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits);
+        void AddHitsMinerva(std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits);
 
         std::map<int, size_t> TrackIDToMCTruthIndexMap() const { return fTrackIDToMCTruthIndex; }
 
         bool isMCPMatch(const simb::MCParticle& p1, const simb::MCParticle& p2) const;
         size_t FindMCTruthIndex(std::vector<simb::MCTruth> *mctruthcol, const simb::MCParticle& part) const;
+
+        gar::raw::CellID_t GetComplementaryCellID(gar::raw::CellID_t cellID, unsigned int comp) const;
 
         std::string fEDepSimfile;
         std::string fGhepfile;
@@ -149,6 +153,9 @@ namespace util {
 
         std::map<unsigned int, unsigned int> fTrkIDParent;
         std::map<int, size_t> fTrackIDToMCTruthIndex;
+
+        //CellID decoder/encoder
+        gar::geo::BitFieldCoder *fFieldDecoderTrk;
     };
 
 } // namespace util
@@ -206,6 +213,9 @@ namespace util {
             << " Will not keep EM shower daughters!";
         }
 
+        std::string fEncoding = fGeo->GetMinervaCellIDEncoding();
+        fFieldDecoderTrk = new gar::geo::BitFieldCoder( fEncoding );
+
         produces< std::vector<simb::MCTruth> >();
         if(fHasGHEP) {
             produces< std::vector<simb::GTruth>  >();
@@ -232,6 +242,7 @@ namespace util {
     ConvertEdep2Art::~ConvertEdep2Art() {
         if ( fTreeChain ) delete fTreeChain;
         if ( fGTreeChain ) delete fGTreeChain;
+        if ( fFieldDecoderTrk ) delete fFieldDecoderTrk;
     }
 
     //----------------------------------------------------------------------
@@ -383,10 +394,73 @@ namespace util {
     }
 
     //------------------------------------------------------------------------------
-    void ConvertEdep2Art::AddHits(const std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits)
+    gar::raw::CellID_t ConvertEdep2Art::GetComplementaryCellID(gar::raw::CellID_t cellID, unsigned int comp) const {
+        gar::raw::CellID_t cID = 0;
+
+        if(comp == 0) {
+            //Need to get the lower cellX/Y
+            if(fFieldDecoderTrk->get(cellID, "cellX") == 0){
+                fFieldDecoderTrk->set(cID, "system", fFieldDecoderTrk->get(cellID, "system"));
+                fFieldDecoderTrk->set(cID, "layer", fFieldDecoderTrk->get(cellID, "layer"));
+                fFieldDecoderTrk->set(cID, "slice", fFieldDecoderTrk->get(cellID, "slice"));
+                fFieldDecoderTrk->set(cID, "cellX", fFieldDecoderTrk->get(cellID, "cellX"));
+                fFieldDecoderTrk->set(cID, "cellY", fFieldDecoderTrk->get(cellID, "cellY")+1);
+                fFieldDecoderTrk->set(cID, "cellZ", fFieldDecoderTrk->get(cellID, "cellZ"));
+                fFieldDecoderTrk->set(cID, "triangle", comp);
+            }
+            if(fFieldDecoderTrk->get(cellID, "cellY") == 0){
+                fFieldDecoderTrk->set(cID, "system", fFieldDecoderTrk->get(cellID, "system"));
+                fFieldDecoderTrk->set(cID, "layer", fFieldDecoderTrk->get(cellID, "layer"));
+                fFieldDecoderTrk->set(cID, "slice", fFieldDecoderTrk->get(cellID, "slice"));
+                fFieldDecoderTrk->set(cID, "cellX", fFieldDecoderTrk->get(cellID, "cellX")+1);
+                fFieldDecoderTrk->set(cID, "cellY", fFieldDecoderTrk->get(cellID, "cellY"));
+                fFieldDecoderTrk->set(cID, "cellZ", fFieldDecoderTrk->get(cellID, "cellZ"));
+                fFieldDecoderTrk->set(cID, "triangle", comp);
+            }
+        }
+
+        if(comp == 1 || comp == 2) {
+            //Keep the same cellX/cellY
+            fFieldDecoderTrk->set(cID, "system", fFieldDecoderTrk->get(cellID, "system"));
+            fFieldDecoderTrk->set(cID, "layer", fFieldDecoderTrk->get(cellID, "layer"));
+            fFieldDecoderTrk->set(cID, "slice", fFieldDecoderTrk->get(cellID, "slice"));
+            fFieldDecoderTrk->set(cID, "cellX", fFieldDecoderTrk->get(cellID, "cellX"));
+            fFieldDecoderTrk->set(cID, "cellY", fFieldDecoderTrk->get(cellID, "cellY"));
+            fFieldDecoderTrk->set(cID, "cellZ", fFieldDecoderTrk->get(cellID, "cellZ"));
+            fFieldDecoderTrk->set(cID, "triangle", comp);
+        }
+
+        if(comp == 3) {
+            //Need to get the upper cellX/Y
+            if(fFieldDecoderTrk->get(cellID, "cellX") == 0){
+                fFieldDecoderTrk->set(cID, "system", fFieldDecoderTrk->get(cellID, "system"));
+                fFieldDecoderTrk->set(cID, "layer", fFieldDecoderTrk->get(cellID, "layer"));
+                fFieldDecoderTrk->set(cID, "slice", fFieldDecoderTrk->get(cellID, "slice"));
+                fFieldDecoderTrk->set(cID, "cellX", fFieldDecoderTrk->get(cellID, "cellX"));
+                fFieldDecoderTrk->set(cID, "cellY", fFieldDecoderTrk->get(cellID, "cellY")-1);
+                fFieldDecoderTrk->set(cID, "cellZ", fFieldDecoderTrk->get(cellID, "cellZ"));
+                fFieldDecoderTrk->set(cID, "triangle", comp);
+            }
+            if(fFieldDecoderTrk->get(cellID, "cellY") == 0){
+                fFieldDecoderTrk->set(cID, "system", fFieldDecoderTrk->get(cellID, "system"));
+                fFieldDecoderTrk->set(cID, "layer", fFieldDecoderTrk->get(cellID, "layer"));
+                fFieldDecoderTrk->set(cID, "slice", fFieldDecoderTrk->get(cellID, "slice"));
+                fFieldDecoderTrk->set(cID, "cellX", fFieldDecoderTrk->get(cellID, "cellX")-1);
+                fFieldDecoderTrk->set(cID, "cellY", fFieldDecoderTrk->get(cellID, "cellY"));
+                fFieldDecoderTrk->set(cID, "cellZ", fFieldDecoderTrk->get(cellID, "cellZ"));
+                fFieldDecoderTrk->set(cID, "triangle", comp);
+            }
+        }
+
+        return cID;
+    }
+
+    //------------------------------------------------------------------------------
+    void ConvertEdep2Art::AddHits(std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits)
     {
         //Loop over the hits in the map and add them together
-        for(auto const &it : m_Deposits) {
+
+        for(auto &it : m_Deposits) {
 
             gar::raw::CellID_t cellID = it.first;
             std::vector<gar::sdp::CaloDeposit> vechit = it.second;
@@ -402,6 +476,157 @@ namespace util {
             }
 
             fDeposits.emplace_back( trackID, time, esum, pos, cellID );
+            //remove the element from the map now
+            m_Deposits.erase(it.first);
+        }
+    }
+
+    //------------------------------------------------------------------------------
+    void ConvertEdep2Art::AddHitsMinerva(std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits)
+    {
+        //Loop over the hits in the map and add them together
+        for(auto &it : m_Deposits) {
+            gar::raw::CellID_t cellID = it.first;
+
+            //Check this cellID
+            //if it is a triangle = 0 or 3
+            //if it is triangle = 1 or 2
+            //need to look for the complementary cellID, add them to this hit and remove from the deposits (to avoid double hit creation)
+
+            int triangleNb = fFieldDecoderTrk->get(cellID, "triangle");
+
+            //Case bottom or upper triangle, look for complementary cellID
+            if(triangleNb == 0 || triangleNb == 3)
+            {
+                if(triangleNb == 0) {
+                    std::vector<gar::sdp::CaloDeposit> vechit = it.second;
+                    std::sort(vechit.begin(), vechit.end()); //sort per time
+
+                    float esum = 0.;
+                    float time = vechit.at(0).Time();
+                    int trackID = vechit.at(0).TrackID();
+                    double pos[3] = { vechit.at(0).X(), vechit.at(0).Y(), vechit.at(0).Z() };
+
+                    for(auto const &hit : vechit) {
+                        esum += hit.Energy();
+                    }
+
+                    //need to check if cellX or cellY are - 1
+                    gar::raw::CellID_t complementary_cellID = GetComplementaryCellID(cellID, 3);
+                    auto find = m_Deposits.find( complementary_cellID );
+                    if(find != m_Deposits.end()) {
+                        std::vector<gar::sdp::CaloDeposit> vechit_comp = find->second;
+                        std::sort(vechit_comp.begin(), vechit_comp.end()); //sort per time
+
+                        for(auto const &hit : vechit_comp) {
+                            esum += hit.Energy();
+                        }
+
+                        //remove the element from the map now to avoid double counting
+                        m_Deposits.erase(find->first);
+                    }
+
+                    fDeposits.emplace_back( trackID, time, esum, pos, cellID );
+                }
+
+                if(triangleNb == 3) {
+
+                    std::vector<gar::sdp::CaloDeposit> vechit = it.second;
+                    std::sort(vechit.begin(), vechit.end()); //sort per time
+
+                    float esum = 0.;
+                    float time = vechit.at(0).Time();
+                    int trackID = vechit.at(0).TrackID();
+                    double pos[3] = { vechit.at(0).X(), vechit.at(0).Y(), vechit.at(0).Z() };
+
+                    for(auto const &hit : vechit) {
+                        esum += hit.Energy();
+                    }
+
+                    //need to check if cellX or cellY are + 1
+                    gar::raw::CellID_t complementary_cellID = GetComplementaryCellID(cellID, 0);
+                    auto find = m_Deposits.find( complementary_cellID );
+                    if(find != m_Deposits.end()) {
+                        std::vector<gar::sdp::CaloDeposit> vechit_comp = find->second;
+                        std::sort(vechit_comp.begin(), vechit_comp.end()); //sort per time
+
+                        for(auto const &hit : vechit_comp) {
+                            esum += hit.Energy();
+                        }
+
+                        //remove the element from the map now to avoid double counting
+                        m_Deposits.erase(find->first);
+                    }
+
+                    fDeposits.emplace_back( trackID, time, esum, pos, cellID );
+                }
+            }
+
+            if(triangleNb == 1 || triangleNb == 2)
+            {
+                if(triangleNb == 1) {
+                    std::vector<gar::sdp::CaloDeposit> vechit = it.second;
+                    std::sort(vechit.begin(), vechit.end()); //sort per time
+
+                    float esum = 0.;
+                    float time = vechit.at(0).Time();
+                    int trackID = vechit.at(0).TrackID();
+                    double pos[3] = { vechit.at(0).X(), vechit.at(0).Y(), vechit.at(0).Z() };
+
+                    for(auto const &hit : vechit) {
+                        esum += hit.Energy();
+                    }
+
+                    //need to check if cellX or cellY are the same
+                    gar::raw::CellID_t complementary_cellID = GetComplementaryCellID(cellID, 2);
+                    auto find = m_Deposits.find( complementary_cellID );
+                    if(find != m_Deposits.end()) {
+                        std::vector<gar::sdp::CaloDeposit> vechit_comp = find->second;
+                        std::sort(vechit_comp.begin(), vechit_comp.end()); //sort per time
+
+                        for(auto const &hit : vechit_comp) {
+                            esum += hit.Energy();
+                        }
+
+                        //remove the element from the map now to avoid double counting
+                        m_Deposits.erase(find->first);
+                    }
+                    fDeposits.emplace_back( trackID, time, esum, pos, cellID );
+                }
+
+                if(triangleNb == 2) {
+                    std::vector<gar::sdp::CaloDeposit> vechit = it.second;
+                    std::sort(vechit.begin(), vechit.end()); //sort per time
+
+                    float esum = 0.;
+                    float time = vechit.at(0).Time();
+                    int trackID = vechit.at(0).TrackID();
+                    double pos[3] = { vechit.at(0).X(), vechit.at(0).Y(), vechit.at(0).Z() };
+
+                    for(auto const &hit : vechit) {
+                        esum += hit.Energy();
+                    }
+
+                    //need to check if cellX or cellY are the same
+                    gar::raw::CellID_t complementary_cellID = GetComplementaryCellID(cellID, 1);
+                    auto find = m_Deposits.find( complementary_cellID );
+                    if(find != m_Deposits.end()) {
+                        std::vector<gar::sdp::CaloDeposit> vechit_comp = find->second;
+                        std::sort(vechit_comp.begin(), vechit_comp.end()); //sort per time
+
+                        for(auto const &hit : vechit_comp) {
+                            esum += hit.Energy();
+                        }
+
+                        //remove the element from the map now to avoid double counting
+                        m_Deposits.erase(find->first);
+                    }
+                    fDeposits.emplace_back( trackID, time, esum, pos, cellID );
+                }
+            }
+
+            //remove the element from the map now
+            m_Deposits.erase(it->first);
         }
     }
 
@@ -758,6 +983,8 @@ namespace util {
         m_MuIDDeposits.clear();
         fGArDeposits.clear();
         fECALDeposits.clear();
+        fTrackerDeposits.clear();
+        fMuIDDeposits.clear();
 
         //Fill simulated hits
         for (auto d = fEvent->SegmentDetectors.begin(); d != fEvent->SegmentDetectors.end(); ++d)
@@ -1012,7 +1239,7 @@ namespace util {
         }
 
         if(hasTrackerSc) {
-            this->AddHits(m_TrackerDeposits, fTrackerDeposits);
+            this->AddHitsMinerva(m_TrackerDeposits, fTrackerDeposits);
             std::sort(fTrackerDeposits.begin(), fTrackerDeposits.end());
 
             for(auto const& trkhit : fTrackerDeposits)

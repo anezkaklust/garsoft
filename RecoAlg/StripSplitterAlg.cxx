@@ -52,7 +52,7 @@ namespace gar {
                 fSSAAlgName = pset.get<std::string>("SSAAlgName");
                 fSaveStripEnds = pset.get<bool>("SaveStripEnds", false);
 
-                std::string fEncoding = fGeo->GetCellIDEncoding();
+                std::string fEncoding = fGeo->GetECALCellIDEncoding();
                 fFieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
 
                 return;
@@ -129,7 +129,7 @@ namespace gar {
                     LOG_DEBUG("StripSplitterAlg")
                     << "Start Loop " << icol;
 
-                    switch (icol) 
+                    switch (icol)
                     {
                         case 0:
                         orientation = TRANSVERSE;//even layers
@@ -155,7 +155,7 @@ namespace gar {
                         //1 == Barrel, 2 == Endcap
                         unsigned int det_id = fFieldDecoder->get(hit->CellID(), "system");
 
-                        if ( det_id != 1 && det_id != 2 ) 
+                        if ( det_id != 1 && det_id != 2 )
                         {
                             LOG_ERROR("StripSplitterAlg::DoStripSplitting")
                             << " Check det it " << det_id
@@ -169,11 +169,11 @@ namespace gar {
 
                         // split the hits
                         std::vector <const gar::rec::CaloHit*> virtualhits;
-                        bool isBarrel = det_id == 0 ? true : false; 
+                        bool isBarrel = det_id == 0 ? true : false;
                         getVirtualHits(hit, orientation, isBarrel, virtualhits);
 
                         // add (new) hits to collections
-                        if (virtualhits.size() == 0) 
+                        if (virtualhits.size() == 0)
                         {
 
                             LOG_DEBUG("StripSplitterAlg")
@@ -186,7 +186,7 @@ namespace gar {
                             unSplitStripHits.emplace_back(hit);
                         } else {
                             // split was split, add the virtual hits
-                            for (uint hh = 0; hh < virtualhits.size(); hh++) 
+                            for (uint hh = 0; hh < virtualhits.size(); hh++)
                             {
 
                                 LOG_DEBUG("StripSplitterAlg")
@@ -265,7 +265,7 @@ namespace gar {
 
                 // loop over splitter cols, find nearby hits
                 // strips, cells
-                for (int jj = 0; jj < 2; jj++) 
+                for (int jj = 0; jj < 2; jj++)
                 {
                     std::vector <const gar::rec::CaloHit*> *splitter = splitterVec;
 
@@ -358,9 +358,9 @@ namespace gar {
                             if (frac >= 0.0 && frac <= 1.0)
                             {
                                 int segment = int(frac * fnVirtual);
-                                if (segment >= 0 && segment < fnVirtual) 
+                                if (segment >= 0 && segment < fnVirtual)
                                 {
-                                    if (virtEnergy.find(segment) != virtEnergy.end()) 
+                                    if (virtEnergy.find(segment) != virtEnergy.end())
                                     {
                                         virtEnergy[segment] += hit2->Energy();
                                     } else {
