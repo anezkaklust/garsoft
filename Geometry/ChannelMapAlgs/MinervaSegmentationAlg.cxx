@@ -151,13 +151,13 @@ namespace gar {
                             _decoder->set(cID, _xId, _cellIndexX);
                             _decoder->set(cID, _yId, _cellIndexY);
                             _decoder->set(cID, _zId, 0);
-                            _decoder->set(cID, "triangle", 4);
+                            _decoder->set(cID, "triangle", 3);
                         }
                         if(below) {
                             _decoder->set(cID, _xId, _cellIndexX);
                             _decoder->set(cID, _yId, _cellIndexY);
                             _decoder->set(cID, _zId, 0);
-                            _decoder->set(cID, "triangle", 3);
+                            _decoder->set(cID, "triangle", 2);
                         }
                     }
                     else {
@@ -215,13 +215,13 @@ namespace gar {
                             _decoder->set(cID, _xId, _cellIndexX);
                             _decoder->set(cID, _yId, _cellIndexY);
                             _decoder->set(cID, _zId, 1);
-                            _decoder->set(cID, "triangle", 4);
+                            _decoder->set(cID, "triangle", 3);
                         }
                         if(below) {
                             _decoder->set(cID, _xId, _cellIndexX);
                             _decoder->set(cID, _yId, _cellIndexY);
                             _decoder->set(cID, _zId, 1);
-                            _decoder->set(cID, "triangle", 3);
+                            _decoder->set(cID, "triangle", 2);
                         }
                     }
                     else {
