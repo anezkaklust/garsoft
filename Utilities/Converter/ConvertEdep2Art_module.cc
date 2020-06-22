@@ -100,8 +100,8 @@ namespace util {
         double VisibleEnergyDeposition(const TG4HitSegment *hit, bool applyBirks) const;
         bool CheckProcess( std::string process_name ) const;
         unsigned int GetParentage( unsigned int trkid ) const;
-        void AddHits(const std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits);
-        void AddHitsMinerva(const std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits);
+        void AddHits(std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits);
+        void AddHitsMinerva(std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits);
 
         std::map<int, size_t> TrackIDToMCTruthIndexMap() const { return fTrackIDToMCTruthIndex; }
 
@@ -456,11 +456,11 @@ namespace util {
     }
 
     //------------------------------------------------------------------------------
-    void ConvertEdep2Art::AddHits(const std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits)
+    void ConvertEdep2Art::AddHits(std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits)
     {
         //Loop over the hits in the map and add them together
 
-        for(auto const &it : m_Deposits) {
+        for(auto &it : m_Deposits) {
 
             gar::raw::CellID_t cellID = it.first;
             std::vector<gar::sdp::CaloDeposit> vechit = it.second;
@@ -476,14 +476,16 @@ namespace util {
             }
 
             fDeposits.emplace_back( trackID, time, esum, pos, cellID );
+            //remove the element from the map now
+            m_Deposits.erase(it.first);
         }
     }
 
     //------------------------------------------------------------------------------
-    void ConvertEdep2Art::AddHitsMinerva(const std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits)
+    void ConvertEdep2Art::AddHitsMinerva(std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits)
     {
         //Loop over the hits in the map and add them together
-        for(auto const &it : m_Deposits) {
+        for(auto &it : m_Deposits) {
             gar::raw::CellID_t cellID = it.first;
 
             //Check this cellID
@@ -519,6 +521,9 @@ namespace util {
                         for(auto const &hit : vechit_comp) {
                             esum += hit.Energy();
                         }
+
+                        //remove the element from the map now to avoid double counting
+                        m_Deposits.erase(find->first);
                     }
 
                     fDeposits.emplace_back( trackID, time, esum, pos, cellID );
@@ -548,6 +553,9 @@ namespace util {
                         for(auto const &hit : vechit_comp) {
                             esum += hit.Energy();
                         }
+
+                        //remove the element from the map now to avoid double counting
+                        m_Deposits.erase(find->first);
                     }
 
                     fDeposits.emplace_back( trackID, time, esum, pos, cellID );
@@ -579,6 +587,9 @@ namespace util {
                         for(auto const &hit : vechit_comp) {
                             esum += hit.Energy();
                         }
+
+                        //remove the element from the map now to avoid double counting
+                        m_Deposits.erase(find->first);
                     }
                     fDeposits.emplace_back( trackID, time, esum, pos, cellID );
                 }
@@ -606,10 +617,16 @@ namespace util {
                         for(auto const &hit : vechit_comp) {
                             esum += hit.Energy();
                         }
+
+                        //remove the element from the map now to avoid double counting
+                        m_Deposits.erase(find->first);
                     }
                     fDeposits.emplace_back( trackID, time, esum, pos, cellID );
                 }
             }
+
+            //remove the element from the map now
+            m_Deposits.erase(it->first);
         }
     }
 
@@ -966,6 +983,8 @@ namespace util {
         m_MuIDDeposits.clear();
         fGArDeposits.clear();
         fECALDeposits.clear();
+        fTrackerDeposits.clear();
+        fMuIDDeposits.clear();
 
         //Fill simulated hits
         for (auto d = fEvent->SegmentDetectors.begin(); d != fEvent->SegmentDetectors.end(); ++d)
