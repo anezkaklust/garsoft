@@ -181,7 +181,7 @@ namespace gar {
 		  // add hit to cluster
 		  hitsinclus.push_back(ihc);
 		  used[ihc] = 1;
-		  double signal = hits.at(ihit).Signal();
+		  double signal = hits.at(ihc).Signal();
 		  double totsig = csig + signal;
 		  if (totsig > 0)
 		    {
@@ -189,11 +189,11 @@ namespace gar {
 			{
 			  cpos[idim] = ( cpos[idim]*csig + xyz2[idim]*signal) / totsig;
 			}
-		      cstime = TMath::Min(cstime, (double) hits.at(ihit).StartTime());
-		      cetime = TMath::Max(cetime, (double) hits.at(ihit).EndTime());
+		      cstime = TMath::Min(cstime, (double) hits.at(ihc).StartTime());
+		      cetime = TMath::Max(cetime, (double) hits.at(ihc).EndTime());
 
-		      double htime = hits.at(ihit).Time();
-		      double hrms = hits.at(ihit).RMS();
+		      double htime = hits.at(ihc).Time();
+		      double hrms = hits.at(ihc).RMS();
 		      crms = TMath::Sqrt( (csig*crms*crms + signal*hrms*hrms)/totsig  +
 					  (csig*signal)*TMath::Sq(htime-ctime)/TMath::Sq(totsig));
 		      ctime = (ctime*csig + htime*signal) / totsig;
