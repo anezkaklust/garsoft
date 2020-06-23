@@ -262,7 +262,6 @@ namespace gar {
     }
 
     // see if a TPCCluster is consistent with a vector hit and add it if it is.
-    // fit lines in y vs x and z vs x
 
     bool tpcvechitfinder2::vh_TPCClusmatch(int iTPCCluster, vechit_t &vechit, const std::vector<gar::rec::TPCCluster> &TPCClusters, vechit_t &proposedvh, size_t ipass)
     {
