@@ -212,7 +212,10 @@ namespace gar {
                                           (csig*signal)*TMath::Sq(htime-ctime)/TMath::Sq(totsig));
                       ctime = (ctime*csig + htime*signal) / totsig;
                       csig = totsig;
-                      std::cout << "Added hit.  New cluster pos: " << cpos[0] << " " << cpos[1] << " " << cpos[2] << std::endl;
+		      if (fPrintLevel > 1)
+			{
+                          std::cout << "Added hit.  New cluster pos: " << cpos[0] << " " << cpos[1] << " " << cpos[2] << std::endl;
+			}
                     }
                 }
             }
