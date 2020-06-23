@@ -1,0 +1,14 @@
+BEGIN_PROLOG
+
+standard_dayoneconverter:
+{
+ module_type:              "dayoneconverter"
+ InputLabel:               "edepconvert"    # module label producing calo deposits
+ InputInstanceTPC:         "TrackerSc"
+ InputInstanceMuID:        "MuID"
+ SmearX:                   0.3     # position smearing for edeps
+ SmearY:                   0.3
+ SmearZ:                   0.3
+}
+
+END_PROLOG

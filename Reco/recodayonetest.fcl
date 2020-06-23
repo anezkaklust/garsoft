@@ -1,0 +1,7 @@
+#include "dayoneconverter.fcl"
+#include "recojob.fcl"
+
+physics.producers.dayone: @local::standard_dayoneconverter
+
+physics.reco: [init,dayone,trackpass1]
+physics.producers.trackpass1.PatRecLabel: "dayone"
