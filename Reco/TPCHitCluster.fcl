@@ -6,7 +6,7 @@ standard_TPCHitCluster:
  HitLabel:           "hit"
  ClusterHits:        1      # hit clustering algorithm.  1=first algorithm version
  HitClusterDx:       1.0    # range in which to look for charge contributing to clusters in x, in cm
- HitClusterDyDz:     3.0    # range in Y and Z to look for charge contributing to clusters in y and z, in cm
+ HitClusterDyDz:     2.0    # range in Y and Z to look for charge contributing to clusters in y and z, in cm
  PrintLevel:         0      # 0: no printing, 1: some, 2: everything
 }
 
