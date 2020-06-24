@@ -53,7 +53,7 @@ physics:
  {
   init:               @local::standard_EventInit
   dayone:             @local::standard_dayoneconverter
-  trackpass1:         @local::standard_tpctrackfit2
+  trackpass1:         @local::dayone_tpctrackfit2
  }
  analyzers:
  {
@@ -87,4 +87,3 @@ services.MagneticField.FieldDescriptions: [ { UseField:         1  # 0--off 1--C
                                             ConstantField:    [ 0.5, 0.0, 0.0 ] # in Tesla
                                             MagnetizedVolume: "volMPD"
 		                                        ScaleFactor: 1.0 } ]
-physics.producers.trackpass1.PatRecLabel: "dayone"
