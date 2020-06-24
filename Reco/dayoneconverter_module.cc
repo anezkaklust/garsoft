@@ -63,6 +63,7 @@ private:
     std::string fInputEdepLabel;  ///<   Input label for edeps
     std::string fInputEdepInstanceTPC;  ///<   Input instance for TPC edeps
     std::string fInputEdepInstanceMuID;  ///<  Input instance for MuID edeps
+    bool        fIncludeMuIDhits;       ///< Include MuID hits as TPCClusters
     float       fSmearX;         ///< amount by which to smear X, in cm
     float       fSmearY;         ///< amount by which to smear Y, in cm
     float       fSmearT;         ///< amount by which to smear T, in ns
@@ -70,6 +71,7 @@ private:
 
     const gar::geo::GeometryCore* fGeo;               ///< geometry information
     gar::geo::BitFieldCoder *fFieldDecoderTrk;
+    gar::geo::BitFieldCoder *fFieldDecoderMuID;
 };
 
 
@@ -83,6 +85,7 @@ dayoneconverter::dayoneconverter(fhicl::ParameterSet const& p)
     fInputEdepLabel = p.get<std::string>("InputLabel","edepconvert");
     fInputEdepInstanceTPC = p.get<std::string>("InputInstanceTPC","TrackerSc");
     fInputEdepInstanceMuID = p.get<std::string>("InputInstanceMuID","MuID");
+    fIncludeMuIDhits = p.get<bool>("IncludeMuIDhits", false);
     fSmearX = p.get<float>("SmearX",0.3); // in cm
     fSmearY = p.get<float>("SmearY",0.3); // in cm
     fSmearT = p.get<float>("SmearT",1.0); // in ns
@@ -107,6 +110,8 @@ dayoneconverter::dayoneconverter(fhicl::ParameterSet const& p)
     fGeo = gar::providerFrom<gar::geo::Geometry>();
     std::string fEncoding = fGeo->GetMinervaCellIDEncoding();
     fFieldDecoderTrk = new gar::geo::BitFieldCoder( fEncoding );
+    std::string fEncodingMuID = fGeo->GetMuIDCellIDEncoding();
+    fFieldDecoderMuID = new gar::geo::BitFieldCoder( fEncodingMuID );
 }
 
 void dayoneconverter::produce(art::Event& e)
@@ -167,6 +172,44 @@ void dayoneconverter::produce(art::Event& e)
         fSmearX);
     }
 
+    if(fIncludeMuIDhits) {
+        art::InputTag muidedeptag(fInputEdepLabel,fInputEdepInstanceMuID);
+        auto muIDHandle = e.getValidHandle< std::vector<gar::sdp::CaloDeposit> >(muidedeptag);
+        auto const& muids = *muIDHandle;
+
+        for (auto const& cd : muids)
+        {
+            float fcpos[3];
+            //Need to check in which direction to smear (depends on the segmenetation)
+            //Can use the cellID decoder to know looking at cellX and cellY values
+            gar::raw::CellID_t cID = cd.CellID();
+            int cellX = fFieldDecoderMuID->get(cID, "cellX");
+            int cellY = fFieldDecoderMuID->get(cID, "cellY");
+
+            if(cellX == 1) {
+                //Segmented in Y
+                fcpos[0] = cd.X() + GaussRand.fire(0., fSmearX);
+                fcpos[1] = cd.Y();
+            }
+
+            if(cellY == 1) {
+                //Segmented in X
+                fcpos[0] = cd.X();
+                fcpos[1] = cd.Y() + GaussRand.fire(0., fSmearY);
+            }
+
+            fcpos[2] = cd.Z();
+
+            float time = cd.Time() + GaussRand.fire(0., fSmearT);
+
+            TPCClusterCol->emplace_back(cd.Energy(),   // do we need a scale factor here?
+            fcpos,
+            time,     // time is in ns
+            time,
+            time,
+            fSmearX);
+        }
+    }
 
     e.put(std::move(trkCol));
     e.put(std::move(TPCClusterCol));

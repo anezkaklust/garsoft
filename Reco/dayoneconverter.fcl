@@ -6,6 +6,7 @@ standard_dayoneconverter:
  InputLabel:               "edepconvert"    # module label producing calo deposits
  InputInstanceTPC:         "TrackerSc"
  InputInstanceMuID:        "MuID"
+ IncludeMuIDhits:          false
  SmearX:                   0.3     # position smearing for edeps
  SmearY:                   0.3
  SmearT:                   1.0
