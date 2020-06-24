@@ -8,7 +8,7 @@ standard_dayoneconverter:
  InputInstanceMuID:        "MuID"
  SmearX:                   0.3     # position smearing for edeps
  SmearY:                   0.3
- SmearZ:                   0.3
+ SmearT:                   1.0
 }
 
 END_PROLOG
