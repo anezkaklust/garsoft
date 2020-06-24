@@ -1004,7 +1004,7 @@ namespace util {
                     double z = (hit->GetStart().Z() + hit->GetStop().Z())/2 /CLHEP::cm;
                     double stepLength = hit->GetTrackLength() /CLHEP::cm;
 
-                    if(edep == 0 || edep < fEnergyCut)
+                    if(edep <= 0 || edep < fEnergyCut || stepLength <= 0)
                     continue;
 
                     TGeoNode *node = fGeo->FindNode(x, y, z);//Node in cm...
@@ -1023,12 +1023,13 @@ namespace util {
 
                     int trackID = hit->GetPrimaryId();
                     double edep = VisibleEnergyDeposition(hit, fApplyBirks) * CLHEP::MeV / CLHEP::GeV;
+                    double stepLength = hit->GetTrackLength() /CLHEP::cm;
                     double time = (hit->GetStart().T() + hit->GetStop().T())/2 / CLHEP::s;
                     double x = (hit->GetStart().X() + hit->GetStop().X())/2 /CLHEP::cm;
                     double y = (hit->GetStart().Y() + hit->GetStop().Y())/2 /CLHEP::cm;
                     double z = (hit->GetStart().Z() + hit->GetStop().Z())/2 /CLHEP::cm;
 
-                    if(edep == 0 || edep < fEnergyCut)
+                    if(edep <= 0 || edep < fEnergyCut || stepLength <= 0)
                     continue;
 
                     //Check if it is in the active material of the ECAL
@@ -1084,12 +1085,13 @@ namespace util {
 
                     int trackID = hit->GetPrimaryId();
                     double edep = VisibleEnergyDeposition(hit, fApplyBirks) * CLHEP::MeV / CLHEP::GeV;
+                    double stepLength = hit->GetTrackLength() /CLHEP::cm;
                     double time = (hit->GetStart().T() + hit->GetStop().T())/2 / CLHEP::s;
                     double x = (hit->GetStart().X() + hit->GetStop().X())/2 /CLHEP::cm;
                     double y = (hit->GetStart().Y() + hit->GetStop().Y())/2 /CLHEP::cm;
                     double z = (hit->GetStart().Z() + hit->GetStop().Z())/2 /CLHEP::cm;
 
-                    if(edep == 0 || edep < fEnergyCut)
+                    if(edep <= 0 || edep < fEnergyCut || stepLength <= 0)
                     continue;
 
                     //Check if it is in the active material of the ECAL
@@ -1118,6 +1120,14 @@ namespace util {
 
                     gar::raw::CellID_t cellID = fGeo->GetCellID(node, det_id, 0, 0, layer, slice, LocalPosCM);//encoding the cellID on 64 bits
 
+                    LOG_DEBUG("ConvertEdep2Art")
+                    << "Sensitive volume " << d->first
+                    << " TrackLength " << stepLength
+                    << " Energy " << edep
+                    << " cellID " << cellID
+                    << " local ( " << LocalPosCM[0] << " , " << LocalPosCM[1] << " , " << LocalPosCM[2] << " )"
+                    << " global ( " << GlobalPosCM[0] << " , " << GlobalPosCM[1] << " , " << GlobalPosCM[2] << " )";
+
                     double G4Pos[3] = {0., 0., 0.}; // in cm
                     G4Pos[0] = GlobalPosCM[0];
                     G4Pos[1] = GlobalPosCM[1];
@@ -1140,13 +1150,14 @@ namespace util {
                     const TG4HitSegment *hit = &(*h);
 
                     int trackID = hit->GetPrimaryId();
+                    double stepLength = hit->GetTrackLength() /CLHEP::cm;
                     double edep = VisibleEnergyDeposition(hit, fApplyBirks) * CLHEP::MeV / CLHEP::GeV;
                     double time = (hit->GetStart().T() + hit->GetStop().T())/2 / CLHEP::s;
                     double x = (hit->GetStart().X() + hit->GetStop().X())/2 /CLHEP::cm;
                     double y = (hit->GetStart().Y() + hit->GetStop().Y())/2 /CLHEP::cm;
                     double z = (hit->GetStart().Z() + hit->GetStop().Z())/2 /CLHEP::cm;
 
-                    if(edep == 0 || edep < fEnergyCut)
+                    if(edep <= 0 || edep < fEnergyCut || stepLength <= 0)
                     continue;
 
                     //Check if it is in the active material of the ECAL
@@ -1240,6 +1251,7 @@ namespace util {
 
         if(hasTrackerSc) {
             this->AddHitsMinerva(m_TrackerDeposits, fTrackerDeposits);
+            // this->AddHits(m_TrackerDeposits, fTrackerDeposits);
             std::sort(fTrackerDeposits.begin(), fTrackerDeposits.end());
 
             for(auto const& trkhit : fTrackerDeposits)

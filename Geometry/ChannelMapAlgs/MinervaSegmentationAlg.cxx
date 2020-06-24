@@ -115,15 +115,15 @@ namespace gar {
                     double cellOriginY = ( _cellIndexY + 0.5 ) * (_stripSizeY * 2);
                     double cellOriginZ = - 1.;
 
-                    localY = localY - cellOriginY; //transform it
-                    localZ = localZ - cellOriginZ; //transform it
+                    double localy = localY - cellOriginY; //transform it
+                    double localz = localZ - cellOriginZ; //transform it
                     bool above, below = false;
-                    if(localY < 0) {
+                    if(localy < 0) {
                         //Need to check if the point is below or above y = z
-                        if(localY >= localZ) {
+                        if(localy > localz) {
                             above = true;
                         }
-                        if(localY < localZ) {
+                        if(localy < localz) {
                             below = true;
                         }
                         if(above) {
@@ -139,12 +139,12 @@ namespace gar {
                             _decoder->set(cID, "triangle", 0);
                         }
                     }
-                    else if( localY >= 0 ) {
+                    else if( localy > 0 ) {
                         //Need to check if the point is below or above y = -z
-                        if(localY >= -localZ) {
+                        if(localy > -localz) {
                             above = true;
                         }
-                        if(localY < -localZ) {
+                        if(localy < -localz) {
                             below = true;
                         }
                         if(above) {
@@ -162,8 +162,10 @@ namespace gar {
                     }
                     else {
                         //exception
+                        LOG_ERROR("MinervaSegmentationAlg") << "Cannot determine if localX > | < 0";
+                        return 0;
                     }
-                }
+                } //end if z < 0
 
                 if( localZ >= 0 )
                 {
@@ -179,15 +181,15 @@ namespace gar {
                     // double cellOriginY = 0.;
                     double cellOriginZ = 1.;
 
-                    localX = localX - cellOriginX; //transform it
-                    localZ = localZ - cellOriginZ; //transform it
+                    double localx = localX - cellOriginX; //transform it
+                    double localz = localZ - cellOriginZ; //transform it
                     bool above, below = false;
-                    if(localX < 0) {
+                    if(localx < 0) {
                         //Need to check if the point is below or above y = z
-                        if(localX >= localZ) {
+                        if(localx > localz) {
                             above = true;
                         }
-                        if(localX < localZ) {
+                        if(localx < localz) {
                             below = true;
                         }
                         if(above) {
@@ -203,12 +205,12 @@ namespace gar {
                             _decoder->set(cID, "triangle", 0);
                         }
                     }
-                    else if( localX >= 0 ) {
+                    else if( localx > 0 ) {
                         //Need to check if the point is below or above y = -z
-                        if(localX >= -localZ) {
+                        if(localx > -localz) {
                             above = true;
                         }
-                        if(localX < -localZ) {
+                        if(localx < -localz) {
                             below = true;
                         }
                         if(above) {
@@ -226,8 +228,10 @@ namespace gar {
                     }
                     else {
                         //exception
+                        LOG_ERROR("MinervaSegmentationAlg") << "Cannot determine if localX > | < 0";
+                        return 0;
                     }
-                }
+                } //end if z >= 0
 
                 return cID;
             }
