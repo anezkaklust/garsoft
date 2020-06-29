@@ -65,21 +65,21 @@ namespace gar {
 
       // Declare member data here.
 
-      std::string fPatRecLabel;     ///< input patrec tracks and associations
-      int fPrintLevel;              ///< debug printout:  0: none, 1: just track parameters and residuals, 2: all
-      float  fKalCurvStepUncSq;     ///< constant uncertainty term on each step of the Kalman fit -- squared, for curvature
-      float  fKalPhiStepUncSq;      ///< constant uncertainty term on each step of the Kalman fit -- squared, for phi
-      float  fKalLambdaStepUncSq;   ///< constant uncertainty term on each step of the Kalman fit -- squared, for lambda
-      float  fTPCClusterResolYZ;           ///< resolution in cm of a TPCCluster in YZ (pad size)
-      float  fTPCClusterResolX;            ///< resolution in cm of a TPCCluster in X (drift direction)
+      std::string fPatRecLabel;            ///< input patrec tracks and associations
+      int fPrintLevel;                     ///< debug printout:  0: none, 1: just track parameters and residuals, 2: all
+      float  fKalCurvStepUncSq;            ///< constant uncertainty term on each step of the Kalman fit -- squared, for curvature
+      float  fKalPhiStepUncSq;             ///< constant uncertainty term on each step of the Kalman fit -- squared, for phi
+      float  fKalLambdaStepUncSq;          ///< constant uncertainty term on each step of the Kalman fit -- squared, for lambda
+      float  fTPCClusterResolYZ;           ///< pad size in cm in YZ to determine step size
+      float  fTPCClusterResolX;            ///< drift direction contribution to determine step size (resolution of a TPCCluster)
       unsigned int fInitialTPNTPCClusters; ///< number of TPCClusters to use for initial trackpar estimate, if present
       unsigned int fMinNumTPCClusters;     ///< minimum number of TPCClusters to define a track
-      int fDumpTracks;              ///< 0: do not print out tracks, 1: print out tracks
+      int fDumpTracks;                     ///< 0: do not print out tracks, 1: print out tracks
       float fTPCClusterResolYZinFit;       ///< TPCCluster resolution parameter to use in fit
-      float fRoadYZinFit;           ///< cut in cm for dropping TPCClusters from tracks in fit
-      float fSortTransWeight;       ///< for use in the hit sorting algorithm -- transverse distance weight factor
-      float fSortDistBack;          ///< for use in the hit sorting algorithm -- how far to go back before raising the distance figure of merit
-      float fMinIonizGapCut;        ///< Don't compute dEdx for this dx or larger
+      float fRoadYZinFit;                  ///< cut in cm for dropping TPCClusters from tracks in fit
+      float fSortTransWeight;              ///< for use in the hit sorting algorithm -- transverse distance weight factor
+      float fSortDistBack;                 ///< for use in the hit sorting algorithm -- how far to go back before raising the distance figure of merit
+      float fMinIonizGapCut;               ///< Don't compute dEdx for this dx or larger
 
       int KalmanFit( std::vector<TPCCluster> &TPCClusters,
                      std::vector<int> &TPCClusterlist,
@@ -287,7 +287,7 @@ namespace gar {
                                  float *covmat,                     // 5x5 covariance matrix
                                  std::set<int> &unused_TPCClusters,
                                  std::vector<std::pair<float,float>>& dSigdXs,
-				 std::vector<TVector3>& trajpts)
+                                 std::vector<TVector3>& trajpts)
     {
 
       // set some default values in case we return early
@@ -331,10 +331,10 @@ namespace gar {
       TMatrixF P(5,5);  // covariance matrix of parameters
       // fill in initial guesses -- generous uncertainties on first value.
       P.Zero();
-      P[0][0] = TMath::Sq(1); // initial position uncertainties -- y
-      P[1][1] = TMath::Sq(1); // and z
+      P[0][0] = TMath::Sq(1);   // initial position uncertainties -- y
+      P[1][1] = TMath::Sq(1);   // and z
       P[2][2] = TMath::Sq(.5);  // curvature of zero gets us to infinite momentum, and curvature of 2 is curled up tighter than the pads
-      P[3][3] = TMath::Sq(.5); // phi uncertainty
+      P[3][3] = TMath::Sq(.5);  // phi uncertainty
       P[4][4] = TMath::Sq(.5);  // lambda uncertainty
 
       TMatrixF PPred(5,5);
@@ -420,13 +420,14 @@ namespace gar {
 
           // relocate dx to be the location along the helix of the closest point.  
           // Linearize for now near xpos.
-          // old calc was a single subtraction operation, viz.
-          float dx = xh - xpos;
+          // old calc was based on TPCCluster position in x:
+          // float dx = xh - xpos;                                 
+          // new calc determines it from estimated pad space in (y,z);
 
           float dxdenom = slope*slope/(fTPCClusterResolYZ*fTPCClusterResolYZ) + 1.0/(fTPCClusterResolX*fTPCClusterResolX);
           float dxnum = (slope/(fTPCClusterResolYZ*fTPCClusterResolYZ))*( (yh - parvec[0])*TMath::Sin(phi) + (zh - parvec[1])*TMath::Cos(phi) )
             + (xh - xpos)/(fTPCClusterResolX*fTPCClusterResolX);
-          dx = dxnum/dxdenom;
+          float dx = dxnum/dxdenom;
           if (dx == 0) dx = 1E-3;
           //std::cout << "dxdenom, dxnum: " << dxdenom << " " << dxnum << std::endl;
           //std::cout << "Track pos: " << xpos << " " << parvec[0] << " " << parvec[1] << " " << " TPCCluster pos: " << xh << " " << yh << " " << zh << std::endl;
@@ -497,7 +498,7 @@ namespace gar {
               unused_TPCClusters.insert(iTPCCluster);
               continue;
             }
-          chisquared += ytilde.Norm2Sqr()/TMath::Sq(fTPCClusterResolYZ);
+          chisquared += ytilde.Norm2Sqr()/TMath::Sq(fTPCClusterResolYZinFit);
           if (fPrintLevel > 0)
             {
               std::cout << "ytilde (residuals): " << std::endl;
@@ -537,7 +538,7 @@ namespace gar {
           P = (I-K*H)*PPred;
           xpos = xpos + dx;
           //std::cout << " Updated xpos: " << xpos << " " << dx << std::endl;
-	  trajpts.emplace_back(xpos,parvec[0],parvec[1]);
+          trajpts.emplace_back(xpos,parvec[0],parvec[1]);
 
           float d_length = TMath::Sqrt( dx*dx + TMath::Sq(parvec[0]-yprev) + TMath::Sq(parvec[1]-zprev) );
           length += d_length;
