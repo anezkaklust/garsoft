@@ -398,6 +398,38 @@ namespace gar {
     }
 
 
+
+    //......................................................................
+    void RecoBaseDrawer::DrawTrackPolyLine3D(std::vector<const gar::rec::TrackTrajectory*> const& trajectories,
+					  evdb::View3D                      * view,
+					  int                                 color,
+					  int                                 width)
+    {
+      //auto const* detp = gar::providerFrom<detinfo::DetectorPropertiesService>();
+
+      art::ServiceHandle<geo::Geometry> geo;
+      double xcent = geo->TPCXCent();
+      double ycent = geo->TPCYCent();
+      double zcent = geo->TPCZCent();
+      xcent = 0;
+      ycent = 0;
+      zcent = 0;
+
+      for (auto itr : trajectories)  // there should only be one
+	{
+	  std::vector<TVector3> ftraj = itr->getFWDTrajectory();  // later -- decide if we need the backward one too
+          TPolyLine3D& tpoly = view->AddPolyLine3D(ftraj.size(),color,1,1);
+	  for (size_t i=0; i<ftraj.size(); ++i)
+	    {
+	      tpoly.SetPoint(i,zcent+ftraj.at(i).Z(),xcent+ftraj.at(i).X(),ycent+ftraj.at(i).Y());
+	    }
+          tpoly.SetLineWidth(width);
+	}
+
+      return;
+    }
+
+
     //......................................................................
     void RecoBaseDrawer::DrawCaloCluster3D(std::vector<const gar::rec::Cluster*> const& Clusters,
 					   evdb::View3D                      * view,
@@ -619,12 +651,13 @@ namespace gar {
 	for(auto const& which : recoOpt->fTrackLabels){
 	  art::View<gar::rec::Track> trackView;
 	  this->GetTracks(evt, which, trackView);
-
 	  if(!trackView.isValid()) continue;
 
 	  art::FindMany<gar::rec::TPCCluster> fmc(trackView, evt, which);
-
 	  if(!fmc.isValid()) continue;
+
+	  art::FindMany<gar::rec::TrackTrajectory> fmt(trackView, evt, which);
+	  //if(!fmt.isValid()) continue;
 
 	  for(size_t t = 0; t < trackView.size(); ++t){
 
@@ -645,8 +678,18 @@ namespace gar {
 	  for (auto tv = trackView.begin(); tv != trackView.end(); ++tv)
 	    {
 	      int color  = evd::kColor[icounter%evd::kNCOLS];
-	      DrawHelix3D((*tv)->TrackParBeg(), (*tv)->Vertex()[0], (*tv)->End()[0], view, color, width);
-	      DrawHelix3D((*tv)->TrackParEnd(), (*tv)->End()[0], (*tv)->Vertex()[0], view, color, width);
+
+	      // draw helices for 1, track trajectory points for 2
+
+	      if (recoOpt->fDrawTracks == 1 || ! fmt.isValid())
+		{
+	           DrawHelix3D((*tv)->TrackParBeg(), (*tv)->Vertex()[0], (*tv)->End()[0], view, color, width);
+	           DrawHelix3D((*tv)->TrackParEnd(), (*tv)->End()[0], (*tv)->Vertex()[0], view, color, width);
+		}
+	      else if (recoOpt->fDrawTracks == 2)
+		{
+		  DrawTrackPolyLine3D(fmt.at(icounter),view,color,width);
+		}
 
 	      DrawArrow3D((*tv)->Vertex(),(*tv)->VtxDir(),view,0);
 	      DrawArrow3D((*tv)->End(),(*tv)->EndDir(),view,0);

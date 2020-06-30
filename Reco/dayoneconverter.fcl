@@ -1,0 +1,18 @@
+BEGIN_PROLOG
+
+standard_dayoneconverter:
+{
+ module_type:              "dayoneconverter"
+ InputLabel:               "edepconvert"    # module label producing calo deposits
+ InputInstanceTPC:         "TrackerSc"
+ InputInstanceMuID:        "MuID"
+ IncludeMuIDhits:          false
+ SmearX:                   0.3     # position smearing for edeps
+ SmearY:                   0.3
+ SmearT:                   1.0
+ ZCut1:                   10.0     # in cm to make sure initial TPC clusters are on different plane pairs
+ ZCut2:                    0.5     # in cm to make sure initial TPC clusters are on the same half plane
+ RCut:                     5.0     # in cm -- road to collect TPC clusters on tracks
+}
+
+END_PROLOG

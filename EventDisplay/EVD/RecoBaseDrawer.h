@@ -16,6 +16,8 @@
 #include "ReconstructionDataProducts/TPCCluster.h"
 #include "ReconstructionDataProducts/Hit.h"
 #include "ReconstructionDataProducts/Cluster.h"
+#include "ReconstructionDataProducts/Track.h"
+#include "ReconstructionDataProducts/TrackTrajectory.h"
 
 #ifdef __ROOTCLING__
 
@@ -100,6 +102,11 @@ public:
                                     int                                 color,
                                     int                                 marker = 2,
                                     int                                 size = 2);
+
+  void DrawTrackPolyLine3D(std::vector<const gar::rec::TrackTrajectory*> const& trajectories,
+                                    evdb::View3D                      * view,
+                                    int                                 color,
+                                    int                                 width = 2);
 
   void DrawCaloCluster3D(std::vector<const gar::rec::Cluster*> const& Clusters,
                          evdb::View3D                      * view,

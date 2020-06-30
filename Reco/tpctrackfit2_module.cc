@@ -34,6 +34,7 @@
 #include "ReconstructionDataProducts/VecHit.h"
 #include "ReconstructionDataProducts/Track.h"
 #include "ReconstructionDataProducts/TrackIoniz.h"
+#include "ReconstructionDataProducts/TrackTrajectory.h"
 #include "Reco/TrackPar.h"
 #include "Reco/tracker2algs.h"
 #include "Geometry/Geometry.h"
@@ -41,8 +42,6 @@
 #include "Geant4/G4ThreeVector.hh"
 
 #include "nutools/MagneticField/MagneticField.h"
-
-
 
 namespace gar {
   namespace rec {
@@ -66,33 +65,34 @@ namespace gar {
 
       // Declare member data here.
 
-      std::string fPatRecLabel;     ///< input patrec tracks and associations
-      int fPrintLevel;              ///< debug printout:  0: none, 1: just track parameters and residuals, 2: all
-      float  fKalCurvStepUncSq;     ///< constant uncertainty term on each step of the Kalman fit -- squared, for curvature
-      float  fKalPhiStepUncSq;      ///< constant uncertainty term on each step of the Kalman fit -- squared, for phi
-      float  fKalLambdaStepUncSq;   ///< constant uncertainty term on each step of the Kalman fit -- squared, for lambda
-      float  fTPCClusterResolYZ;           ///< resolution in cm of a TPCCluster in YZ (pad size)
-      float  fTPCClusterResolX;            ///< resolution in cm of a TPCCluster in X (drift direction)
+      std::string fPatRecLabel;            ///< input patrec tracks and associations
+      int fPrintLevel;                     ///< debug printout:  0: none, 1: just track parameters and residuals, 2: all
+      float  fKalCurvStepUncSq;            ///< constant uncertainty term on each step of the Kalman fit -- squared, for curvature
+      float  fKalPhiStepUncSq;             ///< constant uncertainty term on each step of the Kalman fit -- squared, for phi
+      float  fKalLambdaStepUncSq;          ///< constant uncertainty term on each step of the Kalman fit -- squared, for lambda
+      float  fTPCClusterResolYZ;           ///< pad size in cm in YZ to determine step size
+      float  fTPCClusterResolX;            ///< drift direction contribution to determine step size (resolution of a TPCCluster)
       unsigned int fInitialTPNTPCClusters; ///< number of TPCClusters to use for initial trackpar estimate, if present
       unsigned int fMinNumTPCClusters;     ///< minimum number of TPCClusters to define a track
-      int fDumpTracks;              ///< 0: do not print out tracks, 1: print out tracks
+      int fDumpTracks;                     ///< 0: do not print out tracks, 1: print out tracks
       float fTPCClusterResolYZinFit;       ///< TPCCluster resolution parameter to use in fit
-      float fRoadYZinFit;           ///< cut in cm for dropping TPCClusters from tracks in fit
-      float fSortTransWeight;       ///< for use in the hit sorting algorithm -- transverse distance weight factor
-      float fSortDistBack;          ///< for use in the hit sorting algorithm -- how far to go back before raising the distance figure of merit
-      float fMinIonizGapCut;        ///< Don't compute dEdx for this dx or larger
+      float fRoadYZinFit;                  ///< cut in cm for dropping TPCClusters from tracks in fit
+      float fSortTransWeight;              ///< for use in the hit sorting algorithm -- transverse distance weight factor
+      float fSortDistBack;                 ///< for use in the hit sorting algorithm -- how far to go back before raising the distance figure of merit
+      float fMinIonizGapCut;               ///< Don't compute dEdx for this dx or larger
 
       int KalmanFit( std::vector<TPCCluster> &TPCClusters,
-             std::vector<int> &TPCClusterlist,
-             std::vector<float> &trackparatend,
-             float &chisquared,
-             float &length,
-             float *covmat,    // 5x5 covariance matrix
-             std::set<int> &unused_TPCClusters,
-             std::vector<std::pair<float,float>>& dSigdX);
+                     std::vector<int> &TPCClusterlist,
+                     std::vector<float> &trackparatend,
+                     float &chisquared,
+                     float &length,
+                     float *covmat,    // 5x5 covariance matrix
+                     std::set<int> &unused_TPCClusters,
+                     std::vector<std::pair<float,float>>& dSigdX,
+                     std::vector<TVector3>& trajpts);
 
       int KalmanFitBothWays(std::vector<gar::rec::TPCCluster> &TPCClusters,
-                TrackPar &trackpar,  TrackIoniz &trackions);
+                            TrackPar &trackpar,  TrackIoniz &trackions, TrackTrajectory &tracktraj);
     };
 
 
@@ -129,6 +129,8 @@ namespace gar {
       produces< art::Assns<gar::rec::TPCCluster, gar::rec::Track> >();
       produces<std::vector<gar::rec::TrackIoniz>>();
       produces<art::Assns<rec::TrackIoniz, rec::Track>>();
+      produces<std::vector<gar::rec::TrackTrajectory>>();
+      produces<art::Assns<rec::TrackTrajectory, rec::Track>>();
     }
 
 
@@ -141,6 +143,8 @@ namespace gar {
       std::unique_ptr< art::Assns<gar::rec::TPCCluster,gar::rec::Track> > TPCClusterTrkAssns(new ::art::Assns<gar::rec::TPCCluster,gar::rec::Track>);
       std::unique_ptr< std::vector<rec::TrackIoniz> > ionCol(new std::vector<rec::TrackIoniz>);
       std::unique_ptr< art::Assns<rec::TrackIoniz,rec::Track> > ionTrkAssns(new ::art::Assns<rec::TrackIoniz,rec::Track>);
+      std::unique_ptr< std::vector<rec::TrackTrajectory> > trajCol(new std::vector<rec::TrackTrajectory>);
+      std::unique_ptr< art::Assns<rec::TrackTrajectory,rec::Track> > trajTrkAssns(new ::art::Assns<rec::TrackTrajectory,rec::Track>);
 
       // inputs
 
@@ -149,6 +153,7 @@ namespace gar {
 
       auto const trackPtrMaker = art::PtrMaker<gar::rec::Track>(e);
       auto const ionizPtrMaker = art::PtrMaker<rec::TrackIoniz>(e);
+      auto const trajPtrMaker  = art::PtrMaker<rec::TrackTrajectory>(e);
       //auto const TPCClusterPtrMaker = art::PtrMaker<gar::rec::TPCCluster>(e, TPCClusterHandle.id());
 
       art::ServiceHandle<mag::MagneticField> magFieldService;
@@ -173,28 +178,34 @@ namespace gar {
             }
           TrackPar trackparams;
           TrackIoniz trackions;
-          if (KalmanFitBothWays(TPCClusters,trackparams,trackions) == 0)   // to think about -- unused TPCClusters?  Or just ignore them in the fit?
+          TrackTrajectory tracktraj;
+          if (KalmanFitBothWays(TPCClusters,trackparams,trackions,tracktraj) == 0)   // to think about -- unused TPCClusters?  Or just ignore them in the fit?
             {
-            trkCol->push_back(trackparams.CreateTrack());
-            ionCol->push_back(trackions);
-            auto const trackpointer = trackPtrMaker(trkCol->size()-1);
-            auto const ionizpointer = ionizPtrMaker(ionCol->size()-1);
-            for (size_t iTPCCluster=0; iTPCCluster<TPCClusters.size(); ++iTPCCluster)
-              {
-                TPCClusterTrkAssns->addSingle(TPCClustersFromPatRecTracks.at(itrack).at(iTPCCluster),trackpointer);
-              }
-            ionTrkAssns->addSingle(ionizpointer, trackpointer);
-          }
+              trkCol->push_back(trackparams.CreateTrack());
+              ionCol->push_back(trackions);
+              trajCol->push_back(tracktraj);
+              auto const trackpointer = trackPtrMaker(trkCol->size()-1);
+              auto const ionizpointer = ionizPtrMaker(ionCol->size()-1);
+              auto const trajpointer  = trajPtrMaker(trajCol->size()-1);
+              for (size_t iTPCCluster=0; iTPCCluster<TPCClusters.size(); ++iTPCCluster)
+                {
+                  TPCClusterTrkAssns->addSingle(TPCClustersFromPatRecTracks.at(itrack).at(iTPCCluster),trackpointer);
+                }
+              ionTrkAssns->addSingle(ionizpointer, trackpointer);
+              trajTrkAssns->addSingle(trajpointer, trackpointer);
+            }
         }
 
       e.put(std::move(trkCol));
       e.put(std::move(TPCClusterTrkAssns));
       e.put(std::move(ionCol));
       e.put(std::move(ionTrkAssns));
+      e.put(std::move(trajCol));
+      e.put(std::move(trajTrkAssns));
     }
 
     int tpctrackfit2::KalmanFitBothWays(std::vector<gar::rec::TPCCluster> &TPCClusters,
-                        TrackPar &trackpar, TrackIoniz &trackions)
+                                        TrackPar &trackpar, TrackIoniz &trackions, TrackTrajectory &tracktraj)
 
     {
       // variables:  x is the independent variable
@@ -218,8 +229,9 @@ namespace gar {
       float lengthforwards = 0;
       std::set<int> unused_TPCClusters;
       std::vector<std::pair<float,float>> dSigdXs_FWD;
+      std::vector<TVector3> trajpts_FWD;
 
-      int retcode = KalmanFit(TPCClusters,hlf,tparend,chisqforwards,lengthforwards,covmatend,unused_TPCClusters,dSigdXs_FWD);
+      int retcode = KalmanFit(TPCClusters,hlf,tparend,chisqforwards,lengthforwards,covmatend,unused_TPCClusters,dSigdXs_FWD,trajpts_FWD);
       if (retcode != 0) return 1;
 
       // the "backwards" fit is in decreasing x.  Track parameters are at the end of the fit, the other end of the track
@@ -229,8 +241,9 @@ namespace gar {
       float chisqbackwards = 0;
       float lengthbackwards = 0;
       std::vector<std::pair<float,float>> dSigdXs_BAK;
+      std::vector<TVector3> trajpts_BAK;
 
-      retcode = KalmanFit(TPCClusters,hlb,tparbeg,chisqbackwards,lengthbackwards,covmatbeg,unused_TPCClusters,dSigdXs_BAK);
+      retcode = KalmanFit(TPCClusters,hlb,tparbeg,chisqbackwards,lengthbackwards,covmatbeg,unused_TPCClusters,dSigdXs_BAK,trajpts_BAK);
       if (retcode != 0) return 1;
 
       size_t nTPCClusters=0;
@@ -250,6 +263,7 @@ namespace gar {
       trackpar.setXEnd(tparend[5]);
 
       trackions.setData(dSigdXs_FWD,dSigdXs_BAK);
+      tracktraj.setData(trajpts_FWD,trajpts_BAK);
 
       return 0;
     }
@@ -266,13 +280,14 @@ namespace gar {
     // 4: lambda
 
     int tpctrackfit2::KalmanFit( std::vector<TPCCluster> &TPCClusters,
-                 std::vector<int> &TPCClusterlist,    // sort ordered list
-                 std::vector<float> &trackparatend,
-                 float &chisquared,
-                 float &length,
-                 float *covmat,                     // 5x5 covariance matrix
-                 std::set<int> &unused_TPCClusters,
-                 std::vector<std::pair<float,float>>& dSigdXs)
+                                 std::vector<int> &TPCClusterlist,    // sort ordered list
+                                 std::vector<float> &trackparatend,
+                                 float &chisquared,
+                                 float &length,
+                                 float *covmat,                     // 5x5 covariance matrix
+                                 std::set<int> &unused_TPCClusters,
+                                 std::vector<std::pair<float,float>>& dSigdXs,
+                                 std::vector<TVector3>& trajpts)
     {
 
       // set some default values in case we return early
@@ -294,20 +309,20 @@ namespace gar {
       float zpos_init=0;
       float x_other_end = 0;
       if ( gar::rec::initial_trackpar_estimate(TPCClusters,
-                     TPCClusterlist,
-                     curvature_init,
-                     lambda_init,
-                     phi_init,
-                     xpos_init,
-                     ypos_init,
-                     zpos_init,
-                     x_other_end,
-                     fInitialTPNTPCClusters, 
-                     fPrintLevel) != 0)
-    {
-      //std::cout << "kalman fit failed on initial trackpar estimate" << std::endl;
-      return 1;
-    }
+                                               TPCClusterlist,
+                                               curvature_init,
+                                               lambda_init,
+                                               phi_init,
+                                               xpos_init,
+                                               ypos_init,
+                                               zpos_init,
+                                               x_other_end,
+                                               fInitialTPNTPCClusters, 
+                                               fPrintLevel) != 0)
+        {
+          //std::cout << "kalman fit failed on initial trackpar estimate" << std::endl;
+          return 1;
+        }
 
       // Kalman fitter variables
 
@@ -316,10 +331,10 @@ namespace gar {
       TMatrixF P(5,5);  // covariance matrix of parameters
       // fill in initial guesses -- generous uncertainties on first value.
       P.Zero();
-      P[0][0] = TMath::Sq(1); // initial position uncertainties -- y
-      P[1][1] = TMath::Sq(1); // and z
+      P[0][0] = TMath::Sq(1);   // initial position uncertainties -- y
+      P[1][1] = TMath::Sq(1);   // and z
       P[2][2] = TMath::Sq(.5);  // curvature of zero gets us to infinite momentum, and curvature of 2 is curled up tighter than the pads
-      P[3][3] = TMath::Sq(.5); // phi uncertainty
+      P[3][3] = TMath::Sq(.5);  // phi uncertainty
       P[4][4] = TMath::Sq(.5);  // lambda uncertainty
 
       TMatrixF PPred(5,5);
@@ -405,13 +420,14 @@ namespace gar {
 
           // relocate dx to be the location along the helix of the closest point.  
           // Linearize for now near xpos.
-          // old calc was a single subtraction operation, viz.
-          float dx = xh - xpos;
+          // old calc was based on TPCCluster position in x:
+          // float dx = xh - xpos;                                 
+          // new calc determines it from estimated pad space in (y,z);
 
           float dxdenom = slope*slope/(fTPCClusterResolYZ*fTPCClusterResolYZ) + 1.0/(fTPCClusterResolX*fTPCClusterResolX);
           float dxnum = (slope/(fTPCClusterResolYZ*fTPCClusterResolYZ))*( (yh - parvec[0])*TMath::Sin(phi) + (zh - parvec[1])*TMath::Cos(phi) )
             + (xh - xpos)/(fTPCClusterResolX*fTPCClusterResolX);
-          dx = dxnum/dxdenom;
+          float dx = dxnum/dxdenom;
           if (dx == 0) dx = 1E-3;
           //std::cout << "dxdenom, dxnum: " << dxdenom << " " << dxnum << std::endl;
           //std::cout << "Track pos: " << xpos << " " << parvec[0] << " " << parvec[1] << " " << " TPCCluster pos: " << xh << " " << yh << " " << zh << std::endl;
@@ -482,7 +498,7 @@ namespace gar {
               unused_TPCClusters.insert(iTPCCluster);
               continue;
             }
-          chisquared += ytilde.Norm2Sqr()/TMath::Sq(fTPCClusterResolYZ);
+          chisquared += ytilde.Norm2Sqr()/TMath::Sq(fTPCClusterResolYZinFit);
           if (fPrintLevel > 0)
             {
               std::cout << "ytilde (residuals): " << std::endl;
@@ -522,6 +538,7 @@ namespace gar {
           P = (I-K*H)*PPred;
           xpos = xpos + dx;
           //std::cout << " Updated xpos: " << xpos << " " << dx << std::endl;
+          trajpts.emplace_back(xpos,parvec[0],parvec[1]);
 
           float d_length = TMath::Sqrt( dx*dx + TMath::Sq(parvec[0]-yprev) + TMath::Sq(parvec[1]-zprev) );
           length += d_length;
@@ -547,9 +564,9 @@ namespace gar {
       trackparatend[5] = xpos;  // tack this on so we can specify where the track endpoint is
       if (fPrintLevel > 1)
         {
-        std::cout << "Track params at end (y, z, curv, phi, lambda) " << trackparatend[0] << " " << trackparatend[1] << " " <<
-          trackparatend[2] << " " << trackparatend[3] <<" " << trackparatend[4] << std::endl;
-        S.Print();
+          std::cout << "Track params at end (y, z, curv, phi, lambda) " << trackparatend[0] << " " << trackparatend[1] << " " <<
+            trackparatend[2] << " " << trackparatend[3] <<" " << trackparatend[4] << std::endl;
+          S.Print();
         }
 
       // just for visualization of the initial track parameter guesses.  

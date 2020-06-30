@@ -18,6 +18,7 @@
 #include "ReconstructionDataProducts/CaloHit.h"
 #include "ReconstructionDataProducts/Track.h"
 #include "ReconstructionDataProducts/TrackIoniz.h"
+#include "ReconstructionDataProducts/TrackTrajectory.h"
 #include "ReconstructionDataProducts/Shower.h"
 #include "ReconstructionDataProducts/Vertex.h"
 #include "ReconstructionDataProducts/Vee.h"

@@ -69,7 +69,7 @@ namespace gar {
             //----------------------------------------------------------------------------
             void MinervaSegmentationAlg::Initialize(const gar::geo::GeometryCore& geo)
             {
-                
+
             }
 
             //----------------------------------------------------------------------------
@@ -101,16 +101,71 @@ namespace gar {
                 if( localZ < 0 )
                 {
                     //Segmentation in Y
+                    //Need to check in which half of the square is the hit --> {y, z} point is below or over the diagonal
+                    //(y = z (odd) or y = -z (even))
+
                     int nCellsX = 1;
-                    int nCellsY = int(_layer_dim_Y / _stripSizeY);
+                    int nCellsY = int(_layer_dim_Y / (_stripSizeY * 2));
 
                     int _cellIndexX = int ( localX / ( _layer_dim_X / nCellsX ) );
                     int _cellIndexY = int ( localY / ( _layer_dim_Y / nCellsY ) );
 
-                    _decoder->set(cID, _xId, _cellIndexX);
-                    _decoder->set(cID, _yId, _cellIndexY);
-                    _decoder->set(cID, _zId, 0);
-                }
+                    //Transform the localX/Y to the local of this cell
+                    // double cellOriginX = 0.;
+                    double cellOriginY = ( _cellIndexY + 0.5 ) * (_stripSizeY * 2);
+                    double cellOriginZ = - 1.;
+
+                    double localy = localY - cellOriginY; //transform it
+                    double localz = localZ - cellOriginZ; //transform it
+                    bool above, below = false;
+                    if(localy < 0) {
+                        //Need to check if the point is below or above y = z
+                        if(localy > localz) {
+                            above = true;
+                        }
+                        if(localy < localz) {
+                            below = true;
+                        }
+                        if(above) {
+                            _decoder->set(cID, _xId, _cellIndexX);
+                            _decoder->set(cID, _yId, _cellIndexY);
+                            _decoder->set(cID, _zId, 0);
+                            _decoder->set(cID, "triangle", 1);
+                        }
+                        if(below) {
+                            _decoder->set(cID, _xId, _cellIndexX);
+                            _decoder->set(cID, _yId, _cellIndexY);
+                            _decoder->set(cID, _zId, 0);
+                            _decoder->set(cID, "triangle", 0);
+                        }
+                    }
+                    else if( localy > 0 ) {
+                        //Need to check if the point is below or above y = -z
+                        if(localy > -localz) {
+                            above = true;
+                        }
+                        if(localy < -localz) {
+                            below = true;
+                        }
+                        if(above) {
+                            _decoder->set(cID, _xId, _cellIndexX);
+                            _decoder->set(cID, _yId, _cellIndexY);
+                            _decoder->set(cID, _zId, 0);
+                            _decoder->set(cID, "triangle", 3);
+                        }
+                        if(below) {
+                            _decoder->set(cID, _xId, _cellIndexX);
+                            _decoder->set(cID, _yId, _cellIndexY);
+                            _decoder->set(cID, _zId, 0);
+                            _decoder->set(cID, "triangle", 2);
+                        }
+                    }
+                    else {
+                        //exception
+                        LOG_ERROR("MinervaSegmentationAlg") << "Cannot determine if localX > | < 0";
+                        return 0;
+                    }
+                } //end if z < 0
 
                 if( localZ >= 0 )
                 {
@@ -121,10 +176,62 @@ namespace gar {
                     int _cellIndexX = int ( localX / ( _layer_dim_X / nCellsX ) );
                     int _cellIndexY = int ( localY / ( _layer_dim_Y / nCellsY ) );
 
-                    _decoder->set(cID, _xId, _cellIndexX);
-                    _decoder->set(cID, _yId, _cellIndexY);
-                    _decoder->set(cID, _zId, 1);
-                }
+                    //Transform the localX/Y to the local of this cell
+                    double cellOriginX = ( _cellIndexX + 0.5 ) * (_stripSizeX * 2);
+                    // double cellOriginY = 0.;
+                    double cellOriginZ = 1.;
+
+                    double localx = localX - cellOriginX; //transform it
+                    double localz = localZ - cellOriginZ; //transform it
+                    bool above, below = false;
+                    if(localx < 0) {
+                        //Need to check if the point is below or above y = z
+                        if(localx > localz) {
+                            above = true;
+                        }
+                        if(localx < localz) {
+                            below = true;
+                        }
+                        if(above) {
+                            _decoder->set(cID, _xId, _cellIndexX);
+                            _decoder->set(cID, _yId, _cellIndexY);
+                            _decoder->set(cID, _zId, 1);
+                            _decoder->set(cID, "triangle", 1);
+                        }
+                        if(below) {
+                            _decoder->set(cID, _xId, _cellIndexX);
+                            _decoder->set(cID, _yId, _cellIndexY);
+                            _decoder->set(cID, _zId, 1);
+                            _decoder->set(cID, "triangle", 0);
+                        }
+                    }
+                    else if( localx > 0 ) {
+                        //Need to check if the point is below or above y = -z
+                        if(localx > -localz) {
+                            above = true;
+                        }
+                        if(localx < -localz) {
+                            below = true;
+                        }
+                        if(above) {
+                            _decoder->set(cID, _xId, _cellIndexX);
+                            _decoder->set(cID, _yId, _cellIndexY);
+                            _decoder->set(cID, _zId, 1);
+                            _decoder->set(cID, "triangle", 3);
+                        }
+                        if(below) {
+                            _decoder->set(cID, _xId, _cellIndexX);
+                            _decoder->set(cID, _yId, _cellIndexY);
+                            _decoder->set(cID, _zId, 1);
+                            _decoder->set(cID, "triangle", 2);
+                        }
+                    }
+                    else {
+                        //exception
+                        LOG_ERROR("MinervaSegmentationAlg") << "Cannot determine if localX > | < 0";
+                        return 0;
+                    }
+                } //end if z >= 0
 
                 return cID;
             }

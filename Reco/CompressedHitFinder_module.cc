@@ -220,6 +220,7 @@ namespace gar {
                             }
                         } 
                     }
+                  adcmax = TMath::Max(adcmax,a);
 
 		  // create a hit if we have split a hit or if we are out of waveforms
 
@@ -270,7 +271,6 @@ namespace gar {
                       endT = begT;
                       adcmax = 0;
                     }
-                  adcmax = TMath::Max(adcmax,a);
                 }
             }
         }

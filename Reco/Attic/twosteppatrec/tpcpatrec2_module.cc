@@ -58,6 +58,7 @@ namespace gar {
       // Declare member data here.
 
       std::string fVecHitLabel;     ///< label of module to get the vector hits and associations with hits
+      std::string fTPCClusterLabel; ///< label of module to get the TPC clusters
       int    fPrintLevel;           ///< debug printout:  0: none, 1: selected, 2: all
       float  fVecHitMatchCos;       ///< matching condition for pairs of vector hits cos angle between directions
       float  fVecHitMatchPos;       ///< matching condition for pairs of vector hits -- 3D distance (cm)
@@ -70,11 +71,19 @@ namespace gar {
       float  fSortDistBack;         ///< for use in the hit sorting algorithm -- how far to go back before raising the distance figure of merit
       float  fCloseEtaUnmatch;      ///< distance to look for vector hits that don't match in eta. 
 
+      bool fXBasedSecondPass;       ///< switch to tell us to use the X-based second-pass of patrec
+      int fXBasedMinTPCClusters;    ///< min number of TPC clusters to require on new tracks found with the second pass
+      size_t fPatRecLookBack1;      ///< n hits to look backwards to make a linear extrapolation
+      size_t fPatRecLookBack2;      ///< extrapolate from lookback1 to lookback2 and see how close the new hit is to the line
+      float  fHitResolYZ;           ///< resolution in cm of a hit in YZ (pad size)
+      float  fHitResolX;            ///< resolution in cm of a hit in X (drift direction)
+      float  fSigmaRoad;            ///< how many sigma away from a track a hit can be and still add it during patrec
+
       // criteria for associating vector hits together to form clusters
       bool vhclusmatch(const std::vector<gar::rec::VecHit> &vechits, std::vector<size_t> &cluster, size_t vh);
 
       // rough estimate of track parameters
-      int makepatrectrack(std::vector<gar::rec::TPCCluster> &hits, gar::rec::TrackPar &trackpar);
+      int makepatrectrack(std::vector<gar::rec::TPCCluster> &tpcclusters, gar::rec::TrackPar &trackpar);
 
       float calceta2d(gar::rec::VecHit &vhtest, gar::rec::VecHit &vh);
 
@@ -92,6 +101,7 @@ namespace gar {
     tpcpatrec2::tpcpatrec2(fhicl::ParameterSet const& p) : EDProducer{p}  
       {
         fVecHitLabel       = p.get<std::string>("VecHitLabel","vechit");
+        fTPCClusterLabel   = p.get<std::string>("TPCClusterLabel","tpcclusterpass1");
         fPrintLevel        = p.get<int>("PrintLevel",0);
         fVecHitMatchCos    = p.get<float>("VecHitMatchCos",0.9);
         fVecHitMatchPos    = p.get<float>("VecHitMatchPos",20.0);
@@ -103,6 +113,17 @@ namespace gar {
         fSortTransWeight   = p.get<float>("SortTransWeight",0.1);
         fSortDistBack      = p.get<float>("SortDistBack",2.0);
         fCloseEtaUnmatch   = p.get<float>("CloseEtaUnmatch",20.0);
+        fXBasedSecondPass  = p.get<bool>("XBasedSecondPass",true);
+        fXBasedMinTPCClusters = p.get<int>("XBasedMinTPCClusters",10);
+        fPatRecLookBack1     = p.get<size_t>("PatRecLookBack1",5);
+        fPatRecLookBack2     = p.get<size_t>("PatRecLookBack2",10);
+        if (fPatRecLookBack1 == fPatRecLookBack2)
+          {
+            throw cet::exception("tpcpatrec2_module: PatRecLookBack1 and PatRecLookBack2 are the same");
+          }
+        fHitResolYZ        = p.get<float>("HitResolYZ",1.0); // TODO -- think about what this value is
+        fHitResolX         = p.get<float>("HitResolX",0.5);  // this is probably much better
+        fSigmaRoad         = p.get<float>("SigmaRoad",5.0);
 
         art::InputTag vechitTag(fVecHitLabel);
         consumes< std::vector<gar::rec::VecHit> >(vechitTag);
@@ -121,8 +142,12 @@ namespace gar {
       auto vechitHandle = e.getValidHandle< std::vector<gar::rec::VecHit> >(fVecHitLabel);
       auto const& vechits = *vechitHandle;
 
+      auto TPCClusterHandle = e.getValidHandle< std::vector<gar::rec::TPCCluster> >(fTPCClusterLabel);
+      auto const& e_tpcclusters = *TPCClusterHandle;  // TPC Clusters from the event
+
       auto const trackPtrMaker = art::PtrMaker<gar::rec::Track>(e);
       auto const vhPtrMaker = art::PtrMaker<gar::rec::VecHit>(e, vechitHandle.id());
+      auto const clusPtrMaker = art::PtrMaker<gar::rec::TPCCluster>(e,TPCClusterHandle.id());
 
       const art::FindManyP<gar::rec::TPCCluster> TPCClustersFromVecHits(vechitHandle,e,fVecHitLabel);
 
@@ -130,6 +155,7 @@ namespace gar {
       G4ThreeVector zerovec(0,0,0);
       G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 
+      std::set<gar::rec::IDNumber> TPCClusNumerosUsedInFirstPass;
 
       // stitch together vector hits into tracks
       // question -- do we need to iterate this, first looking for small-angle matches, and then
@@ -244,6 +270,7 @@ namespace gar {
                   auto const trackpointer = trackPtrMaker(trkCol->size()-1);
                   for (size_t iTPCCluster=0; iTPCCluster<TPCClusters.size(); ++iTPCCluster)
                     {
+                      TPCClusNumerosUsedInFirstPass.insert(TPCClusters.at(iTPCCluster).getIDNumber());
                       TPCClusterTrkAssns->addSingle(TPCClusterptrs.at(iTPCCluster),trackpointer);
                     }
                   for (size_t ivh=0; ivh<vhclusters[iclus].size(); ++ivh)
@@ -254,6 +281,181 @@ namespace gar {
                 }
             }
         }
+
+      // to think about -- remove dodgy tracks so that the second pass may have a better chance at picking them up.
+      // any remaining misclassified conversions, for instance.  Or just don't put them on the list in the
+      // first place.
+
+      // Second pass patrec: 
+      // go back and use the X-based pattern recognition on TPC clusters not included in tracks found above
+
+      if (fXBasedSecondPass)
+        {
+          // first find unassociated TPC clusters and sort them by their X positions
+          // keep them in place, just make a vector of sorted indices
+
+          std::vector<gar::rec::TPCCluster> tcc2pass;
+          std::vector<float> clusx;
+          std::vector<size_t> tcc2passidx;
+
+          float roadsq = fSigmaRoad*fSigmaRoad;
+          float resolSq = fHitResolYZ*fHitResolYZ;
+
+          for (size_t iclus=0; iclus < e_tpcclusters.size(); ++iclus)
+            {
+              if (TPCClusNumerosUsedInFirstPass.count(e_tpcclusters.at(iclus).getIDNumber()) == 0)
+                {
+                  tcc2pass.push_back(e_tpcclusters.at(iclus));
+                  tcc2passidx.push_back(iclus);  // for use in making associations
+                  clusx.push_back(tcc2pass.back().Position()[0]);
+                }
+            }
+
+          if (tcc2pass.size()>0)
+            {
+              std::vector<int> csi(clusx.size());
+              TMath::Sort((int) clusx.size(),clusx.data(),csi.data());
+
+              // do this twice, once going forwards through the tcc2pass, once backwards, and then collect hits
+              // in groups and split them when either the forwards or the backwards list says to split them.
+
+              std::vector< std::vector<int> > cluslistf;
+              std::vector<int> trackf(tcc2pass.size());
+              for (size_t iclus=0; iclus<tcc2pass.size(); ++iclus)
+                {
+                  const float *cpos = tcc2pass[csi[iclus]].Position();
+                  TVector3 hpvec(cpos);
+
+                  float bestsignifs = -1;
+                  int ibest = -1;
+                  for (size_t itcand = 0; itcand < cluslistf.size(); ++itcand)
+                    {
+                      float signifs = 1E9;
+                      //size_t clsiz = cluslistf[itcand].size();
+                      //if (clsiz > fPatRecLookBack1 && clsiz > fPatRecLookBack2)
+                      //  {
+                      //  TVector3 pt1( tcc2pass[csi[cluslistf[itcand][clsiz-fPatRecLookBack1]]].Position() );
+                      //  TVector3 pt2( tcc2pass[csi[cluslistf[itcand][clsiz-fPatRecLookBack2]]].Position() );
+                      //  TVector3 uv = pt1-pt2;
+                      //  uv *= 1.0/uv.Mag();
+                      //  signifs = ((hpvec-pt1).Cross(uv)).Mag2()/resolSq;
+                      //  }
+                      //else // not enough tcc2pass, just look how close we are to the last one
+                      //  {
+                      const float *hpos = tcc2pass[csi[cluslistf[itcand].back()]].Position();
+                      signifs = (TMath::Sq( (hpos[1]-cpos[1]) ) +
+                                 TMath::Sq( (hpos[2]-cpos[2]) ))/resolSq;
+                      //  }
+                      if (bestsignifs < 0 || signifs < bestsignifs)
+                        {
+                          bestsignifs = signifs;
+                          ibest = itcand;
+                        }
+                    }
+                  if (ibest == -1 || bestsignifs > roadsq)  // start a new track if we're not on the road, or if we had no tracks to begin with
+                    {
+                      ibest = cluslistf.size();
+                      std::vector<int> vtmp;
+                      cluslistf.push_back(vtmp);
+                    }
+                  cluslistf[ibest].push_back(iclus);
+                  trackf[iclus] = ibest;
+                }
+
+              std::vector< std::vector<int> > cluslistb;
+              std::vector<int> trackb(tcc2pass.size());
+              for (int iclus=tcc2pass.size()-1; iclus >= 0; --iclus)
+                {
+                  const float *cpos = tcc2pass[csi[iclus]].Position();
+                  TVector3 hpvec(cpos);
+
+                  float bestsignifs = -1;
+                  int ibest = -1;
+                  for (size_t itcand = 0; itcand < cluslistb.size(); ++itcand)
+                    {
+                      float signifs = 1E9;
+                      //size_t clsiz = cluslistb[itcand].size();
+                      //if (clsiz > fPatRecLookBack1 && clsiz > fPatRecLookBack2)
+                      //{
+                      //    TVector3 pt1( tcc2pass[csi[cluslistb[itcand][clsiz-fPatRecLookBack1]]].Position() );
+                      //    TVector3 pt2( tcc2pass[csi[cluslistb[itcand][clsiz-fPatRecLookBack2]]].Position() );
+                      //    TVector3 uv = pt1-pt2;
+                      //    uv *= 1.0/uv.Mag();
+                      //    signifs = ((hpvec-pt1).Cross(uv)).Mag2()/resolSq;
+                      //  }
+                      //else // not enough tcc2pass, just look how close we are to the last one
+                      //  {
+                      const float *hpos = tcc2pass[csi[cluslistb[itcand].back()]].Position();
+                      signifs = (TMath::Sq( (hpos[1]-cpos[1]) ) +
+                                 TMath::Sq( (hpos[2]-cpos[2]) ))/resolSq;
+                      //  }
+
+                      if (bestsignifs < 0 || signifs < bestsignifs)
+                        {
+                          bestsignifs = signifs;
+                          ibest = itcand;
+                        }
+                    }
+                  if (ibest == -1 || bestsignifs > roadsq)  // start a new track if we're not on the road, or if we had no tracks to begin with
+                    {
+                      ibest = cluslistb.size();
+                      std::vector<int> vtmp;
+                      cluslistb.push_back(vtmp);
+                    }
+                  cluslistb[ibest].push_back(iclus);
+                  trackb[iclus] = ibest;
+                }
+
+              // make a list of tracks that is the set of disjoint subsets
+
+              std::vector< std::vector<int> > cluslist;
+              for (size_t itrack=0; itrack<cluslistf.size(); ++itrack)
+                {
+                  int itrackl = 0;
+                  for (size_t iclus=0; iclus<cluslistf[itrack].size(); ++iclus)
+                    {
+                      int ihif = cluslistf[itrack][iclus];
+                      if (iclus == 0 || (trackb[ihif] != itrackl))
+                        {
+                          std::vector<int> vtmp;
+                          cluslist.push_back(vtmp);
+                          itrackl = trackb[ihif];
+                        }
+                      cluslist.back().push_back(ihif);
+                    }
+                }
+
+              // now make patrec tracks out of these grouped TPC clusters
+
+              for (size_t itrack=0; itrack<cluslist.size(); ++itrack)
+                {
+                  if (cluslist.at(itrack).size() < (size_t) fXBasedMinTPCClusters) continue;
+                  std::vector<gar::rec::TPCCluster> tcl;
+                  for (size_t iclus=0; iclus<cluslist.at(itrack).size(); ++iclus)
+                    {
+                      tcl.push_back(tcc2pass.at(csi[cluslist[itrack].at(iclus)]));
+                    }
+                  gar::rec::TrackPar trackpar;
+                  if (makepatrectrack(tcl,trackpar) == 0)
+                    {
+                      trkCol->push_back(trackpar.CreateTrack());
+                      auto const trackptr = trackPtrMaker(trkCol->size()-1);
+                      for (size_t iclus=0; iclus<tcl.size(); ++iclus)
+                        {
+                          auto const clusptr = clusPtrMaker(tcc2passidx.at(csi[cluslist[itrack][iclus]]));
+                          TPCClusterTrkAssns->addSingle(clusptr,trackptr);
+                          if (fPrintLevel>1)
+                            {
+                              std::cout << " second-pass track " << itrack << " clus: " << iclus << " :  ";
+                              TVector3 cp(tcc2pass[csi[cluslist[itrack][iclus]]].Position());
+                              std::cout << cp.X() << " " << cp.Y() << " " << cp.Z() << std::endl;
+                            }
+                        }
+                    }
+                }
+
+            }  // end check if we have any TPC clusters for pass 2
+        } // end check if we want to run pass 2 patrec
 
       e.put(std::move(trkCol));
       e.put(std::move(vhTrkAssns));

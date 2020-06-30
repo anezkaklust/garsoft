@@ -911,7 +911,11 @@ namespace gar {
 
       gar::raw::CellID_t GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const;
 
-      std::string GetCellIDEncoding() const;
+      std::string GetECALCellIDEncoding() const;
+
+      std::string GetMinervaCellIDEncoding() const;
+      
+      std::string GetMuIDCellIDEncoding() const;
 
       std::array<double, 3> GetPosition(const TGeoNode *node, const gar::raw::CellID_t &cID) const;
 

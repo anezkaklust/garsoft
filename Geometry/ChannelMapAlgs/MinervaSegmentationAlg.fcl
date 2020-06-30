@@ -3,14 +3,14 @@ BEGIN_PROLOG
 standard_minervasegalgpars:
 {
 SegmentationAlgName: "Minerva"
-cellEncoding: "system:3,layer:3,slice:1,cellX:32:-16,cellY:-16,cellZ:1"
+cellEncoding: "system:3,layer:3,slice:2,cellZ:2,triangle:3,cellX:32:-16,cellY:-16"
 identifier_x: "cellX"
 identifier_y: "cellY"
 identifier_z: "cellZ"
 identifier_layer: "layer"
 identifier_slice: "slice"
-strip_size_x: 2.0 # cm
-strip_size_y: 2.0 # cm
+strip_size_x: 4.0 # cm
+strip_size_y: 4.0 # cm
 }
 
 END_PROLOG

@@ -1,0 +1,35 @@
+BEGIN_PROLOG
+
+standard_tpcpatrec2:
+{
+ module_type:        tpcpatrec2
+ VecHitLabel:        "vechit"  # module making vector hits and associations with hits
+ TPCClusterLabel:    "tpcclusterpass1" # module making TPC Clusters
+
+ VecHitMatchCos:      0.9   # for matching pairs of neighboring vector hits 
+ VecHitMatchPos:      60.0  # for matching pairs of neighboring vector hits -- 3D distance in cm
+ VecHitMatchPEX:      6.0   # for matching pairs of neighboring vector hits -- miss distance in cm
+ VecHitMatchEta:      1.2   # for for matching pairs of neighboring vector hits -- cross of distance and avg of directions (cm)
+ VecHitMatchLambda:   0.05  # for for matching pairs of neighboring vector hits -- delta Lambda cut (rad)
+ SortTransWeight:     0.1   # for use in the hit sorting algorithm -- transverse distance weight factor
+ SortDistBack:        2.0   # for use in the hit sorting algorithm -- how far to go back before raising the distance figure of merit
+ CloseEtaUnmatch:     20.0  # Look for another VH within this distance and drop the matching condition of eta mismatches (helps conversions)
+
+ MinNumTPCClusters:         100     # minimum number of hits on a track
+ InitialTPNTPCClusters:     100     # number of hits to use for initial trackpar estimate, if present
+
+ XBasedSecondPass:         true     # for all TPC clusters not assigned to tracks in the first pass, run this pass
+ XBasedMinTPCClusters:       10     # minimum # TPC clusters in this second pass
+ PatRecLookBack1:             5     # n hits to look backwards to make a linear extrapolation
+ PatRecLookBack2:            10     # extrapolate from lookback1 to lookback2 and see how close the new hit is to the line
+ HitResolYZ:                1.0     # resolution in hit position in yz (cm) to use in the second pass
+ HitResolX:                 0.5     # resolution in the drift coordinate (cm)
+ SigmaRoad:                 10.0     # number of sigma allowed for a hit to be associated to a track second pass
+
+
+ PrintLevel:                  2     # Debug printout:  0: none, 1: track parameters and residuals, 2: everything
+
+
+}
+
+END_PROLOG

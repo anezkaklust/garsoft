@@ -92,7 +92,7 @@ namespace gar {
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fECALUtils = std::make_unique<util::ECALUtils>(fDetProp->EffectivePixel());
 
-            std::string fEncoding = fGeo->GetCellIDEncoding();
+            std::string fEncoding = fGeo->GetECALCellIDEncoding();
             fFieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
 
             consumes< std::vector<raw::CaloRawDigit> >(fRawDigitLabel);
