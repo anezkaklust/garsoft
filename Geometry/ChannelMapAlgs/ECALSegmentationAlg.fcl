@@ -22,6 +22,7 @@ grid_size_y: 2.5 # cm
 offset_x: 1.25 # cm for the tiles only
 offset_y: 1.25 # cm for the tiles only
 nlayers: 60
+active_slice: 2
 
 identifier_x: "cellX"
 identifier_y: "cellY"

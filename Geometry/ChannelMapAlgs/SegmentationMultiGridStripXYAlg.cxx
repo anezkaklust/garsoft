@@ -71,6 +71,7 @@ namespace gar {
                 _stripEndcapLayers = pset.get< std::vector<std::string> >("strip_endcap_layers");
 
                 _nLayers = pset.get<unsigned int>("nlayers");
+                _active_slice = pset.get<unsigned int>("active_slice");
 
                 _frac = 1./3.;
 
@@ -152,7 +153,7 @@ namespace gar {
                     int cellIndexX = _decoder->get(cID,_xId);
                     int cellIndexY = _decoder->get(cID,_yId);
 
-                    if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 2) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 == 0) )
+                    if( (_OnSameLayer && _decoder->get(cID, _sliceId) == _active_slice) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 == 0) )
                     {
                         //Segmentation in Y
                         int nCellsX = 1;
@@ -176,7 +177,7 @@ namespace gar {
                         }
                     }
 
-                    if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 3) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) )
+                    if( (_OnSameLayer && _decoder->get(cID, _sliceId) == _active_slice+1) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) )
                     {
                         //Segmentation in X
                         // int nCellsX = int(_layer_dim_X / _stripSizeX);
@@ -229,7 +230,7 @@ namespace gar {
                 }
                 else
                 {
-                    if( (_OnSameLayer && slice == 2) || (not _OnSameLayer && layer%2 == 0) )
+                    if( (_OnSameLayer && slice == _active_slice) || (not _OnSameLayer && layer%2 == 0) )
                     {
                         //Segmentation in Y
                         int nCellsX = 1;
@@ -242,7 +243,7 @@ namespace gar {
                         _decoder->set(cID, _yId, _cellIndexY);
                     }
 
-                    if( (_OnSameLayer && slice == 3) || (not _OnSameLayer && layer%2 != 0) )
+                    if( (_OnSameLayer && slice == _active_slice+1) || (not _OnSameLayer && layer%2 != 0) )
                     {
                         //Segmentation in X
                         int nCellsX = int(_layer_dim_X / _stripSizeX);
@@ -274,6 +275,7 @@ namespace gar {
 
                 std::cout << "identifier_layer: " << _layerId << std::endl;
                 std::cout << "identifier_slice: " << _sliceId << std::endl;
+                std::cout << "active slice: " << _active_slice << std::endl;
 
                 std::cout << "grid_barrel_layers: ";
                 for(unsigned int i = 0; i < _gridBarrelLayers.size(); i++)
@@ -370,7 +372,7 @@ namespace gar {
                 bool isBarrel = this->isBarrel(cID);
 
                 //Strip along X
-                if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 2) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 == 0) ) {
+                if( (_OnSameLayer && _decoder->get(cID, _sliceId) == _active_slice) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 == 0) ) {
                     if(isBarrel) {
                         stripLength = _layer_dim_X;
                     } else {
@@ -380,7 +382,7 @@ namespace gar {
                         stripLength = _layer_dim_X - ( n * ( _stripSizeX / std::tan(angle) ) );
                     }
                 }
-                if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 3) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) ) {
+                if( (_OnSameLayer && _decoder->get(cID, _sliceId) == _active_slice+1) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) ) {
                     //Strip along Y
                     if(isBarrel) {
                         stripLength = _layer_dim_Y;
@@ -405,7 +407,7 @@ namespace gar {
                 bool isBarrel = this->isBarrel(cID);
 
                 //Strip along X (local)
-                if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 2) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 == 0) ) {
+                if( (_OnSameLayer && _decoder->get(cID, _sliceId) == _active_slice) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 == 0) ) {
 
                     if(isBarrel) {
                         stripEnd1.SetX(-_layer_dim_X/2.);
@@ -425,7 +427,7 @@ namespace gar {
                     stripEnd2.SetZ(local[2]);
                 }
                 //Strip along Y (local)
-                if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 3) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) ) {
+                if( (_OnSameLayer && _decoder->get(cID, _sliceId) == _active_slice+1) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) ) {
 
                     if(isBarrel) {
                         stripEnd1.SetY(-_layer_dim_Y/2.);
@@ -462,7 +464,7 @@ namespace gar {
                 bool isBarrel = this->isBarrel(cID);
 
                 //Strip along X (local)
-                if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 2) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 == 0) )
+                if( (_OnSameLayer && _decoder->get(cID, _sliceId) == _active_slice) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 == 0) )
                 {
                     if(isBarrel) {
                         time1 = ( _layer_dim_X / 2 + local[0] ) / c;
@@ -478,7 +480,7 @@ namespace gar {
                 }
 
                 //Strip along Y (local)
-                if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 3) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) )
+                if( (_OnSameLayer && _decoder->get(cID, _sliceId) == _active_slice+1) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) )
                 {
                     if(isBarrel) {
                         time1 = ( _layer_dim_Y / 2 + local[1] ) / c;
@@ -512,10 +514,10 @@ namespace gar {
 
                 std::array<double, 3> newlocal;
 
-                if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 2) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 == 0) )
+                if( (_OnSameLayer && _decoder->get(cID, _sliceId) == _active_slice) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 == 0) )
                     newlocal = {pos, local[1], local[2]};
 
-                if( (_OnSameLayer && _decoder->get(cID, _sliceId) == 3) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) ) //Strip along Y
+                if( (_OnSameLayer && _decoder->get(cID, _sliceId) == _active_slice+1) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) ) //Strip along Y
                     newlocal = {local[0], pos, local[2]};
 
                 return newlocal;

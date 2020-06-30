@@ -124,6 +124,8 @@ namespace gar {
                 double _frac;
                 /// number of layers
                 unsigned int _nLayers;
+                /// active slice number
+                unsigned int _active_slice;
                 /// the layers (start::end) for grid in Barrel
                 std::vector<std::string> _gridBarrelLayers;
                 /// the layers (start::end) for strips in Barrel
