@@ -57,6 +57,7 @@ int main( int argc, char const *argv[] )
             p++;
         }
         else if( argv[p] == std::string("--originTPC") ){
+            //origin fixed
             if( argc == 11 )
             {
                 x = argv[p+1];
@@ -101,6 +102,7 @@ int main( int argc, char const *argv[] )
 
     caf->WriteTTree();
     printf( "-30-\n" );
+    caf->CloseTFile();
 
     return 0;
 }
