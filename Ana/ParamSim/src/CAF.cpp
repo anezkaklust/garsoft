@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <numeric>
 #include <functional>
+#include <exception>
 
 CAF::CAF()
 : cafFile(nullptr), _intfile(nullptr), _inttree(nullptr), _util(new Utils()), _inputfile(""), _outputFile(""), _correct4origin(0)
@@ -188,7 +189,7 @@ void CAF::ClearVectors()
     verty.clear();
     vertz.clear();
 
-    //MC Particle Values
+    //MC Particle values
     _nFSP.clear();
     detected.clear();
     pdgmother.clear();
@@ -231,6 +232,18 @@ void CAF::ClearVectors()
     isTPCEnd.clear();
     isCaloEnd.clear();
     isThroughCaloEnd.clear();
+}
+
+void CAF::CheckVectorSize()
+{
+    std::cout << "Number of FSP " << _nFSP.at(0) << std::endl;
+    std::cout << "Size of true pdg " << truepdg.size() << std::endl;
+
+    if(_nFSP.at(0) != truepdg.size()) {
+        throw "_nFSP and truepdg have different sizes";
+    }
+
+    return;
 }
 
 // main loop function
@@ -458,13 +471,16 @@ void CAF::loop()
             auto result = std::find(pdg_neutral.begin(), pdg_neutral.end(), abs(pdg));
             bool isNeutral = (result != pdg_neutral.end()) ? true : false;
 
+            //start track length
+            //***************************************************************************************************************/
+
             if( isNeutral )
             {
                 trkLen.push_back(0.);
                 trkLenPerp.push_back(0.);
             }
-            else{
-
+            else
+            {
                 // calculate the total and the transverse track lengths and restrict the
                 // tracklength to be above the gas TPC track length threshold
                 double tracklen = 0.;
@@ -473,7 +489,8 @@ void CAF::loop()
                 //CAREFUL No offset for the trajectory points (origin for them is the TPC?)??????
                 //TODO check if the mcp point is within the TPC volume! Skip for mcp in the ECAL (showers)
                 //TODO Link showers to original mcp?
-                for(size_t itraj = 1; itraj < TrajMCPX->size(); itraj++){
+                for(size_t itraj = 1; itraj < TrajMCPX->size(); itraj++)
+                {
                     //check that it is the correct mcp
                     if(TrajMCPTrajIndex->at(itraj) == (int) i){
                         //Traj point+1
@@ -500,7 +517,8 @@ void CAF::loop()
                 trkLenPerp.push_back(tracklen_perp);
             }
 
-            //----------------------------------
+            //end track length
+            //***************************************************************************************************************/
 
             TVector3 mcp(MCPStartPX->at(i), MCPStartPY->at(i), MCPStartPZ->at(i));
             TVector3 xhat(1, 0, 0);
@@ -530,11 +548,14 @@ void CAF::loop()
             isCaloEnd.push_back(_util->PointInCalo(epoint));
             isThroughCaloEnd.push_back(_util->isThroughCalo(epoint));
 
+            //start neutrons
+            //***************************************************************************************************************/
+
             //for neutrons
             if(pdg == 2112)
             {
-                if(_util->PointInCalo(epoint)) {
-
+                if(_util->PointInCalo(epoint))
+                {
                     //check if it can be detected by the ECAL
                     //Assumes 40% efficiency to detect
                     float random_number = _util->GetRamdomNumber();
@@ -590,7 +611,8 @@ void CAF::loop()
 
                         // std::cout << "Neutron detected in ECAL, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                     }
-                    else{
+                    else
+                    {
                         //neutron not detected
                         detected.push_back(0);
                         truep.push_back(ptrue);
@@ -631,8 +653,54 @@ void CAF::loop()
 
                         // std::cout << "Neutron not detected in ECAL, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                     }
-                }//endpoint is in ECAL
+                } //endpoint is in ECAL
+                else
+                {
+                    //Endpoint is not in calo
+                    detected.push_back(0);
+                    truep.push_back(ptrue);
+                    recopid.push_back(0);
+                    erecon.push_back(0);
+                    truepdg.push_back(pdg);
+                    truepx.push_back(MCPStartPX->at(i));
+                    truepy.push_back(MCPStartPY->at(i));
+                    truepz.push_back(MCPStartPZ->at(i));
+                    if(_correct4origin){
+                        _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                        _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                        _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                        _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                        _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                        _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                    } else {
+                        _MCPStartX.push_back(MCPStartX->at(i));
+                        _MCPStartY.push_back(MCPStartY->at(i));
+                        _MCPStartZ.push_back(MCPStartZ->at(i));
+                        _MCPEndX.push_back(MCPEndX->at(i));
+                        _MCPEndY.push_back(MCPEndY->at(i));
+                        _MCPEndZ.push_back(MCPEndZ->at(i));
+                    }
+                    pdgmother.push_back(PDGMother->at(i));
+                    //Save MC process
+                    _MCProc.push_back(mcp_process);
+                    _MCEndProc.push_back(mcp_endprocess);
+                    mctime.push_back(time);
+                    etime.push_back(0.);
+                    _angle.push_back(angle);
+                    _preco.push_back(0);
+                    anglereco.push_back(0);
+                    recopidecal.push_back(0);
+                    for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
+                    mctrkid.push_back(MCPTrkID->at(i));
+                    motherid.push_back(MCMotherIndex->at(i));
+                }
             }
+
+            //End neutrons
+            //***************************************************************************************************************/
+
+            //start pi0s
+            //***************************************************************************************************************/
 
             //for pi0s
             if(pdg == 111)
@@ -679,6 +747,12 @@ void CAF::loop()
 
                 // std::cout << "pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
             }
+
+            //end pi0s
+            //***************************************************************************************************************/
+
+            //start gammas
+            //***************************************************************************************************************/
 
             //for gammas
             if(pdg == 22)
@@ -735,7 +809,8 @@ void CAF::loop()
 
                         // std::cout << "gamma detected in ECAL not from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                     }
-                    else{
+                    else
+                    {
                         //case endpoint is in the TPC (Converted!)
                         erecon.push_back(0);
                         recopid.push_back(0);
@@ -778,7 +853,8 @@ void CAF::loop()
                         // std::cout << "gamma converted in ECAL not from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                     }
                 }
-                else{
+                else
+                {
                     //case they are from pi0
                     //Endpoint is not in the tracker, reaches the ecal
                     if(_util->PointInCalo(epoint))
@@ -828,7 +904,8 @@ void CAF::loop()
                         motherid.push_back(MCMotherIndex->at(i));
                         // std::cout << "gamma detected in ECAL from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                     }
-                    else{
+                    else
+                    {
                         //from pi0 and converted in TPC
                         erecon.push_back(0);
                         recopid.push_back(0);
@@ -873,12 +950,19 @@ void CAF::loop()
                 }
             }
 
+            //end gammas
+            //***************************************************************************************************************/
+
+            //start tpc
+            //***************************************************************************************************************/
+
             //Visible in the TPC
             if( trkLen.at(i) > gastpc_len )
             {
                 for (int pidm = 0; pidm < 6; ++pidm)
                 {
-                    if ( abs(pdg) == pdg_charged.at(pidm) ) {
+                    if ( abs(pdg) == pdg_charged.at(pidm) )
+                    {
                         // std::cout << "Entered reco TPC" << std::endl;
 
                         //Use range instead of Gluckstern for stopping tracks
@@ -943,9 +1027,9 @@ void CAF::loop()
                             recopidecal.push_back(0);
                             etime.push_back(0.);
                         }
-                        else {
+                        else
+                        {
                             //Case where the endpoint is not in the TPC, should be able to use the Gluckstern formula
-
                             // calculate number of trackpoints
                             float nHits = round (trkLen.at(i) / gastpc_padPitch);
                             // measurement term in Gluckstern formula
@@ -975,8 +1059,8 @@ void CAF::loop()
                             anglereco.push_back(angle_reco);
 
                             //Reaches the ECAL and stops there
-                            if( _util->PointInCalo(epoint) ) {
-
+                            if( _util->PointInCalo(epoint) )
+                            {
                                 etime.push_back(ecaltime);
                                 //Need energy measurement in ecal
                                 TParticlePDG *part = TDatabasePDG::Instance()->GetParticle(abs(pdg));
@@ -990,11 +1074,14 @@ void CAF::loop()
                                         erecon.push_back(ereco);
                                         recopidecal.push_back(0);
                                     }
-                                    else {
+                                    else
+                                    {
                                         erecon.push_back(0);
                                         recopidecal.push_back(0);
                                     }
-                                } else {
+                                }
+                                else
+                                {
                                     //by default should be tagged as an electron as it has a track,
                                     //otherwise tag as gamma if not track -> need mis association rate, and use dE/dX in Scintillator?
                                     //separation between e and mu/pi should be around 100%
@@ -1077,7 +1164,8 @@ void CAF::loop()
                                     }
                                 }
                             }
-                            else if( _util->isThroughCalo(epoint) ) {
+                            else if( _util->isThroughCalo(epoint) )
+                            {
                                 //Case the endpoint is outside the CALO -> it went through the ECAL (mu/pi/p possible)
                                 //the ECAL will see 60 MIPs on average
                                 double Evis = (double)nLayers; //in MIP
@@ -1096,13 +1184,21 @@ void CAF::loop()
                                     recopidecal.push_back(13); //TODO
                                 }
 
-                            } else {
+                            }
+                            else
+                            {
                                 //Does not reach the ECAL???
                                 erecon.push_back(0.);
                                 recopidecal.push_back(0.);
                                 etime.push_back(0.);
                             }
                         } //end endpoint is not in TPC
+
+                        //end tpc
+                        //***************************************************************************************************************/
+
+                        //start pid
+                        //***************************************************************************************************************/
 
                         //--------------------------------------------------------------------------
                         // Start of PID Parametrization
@@ -1211,9 +1307,13 @@ void CAF::loop()
                             }
                         } // closes the if statement
 
+                        //end pid
+                        //***************************************************************************************************************/
+
                         // std::cout << "particle seen in TPC, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << " trk length " << trkLen.at(i) << std::endl;
                     } // closes the conditional statement of trueparticlename == MC true pdg
-                    else {
+                    else
+                    {
                         //not in the pdglist of particles but visible in TPC?
                         auto found = std::find(pdg_charged.begin(), pdg_charged.end(), abs(pdg));
                         if(found == pdg_charged.end())
@@ -1266,7 +1366,8 @@ void CAF::loop()
                     }
                 } // closes the vertical bining loop of the pid matrix
             }//close if track_length > tpc_min_length
-            else {
+            else
+            {
                 //Not visible in the TPC and not neutron or gamma or pi0 (otherwise it has been already done above)
                 //ignore
 
@@ -1321,8 +1422,16 @@ void CAF::loop()
         } // closes the MC truth loop
 
         _nFSP.push_back(nFSP);
+
+        //Check if vectors have good size
+        try {
+            this->CheckVectorSize();
+        }
+        catch (const std::exception& e) {
+            std::cout << "loop() failed with: " << e.what();
+        }
+
         // std::cout << "Fill CAF TTree" << std::endl;
         this->FillTTree();
-
     } // closes the event loop
 } // closes the main loop function
