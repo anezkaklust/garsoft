@@ -18,7 +18,7 @@ namespace gar {
         m_calorimeterHitVector(0)
         {
             fGeo = gar::providerFrom<geo::Geometry>();
-            std::string fEncoding = fGeo->GetCellIDEncoding();
+            std::string fEncoding = fGeo->GetECALCellIDEncoding();
             m_fieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
 
             if ((m_eCalEndCapLayerThickness < std::numeric_limits<float>::epsilon()))

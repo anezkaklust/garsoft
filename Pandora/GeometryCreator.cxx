@@ -72,14 +72,14 @@ namespace gar {
             trackerParameters.m_subDetectorName = "Tracker";
             trackerParameters.m_subDetectorType = pandora::INNER_TRACKER;
             trackerParameters.m_innerRCoordinate = 0.f; // inner R of TPC
-            trackerParameters.m_innerXCoordinate = 0.f;
+            trackerParameters.m_innerZCoordinate = 0.f;
             trackerParameters.m_innerPhiCoordinate = 0.f;
             trackerParameters.m_innerSymmetryOrder = 0;
             trackerParameters.m_outerRCoordinate = fGeo->TPCRadius(); // outer R of TPC
-            trackerParameters.m_outerXCoordinate = fGeo->TPCLength() / 2.; // outer X of TPC
+            trackerParameters.m_outerZCoordinate = fGeo->TPCLength() / 2.; // outer X of TPC
             trackerParameters.m_outerPhiCoordinate = 0.f;
             trackerParameters.m_outerSymmetryOrder = 0;
-            trackerParameters.m_isMirroredInX = true;
+            trackerParameters.m_isMirroredInZ = true;
             trackerParameters.m_nLayers = 0;
             subDetectorTypeMap[pandora::INNER_TRACKER] = trackerParameters;
         }
@@ -97,38 +97,16 @@ namespace gar {
         {
             parameters.m_subDetectorName = subDetectorName;
             parameters.m_subDetectorType = subDetectorType;
-            parameters.m_innerRCoordinate = inputParameters.extent[0]/dd4hep::mm;
-            parameters.m_innerXCoordinate = inputParameters.extent[2]/dd4hep::mm;
-            parameters.m_innerPhiCoordinate = inputParameters.inner_phi0;
-            parameters.m_innerSymmetryOrder = inputParameters.inner_symmetry;
-            parameters.m_outerRCoordinate = inputParameters.extent[1]/dd4hep::mm;
-            parameters.m_outerXCoordinate = inputParameters.extent[3]/dd4hep::mm;
-            parameters.m_outerPhiCoordinate = inputParameters.outer_phi0;
-            parameters.m_outerSymmetryOrder = inputParameters.outer_symmetry;
-            parameters.m_isMirroredInX = true;
-            parameters.m_nLayers = layers.size();
-
-            for (size_t i = 0; i< layers.size(); i++)
-            {
-                const dd4hep::rec::LayeredCalorimeterStruct::Layer & theLayer = layers.at(i);
-
-                PandoraApi::Geometry::LayerParameters layerParameters;
-
-                double totalNumberOfRadLengths = theLayer.inner_nRadiationLengths;
-                double totalNumberOfIntLengths = theLayer.inner_nInteractionLengths;
-
-                if(i>0){
-                    //Add the numbers from previous layer's outer side
-                    totalNumberOfRadLengths += layers.at(i-1).outer_nRadiationLengths;
-                    totalNumberOfIntLengths += layers.at(i-1).outer_nInteractionLengths;
-                }
-
-                layerParameters.m_closestDistanceToIp = (theLayer.distance+theLayer.inner_thickness)/dd4hep::mm; //Distance to center of sensitive element
-                layerParameters.m_nRadiationLengths = totalNumberOfRadLengths;
-                layerParameters.m_nInteractionLengths = totalNumberOfIntLengths;
-
-                parameters.m_layerParametersVector.push_back(layerParameters);
-            }
+            parameters.m_innerRCoordinate = 0.f;
+            parameters.m_innerZCoordinate = 0.f;
+            parameters.m_innerPhiCoordinate = 0.f;
+            parameters.m_innerSymmetryOrder = 8;
+            parameters.m_outerRCoordinate = fGeo->TPCRadius(); // outer R of TPC
+            parameters.m_outerZCoordinate = fGeo->TPCLength() / 2.; // outer X of TPC
+            parameters.m_outerPhiCoordinate = 0.f;
+            parameters.m_outerSymmetryOrder = 0;
+            parameters.m_isMirroredInZ = true;
+            parameters.m_nLayers = 60;
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
