@@ -3,7 +3,9 @@ BEGIN_PROLOG
 standard_pandora:
 {
 module_type:        PandoraInterface
-CaloHitLabel:       "sscalohit"
+Geant4Label:        "geant"
+GeneratorLabel:     ""
+CaloHitLabel:       "calohit"
 TrackLabel:         "track"
 PandoraXML:         "PandoraSettingsBasic.xml"
 }

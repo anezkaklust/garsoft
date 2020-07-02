@@ -25,12 +25,12 @@ art_make(BASENAME_ONLY
           ${MF_MESSAGELOGGER}
           ${FHICLCPP}
           ${CETLIB_EXCEPT}
-
+          MCCheater_BackTracker_service
           ${PANDORASDK}
           ${PANDORAMONITORING}
           ${LCPANDORACONTENT}
 
-          MODULE_LIBRARIES 
+          MODULE_LIBRARIES
           Geometry
           GArG4
           SimulationDataProducts
@@ -53,6 +53,7 @@ art_make(BASENAME_ONLY
           ${FHICLCPP}
           ${CETLIB_EXCEPT}
           GArPandora
+          MCCheater_BackTracker_service
 )
 
 install_headers()

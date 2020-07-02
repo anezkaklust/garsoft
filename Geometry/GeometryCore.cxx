@@ -1130,8 +1130,8 @@ namespace gar {
             fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::BarrelLayout] = std::shared_ptr<gar::geo::LayeredCalorimeterData>(new LayeredCalorimeterData());
 
             fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::BarrelLayout]->layoutType = gar::geo::LayeredCalorimeterData::BarrelLayout;
-            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::BarrelLayout]->inner_symmetry = GetECALInnerSymmetry();
-            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::BarrelLayout]->outer_symmetry = 0;
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::BarrelLayout]->inner_symmetry = 0;
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::BarrelLayout]->outer_symmetry = GetECALInnerSymmetry();
             fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::BarrelLayout]->phi0 = 0;
 
             /// extent of the calorimeter in the r-z-plane [ rmin, rmax, zmin, zmax ].
@@ -1213,8 +1213,8 @@ namespace gar {
             fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::EndcapLayout] = std::shared_ptr<gar::geo::LayeredCalorimeterData>(new LayeredCalorimeterData());
 
             fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::EndcapLayout]->layoutType = gar::geo::LayeredCalorimeterData::EndcapLayout;
-            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::EndcapLayout]->inner_symmetry = GetECALInnerSymmetry();
-            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::EndcapLayout]->outer_symmetry = 0;
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::EndcapLayout]->inner_symmetry = 0;
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::EndcapLayout]->outer_symmetry = GetECALInnerSymmetry();
             fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::EndcapLayout]->phi0 = 0;
 
             /// extent of the calorimeter in the r-z-plane [ rmin, rmax, zmin, zmax ].

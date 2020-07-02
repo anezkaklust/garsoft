@@ -12,7 +12,7 @@
 namespace gar {
     namespace gar_pandora {
 
-        typedef std::vector<const gar::rec::CaloHit *> CalorimeterHitVector;
+        typedef std::vector<art::Ptr<gar::rec::CaloHit>> CalorimeterHitVector;
 
         class CaloHitCreator
         {
@@ -25,27 +25,26 @@ namespace gar {
                 Settings();
 
                 std::string     m_CaloHitCollection;               ///< The calorimeter hit collection
-                
-                float           m_eCalToMip;                            ///< The calibration from deposited ECal energy to mip
-                float           m_eCalMipThreshold;                     ///< Threshold for creating calo hits in the ECal, units mip
 
-                float           m_eCalToEMGeV;                          ///< The calibration from deposited ECal energy to EM energy
-                float           m_eCalToHadGeVBarrel;                   ///< The calibration from deposited ECal barrel energy to hadronic energy
-                float           m_eCalToHadGeVEndCap;                   ///< The calibration from deposited ECal endcap energy to hadronic energy
-
-                float           m_maxECalHitHadronicEnergy;             ///< The maximum hadronic energy allowed for a single hcal hit
-                int             m_nOuterSamplingLayers;                 ///< Number of layers from edge for hit to be flagged as an outer layer hit
-                float           m_layersFromEdgeMaxRearDistance;        ///< Maximum number of layers from candidate outer layer hit to rear of detector
-
-                float           m_eCalBarrelInnerPhi0;              ///< ECal barrel inner phi0 coordinate
-                unsigned int    m_eCalBarrelInnerSymmetry;          ///< ECal barrel inner symmetry order
-
-                float           m_eCalEndCapOuterR;                 ///< ECal endcap outer r coordinate
-                float           m_eCalEndCapInnerX;                 ///< ECal endcap inner x coordinate
-                float           m_eCalEndCapOuterX;                 ///< ECal endcap outer x coordinate
+                float           m_eCalToMip;                        ///< The calibration from deposited ECal energy to mip
+                float           m_eCalMipThreshold;                 ///< Threshold for creating calo hits in the ECal, units mip
+                float           m_eCalToEMGeV;                      ///< The calibration from deposited ECal energy to EM energy
+                float           m_eCalToHadGeVBarrel;               ///< The calibration from deposited ECal barrel energy to hadronic energy
+                float           m_eCalToHadGeVEndCap;               ///< The calibration from deposited ECal endcap energy to hadronic energy
+                float           m_maxECalHitHadronicEnergy;         ///< The maximum hadronic energy allowed for a single hcal hit
+                int             m_nOuterSamplingLayers;             ///< Number of layers from edge for hit to be flagged as an outer layer hit
+                float           m_layersFromEdgeMaxRearDistance;    ///< Maximum number of layers from candidate outer layer hit to rear of detector
                 float           m_eCalBarrelOuterR;                 ///< ECal barrel outer r coordinate
-
-                FloatVector m_eCalBarrelNormalVector;
+                float           m_eCalBarrelOuterZ;                 ///< ECal barrel outer z coordinate
+                float           m_eCalBarrelInnerPhi0;              ///< ECal barrel inner phi0 coordinate
+                float           m_eCalBarrelOuterPhi0;              ///< ECal barrel outer phi0 coordinate
+                unsigned int    m_eCalBarrelInnerSymmetry;          ///< ECal barrel inner symmetry order
+                unsigned int    m_eCalBarrelOuterSymmetry;          ///< ECal barrel outer symmetry order
+                FloatVector     m_eCalBarrelNormalVector;           ///< ECal barrel normal vector
+                float           m_eCalEndCapOuterR;                 ///< ECal endcap outer r coordinate
+                float           m_eCalEndCapOuterZ;                 ///< ECal endcap outer z coordinate
+                unsigned int    m_eCalEndCapInnerSymmetryOrder;     ///< ECal endcap inner symmetry
+                float           m_eCalEndCapInnerPhiCoordinate;     ///< ECal endcap inner phi
             };
 
             CaloHitCreator(const Settings &settings, const pandora::Pandora *const pPandora);
@@ -63,6 +62,11 @@ namespace gar {
             pandora::StatusCode CreateECalCaloHits(const art::Event *const pEvent);
 
             void GetCommonCaloHitProperties(const gar::rec::CaloHit *const pCaloHit, PandoraApi::CaloHit::Parameters &caloHitParameters) const;
+
+            void GetEndCapCaloHitProperties(const gar::rec::CaloHit *const pCaloHit, const std::vector<gar::geo::LayeredCalorimeterStruct::Layer> &layers, PandoraApi::CaloHit::Parameters &caloHitParameters, float &absorberCorrection) const;
+
+            void GetBarrelCaloHitProperties( const gar::rec::CaloHit *const pCaloHit,
+            const std::vector<gar::geo::LayeredCalorimeterStruct::Layer> &layers, unsigned int barrelSymmetryOrder, PandoraApi::CaloHit::Parameters &caloHitParameters, FloatVector const& normalVector, float &absorberCorrection ) const;
 
             int GetNLayersFromEdge(const  gar::rec::CaloHit *const pCaloHit) const;
 

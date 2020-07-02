@@ -34,7 +34,7 @@ namespace gar {
         int               m_eCalBarrelInnerSymmetry;      ///< ECal barrel inner symmetry order
         float             m_eCalBarrelInnerPhi0;          ///< ECal barrel inner phi 0
         float             m_eCalBarrelInnerR;             ///< ECal barrel inner radius
-        float             m_eCalEndCapInnerX;             ///< ECal endcap inner x
+        float             m_eCalEndCapInnerZ;             ///< ECal endcap inner z
       };
 
       TrackCreator(const Settings &settings, const pandora::Pandora *const pPandora);

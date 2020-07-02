@@ -1,5 +1,5 @@
-/* 
-Art producer module to run Pandora on GArSoft data 
+/*
+Art producer module to run Pandora on GArSoft data
 Author: Eldwan Brianne
 Date 15.05.2020
 */
@@ -52,8 +52,8 @@ namespace gar {
             {
             public:
                 /**
-                 *  @brief  Default constructor
-                 */
+                *  @brief  Default constructor
+                */
                 Settings();
 
                 std::string            m_pandoraSettingsXmlFile = "";      ///< The pandora settings xml file
@@ -109,8 +109,8 @@ namespace gar {
         PandoraInterface::PandoraToEventMap PandoraInterface::m_pandoraToEventMap;
 
         //-----------------------------------------------------------------------------------
-        PandoraInterface::PandoraInterface(fhicl::ParameterSet const& pset) :
-        EDProducer{pset}
+        PandoraInterface::PandoraInterface(fhicl::ParameterSet const& pset)
+        : EDProducer{pset}
         {
             this->reconfigure(pset);
         }
@@ -162,12 +162,15 @@ namespace gar {
                 LOG_INFO("PandoraInterface - produce");
                 (void) m_pandoraToEventMap.insert(PandoraToEventMap::value_type(m_pPandora, &e));
 
+                PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pMCParticleCreator->CollectMCParticles(&e));
                 PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pMCParticleCreator->CreateMCParticles(&e));
-                // PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pTrackCreator->CreateTrackAssociations(e));
+
+                // PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pTrackCreator->CreateTrackAssociations(&e));
                 PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pTrackCreator->CreateTracks(&e));
-                // PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pMCParticleCreator->CreateTrackToMCParticleRelationships(e, m_pTrackCreator->GetTrackVector()));
+                // PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pMCParticleCreator->CreateTrackToMCParticleRelationships(&e, m_pTrackCreator->GetTrackVector()));
+
                 PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pCaloHitCreator->CreateCaloHits(&e));
-                // PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pMCParticleCreator->CreateCaloHitToMCParticleRelationships(e, m_pCaloHitCreator->GetCalorimeterHitVector()));
+                PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pMCParticleCreator->CreateCaloHitToMCParticleRelationships(&e, m_pCaloHitCreator->GetCalorimeterHitVector()));
 
                 PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::ProcessEvent(*m_pPandora));
                 PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pPfoCreator->CreateParticleFlowObjects(&e));
@@ -177,19 +180,19 @@ namespace gar {
             }
             catch (pandora::StatusCodeException &statusCodeException)
             {
-                LOG_ERROR("Marlin pandora failed to process event: ") << statusCodeException.ToString();
+                LOG_ERROR("pandora failed to process event: ") << statusCodeException.ToString();
                 throw statusCodeException;
             }
             catch (std::exception &exception)
             {
-                LOG_ERROR("Marlin pandora failed to process event: std exception ") << exception.what();
+                LOG_ERROR("pandora failed to process event: std exception ") << exception.what();
                 throw exception;
             }
             catch (...)
             {
-                LOG_ERROR("Marlin pandora failed to process event: unrecognized exception");
+                LOG_ERROR("pandora failed to process event: unrecognized exception");
                 throw;
-            }   
+            }
         }
 
         //-----------------------------------------------------------------------------------
@@ -239,7 +242,7 @@ namespace gar {
             std::string pandora_file = pset.get<std::string>("PandoraXML");
 
             if( !sp.find_file(pandora_file, fullConfigFileName) )
-                throw cet::exception("PandoraInterface") << " Failed to find xml configuration file " << pandora_file << " in FW search path";
+            throw cet::exception("PandoraInterface") << " Failed to find xml configuration file " << pandora_file << " in FW search path";
             m_settings.m_pandoraSettingsXmlFile = fullConfigFileName;
 
             m_trackCreatorSettings.m_trackCollection = pset.get<std::string>("TrackLabel", "track"); //Track hits
@@ -252,7 +255,7 @@ namespace gar {
             m_pfoCreatorSettings.m_emStochasticTerm = pset.get<float>("EMStockTerm", 0.05); //The stochastic term for EM shower
             m_pfoCreatorSettings.m_emConstantTerm = pset.get<float>("EMConstTerm", 2.); //The constant term for EM shower
 
-            m_caloHitCreatorSettings.m_CaloHitCollection = pset.get<std::string>("CaloHitLabel", "sscalohit"); //Calo hits
+            m_caloHitCreatorSettings.m_CaloHitCollection = pset.get<std::string>("CaloHitLabel", "calohit"); //Calo hits
             m_caloHitCreatorSettings.m_eCalToMip = pset.get<float>("ECaltoMipCalibration", 1.); //The calibration from deposited ECal energy to mip
             m_caloHitCreatorSettings.m_eCalMipThreshold = pset.get<float>("ECalMipThreshold", 0.25); //Threshold for creating calo hits in the ECal, units mip
             m_caloHitCreatorSettings.m_eCalToEMGeV = pset.get<float>("ECalToEMGeVCalibration", 1.); //The calibration from deposited ECal energy to EM energy
@@ -262,6 +265,9 @@ namespace gar {
             m_caloHitCreatorSettings.m_nOuterSamplingLayers = pset.get<unsigned int>("NOuterSamplingLayers", 3); //Number of layers from edge for hit to be flagged as an outer layer hit
             m_caloHitCreatorSettings.m_layersFromEdgeMaxRearDistance = pset.get<float>("LayersFromEdgeMaxRearDistance", 250.); //Maximum number of layers from candidate outer layer hit to rear of detector
             m_caloHitCreatorSettings.m_eCalBarrelNormalVector = pset.get<std::vector<float>>("ECalBarrelNormalVector", std::vector<float>{0., 0., 1.}); //Normal vector for the ECal barrel sensitive layers in local coordinates
+
+            m_mcParticleCreatorSettings.m_geantModuleLabel = pset.get<std::string>("Geant4Label", "geant"); //geant4
+            m_mcParticleCreatorSettings.m_geantModuleLabel = pset.get<std::string>("GeneratorLabel", "genie"); //generator
 
             // produces< std::vector<gar::rec::Cluster> >();
             // produces< std::vector<gar::rec::PFParticle> >();
@@ -277,18 +283,26 @@ namespace gar {
 
             fGeo = gar::providerFrom<geo::Geometry>();
 
-            m_trackCreatorSettings.m_bField                         = magfield[0];
-            m_trackCreatorSettings.m_eCalBarrelInnerSymmetry        = fGeo->GetECALInnerSymmetry();
-            m_trackCreatorSettings.m_eCalBarrelInnerPhi0            = 0.;
-            m_trackCreatorSettings.m_eCalBarrelInnerR               = fGeo->GetECALInnerBarrelRadius();
-            m_trackCreatorSettings.m_eCalEndCapInnerX               = fGeo->GetECALEndcapStartX();
+            const gar::geo::LayeredCalorimeterData * eCalBarrelExtension = fGeo->GetECALLayeredCalorimeterData()[gar::geo::LayeredCalorimeterData::BarrelLayout].get();
+            const gar::geo::LayeredCalorimeterData * eCalEndcapExtension = fGeo->GetECALLayeredCalorimeterData()[gar::geo::LayeredCalorimeterData::BarrelLayout].get();
 
-            m_caloHitCreatorSettings.m_eCalBarrelInnerPhi0          = 0.;
-            m_caloHitCreatorSettings.m_eCalBarrelInnerSymmetry      = fGeo->GetECALInnerSymmetry();
-            m_caloHitCreatorSettings.m_eCalBarrelOuterR             = fGeo->GetECALOuterBarrelRadius();
-            m_caloHitCreatorSettings.m_eCalEndCapInnerX             = fGeo->GetECALEndcapStartX();
-            m_caloHitCreatorSettings.m_eCalEndCapOuterX             = fGeo->GetECALEndcapOuterX();
-            m_caloHitCreatorSettings.m_eCalEndCapOuterR             = fGeo->GetECALOuterEndcapRadius();
+
+            m_trackCreatorSettings.m_bField                         = magfield[0];
+            m_trackCreatorSettings.m_eCalBarrelInnerSymmetry        = eCalBarrelExtension->inner_symmetry;
+            m_trackCreatorSettings.m_eCalBarrelInnerPhi0            = eCalBarrelExtension->inner_phi0;
+            m_trackCreatorSettings.m_eCalBarrelInnerR               = eCalBarrelExtension->extent[0];
+            m_trackCreatorSettings.m_eCalEndCapInnerZ               = eCalEndcapExtension->extent[2];
+
+            m_caloHitCreatorSettings.m_eCalBarrelOuterZ             = eCalBarrelExtension->extent[3];
+            m_caloHitCreatorSettings.m_eCalBarrelInnerPhi0          = eCalBarrelExtension->inner_phi0;
+            m_caloHitCreatorSettings.m_eCalBarrelInnerSymmetry      = eCalBarrelExtension->inner_symmetry;
+            m_caloHitCreatorSettings.m_eCalEndCapOuterR             = eCalEndcapExtension->extent[1];
+            m_caloHitCreatorSettings.m_eCalEndCapOuterZ             = eCalEndcapExtension->extent[3];
+            m_caloHitCreatorSettings.m_eCalBarrelOuterR             = eCalBarrelExtension->extent[1];
+            m_caloHitCreatorSettings.m_eCalBarrelOuterPhi0          = eCalBarrelExtension->outer_phi0;
+            m_caloHitCreatorSettings.m_eCalBarrelOuterSymmetry      = eCalBarrelExtension->outer_symmetry;
+            m_caloHitCreatorSettings.m_eCalEndCapInnerSymmetryOrder = eCalEndcapExtension->inner_symmetry;
+            m_caloHitCreatorSettings.m_eCalEndCapInnerPhiCoordinate = eCalEndcapExtension->inner_phi0;
         }
 
         //-----------------------------------------------------------------------------------
@@ -300,7 +314,7 @@ namespace gar {
             PandoraToEventMap::iterator iter = m_pandoraToEventMap.find(m_pPandora);
 
             if (m_pandoraToEventMap.end() == iter)
-                throw pandora::StatusCodeException(pandora::STATUS_CODE_FAILURE);
+            throw pandora::StatusCodeException(pandora::STATUS_CODE_FAILURE);
 
             m_pandoraToEventMap.erase(iter);
         }
@@ -313,17 +327,17 @@ namespace gar {
 
         //-----------------------------------------------------------------------------------
         PandoraInterface::Settings::Settings() :
-        m_innerBField(0.5),
-        m_inputEnergyCorrectionPoints(0),
-        m_outputEnergyCorrectionPoints(0)
-        {
+            m_innerBField(0.5),
+            m_inputEnergyCorrectionPoints(0),
+            m_outputEnergyCorrectionPoints(0)
+            {
+            }
+
+        } //namespace gar_pandora
+    } // namespace gar
+
+    namespace gar {
+        namespace gar_pandora {
+            DEFINE_ART_MODULE(PandoraInterface)
         }
-
-    } //namespace gar_pandora
-} // namespace gar
-
-namespace gar {
-    namespace gar_pandora {
-        DEFINE_ART_MODULE(PandoraInterface)
     }
-}
