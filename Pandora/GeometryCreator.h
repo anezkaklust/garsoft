@@ -32,7 +32,7 @@ namespace gar {
 
             void SetAdditionalSubDetectorParameters(SubDetectorNameMap &subDetectorNameMap) const;
 
-            void SetDefaultSubDetectorParameters(const std::string &subDetectorName, const pandora::SubDetectorType subDetectorType, PandoraApi::Geometry::SubDetector::Parameters &parameters) const;
+            void SetDefaultSubDetectorParameters(const gar::geo::LayeredCalorimeterData &inputParameters, const std::string &subDetectorName, const pandora::SubDetectorType subDetectorType, PandoraApi::Geometry::SubDetector::Parameters &parameters) const;
 
             const Settings          m_settings;                     ///< The geometry creator settings
             const pandora::Pandora &m_pPandora;                     ///< Address of the pandora object to create the geometry

@@ -224,7 +224,7 @@ namespace gar {
         {
             std::vector<TGeoNode const*> path = this->FindVolumePath("volArgonCubeDetector");
             if(path.size() == 0)
-                return;
+            return;
 
             const TGeoNode *lar_node = path.at(path.size()-1);
             if(lar_node == nullptr) {
@@ -250,7 +250,7 @@ namespace gar {
         {
             std::vector<TGeoNode const*> path = this->FindVolumePath("volMPD");
             if(path.size() == 0)
-                return;
+            return;
 
             const TGeoNode *mpd_node = path.at(path.size()-1);
             if(mpd_node == nullptr) {
@@ -279,7 +279,7 @@ namespace gar {
             // not, then dig a bit deeper
             std::vector<TGeoNode const*> path = this->FindVolumePath("volArgonCubeActive");
             if(path.size() == 0)
-                return;
+            return;
 
             const TGeoNode *LArTPC_node = path.at(path.size()-1);
             if(LArTPC_node == nullptr) {
@@ -310,9 +310,9 @@ namespace gar {
             // not, then dig a bit deeper
             std::vector<TGeoNode const*> path = this->FindVolumePath("TPCGas_vol");
             if(path.size() == 0)
-                path = this->FindVolumePath("volTPCGas");
+            path = this->FindVolumePath("volTPCGas");
             if(path.size() == 0)
-                return;
+            return;
 
             const TGeoNode *GArTPC_node = path.at(path.size()-1);
             if(GArTPC_node == nullptr) {
@@ -470,7 +470,7 @@ namespace gar {
 
             // first check the current layer
             if (strncmp(name.c_str(), pCurrentVolume->GetName(), name.length()) == 0)
-                return true;
+            return true;
 
             //explore the next layer down
             unsigned int nd = pCurrentVolume->GetNdaughters();
@@ -625,12 +625,12 @@ namespace gar {
         // \param zhi : On return, upper bound on z positions
         //
         void GeometryCore::WorldBox(float* xlo, float* xhi,
-            float* ylo, float* yhi,
-            float* zlo, float* zhi) const
+        float* ylo, float* yhi,
+        float* zlo, float* zhi) const
         {
             const TGeoShape* s = gGeoManager->GetVolume("volWorld")->GetShape();
             if(!s)
-                throw cet::exception("GeometryCore") << "no pointer to world volume TGeoShape\n";
+            throw cet::exception("GeometryCore") << "no pointer to world volume TGeoShape\n";
 
             if (xlo || xhi) {
                 double x1, x2;
@@ -655,8 +655,8 @@ namespace gar {
             float halfheight = ((TGeoBBox*)volWorld->GetShape())->GetDY();
             float halfwidth  = ((TGeoBBox*)volWorld->GetShape())->GetDX();
             if (std::abs(point.x()) > halfwidth  ||
-                std::abs(point.y()) > halfheight ||
-                std::abs(point.z()) > halflength){
+            std::abs(point.y()) > halfheight ||
+            std::abs(point.z()) > halflength){
                 if (fPointInWarnings) {
                     LOG_WARNING("GeometryCoreBadInputPoint")
                     << "point ("
@@ -679,8 +679,8 @@ namespace gar {
         {
             // check that the given point is in the enclosure volume at least
             if (std::abs(point.x()) > fEnclosureHalfWidth  ||
-                std::abs(point.y()) > fEnclosureHalfHeight ||
-                std::abs(point.z()) > fEnclosureLength){
+            std::abs(point.y()) > fEnclosureHalfHeight ||
+            std::abs(point.z()) > fEnclosureLength){
                 if (fPointInWarnings) {
                     LOG_WARNING("GeometryCoreBadInputPoint")
                     << "point ("
@@ -705,8 +705,8 @@ namespace gar {
             TVector3 new_point = point - tpc_origin;
             // check that the given point is in the enclosure volume at least
             if (std::abs(new_point.x()) > fMPDHalfWidth  ||
-                std::abs(new_point.y()) > fMPDHalfHeight ||
-                std::abs(new_point.z()) > fMPDLength){
+            std::abs(new_point.y()) > fMPDHalfHeight ||
+            std::abs(new_point.z()) > fMPDLength){
                 if (fPointInWarnings) {
                     LOG_WARNING("GeometryCoreBadInputPoint")
                     << "point ("
@@ -731,7 +731,7 @@ namespace gar {
             float y = std::abs(point.y() - fTPCYCent);
             float z = std::abs(point.z() - fTPCZCent);
             if (std::abs(point.x() - fTPCXCent) > fTPCLength/2.0  ||
-                std::hypot(z,y)                 > fTPCRadius) {
+            std::hypot(z,y)                 > fTPCRadius) {
                 if (fPointInWarnings) {
                     LOG_WARNING("GeometryCoreBadInputPoint")
                     << "point ("
@@ -758,8 +758,8 @@ namespace gar {
             float halfheight = ((TGeoBBox*)volLArTPC->GetShape())->GetDY();
             float halfwidth  = ((TGeoBBox*)volLArTPC->GetShape())->GetDX();
             if (std::abs(point.x()) > halfwidth  ||
-                std::abs(point.y()) > halfheight ||
-                std::abs(point.z()) > halflength){
+            std::abs(point.y()) > halfheight ||
+            std::abs(point.z()) > halflength){
                 if (fPointInWarnings) {
                     LOG_WARNING("GeometryCoreBadInputPoint")
                     << "point ("
@@ -783,7 +783,7 @@ namespace gar {
             std::string vol_name = this->VolumeName(point);
 
             if( vol_name.find("barrel") == std::string::npos || vol_name.find("Barrel") == std::string::npos)
-                return false;
+            return false;
 
             return true;
         }
@@ -794,7 +794,7 @@ namespace gar {
             std::string vol_name = this->VolumeName(point);
 
             if( vol_name.find("endcap") == std::string::npos || vol_name.find("Endcap") == std::string::npos)
-                return false;
+            return false;
 
             return true;
         }
@@ -859,8 +859,8 @@ namespace gar {
 
             //first initialize a track - get the direction cosines
             double length = std::sqrt( sqr(p2[0]-p1[0])
-                + sqr(p2[1]-p1[1])
-                + sqr(p2[2]-p1[2]));
+            + sqr(p2[1]-p1[1])
+            + sqr(p2[2]-p1[2]));
             double dxyz[3] = {(p2[0]-p1[0])/length, (p2[1]-p1[1])/length, (p2[2]-p1[2])/length};
 
             gGeoManager->InitTrack(p1,dxyz);
@@ -883,8 +883,8 @@ namespace gar {
             //get the distance between the current point and the last one
             const double *current = gGeoManager->GetCurrentPoint();
             length = std::sqrt(sqr(p2[0]-current[0]) +
-                sqr(p2[1]-current[1]) +
-                sqr(p2[2]-current[2]));
+            sqr(p2[1]-current[1]) +
+            sqr(p2[2]-current[2]));
             columnD += length*node->GetMedium()->GetMaterial()->GetDensity();
 
             return columnD;
@@ -893,7 +893,7 @@ namespace gar {
         //--------------------------------------------------------------------
         float GeometryCore::GetIROCInnerRadius() const
         {
-           return fChannelMapAlg->GetIROCInnerRadius();
+            return fChannelMapAlg->GetIROCInnerRadius();
         }
 
         //--------------------------------------------------------------------
@@ -973,6 +973,8 @@ namespace gar {
             this->FindECALInnerSymmetry();
             this->FindECALEndcapStartX();
             this->FindECALEndcapOuterX();
+            this->FindECALnLayers();
+            this->MakeECALLayeredCalorimeterData();
 
             StoreECALNodes(fECALNodePath);
             std::cout << "Stored " << fECALNodePath.size() << " ECAL nodes in memory" << std::endl;
@@ -985,9 +987,9 @@ namespace gar {
         {
             TGeoVolume *vol = gGeoManager->FindVolumeFast("BarrelECal_vol");
             if(!vol)
-                vol = gGeoManager->FindVolumeFast("volBarrelECal");
+            vol = gGeoManager->FindVolumeFast("volBarrelECal");
             if(!vol)
-                return false;
+            return false;
 
             fECALRinner = ((TGeoPgon*)vol->GetShape())->GetRmin(0);
 
@@ -999,9 +1001,9 @@ namespace gar {
         {
             TGeoVolume *vol = gGeoManager->FindVolumeFast("BarrelECal_vol");
             if(!vol)
-                vol = gGeoManager->FindVolumeFast("volBarrelECal");
+            vol = gGeoManager->FindVolumeFast("volBarrelECal");
             if(!vol)
-                return false;
+            return false;
 
             fECALRouter = ((TGeoPgon*)vol->GetShape())->GetRmax(0);
 
@@ -1013,9 +1015,9 @@ namespace gar {
         {
             TGeoVolume *vol = gGeoManager->FindVolumeFast("EndcapECal_vol");
             if(!vol)
-                vol = gGeoManager->FindVolumeFast("volEndcapECal");
+            vol = gGeoManager->FindVolumeFast("volEndcapECal");
             if(!vol)
-                return false;
+            return false;
 
             fECALECapRinner = 0.;
 
@@ -1042,9 +1044,9 @@ namespace gar {
         {
             TGeoVolume *vol = gGeoManager->FindVolumeFast("PVBarrel_vol");
             if(!vol)
-                vol = gGeoManager->FindVolumeFast("volPVBarrel");
+            vol = gGeoManager->FindVolumeFast("volPVBarrel");
             if(!vol)
-                { fPVThickness = 0.; return false; }
+            { fPVThickness = 0.; return false; }
 
             float min = ((TGeoTube*)vol->GetShape())->GetRmin();
             float max = ((TGeoTube*)vol->GetShape())->GetRmax();
@@ -1059,9 +1061,9 @@ namespace gar {
         {
             TGeoVolume *vol = gGeoManager->FindVolumeFast("BarrelECal_vol");
             if(!vol)
-                vol = gGeoManager->FindVolumeFast("volBarrelECal");
+            vol = gGeoManager->FindVolumeFast("volBarrelECal");
             if(!vol)
-                return false;
+            return false;
 
             fECALSymmetry = ((TGeoPgon*)vol->GetShape())->GetNedges();
 
@@ -1074,9 +1076,9 @@ namespace gar {
             //Find the PV Endcap
             TGeoVolume *vol_pv = gGeoManager->FindVolumeFast("PVEndcap_vol");
             if(!vol_pv)
-                vol_pv = gGeoManager->FindVolumeFast("volPVEndcap");
+            vol_pv = gGeoManager->FindVolumeFast("volPVEndcap");
             if(!vol_pv)
-                return false;
+            return false;
 
             TGeoVolume *vol_tpc_chamber = gGeoManager->FindVolumeFast("volGArTPC");
             if(!vol_tpc_chamber) return false;
@@ -1093,12 +1095,202 @@ namespace gar {
             //Find the ecal Endcap
             TGeoVolume *vol_e = gGeoManager->FindVolumeFast("EndcapECal_vol");
             if(!vol_e)
-                vol_e = gGeoManager->FindVolumeFast("volEndcapECal");
+            vol_e = gGeoManager->FindVolumeFast("volEndcapECal");
             if(!vol_e)
-                return false;
+            return false;
 
             //The start of the endcap is after the pv endcap -> sum of tpc chamber length and pressure vessel bulge
             fECALEndcapOuterX = ((TGeoBBox*)vol_e->GetShape())->GetDZ()*2 - fECALEndcapStartX;
+
+            return true;
+        }
+
+        //----------------------------------------------------------------------------
+        bool GeometryCore::FindECALnLayers()
+        {
+            if(fECALSegmentationAlg)
+            fECALnLayers = fECALSegmentationAlg->nLayers();
+
+            return true;
+        }
+
+        //----------------------------------------------------------------------------
+        unsigned int GeometryCore::GetNLayers(std::string det) const
+        {
+            if(det.compare("ECAL") == 0)
+            return fECALnLayers;
+
+            return 0;
+        }
+
+        //----------------------------------------------------------------------------
+        bool GeometryCore::MakeECALLayeredCalorimeterData()
+        {
+            //Barrel
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::BarrelLayout] = std::shared_ptr<gar::geo::LayeredCalorimeterData>(new LayeredCalorimeterData());
+
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::BarrelLayout]->layoutType = gar::geo::LayeredCalorimeterData::BarrelLayout;
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::BarrelLayout]->inner_symmetry = GetECALInnerSymmetry();
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::BarrelLayout]->outer_symmetry = 0;
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::BarrelLayout]->phi0 = 0;
+
+            /// extent of the calorimeter in the r-z-plane [ rmin, rmax, zmin, zmax ].
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::BarrelLayout]->extent[0] = GetECALInnerBarrelRadius() ;
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::BarrelLayout]->extent[1] = GetECALOuterBarrelRadius() ;
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::BarrelLayout]->extent[2] = 0.f ;
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::BarrelLayout]->extent[3] = GetECALEndcapStartX() ;
+
+            for(unsigned int i = 0; i < GetNLayers("ECAL"); i++)
+            {
+                float nRadiationLengths = 0.;
+                float nInteractionLengths = 0.;
+                float thickness_sum = 0.;
+                float layer_thickness = 0.;
+                float abs_thickness = 0.;
+
+                gar::geo::LayeredCalorimeterData::Layer caloLayer ;
+                caloLayer.cellSize0 = fECALSegmentationAlg->gridSizeX();
+                caloLayer.cellSize1 = fECALSegmentationAlg->stripSizeX();
+
+                TGeoVolume *volLayer = gGeoManager->FindVolumeFast(TString::Format("BarrelECal_stave01_module01_layer_%02i_vol", i+1));
+
+                if(volLayer)
+                {
+                    for(int islice = 0; islice < volLayer->GetNdaughters(); islice++)
+                    {
+                        TGeoVolume *slice = volLayer->GetNode(islice)->GetVolume();
+                        TGeoMaterial *mat = slice->GetMaterial();
+                        double rad_len = mat->GetRadLen();
+                        double int_len = mat->GetIntLen();
+                        const char *material = mat->GetName();
+
+                        double slice_thickness = ((TGeoBBox*)slice->GetShape())->GetDZ(); //half thickness
+
+                        nRadiationLengths   += slice_thickness/rad_len;
+                        nInteractionLengths += slice_thickness/int_len;
+                        thickness_sum       += slice_thickness;
+                        layer_thickness     += slice_thickness;
+
+                        LOG_DEBUG("GeometryCore::FindECALLayeredCalorimeterData")
+                        << " Slice " << islice
+                        << " RadLen " << nRadiationLengths
+                        << " IntLen " << nInteractionLengths
+                        << " ThicknessSum " << thickness_sum
+                        << " Material " << mat->GetName();
+
+                        if(strcmp(material, "Copper") == 0 || strcmp(material, "Steel") == 0 || strcmp(material, "Lead") == 0) {
+                            abs_thickness += slice_thickness * 2;
+                        }
+
+                        if(strcmp(material, "Scintillator") == 0) {
+                            caloLayer.inner_nRadiationLengths = nRadiationLengths;
+                            caloLayer.inner_nInteractionLengths = nInteractionLengths;
+                            caloLayer.inner_thickness = thickness_sum;
+                            caloLayer.sensitive_thickness = slice_thickness*2.;
+
+                            nRadiationLengths = 0.;
+                            nInteractionLengths = 0.;
+                            thickness_sum = 0.;
+                        }
+
+                        nRadiationLengths   += slice_thickness/rad_len;
+                        nInteractionLengths += slice_thickness/int_len;
+                        thickness_sum       += slice_thickness;
+                        layer_thickness     += slice_thickness;
+                    }
+
+                    caloLayer.outer_nRadiationLengths = nRadiationLengths;
+                    caloLayer.outer_nInteractionLengths = nInteractionLengths;
+                    caloLayer.outer_thickness = thickness_sum;
+
+                    caloLayer.distance = GetECALInnerBarrelRadius() + (i+1) * layer_thickness;
+                    caloLayer.absorberThickness = abs_thickness;
+                    fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::BarrelLayout]->layers.push_back( caloLayer );
+                }
+            }
+
+            //Endcap
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::EndcapLayout] = std::shared_ptr<gar::geo::LayeredCalorimeterData>(new LayeredCalorimeterData());
+
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::EndcapLayout]->layoutType = gar::geo::LayeredCalorimeterData::EndcapLayout;
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::EndcapLayout]->inner_symmetry = GetECALInnerSymmetry();
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::EndcapLayout]->outer_symmetry = 0;
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::EndcapLayout]->phi0 = 0;
+
+            /// extent of the calorimeter in the r-z-plane [ rmin, rmax, zmin, zmax ].
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::EndcapLayout]->extent[0] = GetECALInnerEndcapRadius() ;
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::EndcapLayout]->extent[1] = GetECALOuterEndcapRadius() ;
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::EndcapLayout]->extent[2] = GetECALEndcapStartX() ;
+            fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::EndcapLayout]->extent[3] = GetECALEndcapOuterX() ;
+
+            for(unsigned int i = 0; i < GetNLayers("ECAL"); i++)
+            {
+                float nRadiationLengths = 0.;
+                float nInteractionLengths = 0.;
+                float thickness_sum = 0.;
+                float layer_thickness = 0.;
+                float abs_thickness = 0.;
+
+                gar::geo::LayeredCalorimeterData::Layer caloLayer ;
+                caloLayer.cellSize0 = fECALSegmentationAlg->gridSizeX();
+                caloLayer.cellSize1 = fECALSegmentationAlg->stripSizeX();
+
+                TGeoVolume *volLayer = gGeoManager->FindVolumeFast(TString::Format("EndcapECal_stave01_module00_layer_%02i_vol", i+1));
+
+                if(volLayer)
+                {
+                    for(int islice = 0; islice < volLayer->GetNdaughters(); islice++)
+                    {
+                        TGeoVolume *slice = volLayer->GetNode(islice)->GetVolume();
+                        TGeoMaterial *mat = slice->GetMaterial();
+                        double rad_len = mat->GetRadLen();
+                        double int_len = mat->GetIntLen();
+                        const char *material = mat->GetName();
+
+                        double slice_thickness = ((TGeoBBox*)slice->GetShape())->GetDZ(); //half thickness
+
+                        nRadiationLengths   += slice_thickness/rad_len;
+                        nInteractionLengths += slice_thickness/int_len;
+                        thickness_sum       += slice_thickness;
+                        layer_thickness     += slice_thickness;
+
+                        LOG_DEBUG("GeometryCore::FindECALLayeredCalorimeterData")
+                        << " Slice " << islice
+                        << " RadLen " << nRadiationLengths
+                        << " IntLen " << nInteractionLengths
+                        << " ThicknessSum " << thickness_sum
+                        << " Material " << mat->GetName();
+
+                        if(strcmp(material, "Copper") == 0 || strcmp(material, "Steel") == 0 || strcmp(material, "Lead") == 0) {
+                            abs_thickness += slice_thickness * 2;
+                        }
+
+                        if(strcmp(material, "Scintillator") == 0) {
+                            caloLayer.inner_nRadiationLengths = nRadiationLengths;
+                            caloLayer.inner_nInteractionLengths = nInteractionLengths;
+                            caloLayer.inner_thickness = thickness_sum;
+                            caloLayer.sensitive_thickness = slice_thickness*2.;
+
+                            nRadiationLengths = 0.;
+                            nInteractionLengths = 0.;
+                            thickness_sum = 0.;
+                        }
+
+                        nRadiationLengths   += slice_thickness/rad_len;
+                        nInteractionLengths += slice_thickness/int_len;
+                        thickness_sum       += slice_thickness;
+                        layer_thickness     += slice_thickness;
+                    }
+
+                    caloLayer.outer_nRadiationLengths = nRadiationLengths;
+                    caloLayer.outer_nInteractionLengths = nInteractionLengths;
+                    caloLayer.outer_thickness = thickness_sum;
+
+                    caloLayer.distance = GetECALEndcapStartX() + i * layer_thickness;
+                    caloLayer.absorberThickness = abs_thickness;
+                    fECALLayeredCalorimeterData[gar::geo::LayeredCalorimeterData::EndcapLayout]->layers.push_back( caloLayer );
+                }
+            }
 
             return true;
         }
@@ -1273,6 +1465,7 @@ namespace gar {
             std::cout << "ECAL polyhedra apothem length (Endcap): " << GetECALEndcapApothemLength() << " cm" << std::endl;
             std::cout << "ECAL Endcap Start X: " << GetECALEndcapStartX() << " cm" << std::endl;
             std::cout << "ECAL Endcap Outer X: " << GetECALEndcapOuterX() << " cm" << std::endl;
+            std::cout << "Number of layers: " << GetNLayers("ECAL") << std::endl;
             std::cout << "Pressure Vessel Thickness: " << GetPVThickness() << " cm" << std::endl;
             std::cout << "------------------------------\n" << std::endl;
         }
@@ -1365,7 +1558,7 @@ namespace gar {
             std::vector<TGeoNode const*> node_path(current_path.size());
 
             std::transform(current_path.begin(), current_path.end(), node_path.begin(),
-                [](NodeInfo_t const& node_info){ return node_info.self; });
+            [](NodeInfo_t const& node_info){ return node_info.self; });
             return node_path;
 
         } // ROOTGeoNodeForwardIterator::path()

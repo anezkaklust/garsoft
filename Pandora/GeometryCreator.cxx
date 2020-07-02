@@ -8,8 +8,8 @@
 namespace gar {
     namespace gar_pandora {
 
-        GeometryCreator::GeometryCreator(const Settings &settings, const pandora::Pandora *const pPandora) :
-        m_settings(settings),
+        GeometryCreator::GeometryCreator(const Settings &settings, const pandora::Pandora *const pPandora)
+        : m_settings(settings),
         m_pPandora(*pPandora)
         {
             fGeo = gar::providerFrom<geo::Geometry>();
@@ -61,8 +61,8 @@ namespace gar {
             PandoraApi::Geometry::SubDetector::Parameters eCalBarrelParameters, eCalEndCapParameters,
             muonBarrelParameters, muonEndCapParameters;
 
-            this->SetDefaultSubDetectorParameters("ECalBarrel", pandora::ECAL_BARREL, eCalBarrelParameters);
-            this->SetDefaultSubDetectorParameters("ECalEndcap", pandora::ECAL_BARREL, eCalBarrelParameters);
+            this->SetDefaultSubDetectorParameters(*const_cast<gar::geo::LayeredCalorimeterData*>(fGeo->GetECALLayeredCalorimeterData()[gar::geo::LayeredCalorimeterData::BarrelLayout].get()), "ECalBarrel", pandora::ECAL_BARREL, eCalBarrelParameters);
+            this->SetDefaultSubDetectorParameters(*const_cast<gar::geo::LayeredCalorimeterData*>(fGeo->GetECALLayeredCalorimeterData()[gar::geo::LayeredCalorimeterData::EndcapLayout].get()), "ECalEndcap", pandora::ECAL_ENDCAP, eCalEndCapParameters);
 
             subDetectorTypeMap[pandora::ECAL_BARREL] = eCalBarrelParameters;
             subDetectorTypeMap[pandora::ECAL_ENDCAP] = eCalEndCapParameters;
@@ -93,20 +93,43 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        void GeometryCreator::SetDefaultSubDetectorParameters(const std::string &subDetectorName, const pandora::SubDetectorType subDetectorType, PandoraApi::Geometry::SubDetector::Parameters &parameters) const
+        void GeometryCreator::SetDefaultSubDetectorParameters(const gar::geo::LayeredCalorimeterData &inputParameters, const std::string &subDetectorName, const pandora::SubDetectorType subDetectorType, PandoraApi::Geometry::SubDetector::Parameters &parameters) const
         {
+            const std::vector<gar::geo::LayeredCalorimeterStruct::Layer> &layers = inputParameters.layers;
+
             parameters.m_subDetectorName = subDetectorName;
             parameters.m_subDetectorType = subDetectorType;
-            parameters.m_innerRCoordinate = 0.f;
-            parameters.m_innerZCoordinate = 0.f;
-            parameters.m_innerPhiCoordinate = 0.f;
-            parameters.m_innerSymmetryOrder = 8;
-            parameters.m_outerRCoordinate = fGeo->TPCRadius(); // outer R of TPC
-            parameters.m_outerZCoordinate = fGeo->TPCLength() / 2.; // outer X of TPC
-            parameters.m_outerPhiCoordinate = 0.f;
-            parameters.m_outerSymmetryOrder = 0;
+            parameters.m_innerRCoordinate = inputParameters.extent[0];
+            parameters.m_innerZCoordinate = inputParameters.extent[2];
+            parameters.m_innerSymmetryOrder = inputParameters.inner_symmetry;
+            parameters.m_outerRCoordinate = inputParameters.extent[1];
+            parameters.m_outerZCoordinate = inputParameters.extent[3];
+            parameters.m_innerPhiCoordinate = inputParameters.inner_phi0;
+            parameters.m_outerPhiCoordinate = inputParameters.outer_phi0;
+            parameters.m_outerSymmetryOrder = inputParameters.outer_symmetry;
             parameters.m_isMirroredInZ = true;
-            parameters.m_nLayers = 60;
+            parameters.m_nLayers = layers.size();
+
+            for (size_t i = 0; i < layers.size(); i++)
+            {
+                const gar::geo::LayeredCalorimeterStruct::Layer &theLayer = layers.at(i);
+                PandoraApi::Geometry::LayerParameters layerParameters;
+
+                double totalNumberOfRadLengths = theLayer.inner_nRadiationLengths;
+                double totalNumberOfIntLengths = theLayer.inner_nInteractionLengths;
+
+                if(i>0) {
+                    //Add the numbers from previous layer's outer side
+                    totalNumberOfRadLengths += layers.at(i-1).outer_nRadiationLengths;
+                    totalNumberOfIntLengths += layers.at(i-1).outer_nInteractionLengths;
+                }
+
+                layerParameters.m_closestDistanceToIp = (theLayer.distance + theLayer.inner_thickness) / CLHEP::mm; //Distance to center of sensitive element
+                layerParameters.m_nRadiationLengths = totalNumberOfRadLengths;
+                layerParameters.m_nInteractionLengths = totalNumberOfIntLengths;
+
+                parameters.m_layerParametersVector.push_back(layerParameters);
+            }
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
