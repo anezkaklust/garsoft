@@ -23,8 +23,7 @@ namespace gar
   namespace evd3d
   {
     EventDisplay3DService::EventDisplay3DService(fhicl::ParameterSet const& pset,
-      art::ActivityRegistry& reg):
-      ensureTApp_()
+      art::ActivityRegistry& reg)
       {
         (void)pset;
         reg.sPostBeginJobWorkers.watch(this, &EventDisplay3DService::postBeginJobWorkers);

@@ -44,6 +44,7 @@ art_make(
   )
 
 add_subdirectory(Converter)
+add_subdirectory(RootGraphics)
 
 install_headers()
 install_fhicl()

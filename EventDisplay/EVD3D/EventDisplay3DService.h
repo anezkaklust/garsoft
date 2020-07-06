@@ -15,7 +15,6 @@
 #include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "art/Framework/Principal/Event.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
-#include "EnsureTApplication.h"
 
 namespace gar
 {
@@ -28,10 +27,6 @@ namespace gar
       EventDisplay3DService(fhicl::ParameterSet const& pset, art::ActivityRegistry& reg);
 
     private:
-
-      // When this object is intialized, it will ensure that
-      // interactive ROOT is properly initialized
-      EnsureTApplication ensureTApp_;
 
       void postBeginJobWorkers(art::InputSource* inputs,
         std::vector<art::Worker*> const& workers);

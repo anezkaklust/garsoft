@@ -17,7 +17,8 @@ services:
   GArProperties:             @local::standard_garproperties   # from GArProperties.fcl
   ECALProperties:            @local::standard_ecalproperties   # from ECALProperties.fcl
   DetectorClocks:            @local::standard_clocks          # from DetectorClocks.fcl
-  EventDisplay3DService:       { }
+  RootGraphicsEnablingService: {}
+  EventDisplay3DService:       {}
 }
 
 # Define the services
