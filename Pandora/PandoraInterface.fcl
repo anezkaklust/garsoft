@@ -3,11 +3,39 @@ BEGIN_PROLOG
 standard_pandora:
 {
 module_type:        PandoraInterface
+
+# Pandora
+PandoraXML:         "PandoraSettingsBasic.xml"
+
+# MCParticleCreatorSettings
 Geant4Label:        "geant"
 GeneratorLabel:     ""
-CaloHitLabel:       "calohit"
+
+# TrackCreatorSettings
 TrackLabel:         "track"
-PandoraXML:         "PandoraSettingsBasic.xml"
+MinTrackHits: 5
+MaxTrackHits: 5000
+CurvatureToMomentumFactor: 0.00015
+MaxTrackSigmaPOverP: 3
+MinMomentumForTrackHitChecks: 0.1
+
+# CaloHitCreatorSettings
+CaloHitLabel:       "calohit"
+ECaltoMipCalibration: 1.
+ECalMipThreshold: 0.25
+ECalToEMGeVCalibration: 1.
+ECalToHadGeVCalibrationBarrel: 1.
+ECalToHadGeVCalibrationEndCap: 1.
+MaxECalHitHadronicEnergy: 10000.
+NOuterSamplingLayers: 3
+LayersFromEdgeMaxRearDistance: 250
+ECalBarrelNormalVector: [0., 0., 1.]
+
+# PFOCreatorSettings
+EMStockasticTerm: 0.17
+EMConstantTerm: 0.01
+HADStockasticTerm: 0.3
+HADConstantTerm: 0.1
 }
 
 END_PROLOG

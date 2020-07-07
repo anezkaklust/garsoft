@@ -13,6 +13,7 @@ art_make(BASENAME_ONLY
           RawDataProducts
           ReconstructionDataProducts
           nutools_MagneticField_MagneticField_service
+          GArRecoAlg
           ${ART_FRAMEWORK_PRINCIPAL}
           ${ART_FRAMEWORK_SERVICES_REGISTRY}
           ${ART_FRAMEWORK_SERVICES_OPTIONAL}
@@ -39,6 +40,7 @@ art_make(BASENAME_ONLY
           nusimdata_SimulationBase
           nutools_RandomUtils_NuRandomService_service
           nutools_MagneticField_MagneticField_service
+          GArRecoAlg
           ${ART_FRAMEWORK_CORE}
           ${ART_FRAMEWORK_IO_SOURCES}
           ${ART_FRAMEWORK_PRINCIPAL}

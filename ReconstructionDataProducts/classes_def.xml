@@ -74,7 +74,8 @@
     <version ClassVersion="11" checksum="2116479274"/>
     <version ClassVersion="10" checksum="2019157562"/>
   </class>
-  <class name="gar::rec::Cluster"            ClassVersion="20"           >
+  <class name="gar::rec::Cluster"            ClassVersion="21"           >
+   <version ClassVersion="21" checksum="107953554"/>
    <version ClassVersion="20" checksum="2201694756"/>
    <version ClassVersion="19" checksum="1750496844"/>
    <version ClassVersion="18" checksum="927260063"/>
@@ -86,6 +87,12 @@
    <version ClassVersion="12" checksum="2353294102"/>
    <version ClassVersion="11" checksum="2606403047"/>
    <version ClassVersion="10" checksum="238569477"/>
+  </class>
+  <class name="gar::rec::PFParticle"        ClassVersion="10"            >
+   <version ClassVersion="10" checksum="1520654697"/>
+  </class>
+  <class name="gar::rec::ParticleIDData"        ClassVersion="10"        >
+   <version ClassVersion="10" checksum="1585201401"/>
   </class>
 
   <class name="std::vector<gar::rec::Hit   >"                            />
@@ -101,6 +108,7 @@
   <class name="std::vector<gar::rec::CaloHit>"                           />
   <class name="std::vector<gar::rec::CaloHit*>"                          />
   <class name="std::vector<gar::rec::Cluster>"                           />
+  <class name="std::vector<gar::rec::PFParticle>"                        />
 
   <class name="art::Wrapper< std::vector<gar::rec::Hit   > >"                  />
   <class name="art::Wrapper< std::vector<gar::rec::TPCCluster   > >"           />
@@ -113,6 +121,7 @@
   <class name="art::Wrapper< std::vector<gar::rec::Vee> >"                     />
   <class name="art::Wrapper< std::vector<gar::rec::CaloHit> >"                 />
   <class name="art::Wrapper< std::vector<gar::rec::Cluster> >"                 />
+  <class name="art::Wrapper< std::vector<gar::rec::PFParticle> >"              />
 
   <class name="std::pair< art::Ptr<simb::MCParticle>, art::Ptr<gar::rec::Hit>      >"   />
   <class name="std::pair< art::Ptr<gar::rec::Hit>,    art::Ptr<simb::MCParticle> >"     />

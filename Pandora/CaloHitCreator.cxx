@@ -59,12 +59,12 @@ namespace gar {
 
             if (!theHits.isValid())
             {
-                LOG_DEBUG("CaloHitCreator") << "  Failed to find hits... " << std::endl;
+                LOG_DEBUG("CaloHitCreator::CreateECalCaloHits") << "  Failed to find hits... " << std::endl;
                 return pandora::STATUS_CODE_FAILURE;
             }
             else
             {
-                LOG_DEBUG("CaloHitCreator") << "  Found: " << theHits->size() << " Hits " << std::endl;
+                LOG_DEBUG("CaloHitCreator::CreateECalCaloHits") << "  Found: " << theHits->size() << " Hits " << std::endl;
             }
 
             for (unsigned int i = 0; i < theHits->size(); ++i)
@@ -91,26 +91,28 @@ namespace gar {
 
                 float absorberCorrection(1.);
 
-                if (std::fabs(pCaloHit->Position()[2]) < m_settings.m_eCalBarrelOuterZ)
+                //Need to use X instead of Z
+                if (std::fabs(pCaloHit->Position()[0]) < m_settings.m_eCalBarrelOuterZ)
                 {
-                    LOG_DEBUG("CaloHitCreator") << "IDS " << iter
-                    << std::setw(15) << pCaloHit->CellID()
-                    << std::setw(15) << pCaloHit->Position()[0]
-                    << std::setw(15) << pCaloHit->Position()[1]
-                    << std::setw(15) << pCaloHit->Position()[2]
-                    << std::setw(5) << m_fieldDecoder->get(pCaloHit->CellID(), "system")
-                    << std::setw(5) << m_fieldDecoder->get(pCaloHit->CellID(), "module")
-                    << std::setw(5) << m_fieldDecoder->get(pCaloHit->CellID(), "stave")
-                    << std::setw(5) << m_fieldDecoder->get(pCaloHit->CellID(), "layer")
-                    << std::setw(5) << m_fieldDecoder->get(pCaloHit->CellID(), "cellX")
-                    << std::setw(5) << m_fieldDecoder->get(pCaloHit->CellID(), "cellY")
-                    << std::endl;
+                    LOG_DEBUG("CaloHitCreator::CreateECalCaloHits")
+                    << " cellID " << pCaloHit->CellID()
+                    << " energy " << pCaloHit->Energy()
+                    << " X " << pCaloHit->Position()[0]
+                    << " Y " << pCaloHit->Position()[1]
+                    << " Z " << pCaloHit->Position()[2];
 
                     this->GetBarrelCaloHitProperties(pCaloHit, barrelLayers, m_settings.m_eCalBarrelInnerSymmetry, caloHitParameters, m_settings.m_eCalBarrelNormalVector, absorberCorrection);
                     caloHitParameters.m_hadronicEnergy = m_settings.m_eCalToHadGeVBarrel * pCaloHit->Energy();
                 }
                 else
                 {
+                    LOG_DEBUG("CaloHitCreator::CreateECalCaloHits")
+                    << " cellID " << pCaloHit->CellID()
+                    << " energy " << pCaloHit->Energy()
+                    << " X " << pCaloHit->Position()[0]
+                    << " Y " << pCaloHit->Position()[1]
+                    << " Z " << pCaloHit->Position()[2];
+
                     this->GetEndCapCaloHitProperties(pCaloHit, endcapLayers, caloHitParameters, absorberCorrection);
                     caloHitParameters.m_hadronicEnergy = m_settings.m_eCalToHadGeVEndCap * pCaloHit->Energy();
                 }
@@ -134,7 +136,8 @@ namespace gar {
         void CaloHitCreator::GetCommonCaloHitProperties(const gar::rec::CaloHit *const pCaloHit, PandoraApi::CaloHit::Parameters &caloHitParameters) const
         {
             const float *pCaloHitPosition(pCaloHit->Position());
-            const pandora::CartesianVector positionVector(pCaloHitPosition[0], pCaloHitPosition[1], pCaloHitPosition[2]);
+            //Inverse X and Z for pandora to cope with the change in beam axis
+            const pandora::CartesianVector positionVector(pCaloHitPosition[2], pCaloHitPosition[1], pCaloHitPosition[0]);
 
             caloHitParameters.m_cellGeometry = pandora::RECTANGULAR;
             caloHitParameters.m_positionVector = positionVector;
@@ -195,7 +198,7 @@ namespace gar {
                 break;
             }
 
-            caloHitParameters.m_cellNormalVector = (pCaloHit->Position()[2] > 0) ? pandora::CartesianVector(0, 0, 1) : pandora::CartesianVector(0, 0, -1);
+            caloHitParameters.m_cellNormalVector = (pCaloHit->Position()[0] > 0) ? pandora::CartesianVector(0, 0, 1) : pandora::CartesianVector(0, 0, -1);
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -251,19 +254,19 @@ namespace gar {
 
             if (barrelSymmetryOrder > 2)
             {
-                const double phi = atan2( pCaloHit->Position()[1], pCaloHit->Position()[0] );
+                const double phi = atan2( pCaloHit->Position()[2], pCaloHit->Position()[1] );
 
                 LOG_DEBUG( "CaloHitCreator::GetBarrelCaloHitProperties" )
                 << "This hit does not have any cellIDs set, will use phi-direction for normal vector "
                 << " phi:" << std::setw(15) << phi*180/M_PI;
 
-                caloHitParameters.m_cellNormalVector = pandora::CartesianVector( std::cos(phi), std::sin(phi) , 0.0 );
+                caloHitParameters.m_cellNormalVector = pandora::CartesianVector(0, std::cos(phi), std::sin(phi));
             }
             else
             {
                 const float *pCaloHitPosition( pCaloHit->Position() );
-                const float phi = std::atan2( pCaloHitPosition[1], pCaloHitPosition[0] );
-                caloHitParameters.m_cellNormalVector = pandora::CartesianVector(std::cos(phi), std::sin(phi), 0);
+                const float phi = std::atan2( pCaloHitPosition[2], pCaloHitPosition[1] );
+                caloHitParameters.m_cellNormalVector = pandora::CartesianVector(0, std::cos(phi), std::sin(phi));
             }
         }
 
@@ -274,7 +277,7 @@ namespace gar {
             // Calo hit coordinate calculations
             const float barrelMaximumRadius(this->GetMaximumRadius(pCaloHit, m_settings.m_eCalBarrelOuterSymmetry, m_settings.m_eCalBarrelOuterPhi0));
             const float endCapMaximumRadius(this->GetMaximumRadius(pCaloHit, m_settings.m_eCalEndCapInnerSymmetryOrder, m_settings.m_eCalEndCapInnerPhiCoordinate));
-            const float caloHitAbsZ(std::fabs(pCaloHit->Position()[2]));
+            const float caloHitAbsZ(std::fabs(pCaloHit->Position()[0]));
 
             // Distance from radial outer
             float radialDistanceToEdge(std::numeric_limits<float>::max());
@@ -316,7 +319,7 @@ namespace gar {
             const float *pCaloHitPosition(pCaloHit->Position());
 
             if (symmetryOrder <= 2)
-            return std::sqrt((pCaloHitPosition[0] * pCaloHitPosition[0]) + (pCaloHitPosition[1] * pCaloHitPosition[1]));
+            return std::sqrt((pCaloHitPosition[1] * pCaloHitPosition[1]) + (pCaloHitPosition[2] * pCaloHitPosition[2]));
 
             float maximumRadius(0.f);
             const float twoPi(2.f * M_PI);
@@ -324,7 +327,7 @@ namespace gar {
             for (unsigned int i = 0; i < symmetryOrder; ++i)
             {
                 const float phi = phi0 + i * twoPi / static_cast<float>(symmetryOrder);
-                float radius = pCaloHitPosition[0] * std::cos(phi) + pCaloHitPosition[1] * std::sin(phi);
+                float radius = pCaloHitPosition[1] * std::cos(phi) + pCaloHitPosition[2] * std::sin(phi);
 
                 if (radius > maximumRadius)
                 maximumRadius = radius;

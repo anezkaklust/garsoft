@@ -33,10 +33,8 @@ Date 15.05.2020
 //LCContent
 #include "LCContent.h"
 #include "LCPlugins/LCSoftwareCompensation.h"
-#include "LCPlugins/LCBFieldPlugin.h"
 #include "LCPlugins/LCEnergyCorrectionPlugins.h"
 #include "LCPlugins/LCParticleIdPlugins.h"
-#include "LCPlugins/LCPseudoLayerPlugin.h"
 #include "LCPlugins/LCShowerProfilePlugin.h"
 
 #include <exception>
@@ -98,7 +96,6 @@ namespace gar {
             MCParticleCreator::Settings        m_mcParticleCreatorSettings{};      ///< The mc particle creator settings
             TrackCreator::Settings             m_trackCreatorSettings{};           ///< The track creator settings
             PfoCreator::Settings               m_pfoCreatorSettings{};             ///< The pfo creator settings
-            PseudoLayerPlugin::Settings        m_pseudoLayerParameters{};          ///< The pseudo layer settings
 
             typedef std::map<const pandora::Pandora *, art::Event *> PandoraToEventMap;
             static PandoraToEventMap          m_pandoraToEventMap;              ///< The pandora to event map
@@ -155,7 +152,7 @@ namespace gar {
         }
 
         //-----------------------------------------------------------------------------------
-        void PandoraInterface::produce(art::Event & e)
+        void PandoraInterface::produce(art::Event &e)
         {
             try
             {
@@ -211,24 +208,27 @@ namespace gar {
         {
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContent::RegisterAlgorithms(*m_pPandora));
 
-            //Custom Plugins
-            art::ServiceHandle<mag::MagneticField> magFieldService;
-            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetBFieldPlugin(*m_pPandora, new BFieldPlugin(magFieldService)));
-            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetPseudoLayerPlugin(*m_pPandora, new PseudoLayerPlugin(m_pseudoLayerParameters)));
-            //Shower Profile Plugin
+            //Shower profile Plugin
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetShowerProfilePlugin(*m_pPandora, new lc_content::LCShowerProfilePlugin));
-
-            //Energy Correction Plugins
+            //Energy Correction LCPlugins
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::RegisterEnergyCorrectionPlugin(*m_pPandora, "CleanClusters", pandora::HADRONIC, new lc_content::LCEnergyCorrectionPlugins::CleanCluster));
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::RegisterEnergyCorrectionPlugin(*m_pPandora, "ScaleHotHadrons", pandora::HADRONIC, new lc_content::LCEnergyCorrectionPlugins::ScaleHotHadrons));
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::RegisterEnergyCorrectionPlugin(*m_pPandora, "MuonCoilCorrection", pandora::HADRONIC, new lc_content::LCEnergyCorrectionPlugins::MuonCoilCorrection));
 
-            //PID Plugins
+            //PID LCPlugins
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::RegisterParticleIdPlugin(*m_pPandora, "LCEmShowerId" , new lc_content::LCParticleIdPlugins::LCEmShowerId));
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::RegisterParticleIdPlugin(*m_pPandora, "LCPhotonId" , new lc_content::LCParticleIdPlugins::LCPhotonId));
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::RegisterParticleIdPlugin(*m_pPandora, "LCElectronId" , new lc_content::LCParticleIdPlugins::LCElectronId));
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::RegisterParticleIdPlugin(*m_pPandora, "LCMuonId" , new lc_content::LCParticleIdPlugins::LCMuonId));
 
+            //Custom Plugins
+            art::ServiceHandle<mag::MagneticField> magFieldService;
+            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetBFieldPlugin(*m_pPandora,
+            new BFieldPlugin(magFieldService)));
+            PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetPseudoLayerPlugin(*m_pPandora, new PseudoLayerPlugin));
+
+            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContent::RegisterNonLinearityEnergyCorrection(*m_pPandora,
+            "NonLinearity", pandora::HADRONIC, m_settings.m_inputEnergyCorrectionPoints, m_settings.m_outputEnergyCorrectionPoints));
 
             return pandora::STATUS_CODE_SUCCESS;
         }
@@ -252,9 +252,6 @@ namespace gar {
             m_trackCreatorSettings.m_maxTrackSigmaPOverP = pset.get<unsigned int>("MaxTrackSigmaPOverP", 3); //Cut on fractional track momentum error
             m_trackCreatorSettings.m_minMomentumForTrackHitChecks = pset.get<float>("MinMomentumForTrackHitChecks", 0.5); //Min track momentum required to perform final quality checks on number of hits
 
-            m_pfoCreatorSettings.m_emStochasticTerm = pset.get<float>("EMStockTerm", 0.05); //The stochastic term for EM shower
-            m_pfoCreatorSettings.m_emConstantTerm = pset.get<float>("EMConstTerm", 2.); //The constant term for EM shower
-
             m_caloHitCreatorSettings.m_CaloHitCollection = pset.get<std::string>("CaloHitLabel", "calohit"); //Calo hits
             m_caloHitCreatorSettings.m_eCalToMip = pset.get<float>("ECaltoMipCalibration", 1.); //The calibration from deposited ECal energy to mip
             m_caloHitCreatorSettings.m_eCalMipThreshold = pset.get<float>("ECalMipThreshold", 0.25); //Threshold for creating calo hits in the ECal, units mip
@@ -269,8 +266,13 @@ namespace gar {
             m_mcParticleCreatorSettings.m_geantModuleLabel = pset.get<std::string>("Geant4Label", "geant"); //geant4
             m_mcParticleCreatorSettings.m_geantModuleLabel = pset.get<std::string>("GeneratorLabel", "genie"); //generator
 
-            // produces< std::vector<gar::rec::Cluster> >();
-            // produces< std::vector<gar::rec::PFParticle> >();
+            m_pfoCreatorSettings.m_emStochasticTerm = pset.get<float>("EMStockasticTerm", 0.17);
+            m_pfoCreatorSettings.m_emConstantTerm = pset.get<float>("EMConstantTerm", 0.01);
+            m_pfoCreatorSettings.m_hadStochasticTerm = pset.get<float>("HADStockasticTerm", 0.3);
+            m_pfoCreatorSettings.m_hadStochasticTerm = pset.get<float>("HADConstantTerm", 0.1);
+
+            produces< std::vector<gar::rec::Cluster> >();
+            produces< std::vector<gar::rec::PFParticle> >();
         }
 
         //-----------------------------------------------------------------------------------

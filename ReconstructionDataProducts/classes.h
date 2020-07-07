@@ -24,7 +24,7 @@
 #include "ReconstructionDataProducts/Vee.h"
 #include "ReconstructionDataProducts/Cluster.h"
 #include "ReconstructionDataProducts/TPCCluster.h"
-
+#include "ReconstructionDataProducts/PFParticle.h"
 #include "ReconstructionDataProducts/IDNumberGen.h"
 
 #endif /* classes_h */

@@ -35,13 +35,13 @@ namespace gar {
 
                 std::string detectorName = "NDGAr";
 
-                LOG_DEBUG( "GeometryCreator::CreateGeometry()" ) << "Creating geometry for detector " << detectorName << std::endl;
+                LOG_INFO( "GeometryCreator::CreateGeometry()" ) << "Creating geometry for detector " << detectorName << std::endl;
 
                 for (SubDetectorTypeMap::const_iterator iter = subDetectorTypeMap.begin(), iterEnd = subDetectorTypeMap.end(); iter != iterEnd; ++iter)
                 PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::Geometry::SubDetector::Create(m_pPandora, iter->second));
 
                 for (SubDetectorNameMap::const_iterator iter = subDetectorNameMap.begin(), iterEnd = subDetectorNameMap.end(); iter != iterEnd; ++iter){
-                    LOG_DEBUG( "GeometryCreator::CreateGeometry()" ) << "Creating geometry for additional subdetector " << iter->first << std::endl;
+                    LOG_INFO( "GeometryCreator::CreateGeometry()" ) << "Creating geometry for additional subdetector " << iter->first << std::endl;
                     PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::Geometry::SubDetector::Create(m_pPandora, iter->second));
                 }
             }

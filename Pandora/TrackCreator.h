@@ -7,6 +7,11 @@
 
 #include "ReconstructionDataProducts/Track.h"
 
+namespace lc_content{
+  class LCTrackParameters;
+  class LCTrackFactory;
+}
+
 namespace gar {
   namespace gar_pandora {
 
@@ -47,15 +52,15 @@ namespace gar {
 
     protected:
 
-      const Settings          m_settings;
-
-      const pandora::Pandora  &m_pandora;
-
       virtual bool PassesQualityCuts(const gar::rec::Track *const pTrack, const PandoraApi::Track::Parameters &trackParameters) const;
 
       virtual void TrackReachesECAL(const gar::rec::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
 
       virtual void DefineTrackPfoUsage(const gar::rec::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
+
+      const Settings          m_settings;
+      const pandora::Pandora  &m_pandora;
+      std::shared_ptr<lc_content::LCTrackFactory> m_TrackFactory = {};  ///< LCTrackFactor for creating LCTracks
     };
 
     inline void TrackCreator::Reset()
