@@ -26,8 +26,8 @@ namespace gar {
             const std::vector<gar::geo::LayeredCalorimeterStruct::Layer> &endcapLayers = (fGeo->GetECALLayeredCalorimeterData()[gar::geo::LayeredCalorimeterData::EndcapLayout].get())->layers;
 
             ///Take thicknesses from last layer (was like that before with gear)
-            m_eCalEndCapLayerThickness = (endcapLayers.back().inner_thickness + endcapLayers.back().outer_thickness);
-            m_eCalBarrelLayerThickness = (barrelLayers.back().inner_thickness + barrelLayers.back().outer_thickness);
+            m_eCalEndCapLayerThickness = (endcapLayers.back().inner_thickness + endcapLayers.back().outer_thickness) * CLHEP::cm;
+            m_eCalBarrelLayerThickness = (barrelLayers.back().inner_thickness + barrelLayers.back().outer_thickness) * CLHEP::cm;
 
             if ( (m_eCalEndCapLayerThickness < std::numeric_limits<float>::epsilon()) || (m_eCalBarrelLayerThickness < std::numeric_limits<float>::epsilon()) )
             throw pandora::StatusCodeException(pandora::STATUS_CODE_INVALID_PARAMETER);
@@ -59,7 +59,7 @@ namespace gar {
 
             if (!theHits.isValid())
             {
-                LOG_DEBUG("CaloHitCreator::CreateECalCaloHits") << "  Failed to find hits... " << std::endl;
+                LOG_ERROR("CaloHitCreator::CreateECalCaloHits") << "  Failed to find hits... " << std::endl;
                 return pandora::STATUS_CODE_FAILURE;
             }
             else
@@ -92,27 +92,13 @@ namespace gar {
                 float absorberCorrection(1.);
 
                 //Need to use X instead of Z
-                if (std::fabs(pCaloHit->Position()[0]) < m_settings.m_eCalBarrelOuterZ)
+                if (std::fabs(pCaloHit->Position()[0] * CLHEP::cm) < m_settings.m_eCalBarrelOuterZ)
                 {
-                    LOG_DEBUG("CaloHitCreator::CreateECalCaloHits")
-                    << " cellID " << pCaloHit->CellID()
-                    << " energy " << pCaloHit->Energy()
-                    << " X " << pCaloHit->Position()[0]
-                    << " Y " << pCaloHit->Position()[1]
-                    << " Z " << pCaloHit->Position()[2];
-
                     this->GetBarrelCaloHitProperties(pCaloHit, barrelLayers, m_settings.m_eCalBarrelInnerSymmetry, caloHitParameters, m_settings.m_eCalBarrelNormalVector, absorberCorrection);
                     caloHitParameters.m_hadronicEnergy = m_settings.m_eCalToHadGeVBarrel * pCaloHit->Energy();
                 }
                 else
                 {
-                    LOG_DEBUG("CaloHitCreator::CreateECalCaloHits")
-                    << " cellID " << pCaloHit->CellID()
-                    << " energy " << pCaloHit->Energy()
-                    << " X " << pCaloHit->Position()[0]
-                    << " Y " << pCaloHit->Position()[1]
-                    << " Z " << pCaloHit->Position()[2];
-
                     this->GetEndCapCaloHitProperties(pCaloHit, endcapLayers, caloHitParameters, absorberCorrection);
                     caloHitParameters.m_hadronicEnergy = m_settings.m_eCalToHadGeVEndCap * pCaloHit->Energy();
                 }
@@ -123,6 +109,25 @@ namespace gar {
                 continue;
 
                 caloHitParameters.m_electromagneticEnergy = m_settings.m_eCalToEMGeV * pCaloHit->Energy();
+
+                LOG_DEBUG("CaloHitCreator::CreateECalCaloHits")
+                << " caloHitParameters.m_hitType = " << caloHitParameters.m_hitType.Get()
+                << " caloHitParameters.m_isDigital = " << caloHitParameters.m_isDigital.Get()
+                << " caloHitParameters.m_layer = " << caloHitParameters.m_layer.Get()
+                << " caloHitParameters.m_isInOuterSamplingLayer = " << caloHitParameters.m_isInOuterSamplingLayer.Get()
+                << " caloHitParameters.m_cellGeometry = " << caloHitParameters.m_cellGeometry.Get()
+                << " caloHitParameters.m_positionVector = " << caloHitParameters.m_positionVector.Get()
+                << " caloHitParameters.m_expectedDirection = " << caloHitParameters.m_expectedDirection.Get()
+                << " caloHitParameters.m_inputEnergy = " << caloHitParameters.m_inputEnergy.Get()
+                << " caloHitParameters.m_time = " << caloHitParameters.m_time.Get()
+                << " caloHitParameters.m_cellSize0 = " << caloHitParameters.m_cellSize0.Get()
+                << " caloHitParameters.m_cellSize1 = " << caloHitParameters.m_cellSize1.Get()
+                << " caloHitParameters.m_cellThickness = " << caloHitParameters.m_cellThickness.Get()
+                << " caloHitParameters.m_nCellRadiationLengths = " << caloHitParameters.m_nCellRadiationLengths.Get()
+                << " caloHitParameters.m_nCellInteractionLengths = " << caloHitParameters.m_nCellInteractionLengths.Get()
+                << " caloHitParameters.m_hadronicEnergy = " << caloHitParameters.m_hadronicEnergy.Get()
+                << " caloHitParameters.m_mipEquivalentEnergy = " << caloHitParameters.m_mipEquivalentEnergy.Get()
+                << " caloHitParameters.m_electromagneticEnergy = " << caloHitParameters.m_electromagneticEnergy.Get();
 
                 PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::CaloHit::Create(m_pandora, caloHitParameters));
                 m_calorimeterHitVector.push_back(artPtrCaloHit);
@@ -137,7 +142,7 @@ namespace gar {
         {
             const float *pCaloHitPosition(pCaloHit->Position());
             //Inverse X and Z for pandora to cope with the change in beam axis
-            const pandora::CartesianVector positionVector(pCaloHitPosition[2], pCaloHitPosition[1], pCaloHitPosition[0]);
+            const pandora::CartesianVector positionVector(pCaloHitPosition[2] * CLHEP::cm, pCaloHitPosition[1] * CLHEP::cm, pCaloHitPosition[0] * CLHEP::cm);
 
             caloHitParameters.m_cellGeometry = pandora::RECTANGULAR;
             caloHitParameters.m_positionVector = positionVector;
@@ -154,20 +159,19 @@ namespace gar {
             caloHitParameters.m_hitRegion = pandora::ENDCAP;
 
             const int physicalLayer(std::min(static_cast<int>(caloHitParameters.m_layer.Get()), static_cast<int>(layers.size()-1)));
-            caloHitParameters.m_cellSize0 = layers[physicalLayer].cellSize0;
-            caloHitParameters.m_cellSize1 = layers[physicalLayer].cellSize1;
+            caloHitParameters.m_cellSize0 = layers[physicalLayer].cellSize0 * CLHEP::cm;
+            caloHitParameters.m_cellSize1 = layers[physicalLayer].cellSize1 * CLHEP::cm;
 
-            double thickness = (layers[physicalLayer].inner_thickness+layers[physicalLayer].sensitive_thickness/2.0);
+            double thickness = (layers[physicalLayer].inner_thickness+layers[physicalLayer].sensitive_thickness/2.0) * CLHEP::cm;
             double nRadLengths = layers[physicalLayer].inner_nRadiationLengths;
             double nIntLengths = layers[physicalLayer].inner_nInteractionLengths;
-            double layerAbsorberThickness = (layers[physicalLayer].inner_thickness-layers[physicalLayer].sensitive_thickness/2.0);
+            double layerAbsorberThickness = (layers[physicalLayer].inner_thickness-layers[physicalLayer].sensitive_thickness/2.0) * CLHEP::cm;
 
             if(physicalLayer>0){
-                thickness += (layers[physicalLayer-1].outer_thickness -layers[physicalLayer].sensitive_thickness/2.0);
+                thickness += (layers[physicalLayer-1].outer_thickness -layers[physicalLayer].sensitive_thickness/2.0) * CLHEP::cm;
                 nRadLengths += layers[physicalLayer-1].outer_nRadiationLengths;
                 nIntLengths += layers[physicalLayer-1].outer_nInteractionLengths;
-                layerAbsorberThickness += (layers[physicalLayer-1].outer_thickness -layers[physicalLayer].sensitive_thickness/2.0);
-
+                layerAbsorberThickness += (layers[physicalLayer-1].outer_thickness -layers[physicalLayer].sensitive_thickness/2.0) * CLHEP::cm;
             }
 
             caloHitParameters.m_cellThickness = thickness;
@@ -184,10 +188,10 @@ namespace gar {
             absorberCorrection = 1.;
             for (unsigned int i = 0, iMax = layers.size(); i < iMax; ++i)
             {
-                float absorberThickness((layers[i].inner_thickness - layers[i].sensitive_thickness/2.0 ));
+                float absorberThickness((layers[i].inner_thickness - layers[i].sensitive_thickness/2.0 ) * CLHEP::cm);
 
                 if (i>0)
-                absorberThickness += (layers[i-1].outer_thickness - layers[i-1].sensitive_thickness/2.0);
+                absorberThickness += (layers[i-1].outer_thickness - layers[i-1].sensitive_thickness/2.0) * CLHEP::cm;
 
                 if (absorberThickness < std::numeric_limits<float>::epsilon())
                 continue;
@@ -198,7 +202,7 @@ namespace gar {
                 break;
             }
 
-            caloHitParameters.m_cellNormalVector = (pCaloHit->Position()[0] > 0) ? pandora::CartesianVector(0, 0, 1) : pandora::CartesianVector(0, 0, -1);
+            caloHitParameters.m_cellNormalVector = (pCaloHit->Position()[0] * CLHEP::cm > 0) ? pandora::CartesianVector(0, 0, 1) : pandora::CartesianVector(0, 0, -1);
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -209,19 +213,19 @@ namespace gar {
             caloHitParameters.m_hitRegion = pandora::BARREL;
 
             const int physicalLayer(std::min(static_cast<int>(caloHitParameters.m_layer.Get()), static_cast<int>(layers.size()-1)));
-            caloHitParameters.m_cellSize0 = layers[physicalLayer].cellSize0;
-            caloHitParameters.m_cellSize1 = layers[physicalLayer].cellSize1;
+            caloHitParameters.m_cellSize0 = layers[physicalLayer].cellSize0 * CLHEP::cm;
+            caloHitParameters.m_cellSize1 = layers[physicalLayer].cellSize1 * CLHEP::cm;
 
-            double thickness = (layers[physicalLayer].inner_thickness+layers[physicalLayer].sensitive_thickness/2.0);
+            double thickness = (layers[physicalLayer].inner_thickness+layers[physicalLayer].sensitive_thickness/2.0) * CLHEP::cm;
             double nRadLengths = layers[physicalLayer].inner_nRadiationLengths;
             double nIntLengths = layers[physicalLayer].inner_nInteractionLengths;
 
-            double layerAbsorberThickness = (layers[physicalLayer].inner_thickness-layers[physicalLayer].sensitive_thickness/2.0);
+            double layerAbsorberThickness = (layers[physicalLayer].inner_thickness-layers[physicalLayer].sensitive_thickness/2.0) * CLHEP::cm;
             if(physicalLayer>0){
-                thickness += (layers[physicalLayer-1].outer_thickness -layers[physicalLayer].sensitive_thickness/2.0);
+                thickness += (layers[physicalLayer-1].outer_thickness -layers[physicalLayer].sensitive_thickness/2.0) * CLHEP::cm;
                 nRadLengths += layers[physicalLayer-1].outer_nRadiationLengths;
                 nIntLengths += layers[physicalLayer-1].outer_nInteractionLengths;
-                layerAbsorberThickness += (layers[physicalLayer-1].outer_thickness -layers[physicalLayer].sensitive_thickness/2.0);
+                layerAbsorberThickness += (layers[physicalLayer-1].outer_thickness -layers[physicalLayer].sensitive_thickness/2.0) * CLHEP::cm;
             }
 
             caloHitParameters.m_cellThickness = thickness;
@@ -238,10 +242,10 @@ namespace gar {
             absorberCorrection = 1.;
             for (unsigned int i = 0, iMax = layers.size(); i < iMax; ++i)
             {
-                float absorberThickness((layers[i].inner_thickness - layers[i].sensitive_thickness/2.0 ));
+                float absorberThickness((layers[i].inner_thickness - layers[i].sensitive_thickness/2.0 ) * CLHEP::cm);
 
                 if (i>0)
-                absorberThickness += (layers[i-1].outer_thickness - layers[i-1].sensitive_thickness/2.0);
+                absorberThickness += (layers[i-1].outer_thickness - layers[i-1].sensitive_thickness/2.0) * CLHEP::cm;
 
                 if (absorberThickness < std::numeric_limits<float>::epsilon())
                 continue;
@@ -277,7 +281,7 @@ namespace gar {
             // Calo hit coordinate calculations
             const float barrelMaximumRadius(this->GetMaximumRadius(pCaloHit, m_settings.m_eCalBarrelOuterSymmetry, m_settings.m_eCalBarrelOuterPhi0));
             const float endCapMaximumRadius(this->GetMaximumRadius(pCaloHit, m_settings.m_eCalEndCapInnerSymmetryOrder, m_settings.m_eCalEndCapInnerPhiCoordinate));
-            const float caloHitAbsZ(std::fabs(pCaloHit->Position()[0]));
+            const float caloHitAbsZ(std::fabs(pCaloHit->Position()[0]) * CLHEP::cm);
 
             // Distance from radial outer
             float radialDistanceToEdge(std::numeric_limits<float>::max());
@@ -319,7 +323,7 @@ namespace gar {
             const float *pCaloHitPosition(pCaloHit->Position());
 
             if (symmetryOrder <= 2)
-            return std::sqrt((pCaloHitPosition[1] * pCaloHitPosition[1]) + (pCaloHitPosition[2] * pCaloHitPosition[2]));
+            return std::sqrt((pCaloHitPosition[1] * pCaloHitPosition[1]) + (pCaloHitPosition[2] * pCaloHitPosition[2]) * CLHEP::cm);
 
             float maximumRadius(0.f);
             const float twoPi(2.f * M_PI);
@@ -333,7 +337,7 @@ namespace gar {
                 maximumRadius = radius;
             }
 
-            return maximumRadius;
+            return maximumRadius * CLHEP::cm;
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------

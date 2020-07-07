@@ -21,7 +21,7 @@ MinMomentumForTrackHitChecks: 0.1
 
 # CaloHitCreatorSettings
 CaloHitLabel:       "calohit"
-ECaltoMipCalibration: 1.
+ECaltoMipCalibration: 1228.5
 ECalMipThreshold: 0.25
 ECalToEMGeVCalibration: 1.
 ECalToHadGeVCalibrationBarrel: 1.

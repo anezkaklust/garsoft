@@ -21,7 +21,7 @@ namespace gar {
         m_pandora(*pPandora)
         {
             art::ServiceHandle<mag::MagneticField> magFieldService;
-            G4ThreeVector zerovec(0,0,0);
+            G4ThreeVector zerovec(0, 0, 0);
             G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
             m_bField = magfield[0]; //x component at (0, 0, 0)
         }

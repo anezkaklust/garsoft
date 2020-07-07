@@ -292,15 +292,15 @@ namespace gar {
             m_trackCreatorSettings.m_bField                         = magfield[0];
             m_trackCreatorSettings.m_eCalBarrelInnerSymmetry        = eCalBarrelExtension->inner_symmetry;
             m_trackCreatorSettings.m_eCalBarrelInnerPhi0            = eCalBarrelExtension->inner_phi0;
-            m_trackCreatorSettings.m_eCalBarrelInnerR               = eCalBarrelExtension->extent[0];
-            m_trackCreatorSettings.m_eCalEndCapInnerZ               = eCalEndcapExtension->extent[2];
+            m_trackCreatorSettings.m_eCalBarrelInnerR               = eCalBarrelExtension->extent[0] * CLHEP::cm;
+            m_trackCreatorSettings.m_eCalEndCapInnerZ               = eCalEndcapExtension->extent[2] * CLHEP::cm;
 
-            m_caloHitCreatorSettings.m_eCalBarrelOuterZ             = eCalBarrelExtension->extent[3];
+            m_caloHitCreatorSettings.m_eCalBarrelOuterZ             = eCalBarrelExtension->extent[3] * CLHEP::cm;
             m_caloHitCreatorSettings.m_eCalBarrelInnerPhi0          = eCalBarrelExtension->inner_phi0;
             m_caloHitCreatorSettings.m_eCalBarrelInnerSymmetry      = eCalBarrelExtension->inner_symmetry;
-            m_caloHitCreatorSettings.m_eCalEndCapOuterR             = eCalEndcapExtension->extent[1];
-            m_caloHitCreatorSettings.m_eCalEndCapOuterZ             = eCalEndcapExtension->extent[3];
-            m_caloHitCreatorSettings.m_eCalBarrelOuterR             = eCalBarrelExtension->extent[1];
+            m_caloHitCreatorSettings.m_eCalEndCapOuterR             = eCalEndcapExtension->extent[1] * CLHEP::cm;
+            m_caloHitCreatorSettings.m_eCalEndCapOuterZ             = eCalEndcapExtension->extent[3] * CLHEP::cm;
+            m_caloHitCreatorSettings.m_eCalBarrelOuterR             = eCalBarrelExtension->extent[1] * CLHEP::cm;
             m_caloHitCreatorSettings.m_eCalBarrelOuterPhi0          = eCalBarrelExtension->outer_phi0;
             m_caloHitCreatorSettings.m_eCalBarrelOuterSymmetry      = eCalBarrelExtension->outer_symmetry;
             m_caloHitCreatorSettings.m_eCalEndCapInnerSymmetryOrder = eCalEndcapExtension->inner_symmetry;

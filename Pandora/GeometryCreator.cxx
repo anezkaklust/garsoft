@@ -75,8 +75,8 @@ namespace gar {
             trackerParameters.m_innerZCoordinate = 0.f;
             trackerParameters.m_innerPhiCoordinate = 0.f;
             trackerParameters.m_innerSymmetryOrder = 0;
-            trackerParameters.m_outerRCoordinate = fGeo->TPCRadius(); // outer R of TPC
-            trackerParameters.m_outerZCoordinate = fGeo->TPCLength() / 2.; // outer X of TPC
+            trackerParameters.m_outerRCoordinate = fGeo->TPCRadius() * CLHEP::cm; // outer R of TPC
+            trackerParameters.m_outerZCoordinate = fGeo->TPCLength() / 2. * CLHEP::cm; // outer X of TPC
             trackerParameters.m_outerPhiCoordinate = 0.f;
             trackerParameters.m_outerSymmetryOrder = 0;
             trackerParameters.m_isMirroredInZ = true;
@@ -99,16 +99,28 @@ namespace gar {
 
             parameters.m_subDetectorName = subDetectorName;
             parameters.m_subDetectorType = subDetectorType;
-            parameters.m_innerRCoordinate = inputParameters.extent[0];
-            parameters.m_innerZCoordinate = inputParameters.extent[2];
+            parameters.m_innerRCoordinate = inputParameters.extent[0] * CLHEP::cm;
+            parameters.m_innerZCoordinate = inputParameters.extent[2] * CLHEP::cm;
             parameters.m_innerSymmetryOrder = inputParameters.inner_symmetry;
-            parameters.m_outerRCoordinate = inputParameters.extent[1];
-            parameters.m_outerZCoordinate = inputParameters.extent[3];
+            parameters.m_outerRCoordinate = inputParameters.extent[1] * CLHEP::cm;
+            parameters.m_outerZCoordinate = inputParameters.extent[3] * CLHEP::cm;
             parameters.m_innerPhiCoordinate = inputParameters.inner_phi0;
             parameters.m_outerPhiCoordinate = inputParameters.outer_phi0;
             parameters.m_outerSymmetryOrder = inputParameters.outer_symmetry;
             parameters.m_isMirroredInZ = true;
             parameters.m_nLayers = layers.size();
+
+            LOG_DEBUG("GeometryCreator::SetDefaultSubDetectorParameters")
+            << " parameters.m_subDetectorName = " << parameters.m_subDetectorName.Get()
+            << " parameters.m_subDetectorType = " << parameters.m_subDetectorType.Get()
+            << " parameters.m_innerRCoordinate = " << parameters.m_innerRCoordinate.Get()
+            << " parameters.m_innerZCoordinate = " << parameters.m_innerZCoordinate.Get()
+            << " parameters.m_innerSymmetryOrder = " << parameters.m_innerSymmetryOrder.Get()
+            << " parameters.m_outerRCoordinate = " << parameters.m_outerRCoordinate.Get()
+            << " parameters.m_outerZCoordinate = " << parameters.m_outerZCoordinate.Get()
+            << " parameters.m_innerPhiCoordinate = " << parameters.m_innerPhiCoordinate.Get()
+            << " parameters.m_outerPhiCoordinate = " << parameters.m_outerPhiCoordinate.Get()
+            << " parameters.m_nLayers = " << parameters.m_nLayers.Get();
 
             for (size_t i = 0; i < layers.size(); i++)
             {
@@ -124,9 +136,15 @@ namespace gar {
                     totalNumberOfIntLengths += layers.at(i-1).outer_nInteractionLengths;
                 }
 
-                layerParameters.m_closestDistanceToIp = (theLayer.distance + theLayer.inner_thickness) / CLHEP::mm; //Distance to center of sensitive element
+                layerParameters.m_closestDistanceToIp = (theLayer.distance + theLayer.inner_thickness) * CLHEP::cm; //Distance to center of sensitive element
                 layerParameters.m_nRadiationLengths = totalNumberOfRadLengths;
                 layerParameters.m_nInteractionLengths = totalNumberOfIntLengths;
+
+                LOG_DEBUG("GeometryCreator::SetDefaultSubDetectorParameters")
+                << " layer " << i
+                << " layerParameters.m_closestDistanceToIp = " << layerParameters.m_closestDistanceToIp.Get()
+                << " layerParameters.m_nRadiationLengths = " << layerParameters.m_nRadiationLengths.Get()
+                << " layerParameters.m_nInteractionLengths = " << layerParameters.m_nInteractionLengths.Get();
 
                 parameters.m_layerParametersVector.push_back(layerParameters);
             }

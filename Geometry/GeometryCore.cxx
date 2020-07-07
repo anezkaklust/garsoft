@@ -1149,7 +1149,9 @@ namespace gar {
                 float abs_thickness = 0.;
 
                 gar::geo::LayeredCalorimeterData::Layer caloLayer ;
-                caloLayer.cellSize0 = fECALSegmentationAlg->gridSizeX();
+                // caloLayer.cellSize0 = fECALSegmentationAlg->gridSizeX();
+                // caloLayer.cellSize1 = fECALSegmentationAlg->gridSizeX();
+                caloLayer.cellSize0 = fECALSegmentationAlg->stripSizeX();
                 caloLayer.cellSize1 = fECALSegmentationAlg->stripSizeX();
 
                 TGeoVolume *volLayer = gGeoManager->FindVolumeFast(TString::Format("BarrelECal_stave01_module01_layer_%02i_vol", i+1));
@@ -1232,7 +1234,9 @@ namespace gar {
                 float abs_thickness = 0.;
 
                 gar::geo::LayeredCalorimeterData::Layer caloLayer ;
-                caloLayer.cellSize0 = fECALSegmentationAlg->gridSizeX();
+                // caloLayer.cellSize0 = fECALSegmentationAlg->gridSizeX();
+                // caloLayer.cellSize1 = fECALSegmentationAlg->gridSizeX();
+                caloLayer.cellSize0 = fECALSegmentationAlg->stripSizeX();
                 caloLayer.cellSize1 = fECALSegmentationAlg->stripSizeX();
 
                 TGeoVolume *volLayer = gGeoManager->FindVolumeFast(TString::Format("EndcapECal_stave01_module00_layer_%02i_vol", i+1));
