@@ -28,29 +28,50 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        pandora::StatusCode TrackCreator::CreateTracks(const art::Event *const pEvent)
+        pandora::StatusCode TrackCreator::CollectTracks(const art::Event &pEvent)
         {
-            std::vector<art::Ptr<gar::rec::Track>> trkVector;
-            art::Handle< std::vector<gar::rec::Track> > theTrk;
-            pEvent->getByLabel(m_settings.m_trackCollection, theTrk);
+            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CollectTracks(pEvent, m_settings.m_trackCollection, artTrkVector));
 
-            if (!theTrk.isValid())
-            {
-                LOG_DEBUG("TrackCreator::CreateTracks") << "  Failed to find tracks... " << std::endl;
-                return pandora::STATUS_CODE_FAILURE;
-            }
-            else
-            {
-                LOG_DEBUG("TrackCreator::CreateTracks") << "  Found: " << theTrk->size() << " tracks " << std::endl;
-            }
+            return pandora::STATUS_CODE_SUCCESS;
+        }
 
-            for (unsigned int i = 0; i < theTrk->size(); ++i)
-            {
-                const art::Ptr<gar::rec::Track> trk(theTrk, i);
-                trkVector.push_back(trk);
-            }
+        //------------------------------------------------------------------------------------------------------------------------------------------
 
-            for (std::vector<art::Ptr<gar::rec::Track>>::const_iterator iter = trkVector.begin(), iterEnd = trkVector.end(); iter != iterEnd; ++iter)
+        pandora::StatusCode TrackCreator::CreateTrackAssociations(const art::Event &pEvent)
+        {
+            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->ExtractKinks(pEvent));
+            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->ExtractProngsAndSplits(pEvent));
+            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->ExtractV0s(pEvent));
+
+            return pandora::STATUS_CODE_SUCCESS;
+        }
+
+        //------------------------------------------------------------------------------------------------------------------------------------------
+
+        pandora::StatusCode TrackCreator::ExtractKinks(const art::Event &pEvent)
+        {
+            return pandora::STATUS_CODE_SUCCESS;
+        }
+
+        //------------------------------------------------------------------------------------------------------------------------------------------
+
+        pandora::StatusCode TrackCreator::ExtractProngsAndSplits(const art::Event &pEvent)
+        {
+            return pandora::STATUS_CODE_SUCCESS;
+        }
+        
+        //------------------------------------------------------------------------------------------------------------------------------------------
+
+        pandora::StatusCode TrackCreator::ExtractV0s(const art::Event &pEvent)
+        {
+            return pandora::STATUS_CODE_SUCCESS;
+        }
+
+        //------------------------------------------------------------------------------------------------------------------------------------------
+
+        pandora::StatusCode TrackCreator::CreateTracks() const
+        {
+            for (TrackVector::const_iterator iter = artTrkVector.begin(), iterEnd = artTrkVector.end(); iter != iterEnd; ++iter)
             {
                 art::Ptr<gar::rec::Track> artPtrTrack = *iter;
                 const gar::rec::Track *pTrack = artPtrTrack.get();
@@ -94,7 +115,8 @@ namespace gar {
                 {
                     PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::Track::Create(m_pandora, trackParameters, *m_TrackFactory));
                 }
-                catch (pandora::StatusCodeException &statusCodeException) {
+                catch (pandora::StatusCodeException &statusCodeException)
+                {
                     LOG_DEBUG("TrackCreator::CreateTracks")
                     << "Failed to extract a track: " << statusCodeException.ToString();
                 }
@@ -125,5 +147,28 @@ namespace gar {
             return;
         }
 
+        //------------------------------------------------------------------------------------------------------------------------------------------
+
+        pandora::StatusCode TrackCreator::CollectTracks(const art::Event &pEvent, const std::string &label, TrackVector &trkVector)
+        {
+            art::Handle< RawTrackVector > theTrk;
+            pEvent.getByLabel(label, theTrk);
+
+            if (!theTrk.isValid())
+            {
+                LOG_DEBUG("TrackCreator::CreateTracks") << "  Failed to find tracks... " << std::endl;
+                return pandora::STATUS_CODE_NOT_FOUND;
+            }
+
+            LOG_DEBUG("TrackCreator::CreateTracks") << "  Found: " << theTrk->size() << " tracks " << std::endl;
+
+            for (unsigned int i = 0; i < theTrk->size(); ++i)
+            {
+                const art::Ptr<gar::rec::Track> trk(theTrk, i);
+                trkVector.push_back(trk);
+            }
+
+            return pandora::STATUS_CODE_SUCCESS;
+        }
     }
 }

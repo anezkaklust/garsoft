@@ -31,7 +31,7 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        pandora::StatusCode PfoCreator::CreateParticleFlowObjects(art::Event *pEvent)
+        pandora::StatusCode PfoCreator::CreateParticleFlowObjects(art::Event &pEvent)
         {
             PFParticleCollection            outputParticles( new std::vector<rec::PFParticle> );
             ClusterCollection               outputClusters( new std::vector<rec::Cluster> );
@@ -45,7 +45,7 @@ namespace gar {
             for (pandora::PfoList::const_iterator pIter = pPandoraPfoList->begin(), pIterEnd = pPandoraPfoList->end(); pIter != pIterEnd; ++pIter)
             {
                 const pandora::ParticleFlowObject *const pPandoraPfo(*pIter);
-                gar::rec::PFParticle *const pReconstructedParticle(new gar::rec::PFParticle());
+                gar::rec::PFParticle pReconstructedParticle;
 
                 const bool hasTrack(!pPandoraPfo->GetTrackList().empty());
                 const pandora::ClusterList &clusterList(pPandoraPfo->GetClusterList());
@@ -61,8 +61,8 @@ namespace gar {
                     pandoraCaloHitList.insert(pandoraCaloHitList.end(), pPandoraCluster->GetIsolatedCaloHitList().begin(), pPandoraCluster->GetIsolatedCaloHitList().end());
 
                     pandora::FloatVector hitE, hitX, hitY, hitZ;
-                    gar::rec::Cluster *const pCluster(new gar::rec::Cluster());
-                    this->SetClusterSubDetectorEnergies(subDetectorNames, pCluster, pandoraCaloHitList, hitE, hitX, hitY, hitZ);
+                    gar::rec::Cluster pCluster;
+                    this->SetClusterSubDetectorEnergies(subDetectorNames, pandoraCaloHitList, hitE, hitX, hitY, hitZ);
 
                     float clusterCorrectEnergy(0.f);
                     this->SetClusterEnergyAndError(pPandoraPfo, pPandoraCluster, pCluster, clusterCorrectEnergy);
@@ -77,6 +77,11 @@ namespace gar {
                         clustersTotalEnergy += clusterCorrectEnergy;
                     }
 
+                    LOG_DEBUG("PfoCreator::CreateParticleFlowObjects")
+                    << "Adding cluster " << &pCluster
+                    << " with energy " << pCluster.Energy();
+
+                    outputClusters->emplace_back(pCluster);
                 }
 
                 if (!hasTrack)
@@ -100,10 +105,17 @@ namespace gar {
                 this->SetRecoParticleReferencePoint(referencePoint, pReconstructedParticle);
                 this->AddTracksToRecoParticle(pPandoraPfo, pReconstructedParticle);
                 this->SetRecoParticlePropertiesFromPFO(pPandoraPfo, pReconstructedParticle);
+
+                LOG_DEBUG("PfoCreator::CreateParticleFlowObjects")
+                << "Adding PFO " << &pReconstructedParticle
+                << " with energy " << pReconstructedParticle.Energy()
+                << " , mass " << pReconstructedParticle.Mass();
+
+                outputParticles->emplace_back(pReconstructedParticle);
             }
 
-            pEvent->put(std::move(outputParticles));
-            pEvent->put(std::move(outputClusters));
+            pEvent.put(std::move(outputParticles));
+            pEvent.put(std::move(outputClusters));
 
             return pandora::STATUS_CODE_SUCCESS;
         }
@@ -117,12 +129,19 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        void PfoCreator::SetClusterSubDetectorEnergies(const pandora::StringVector &subDetectorNames, gar::rec::Cluster *const pCluster, const pandora::CaloHitList &pandoraCaloHitList, pandora::FloatVector &hitE, pandora::FloatVector &hitX, pandora::FloatVector &hitY, pandora::FloatVector &hitZ) const
+        void PfoCreator::SetClusterSubDetectorEnergies(const pandora::StringVector &subDetectorNames, const pandora::CaloHitList &pandoraCaloHitList, pandora::FloatVector &hitE, pandora::FloatVector &hitX, pandora::FloatVector &hitY, pandora::FloatVector &hitZ) const
         {
             for (pandora::CaloHitList::const_iterator hIter = pandoraCaloHitList.begin(), hIterEnd = pandoraCaloHitList.end(); hIter != hIterEnd; ++hIter)
             {
                 const pandora::CaloHit *const pPandoraCaloHit(*hIter);
                 gar::rec::CaloHit *const pCalorimeterHit = (gar::rec::CaloHit*)(pPandoraCaloHit->GetParentAddress());
+
+                LOG_DEBUG("PfoCreator::SetClusterSubDetectorEnergies")
+                << " hit " << pCalorimeterHit
+                << " energy " << pCalorimeterHit->Energy()
+                << " position x " << pCalorimeterHit->Position()[0]
+                << " y " << pCalorimeterHit->Position()[1]
+                << " z " << pCalorimeterHit->Position()[2];
 
                 const float caloHitEnergy(pCalorimeterHit->Energy());
                 hitE.push_back(caloHitEnergy);
@@ -134,7 +153,7 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        void PfoCreator::SetClusterEnergyAndError(const pandora::ParticleFlowObject *const pPandoraPfo, const pandora::Cluster *const pPandoraCluster, gar::rec::Cluster *const pCluster, float &clusterCorrectEnergy) const
+        void PfoCreator::SetClusterEnergyAndError(const pandora::ParticleFlowObject *const pPandoraPfo, const pandora::Cluster *const pPandoraCluster, gar::rec::Cluster &pCluster, float &clusterCorrectEnergy) const
         {
             const bool isEmShower((pandora::PHOTON == pPandoraPfo->GetParticleId()) || (pandora::E_MINUS == std::abs(pPandoraPfo->GetParticleId())));
             clusterCorrectEnergy = (isEmShower ? pPandoraCluster->GetCorrectedElectromagneticEnergy(m_pandora) : pPandoraCluster->GetCorrectedHadronicEnergy(m_pandora));
@@ -146,32 +165,30 @@ namespace gar {
             const float constantTerm(isEmShower ? m_settings.m_emConstantTerm : m_settings.m_hadConstantTerm);
             const float energyError(std::sqrt(stochasticTerm * stochasticTerm / clusterCorrectEnergy + constantTerm * constantTerm) * clusterCorrectEnergy);
 
-            pCluster->setEnergy(clusterCorrectEnergy);
-            pCluster->setEnergyError(energyError);
+            pCluster.setEnergy(clusterCorrectEnergy);
+            pCluster.setEnergyError(energyError);
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        void PfoCreator::SetClusterPositionAndError(const unsigned int nHitsInCluster, pandora::FloatVector &hitE, pandora::FloatVector &hitX, pandora::FloatVector &hitY, pandora::FloatVector &hitZ, gar::rec::Cluster *const pCluster, pandora::CartesianVector &clusterPositionVec) const
+        void PfoCreator::SetClusterPositionAndError(const unsigned int nHitsInCluster, pandora::FloatVector &hitE, pandora::FloatVector &hitX, pandora::FloatVector &hitY, pandora::FloatVector &hitZ, gar::rec::Cluster &pCluster, pandora::CartesianVector &clusterPositionVec) const
         {
-            util::ClusterShapes *const pClusterShapes(new util::ClusterShapes(nHitsInCluster, hitE.data(), hitX.data(), hitY.data(), hitZ.data()));
+            util::ClusterShapes pClusterShapes(nHitsInCluster, hitE.data(), hitX.data(), hitY.data(), hitZ.data());
 
             try
             {
-                pCluster->setIPhi(std::atan2(pClusterShapes->getEigenVecInertia()[1], pClusterShapes->getEigenVecInertia()[0]));
-                pCluster->setITheta(std::acos(pClusterShapes->getEigenVecInertia()[2]));
-                pCluster->setPosition(pClusterShapes->getCenterOfGravity());
+                pCluster.setIPhi(std::atan2(pClusterShapes.getEigenVecInertia()[1], pClusterShapes.getEigenVecInertia()[0]));
+                pCluster.setITheta(std::acos(pClusterShapes.getEigenVecInertia()[2]));
+                pCluster.setPosition(pClusterShapes.getCenterOfGravity());
                 //pCluster->setPositionError(pClusterShapes->getCenterOfGravityErrors());
                 //pCluster->setDirectionError(pClusterShapes->getEigenVecInertiaErrors());
-                clusterPositionVec.SetValues(pClusterShapes->getCenterOfGravity()[0], pClusterShapes->getCenterOfGravity()[1], pClusterShapes->getCenterOfGravity()[2]);
+                clusterPositionVec.SetValues(pClusterShapes.getCenterOfGravity()[0], pClusterShapes.getCenterOfGravity()[1], pClusterShapes.getCenterOfGravity()[2]);
             }
             catch (...)
             {
                 LOG_WARNING("PfoCreator::SetClusterPositionAndError")
                 << "unidentified exception caught.";
             }
-
-            delete pClusterShapes;
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -328,15 +345,15 @@ namespace gar {
 
     //------------------------------------------------------------------------------------------------------------------------------------------
 
-    void PfoCreator::SetRecoParticleReferencePoint(const pandora::CartesianVector &referencePoint, gar::rec::PFParticle *const pReconstructedParticle) const
+    void PfoCreator::SetRecoParticleReferencePoint(const pandora::CartesianVector &referencePoint, gar::rec::PFParticle &pReconstructedParticle) const
     {
         const float referencePointArray[3] = {referencePoint.GetX(), referencePoint.GetY(), referencePoint.GetZ()};
-        pReconstructedParticle->setPosition(referencePointArray);
+        pReconstructedParticle.setPosition(referencePointArray);
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------
 
-    void PfoCreator::AddTracksToRecoParticle(const pandora::ParticleFlowObject *const pPandoraPfo, gar::rec::PFParticle *const pReconstructedParticle) const
+    void PfoCreator::AddTracksToRecoParticle(const pandora::ParticleFlowObject *const pPandoraPfo, gar::rec::PFParticle &pReconstructedParticle) const
     {
         const pandora::TrackList &trackList(pPandoraPfo->GetTrackList());
 
@@ -349,14 +366,14 @@ namespace gar {
 
     //------------------------------------------------------------------------------------------------------------------------------------------
 
-    void PfoCreator::SetRecoParticlePropertiesFromPFO(const pandora::ParticleFlowObject *const pPandoraPfo, gar::rec::PFParticle *const pReconstructedParticle) const
+    void PfoCreator::SetRecoParticlePropertiesFromPFO(const pandora::ParticleFlowObject *const pPandoraPfo, gar::rec::PFParticle &pReconstructedParticle) const
     {
         const float momentum[3] = {pPandoraPfo->GetMomentum().GetX(), pPandoraPfo->GetMomentum().GetY(), pPandoraPfo->GetMomentum().GetZ()};
-        pReconstructedParticle->setMomentum(momentum);
-        pReconstructedParticle->setEnergy(pPandoraPfo->GetEnergy());
-        pReconstructedParticle->setMass(pPandoraPfo->GetMass());
-        pReconstructedParticle->setCharge(pPandoraPfo->GetCharge());
-        pReconstructedParticle->setType(pPandoraPfo->GetParticleId());
+        pReconstructedParticle.setMomentum(momentum);
+        pReconstructedParticle.setEnergy(pPandoraPfo->GetEnergy());
+        pReconstructedParticle.setMass(pPandoraPfo->GetMass());
+        pReconstructedParticle.setCharge(pPandoraPfo->GetCharge());
+        pReconstructedParticle.setType(pPandoraPfo->GetParticleId());
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------------

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <exception>
 
 #include "CoreUtils/ServiceUtil.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -15,7 +16,7 @@ namespace gar {
         m_pandora(*pPandora),
         m_eCalBarrelLayerThickness(0.f),
         m_eCalEndCapLayerThickness(0.f),
-        m_calorimeterHitVector(0)
+        artCalorimeterHitVector(0)
         {
             fGeo = gar::providerFrom<geo::Geometry>();
             std::string fEncoding = fGeo->GetECALCellIDEncoding();
@@ -42,95 +43,106 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        pandora::StatusCode CaloHitCreator::CreateCaloHits(const art::Event *const pEvent)
+        pandora::StatusCode CaloHitCreator::CollectCaloHits(const art::Event &pEvent)
         {
-            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CreateECalCaloHits(pEvent));
+            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CollectECALCaloHits(pEvent, m_settings.m_CaloHitCollection, artCalorimeterHitVector));
 
             return pandora::STATUS_CODE_SUCCESS;
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        pandora::StatusCode CaloHitCreator::CreateECalCaloHits(const art::Event *const pEvent)
+        pandora::StatusCode CaloHitCreator::CreateCaloHits() const
         {
-            std::vector<art::Ptr<gar::rec::CaloHit>> hitVector;
-            art::Handle< std::vector<gar::rec::CaloHit> > theHits;
-            pEvent->getByLabel(m_settings.m_CaloHitCollection, theHits);
+            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CreateECalCaloHits());
 
-            if (!theHits.isValid())
-            {
-                LOG_ERROR("CaloHitCreator::CreateECalCaloHits") << "  Failed to find hits... " << std::endl;
-                return pandora::STATUS_CODE_FAILURE;
-            }
-            else
-            {
-                LOG_DEBUG("CaloHitCreator::CreateECalCaloHits") << "  Found: " << theHits->size() << " Hits " << std::endl;
-            }
+            return pandora::STATUS_CODE_SUCCESS;
+        }
 
-            for (unsigned int i = 0; i < theHits->size(); ++i)
-            {
-                const art::Ptr<gar::rec::CaloHit> hit(theHits, i);
-                hitVector.push_back(hit);
-            }
+        //------------------------------------------------------------------------------------------------------------------------------------------
 
+        pandora::StatusCode CaloHitCreator::CreateECalCaloHits() const
+        {
             const std::vector<gar::geo::LayeredCalorimeterStruct::Layer> &barrelLayers = (fGeo->GetECALLayeredCalorimeterData()[gar::geo::LayeredCalorimeterData::BarrelLayout].get())->layers;
 
             const std::vector<gar::geo::LayeredCalorimeterStruct::Layer> &endcapLayers = (fGeo->GetECALLayeredCalorimeterData()[gar::geo::LayeredCalorimeterData::EndcapLayout].get())->layers;
 
-            for (std::vector<art::Ptr<gar::rec::CaloHit>>::const_iterator iter = hitVector.begin(), iterEnd = hitVector.end(); iter != iterEnd; ++iter)
+            for (CalorimeterHitVector::const_iterator iter = artCalorimeterHitVector.begin(), iterEnd = artCalorimeterHitVector.end(); iter != iterEnd; ++iter)
             {
-                art::Ptr<gar::rec::CaloHit> artPtrCaloHit = *iter;
-                const gar::rec::CaloHit *pCaloHit = artPtrCaloHit.get();
-
-                PandoraApi::CaloHit::Parameters caloHitParameters;
-                caloHitParameters.m_hitType = pandora::ECAL;
-                caloHitParameters.m_isDigital = false;
-                caloHitParameters.m_layer = m_fieldDecoder->get(pCaloHit->CellID(), "layer");
-                caloHitParameters.m_isInOuterSamplingLayer = (this->GetNLayersFromEdge(pCaloHit) <= m_settings.m_nOuterSamplingLayers);
-                this->GetCommonCaloHitProperties(pCaloHit, caloHitParameters);
-
-                float absorberCorrection(1.);
-
-                //Need to use X instead of Z
-                if (std::fabs(pCaloHit->Position()[0] * CLHEP::cm) < m_settings.m_eCalBarrelOuterZ)
+                try
                 {
-                    this->GetBarrelCaloHitProperties(pCaloHit, barrelLayers, m_settings.m_eCalBarrelInnerSymmetry, caloHitParameters, m_settings.m_eCalBarrelNormalVector, absorberCorrection);
-                    caloHitParameters.m_hadronicEnergy = m_settings.m_eCalToHadGeVBarrel * pCaloHit->Energy();
+                    art::Ptr<gar::rec::CaloHit> artPtrCaloHit = *iter;
+                    const gar::rec::CaloHit *pCaloHit = artPtrCaloHit.get();
+
+                    if (nullptr == pCaloHit)
+                    throw;
+
+                    PandoraApi::CaloHit::Parameters caloHitParameters;
+                    caloHitParameters.m_hitType = pandora::ECAL;
+                    caloHitParameters.m_isDigital = false;
+                    caloHitParameters.m_layer = m_fieldDecoder->get(pCaloHit->CellID(), "layer");
+                    caloHitParameters.m_isInOuterSamplingLayer = (this->GetNLayersFromEdge(pCaloHit) <= m_settings.m_nOuterSamplingLayers);
+                    this->GetCommonCaloHitProperties(pCaloHit, caloHitParameters);
+
+                    float absorberCorrection(1.);
+
+                    //Need to use X instead of Z
+                    if (std::fabs(pCaloHit->Position()[0] * CLHEP::cm) < m_settings.m_eCalBarrelOuterZ)
+                    {
+                        this->GetBarrelCaloHitProperties(pCaloHit, barrelLayers, m_settings.m_eCalBarrelInnerSymmetry, caloHitParameters, m_settings.m_eCalBarrelNormalVector, absorberCorrection);
+                        caloHitParameters.m_hadronicEnergy = m_settings.m_eCalToHadGeVBarrel * pCaloHit->Energy();
+                    }
+                    else
+                    {
+                        this->GetEndCapCaloHitProperties(pCaloHit, endcapLayers, caloHitParameters, absorberCorrection);
+                        caloHitParameters.m_hadronicEnergy = m_settings.m_eCalToHadGeVEndCap * pCaloHit->Energy();
+                    }
+
+                    caloHitParameters.m_mipEquivalentEnergy = pCaloHit->Energy() * m_settings.m_eCalToMip * absorberCorrection;
+
+                    if (caloHitParameters.m_mipEquivalentEnergy.Get() < m_settings.m_eCalMipThreshold)
+                    continue;
+
+                    caloHitParameters.m_electromagneticEnergy = m_settings.m_eCalToEMGeV * pCaloHit->Energy();
+
+                    const float rCoordinate( std::sqrt( pCaloHit->Position()[1] * pCaloHit->Position()[1] + pCaloHit->Position()[2] * pCaloHit->Position()[2]) * CLHEP::cm );
+                    if( rCoordinate > m_settings.m_eCalBarrelOuterR )
+                    {
+                        LOG_ERROR("CaloHitCreator::CreateECalCaloHits")
+                        << " Position x: " << pCaloHit->Position()[0] * CLHEP::cm
+                        << " y: " << pCaloHit->Position()[1] * CLHEP::cm
+                        << " z: " << pCaloHit->Position()[2] * CLHEP::cm
+                        << " rCoordinate " << rCoordinate << " > " << " m_settings.m_eCalBarrelOuterR " << m_settings.m_eCalBarrelOuterR
+                        << " caloHitParameters.m_hitType = " << caloHitParameters.m_hitType.Get()
+                        << " caloHitParameters.m_isDigital = " << caloHitParameters.m_isDigital.Get()
+                        << " caloHitParameters.m_layer = " << caloHitParameters.m_layer.Get()
+                        << " caloHitParameters.m_isInOuterSamplingLayer = " << caloHitParameters.m_isInOuterSamplingLayer.Get()
+                        << " caloHitParameters.m_cellGeometry = " << caloHitParameters.m_cellGeometry.Get()
+                        << " caloHitParameters.m_expectedDirection = " << caloHitParameters.m_expectedDirection.Get()
+                        << " caloHitParameters.m_inputEnergy = " << caloHitParameters.m_inputEnergy.Get()
+                        << " caloHitParameters.m_time = " << caloHitParameters.m_time.Get()
+                        << " caloHitParameters.m_cellSize0 = " << caloHitParameters.m_cellSize0.Get()
+                        << " caloHitParameters.m_cellSize1 = " << caloHitParameters.m_cellSize1.Get()
+                        << " caloHitParameters.m_cellThickness = " << caloHitParameters.m_cellThickness.Get()
+                        << " caloHitParameters.m_nCellRadiationLengths = " << caloHitParameters.m_nCellRadiationLengths.Get()
+                        << " caloHitParameters.m_nCellInteractionLengths = " << caloHitParameters.m_nCellInteractionLengths.Get()
+                        << " caloHitParameters.m_hadronicEnergy = " << caloHitParameters.m_hadronicEnergy.Get()
+                        << " caloHitParameters.m_mipEquivalentEnergy = " << caloHitParameters.m_mipEquivalentEnergy.Get()
+                        << " caloHitParameters.m_electromagneticEnergy = " << caloHitParameters.m_electromagneticEnergy.Get();
+                    }
+
+                    PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::CaloHit::Create(m_pandora, caloHitParameters));
                 }
-                else
+                catch (pandora::StatusCodeException &statusCodeException)
                 {
-                    this->GetEndCapCaloHitProperties(pCaloHit, endcapLayers, caloHitParameters, absorberCorrection);
-                    caloHitParameters.m_hadronicEnergy = m_settings.m_eCalToHadGeVEndCap * pCaloHit->Energy();
+                    LOG_ERROR("CaloHitCreator::CreateECalCaloHits()")
+                    << "Failed to extract ecal calo hit: " << statusCodeException.ToString();
                 }
-
-                caloHitParameters.m_mipEquivalentEnergy = pCaloHit->Energy() * m_settings.m_eCalToMip * absorberCorrection;
-
-                if (caloHitParameters.m_mipEquivalentEnergy.Get() < m_settings.m_eCalMipThreshold)
-                continue;
-
-                caloHitParameters.m_electromagneticEnergy = m_settings.m_eCalToEMGeV * pCaloHit->Energy();
-
-                LOG_DEBUG("CaloHitCreator::CreateECalCaloHits")
-                << " caloHitParameters.m_hitType = " << caloHitParameters.m_hitType.Get()
-                << " caloHitParameters.m_isDigital = " << caloHitParameters.m_isDigital.Get()
-                << " caloHitParameters.m_layer = " << caloHitParameters.m_layer.Get()
-                << " caloHitParameters.m_isInOuterSamplingLayer = " << caloHitParameters.m_isInOuterSamplingLayer.Get()
-                << " caloHitParameters.m_cellGeometry = " << caloHitParameters.m_cellGeometry.Get()
-                << " caloHitParameters.m_positionVector = " << caloHitParameters.m_positionVector.Get()
-                << " caloHitParameters.m_expectedDirection = " << caloHitParameters.m_expectedDirection.Get()
-                << " caloHitParameters.m_inputEnergy = " << caloHitParameters.m_inputEnergy.Get()
-                << " caloHitParameters.m_time = " << caloHitParameters.m_time.Get()
-                << " caloHitParameters.m_cellSize0 = " << caloHitParameters.m_cellSize0.Get()
-                << " caloHitParameters.m_cellSize1 = " << caloHitParameters.m_cellSize1.Get()
-                << " caloHitParameters.m_cellThickness = " << caloHitParameters.m_cellThickness.Get()
-                << " caloHitParameters.m_nCellRadiationLengths = " << caloHitParameters.m_nCellRadiationLengths.Get()
-                << " caloHitParameters.m_nCellInteractionLengths = " << caloHitParameters.m_nCellInteractionLengths.Get()
-                << " caloHitParameters.m_hadronicEnergy = " << caloHitParameters.m_hadronicEnergy.Get()
-                << " caloHitParameters.m_mipEquivalentEnergy = " << caloHitParameters.m_mipEquivalentEnergy.Get()
-                << " caloHitParameters.m_electromagneticEnergy = " << caloHitParameters.m_electromagneticEnergy.Get();
-
-                PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::CaloHit::Create(m_pandora, caloHitParameters));
-                m_calorimeterHitVector.push_back(artPtrCaloHit);
+                catch (std::exception &exception)
+                {
+                    LOG_WARNING("CaloHitCreator::CreateECalCaloHits()")
+                    << "Failed to extract ecal calo hit: " << exception.what();
+                }
             }
 
             return pandora::STATUS_CODE_SUCCESS;
@@ -338,6 +350,30 @@ namespace gar {
             }
 
             return maximumRadius * CLHEP::cm;
+        }
+
+        //------------------------------------------------------------------------------------------------------------------------------------------
+
+        pandora::StatusCode CaloHitCreator::CollectECALCaloHits(const art::Event &pEvent, const std::string &label, CalorimeterHitVector &ecalCaloHitVector)
+        {
+            art::Handle< RawCalorimeterHitVector > theHits;
+            pEvent.getByLabel(label, theHits);
+
+            if (!theHits.isValid())
+            {
+                LOG_WARNING("CaloHitCreator::CreateECalCaloHits") << "  Failed to find ecal hits for label " << label << std::endl;
+                return pandora::STATUS_CODE_NOT_FOUND;
+            }
+
+            LOG_DEBUG("CaloHitCreator::CreateECalCaloHits") << "  Found: " << theHits->size() << " Hits " << std::endl;
+
+            for (unsigned int i = 0; i < theHits->size(); ++i)
+            {
+                const art::Ptr<gar::rec::CaloHit> hit(theHits, i);
+                ecalCaloHitVector.push_back(hit);
+            }
+
+            return pandora::STATUS_CODE_SUCCESS;
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------

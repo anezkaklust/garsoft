@@ -13,6 +13,7 @@ namespace gar {
     namespace gar_pandora {
 
         typedef std::vector<art::Ptr<gar::rec::CaloHit>> CalorimeterHitVector;
+        typedef std::vector<gar::rec::CaloHit> RawCalorimeterHitVector;
 
         class CaloHitCreator
         {
@@ -51,7 +52,8 @@ namespace gar {
 
             ~CaloHitCreator();
 
-            pandora::StatusCode CreateCaloHits(const art::Event *const pEvent);
+            pandora::StatusCode CollectCaloHits(const art::Event &pEvent);
+            pandora::StatusCode CreateCaloHits() const;
 
             const CalorimeterHitVector &GetCalorimeterHitVector() const;
 
@@ -59,44 +61,40 @@ namespace gar {
 
         private:
 
-            pandora::StatusCode CreateECalCaloHits(const art::Event *const pEvent);
+            pandora::StatusCode CreateECalCaloHits() const;
 
             void GetCommonCaloHitProperties(const gar::rec::CaloHit *const pCaloHit, PandoraApi::CaloHit::Parameters &caloHitParameters) const;
-
             void GetEndCapCaloHitProperties(const gar::rec::CaloHit *const pCaloHit, const std::vector<gar::geo::LayeredCalorimeterStruct::Layer> &layers, PandoraApi::CaloHit::Parameters &caloHitParameters, float &absorberCorrection) const;
-
             void GetBarrelCaloHitProperties( const gar::rec::CaloHit *const pCaloHit,
             const std::vector<gar::geo::LayeredCalorimeterStruct::Layer> &layers, unsigned int barrelSymmetryOrder, PandoraApi::CaloHit::Parameters &caloHitParameters, FloatVector const& normalVector, float &absorberCorrection ) const;
-
             int GetNLayersFromEdge(const  gar::rec::CaloHit *const pCaloHit) const;
-
             float GetMaximumRadius(const  gar::rec::CaloHit *const pCaloHit, const unsigned int symmetryOrder, const float phi0) const;
 
-            const Settings                      m_settings;                         ///< The calo hit creator settings
+            pandora::StatusCode CollectECALCaloHits(const art::Event &pEvent, const std::string &label, CalorimeterHitVector &ecalCaloHitVector);
 
+            const Settings                      m_settings;                         ///< The calo hit creator settings
             const pandora::Pandora &            m_pandora;                          ///< Reference to the pandora object to create calo hits
+            const geo::GeometryCore*            fGeo; //Geometry Manager
+            gar::geo::BitFieldCoder const*      m_fieldDecoder;
 
             float                               m_eCalBarrelLayerThickness;         ///< ECal barrel layer thickness
             float                               m_eCalEndCapLayerThickness;         ///< ECal endcap layer thickness
 
-            CalorimeterHitVector                m_calorimeterHitVector;             ///< The calorimeter hit vector
-
-            const geo::GeometryCore*            fGeo; //Geometry Manager
-            gar::geo::BitFieldCoder const*      m_fieldDecoder;
+            CalorimeterHitVector artCalorimeterHitVector;
         };
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
         inline const CalorimeterHitVector &CaloHitCreator::GetCalorimeterHitVector() const
         {
-            return m_calorimeterHitVector;
+            return artCalorimeterHitVector;
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
         inline void CaloHitCreator::Reset()
         {
-            m_calorimeterHitVector.clear();
+            artCalorimeterHitVector.clear();
         }
 
     }

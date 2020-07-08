@@ -88,11 +88,8 @@
    <version ClassVersion="11" checksum="2606403047"/>
    <version ClassVersion="10" checksum="238569477"/>
   </class>
-  <class name="gar::rec::PFParticle"        ClassVersion="10"            >
-   <version ClassVersion="10" checksum="1520654697"/>
-  </class>
-  <class name="gar::rec::ParticleIDData"        ClassVersion="10"        >
-   <version ClassVersion="10" checksum="1585201401"/>
+  <class name="gar::rec::PFParticle" ClassVersion="10">
+   <version ClassVersion="10" checksum="1681996639"/>
   </class>
 
   <class name="std::vector<gar::rec::Hit   >"                            />

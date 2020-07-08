@@ -38,20 +38,20 @@ namespace gar {
 
             ~MCParticleCreator();
 
-            pandora::StatusCode CollectMCParticles(const art::Event *const pEvent);
+            pandora::StatusCode CollectMCParticles(const art::Event &pEvent);
+            pandora::StatusCode CreateMCParticles() const;
+            pandora::StatusCode CreateTrackToMCParticleRelationships(const TrackVector &trackVector) const;
+            pandora::StatusCode CreateCaloHitToMCParticleRelationships(const CalorimeterHitVector &calorimeterHitVector) const;
 
-            pandora::StatusCode CreateMCParticles(const art::Event *const pEvent) const;
-
-            pandora::StatusCode CreateTrackToMCParticleRelationships(const art::Event *const pEvent, const TrackVector &trackVector) const;
-            pandora::StatusCode CreateCaloHitToMCParticleRelationships(const art::Event *const pEvent, const CalorimeterHitVector &calorimeterHitVector) const;
+            void Reset();
 
         protected:
 
-            void CollectMCParticles(const art::Event &evt, const std::string &label, MCParticleVector &particleVector);
+            pandora::StatusCode CollectMCParticles(const art::Event &pEvent, const std::string &label, MCParticleVector &particleVector);
 
-            void CollectGeneratorMCParticles(const art::Event &evt, const std::string &label, RawMCParticleVector &particleVector);
+            pandora::StatusCode CollectGeneratorMCParticles(const art::Event &pEvent, const std::string &label, RawMCParticleVector &particleVector);
 
-            void CollectMCParticles(const art::Event &evt, const std::string &label, MCTruthToMCParticles &truthToParticles, MCParticlesToMCTruth &particlesToTruth);
+            pandora::StatusCode CollectMCParticles(const art::Event &pEvent, const std::string &label, MCTruthToMCParticles &truthToParticles, MCParticlesToMCTruth &particlesToTruth);
 
         private:
             const Settings          m_settings;        ///< The mc particle creator settings
@@ -63,6 +63,14 @@ namespace gar {
             MCTruthToMCParticles artMCTruthToMCParticles;
             MCParticlesToMCTruth artMCParticlesToMCTruth;
         };
+
+        inline void MCParticleCreator::Reset()
+        {
+            artMCParticleVector.clear();
+            generatorArtMCParticleVector.clear();
+            artMCTruthToMCParticles.clear();
+            artMCParticlesToMCTruth.clear();
+        }
     }
 }
 

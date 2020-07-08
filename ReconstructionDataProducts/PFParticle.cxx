@@ -5,7 +5,8 @@ namespace gar {
 
         //--------------------------------------------------------------------------
         //Default constructor
-        PFParticle::PFParticle(){
+        PFParticle::PFParticle()
+        {
             // The default constructor is used e.g. by art::DataViewImpl::getByLabel
             // Make sure all Cluster objects are numbered, lest art deep-copy uninitialized
             // instances and then operator==() evaluates meaninglessly true.
@@ -14,11 +15,14 @@ namespace gar {
             return;
         }
 
+        //--------------------------------------------------------------------------
         PFParticle::PFParticle(int type, float energy, float pos[3], float mom[3], float charge, std::vector<float> cov, int pdg, float goodness, size_t parent, std::vector<size_t> daughters)
         : fType(type),
         fEnergy(energy),
         fCharge(charge),
         fCov(cov),
+        fPdg(pdg),
+        fGoodness(goodness),
         fParent(parent),
         fDaughters(daughters)
         {
@@ -29,9 +33,6 @@ namespace gar {
             fMom[0] = mom[0];
             fMom[1] = mom[1];
             fMom[2] = mom[2];
-
-            fPID.fPdg = pdg;
-            fPID.fGoodness = goodness;
         }
 
         //--------------------------------------------------------------------------
@@ -75,8 +76,8 @@ namespace gar {
 
         //--------------------------------------------------------------------------
         void PFParticle::setParticleID(int pdg, float goodness) {
-            fPID.fPdg = pdg;
-            fPID.fGoodness = goodness;
+            fPdg = pdg;
+            fGoodness = goodness;
         }
 
         //--------------------------------------------------------------------------
@@ -100,7 +101,7 @@ namespace gar {
             << "\n\tMomentum = "
             << h.Momentum()[0] << ", " <<  h.Momentum()[1] << ", " << h.Momentum()[2] << ")"
             << "\n\tPID = "
-            << h.GetParticleID().fPdg << ", goodness " << h.GetParticleID().fGoodness
+            << h.Pdg() << ", goodness " << h.GoodnessOfPdg()
             << "\n\tMass = "
             << h.Mass()
             << "\n\tID number = "

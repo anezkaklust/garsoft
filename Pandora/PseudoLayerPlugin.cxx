@@ -4,6 +4,8 @@
 #include "Pandora/AlgorithmHeaders.h"
 #include "Helpers/XmlHelper.h"
 
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
 using namespace pandora;
 
 namespace gar {
@@ -44,13 +46,19 @@ namespace gar {
         {
             const float zCoordinate(std::fabs(positionVector.GetZ()));
 
-            if (zCoordinate > m_endCapEdgeZ)
-            throw StatusCodeException(STATUS_CODE_NOT_FOUND);
+            if (zCoordinate > m_endCapEdgeZ) {
+                LOG_WARNING("PseudoLayerPlugin::GetPseudoLayer")
+                << "zCoordinate " << zCoordinate << " > m_endCapEdgeZ " << m_endCapEdgeZ << std::endl;
+                throw StatusCodeException(STATUS_CODE_NOT_FOUND);
+            }
 
             const float rCoordinate(this->GetMaximumRadius(m_eCalBarrelAngleVector, positionVector.GetX(), positionVector.GetY()));
 
-            if ((rCoordinate > m_barrelEdgeR))
-            throw StatusCodeException(STATUS_CODE_NOT_FOUND);
+            if (rCoordinate > m_barrelEdgeR) {
+                LOG_WARNING("PseudoLayerPlugin::GetPseudoLayer")
+                << "rCoordinate " << rCoordinate << " > m_barrelEdgeR " << m_barrelEdgeR << std::endl;
+                throw StatusCodeException(STATUS_CODE_NOT_FOUND);
+            }
 
             unsigned int pseudoLayer;
 

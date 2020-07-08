@@ -34,19 +34,19 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        pandora::StatusCode MCParticleCreator::CollectMCParticles(const art::Event *const pEvent)
+        pandora::StatusCode MCParticleCreator::CollectMCParticles(const art::Event &pEvent)
         {
-            CollectMCParticles(*pEvent, m_settings.m_geantModuleLabel, artMCParticleVector);
+            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CollectMCParticles(pEvent, m_settings.m_geantModuleLabel, artMCParticleVector));
             if (!m_settings.m_generatorModuleLabel.empty())
-            CollectGeneratorMCParticles(*pEvent, m_settings.m_generatorModuleLabel, generatorArtMCParticleVector);
-            CollectMCParticles(*pEvent, m_settings.m_geantModuleLabel, artMCTruthToMCParticles, artMCParticlesToMCTruth);
+            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CollectGeneratorMCParticles(pEvent, m_settings.m_generatorModuleLabel, generatorArtMCParticleVector));
+            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CollectMCParticles(pEvent, m_settings.m_geantModuleLabel, artMCTruthToMCParticles, artMCParticlesToMCTruth));
 
             return pandora::STATUS_CODE_SUCCESS;
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        pandora::StatusCode MCParticleCreator::CreateMCParticles(const art::Event *const pEvent) const
+        pandora::StatusCode MCParticleCreator::CreateMCParticles() const
         {
             MCParticleMap particleMap;
             for (MCParticlesToMCTruth::const_iterator iter = artMCParticlesToMCTruth.begin(), iterEnd = artMCParticlesToMCTruth.end(); iter != iterEnd; ++iter)
@@ -91,7 +91,7 @@ namespace gar {
                             }
                             catch (const pandora::StatusCodeException &)
                             {
-                                mf::LogWarning("MCParticleCreator") << "CreatePandoraMCParticles - unable to create mc particle relationship, invalid information supplied " << std::endl;
+                                LOG_WARNING("MCParticleCreator") << "CreatePandoraMCParticles - unable to create mc particle relationship, invalid information supplied " << std::endl;
                                 continue;
                             }
                         }
@@ -99,7 +99,7 @@ namespace gar {
                 }
             }
 
-            mf::LogDebug("MCParticleCreator") << " Number of Pandora neutrinos: " << neutrinoCounter << std::endl;
+            LOG_DEBUG("MCParticleCreator") << " Number of Pandora neutrinos: " << neutrinoCounter << std::endl;
 
             for (MCParticleMap::const_iterator iterI = particleMap.begin(), iterEndI = particleMap.end(); iterI != iterEndI; ++iterI)
             {
@@ -139,7 +139,7 @@ namespace gar {
                     }
                     catch (const pandora::StatusCodeException &)
                     {
-                        mf::LogWarning("MCParticleCreator") << "CreatePandoraMCParticles - Unable to create mc particle relationship, invalid information supplied " << std::endl;
+                        LOG_WARNING("MCParticleCreator") << "CreatePandoraMCParticles - Unable to create mc particle relationship, invalid information supplied " << std::endl;
                         continue;
                     }
                 }
@@ -150,14 +150,14 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        pandora::StatusCode MCParticleCreator::CreateTrackToMCParticleRelationships(const art::Event *const pEvent, const TrackVector &trackVector) const
+        pandora::StatusCode MCParticleCreator::CreateTrackToMCParticleRelationships(const TrackVector &trackVector) const
         {
             return pandora::STATUS_CODE_SUCCESS;
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        pandora::StatusCode MCParticleCreator::CreateCaloHitToMCParticleRelationships(const art::Event *const pEvent, const CalorimeterHitVector &calorimeterHitVector) const
+        pandora::StatusCode MCParticleCreator::CreateCaloHitToMCParticleRelationships(const CalorimeterHitVector &calorimeterHitVector) const
         {
             cheat::BackTrackerCore const* bt = gar::providerFrom<cheat::BackTracker>();
             // loop over all hits and fill in the map
@@ -188,7 +188,7 @@ namespace gar {
                     }
                     catch (const pandora::StatusCodeException &)
                     {
-                        mf::LogWarning("MCParticleCreator") << "CreateCaloHitToMCParticleRelationships - unable to create calo hit to mc particle relationship, invalid information supplied " << std::endl;
+                        LOG_WARNING("MCParticleCreator") << "CreateCaloHitToMCParticleRelationships - unable to create calo hit to mc particle relationship, invalid information supplied " << std::endl;
                         continue;
                     }
 
@@ -200,43 +200,42 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        void MCParticleCreator::CollectMCParticles(const art::Event &evt, const std::string &label, MCParticleVector &particleVector)
+        pandora::StatusCode MCParticleCreator::CollectMCParticles(const art::Event &pEvent, const std::string &label, MCParticleVector &particleVector)
         {
             art::Handle< RawMCParticleVector > theParticles;
-            evt.getByLabel(label, theParticles);
+            pEvent.getByLabel(label, theParticles);
 
             if (!theParticles.isValid())
             {
-                mf::LogDebug("MCParticleCreator") << "  Failed to find MC particles... " << std::endl;
-                return;
+                LOG_WARNING("MCParticleCreator") << "  Failed to find MC particles for label " << label << std::endl;
+                return pandora::STATUS_CODE_NOT_FOUND;
             }
-            else
-            {
-                mf::LogDebug("MCParticleCreator") << "  Found: " << theParticles->size() << " MC particles " << std::endl;
-            }
+
+            LOG_DEBUG("MCParticleCreator") << "  Found: " << theParticles->size() << " MC particles " << std::endl;
+
             for (unsigned int i = 0; i < theParticles->size(); ++i)
             {
                 const art::Ptr<simb::MCParticle> particle(theParticles, i);
                 particleVector.push_back(particle);
             }
+
+            return pandora::STATUS_CODE_SUCCESS;
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        void MCParticleCreator::CollectGeneratorMCParticles(const art::Event &evt, const std::string &label, RawMCParticleVector &particleVector)
+        pandora::StatusCode MCParticleCreator::CollectGeneratorMCParticles(const art::Event &pEvent, const std::string &label, RawMCParticleVector &particleVector)
         {
             art::Handle< std::vector<simb::MCTruth> > mcTruthBlocks;
-            evt.getByLabel(label, mcTruthBlocks);
+            pEvent.getByLabel(label, mcTruthBlocks);
 
             if (!mcTruthBlocks.isValid())
             {
-                mf::LogDebug("MCParticleCreator") << "  Failed to find MC truth blocks from generator... " << std::endl;
-                return;
+                LOG_WARNING("MCParticleCreator") << "  Failed to find MC Truth for generator " << label << std::endl;
+                return pandora::STATUS_CODE_NOT_FOUND;
             }
-            else
-            {
-                mf::LogDebug("MCParticleCreator") << "  Found: " << mcTruthBlocks->size() << " MC truth blocks " << std::endl;
-            }
+
+            LOG_DEBUG("MCParticleCreator") << "  Found: " << mcTruthBlocks->size() << " MC truth blocks " << std::endl;
 
             if (mcTruthBlocks->size() != 1)
             throw cet::exception("MCParticleCreator") << " PandoraCollector::CollectGeneratorMCParticles --- Unexpected number of MC truth blocks ";
@@ -246,26 +245,26 @@ namespace gar {
             {
                 particleVector.push_back(mcTruth->GetParticle(i));
             }
+
+            return pandora::STATUS_CODE_SUCCESS;
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        void MCParticleCreator::CollectMCParticles(const art::Event &evt, const std::string &label, MCTruthToMCParticles &truthToParticles, MCParticlesToMCTruth &particlesToTruth)
+        pandora::StatusCode MCParticleCreator::CollectMCParticles(const art::Event &pEvent, const std::string &label, MCTruthToMCParticles &truthToParticles, MCParticlesToMCTruth &particlesToTruth)
         {
             art::Handle< RawMCParticleVector > theParticles;
-            evt.getByLabel(label, theParticles);
+            pEvent.getByLabel(label, theParticles);
 
             if (!theParticles.isValid())
             {
-                mf::LogDebug("MCParticleCreator") << "  Failed to find MC particles... " << std::endl;
-                return;
-            }
-            else
-            {
-                mf::LogDebug("MCParticleCreator") << "  Found: " << theParticles->size() << " MC particles " << std::endl;
+                LOG_WARNING("MCParticleCreator") << "  Failed to find MC particles for label " << label << std::endl;
+                return pandora::STATUS_CODE_NOT_FOUND;
             }
 
-            art::FindOneP<simb::MCTruth> theTruthAssns(theParticles, evt, label);
+            LOG_DEBUG("MCParticleCreator") << "  Found: " << theParticles->size() << " MC particles " << std::endl;
+
+            art::FindOneP<simb::MCTruth> theTruthAssns(theParticles, pEvent, label);
 
             for (unsigned int i = 0, iEnd = theParticles->size(); i < iEnd; ++i)
             {
@@ -274,6 +273,8 @@ namespace gar {
                 truthToParticles[truth].push_back(particle);
                 particlesToTruth[particle] = truth;
             }
+
+            return pandora::STATUS_CODE_SUCCESS;
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------

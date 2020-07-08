@@ -18,12 +18,6 @@
 namespace gar {
     namespace rec {
 
-        class ParticleIDData {
-        public:
-            int fPdg;
-            float fGoodness;
-        };
-
         class PFParticle {
 
         public:
@@ -32,6 +26,11 @@ namespace gar {
             PFParticle(int type, float energy, float pos[3], float mom[3], float charge, std::vector<float> cov, int pdg, float goodness, size_t parent, std::vector<size_t> daughters);
 
             // let the compiler provide the dtor
+
+            struct ParticleIDData {
+                int fPdg;
+                float fGoodness;
+            };
 
         private:
 
@@ -45,7 +44,8 @@ namespace gar {
             float                           fMass{0};          ///< mass of the PFParticle
             float                           fCharge{0};        ///< charge of the PFParticle
             std::vector<float>              fCov;              ///< Covariant matrix of the PFParticle for the 4 vector (mom and E)
-            ParticleIDData                  fPID;              ///< Particle ID of the PFParticle
+            int                             fPdg;              ///< PDG of the PFParticle
+            float                           fGoodness;         ///< Goodness of the PDG of the PFParticle
             size_t                          fParent{0};        ///< Parent of the PFParticle
             std::vector<size_t>             fDaughters;        ///< Daughters of the PFParticle
 
@@ -78,7 +78,8 @@ namespace gar {
             const float                                Mass() const;
             const float                                Charge() const;
             const std::vector<float>                   CovMatrix() const;
-            const ParticleIDData                       GetParticleID() const;
+            const int                                  Pdg() const;
+            const float                                GoodnessOfPdg() const;
             const size_t                               Parent() const;
             const std::vector<size_t>                  Daughters() const;
             const size_t                               NDaughters() const;
@@ -96,7 +97,8 @@ namespace gar {
         inline const float                    gar::rec::PFParticle::Mass()                const { return fMass;         }
         inline const float                    gar::rec::PFParticle::Charge()              const { return fCharge;       }
         inline const std::vector<float>       gar::rec::PFParticle::CovMatrix()           const { return fCov;          }
-        inline const ParticleIDData           gar::rec::PFParticle::GetParticleID()       const { return fPID;          }
+        inline const int                      gar::rec::PFParticle::Pdg()                 const { return fPdg;          }
+        inline const float                    gar::rec::PFParticle::GoodnessOfPdg()       const { return fGoodness;     }
         inline const size_t                   gar::rec::PFParticle::Parent()              const { return fParent;       }
         inline const std::vector<size_t>      gar::rec::PFParticle::Daughters()           const { return fDaughters;    }
         inline const size_t                   gar::rec::PFParticle::NDaughters()          const { return fDaughters.size();    }

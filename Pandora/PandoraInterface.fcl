@@ -9,7 +9,7 @@ PandoraXML:         "PandoraSettingsBasic.xml"
 
 # MCParticleCreatorSettings
 Geant4Label:        "geant"
-GeneratorLabel:     ""
+GeneratorLabel:     "genie"
 
 # TrackCreatorSettings
 TrackLabel:         "track"

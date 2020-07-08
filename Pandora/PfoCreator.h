@@ -37,7 +37,7 @@ namespace gar {
 
             ~PfoCreator();
 
-            pandora::StatusCode CreateParticleFlowObjects(art::Event *pEvent);
+            pandora::StatusCode CreateParticleFlowObjects(art::Event &pEvent);
 
         private:
             /**
@@ -58,8 +58,7 @@ namespace gar {
             *  @param  hitY the vector to receive the y position of hits
             *  @param  hitZ the vector to receive the z position of hits
             */
-            void SetClusterSubDetectorEnergies(const pandora::StringVector &subDetectorNames, gar::rec::Cluster *const pCluster,
-            const pandora::CaloHitList &pandoraCaloHitList, pandora::FloatVector &hitE, pandora::FloatVector &hitX, pandora::FloatVector &hitY, pandora::FloatVector &hitZ) const;
+            void SetClusterSubDetectorEnergies(const pandora::StringVector &subDetectorNames, const pandora::CaloHitList &pandoraCaloHitList, pandora::FloatVector &hitE, pandora::FloatVector &hitX, pandora::FloatVector &hitY, pandora::FloatVector &hitZ) const;
 
             /**
             *  @brief  Set cluster energies and errors
@@ -69,7 +68,7 @@ namespace gar {
             *  @param  pLcioCluster the address of the lcio cluster to be set energies and erros
             *  @param  clusterCorrectEnergy a number to receive the cluster correct energy
             */
-            void SetClusterEnergyAndError(const pandora::ParticleFlowObject *const pPandoraPfo, const pandora::Cluster *const pPandoraCluster, gar::rec::Cluster *const pCluster, float &clusterCorrectEnergy) const;
+            void SetClusterEnergyAndError(const pandora::ParticleFlowObject *const pPandoraPfo, const pandora::Cluster *const pPandoraCluster, gar::rec::Cluster &pCluster, float &clusterCorrectEnergy) const;
 
             /**
             *  @brief  Set cluster position, errors and other shape info, by calculating culster shape first
@@ -82,7 +81,7 @@ namespace gar {
             *  @param  pLcioCluster the lcio cluster to be set positions and errors
             *  @param  clusterPosition a CartesianVector to receive the cluster position
             */
-            void SetClusterPositionAndError(const unsigned int nHitsInCluster, pandora::FloatVector &hitE, pandora::FloatVector &hitX, pandora::FloatVector &hitY, pandora::FloatVector &hitZ, gar::rec::Cluster *const pCluster, pandora::CartesianVector &clusterPositionVec) const;
+            void SetClusterPositionAndError(const unsigned int nHitsInCluster, pandora::FloatVector &hitE, pandora::FloatVector &hitX, pandora::FloatVector &hitY, pandora::FloatVector &hitZ, gar::rec::Cluster &pCluster, pandora::CartesianVector &clusterPositionVec) const;
 
             /**
             *  @brief  Calculate reference point for pfo with tracks
@@ -98,7 +97,7 @@ namespace gar {
             *  @param  referencePoint a CartesianVector of the reference point
             *  @param  pReconstructedParticle the address of the reconstructed particle to be reference point
             */
-            void SetRecoParticleReferencePoint(const pandora::CartesianVector &referencePoint, gar::rec::PFParticle *const pReconstructedParticle) const;
+            void SetRecoParticleReferencePoint(const pandora::CartesianVector &referencePoint, gar::rec::PFParticle &pReconstructedParticle) const;
 
             /**
             *  @brief  Add tracks to reconstructed particle
@@ -106,7 +105,7 @@ namespace gar {
             *  @param  pPandoraPfo the address of the pandora pfo
             *  @param  pReconstructedParticle the address of the reconstructed particle to be added tracks
             */
-            void AddTracksToRecoParticle(const pandora::ParticleFlowObject *const pPandoraPfo, gar::rec::PFParticle *const pReconstructedParticle) const;
+            void AddTracksToRecoParticle(const pandora::ParticleFlowObject *const pPandoraPfo, gar::rec::PFParticle &pReconstructedParticle) const;
 
             /**
             *  @brief  Set properties of reconstructed particle from pandora pfo
@@ -114,7 +113,7 @@ namespace gar {
             *  @param  pPandoraPfo the address of the pandora pfo
             *  @param  pReconstructedParticle the address of the reconstructed particle to be set properties
             */
-            void SetRecoParticlePropertiesFromPFO(const pandora::ParticleFlowObject *const pPandoraPfo, gar::rec::PFParticle *const pReconstructedParticle) const;
+            void SetRecoParticlePropertiesFromPFO(const pandora::ParticleFlowObject *const pPandoraPfo, gar::rec::PFParticle &pReconstructedParticle) const;
 
             /**
             *  @brief  Whether parent and daughter tracks are associated with the same pfo
