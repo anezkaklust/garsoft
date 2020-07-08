@@ -25,7 +25,7 @@ standard_tpctrackfit2:
 
 dayone_tpctrackfit2:
 {
- module_type:               tpctrackfit2
+ module_type:               dayonetrackfit
  PatRecLabel:               "dayone"    # module label producing patrec tracks and TPCCluster assoications
 
  DumpTracks:                 0          # separate track dump printout
