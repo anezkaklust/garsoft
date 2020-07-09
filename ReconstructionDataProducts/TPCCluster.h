@@ -30,6 +30,7 @@ namespace gar {
       float        fStartTime;   ///< start time of the TPCCluster (ticks)
       float        fEndTime;     ///< end time of the TPCCluster (ticks)
       float        fRMS;         ///< TPCCluster width calculated with RMS (in ticks)
+      float        fCovMat[6];   ///< packed covariance matrix, assuming symmetry. xx, xy, xz, yy, yz, zz
 
 #ifndef __GCCXML__
       
@@ -54,6 +55,7 @@ namespace gar {
       float               EndTime()   const;
       float               Time()      const;
       float               RMS()       const;
+      const float*        CovMatPacked() const;
 
       void operator += (gar::rec::TPCCluster const& h);
       
@@ -69,6 +71,8 @@ namespace gar {
     inline float         TPCCluster::EndTime()   const { return fEndTime;      }
     inline float         TPCCluster::RMS()       const { return fRMS;          }
     inline float         TPCCluster::Time()      const { return fTime;         }    
+    inline const  float* TPCCluster::CovMatPacked()  const { return &fCovMat[0]; }
+
   } // rec
 } // gar
 

@@ -9,7 +9,8 @@
 
 
 <lcgdict>
-  <class name="gar::rec::TPCCluster"        ClassVersion="11"            >
+  <class name="gar::rec::TPCCluster"        ClassVersion="12"            >
+   <version ClassVersion="12" checksum="3158642587"/>
    <version ClassVersion="11" checksum="3640596235"/>
    <version ClassVersion="10" checksum="2160918033"/>
   </class>
