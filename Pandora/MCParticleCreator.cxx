@@ -67,9 +67,9 @@ namespace gar {
 
                     PandoraApi::MCParticle::Parameters mcParticleParameters;
                     mcParticleParameters.m_energy = neutrino.Nu().E();
-                    mcParticleParameters.m_momentum = pandora::CartesianVector(neutrino.Nu().Px(), neutrino.Nu().Py(), neutrino.Nu().Pz());
-                    mcParticleParameters.m_vertex = pandora::CartesianVector(neutrino.Nu().Vx(), neutrino.Nu().Vy(), neutrino.Nu().Vz());
-                    mcParticleParameters.m_endpoint = pandora::CartesianVector(neutrino.Nu().Vx(), neutrino.Nu().Vy(), neutrino.Nu().Vz());
+                    mcParticleParameters.m_momentum = pandora::CartesianVector(neutrino.Nu().Pz(), neutrino.Nu().Py(), -neutrino.Nu().Px());
+                    mcParticleParameters.m_vertex = pandora::CartesianVector(neutrino.Nu().Vz(), neutrino.Nu().Vy(), -neutrino.Nu().Vx()) * CLHEP::cm;
+                    mcParticleParameters.m_endpoint = pandora::CartesianVector(neutrino.Nu().Vz(), neutrino.Nu().Vy(), -neutrino.Nu().Vx()) * CLHEP::cm;
                     mcParticleParameters.m_particleId = neutrino.Nu().PdgCode();
                     mcParticleParameters.m_mcParticleType = pandora::MC_3D;
                     mcParticleParameters.m_pParentAddress = (void*)((intptr_t)neutrinoID);
@@ -121,10 +121,19 @@ namespace gar {
                 mcParticleParameters.m_energy = E;
                 mcParticleParameters.m_particleId = pMcParticle->PdgCode();
                 mcParticleParameters.m_mcParticleType = pandora::MC_3D;
-                mcParticleParameters.m_pParentAddress = (void*)((intptr_t)pMcParticle->TrackId());;
-                mcParticleParameters.m_momentum = pandora::CartesianVector(pX, pY, pZ);
-                mcParticleParameters.m_vertex = pandora::CartesianVector(vtxX, vtxY, vtxZ);
-                mcParticleParameters.m_endpoint = pandora::CartesianVector(endX, endY, endZ);
+                mcParticleParameters.m_pParentAddress = (void*)((intptr_t)pMcParticle->TrackId());
+                mcParticleParameters.m_momentum = pandora::CartesianVector(pZ, pY, -pX);
+                mcParticleParameters.m_vertex = pandora::CartesianVector(vtxZ, vtxY, -vtxX) * CLHEP::cm;
+                mcParticleParameters.m_endpoint = pandora::CartesianVector(endZ, endY, -endX) * CLHEP::cm;
+
+                LOG_DEBUG("MCParticleCreator") << " Adding MC Particle with parameters "
+                << " mcParticleParameters.m_energy = " << mcParticleParameters.m_energy.Get()
+                << " mcParticleParameters.m_particleId = " << mcParticleParameters.m_particleId.Get()
+                << " mcParticleParameters.m_mcParticleType = " << mcParticleParameters.m_mcParticleType.Get()
+                << " mcParticleParameters.m_pParentAddress = " << mcParticleParameters.m_pParentAddress.Get()
+                << " mcParticleParameters.m_momentum = " << mcParticleParameters.m_momentum.Get()
+                << " mcParticleParameters.m_vertex = " << mcParticleParameters.m_vertex.Get()
+                << " mcParticleParameters.m_endpoint = " << mcParticleParameters.m_endpoint.Get();
 
                 PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::MCParticle::Create(m_pandora, mcParticleParameters));
 

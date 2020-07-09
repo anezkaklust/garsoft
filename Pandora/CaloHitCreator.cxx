@@ -105,10 +105,11 @@ namespace gar {
 
                     caloHitParameters.m_electromagneticEnergy = m_settings.m_eCalToEMGeV * pCaloHit->Energy();
 
+                    //Check if the hit is inside the calo... could be SSA reco problems....
                     const float rCoordinate( std::sqrt( pCaloHit->Position()[1] * pCaloHit->Position()[1] + pCaloHit->Position()[2] * pCaloHit->Position()[2]) * CLHEP::cm );
                     if( rCoordinate > m_settings.m_eCalBarrelOuterR )
                     {
-                        LOG_ERROR("CaloHitCreator::CreateECalCaloHits")
+                        LOG_DEBUG("CaloHitCreator::CreateECalCaloHits")
                         << " Position x: " << pCaloHit->Position()[0] * CLHEP::cm
                         << " y: " << pCaloHit->Position()[1] * CLHEP::cm
                         << " z: " << pCaloHit->Position()[2] * CLHEP::cm
@@ -129,6 +130,7 @@ namespace gar {
                         << " caloHitParameters.m_hadronicEnergy = " << caloHitParameters.m_hadronicEnergy.Get()
                         << " caloHitParameters.m_mipEquivalentEnergy = " << caloHitParameters.m_mipEquivalentEnergy.Get()
                         << " caloHitParameters.m_electromagneticEnergy = " << caloHitParameters.m_electromagneticEnergy.Get();
+                        continue;
                     }
 
                     PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::CaloHit::Create(m_pandora, caloHitParameters));
@@ -154,7 +156,7 @@ namespace gar {
         {
             const float *pCaloHitPosition(pCaloHit->Position());
             //Inverse X and Z for pandora to cope with the change in beam axis
-            const pandora::CartesianVector positionVector(pCaloHitPosition[2] * CLHEP::cm, pCaloHitPosition[1] * CLHEP::cm, pCaloHitPosition[0] * CLHEP::cm);
+            const pandora::CartesianVector positionVector(pCaloHitPosition[2] * CLHEP::cm, pCaloHitPosition[1] * CLHEP::cm, -pCaloHitPosition[0] * CLHEP::cm);
 
             caloHitParameters.m_cellGeometry = pandora::RECTANGULAR;
             caloHitParameters.m_positionVector = positionVector;
@@ -343,7 +345,7 @@ namespace gar {
             for (unsigned int i = 0; i < symmetryOrder; ++i)
             {
                 const float phi = phi0 + i * twoPi / static_cast<float>(symmetryOrder);
-                float radius = pCaloHitPosition[1] * std::cos(phi) + pCaloHitPosition[2] * std::sin(phi);
+                float radius = pCaloHitPosition[2] * std::cos(phi) + pCaloHitPosition[1] * std::sin(phi);
 
                 if (radius > maximumRadius)
                 maximumRadius = radius;
