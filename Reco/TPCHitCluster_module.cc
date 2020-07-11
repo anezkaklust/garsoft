@@ -132,12 +132,6 @@ namespace gar {
               side = -1;
             }
 
-          double cpos[3] = {xyz[0], xyz[1], xyz[2]};
-          double csig = hits.at(ihit).Signal();
-          double cstime = hits.at(ihit).StartTime();
-          double cetime = hits.at(ihit).EndTime();
-          double crms = hits.at(ihit).RMS();
-          double ctime = hits.at(ihit).Time();
 
           double xyzlow[3] =
             {
@@ -158,7 +152,7 @@ namespace gar {
 
           if (fPrintLevel > 1)
             {
-              std::cout << "Started a new TPC cluster.  Pos= " << cpos[0] << " " << cpos[1] << " " << cpos[2] << std::endl;
+              std::cout << "Started a new TPC cluster.  Pos= " << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
               std::cout << "Side: " << side << std::endl;
               std::cout << "Low bound search window: " << xyzlow[0] << " " << xyzlow[1] << " " << xyzlow[2] << std::endl;
               std::cout << "High bound search window: " << xyzhigh[0] << " " << xyzhigh[1] << " " << xyzhigh[2] << std::endl;
@@ -195,42 +189,87 @@ namespace gar {
                   // add hit to cluster
                   hitsinclus.push_back(ihc);
                   used[ihc] = 1;
-                  double signal = hits.at(ihc).Signal();
-                  double totsig = csig + signal;
-                  if (totsig > 0)
+                  if (fPrintLevel > 1)
                     {
-                      for (size_t idim=0; idim<3; ++idim)
-                        {
-                          cpos[idim] = ( cpos[idim]*csig + xyz2[idim]*signal) / totsig;
-                        }
-                      cstime = TMath::Min(cstime, (double) hits.at(ihc).StartTime());
-                      cetime = TMath::Max(cetime, (double) hits.at(ihc).EndTime());
-
-                      double htime = hits.at(ihc).Time();
-                      double hrms = hits.at(ihc).RMS();
-                      crms = TMath::Sqrt( (csig*crms*crms + signal*hrms*hrms)/totsig  +
-                                          (csig*signal)*TMath::Sq(htime-ctime)/TMath::Sq(totsig));
-                      ctime = (ctime*csig + htime*signal) / totsig;
-                      csig = totsig;
-                      if (fPrintLevel > 1)
-                        {
-                          std::cout << "Added hit.  New cluster pos: " << cpos[0] << " " << cpos[1] << " " << cpos[2] << std::endl;
-                        }
+                      std::cout << "Added hit with pos: " << xyz2[0] << " " << xyz2[1] << " " << xyz2[2] << std::endl;
                     }
                 }
             }
+
+          // calculate cluster charge, centroid, min and max times, and covariance
+
+          double cpos[3] = {0,0,0};  // charge-weighted cluster position
+          double csig = 0;           // cluster signal total
+          double cstime = 0;         // cluster start time
+          double cetime = 0;         // cluster end time
+          double crms = 0;           // cluster RMS in X
+          double ctime = 0;          // cluster time centroid
+          double cov[3][3] = {0,0,0,0,0,0,0,0,0};
+          
+          for (size_t ix = 0; ix < hitsinclus.size(); ++ix)
+            {
+              size_t ihx = hitsinclus.at(ix);
+              double hsig = hits.at(ihx).Signal();
+              csig += hsig;
+              for (size_t idim=0; idim<3; ++idim)
+                {
+                  cpos[idim] += hsig * hits.at(ihx).Position()[idim];
+                }
+              ctime += hsig * hits.at(ihx).Time();
+              if (ix == 0)
+                {
+                  cstime = hits.at(ihx).StartTime();
+                  cetime = hits.at(ihx).EndTime();
+                }
+              else
+                {
+                  cstime = TMath::Min(cstime, (double) hits.at(ihx).StartTime());
+                  cetime = TMath::Max(cetime, (double) hits.at(ihx).EndTime());
+                }
+            }
+          if (csig != 0)
+            {
+              ctime /= csig;
+              for (size_t idim=0; idim<3; ++idim)
+                {
+                  cpos[idim] /= csig;
+                }
+
+              // calculate covariance.  Do a numerical sum over hit widths assuming Gaussians.
+
+              for (size_t ix = 0; ix < hitsinclus.size(); ++ix)
+                {
+                  size_t ihx = hitsinclus.at(ix);
+                  double cfrac = hits.at(ihx).Signal()/csig;
+                  const float *hpos = hits.at(ihx).Position();
+                  for (size_t idim=0; idim<3; ++idim)
+                    {
+                      for (size_t jdim=0; jdim<3; ++jdim)
+                        {
+                          cov[idim][jdim] += cfrac*(hpos[idim]-cpos[idim])*(hpos[jdim]-cpos[jdim]);
+                        }
+                    }
+                  cov[0][0] += cfrac*TMath::Sq(hits.at(ihx).RMS());
+                } 
+            }
+          crms = TMath::Sqrt(cov[0][0]);  // to mean what it meant before -- RMS along the drift direction
 
           float fcpos[3] = {0,0,0};
           for (int i=0;i<3;++i)
             {
               fcpos[i] = cpos[i];
             }
+          float fccov[6] = {(float) cov[0][0], (float) cov[1][0], (float) cov[2][0], 
+                            (float) cov[1][1], (float) cov[1][2], (float) cov[2][2]};
+
           TPCClusterCol->emplace_back(csig,
                                       fcpos,
                                       cstime,
                                       cetime,
                                       ctime,
-                                      crms);
+                                      crms,
+                                      fccov);
+
           if (fPrintLevel > 0)
             {
               std::cout << "Made a TPC Cluster pos: " << fcpos[0] << " " << fcpos[1] << " " << fcpos[2] << "  signal: " << csig << std::endl;

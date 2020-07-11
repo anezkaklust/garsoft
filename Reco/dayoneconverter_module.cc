@@ -179,12 +179,15 @@ void dayoneconverter::produce(art::Event& e)
 
       float time = cd.Time() + GaussRand.fire(0., fSmearT);
 
+      float covmat[6] = {0,0,0,0,0,0};  // TODO -- fill this in with something reasonble
+
       TPCClusterCol->emplace_back(cd.Energy(),   // do we need a scale factor here?
                                   fcpos,
                                   time,     // time is in ns
                                   time,
                                   time,
-                                  fSmearX);
+                                  fSmearX,
+				  covmat);
     }
 
   if(fIncludeMuIDhits) {
@@ -220,12 +223,15 @@ void dayoneconverter::produce(art::Event& e)
 
         float time = cd.Time() + GaussRand.fire(0., fSmearT);
 
+        float covmat[6] = {0,0,0,0,0,0};  // TODO -- fill this in with something reasonble
+
         TPCClusterCol->emplace_back(cd.Energy(),   // do we need a scale factor here?
                                     fcpos,
                                     time,     // time is in ns
                                     time,
                                     time,
-                                    fSmearX);
+                                    fSmearX,
+				    covmat);
       }
   }
 

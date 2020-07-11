@@ -22,11 +22,11 @@ namespace gar {
 
 
     bool TPCCluster::operator==(const TPCCluster& rhs) const {
-        return (this->fIDnumero == rhs.fIDnumero);
+      return (this->fIDnumero == rhs.fIDnumero);
     }
 
     bool TPCCluster::operator!=(const TPCCluster& rhs) const {
-        return (this->fIDnumero != rhs.fIDnumero);
+      return (this->fIDnumero != rhs.fIDnumero);
     }
 
     gar::rec::IDNumber TPCCluster::getIDNumber() const {return fIDnumero;}
@@ -34,17 +34,18 @@ namespace gar {
 
 
     //--------------------------------------------------------------------------
-    TPCCluster::TPCCluster( float        sig,
-         float       *pos,
-         float        startT,
-         float        endT,
-	     float        Time,
-	     float        RMS)
-    : fSignal   (sig   )
-    , fTime     (Time  )
-    , fStartTime(startT)
-    , fEndTime  (endT  )
-    , fRMS      (RMS   )
+    TPCCluster::TPCCluster( const float        sig,
+                            const float       *pos,
+                            const float        startT,
+                            const float        endT,
+                            const float        Time,
+                            const float        RMS,
+                            const float *cov)
+      : fSignal   (sig   )
+      , fTime     (Time  )
+      , fStartTime(startT)
+      , fEndTime  (endT  )
+      , fRMS      (RMS   )
     {
       IDNumberGen::create(FirstNumber);
       fIDnumero = IDNumberGen::create()->getNewOne();
@@ -52,6 +53,10 @@ namespace gar {
       fPosition[0] = pos[0];
       fPosition[1] = pos[1];
       fPosition[2] = pos[2];
+      for (size_t i=0; i<6; ++i)
+        {
+          fCovMat[i] = cov[i];
+        }
       
       return;
     }
@@ -69,7 +74,7 @@ namespace gar {
       
       if(totSig == 0.){
         LOG_WARNING("TPCCluster")
-        << "attempting to add two TPCClusters and neithr has any signal, bail.";
+          << "attempting to add two TPCClusters and neithr has any signal, bail.";
         return;
       }
  
@@ -87,7 +92,7 @@ namespace gar {
       float avgtime = (fTime * fSignal + h.Time() * h.Signal()) / totSig;
 
       fRMS = TMath::Sqrt(  (fSignal*(TMath::Sq(fTime-avgtime)+TMath::Sq(fRMS))
-			    + h.Signal()*(TMath::Sq(h.Time()-avgtime)+TMath::Sq(h.RMS())))/totSig );
+                            + h.Signal()*(TMath::Sq(h.Time()-avgtime)+TMath::Sq(h.RMS())))/totSig );
                           
       fTime      = avgtime;
 
@@ -102,21 +107,21 @@ namespace gar {
     {
       
       o << "TPCCluster "
-      << "\n\tID number = "
-      << h.getIDNumber()
-      << "\n\tposition = ("
-      << h.Position()[0]
-      << ", "
-      << h.Position()[1]
-      << ", "
-      << h.Position()[2]
-      << ")"
-      << "\n\tsignal = "
-      << h.Signal()
-      << "\n\tstart time: "
-      << h.StartTime()
-      << " end time: "
-      << h.EndTime();
+        << "\n\tID number = "
+        << h.getIDNumber()
+        << "\n\tposition = ("
+        << h.Position()[0]
+        << ", "
+        << h.Position()[1]
+        << ", "
+        << h.Position()[2]
+        << ")"
+        << "\n\tsignal = "
+        << h.Signal()
+        << "\n\tstart time: "
+        << h.StartTime()
+        << " end time: "
+        << h.EndTime();
       
       return o;
     }
