@@ -437,7 +437,8 @@ namespace gar {
 				              tc->StartTime(),
 				              tc->EndTime(),
 				              tc->Time(),
-				              tc->RMS());
+				              tc->RMS(),
+					      tc->CovMatPacked());
 	          auto const TPCClusterPointer = TPCClusterPtrMaker(TPCClusterCol->size()-1);
 		  TPCClusterTrkAssns->addSingle(TPCClusterPointer,trackpointer);
 		  rec::IDNumber oldclusid = tc->getIDNumber();
@@ -532,7 +533,8 @@ namespace gar {
 				              tc->StartTime(),
 				              tc->EndTime(),
 				              tc->Time(),
-				              tc->RMS());
+				              tc->RMS(),
+					      tc->CovMatPacked());
 	          auto const TPCClusterPointer = TPCClusterPtrMaker(TPCClusterCol->size()-1);
 		  TPCClusterTrkAssns->addSingle(TPCClusterPointer,trackpointer);
 		  rec::IDNumber oldclusid = tc->getIDNumber();
@@ -555,7 +557,8 @@ namespace gar {
 				              tc->StartTime(),
 				              tc->EndTime(),
 				              tc->Time(),
-				              tc->RMS());
+				              tc->RMS(),
+					      tc->CovMatPacked());
 	          auto const TPCClusterPointer = TPCClusterPtrMaker(TPCClusterCol->size()-1);
 		  TPCClusterTrkAssns->addSingle(TPCClusterPointer,trackpointer);
 		  rec::IDNumber oldclusid = tc->getIDNumber();
