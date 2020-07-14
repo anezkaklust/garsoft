@@ -28,9 +28,10 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        pandora::StatusCode TrackCreator::CollectTracks(const art::Event &pEvent)
+        pandora::StatusCode TrackCreator::CreateTracks(const art::Event &pEvent)
         {
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CollectTracks(pEvent, m_settings.m_trackCollection, artTrkVector));
+            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CreateTracks());
 
             return pandora::STATUS_CODE_SUCCESS;
         }
@@ -59,7 +60,7 @@ namespace gar {
         {
             return pandora::STATUS_CODE_SUCCESS;
         }
-        
+
         //------------------------------------------------------------------------------------------------------------------------------------------
 
         pandora::StatusCode TrackCreator::ExtractV0s(const art::Event &pEvent)

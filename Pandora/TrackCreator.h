@@ -47,7 +47,7 @@ namespace gar {
 
             virtual ~TrackCreator();
 
-            pandora::StatusCode CollectTracks(const art::Event &pEvent);
+            pandora::StatusCode CreateTracks(const art::Event &pEvent);
             pandora::StatusCode CreateTracks() const;
             pandora::StatusCode CreateTrackAssociations(const art::Event &pEvent);
 
@@ -72,7 +72,7 @@ namespace gar {
             std::shared_ptr<lc_content::LCTrackFactory> m_TrackFactory = {};  ///< LCTrackFactor for creating LCTracks
             TrackVector artTrkVector;
         };
-        
+
         //------------------------------------------------------------------------------------------------------------------------------------------
 
         inline const TrackVector &TrackCreator::GetTrackVector() const

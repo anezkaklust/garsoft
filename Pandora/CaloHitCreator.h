@@ -52,9 +52,7 @@ namespace gar {
 
             ~CaloHitCreator();
 
-            pandora::StatusCode CollectCaloHits(const art::Event &pEvent);
-            pandora::StatusCode CreateCaloHits() const;
-
+            pandora::StatusCode CreateCaloHits(const art::Event &pEvent);
             const CalorimeterHitVector &GetCalorimeterHitVector() const;
 
             void Reset();

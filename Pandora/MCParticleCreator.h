@@ -34,11 +34,29 @@ namespace gar {
                 std::string    m_generatorModuleLabel;         ///< The generator label
             };
 
+            class eveLoc {
+            public:
+                eveLoc(int id)
+                : eveID(id)
+                {}
+
+                ~eveLoc() {}
+
+                friend bool operator < (eveLoc const& a, eveLoc const& b) {
+                    return a.eveID < b.eveID;
+                }
+
+                int GetEveID() const { return eveID; }
+
+            private:
+                int                    eveID;
+            };
+
             MCParticleCreator(const Settings &settings, const pandora::Pandora *const pPandora);
 
             ~MCParticleCreator();
 
-            pandora::StatusCode CollectMCParticles(const art::Event &pEvent);
+            pandora::StatusCode CreateMCParticles(const art::Event &pEvent);
             pandora::StatusCode CreateMCParticles() const;
             pandora::StatusCode CreateTrackToMCParticleRelationships(const TrackVector &trackVector) const;
             pandora::StatusCode CreateCaloHitToMCParticleRelationships(const CalorimeterHitVector &calorimeterHitVector) const;

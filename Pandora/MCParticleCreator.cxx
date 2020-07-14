@@ -34,12 +34,13 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        pandora::StatusCode MCParticleCreator::CollectMCParticles(const art::Event &pEvent)
+        pandora::StatusCode MCParticleCreator::CreateMCParticles(const art::Event &pEvent)
         {
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CollectMCParticles(pEvent, m_settings.m_geantModuleLabel, artMCParticleVector));
             if (!m_settings.m_generatorModuleLabel.empty())
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CollectGeneratorMCParticles(pEvent, m_settings.m_generatorModuleLabel, generatorArtMCParticleVector));
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CollectMCParticles(pEvent, m_settings.m_geantModuleLabel, artMCTruthToMCParticles, artMCParticlesToMCTruth));
+            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CreateMCParticles());
 
             return pandora::STATUS_CODE_SUCCESS;
         }
@@ -63,7 +64,6 @@ namespace gar {
                 {
                     const simb::MCNeutrino neutrino(truth->GetNeutrino());
                     ++neutrinoCounter;
-                    const int neutrinoID(neutrinoCounter);
 
                     PandoraApi::MCParticle::Parameters mcParticleParameters;
                     mcParticleParameters.m_energy = neutrino.Nu().E();
@@ -72,7 +72,7 @@ namespace gar {
                     mcParticleParameters.m_endpoint = pandora::CartesianVector(neutrino.Nu().Vz(), neutrino.Nu().Vy(), -neutrino.Nu().Vx()) * CLHEP::cm;
                     mcParticleParameters.m_particleId = neutrino.Nu().PdgCode();
                     mcParticleParameters.m_mcParticleType = pandora::MC_3D;
-                    mcParticleParameters.m_pParentAddress = (void*)((intptr_t)neutrinoID);
+                    mcParticleParameters.m_pParentAddress = &neutrino;
 
                     PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::MCParticle::Create(m_pandora, mcParticleParameters));
 
@@ -81,13 +81,12 @@ namespace gar {
                     for (MCParticleVector::const_iterator iter2 = particleVector.begin(), iterEnd2 = particleVector.end(); iter2 != iterEnd2; ++iter2)
                     {
                         const art::Ptr<simb::MCParticle> particle = *iter2;
-                        const int trackID(particle->TrackId());
                         // Mother/Daughter Links
                         if (particle->Mother() == 0)
                         {
                             try
                             {
-                                PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetMCParentDaughterRelationship(m_pandora, (void*)((intptr_t)neutrinoID), (void*)((intptr_t)trackID)));
+                                PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetMCParentDaughterRelationship(m_pandora, &neutrino, particle.get()));
                             }
                             catch (const pandora::StatusCodeException &)
                             {
@@ -121,7 +120,7 @@ namespace gar {
                 mcParticleParameters.m_energy = E;
                 mcParticleParameters.m_particleId = pMcParticle->PdgCode();
                 mcParticleParameters.m_mcParticleType = pandora::MC_3D;
-                mcParticleParameters.m_pParentAddress = (void*)((intptr_t)pMcParticle->TrackId());
+                mcParticleParameters.m_pParentAddress = pMcParticle.get();
                 mcParticleParameters.m_momentum = pandora::CartesianVector(pZ, pY, -pX);
                 mcParticleParameters.m_vertex = pandora::CartesianVector(vtxZ, vtxY, -vtxX) * CLHEP::cm;
                 mcParticleParameters.m_endpoint = pandora::CartesianVector(endZ, endY, -endX) * CLHEP::cm;
@@ -135,22 +134,40 @@ namespace gar {
                 << " mcParticleParameters.m_vertex = " << mcParticleParameters.m_vertex.Get()
                 << " mcParticleParameters.m_endpoint = " << mcParticleParameters.m_endpoint.Get();
 
-                PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::MCParticle::Create(m_pandora, mcParticleParameters));
-
-                // Create parent-daughter relationships
-                const int id_mother(pMcParticle->Mother());
-                MCParticleMap::const_iterator iterJ = particleMap.find(id_mother);
-                if (iterJ != particleMap.end())
+                try
                 {
-                    try
+                    LOG_DEBUG("MCParticleCreator::CreateMCParticles")
+                    << " Creating mc particle " << pMcParticle.get()
+                    << " of pdg " << pMcParticle->PdgCode()
+                    << " with TrackID " << pMcParticle->TrackId()
+                    << " and energy " << pMcParticle->E() << " GeV";
+
+                    PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::MCParticle::Create(m_pandora, mcParticleParameters));
+
+                    // Create parent-daughter relationships
+                    const int id_mother(pMcParticle->Mother());
+                    MCParticleMap::const_iterator iterJ = particleMap.find(id_mother);
+                    if (iterJ != particleMap.end())
                     {
-                        PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetMCParentDaughterRelationship(m_pandora, (void*)((intptr_t)id_mother), (void*)((intptr_t)pMcParticle->TrackId())));
+                        try
+                        {
+                            LOG_DEBUG("MCParticleCreator::CreateMCParticles")
+                            << " Adding daughter relation " << iterJ->second.get()
+                            << " to mc particle " << pMcParticle.get();
+
+                            PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetMCParentDaughterRelationship(m_pandora, iterJ->second.get(), pMcParticle.get()));
+                        }
+                        catch (const pandora::StatusCodeException &)
+                        {
+                            LOG_WARNING("MCParticleCreator") << "CreatePandoraMCParticles - Unable to create mc particle relationship, invalid information supplied " << std::endl;
+                            continue;
+                        }
                     }
-                    catch (const pandora::StatusCodeException &)
-                    {
-                        LOG_WARNING("MCParticleCreator") << "CreatePandoraMCParticles - Unable to create mc particle relationship, invalid information supplied " << std::endl;
-                        continue;
-                    }
+                }
+                catch (const pandora::StatusCodeException &)
+                {
+                    LOG_WARNING("MCParticleCreator") << "CreatePandoraMCParticles - Unable to create MCParticle " << std::endl;
+                    continue;
                 }
             }
 
@@ -169,40 +186,73 @@ namespace gar {
         pandora::StatusCode MCParticleCreator::CreateCaloHitToMCParticleRelationships(const CalorimeterHitVector &calorimeterHitVector) const
         {
             cheat::BackTrackerCore const* bt = gar::providerFrom<cheat::BackTracker>();
+            std::map< eveLoc, std::vector< art::Ptr<gar::rec::CaloHit> > > eveCaloHitMap;
+
             // loop over all hits and fill in the map
             for( auto const& itr : calorimeterHitVector )
             {
                 std::vector<gar::cheat::CalIDE> eveides = bt->CaloHitToCalIDEs(itr);
+
                 // loop over all eveides for this hit
-                for(size_t ieve = 0; ieve < eveides.size(); ieve++)
+                for(size_t ieve = 0; ieve < eveides.size(); ieve++) {
+                    LOG_DEBUG("MCParticleCreator::CreateCaloHitToMCParticleRelationships")
+                    << " Found eveID " << eveides[ieve].trackID
+                    << " associated to art hit " << itr;
+
+                    if(eveides[ieve].energyFrac < 0.1) continue;
+
+                    eveLoc el(eveides[ieve].trackID);
+                    eveCaloHitMap[el].push_back(itr);
+                } // end loop over eve IDs for this hit
+            }// end loop over hits
+
+            for(auto const &hitMapItr : eveCaloHitMap)
+            {
+                LOG_DEBUG("MCParticleCreator::CreateCaloHitToMCParticleRelationships")
+                << " Trying to find mcp associated to eveID " << hitMapItr.first.GetEveID();
+
+                const simb::MCParticle *part = bt->TrackIDToParticle(hitMapItr.first.GetEveID());
+
+                if( nullptr == part ) {
+                    LOG_WARNING("MCParticleCreator::CreateCaloHitToMCParticleRelationships")
+                    << "Cannot find MCParticle for eveid: " << hitMapItr.first.GetEveID();
+                    continue;
+                }
+
+                const int eveID = hitMapItr.first.GetEveID();
+                const int trackID = part->TrackId();
+                const float partE = part->E();
+
+                LOG_DEBUG("MCParticleCreator::CreateCaloHitToMCParticleRelationships")
+                << " Found to MC part " << part
+                << " of pdg " << part->PdgCode()
+                << " with trackID " << trackID
+                << " associated to eveID " << eveID
+                << " of energy " << partE << " GeV";
+
+                for(auto const& itr : hitMapItr.second)
                 {
-                    // don't worry about eve particles that contribute less than 10% of the
-                    // energy in the current hit
-                    if( eveides[ieve].energyFrac < 0.1) continue;
-                    const simb::MCParticle *part = bt->TrackIDToParticle(eveides[ieve].trackID);
-
-                    if(!part) {
-                        LOG_WARNING("MCParticleCreator")
-                        << "Cannot find MCParticle for eveid: " << eveides[ieve].trackID;
-                        continue;
-                    }
-
-                    const int hitID = eveides[ieve].trackID;
-                    const int trackID = part->TrackId();
-                    const float energyFrac(eveides[ieve].energyFrac);
-
+                    const gar::rec::CaloHit *hit = itr.get();
                     try
                     {
-                        PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetCaloHitToMCParticleRelationship(m_pandora, (void*)((intptr_t)hitID), (void*)((intptr_t)trackID), energyFrac));
+                        LOG_DEBUG("MCParticleCreator::CreateCaloHitToMCParticleRelationships")
+                        << " Linking " << part
+                        << " of pdg " << part->PdgCode()
+                        << " with trackID " << trackID
+                        << " associated to eveID " << eveID
+                        << " and with Energy " << partE << " GeV"
+                        << " to hit " << hit
+                        << " with energy " << hit->Energy() << " GeV";
+
+                        PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetCaloHitToMCParticleRelationship(m_pandora, hit, part, hit->Energy()));
                     }
                     catch (const pandora::StatusCodeException &)
                     {
                         LOG_WARNING("MCParticleCreator") << "CreateCaloHitToMCParticleRelationships - unable to create calo hit to mc particle relationship, invalid information supplied " << std::endl;
                         continue;
                     }
-
-                } // end loop over eve IDs for this hit
-            }// end loop over hits
+                }
+            }
 
             return pandora::STATUS_CODE_SUCCESS;
         }

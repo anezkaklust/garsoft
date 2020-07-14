@@ -43,17 +43,9 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        pandora::StatusCode CaloHitCreator::CollectCaloHits(const art::Event &pEvent)
+        pandora::StatusCode CaloHitCreator::CreateCaloHits(const art::Event &pEvent)
         {
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CollectECALCaloHits(pEvent, m_settings.m_CaloHitCollection, artCalorimeterHitVector));
-
-            return pandora::STATUS_CODE_SUCCESS;
-        }
-
-        //------------------------------------------------------------------------------------------------------------------------------------------
-
-        pandora::StatusCode CaloHitCreator::CreateCaloHits() const
-        {
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CreateECalCaloHits());
 
             return pandora::STATUS_CODE_SUCCESS;
