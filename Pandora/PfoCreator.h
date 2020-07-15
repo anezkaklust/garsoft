@@ -5,6 +5,8 @@
 
 #include "Api/PandoraApi.h"
 
+#include "RotationTransformation.h"
+
 #include "ReconstructionDataProducts/Cluster.h"
 #include "ReconstructionDataProducts/PFParticle.h"
 #include "ReconstructionDataProducts/Track.h"
@@ -33,7 +35,7 @@ namespace gar {
                 float           m_hadConstantTerm = 0;                   ///< The constant term for HAD shower energy resolution
             };
 
-            PfoCreator(const Settings &settings, const pandora::Pandora *const pPandora);
+            PfoCreator(const Settings &settings, const pandora::Pandora *const pPandora, const RotationTransformation *const pRotation);
 
             ~PfoCreator();
 
@@ -157,6 +159,7 @@ namespace gar {
 
             const Settings              m_settings;                         ///< The pfo creator settings
             const pandora::Pandora      &m_pandora;                        ///< Reference to the pandora object from which to extract the pfos
+            const RotationTransformation &m_rotation;
         };
     }
 }

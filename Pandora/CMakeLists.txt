@@ -2,6 +2,7 @@ include_directories( $ENV{GEANT4_FQ_DIR}/include )
 include_directories( $ENV{NUTOOLS_DIR}/include   )
 include_directories( $ENV{PANDORA_INC} )
 include_directories( $ENV{LCPANDORACONTENT_INC} )
+include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
 
 art_make(BASENAME_ONLY
           LIBRARY_NAME GArPandora
@@ -30,7 +31,8 @@ art_make(BASENAME_ONLY
           ${PANDORASDK}
           ${PANDORAMONITORING}
           ${LCPANDORACONTENT}
-
+          ${CLHEP}
+          
           MODULE_LIBRARIES
           Geometry
           GArG4

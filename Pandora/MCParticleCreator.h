@@ -11,6 +11,8 @@
 #include "CaloHitCreator.h"
 #include "TrackCreator.h"
 
+#include "RotationTransformation.h"
+
 namespace gar {
     namespace gar_pandora {
 
@@ -52,7 +54,7 @@ namespace gar {
                 int                    eveID;
             };
 
-            MCParticleCreator(const Settings &settings, const pandora::Pandora *const pPandora);
+            MCParticleCreator(const Settings &settings, const pandora::Pandora *const pPandora, const RotationTransformation *const pRotation);
 
             ~MCParticleCreator();
 
@@ -75,6 +77,7 @@ namespace gar {
             const Settings          m_settings;        ///< The mc particle creator settings
             const pandora::Pandora &m_pandora;         ///< Reference to the pandora object to create the mc particles
             float                   m_bField;          ///< The bfield
+            const RotationTransformation &m_rotation;
 
             MCParticleVector artMCParticleVector;
             RawMCParticleVector generatorArtMCParticleVector;

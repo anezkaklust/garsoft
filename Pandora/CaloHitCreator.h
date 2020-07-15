@@ -7,6 +7,8 @@
 #include "Geometry/BitFieldCoder.h"
 #include "ReconstructionDataProducts/CaloHit.h"
 
+#include "RotationTransformation.h"
+
 #include "Api/PandoraApi.h"
 
 namespace gar {
@@ -48,7 +50,7 @@ namespace gar {
                 float           m_eCalEndCapInnerPhiCoordinate;     ///< ECal endcap inner phi
             };
 
-            CaloHitCreator(const Settings &settings, const pandora::Pandora *const pPandora);
+            CaloHitCreator(const Settings &settings, const pandora::Pandora *const pPandora, const RotationTransformation *const pRotation);
 
             ~CaloHitCreator();
 
@@ -74,6 +76,8 @@ namespace gar {
             const pandora::Pandora &            m_pandora;                          ///< Reference to the pandora object to create calo hits
             const geo::GeometryCore*            fGeo; //Geometry Manager
             gar::geo::BitFieldCoder const*      m_fieldDecoder;
+
+            const RotationTransformation &m_rotation;
 
             float                               m_eCalBarrelLayerThickness;         ///< ECal barrel layer thickness
             float                               m_eCalEndCapLayerThickness;         ///< ECal endcap layer thickness

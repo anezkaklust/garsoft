@@ -2,10 +2,9 @@
 #define TRACK_CREATOR_H 1
 
 #include "art/Framework/Principal/Event.h"
-
 #include "Api/PandoraApi.h"
-
 #include "ReconstructionDataProducts/Track.h"
+#include "RotationTransformation.h"
 
 namespace gar {
     namespace gar_pandora {
@@ -38,7 +37,7 @@ namespace gar {
                 float             m_eCalEndCapInnerZ;             ///< ECal endcap inner z
             };
 
-            TrackCreator(const Settings &settings, const pandora::Pandora *const pPandora);
+            TrackCreator(const Settings &settings, const pandora::Pandora *const pPandora, const RotationTransformation *const pRotation);
 
             virtual ~TrackCreator();
 
@@ -64,6 +63,7 @@ namespace gar {
 
             const Settings          m_settings;
             const pandora::Pandora  &m_pandora;
+            const RotationTransformation &m_rotation;
 
             TrackVector artTrkVector;
         };

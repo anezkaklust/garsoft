@@ -11,9 +11,10 @@
 namespace gar {
     namespace gar_pandora {
 
-        CaloHitCreator::CaloHitCreator(const Settings &settings, const pandora::Pandora *const pPandora)
+        CaloHitCreator::CaloHitCreator(const Settings &settings, const pandora::Pandora *const pPandora, const RotationTransformation *const pRotation)
         : m_settings(settings),
         m_pandora(*pPandora),
+        m_rotation(*pRotation),
         m_eCalBarrelLayerThickness(0.f),
         m_eCalEndCapLayerThickness(0.f),
         artCalorimeterHitVector(0)
@@ -148,11 +149,12 @@ namespace gar {
         {
             const float *pCaloHitPosition(pCaloHit->Position());
             //Inverse X and Z for pandora to cope with the change in beam axis
-            const pandora::CartesianVector positionVector(pCaloHitPosition[2] * CLHEP::cm, pCaloHitPosition[1] * CLHEP::cm, -pCaloHitPosition[0] * CLHEP::cm);
+            const pandora::CartesianVector positionVector(pCaloHitPosition[0] * CLHEP::cm, pCaloHitPosition[1] * CLHEP::cm, pCaloHitPosition[2] * CLHEP::cm);
+            const pandora::CartesianVector newPositionVector = m_rotation.MakeRotation(positionVector);
 
             caloHitParameters.m_cellGeometry = pandora::RECTANGULAR;
-            caloHitParameters.m_positionVector = positionVector;
-            caloHitParameters.m_expectedDirection = positionVector.GetUnitVector();
+            caloHitParameters.m_positionVector = newPositionVector;
+            caloHitParameters.m_expectedDirection = newPositionVector.GetUnitVector();
             caloHitParameters.m_pParentAddress = (void*)pCaloHit;
             caloHitParameters.m_inputEnergy = pCaloHit->Energy();
             caloHitParameters.m_time = pCaloHit->Time().first;
@@ -208,7 +210,7 @@ namespace gar {
                 break;
             }
 
-            caloHitParameters.m_cellNormalVector = (pCaloHit->Position()[0] * CLHEP::cm > 0) ? pandora::CartesianVector(0, 0, 1) : pandora::CartesianVector(0, 0, -1);
+            caloHitParameters.m_cellNormalVector = (pCaloHit->Position()[0] * CLHEP::cm > 0) ? pandora::CartesianVector(1, 0, 0) : pandora::CartesianVector(-1, 0, 0);
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------

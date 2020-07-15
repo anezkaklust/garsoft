@@ -88,6 +88,7 @@ namespace gar {
             TrackCreator                       *m_pTrackCreator = nullptr;            ///< The track creator
             MCParticleCreator                  *m_pMCParticleCreator = nullptr;       ///< The mc particle creator
             PfoCreator                         *m_pPfoCreator = nullptr;              ///< The pfo creator
+            RotationTransformation             *m_pRotation = nullptr;                ///< The transformation tool for rotations
 
             Settings                           m_settings{};                       ///< The settings for the pandora interface module
             CaloHitCreator::Settings           m_caloHitCreatorSettings{};         ///< The calo hit creator settings
@@ -116,11 +117,12 @@ namespace gar {
                 this->FinaliseSteeringParameters();
 
                 m_pPandora = new pandora::Pandora();
+                m_pRotation = new RotationTransformation(RotationTransformation::kAxisY, 90.);
                 m_pGeometryCreator = new GeometryCreator(m_geometryCreatorSettings, m_pPandora);
-                m_pCaloHitCreator = new CaloHitCreator(m_caloHitCreatorSettings, m_pPandora);
-                m_pTrackCreator = new TrackCreator(m_trackCreatorSettings, m_pPandora);
-                m_pMCParticleCreator = new MCParticleCreator(m_mcParticleCreatorSettings, m_pPandora);
-                m_pPfoCreator = new PfoCreator(m_pfoCreatorSettings, m_pPandora);
+                m_pCaloHitCreator = new CaloHitCreator(m_caloHitCreatorSettings, m_pPandora, m_pRotation);
+                m_pTrackCreator = new TrackCreator(m_trackCreatorSettings, m_pPandora, m_pRotation);
+                m_pMCParticleCreator = new MCParticleCreator(m_mcParticleCreatorSettings, m_pPandora, m_pRotation);
+                m_pPfoCreator = new PfoCreator(m_pfoCreatorSettings, m_pPandora, m_pRotation);
 
                 PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->RegisterUserComponents());
                 PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pGeometryCreator->CreateGeometry());

@@ -11,9 +11,10 @@
 namespace gar {
     namespace gar_pandora {
 
-        TrackCreator::TrackCreator(const Settings &settings , const pandora::Pandora *const pPandora)
+        TrackCreator::TrackCreator(const Settings &settings , const pandora::Pandora *const pPandora, const RotationTransformation *const pRotation)
         : m_settings(settings),
-        m_pandora(*pPandora)
+        m_pandora(*pPandora),
+        m_rotation(*pRotation)
         {
 
         }
@@ -75,8 +76,8 @@ namespace gar {
                 art::Ptr<gar::rec::Track> artPtrTrack = *iter;
                 const gar::rec::Track *pTrack = artPtrTrack.get();
 
-                const float *trackParams = pTrack->TrackParEnd(); //y, z, curvature, phi, lambda
-                const float omega = 1 / trackParams[2];
+                const float *trackParams = pTrack->TrackParEnd(); //y, z, omega, phi, lambda
+                const float omega = trackParams[2] / CLHEP::cm;
                 const double pt(m_settings.m_bField * 2.99792e-4 / std::fabs(omega));
 
                 const unsigned int nTrackHits(static_cast<int>(pTrack->NHits()));
@@ -85,24 +86,38 @@ namespace gar {
 
                 PandoraApi::Track::Parameters trackParameters;
 
-                pandora::CartesianVector startPosition(pTrack->Vertex()[0], pTrack->Vertex()[1], pTrack->Vertex()[2]), endPosition(pTrack->End()[0], pTrack->End()[1], pTrack->End()[2]);
-                pandora::CartesianVector calorimeterPosition(0, 0, 0);
+                const pandora::CartesianVector startPosition(pTrack->Vertex()[0], pTrack->Vertex()[1], pTrack->Vertex()[2]);
+                const pandora::CartesianVector endPosition(pTrack->End()[0], pTrack->End()[1], pTrack->End()[2]);
+                const pandora::CartesianVector calorimeterPosition(0, 0, 0);
+
+                const pandora::CartesianVector newstartPosition = m_rotation.MakeRotation(startPosition);
+                const pandora::CartesianVector newendPosition = m_rotation.MakeRotation(endPosition);
+                const pandora::CartesianVector newcalorimeterPosition = m_rotation.MakeRotation(calorimeterPosition);
 
                 trackParameters.m_pParentAddress = (void*)pTrack;
-                trackParameters.m_d0 = 0.f;
-                trackParameters.m_z0 = 0.f;
+                trackParameters.m_d0 = trackParams[0];
+                trackParameters.m_z0 = trackParams[1];
 
-                trackParameters.m_particleId = (omega > 0) ? pandora::PI_PLUS : pandora::PI_MINUS;
-                trackParameters.m_mass = pandora::PdgTable::GetParticleMass(pandora::PI_PLUS);
+                trackParameters.m_particleId = (omega > 0) ? pandora::MU_PLUS : pandora::MU_MINUS;
+                trackParameters.m_mass = pandora::PdgTable::GetParticleMass(pandora::MU_PLUS);
 
                 if (std::numeric_limits<float>::epsilon() < std::fabs(omega))
                 trackParameters.m_charge = static_cast<int>(omega / std::fabs(omega));
 
-                pandora::CartesianVector momentum = pandora::CartesianVector(std::cos(trackParams[3]), std::sin(trackParams[3]), std::tan(trackParams[4])) * pt;
-                trackParameters.m_momentumAtDca = momentum;
-                trackParameters.m_trackStateAtStart = pandora::TrackState(startPosition, momentum);
-                trackParameters.m_trackStateAtEnd = pandora::TrackState(endPosition, momentum);
-                trackParameters.m_trackStateAtCalorimeter = pandora::TrackState(calorimeterPosition, momentum);
+                const pandora::CartesianVector momentum = pandora::CartesianVector(std::cos(trackParams[3]), std::sin(trackParams[3]), std::tan(trackParams[4])) * pt;
+                const pandora::CartesianVector newmomentum = m_rotation.MakeRotation(momentum);
+
+                LOG_INFO("TrackCreator::CreateTracks()")
+                << "Creating Track " << pTrack
+                << " starting at " << newstartPosition
+                << " ending at " << newendPosition
+                << " with pt " << pt
+                << " with momentum " << newmomentum;
+
+                trackParameters.m_momentumAtDca = newmomentum;
+                trackParameters.m_trackStateAtStart = pandora::TrackState(newstartPosition, momentum);
+                trackParameters.m_trackStateAtEnd = pandora::TrackState(newendPosition, momentum);
+                trackParameters.m_trackStateAtCalorimeter = pandora::TrackState(newcalorimeterPosition, momentum);
                 trackParameters.m_timeAtCalorimeter = 0.f;
 
                 trackParameters.m_isProjectedToEndCap   = false;

@@ -17,9 +17,10 @@
 namespace gar {
     namespace gar_pandora {
 
-        PfoCreator::PfoCreator(const Settings &settings, const pandora::Pandora *const pPandora)
+        PfoCreator::PfoCreator(const Settings &settings, const pandora::Pandora *const pPandora, const RotationTransformation *const pRotation)
         : m_settings(settings),
-        m_pandora(*pPandora)
+        m_pandora(*pPandora),
+        m_rotation(*pRotation)
         {
         }
 
