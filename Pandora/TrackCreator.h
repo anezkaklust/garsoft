@@ -7,11 +7,6 @@
 
 #include "ReconstructionDataProducts/Track.h"
 
-namespace lc_content{
-    class LCTrackParameters;
-    class LCTrackFactory;
-}
-
 namespace gar {
     namespace gar_pandora {
 
@@ -69,7 +64,7 @@ namespace gar {
 
             const Settings          m_settings;
             const pandora::Pandora  &m_pandora;
-            std::shared_ptr<lc_content::LCTrackFactory> m_TrackFactory = {};  ///< LCTrackFactor for creating LCTracks
+
             TrackVector artTrkVector;
         };
 

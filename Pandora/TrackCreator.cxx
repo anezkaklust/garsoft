@@ -6,8 +6,6 @@
 #include <cmath>
 #include <limits>
 
-#include "LCObjects/LCTrack.h"
-
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace gar {
@@ -17,7 +15,7 @@ namespace gar {
         : m_settings(settings),
         m_pandora(*pPandora)
         {
-            m_TrackFactory = std::make_shared<lc_content::LCTrackFactory>();
+
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -107,14 +105,14 @@ namespace gar {
                 trackParameters.m_trackStateAtCalorimeter = pandora::TrackState(calorimeterPosition, momentum);
                 trackParameters.m_timeAtCalorimeter = 0.f;
 
-                trackParameters.m_isProjectedToEndCap   = true;
+                trackParameters.m_isProjectedToEndCap   = false;
                 trackParameters.m_reachesCalorimeter    = true;
                 trackParameters.m_canFormPfo            = true;
                 trackParameters.m_canFormClusterlessPfo = true;
 
                 try
                 {
-                    PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::Track::Create(m_pandora, trackParameters, *m_TrackFactory));
+                    PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::Track::Create(m_pandora, trackParameters));
                 }
                 catch (pandora::StatusCodeException &statusCodeException)
                 {
