@@ -42,7 +42,6 @@ namespace gar {
             virtual ~TrackCreator();
 
             pandora::StatusCode CreateTracks(const art::Event &pEvent);
-            pandora::StatusCode CreateTracks() const;
             pandora::StatusCode CreateTrackAssociations(const art::Event &pEvent);
 
             const TrackVector &GetTrackVector() const;
@@ -51,6 +50,7 @@ namespace gar {
 
         private:
 
+            pandora::StatusCode CreateTracks();
             bool PassesQualityCuts(const gar::rec::Track *const pTrack, const PandoraApi::Track::Parameters &trackParameters) const;
             void TrackReachesECAL(const gar::rec::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
             void DefineTrackPfoUsage(const gar::rec::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
@@ -66,13 +66,14 @@ namespace gar {
             const RotationTransformation &m_rotation;
 
             TrackVector artTrkVector;
+            TrackVector m_trackVector;
         };
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
         inline const TrackVector &TrackCreator::GetTrackVector() const
         {
-            return artTrkVector;
+            return m_trackVector;
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -80,6 +81,7 @@ namespace gar {
         inline void TrackCreator::Reset()
         {
             artTrkVector.clear();
+            m_trackVector.clear();
         }
     }
 }

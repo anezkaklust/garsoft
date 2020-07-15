@@ -7,6 +7,7 @@
 #include "nusimdata/SimulationBase/MCParticle.h"
 
 #include "Api/PandoraApi.h"
+#include "Objects/Helix.h"
 
 #include "CaloHitCreator.h"
 #include "TrackCreator.h"

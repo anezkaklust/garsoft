@@ -69,7 +69,7 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        pandora::StatusCode TrackCreator::CreateTracks() const
+        pandora::StatusCode TrackCreator::CreateTracks()
         {
             for (TrackVector::const_iterator iter = artTrkVector.begin(), iterEnd = artTrkVector.end(); iter != iterEnd; ++iter)
             {
@@ -94,9 +94,12 @@ namespace gar {
                 const pandora::CartesianVector newendPosition = m_rotation.MakeRotation(endPosition);
                 const pandora::CartesianVector newcalorimeterPosition = m_rotation.MakeRotation(calorimeterPosition);
 
+                const float d0 = std::sqrt(trackParams[0]*trackParams[0] + trackParams[1]*trackParams[1]) * CLHEP::cm;
+                const float z0 = pTrack->End()[0] * CLHEP::cm;
+
                 trackParameters.m_pParentAddress = (void*)pTrack;
-                trackParameters.m_d0 = trackParams[0] * CLHEP::cm;
-                trackParameters.m_z0 = trackParams[1] * CLHEP::cm;
+                trackParameters.m_d0 = d0;
+                trackParameters.m_z0 = z0;
 
                 trackParameters.m_particleId = (omega > 0) ? pandora::MU_PLUS : pandora::MU_MINUS;
                 trackParameters.m_mass = pandora::PdgTable::GetParticleMass(pandora::MU_PLUS);
@@ -106,13 +109,6 @@ namespace gar {
 
                 const pandora::CartesianVector momentum = pandora::CartesianVector(std::cos(trackParams[3]), std::sin(trackParams[3]), std::tan(trackParams[4])) * pt;
                 const pandora::CartesianVector newmomentum = m_rotation.MakeRotation(momentum);
-
-                LOG_INFO("TrackCreator::CreateTracks()")
-                << "Creating Track " << pTrack
-                << " starting at " << newstartPosition
-                << " ending at " << newendPosition
-                << " with pt " << pt
-                << " with momentum " << newmomentum;
 
                 trackParameters.m_momentumAtDca = newmomentum;
                 trackParameters.m_trackStateAtStart = pandora::TrackState(newstartPosition, momentum);
@@ -127,7 +123,18 @@ namespace gar {
 
                 try
                 {
+                    this->TrackReachesECAL(pTrack, trackParameters);
+                    this->DefineTrackPfoUsage(pTrack, trackParameters);
+
+                    LOG_DEBUG("TrackCreator::CreateTracks()")
+                    << "Creating Track " << pTrack
+                    << " starting at " << newstartPosition
+                    << " ending at " << newendPosition
+                    << " with pt " << pt
+                    << " with momentum " << newmomentum;
+
                     PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::Track::Create(m_pandora, trackParameters));
+                    m_trackVector.push_back(artPtrTrack);
                 }
                 catch (pandora::StatusCodeException &statusCodeException)
                 {

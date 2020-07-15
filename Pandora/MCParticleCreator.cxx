@@ -184,6 +184,69 @@ namespace gar {
 
         pandora::StatusCode MCParticleCreator::CreateTrackToMCParticleRelationships(const TrackVector &trackVector) const
         {
+            MCParticleMap particleMap;
+            for (MCParticlesToMCTruth::const_iterator iter = artMCParticlesToMCTruth.begin(), iterEnd = artMCParticlesToMCTruth.end(); iter != iterEnd; ++iter)
+            {
+                const art::Ptr<simb::MCParticle> particle = iter->first;
+                particleMap[particle->TrackId()] = particle;
+            }
+
+            for( auto const& itr : trackVector )
+            {
+                try
+                {
+                    const gar::rec::Track *pTrack = itr.get();
+
+                    const float *trackParams = pTrack->TrackParEnd(); //y, z, omega, phi, lambda
+                    const float omega = trackParams[2] / CLHEP::cm;
+                    const float d0 = std::sqrt(trackParams[0]*trackParams[0] + trackParams[1]*trackParams[1]) * CLHEP::cm;
+                    const float z0 = pTrack->End()[0] * CLHEP::cm;
+
+                    const pandora::Helix helixFit(trackParams[3], d0, z0, omega, std::tan(trackParams[4]), m_bField);
+                    const float recoMomentum(helixFit.GetMomentum().GetMagnitude());
+
+                    // Use momentum magnitude to identify best mc particle
+                    simb::MCParticle *pBestMCParticle = nullptr;
+                    float bestDeltaMomentum(std::numeric_limits<float>::max());
+
+                    //Loop over the MCParticles
+                    for (MCParticleMap::const_iterator iterI = particleMap.begin(), iterEndI = particleMap.end(); iterI != iterEndI; ++iterI)
+                    {
+                        simb::MCParticle *pMCParticle = const_cast<simb::MCParticle*>(iterI->second.get());
+
+                        if (nullptr == pMCParticle)
+                        continue;
+
+                        const pandora::CartesianVector momentum(pMCParticle->Px(), pMCParticle->Py(), pMCParticle->Pz());
+                        const pandora::CartesianVector newmomentum = m_rotation.MakeRotation(momentum);
+                        const float trueMomentum(newmomentum.GetMagnitude());
+
+                        const float deltaMomentum(std::fabs(recoMomentum - trueMomentum));
+
+                        if (deltaMomentum < bestDeltaMomentum)
+                        {
+                            pBestMCParticle = pMCParticle;
+                            bestDeltaMomentum = deltaMomentum;
+                        }
+                    }
+
+                    if (nullptr == pBestMCParticle)
+                    continue;
+
+                    LOG_INFO("MCParticleCreator::CreateTrackToMCParticleRelationships")
+                    << "Found MCParticle " << pBestMCParticle
+                    << " associated to track " << pTrack
+                    << " with best delta momentum " << bestDeltaMomentum;
+
+                    PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetTrackToMCParticleRelationship(m_pandora, pTrack, pBestMCParticle));
+                }
+                catch (pandora::StatusCodeException &statusCodeException)
+                {
+                    LOG_ERROR("MCParticleCreator::CreateTrackToMCParticleRelationships")
+                    << "Failed to extract track to mc particle relationship: " << statusCodeException.ToString();
+                }
+            }
+
             return pandora::STATUS_CODE_SUCCESS;
         }
 
