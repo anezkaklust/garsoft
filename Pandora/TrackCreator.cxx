@@ -86,8 +86,8 @@ namespace gar {
 
                 PandoraApi::Track::Parameters trackParameters;
 
-                const pandora::CartesianVector startPosition(pTrack->Vertex()[0], pTrack->Vertex()[1], pTrack->Vertex()[2]);
-                const pandora::CartesianVector endPosition(pTrack->End()[0], pTrack->End()[1], pTrack->End()[2]);
+                const pandora::CartesianVector startPosition(pTrack->Vertex()[0] * CLHEP::cm, pTrack->Vertex()[1] * CLHEP::cm, pTrack->Vertex()[2] * CLHEP::cm);
+                const pandora::CartesianVector endPosition(pTrack->End()[0] * CLHEP::cm, pTrack->End()[1] * CLHEP::cm, pTrack->End()[2] * CLHEP::cm);
                 const pandora::CartesianVector calorimeterPosition(0, 0, 0);
 
                 const pandora::CartesianVector newstartPosition = m_rotation.MakeRotation(startPosition);
@@ -95,8 +95,8 @@ namespace gar {
                 const pandora::CartesianVector newcalorimeterPosition = m_rotation.MakeRotation(calorimeterPosition);
 
                 trackParameters.m_pParentAddress = (void*)pTrack;
-                trackParameters.m_d0 = trackParams[0];
-                trackParameters.m_z0 = trackParams[1];
+                trackParameters.m_d0 = trackParams[0] * CLHEP::cm;
+                trackParameters.m_z0 = trackParams[1] * CLHEP::cm;
 
                 trackParameters.m_particleId = (omega > 0) ? pandora::MU_PLUS : pandora::MU_MINUS;
                 trackParameters.m_mass = pandora::PdgTable::GetParticleMass(pandora::MU_PLUS);

@@ -4,6 +4,8 @@
 #include <cmath>
 #include <limits>
 
+#include "messagefacility/MessageLogger/MessageLogger.h"
+
 namespace gar {
     namespace gar_pandora {
 
@@ -21,17 +23,20 @@ namespace gar {
             {
             case kAxisX:
                 this->SetRotationX();
-                std::cout << "Rotation set around the x axis with angle " << m_RotationAngle << std::endl;
+                LOG_INFO("RotationTransformation")
+                << "Rotation set around the x axis with angle " << m_RotationAngle << " rad";
                 m_RotationSet = true;
                 break;
             case kAxisY:
                 this->SetRotationY();
-                std::cout << "Rotation set around the y axis with angle " << m_RotationAngle << std::endl;
+                LOG_INFO("RotationTransformation")
+                << "Rotation set around the y axis with angle " << m_RotationAngle << " rad";
                 m_RotationSet = true;
                 break;
             case kAxisZ:
                 this->SetRotationZ();
-                std::cout << "Rotation set around the z axis with angle " << m_RotationAngle << std::endl;
+                LOG_INFO("RotationTransformation")
+                << "Rotation set around the z axis with angle " << m_RotationAngle << " rad";
                 m_RotationSet = true;
                 break;
             default:
@@ -51,7 +56,8 @@ namespace gar {
             if(m_RotationSet) {
                 return pandora::CartesianVector( initialVec.GetX() * fRotMatrix[0] + initialVec.GetY() * fRotMatrix[3] + initialVec.GetZ() * fRotMatrix[6], initialVec.GetX() * fRotMatrix[1] + initialVec.GetY() * fRotMatrix[4] + initialVec.GetZ() * fRotMatrix[7], initialVec.GetX() * fRotMatrix[2] + initialVec.GetY() * fRotMatrix[5] + initialVec.GetZ() * fRotMatrix[8] );
             } else {
-                std::cout << "No rotation axis was defined - operation aborted!" << std::endl;
+                LOG_INFO("RotationTransformation")
+                << "No rotation axis was defined - operation aborted!";
                 return pandora::CartesianVector(initialVec.GetX(), initialVec.GetY(), initialVec.GetZ());
             }
         }
