@@ -233,7 +233,7 @@ namespace gar {
                     if (nullptr == pBestMCParticle)
                     continue;
 
-                    LOG_INFO("MCParticleCreator::CreateTrackToMCParticleRelationships")
+                    LOG_DEBUG("MCParticleCreator::CreateTrackToMCParticleRelationships")
                     << "Found MCParticle " << pBestMCParticle
                     << " associated to track " << pTrack
                     << " with best delta momentum " << bestDeltaMomentum;

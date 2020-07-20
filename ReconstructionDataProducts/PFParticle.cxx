@@ -6,21 +6,38 @@ namespace gar {
         //--------------------------------------------------------------------------
         //Default constructor
         PFParticle::PFParticle()
+        : fType(0),
+        fEnergy(0.),
+        fMass(0.),
+        fCharge(0.),
+        fPdg(0),
+        fGoodness(0.),
+        fParent(-1),
+        fDaughters(0)
         {
             // The default constructor is used e.g. by art::DataViewImpl::getByLabel
             // Make sure all Cluster objects are numbered, lest art deep-copy uninitialized
             // instances and then operator==() evaluates meaninglessly true.
             IDNumberGen::create(FirstNumber);
             fIDnumero = IDNumberGen::create()->getNewOne();
+
+            fPos[0] = 0.;
+            fPos[1] = 0.;
+            fPos[2] = 0.;
+
+            fMom[0] = 0.;
+            fMom[1] = 0.;
+            fMom[2] = 0.;
+
             return;
         }
 
         //--------------------------------------------------------------------------
-        PFParticle::PFParticle(int type, float energy, float pos[3], float mom[3], float charge, std::vector<float> cov, int pdg, float goodness, size_t parent, std::vector<size_t> daughters)
+        PFParticle::PFParticle(int type, float energy, float pos[3], float mom[3], float charge, int pdg, float goodness, size_t parent, std::vector<size_t> daughters)
         : fType(type),
         fEnergy(energy),
+        fMass(0.),
         fCharge(charge),
-        fCov(cov),
         fPdg(pdg),
         fGoodness(goodness),
         fParent(parent),
@@ -67,11 +84,6 @@ namespace gar {
         //--------------------------------------------------------------------------
         void PFParticle::setCharge(float charge) {
             fCharge = charge;
-        }
-
-        //--------------------------------------------------------------------------
-        void PFParticle::setCovMatrix(std::vector<float> cov) {
-            fCov = cov;
         }
 
         //--------------------------------------------------------------------------

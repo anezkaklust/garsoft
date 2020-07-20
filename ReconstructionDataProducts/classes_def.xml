@@ -89,7 +89,8 @@
    <version ClassVersion="11" checksum="2606403047"/>
    <version ClassVersion="10" checksum="238569477"/>
   </class>
-  <class name="gar::rec::PFParticle" ClassVersion="10">
+  <class name="gar::rec::PFParticle" ClassVersion="11">
+   <version ClassVersion="11" checksum="2863259236"/>
    <version ClassVersion="10" checksum="1681996639"/>
   </class>
 

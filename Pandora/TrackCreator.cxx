@@ -1,11 +1,13 @@
 #include "TrackCreator.h"
 
 #include "Pandora/PdgTable.h"
+#include "Objects/Helix.h"
 
 #include <algorithm>
 #include <cmath>
 #include <limits>
 
+#include "MCCheater/BackTracker.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace gar {
@@ -14,7 +16,11 @@ namespace gar {
         TrackCreator::TrackCreator(const Settings &settings , const pandora::Pandora *const pPandora, const RotationTransformation *const pRotation)
         : m_settings(settings),
         m_pandora(*pPandora),
-        m_rotation(*pRotation)
+        m_rotation(*pRotation),
+        m_trackVector(0),
+        m_v0TrackList( TrackList() ),
+        m_parentTrackList( TrackList() ),
+        m_daughterTrackList( TrackList() )
         {
 
         }
@@ -76,26 +82,16 @@ namespace gar {
                 art::Ptr<gar::rec::Track> artPtrTrack = *iter;
                 const gar::rec::Track *pTrack = artPtrTrack.get();
 
-                const float *trackParams = pTrack->TrackParEnd(); //y, z, omega, phi, lambda
-                const float omega = trackParams[2] / CLHEP::cm;
-                const double pt(m_settings.m_bField * 2.99792e-4 / std::fabs(omega));
-
                 const unsigned int nTrackHits(static_cast<int>(pTrack->NHits()));
                 if ((nTrackHits < m_settings.m_minTrackHits) || (nTrackHits > m_settings.m_maxTrackHits))
                 continue;
 
                 PandoraApi::Track::Parameters trackParameters;
 
-                const pandora::CartesianVector startPosition(pTrack->Vertex()[0] * CLHEP::cm, pTrack->Vertex()[1] * CLHEP::cm, pTrack->Vertex()[2] * CLHEP::cm);
-                const pandora::CartesianVector endPosition(pTrack->End()[0] * CLHEP::cm, pTrack->End()[1] * CLHEP::cm, pTrack->End()[2] * CLHEP::cm);
-                const pandora::CartesianVector calorimeterPosition(0, 0, 0);
-
-                const pandora::CartesianVector newstartPosition = m_rotation.MakeRotation(startPosition);
-                const pandora::CartesianVector newendPosition = m_rotation.MakeRotation(endPosition);
-                const pandora::CartesianVector newcalorimeterPosition = m_rotation.MakeRotation(calorimeterPosition);
-
+                const float *trackParams = pTrack->TrackParEnd(); //y, z, omega, phi, lambda
+                const float omega = trackParams[2] / CLHEP::cm;
                 const float d0 = std::sqrt(trackParams[0]*trackParams[0] + trackParams[1]*trackParams[1]) * CLHEP::cm;
-                const float z0 = pTrack->End()[0] * CLHEP::cm;
+                const float z0 = pTrack->Vertex()[0] * CLHEP::cm;
 
                 trackParameters.m_pParentAddress = (void*)pTrack;
                 trackParameters.m_d0 = d0;
@@ -107,31 +103,22 @@ namespace gar {
                 if (std::numeric_limits<float>::epsilon() < std::fabs(omega))
                 trackParameters.m_charge = static_cast<int>(omega / std::fabs(omega));
 
-                const pandora::CartesianVector momentum = pandora::CartesianVector(std::cos(trackParams[3]), std::sin(trackParams[3]), std::tan(trackParams[4])) * pt;
-                const pandora::CartesianVector newmomentum = m_rotation.MakeRotation(momentum);
-
-                trackParameters.m_momentumAtDca = newmomentum;
-                trackParameters.m_trackStateAtStart = pandora::TrackState(newstartPosition, momentum);
-                trackParameters.m_trackStateAtEnd = pandora::TrackState(newendPosition, momentum);
-                trackParameters.m_trackStateAtCalorimeter = pandora::TrackState(newcalorimeterPosition, momentum);
-                trackParameters.m_timeAtCalorimeter = 0.f;
-
-                trackParameters.m_isProjectedToEndCap   = false;
-                trackParameters.m_reachesCalorimeter    = true;
-                trackParameters.m_canFormPfo            = true;
-                trackParameters.m_canFormClusterlessPfo = true;
-
                 try
                 {
+                    this->GetTrackStates(pTrack, trackParameters);
                     this->TrackReachesECAL(pTrack, trackParameters);
                     this->DefineTrackPfoUsage(pTrack, trackParameters);
 
-                    LOG_DEBUG("TrackCreator::CreateTracks()")
-                    << "Creating Track " << pTrack
-                    << " starting at " << newstartPosition
-                    << " ending at " << newendPosition
-                    << " with pt " << pt
-                    << " with momentum " << newmomentum;
+                    LOG_INFO("TrackCreator::CreateTracks()")
+                    << "Creating Track " << pTrack << "\n"
+                    << " starting at " << trackParameters.m_trackStateAtStart.Get() << "\n"
+                    << " ending at " << trackParameters.m_trackStateAtEnd.Get() << "\n"
+                    << " state at calo " << trackParameters.m_trackStateAtCalorimeter.Get() << "\n"
+                    << " with momentum " << trackParameters.m_momentumAtDca.Get() << "\n"
+                    << " magnitude " << trackParameters.m_momentumAtDca.Get().GetMagnitude() << " GeV\n"
+                    << " can form PFO " << trackParameters.m_canFormPfo.Get() << "\n"
+                    << " can form clusterless PFO " << trackParameters.m_canFormClusterlessPfo.Get() << "\n"
+                    << " time at calo " << trackParameters.m_timeAtCalorimeter.Get() << " ns";
 
                     PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::Track::Create(m_pandora, trackParameters));
                     m_trackVector.push_back(artPtrTrack);
@@ -149,8 +136,66 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
+        void TrackCreator::GetTrackStates(const gar::rec::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const
+        {
+            const float *trackParams = pTrack->TrackParEnd(); //y, z, omega, phi, lambda
+            const float omega = trackParams[2] / CLHEP::cm;
+
+            //Track momentum
+            const double pt(m_settings.m_bField * 2.99792e-4 / std::fabs(omega));
+            const pandora::CartesianVector momentum = pandora::CartesianVector(std::cos(trackParams[3]), std::sin(trackParams[3]), std::tan(trackParams[4])) * pt;
+            const pandora::CartesianVector newmomentum = m_rotation.MakeRotation(momentum);
+            trackParameters.m_momentumAtDca = newmomentum;
+
+            //Track state at begin and end
+            const pandora::CartesianVector startPosition(pTrack->Vertex()[0] * CLHEP::cm, pTrack->Vertex()[1] * CLHEP::cm, pTrack->Vertex()[2] * CLHEP::cm);
+            const pandora::CartesianVector endPosition(pTrack->End()[0] * CLHEP::cm, pTrack->End()[1] * CLHEP::cm, pTrack->End()[2] * CLHEP::cm);
+            const pandora::CartesianVector newstartPosition = m_rotation.MakeRotation(startPosition);
+            const pandora::CartesianVector newendPosition = m_rotation.MakeRotation(endPosition);
+
+            trackParameters.m_trackStateAtStart = pandora::TrackState(newstartPosition, momentum);
+            trackParameters.m_trackStateAtEnd = pandora::TrackState(newendPosition, momentum);
+
+            pandora::CartesianVector calorimeterPosition(0., 0., 0.);
+            float minGenericTime(0.);
+            this->CalculateTrackStateAtCalo(pTrack, calorimeterPosition, minGenericTime);
+
+            trackParameters.m_trackStateAtCalorimeter = pandora::TrackState(calorimeterPosition, momentum);
+            trackParameters.m_isProjectedToEndCap = ((std::fabs(trackParameters.m_trackStateAtCalorimeter.Get().GetPosition().GetX()) < m_settings.m_eCalEndCapInnerZ) ? false : true);
+
+            // Convert generic time (length from reference point to intersection, divided by momentum) into nanoseconds
+            const float particleMass(trackParameters.m_mass.Get());
+            const float particleEnergy(std::sqrt(particleMass * particleMass + trackParameters.m_momentumAtDca.Get().GetMagnitudeSquared()));
+            trackParameters.m_timeAtCalorimeter = minGenericTime * particleEnergy / 299.792f;
+        }
+
+        //------------------------------------------------------------------------------------------------------------------------------------------
+
         bool TrackCreator::PassesQualityCuts(const gar::rec::Track *const pTrack, const PandoraApi::Track::Parameters &trackParameters) const
         {
+            if (trackParameters.m_trackStateAtCalorimeter.Get().GetPosition().GetMagnitude() < m_settings.m_minTrackECalDistanceFromIp)
+            return false;
+
+            if (std::fabs(pTrack->TrackParEnd()[2] / CLHEP::cm) < std::numeric_limits<float>::epsilon())
+            {
+                LOG_ERROR("TrackCreator::PassesQualityCuts")
+                << "Track has Omega = 0 ";
+                return false;
+            }
+
+            // Check momentum uncertainty is reasonable to use track
+            const pandora::CartesianVector &momentumAtDca(trackParameters.m_momentumAtDca.Get());
+            const float sigmaPOverP(std::sqrt(pTrack->CovMatEndPacked()[5]) / std::fabs( pTrack->TrackParEnd()[2] / CLHEP::cm ));
+
+            if (sigmaPOverP > m_settings.m_maxTrackSigmaPOverP)
+            {
+                LOG_WARNING("TrackCreator::PassesQualityCuts")
+                << " Dropping track : " << momentumAtDca.GetMagnitude()
+                << " +- " << sigmaPOverP * (momentumAtDca.GetMagnitude())
+                << " chi2 = " <<  pTrack->ChisqForward();
+                return false;
+            }
+
             return true;
         }
 
@@ -158,13 +203,141 @@ namespace gar {
 
         void TrackCreator::TrackReachesECAL(const gar::rec::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const
         {
+            trackParameters.m_reachesCalorimeter = true;
             return;
+
+            //Do a check later on with the track state at the calo!
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
         void TrackCreator::DefineTrackPfoUsage(const gar::rec::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const
         {
+            bool canFormPfo(false);
+            bool canFormClusterlessPfo(false);
+
+            if (trackParameters.m_reachesCalorimeter.Get() && !this->IsParent(pTrack))
+            {
+                const float *trackParams = pTrack->TrackParEnd(); //y, z, omega, phi, lambda
+                const float d0(std::sqrt(trackParams[0]*trackParams[0] + trackParams[1]+trackParams[1]) * CLHEP::cm);
+                const float z0(std::fabs(pTrack->Vertex()[0]) * CLHEP::cm);
+
+                if (this->PassesQualityCuts(pTrack, trackParameters))
+                {
+                    const pandora::CartesianVector &momentumAtDca(trackParameters.m_momentumAtDca.Get());
+                    const bool isV0(this->IsV0(pTrack));
+                    const bool isDaughter(this->IsDaughter(pTrack));
+
+                    // Decide whether track can be associated with a pandora cluster and used to form a charged PFO
+                    if ((d0 < m_settings.m_d0TrackCut) && (z0 < m_settings.m_z0TrackCut))
+                    {
+                        canFormPfo = true;
+                    }
+                    else if (isV0 || isDaughter)
+                    {
+                        canFormPfo = true;
+                    }
+
+                    // Decide whether track can be used to form a charged PFO, even if track fails to be associated with a pandora cluster
+                    const float particleMass(trackParameters.m_mass.Get());
+                    const float trackEnergy(std::sqrt(momentumAtDca.GetMagnitudeSquared() + particleMass * particleMass));
+
+                    if (trackEnergy < m_settings.m_unmatchedVertexTrackMaxEnergy)
+                    {
+                        if ((d0 < m_settings.m_d0UnmatchedVertexTrackCut) && (z0 < m_settings.m_z0UnmatchedVertexTrackCut))
+                        {
+                            canFormClusterlessPfo = true;
+                        }
+                        else if (isV0 || isDaughter)
+                        {
+                            canFormClusterlessPfo = true;
+                        }
+                    }
+                }
+                else if (this->IsDaughter(pTrack) || this->IsV0(pTrack))
+                {
+                    LOG_DEBUG("TrackCreator::DefineTrackPfoUsage")
+                    << "Recovering daughter or v0 track "
+                    << trackParameters.m_momentumAtDca.Get().GetMagnitude();
+                    canFormPfo = true;
+                }
+
+                LOG_DEBUG("TrackCreator::DefineTrackPfoUsage")
+                << " -- track canFormPfo = " << canFormPfo
+                << " -  canFormClusterlessPfo = " << canFormClusterlessPfo;
+
+            }
+
+            trackParameters.m_canFormPfo = canFormPfo;
+            trackParameters.m_canFormClusterlessPfo = canFormClusterlessPfo;
+
+            return;
+        }
+
+        //------------------------------------------------------------------------------------------------------------------------------------------
+
+        void TrackCreator::CalculateTrackStateAtCalo(const gar::rec::Track *const pTrack, pandora::CartesianVector &posAtCalo, float &timeAtCalo) const
+        {
+            const float *trackParams = pTrack->TrackParEnd(); //y, z, omega, phi, lambda
+            const float omega = trackParams[2] / CLHEP::cm;
+            const float tanl = std::tan(trackParams[4]);
+            const float d0(std::sqrt(trackParams[0]*trackParams[0] + trackParams[1]+trackParams[1]) * CLHEP::cm);
+            const float z0(std::fabs(pTrack->End()[0]) * CLHEP::cm);
+
+            const pandora::Helix helix(trackParams[3], d0, z0, omega, tanl, m_settings.m_bField);
+            const pandora::CartesianVector &referencePoint(helix.GetReferencePoint());
+
+            // First project to endcap
+            float minGenericTime(std::numeric_limits<float>::max());
+
+            pandora::CartesianVector bestECalProjection(0.f, 0.f, 0.f);
+            const int signPz((helix.GetMomentum().GetZ() > 0.f) ? 1 : -1);
+            (void) helix.GetPointInZ(static_cast<float>(signPz) * m_settings.m_eCalEndCapInnerZ, referencePoint, bestECalProjection, minGenericTime);
+
+            // Then project to barrel surface(s)
+            pandora::CartesianVector barrelProjection(0.f, 0.f, 0.f);
+            if (m_settings.m_eCalBarrelInnerSymmetry > 0)
+            {
+                // Polygon
+                float twopi_n = 2. * M_PI / (static_cast<float>(m_settings.m_eCalBarrelInnerSymmetry));
+
+                for (int i = 0; i < m_settings.m_eCalBarrelInnerSymmetry; ++i)
+                {
+                    float genericTime(std::numeric_limits<float>::max());
+                    const float phi(twopi_n * static_cast<float>(i) + m_settings.m_eCalBarrelInnerPhi0);
+
+                    const pandora::StatusCode statusCode(helix.GetPointInXY(m_settings.m_eCalBarrelInnerR * std::cos(phi), m_settings.m_eCalBarrelInnerR * std::sin(phi), std::cos(phi + 0.5 * M_PI), std::sin(phi + 0.5 * M_PI), referencePoint, barrelProjection, genericTime));
+
+                    if ((pandora::STATUS_CODE_SUCCESS == statusCode) && (genericTime < minGenericTime))
+                    {
+                        minGenericTime = genericTime;
+                        bestECalProjection = barrelProjection;
+                    }
+                }
+            }
+            else
+            {
+                // Cylinder
+                float genericTime(std::numeric_limits<float>::max());
+                const pandora::StatusCode statusCode(helix.GetPointOnCircle(m_settings.m_eCalBarrelInnerR, referencePoint, barrelProjection, genericTime));
+
+                if ((pandora::STATUS_CODE_SUCCESS == statusCode) && (genericTime < minGenericTime))
+                {
+                    minGenericTime = genericTime;
+                    bestECalProjection = barrelProjection;
+                }
+            }
+
+            if (bestECalProjection.GetMagnitudeSquared() < std::numeric_limits<float>::epsilon())
+            throw pandora::StatusCodeException(pandora::STATUS_CODE_NOT_INITIALIZED);
+
+            timeAtCalo = minGenericTime;
+            posAtCalo = bestECalProjection;
+
+            LOG_INFO("TrackCreator::CalculateTrackStateAtCalo")
+            << " posAtCalo " << posAtCalo
+            << " timeAtCalo " << timeAtCalo;
+
             return;
         }
 
@@ -190,6 +363,30 @@ namespace gar {
             }
 
             return pandora::STATUS_CODE_SUCCESS;
+        }
+
+        //------------------------------------------------------------------------------------------------------------------------------------------
+
+        TrackCreator::Settings::Settings()
+        : m_trackCollection( "" ),
+        m_V0Collection( "" ),
+        m_minTrackHits(3),
+        m_maxTrackHits(5000.f),
+        m_d0TrackCut(2500.f),
+        m_z0TrackCut(3000.f),
+        m_unmatchedVertexTrackMaxEnergy(0.1f),
+        m_d0UnmatchedVertexTrackCut(2500.f),
+        m_z0UnmatchedVertexTrackCut(3000.f),
+        m_minTrackECalDistanceFromIp(100.f),
+        m_maxTrackSigmaPOverP(0.15f),
+        m_bField(0.f),
+        m_eCalBarrelInnerSymmetry(0),
+        m_eCalBarrelInnerPhi0(0.f),
+        m_eCalBarrelInnerR(0.f),
+        m_eCalEndCapInnerZ(0.f),
+        m_GArCenterY(0.f),
+        m_GArCenterZ(0.f)
+        {
         }
     }
 }

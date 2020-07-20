@@ -249,11 +249,13 @@ namespace gar {
             m_settings.m_pandoraSettingsXmlFile = fullConfigFileName;
 
             m_trackCreatorSettings.m_trackCollection = pset.get<std::string>("TrackLabel", "track"); //Track hits
-            m_trackCreatorSettings.m_minTrackHits = pset.get<unsigned int>("MinTrackHits", 5); //Track quality cut: the minimum number of track hits
+            m_trackCreatorSettings.m_V0Collection = pset.get<std::string>("V0Label", "vee"); //Vees
+            m_trackCreatorSettings.m_minTrackHits = pset.get<unsigned int>("MinTrackHits", 3); //Track quality cut: the minimum number of track hits
             m_trackCreatorSettings.m_maxTrackHits =  pset.get<unsigned int>("MaxTrackHits", 5000); //Track quality cut: the maximum number of track hits
-            m_trackCreatorSettings.m_curvatureToMomentumFactor = pset.get<float>("CurvatureToMomentumFactor", 0.3/2000.); //Constant relating track curvature in b field to momentum
-            m_trackCreatorSettings.m_maxTrackSigmaPOverP = pset.get<unsigned int>("MaxTrackSigmaPOverP", 3); //Cut on fractional track momentum error
-            m_trackCreatorSettings.m_minMomentumForTrackHitChecks = pset.get<float>("MinMomentumForTrackHitChecks", 0.5); //Min track momentum required to perform final quality checks on number of hits
+            m_trackCreatorSettings.m_d0TrackCut = pset.get<float>("d0TrackCut", 50.); //Track quality cut: d0
+            m_trackCreatorSettings.m_z0TrackCut = pset.get<float>("z0TrackCut", 50.); //Track quality cut: z0
+            m_trackCreatorSettings.m_minTrackECalDistanceFromIp = pset.get<float>("MinTrackECalDistanceFromIp", 100.); //Track quality cut: separation between ip and track projected at ECAL
+            m_trackCreatorSettings.m_maxTrackSigmaPOverP = pset.get<float>("MaxTrackSigmaPOverP", 0.15); //Cut on fractional track momentum error
 
             m_caloHitCreatorSettings.m_CaloHitCollection = pset.get<std::string>("CaloHitLabel", "calohit"); //Calo hits
             m_caloHitCreatorSettings.m_eCalToMip = pset.get<float>("ECaltoMipCalibration", 1.); //The calibration from deposited ECal energy to mip
@@ -296,6 +298,8 @@ namespace gar {
             m_trackCreatorSettings.m_eCalBarrelInnerPhi0            = eCalBarrelExtension->inner_phi0;
             m_trackCreatorSettings.m_eCalBarrelInnerR               = eCalBarrelExtension->extent[0] * CLHEP::cm;
             m_trackCreatorSettings.m_eCalEndCapInnerZ               = eCalEndcapExtension->extent[2] * CLHEP::cm;
+            m_trackCreatorSettings.m_GArCenterY                     = fGeo->TPCYCent() * CLHEP::cm;
+            m_trackCreatorSettings.m_GArCenterZ                     = fGeo->TPCZCent() * CLHEP::cm;
 
             m_caloHitCreatorSettings.m_eCalBarrelOuterZ             = eCalBarrelExtension->extent[3] * CLHEP::cm;
             m_caloHitCreatorSettings.m_eCalBarrelInnerPhi0          = eCalBarrelExtension->inner_phi0;

@@ -23,7 +23,7 @@ namespace gar {
         public:
             PFParticle();
 
-            PFParticle(int type, float energy, float pos[3], float mom[3], float charge, std::vector<float> cov, int pdg, float goodness, size_t parent, std::vector<size_t> daughters);
+            PFParticle(int type, float energy, float pos[3], float mom[3], float charge, int pdg, float goodness, size_t parent, std::vector<size_t> daughters);
 
             // let the compiler provide the dtor
 
@@ -43,7 +43,6 @@ namespace gar {
             float                           fMom[3];           ///< momentum of the PFParticle in GeV
             float                           fMass{0};          ///< mass of the PFParticle
             float                           fCharge{0};        ///< charge of the PFParticle
-            std::vector<float>              fCov;              ///< Covariant matrix of the PFParticle for the 4 vector (mom and E)
             int                             fPdg;              ///< PDG of the PFParticle
             float                           fGoodness;         ///< Goodness of the PDG of the PFParticle
             size_t                          fParent{0};        ///< Parent of the PFParticle
@@ -66,7 +65,6 @@ namespace gar {
             void setMomentum(const float mom[3]);
             void setMass(float mass);
             void setCharge(float charge);
-            void setCovMatrix(std::vector<float> cov);
             void setParticleID(int pdg, float goodness);
             void setParent(size_t parent);
             void setDaughters(std::vector<size_t> daughters);
@@ -77,7 +75,6 @@ namespace gar {
             const float*                               Momentum() const;
             const float                                Mass() const;
             const float                                Charge() const;
-            const std::vector<float>                   CovMatrix() const;
             const int                                  Pdg() const;
             const float                                GoodnessOfPdg() const;
             const size_t                               Parent() const;
@@ -96,7 +93,6 @@ namespace gar {
         inline const float*                   gar::rec::PFParticle::Momentum()            const { return &fMom[0];      }
         inline const float                    gar::rec::PFParticle::Mass()                const { return fMass;         }
         inline const float                    gar::rec::PFParticle::Charge()              const { return fCharge;       }
-        inline const std::vector<float>       gar::rec::PFParticle::CovMatrix()           const { return fCov;          }
         inline const int                      gar::rec::PFParticle::Pdg()                 const { return fPdg;          }
         inline const float                    gar::rec::PFParticle::GoodnessOfPdg()       const { return fGoodness;     }
         inline const size_t                   gar::rec::PFParticle::Parent()              const { return fParent;       }

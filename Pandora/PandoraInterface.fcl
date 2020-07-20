@@ -13,11 +13,12 @@ GeneratorLabel:     "genie"
 
 # TrackCreatorSettings
 TrackLabel:         "track"
-MinTrackHits: 5
+MinTrackHits: 3
 MaxTrackHits: 5000
-CurvatureToMomentumFactor: 0.00015
-MaxTrackSigmaPOverP: 3
-MinMomentumForTrackHitChecks: 0.1
+d0TrackCut: 2500
+z0TrackCut: 3000
+MinTrackECalDistanceFromIp: 100.
+MaxTrackSigmaPOverP: 0.15
 
 # CaloHitCreatorSettings
 CaloHitLabel:       "calohit"
