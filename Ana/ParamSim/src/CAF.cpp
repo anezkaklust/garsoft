@@ -125,11 +125,18 @@ bool CAF::BookTFile()
         cafMVA->Branch("isFidStart", &isFidStart);
         cafMVA->Branch("isTPCStart", &isTPCStart);
         cafMVA->Branch("isCaloStart", &isCaloStart);
+        cafMVA->Branch("isInBetweenStart", &isInBetweenStart);
         cafMVA->Branch("isThroughCaloStart", &isThroughCaloStart);
+        cafMVA->Branch("isBarrelStart", &isBarrelStart);
+        cafMVA->Branch("isEndcapStart", &isEndcapStart);
+
         cafMVA->Branch("isFidEnd", &isFidEnd);
         cafMVA->Branch("isTPCEnd", &isTPCEnd);
         cafMVA->Branch("isCaloEnd", &isCaloEnd);
         cafMVA->Branch("isThroughCaloEnd", &isThroughCaloEnd);
+        cafMVA->Branch("isInBetweenEnd", &isInBetweenEnd);
+        cafMVA->Branch("isBarrelEnd", &isBarrelEnd);
+        cafMVA->Branch("isEndcapEnd", &isEndcapEnd);
 
         return true;
     }
@@ -228,10 +235,17 @@ void CAF::ClearVectors()
     isTPCStart.clear();
     isCaloStart.clear();
     isThroughCaloStart.clear();
+    isInBetweenStart.clear();
+    isBarrelStart.clear();
+    isEndcapStart.clear();
+
     isFidEnd.clear();
     isTPCEnd.clear();
     isCaloEnd.clear();
     isThroughCaloEnd.clear();
+    isInBetweenEnd.clear();
+    isBarrelEnd.clear();
+    isEndcapEnd.clear();
 }
 
 void CAF::CheckVectorSize()
@@ -542,11 +556,17 @@ void CAF::loop()
             isTPCStart.push_back(_util->PointInTPC(spoint));
             isCaloStart.push_back(_util->PointInCalo(spoint));
             isThroughCaloStart.push_back(_util->isThroughCalo(spoint));
+            isInBetweenStart.push_back(_util->PointStopBetween(spoint));
+            isBarrelStart.push_back(_util->isBarrel(spoint));
+            isEndcapStart.push_back(_util->isEndcap(spoint));
             //Check where endpoint of mcp is
             isFidEnd.push_back(_util->PointInFiducial(epoint));
             isTPCEnd.push_back(_util->PointInTPC(epoint));
             isCaloEnd.push_back(_util->PointInCalo(epoint));
             isThroughCaloEnd.push_back(_util->isThroughCalo(epoint));
+            isInBetweenEnd.push_back(_util->PointStopBetween(epoint));
+            isBarrelEnd.push_back(_util->isBarrel(epoint));
+            isEndcapEnd.push_back(_util->isEndcap(epoint));
 
             //start neutrons
             //***************************************************************************************************************/
@@ -554,7 +574,7 @@ void CAF::loop()
             //for neutrons
             if(pdg == 2112)
             {
-                if(_util->PointInCalo(epoint))
+                if(_util->PointInCalo(epoint)) //needs to stop in the ECAL
                 {
                     //check if it can be detected by the ECAL
                     //Assumes 40% efficiency to detect
@@ -656,7 +676,7 @@ void CAF::loop()
                 } //endpoint is in ECAL
                 else
                 {
-                    //Endpoint is not in calo
+                    //Endpoint is not in calo (TPC/isInBetween or outside Calo)
                     detected.push_back(0);
                     truep.push_back(ptrue);
                     recopid.push_back(0);
@@ -757,7 +777,6 @@ void CAF::loop()
             //for gammas
             if(pdg == 22)
             {
-                //TODO check if they are not from a pi0 or decayed in the TPC and hit the ECAL!
                 if( PDGMother->at(i) != 111 )
                 {
                     //Endpoint is in the ECAL
@@ -809,9 +828,9 @@ void CAF::loop()
 
                         // std::cout << "gamma detected in ECAL not from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                     }
-                    else
+                    else if(_util->PointInTPC(epoint) || _util->PointStopBetween(epoint) || _util->isThroughCalo(epoint))
                     {
-                        //case endpoint is in the TPC (Converted!)
+                        //case endpoint is in the TPC (Converted!) or in between the TPC/ECAL
                         erecon.push_back(0);
                         recopid.push_back(0);
                         detected.push_back(0);
@@ -851,6 +870,9 @@ void CAF::loop()
                         mctrkid.push_back(MCPTrkID->at(i));
                         motherid.push_back(MCMotherIndex->at(i));
                         // std::cout << "gamma converted in ECAL not from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
+                    }
+                    else{
+                        std::cout << "Gamma endpoint in not inCalo, not inTPC, not in between and not though ECAL --- Sth wrong!" << std::endl;
                     }
                 }
                 else
@@ -904,9 +926,9 @@ void CAF::loop()
                         motherid.push_back(MCMotherIndex->at(i));
                         // std::cout << "gamma detected in ECAL from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                     }
-                    else
+                    else if(_util->PointInTPC(epoint) || _util->PointStopBetween(epoint) || _util->isThroughCalo(epoint))
                     {
-                        //from pi0 and converted in TPC
+                        //from pi0 and converted in TPC or stopped between TPC/ECAL
                         erecon.push_back(0);
                         recopid.push_back(0);
                         detected.push_back(0);
@@ -947,6 +969,9 @@ void CAF::loop()
                         motherid.push_back(MCMotherIndex->at(i));
                         // std::cout << "gamma converted in ECAL from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                     }
+                    else{
+                        std::cout << "Gamma endpoint in not inCalo, not inTPC, not in between and not though ECAL --- Sth wrong!" << std::endl;
+                    }
                 }
             }
 
@@ -971,7 +996,6 @@ void CAF::loop()
 
                         // save the true PDG, parametrized PID comes later
                         truepdg.push_back(pdg);
-                        detected.push_back(1);
                         truepx.push_back(MCPStartPX->at(i));
                         truepy.push_back(MCPStartPY->at(i));
                         truepz.push_back(MCPStartPZ->at(i));
@@ -1026,6 +1050,7 @@ void CAF::loop()
                             anglereco.push_back(angle_reco);
                             recopidecal.push_back(0);
                             etime.push_back(0.);
+                            detected.push_back(0);
                         }
                         else
                         {
@@ -1064,7 +1089,8 @@ void CAF::loop()
                                 etime.push_back(ecaltime);
                                 //Need energy measurement in ecal
                                 TParticlePDG *part = TDatabasePDG::Instance()->GetParticle(abs(pdg));
-                                if(nullptr == part){
+                                if(nullptr == part)
+                                {
                                     std::cout << "Could not find particle in root pdg table, pdg " << pdg << std::endl;
                                     //deuteron
                                     if( pdg == 1000010020 ) {
@@ -1073,11 +1099,13 @@ void CAF::loop()
                                         float ereco = _util->GaussianSmearing(etrue, ECAL_resolution);
                                         erecon.push_back(ereco);
                                         recopidecal.push_back(0);
+                                        detected.push_back(1);
                                     }
                                     else
                                     {
                                         erecon.push_back(0);
                                         recopidecal.push_back(0);
+                                        detected.push_back(0);
                                     }
                                 }
                                 else
@@ -1092,6 +1120,7 @@ void CAF::loop()
                                     float ECAL_resolution = fRes->Eval(etrue)*etrue;
                                     float ereco = _util->GaussianSmearing(etrue, ECAL_resolution);
                                     erecon.push_back(ereco);
+                                    detected.push_back(1);
                                     // std::cout << "E/p " << ereco/preco << " true pdg " << pdg << std::endl;
 
                                     //Electron
@@ -1175,15 +1204,11 @@ void CAF::loop()
                                 double Erec = Evis * MIP2GeV_factor * sampling_frac;
                                 erecon.push_back(Erec);
                                 etime.push_back(ecaltime);
+                                detected.push_back(1);
 
                                 //Muon/Pions/Protons are reco as Muons (without MuID detector)
-                                if( abs(pdg) == 13 || abs(pdg) == 211 ) {
-                                    recopidecal.push_back(13);
-                                }
-                                if( abs(pdg) == 2212 ) {
-                                    recopidecal.push_back(13); //TODO
-                                }
-
+                                if( abs(pdg) == 13 || abs(pdg) == 211 || abs(pdg) == 2212 )
+                                recopidecal.push_back(13);
                             }
                             else
                             {
@@ -1191,6 +1216,7 @@ void CAF::loop()
                                 erecon.push_back(0.);
                                 recopidecal.push_back(0.);
                                 etime.push_back(0.);
+                                detected.push_back(0);
                             }
                         } //end endpoint is not in TPC
 
