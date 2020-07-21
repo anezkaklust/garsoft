@@ -1,7 +1,7 @@
 #include "TrackCreator.h"
 
 #include "Pandora/PdgTable.h"
-#include "Objects/Helix.h"
+#include "GArObjects/Helix.h"
 
 #include <algorithm>
 #include <cmath>
@@ -284,15 +284,15 @@ namespace gar {
             const float d0(std::sqrt(trackParams[0]*trackParams[0] + trackParams[1]+trackParams[1]) * CLHEP::cm);
             const float z0(std::fabs(pTrack->End()[0]) * CLHEP::cm);
 
-            const pandora::Helix helix(trackParams[3], d0, z0, omega, tanl, m_settings.m_bField);
+            const gar_content::Helix helix(trackParams[3], d0, z0, omega, tanl, m_settings.m_bField);
             const pandora::CartesianVector &referencePoint(helix.GetReferencePoint());
 
             // First project to endcap
             float minGenericTime(std::numeric_limits<float>::max());
 
             pandora::CartesianVector bestECalProjection(0.f, 0.f, 0.f);
-            const int signPz((helix.GetMomentum().GetZ() > 0.f) ? 1 : -1);
-            (void) helix.GetPointInZ(static_cast<float>(signPz) * m_settings.m_eCalEndCapInnerZ, referencePoint, bestECalProjection, minGenericTime);
+            const int signPx((helix.GetMomentum().GetX() > 0.f) ? 1 : -1);
+            (void) helix.GetPointInX(static_cast<float>(signPx) * m_settings.m_eCalEndCapInnerZ, referencePoint, bestECalProjection, minGenericTime);
 
             // Then project to barrel surface(s)
             pandora::CartesianVector barrelProjection(0.f, 0.f, 0.f);
@@ -306,7 +306,7 @@ namespace gar {
                     float genericTime(std::numeric_limits<float>::max());
                     const float phi(twopi_n * static_cast<float>(i) + m_settings.m_eCalBarrelInnerPhi0);
 
-                    const pandora::StatusCode statusCode(helix.GetPointInXY(m_settings.m_eCalBarrelInnerR * std::cos(phi), m_settings.m_eCalBarrelInnerR * std::sin(phi), std::cos(phi + 0.5 * M_PI), std::sin(phi + 0.5 * M_PI), referencePoint, barrelProjection, genericTime));
+                    const pandora::StatusCode statusCode(helix.GetPointInZY(m_settings.m_eCalBarrelInnerR * std::sin(phi), m_settings.m_eCalBarrelInnerR * std::cos(phi), std::sin(phi + 0.5 * M_PI), std::cos(phi + 0.5 * M_PI), referencePoint, barrelProjection, genericTime));
 
                     if ((pandora::STATUS_CODE_SUCCESS == statusCode) && (genericTime < minGenericTime))
                     {
