@@ -291,7 +291,7 @@ namespace gar {
             fGeo = gar::providerFrom<geo::Geometry>();
 
             const gar::geo::LayeredCalorimeterData * eCalBarrelExtension = fGeo->GetECALLayeredCalorimeterData()[gar::geo::LayeredCalorimeterData::BarrelLayout].get();
-            const gar::geo::LayeredCalorimeterData * eCalEndcapExtension = fGeo->GetECALLayeredCalorimeterData()[gar::geo::LayeredCalorimeterData::BarrelLayout].get();
+            const gar::geo::LayeredCalorimeterData * eCalEndcapExtension = fGeo->GetECALLayeredCalorimeterData()[gar::geo::LayeredCalorimeterData::EndcapLayout].get();
 
             m_trackCreatorSettings.m_bField                         = magfield[0];
             m_trackCreatorSettings.m_eCalBarrelInnerSymmetry        = eCalBarrelExtension->inner_symmetry;

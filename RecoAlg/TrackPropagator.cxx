@@ -9,6 +9,7 @@ namespace util {
     //----------------------------------------------------------------------
     int TrackPropagator::PropagateToCylinder(const float* trackpar, const float* Xpoint, const float rCyl, const float yCyl, const float zCyl, float* retXYZ, const float Xmax, const float epsilon)
     {
+        // std::cout << "TrackPropagator::PropagateToCylinder" << std::endl;
 
         //track fitted parameters (y, z, curvature, phi, lambda)
         const float y0   = trackpar[0];
@@ -16,6 +17,9 @@ namespace util {
         const float curv = trackpar[2];
         const float phi0 = trackpar[3];
         const float tanl = std::tan(trackpar[4]);
+
+        // std::cout << "Init parameters, y0 " << y0 << " z0 " << z0 << " curv " << curv << " phi0 " << phi0 << " tanl " << tanl << std::endl;
+        // std::cout << " Xpoint " << Xpoint[0] << " " << Xpoint[1] << " " <<  Xpoint[2] << " rCyl " << rCyl << " yCyl " << yCyl << " zCyl " << zCyl << " Xmax " << Xmax << std::endl;
 
         // Radius of curvature of track
         float radius = 0;
@@ -36,14 +40,17 @@ namespace util {
         /* Check for solvability. */
         if ( d > (rCyl + radius) ) {
             /* no solution. circles do not intersect. */
+            // std::cout << "1 - no solution. circles do not intersect" << std::endl;
             return 1;
         }
         if (d < std::fabs(rCyl - radius)) {
             /* no solution. one circle is contained in the other */
+            // std::cout << "2 - no solution. one circle is contained in the other" << std::endl;
             return 2;
         }
         if (d < epsilon) {
             /* no solution. circles have common centre */
+            // std::cout << "3 - no solution. circles have common centre" << std::endl;
             return 3;
         }
 
@@ -88,19 +95,39 @@ namespace util {
 
         // If Xmax > 0, check if found intersection has x beyond it - i.e.
         // it might be in the endcap
-        if (fabs(Xmax)>0) {
-            if ( std::fabs(retXYZ[0]) > std::fabs(Xmax) ) return 5;
+        if ( std::fabs(Xmax) > 0 ) {
+            if ( std::fabs(retXYZ[0]) > std::fabs(Xmax) ) {
+                // std::cout << "5 - x > Xmax, might be in the endcap" << std::endl;
+                return 5;
+            }
         }
+
+        // std::cout << "x " << retXYZ[0] << ", y " << retXYZ[1] << ", z " << retXYZ[2] << std::endl;
+
         return 0;
     }
 
     //----------------------------------------------------------------------
     int TrackPropagator::PropagateToX(const float* trackpar, const float* Xpoint, const float x, float* retXYZ, const float Rmax)
     {
-        int retval = 0;
-        float y, z, s;
+        // std::cout << "TrackPropagator::PropagateToX" << std::endl;
 
-        if (trackpar[2] == 0)
+        int retval = 0;
+        float y, z;
+
+        float phi0 = trackpar[3];
+        float curv = trackpar[2];
+        float radius = 0;
+        if (curv != 0) radius = 1.0 / curv;
+
+        float ZCent = trackpar[1] - radius*std::sin(phi0);
+        float YCent = trackpar[0] + radius*std::cos(phi0);
+        float s = std::tan( trackpar[4] );
+
+        // std::cout << "Init parameters, y0 " << trackpar[0] << " z0 " << trackpar[1] << " curv " << trackpar[2] << " phi0 " << trackpar[3] << " tanl " << std::tan( trackpar[4] ) << std::endl;
+        // std::cout << " Xpoint " << Xpoint[0] << " " << Xpoint[1] << " " <<  Xpoint[2] << " x " << x << " Rmax " << Rmax << std::endl;
+
+        if (radius == 0)
         {
             y = 0;
             z = 0;
@@ -108,13 +135,6 @@ namespace util {
         }
         else
         {
-            float phi0 = trackpar[3];
-            float r = 1.0/trackpar[2];
-            float ZCent = trackpar[1] - r*std::sin(phi0);
-            float YCent = trackpar[0] + r*std::cos(phi0);
-
-            s = TMath::Tan( trackpar[4] );
-
             if (s != 0)
             {
                 s = 1.0/s;
@@ -125,17 +145,17 @@ namespace util {
                 retval = 1;
             }
 
-            float phi = (x -Xpoint[0]) * s / r + phi0;
-            y = YCent - r * std::cos(phi);
-            z = ZCent + r * std::sin(phi);
+            float phi = (x - Xpoint[0]) * s / radius + phi0;
+            y = YCent - radius * std::cos(phi);
+            z = ZCent + radius * std::sin(phi);
 
-            if ( Rmax > 0)
-            {
-                if ( (retXYZ[1]*retXYZ[1] +retXYZ[2]*retXYZ[2]) > Rmax*Rmax ) retval = -1;
-            }
+            if ( Rmax > 0 )
+            if ( (retXYZ[1]*retXYZ[1] +retXYZ[2]*retXYZ[2]) > Rmax*Rmax ) retval = -1;
         }
 
         retXYZ[0] = x;    retXYZ[1] = y;   retXYZ[2] = z;
+        // std::cout << "Result " << retval << std::endl;
+        // std::cout << "x " << retXYZ[0] << ", y " << retXYZ[1] << ", z " << retXYZ[2] << std::endl;
 
         return retval;
     }

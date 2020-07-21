@@ -64,7 +64,8 @@ namespace gar {
             bool PassesQualityCuts(const gar::rec::Track *const pTrack, const PandoraApi::Track::Parameters &trackParameters) const;
             void TrackReachesECAL(const gar::rec::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
             void DefineTrackPfoUsage(const gar::rec::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const;
-            void CalculateTrackStateAtCalo(const gar::rec::Track *const pTrack, pandora::CartesianVector &posAtCalo, float &timeAtCalo) const;
+            void CalculateTrackStateAtCalo(const gar::rec::Track *const pTrack, pandora::CartesianVector &posAtCalo) const;
+            void CalculateTimeAtCalo(const gar::rec::Track *const pTrack, float &timeAtCalo) const;
 
             pandora::StatusCode CollectTracks(const art::Event &pEvent, const std::string &label, TrackVector &trkVector);
 

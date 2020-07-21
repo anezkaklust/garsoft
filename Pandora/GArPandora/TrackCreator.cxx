@@ -9,6 +9,7 @@
 
 #include "MCCheater/BackTracker.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "RecoAlg/TrackPropagator.h"
 
 namespace gar {
     namespace gar_pandora {
@@ -88,7 +89,7 @@ namespace gar {
 
                 PandoraApi::Track::Parameters trackParameters;
 
-                const float *trackParams = pTrack->TrackParEnd(); //y, z, omega, phi, lambda
+                const float *trackParams = pTrack->TrackParBeg(); //y, z, omega, phi, lambda
                 const float omega = trackParams[2] / CLHEP::cm;
                 const float d0 = std::sqrt(trackParams[0]*trackParams[0] + trackParams[1]*trackParams[1]) * CLHEP::cm;
                 const float z0 = pTrack->Vertex()[0] * CLHEP::cm;
@@ -138,7 +139,7 @@ namespace gar {
 
         void TrackCreator::GetTrackStates(const gar::rec::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const
         {
-            const float *trackParams = pTrack->TrackParEnd(); //y, z, omega, phi, lambda
+            const float *trackParams = pTrack->TrackParBeg(); //y, z, omega, phi, lambda
             const float omega = trackParams[2] / CLHEP::cm;
 
             //Track momentum
@@ -158,9 +159,11 @@ namespace gar {
 
             pandora::CartesianVector calorimeterPosition(0., 0., 0.);
             float minGenericTime(0.);
-            this->CalculateTrackStateAtCalo(pTrack, calorimeterPosition, minGenericTime);
+            this->CalculateTrackStateAtCalo(pTrack, calorimeterPosition);
+            this->CalculateTimeAtCalo(pTrack, minGenericTime);
 
-            trackParameters.m_trackStateAtCalorimeter = pandora::TrackState(calorimeterPosition, momentum);
+            const pandora::CartesianVector newcalorimeterPosition = m_rotation.MakeRotation(calorimeterPosition);
+            trackParameters.m_trackStateAtCalorimeter = pandora::TrackState(newcalorimeterPosition, momentum);
             trackParameters.m_isProjectedToEndCap = ((std::fabs(trackParameters.m_trackStateAtCalorimeter.Get().GetPosition().GetX()) < m_settings.m_eCalEndCapInnerZ) ? false : true);
 
             // Convert generic time (length from reference point to intersection, divided by momentum) into nanoseconds
@@ -176,7 +179,7 @@ namespace gar {
             if (trackParameters.m_trackStateAtCalorimeter.Get().GetPosition().GetMagnitude() < m_settings.m_minTrackECalDistanceFromIp)
             return false;
 
-            if (std::fabs(pTrack->TrackParEnd()[2] / CLHEP::cm) < std::numeric_limits<float>::epsilon())
+            if (std::fabs(pTrack->TrackParBeg()[2] / CLHEP::cm) < std::numeric_limits<float>::epsilon())
             {
                 LOG_ERROR("TrackCreator::PassesQualityCuts")
                 << "Track has Omega = 0 ";
@@ -185,7 +188,7 @@ namespace gar {
 
             // Check momentum uncertainty is reasonable to use track
             const pandora::CartesianVector &momentumAtDca(trackParameters.m_momentumAtDca.Get());
-            const float sigmaPOverP(std::sqrt(pTrack->CovMatEndPacked()[5]) / std::fabs( pTrack->TrackParEnd()[2] / CLHEP::cm ));
+            const float sigmaPOverP(std::sqrt(pTrack->CovMatBegPacked()[5]) / std::fabs( pTrack->TrackParBeg()[2] / CLHEP::cm ));
 
             if (sigmaPOverP > m_settings.m_maxTrackSigmaPOverP)
             {
@@ -218,7 +221,7 @@ namespace gar {
 
             if (trackParameters.m_reachesCalorimeter.Get() && !this->IsParent(pTrack))
             {
-                const float *trackParams = pTrack->TrackParEnd(); //y, z, omega, phi, lambda
+                const float *trackParams = pTrack->TrackParBeg(); //y, z, omega, phi, lambda
                 const float d0(std::sqrt(trackParams[0]*trackParams[0] + trackParams[1]+trackParams[1]) * CLHEP::cm);
                 const float z0(std::fabs(pTrack->Vertex()[0]) * CLHEP::cm);
 
@@ -275,14 +278,41 @@ namespace gar {
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
-
-        void TrackCreator::CalculateTrackStateAtCalo(const gar::rec::Track *const pTrack, pandora::CartesianVector &posAtCalo, float &timeAtCalo) const
+        void TrackCreator::CalculateTrackStateAtCalo(const gar::rec::Track *const pTrack, pandora::CartesianVector &posAtCalo) const
         {
-            const float *trackParams = pTrack->TrackParEnd(); //y, z, omega, phi, lambda
+            pandora::CartesianVector bestECalProjection(0., 0., 0);
+            float fbestECalProjection[3] = {0., 0., 0.};
+            //Use our TrackPropagator
+            //First propagate to the barrel
+            int result = util::TrackPropagator::PropagateToCylinder(pTrack->TrackParBeg(), pTrack->Vertex(), m_settings.m_eCalBarrelInnerR / CLHEP::cm, m_settings.m_GArCenterY / CLHEP::cm, m_settings.m_GArCenterZ / CLHEP::cm, fbestECalProjection, m_settings.m_eCalEndCapInnerZ / CLHEP::cm );
+            bestECalProjection.SetValues(fbestECalProjection[0] * CLHEP::cm, fbestECalProjection[1] * CLHEP::cm, fbestECalProjection[2] * CLHEP::cm);
+
+            if( result != 0 ) {
+                //Propagate to the Endcap
+                float endcapProjection[3] = {0., 0., 0.};
+                int result = util::TrackPropagator::PropagateToX( pTrack->TrackParBeg(), pTrack->Vertex(), (pTrack->Vertex()[0] > 0) ? m_settings.m_eCalEndCapInnerZ / CLHEP::cm : -m_settings.m_eCalEndCapInnerZ / CLHEP::cm, endcapProjection, m_settings.m_eCalBarrelInnerR / CLHEP::cm );
+
+                if(result == 0) {
+                    bestECalProjection.SetValues(endcapProjection[0] * CLHEP::cm, endcapProjection[1] * CLHEP::cm, endcapProjection[2] * CLHEP::cm);
+                }
+            }
+
+            if (bestECalProjection.GetMagnitudeSquared() < std::numeric_limits<float>::epsilon())
+            throw pandora::StatusCodeException(pandora::STATUS_CODE_NOT_INITIALIZED);
+
+            posAtCalo = bestECalProjection;
+
+            return;
+        }
+
+        //------------------------------------------------------------------------------------------------------------------------------------------
+        void TrackCreator::CalculateTimeAtCalo(const gar::rec::Track *const pTrack, float &timeAtCalo) const
+        {
+            const float *trackParams = pTrack->TrackParBeg(); //y, z, omega, phi, lambda
             const float omega = trackParams[2] / CLHEP::cm;
             const float tanl = std::tan(trackParams[4]);
             const float d0(std::sqrt(trackParams[0]*trackParams[0] + trackParams[1]+trackParams[1]) * CLHEP::cm);
-            const float z0(std::fabs(pTrack->End()[0]) * CLHEP::cm);
+            const float z0(std::fabs(pTrack->Vertex()[0]) * CLHEP::cm);
 
             const gar_content::Helix helix(trackParams[3], d0, z0, omega, tanl, m_settings.m_bField);
             const pandora::CartesianVector &referencePoint(helix.GetReferencePoint());
@@ -306,7 +336,7 @@ namespace gar {
                     float genericTime(std::numeric_limits<float>::max());
                     const float phi(twopi_n * static_cast<float>(i) + m_settings.m_eCalBarrelInnerPhi0);
 
-                    const pandora::StatusCode statusCode(helix.GetPointInZY(m_settings.m_eCalBarrelInnerR * std::sin(phi), m_settings.m_eCalBarrelInnerR * std::cos(phi), std::sin(phi + 0.5 * M_PI), std::cos(phi + 0.5 * M_PI), referencePoint, barrelProjection, genericTime));
+                    const pandora::StatusCode statusCode(helix.GetPointInZY(m_settings.m_eCalBarrelInnerR * std::cos(phi), m_settings.m_eCalBarrelInnerR * std::sin(phi), std::cos(phi + 0.5 * M_PI), std::sin(phi + 0.5 * M_PI), referencePoint, barrelProjection, genericTime));
 
                     if ((pandora::STATUS_CODE_SUCCESS == statusCode) && (genericTime < minGenericTime))
                     {
@@ -332,11 +362,6 @@ namespace gar {
             throw pandora::StatusCodeException(pandora::STATUS_CODE_NOT_INITIALIZED);
 
             timeAtCalo = minGenericTime;
-            posAtCalo = bestECalProjection;
-
-            LOG_INFO("TrackCreator::CalculateTrackStateAtCalo")
-            << " posAtCalo " << posAtCalo
-            << " timeAtCalo " << timeAtCalo;
 
             return;
         }
