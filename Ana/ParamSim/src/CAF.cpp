@@ -477,9 +477,12 @@ void CAF::loop()
             std::string mcp_process = MCPProc->at(i);
             //Get ending process
             std::string mcp_endprocess = MCPEndProc->at(i);
+            int mctrackid = MCPTrkID->at(i);
 
             nFSP++;
             int pdg = PDG->at(i);
+            TVector3 mcp(MCPStartPX->at(i), MCPStartPY->at(i), MCPStartPZ->at(i));
+            float ptrue = (mcp).Mag();
 
             //need to ignore neutrals for this - put the value to 0
             auto result = std::find(pdg_neutral.begin(), pdg_neutral.end(), abs(pdg));
@@ -506,7 +509,7 @@ void CAF::loop()
                 for(size_t itraj = 1; itraj < TrajMCPX->size(); itraj++)
                 {
                     //check that it is the correct mcp
-                    if(TrajMCPTrajIndex->at(itraj) == (int) i){
+                    if(TrajMCPTrajIndex->at(itraj) == mctrackid){
                         //Traj point+1
                         TVector3 point(TrajMCPX->at(itraj)- _util->GetOrigin()[0], TrajMCPY->at(itraj)- _util->GetOrigin()[1], TrajMCPZ->at(itraj)- _util->GetOrigin()[2]);
 
@@ -531,13 +534,13 @@ void CAF::loop()
                 trkLenPerp.push_back(tracklen_perp);
             }
 
+            if(mcp_process == "primary")
+            std::cout << "Track length for particle " << pdg << " is " << trkLen.at(i) << " cm with ptrue " << ptrue << " GeV" << std::endl;
+
             //end track length
             //***************************************************************************************************************/
 
-            TVector3 mcp(MCPStartPX->at(i), MCPStartPY->at(i), MCPStartPZ->at(i));
             TVector3 xhat(1, 0, 0);
-
-            float ptrue = (mcp).Mag();
             // float pz = mcp.Z();
             // float pt = (mcp.Cross(xhat)).Mag();
             // float px = mcp.X();
@@ -593,6 +596,8 @@ void CAF::loop()
                         detected.push_back(1);
                         float eres = sigmaNeutronECAL_first * true_KE;
                         float ereco = _util->GaussianSmearing( true_KE, eres );
+                        if(mcp_process == "primary")
+                        std::cout << "Case neutron detected " << " pdg " << pdg << " true_KE " << true_KE << " ereco " << ereco << std::endl;
                         erecon.push_back(ereco > 0 ? ereco : 0.);
                         // std::cout << "true part n true energy " << std::sqrt(ptrue*ptrue + neutron_mass*neutron_mass) << " ereco " << erecon[i] << std::endl;
                         truepdg.push_back(pdg);
@@ -1119,6 +1124,8 @@ void CAF::loop()
                                     float etrue = ptrue;
                                     float ECAL_resolution = fRes->Eval(etrue)*etrue;
                                     float ereco = _util->GaussianSmearing(etrue, ECAL_resolution);
+                                    if(mcp_process == "primary")
+                                    std::cout << "Case charged particle in Calo pdg " << pdg << " etrue " << etrue << " ereco " << ereco << std::endl;
                                     erecon.push_back(ereco);
                                     detected.push_back(1);
                                     // std::cout << "E/p " << ereco/preco << " true pdg " << pdg << std::endl;
@@ -1202,6 +1209,9 @@ void CAF::loop()
                                 Evis = _util->GaussianSmearing(Evis, ECAL_MIP_Res);
                                 //1 MIP = 0.814 MeV
                                 double Erec = Evis * MIP2GeV_factor * sampling_frac;
+                                if(mcp_process == "primary")
+                                std::cout << "Case charged particle through calo pdg " << pdg << " etrue " << ptrue << " ereco " << Erec << std::endl;
+
                                 erecon.push_back(Erec);
                                 etime.push_back(ecaltime);
                                 detected.push_back(1);
