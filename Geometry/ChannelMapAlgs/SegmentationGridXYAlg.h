@@ -36,7 +36,7 @@ namespace gar {
 
                 bool isBarrel(const gar::raw::CellID_t& cID) const override;
 
-                const double& gridSizeX() const { return _gridSizeX; }
+                const double& gridSizeX() const override { return _gridSizeX; }
 
                 const double& gridSizeY() const { return _gridSizeY; }
 
@@ -48,7 +48,7 @@ namespace gar {
 
                 const std::string& fieldNameY() const { return _yId; }
 
-                const unsigned int& nLayers() const { return _nLayers; }
+                const unsigned int& nLayers() const override { return _nLayers; }
 
                 void setGridSizeX(double cellSize) { _gridSizeX = cellSize; }
 
@@ -62,7 +62,7 @@ namespace gar {
 
                 void setFieldNameY(const std::string& fieldName) { _yId = fieldName; }
 
-                void setLayerDimXY(const double& dimX, const double& dimY) const { _layer_dim_X = dimX; _layer_dim_Y = dimY; }
+                void setLayerDimXY(const double& dimX, const double& dimY) const override { _layer_dim_X = dimX; _layer_dim_Y = dimY; }
 
             protected:
 

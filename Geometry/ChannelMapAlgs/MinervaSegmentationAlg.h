@@ -32,7 +32,7 @@ namespace gar {
 
                 gar::raw::CellID_t GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const override;
 
-                const double& stripSizeX() const { return _stripSizeX; }
+                const double& stripSizeX() const override { return _stripSizeX; }
 
                 const double& stripSizeY() const { return _stripSizeY; }
 

@@ -51,11 +51,11 @@ namespace gar{
                 void NearestChannelInfo(float const* xyz, gar::geo::ChanWithNeighbors &cwn)  const override;
                 void         ChannelToPosition(unsigned int chan, float *xyz)  const override;
                 unsigned int GapChannelNumber() const override { return fGapChannelNumber; };
-                float GetIROCInnerRadius() const {return fIROCInnerRadius;};
-                float GetIROCOuterRadius() const {return fIROCOuterRadius;};
-                float GetOROCInnerRadius() const {return fOROCInnerRadius;};
-                float GetOROCOuterRadius() const {return fOROCOuterRadius;};
-                float GetOROCPadHeightChangeRadius() const {return fOROCPadHeightChangeRadius;};
+                float GetIROCInnerRadius() const override {return fIROCInnerRadius;};
+                float GetIROCOuterRadius() const override {return fIROCOuterRadius;};
+                float GetOROCInnerRadius() const override {return fOROCInnerRadius;};
+                float GetOROCOuterRadius() const override {return fOROCOuterRadius;};
+                float GetOROCPadHeightChangeRadius() const override {return fOROCPadHeightChangeRadius;};
 
             private:
 

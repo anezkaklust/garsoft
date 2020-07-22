@@ -44,7 +44,7 @@ namespace gar {
 
                 std::array<double, 3> ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const gar::raw::CellID_t& cID) const override;
 
-                const double& stripSizeX() const { return _stripSizeX; }
+                const double& stripSizeX() const override { return _stripSizeX; }
 
                 const double& layerDimX() const { return _layer_dim_X; }
 
@@ -58,7 +58,7 @@ namespace gar {
 
                 const std::string& fieldNameSlice() const { return _sliceId; }
 
-                const unsigned int& nLayers() const { return _nLayers; }
+                const unsigned int& nLayers() const override { return _nLayers; }
 
                 void setStripSizeX(double stripSize) { _stripSizeX = stripSize; }
 
@@ -70,7 +70,7 @@ namespace gar {
 
                 void setFieldNameSlice(const std::string& fieldName) { _sliceId = fieldName; }
 
-                void setLayerDimXY(const double& dimX, const double& dimY) const { _layer_dim_X = dimX; _layer_dim_Y = dimY; }
+                void setLayerDimXY(const double& dimX, const double& dimY) const override { _layer_dim_X = dimX; _layer_dim_Y = dimY; }
 
             protected:
 

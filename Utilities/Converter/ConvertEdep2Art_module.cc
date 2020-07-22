@@ -1217,7 +1217,11 @@ namespace util {
 
         //--------------------------------------------------------------------------
 
-        bool hasGAr, hasECAL, hasTrackerSc, hasMuID, hasLAr = false;
+        bool hasGAr = false;
+	bool hasECAL = false;
+	bool hasTrackerSc = false;
+	bool hasMuID = false;
+	bool hasLAr = false;
         if(fGArDeposits.size() > 0) hasGAr = true;
         if(m_ECALDeposits.size() > 0) hasECAL = true;
         if(m_TrackerDeposits.size() > 0) hasTrackerSc = true;
