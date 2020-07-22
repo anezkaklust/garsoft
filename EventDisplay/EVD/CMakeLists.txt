@@ -19,8 +19,8 @@ art_make_library(SOURCE    ${src_files} ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE}Ci
                            Geometry_Geometry_service
 			                     ReconstructionDataProducts
                            nusimdata_SimulationBase
-                           nutools_EventDisplayBase
-			                     nutools_EventDisplayBase_Colors_service
+                           nuevdb_EventDisplayBase
+			                     nuevdb_EventDisplayBase_Colors_service
                            ${ART_FRAMEWORK_CORE}
 			                     ${ART_FRAMEWORK_PRINCIPAL}
                            ${ART_FRAMEWORK_IO}
@@ -39,7 +39,7 @@ art_make_library(SOURCE    ${src_files} ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE}Ci
 
 simple_plugin (EVD module
                EventDisplay_EVD
-			         nutools_EventDisplayBase
+			         nuevdb_EventDisplayBase
                ${ART_FRAMEWORK_CORE}
 			         ${ART_FRAMEWORK_PRINCIPAL}
 			         ${ART_FRAMEWORK_SERVICES_REGISTRY}
@@ -56,13 +56,13 @@ simple_plugin (AnalysisDrawingOptions service
 			         Geometry_Geometry_service
 			         Geometry
 			         ReconstructionDataProducts
-               nutools_EventDisplayBase
+               nuevdb_EventDisplayBase
                ${ART_FRAMEWORK_CORE}
 			         ${ART_FRAMEWORK_PRINCIPAL}
 			         ${ART_FRAMEWORK_SERVICES_REGISTRY}
 			         ${ART_FRAMEWORK_SERVICES_BASIC}
 			         ${ART_FRAMEWORK_SERVICES_OPTIONAL}
-			         ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+                  ${ART_ROOT_IO_TFILESERVICE_SERVICE}
 			         art_Persistency_Common
 			         art_Persistency_Provenance
 			         art_Utilities
@@ -74,13 +74,13 @@ simple_plugin (AnalysisDrawingOptions service
      )
 
 simple_plugin (ColorDrawingOptions service
-			         nutools_EventDisplayBase
+			         nuevdb_EventDisplayBase
                ${ART_FRAMEWORK_CORE}
 			         ${ART_FRAMEWORK_PRINCIPAL}
 			         ${ART_FRAMEWORK_SERVICES_REGISTRY}
 			         ${ART_FRAMEWORK_SERVICES_BASIC}
 			         ${ART_FRAMEWORK_SERVICES_OPTIONAL}
-			         ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+                  ${ART_ROOT_IO_TFILESERVICE_SERVICE}
 			         art_Persistency_Common
 			         art_Persistency_Provenance
 			         art_Utilities
@@ -92,13 +92,13 @@ simple_plugin (ColorDrawingOptions service
      )
 
 simple_plugin (EvdLayoutOptions service
-			         nutools_EventDisplayBase
+			         nuevdb_EventDisplayBase
                ${ART_FRAMEWORK_CORE}
 			         ${ART_FRAMEWORK_PRINCIPAL}
 			         ${ART_FRAMEWORK_SERVICES_REGISTRY}
 			         ${ART_FRAMEWORK_SERVICES_BASIC}
                ${ART_FRAMEWORK_SERVICES_OPTIONAL}
-			         ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+                  ${ART_ROOT_IO_TFILESERVICE_SERVICE}
 			         art_Persistency_Common
 			         art_Persistency_Provenance
 			         art_Utilities
@@ -110,13 +110,13 @@ simple_plugin (EvdLayoutOptions service
      )
 
 simple_plugin (RawDrawingOptions service
-			         nutools_EventDisplayBase
+			         nuevdb_EventDisplayBase
                ${ART_FRAMEWORK_CORE}
 			         ${ART_FRAMEWORK_PRINCIPAL}
 			         ${ART_FRAMEWORK_SERVICES_REGISTRY}
 			         ${ART_FRAMEWORK_SERVICES_BASIC}
 			         ${ART_FRAMEWORK_SERVICES_OPTIONAL}
-			         ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+                  ${ART_ROOT_IO_TFILESERVICE_SERVICE}
 			         art_Persistency_Common
 			         art_Persistency_Provenance
 			         art_Utilities
@@ -128,13 +128,13 @@ simple_plugin (RawDrawingOptions service
      )
 
 simple_plugin (RecoDrawingOptions service
-			         nutools_EventDisplayBase
+			         nuevdb_EventDisplayBase
                ${ART_FRAMEWORK_CORE}
          			 ${ART_FRAMEWORK_PRINCIPAL}
          			 ${ART_FRAMEWORK_SERVICES_REGISTRY}
          			 ${ART_FRAMEWORK_SERVICES_BASIC}
          			 ${ART_FRAMEWORK_SERVICES_OPTIONAL}
-         			 ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+                  ${ART_ROOT_IO_TFILESERVICE_SERVICE}
          			 art_Persistency_Common
 	         		 art_Persistency_Provenance
 	         		 art_Utilities
@@ -146,13 +146,13 @@ simple_plugin (RecoDrawingOptions service
      )
 
 simple_plugin (SimulationDrawingOptions service
-               nutools_EventDisplayBase
+               nuevdb_EventDisplayBase
                ${ART_FRAMEWORK_CORE}
                ${ART_FRAMEWORK_PRINCIPAL}
          			 ${ART_FRAMEWORK_SERVICES_REGISTRY}
          			 ${ART_FRAMEWORK_SERVICES_BASIC}
 	         		 ${ART_FRAMEWORK_SERVICES_OPTIONAL}
-		         	 ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+                  ${ART_ROOT_IO_TFILESERVICE_SERVICE}
 	         		 art_Persistency_Common
 	         		 art_Persistency_Provenance
 		         	 art_Utilities

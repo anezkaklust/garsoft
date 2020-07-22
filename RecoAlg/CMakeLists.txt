@@ -9,7 +9,7 @@ art_make(BASENAME_ONLY
                        ${ART_FRAMEWORK_PRINCIPAL}
                        ${ART_FRAMEWORK_SERVICES_REGISTRY}
                        ${ART_FRAMEWORK_SERVICES_OPTIONAL}
-                       ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+                       ${ART_ROOT_IO_TFILESERVICE_SERVICE}
                        ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
                        art_Persistency_Common
                        art_Persistency_Provenance
@@ -28,7 +28,7 @@ art_make(BASENAME_ONLY
                        MCCheater_BackTracker_service
                        nusimdata_SimulationBase
                        nutools_RandomUtils_NuRandomService_service
-		                   nutools_MagneticField_MagneticField_service
+		                   nug4_MagneticField_MagneticField_service
                        ${ART_FRAMEWORK_CORE}
                        ${ART_FRAMEWORK_IO_SOURCES}
                        ${ART_FRAMEWORK_PRINCIPAL}
@@ -38,7 +38,7 @@ art_make(BASENAME_ONLY
                        canvas
                        ${ART_FRAMEWORK_SERVICES_REGISTRY}
                        ${ART_FRAMEWORK_SERVICES_OPTIONAL}
-                       ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+                       ${ART_ROOT_IO_TFILESERVICE_SERVICE}
                        ${MF_MESSAGELOGGER}
                        ${FHICLCPP}
                        ${CETLIB_EXCEPT}

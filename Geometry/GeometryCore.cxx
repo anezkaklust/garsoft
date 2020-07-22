@@ -137,7 +137,7 @@ namespace gar {
             fGDMLfile = gdmlfile;
             fROOTfile = rootfile;
 
-            LOG_INFO("GeometryCore")
+            MF_LOG_INFO("GeometryCore")
             << "New detector geometry loaded from "
             << "\n\t" << fROOTfile
             << "\n\t" << fGDMLfile;
@@ -658,7 +658,7 @@ namespace gar {
                 std::abs(point.y()) > halfheight ||
                 std::abs(point.z()) > halflength){
                 if (fPointInWarnings) {
-                    LOG_WARNING("GeometryCoreBadInputPoint")
+                    MF_LOG_WARNING("GeometryCoreBadInputPoint")
                     << "point ("
                     << point.x() << ","
                     << point.y() << ","
@@ -682,7 +682,7 @@ namespace gar {
                 std::abs(point.y()) > fEnclosureHalfHeight ||
                 std::abs(point.z()) > fEnclosureLength){
                 if (fPointInWarnings) {
-                    LOG_WARNING("GeometryCoreBadInputPoint")
+                    MF_LOG_WARNING("GeometryCoreBadInputPoint")
                     << "point ("
                     << point.x() << ","
                     << point.y() << ","
@@ -708,7 +708,7 @@ namespace gar {
                 std::abs(new_point.y()) > fMPDHalfHeight ||
                 std::abs(new_point.z()) > fMPDLength){
                 if (fPointInWarnings) {
-                    LOG_WARNING("GeometryCoreBadInputPoint")
+                    MF_LOG_WARNING("GeometryCoreBadInputPoint")
                     << "point ("
                     << point.x() << ","
                     << point.y() << ","
@@ -733,7 +733,7 @@ namespace gar {
             if (std::abs(point.x() - fTPCXCent) > fTPCLength/2.0  ||
                 std::hypot(z,y)                 > fTPCRadius) {
                 if (fPointInWarnings) {
-                    LOG_WARNING("GeometryCoreBadInputPoint")
+                    MF_LOG_WARNING("GeometryCoreBadInputPoint")
                     << "point ("
                     << point.x() << ","
                     << point.y() << ","
@@ -761,7 +761,7 @@ namespace gar {
                 std::abs(point.y()) > halfheight ||
                 std::abs(point.z()) > halflength){
                 if (fPointInWarnings) {
-                    LOG_WARNING("GeometryCoreBadInputPoint")
+                    MF_LOG_WARNING("GeometryCoreBadInputPoint")
                     << "point ("
                     << point.x() << ","
                     << point.y() << ","
@@ -1102,7 +1102,7 @@ namespace gar {
                 fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
                 return fMuIDSegmentationAlg->GetCellID(*this, det_id, stave, module, layer, slice, localPosition);
             } else {
-                LOG_WARNING("GeometryCore::GetCellID") << "Detector id "
+                MF_LOG_WARNING("GeometryCore::GetCellID") << "Detector id "
                 << det_id << " unknown!";
                 return 0.;
             }

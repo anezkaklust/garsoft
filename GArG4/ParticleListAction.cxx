@@ -4,7 +4,7 @@
 ///
 ////////////////////////////////////////////////////////////////////////
 
-#include "nutools/G4Base/PrimaryParticleInformation.h"
+#include "nug4/G4Base/PrimaryParticleInformation.h"
 #include "GArG4/ParticleListAction.h"
 #include "SimulationDataProducts/sim.h"
 #include "Geometry/Geometry.h"
@@ -98,7 +98,7 @@ namespace gar {
       // of the first EM particle that led to this one
       std::map<int,int>::const_iterator itr = fParentIDMap.find(trackid);
       while( itr != fParentIDMap.end() ){
-	LOG_DEBUG("ParticleListAction")
+	MF_LOG_DEBUG("ParticleListAction")
 	  << "parentage for " << trackid
 	  << " " << (*itr).second;
 
@@ -107,7 +107,7 @@ namespace gar {
 	parentid = (*itr).second;
 	itr = fParentIDMap.find(parentid);
       }
-      LOG_DEBUG("ParticleListAction") << "final parent ID " << parentid;
+      MF_LOG_DEBUG("ParticleListAction") << "final parent ID " << parentid;
 
       return parentid;
     }
@@ -254,7 +254,7 @@ namespace gar {
 	  // if we still can't find the parent in the particle navigator,
 	  // we have to give up
 	  if( !fParticleList->KnownParticle(pid) ){
-	    LOG_WARNING("ParticleListAction")
+	    MF_LOG_WARNING("ParticleListAction")
 	      << "can't find parent id: "
 	      << parentID
 	      << " in the particle list, or fParentIDMap."
@@ -309,13 +309,13 @@ namespace gar {
       // Save the particle in the ParticleList.
       fParticleList->Add( fCurrentParticle.particle );
 
-      LOG_DEBUG("ParticleListAction")
+      MF_LOG_DEBUG("ParticleListAction")
         << "There are now "
         << fParticleList->size()
         << " particles in the list";
 
       if(fTrackIDToMCTruthIndex.count(fCurrentTrackID) > 0)
-        LOG_WARNING("ParticleListAction")
+        MF_LOG_WARNING("ParticleListAction")
 	  << "attempting to put "
 	  << fCurrentTrackID
 	  << " into fTrackIDToMCTruthIndex map "
@@ -335,7 +335,7 @@ namespace gar {
       // (we might still need parentage information though)
       if (!fCurrentParticle.keep) {
 
-	LOG_VERBATIM("ParticleListAction")
+	MF_LOG_VERBATIM("ParticleListAction")
 	  << "dropping particle with track id "
 	  << fCurrentParticle.particle->TrackId();
 

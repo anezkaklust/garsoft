@@ -67,7 +67,7 @@ namespace gar {
     };
 
 
-    vertexfinder1::vertexfinder1(fhicl::ParameterSet const & p)
+    vertexfinder1::vertexfinder1(fhicl::ParameterSet const & p) : EDProducer{p} 
     {
       fTrackLabel = p.get<std::string>("TrackLabel","track");
       fChisquaredCut = p.get<float>("ChisquaredPerDOFCut",5.0);

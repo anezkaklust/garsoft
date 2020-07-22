@@ -9,8 +9,8 @@
 #include "EventDisplay/EVD/Style.h"
 #include "EventDisplay/EVD/AnalysisBaseDrawer.h"
 #include "EventDisplay/EVD/AnalysisDrawingOptions.h"
-#include "nutools/EventDisplayBase/View2D.h"
-#include "nutools/EventDisplayBase/EventHolder.h"
+#include "nuevdb/EventDisplayBase/View2D.h"
+#include "nuevdb/EventDisplayBase/EventHolder.h"
 #include "EventDisplay/EVD/EvdLayoutOptions.h"
 #include "EventDisplay/EVD/RecoDrawingOptions.h"
 
@@ -23,8 +23,8 @@
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Principal/Event.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art_root_io/TFileService.h"
+#include "art_root_io/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "cetlib/search_path.h"
 ///

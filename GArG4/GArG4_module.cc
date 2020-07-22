@@ -22,8 +22,8 @@
 #ifndef GARG4GARG4H
 #define GARG4GARG4H 1
 
-#include "nutools/G4Base/G4Helper.h"
-#include "nutools/G4Base/ConvertMCTruthToG4.h"
+#include "nug4/G4Base/G4Helper.h"
+#include "nug4/G4Base/ConvertMCTruthToG4.h"
 
 // C++ Includes
 #include <sstream> // std::ostringstream
@@ -50,10 +50,10 @@
 
 // nutools extensions
 #include "nusimdata/SimulationBase/MCTruth.h"
-#include "nutools/ParticleNavigation/ParticleList.h"
-#include "nutools/G4Base/DetectorConstruction.h"
-#include "nutools/G4Base/UserActionManager.h"
-#include "nutools/RandomUtils/NuRandomService.h"
+#include "nug4/ParticleNavigation/ParticleList.h"
+#include "nug4/G4Base/DetectorConstruction.h"
+#include "nug4/G4Base/UserActionManager.h"
+#include "nurandom/RandomUtils/NuRandomService.h"
 
 // GArSoft Includes
 #include "GArG4/AuxDetAction.h"
@@ -189,7 +189,7 @@ namespace gar {
 
       ///Set the user limits and production cuts per region
       void SetLimitsAndCuts();
-      cet::exempt_ptr<CLHEP::HepRandomEngine> fEngine; // FIXME: This should be a reference.
+      CLHEP::HepRandomEngine &fEngine; 
 
     };
 
@@ -215,28 +215,14 @@ namespace gar {
       , fMaxStepSize           (pset.get< std::vector< float > >("MaxStepSize", {}  )                   )//in mm
       , fProductionCut         (pset.get< float             >("ProductionCut",    0.05)                 )//in mm
       , fKeepParticlesInVolumes(pset.get< std::vector< std::string > >("KeepParticlesInVolumes", {})    )
+      , fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, pset, "GEANTSeed")     )
       {
 	// initialize the GArSimulationParameters singleton
 	G4SimulationParameters::CreateInstance(pset.get<fhicl::ParameterSet>("GArSimParsPSet"));
 
-	LOG_DEBUG("GArG4") << "Debug: GArG4()";
+	MF_LOG_DEBUG("GArG4") << "Debug: GArG4()";
 	//art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this);
 	::art::ServiceHandle<::art::RandomNumberGenerator> rng;
-
-	// todo -- these probably have been made obsolete in the upgrade to art 3.0
-
-	::art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, "G4Engine",       "GEANT",       pset, "GEANTSeed");
-	::art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, "HepJamesRandom", "propagation", pset, "PropagationSeed");
-	::art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, "HepJamesRandom", "radio",       pset, "RadioSeed");
-
-	if (pset.has_key("Seed")) {
-	  throw ::art::Exception(::art::errors::Configuration)
-	    << "The configuration of GArG4 module has the discontinued 'Seed' parameter.\n"
-	    "Seeds are now controlled by three parameters: 'GEANTSeed', 'PropagationSeed' and 'RadioSeed'.";
-	}
-	auto& engine = rng->getEngine(art::ScheduleID::first(),
-				      pset.get<std::string>("module_label"),"propagation");
-	fEngine = cet::make_exempt_ptr(&engine);
 
 	// setup the random number service for Geant4, the "G4Engine" label is a
 	// special tag setting up a global engine for use by Geant4/CLHEP;
@@ -284,7 +270,7 @@ namespace gar {
       // Regions {TPC, Inner ECAL, Outer ECAL, Endcap ECAL}
       if(fMaxStepSize.size() != fDetRegionNames.size())
         {
-	  LOG_INFO("GArG4")
+	  MF_LOG_INFO("GArG4")
             << "Step size vector has "
             << fMaxStepSize.size()
             << " elements != DetRegionName has "
@@ -303,7 +289,7 @@ namespace gar {
 
 	  G4Region* reg = G4RegionStore::GetInstance()->GetRegion(name);
 
-	  LOG_INFO("GArG4")
+	  MF_LOG_INFO("GArG4")
             << "Setting production cuts for region "
             << reg->GetName()
             << " production cut set to "
@@ -319,7 +305,7 @@ namespace gar {
 	  if(fMaxStepSize.size() != fDetRegionNames.size())
             limits->SetMaxAllowedStep(2.0*CLHEP::mm);
 	  else{
-	    LOG_INFO("GArG4")
+	    MF_LOG_INFO("GArG4")
 	      << "Setting user limits for region "
 	      << reg->GetName()
 	      << " max step length set to "
@@ -345,7 +331,7 @@ namespace gar {
 
       G4LogicalVolumeStore *store = G4LogicalVolumeStore::GetInstance();
       if(store == nullptr) {
-	LOG_INFO("GArG4")
+	MF_LOG_INFO("GArG4")
           << "G4LogicalVolumeStore::GetInstance() not available";
       }
 
@@ -375,12 +361,12 @@ namespace gar {
 
 
       // add UserAction for handling steps in gaseous argon
-      fEDepAction = new garg4::EnergyDepositAction(&(*fEngine),
+      fEDepAction = new garg4::EnergyDepositAction(&(fEngine),
                                                    fEDepActionPSet);
       uaManager->AddAndAdoptAction(fEDepAction);
 
       // add UserAction for handling steps in auxiliary detectors
-      fAuxDetAction = new garg4::AuxDetAction(&(*fEngine),
+      fAuxDetAction = new garg4::AuxDetAction(&(fEngine),
                                               fAuxDetActionPSet);
       uaManager->AddAndAdoptAction(fAuxDetAction);
 
@@ -454,7 +440,7 @@ namespace gar {
     //--------------------------------------------------------------------------
     void GArG4::produce(::art::Event& evt)
     {
-      LOG_DEBUG("GArG4") << "produce()";
+      MF_LOG_DEBUG("GArG4") << "produce()";
 
       // loop over the lists and put the particles and voxels into the event as collections
       std::unique_ptr< std::vector<simb::MCParticle> >                 partCol(new std::vector<simb::MCParticle>                );
@@ -504,7 +490,7 @@ namespace gar {
 
       // Has the user request a detailed dump of the output objects?
       if (fdumpParticleList){
-        LOG_INFO("GArG4")
+        MF_LOG_INFO("GArG4")
 	  << "Dump sim::ParticleList; size() = "
 	  << particleList.size()
 	  << "\n"
@@ -547,7 +533,7 @@ namespace gar {
 
       // Now for the sdp::EnergyDepositions
       for(auto const& tpc : fEDepAction->EnergyDeposits()){
-        LOG_DEBUG("GArG4")
+        MF_LOG_DEBUG("GArG4")
 	  << "adding TPC deposits for track id: "
 	  << tpc.TrackID();
 
@@ -557,7 +543,7 @@ namespace gar {
       // And finally the sdp::CaloDepositions
       for(auto const& hit : fAuxDetAction->CaloDeposits())
 	{
-	  LOG_DEBUG("GArG4")
+	  MF_LOG_DEBUG("GArG4")
 	    << "adding calo deposits for track id: "
 	    << hit.TrackID();
 
@@ -567,7 +553,7 @@ namespace gar {
       // And finally the sdp::CaloDepositions
       for(auto const& hit : fAuxDetAction->LArDeposits())
 	{
-	  LOG_DEBUG("GArG4")
+	  MF_LOG_DEBUG("GArG4")
 	    << "adding LAr deposits for track id: "
 	    << hit.TrackID();
 

@@ -7,7 +7,7 @@
 // Framework includes
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "nutools/ParticleNavigation/EmEveIdCalculator.h"
+#include "nug4/ParticleNavigation/EmEveIdCalculator.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 
 // GArSoft includes
@@ -78,7 +78,7 @@ namespace gar{
             auto part_it = fParticleList.find(id);
 
             if (part_it == fParticleList.end()) {
-                LOG_WARNING("BackTrackerCore::TrackIDToParticle")
+                MF_LOG_WARNING("BackTrackerCore::TrackIDToParticle")
                     << "can't find particle with track id " << id
                     << " in sim::ParticleList returning null pointer";
                     return nullptr;
@@ -305,7 +305,7 @@ namespace gar{
             std::vector<HitIDE> hitIDEs;
 
             if(fChannelToEDepCol.size() < channel){
-                LOG_WARNING("BackTrackerCore::ChannelToHitIDEs")
+                MF_LOG_WARNING("BackTrackerCore::ChannelToHitIDEs")
                     << "Attempting to find energy deposits for channel " << channel
                     << " while there are only " << fChannelToEDepCol.size()
                     << " channels available, returning an empty vector.";
@@ -315,7 +315,7 @@ namespace gar{
             auto chanEDeps = fChannelToEDepCol[channel];
 
             if(chanEDeps.size() < 1){
-                LOG_WARNING("BackTrackerCore::ChannelToHitIDEs")
+                MF_LOG_WARNING("BackTrackerCore::ChannelToHitIDEs")
                     << "No sdp::EnergyDeposits for selected channel: " << channel
                     << ". There is no way to backtrack the given hit, returning"
                     << " an empty vector.";
@@ -553,8 +553,8 @@ namespace gar{
             try {
                 cellEDeps = fCellIDToEDepCol.at(cell);
             }
-            catch (std::out_of_range) {
-                LOG_WARNING("BackTrackerCore::CellIDToCalIDEs")
+            catch (std::out_of_range &) {
+                MF_LOG_WARNING("BackTrackerCore::CellIDToCalIDEs")
                     << "No sdp::EnergyDeposits for selected ECAL cell: " << cell
                     << ". There is no way to backtrack the given calorimeter hit,"
                     << " returning an empty vector.";

@@ -37,7 +37,7 @@ void gar::sdp::IDE::operator+=(gar::sdp::IDE const& b)
 {
   if(fTrackID != b.TrackID() ||
      fTDC     != b.TDC()     ){
-    LOG_WARNING("SimChannel")
+    MF_LOG_WARNING("SimChannel")
     << "attempting to add IDEs with different trackIDs: "
     << fTrackID
     << "; "

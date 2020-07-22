@@ -98,7 +98,7 @@ namespace gar {
   
   //------------------------------------------------------------------------------
   evgen::TextFileGen::TextFileGen(fhicl::ParameterSet const & p)
-  : fInputFile(0)
+    : EDProducer{p}, fInputFile(0)
   {
     this->reconfigure(p);
     
@@ -229,7 +229,7 @@ namespace gar {
     fInputFileName = p.get<std::string>("InputFileName");
     fMoveY         = p.get<double>("MoveY", -1e9);
     if (fMoveY>-1e8){
-      LOG_WARNING("TextFileGen")
+      MF_LOG_WARNING("TextFileGen")
       << "Particles will be moved to a new plane y = "
       << fMoveY
       << " cm.";

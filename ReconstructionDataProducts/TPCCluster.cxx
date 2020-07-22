@@ -73,7 +73,7 @@ namespace gar {
       float totSig = fSignal + h.Signal();
       
       if(totSig == 0.){
-        LOG_WARNING("TPCCluster")
+        MF_LOG_WARNING("TPCCluster")
           << "attempting to add two TPCClusters and neithr has any signal, bail.";
         return;
       }

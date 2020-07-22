@@ -11,6 +11,11 @@ include_directories("$ENV{PYTHIA_INC}")
 cet_find_library(libxml2 NAMES libxml2 xml2 PATHS $ENV{LIBXML2_FQ_DIR} PATH_SUFFIXES lib lib64 NO_DEFAULT_PATH)
 include_directories("$ENV{LIBXML2_INC}")
 
+set(GSLLIBS
+$ENV{GSL_FQ_DIR}/lib/libgsl.so
+$ENV{GSL_FQ_DIR}/lib/libgslcblas.so
+)
+
 cet_make_exec(gntpc_dune
   SOURCE
     main/gNtpConvDUNE.cxx
@@ -25,6 +30,7 @@ cet_make_exec(gntpc_dune
     ${log4cpp}
     ${pythia6}
     ${libxml2}
+    ${GSLLIBS}
 )
 
 install_source()

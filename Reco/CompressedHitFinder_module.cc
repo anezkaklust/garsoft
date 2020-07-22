@@ -18,7 +18,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Persistency/Common/PtrMaker.h"
-#include "art/Framework/Services/Optional/TFileService.h"
+#include "art_root_io/TFileService.h"
 
 #include "RawDataProducts/RawDigit.h"
 #include "RawDataProducts/raw.h"
@@ -74,7 +74,7 @@ namespace gar {
 
 
     CompressedHitFinder::CompressedHitFinder(fhicl::ParameterSet const & p)
-    // :
+    : EDProducer{p} 
     {
       fADCThreshold     = p.get<int>("ADCThreshold",5);
       fTicksBefore      = p.get<int>("TicksBefore",5);
@@ -127,7 +127,7 @@ namespace gar {
             }
           else
             {
-              LOG_WARNING("CompressedHitFinder") << " Ununderstood compression mode: " << rd.Compression() << " Not making hits.";
+              MF_LOG_WARNING("CompressedHitFinder") << " Ununderstood compression mode: " << rd.Compression() << " Not making hits.";
               e.put(std::move(hitCol));
               e.put(std::move(hitDigAssns));
               return;
@@ -136,7 +136,7 @@ namespace gar {
           // block start locations
           if (adc.size() < 2)
             {
-              //LOG_WARNING("CompressedHitFinder") << " adc vector size < 2, skipping channel";
+              //MF_LOG_WARNING("CompressedHitFinder") << " adc vector size < 2, skipping channel";
               continue;
             }
 
@@ -251,7 +251,7 @@ namespace gar {
 
                       if (hitSig < 0)
                         {
-                          LOG_WARNING("CompressedHitFinder") << "Negative Signal in hit finder" << std::endl;
+                          MF_LOG_WARNING("CompressedHitFinder") << "Negative Signal in hit finder" << std::endl;
                         }
                       if (hitSig>0)
                         {

@@ -9,13 +9,14 @@ art_make( MODULE_LIBRARIES SimulationDataProducts
                            SummaryDataProducts
                            Geometry
                            Geometry_Geometry_service
-                           nutools_EventGeneratorBase_GENIE
-                           nutools_RandomUtils_NuRandomService_service
+                           nugen_EventGeneratorBase_GENIE
+                           nurandom_RandomUtils_NuRandomService_service
                            ${ART_FRAMEWORK_CORE}
                            ${ART_FRAMEWORK_PRINCIPAL}
                            ${ART_FRAMEWORK_SERVICES_REGISTRY}
                            ${ART_FRAMEWORK_SERVICES_OPTIONAL}
-                           ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+                           ${ART_ROOT_IO_TFILESERVICE_SERVICE}
+                           ${ART_ROOT_IO_TFILE_SUPPORT}
                            ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
                            art_Persistency_Common
                            art_Persistency_Provenance

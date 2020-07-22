@@ -61,7 +61,7 @@ namespace gar {
       
       fNumIonElectrons = fGeVToElectrons * fEnergyDeposit;
       
-      LOG_DEBUG("ISCalculationSeparate")
+      MF_LOG_DEBUG("ISCalculationSeparate")
       << " Electrons produced for " << fEnergyDeposit * 1.e3
       << " MeV deposited: "       << fNumIonElectrons;
       

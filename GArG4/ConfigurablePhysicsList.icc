@@ -44,7 +44,7 @@ namespace garg4 {
   template<class T> TConfigurablePhysicsList<T>::TConfigurablePhysicsList(G4int ver):  T()
   {
 		
-   LOG_WARNING("ConfigurablePhysics") <<"Setting up Configurable Physics List";
+   MF_LOG_WARNING("ConfigurablePhysics") <<"Setting up Configurable Physics List";
 	
    // note - not sure exact purpose of these commands, but left in from QGSP_BERT list
 	
@@ -59,18 +59,18 @@ namespace garg4 {
 	
    if(EnabledPhysics.size() > 0){		
 	
-     LOG_WARNING("ConfigurablePhysics") 
+     MF_LOG_WARNING("ConfigurablePhysics") 
      <<"Custom physics list enabled.  Loading from config";
 	
      for(auto const& it : EnabledPhysics)	
-        LOG_WARNING("ConfigurablePhysics")
+        MF_LOG_WARNING("ConfigurablePhysics")
         << "Configurable Physics List enabling : "
         << it;
 	
    }
    else{
 	
-     LOG_WARNING("ConfigurablePhysics") 
+     MF_LOG_WARNING("ConfigurablePhysics") 
      << "Custom physics list disabled - using"
      << " default QGSP_BERT configuration";
 	
@@ -84,14 +84,14 @@ namespace garg4 {
 	
     if(TheCustomPhysicsTable->IsPhysicsAvailable(PhysicsName)){
 	
-      LOG_WARNING("ConfigurablePhysics") <<"ConfigurablePhysicsList Registering physics : " 
+      MF_LOG_WARNING("ConfigurablePhysics") <<"ConfigurablePhysicsList Registering physics : " 
                                          << PhysicsName;
 	
       G4VPhysicsConstructor* g4v = TheCustomPhysicsTable->GetPhysicsConstructor(PhysicsName);	
 	
       if (!PhysicsName.compare("SynchrotronAndGN")){
 	
-        LOG_WARNING("ConfigurablePhysics") <<"ConfigurablePhysicsList : " 
+        MF_LOG_WARNING("ConfigurablePhysics") <<"ConfigurablePhysicsList : " 
                                            << PhysicsName 
 	                                   << ": Turning on GammaNuclear, Synchrotron.";
 	
@@ -107,7 +107,7 @@ namespace garg4 {
    }
    else{
 
-      LOG_WARNING("ConfigurablePhysics") <<"ConfigurablePhysicsList Error : "
+      MF_LOG_WARNING("ConfigurablePhysics") <<"ConfigurablePhysicsList Error : "
                                         << "Physics Module Unavailable - " << PhysicsName;
 	
    }

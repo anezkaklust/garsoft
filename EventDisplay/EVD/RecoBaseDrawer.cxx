@@ -19,9 +19,9 @@
 #include "TText.h"
 #include "TColor.h"
 
-#include "nutools/EventDisplayBase/View2D.h"
-#include "nutools/EventDisplayBase/View3D.h"
-#include "nutools/EventDisplayBase/EventHolder.h"
+#include "nuevdb/EventDisplayBase/View2D.h"
+#include "nuevdb/EventDisplayBase/View3D.h"
+#include "nuevdb/EventDisplayBase/EventHolder.h"
 #include "EventDisplay/EVD/eventdisplay.h"
 #include "EventDisplay/EVD/RecoBaseDrawer.h"
 #include "EventDisplay/EVD/RecoDrawingOptions.h"

@@ -159,7 +159,7 @@ namespace gar {
                 }
 
 
-                LOG_DEBUG("ChannelMapStandardAlg")
+                MF_LOG_DEBUG("ChannelMapStandardAlg")
                 << "There are "
                 << fPixelCenters.size()
                 << " pixels and each sector has "

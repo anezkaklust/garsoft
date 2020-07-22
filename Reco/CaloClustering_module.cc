@@ -69,7 +69,7 @@ namespace gar {
         };
 
 
-        CaloClustering::CaloClustering(fhicl::ParameterSet const & p)
+        CaloClustering::CaloClustering(fhicl::ParameterSet const & p) : EDProducer{p} 
         {
             fTrackLabel = p.get<std::string>("TrackLabel", "track");
             fCaloHitLabel = p.get<std::string>("CaloHitLabel", "calohit");
@@ -117,13 +117,13 @@ namespace gar {
 
             art::PtrMaker<gar::rec::Cluster> makeClusterPtr(e);
 
-            LOG_DEBUG("CaloClustering_module")
+            MF_LOG_DEBUG("CaloClustering_module")
             << "Found " << ClusterVec.size() << " Clusters";
 
             //Copy the clusters to the collection
             for(auto const &it : ClusterVec)
             {
-                LOG_DEBUG("CaloClustering_module")
+                MF_LOG_DEBUG("CaloClustering_module")
                 << "Cluster has " << it->CalorimeterHits().size() << " calo hits";
 
                 ClusterCol->emplace_back(*it);

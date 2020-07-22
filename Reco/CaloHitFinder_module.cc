@@ -79,7 +79,7 @@ namespace gar {
         };
 
 
-        CaloHitFinder::CaloHitFinder(fhicl::ParameterSet const & p)
+        CaloHitFinder::CaloHitFinder(fhicl::ParameterSet const & p) : EDProducer{p} 
         // :
         {
             fMIPThreshold = p.get<float>("MIPThreshold", 0.25);
@@ -127,7 +127,7 @@ namespace gar {
 
                 if(hitMIP < fMIPThreshold)
                 {
-                    LOG_DEBUG("CaloHitFinder") << "Signal under the " << fMIPThreshold << " MIP threshold" << std::endl;
+                    MF_LOG_DEBUG("CaloHitFinder") << "Signal under the " << fMIPThreshold << " MIP threshold" << std::endl;
                     continue;
                 }
 
@@ -179,7 +179,7 @@ namespace gar {
                 rec::CaloHit hit(factorSamplingGeV * energy * CLHEP::MeV / CLHEP::GeV, time, pos, cellID, layer);
                 hitCol->emplace_back(hit);
 
-                LOG_DEBUG("CaloHitFinder") << "recohit " << &hit
+                MF_LOG_DEBUG("CaloHitFinder") << "recohit " << &hit
                 << " with cellID " << cellID
                 << " has energy " << factorSamplingGeV * energy * CLHEP::MeV / CLHEP::GeV
                 << " pos (" << pos[0] << ", " <<  pos[1] << ", " << pos[2] << ")";

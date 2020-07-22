@@ -162,7 +162,7 @@ namespace gar {
                     }
                     else {
                         //exception
-                        LOG_ERROR("MinervaSegmentationAlg") << "Cannot determine if localX > | < 0";
+                        MF_LOG_ERROR("MinervaSegmentationAlg") << "Cannot determine if localX > | < 0";
                         return 0;
                     }
                 } //end if z < 0
@@ -228,7 +228,7 @@ namespace gar {
                     }
                     else {
                         //exception
-                        LOG_ERROR("MinervaSegmentationAlg") << "Cannot determine if localX > | < 0";
+                        MF_LOG_ERROR("MinervaSegmentationAlg") << "Cannot determine if localX > | < 0";
                         return 0;
                     }
                 } //end if z >= 0

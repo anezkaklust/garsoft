@@ -36,15 +36,16 @@ set(G4LIBS ${G4FR}
            ${G4ZLIB}
     )
 
-art_make(LIB_LIBRARIES      nutools_ParticleNavigation
-                            nutools_G4Base
+art_make(LIB_LIBRARIES      nug4_ParticleNavigation
+                            nug4_G4Base
                             nusimdata_SimulationBase
                             Geometry
                             SimulationDataProducts
                             ${ART_FRAMEWORK_PRINCIPAL}
                             ${ART_FRAMEWORK_SERVICES_REGISTRY}
                             ${ART_FRAMEWORK_SERVICES_OPTIONAL}
-                            ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+                            ${ART_ROOT_IO_TFILE_SUPPORT}
+                            ${ART_ROOT_IO_TFILESERVICE_SERVICE}
                             ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
                             art_Persistency_Common
                             art_Persistency_Provenance
@@ -70,9 +71,9 @@ art_make(LIB_LIBRARIES      nutools_ParticleNavigation
                             SimulationDataProducts
                             MCCheater_BackTracker_service
                             nusimdata_SimulationBase
-                            nutools_G4Base
-                            nutools_ParticleNavigation
-                            nutools_RandomUtils_NuRandomService_service
+                            nug4_G4Base
+                            nug4_ParticleNavigation
+                            nurandom_RandomUtils_NuRandomService_service
                             ${ART_FRAMEWORK_CORE}
                             ${ART_FRAMEWORK_IO_SOURCES}
                             ${ART_FRAMEWORK_PRINCIPAL}
@@ -82,7 +83,7 @@ art_make(LIB_LIBRARIES      nutools_ParticleNavigation
                             canvas
                             ${ART_FRAMEWORK_SERVICES_REGISTRY}
                             ${ART_FRAMEWORK_SERVICES_OPTIONAL}
-                            ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+                            ${ART_ROOT_IO_TFILESERVICE_SERVICE}
                             ${MF_MESSAGELOGGER}
                             ${FHICLCPP}
                             ${CETLIB}

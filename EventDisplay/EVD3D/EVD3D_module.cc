@@ -59,7 +59,7 @@
 #include "TEvePathMark.h"
 #include "TTimeStamp.h"
 
-#include "nutools/EventDisplayBase/NavState.h"
+#include "nuevdb/EventDisplayBase/NavState.h"
 #include "Geometry/Geometry.h"
 #include "Geometry/BitFieldCoder.h"
 
@@ -1474,7 +1474,7 @@ namespace gar{
                 sprintf(timebuff, "%.2u:%.2u:%2.9f\n", hour, minute, (float)second+(float)nano/1.0E9);
 
                 //Final char
-                char annotation[256];
+                char annotation[2560];
                 sprintf(annotation, "DUNE ND HPgTPC\n%s%s%s%s", runbuff, eventbuff, datebuff, timebuff);
                 ann->SetText(annotation);
                 ann->SetRole(TGLOverlayElement::kViewer);

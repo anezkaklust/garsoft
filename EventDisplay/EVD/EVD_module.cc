@@ -22,7 +22,7 @@ extern "C" {
 }
 
 //GArSoft includes
-#include "nutools/EventDisplayBase/DisplayWindow.h"
+#include "nuevdb/EventDisplayBase/DisplayWindow.h"
 #include "EventDisplay/EVD/Display3DView.h"
 #include "EventDisplay/EVD/CalorView.h"
 
@@ -31,8 +31,8 @@ extern "C" {
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art_root_io/TFileService.h"
+#include "art_root_io/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 /// The Event Display

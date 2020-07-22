@@ -21,7 +21,7 @@
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "canvas/Persistency/Common/FindOneP.h"
 
-#include "nutools/ParticleNavigation/EmEveIdCalculator.h"
+#include "nug4/ParticleNavigation/EmEveIdCalculator.h"
 
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "DetectorInfo/GArPropertiesService.h"
@@ -81,7 +81,7 @@ namespace gar {
           if (partCol.failedToGet()) {
             ++fSTFU;
             if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
-              LOG_WARNING("BackTracker_service::RebuildNoSC")
+              MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
                 << "failed to get handle to simb::MCParticle from " << fG4ModuleLabel
                 << ", return";
             }
@@ -93,7 +93,7 @@ namespace gar {
           if( !fo.isValid() ){
             ++fSTFU;
             if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
-              LOG_WARNING("BackTracker_service::RebuildNoSC")
+              MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
                 << "failed to associate MCTruth to MCParticle with " << fG4ModuleLabel
                 << "; all attempts to backtrack will fail\n";
             }
@@ -126,7 +126,7 @@ namespace gar {
               catch (cet::exception &ex) {
                 ++fSTFU;
                 if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
-                  LOG_WARNING("BackTracker_service::RebuildNoSC")
+                  MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
                     << "unable to find MCTruth from ParticleList created in "
                     << fG4ModuleLabel
                     << "; all attempts to backtrack will fail\n"
@@ -172,7 +172,7 @@ namespace gar {
       if (!digCol.isValid()) {
         ++fSTFU;
         if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
-          LOG_WARNING("BackTracker_service::RebuildNoSC")
+          MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
             << "Unable to find RawDigits in " << fRawTPCDataLabel <<
             "; no backtracking in TPC will be possible";
         }
@@ -182,7 +182,7 @@ namespace gar {
         if (!fmEnergyDep.isValid()) {
           ++fSTFU;
           if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
-            LOG_WARNING("BackTracker_service::RebuildNoSC")
+            MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
               << "Unable to find valid association between RawDigits and "
               << "energy deposits in " << fRawTPCDataLabel <<
               "; no backtracking in TPC will be possible";
@@ -192,7 +192,7 @@ namespace gar {
           fChannelToEDepCol.resize(fGeo->NChannels());
           ++fSTFU;
           if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
-            LOG_DEBUG("BackTracker_service::RebuildNoSC")
+            MF_LOG_DEBUG("BackTracker_service::RebuildNoSC")
               << "There are " << fChannelToEDepCol.size()
               << " channels in the geometry";
           }
@@ -220,7 +220,7 @@ namespace gar {
       if (!caloDigCol.isValid()) {
         ++fSTFU;
         if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
-          LOG_WARNING("BackTracker_service::RebuildNoSC")
+          MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
             << "Unable to find CaloRawDigits in " << fRawCaloDataLabel <<
             "; no backtracking in ECAL will be possible";
         }            
@@ -230,7 +230,7 @@ namespace gar {
         if (!fmCaloDep.isValid()) {
           ++fSTFU;
           if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
-            LOG_WARNING("BackTracker_service::RebuildNoSC")
+            MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
               << "Unable to find valid association between CaloRawDigits and "
               << "calorimeter energy deposits in " << fRawCaloDataLabel <<
               "; no backtracking in ECAL will be possible";
@@ -259,7 +259,7 @@ namespace gar {
       if (!recoTrackCol.isValid()) {
         ++fSTFU;
         if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
-          LOG_WARNING("BackTracker_service::RebuildNoSC")
+          MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
             << "Unable to find rec::Tracks in " << fTrackLabel <<
             "; no backtracking of reconstructed tracks will be possible";
         }        
@@ -269,7 +269,7 @@ namespace gar {
         if (!fmTPCClusts.isValid()) {
           ++fSTFU;
           if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
-            LOG_WARNING("BackTracker_service::RebuildNoSC")
+            MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
               << "Unable to find valid association between Tracks and "
               << "TPCClusters in " << fTrackLabel <<
               "; no backtracking of reconstructed tracks will be possible";
@@ -293,7 +293,7 @@ namespace gar {
       if (!tpclusCol.isValid()) {
         ++fSTFU;
         if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
-          LOG_WARNING("BackTracker_service::RebuildNoSC")
+          MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
             << "Unable to find rec::TPCClusters in " << fTPCClusterLabel <<
             "; no backtracking of reconstructed tracks will be possible";
         }
@@ -303,7 +303,7 @@ namespace gar {
         if (!fmHits.isValid()) {
           ++fSTFU;
           if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
-            LOG_WARNING("BackTracker_service::RebuildNoSC")
+            MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
               << "Unable to find valid association between TPCClusters and "
               << "Hits in " << fTPCClusterLabel <<
               "; no backtracking of reconstructed tracks will be possible";
@@ -348,7 +348,7 @@ namespace gar {
       if (!recoClusterCol.isValid()) {
         ++fSTFU;
         if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
-          LOG_WARNING("BackTracker_service::RebuildNoSC")
+          MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
             << "Unable to find rec::Clusters in " << fClusterLabel <<
             "; no backtracking of reconstructed ECAL clusters will be possible";
         }
@@ -358,7 +358,7 @@ namespace gar {
         if (!fmCaloHits.isValid()) {
           ++fSTFU;
           if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
-            LOG_WARNING("BackTracker_service::RebuildNoSC")
+            MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
               << "Unable to find valid association between Clusters and "
               << "CaloHits in " << fTrackLabel <<
               "; no backtracking of reconstructed tracks will be possible";

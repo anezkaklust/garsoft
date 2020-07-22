@@ -64,7 +64,7 @@ namespace gar {
 
       fTPCClock = fClocks->TPCClock();
 
-      LOG_WARNING("DetectorPropertiesStandard")
+      MF_LOG_WARNING("DetectorPropertiesStandard")
       << "DetectorPropertiesStandard Warning!"
       << "\t The following functions need to be verified for gaseous argon:"
       << "\t\t BirksCorrection"
@@ -303,7 +303,7 @@ namespace gar {
 
       //
       //if(efield > 4.0)
-      //  LOG_WARNING("DetectorPropertiesStandard")
+      //  MF_LOG_WARNING("DetectorPropertiesStandard")
       //  << "DriftVelocity Warning! : E-field value of "
       //  << efield
       //  << " kV/cm is outside of range covered by drift"

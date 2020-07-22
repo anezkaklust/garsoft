@@ -11,7 +11,7 @@
 #include "TVector3.h"
 #include "TLatex.h"
 
-#include "nutools/EventDisplayBase/View2D.h"
+#include "nuevdb/EventDisplayBase/View2D.h"
 #include "EventDisplay/EVD/eventdisplay.h"
 #include "EventDisplay/EVD/Style.h"
 #include "EventDisplay/EVD/AnalysisBaseDrawer.h"

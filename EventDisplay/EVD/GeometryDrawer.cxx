@@ -10,8 +10,8 @@
 #include "TMath.h"
 
 #include "Geometry/Geometry.h"
-#include "nutools/EventDisplayBase/View2D.h"
-#include "nutools/EventDisplayBase/View3D.h"
+#include "nuevdb/EventDisplayBase/View2D.h"
+#include "nuevdb/EventDisplayBase/View3D.h"
 #include "EventDisplay/EVD/GeometryDrawer.h"
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"

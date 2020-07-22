@@ -25,8 +25,8 @@
 #include "TVector3.h"
 
 #include "Geant4/G4ThreeVector.hh"
-#include "nutools/MagneticField/MagneticField.h"
-#include "nutools/RandomUtils/NuRandomService.h"
+#include "nug4/MagneticField/MagneticField.h"
+#include "nurandom/RandomUtils/NuRandomService.h"
 #include "CLHEP/Random/RandGauss.h"
 
 // GArSoft Includes
@@ -73,7 +73,7 @@ private:
   float       fZCut2;          ///< Cut to ensure TPC clusters are on the same plane
   float       fRCut;           ///< Road in the YZ plane to add hits on a circle
 
-  cet::exempt_ptr<CLHEP::HepRandomEngine> fEngine;  //< random engine
+  CLHEP::HepRandomEngine &fEngine;  //< random engine
 
   const gar::geo::GeometryCore* fGeo;               ///< geometry information
   gar::geo::BitFieldCoder *fFieldDecoderTrk;
@@ -85,7 +85,9 @@ private:
 
 
 dayoneconverter::dayoneconverter(fhicl::ParameterSet const& p)
-  : EDProducer{p}  // ,
+  : EDProducer{p} 
+  , fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,p,"Seed"))
+
 // More initializers here.
 {
   // Call appropriate produces<>() functions here.
@@ -109,15 +111,6 @@ dayoneconverter::dayoneconverter(fhicl::ParameterSet const& p)
   produces<std::vector<gar::rec::Track> >();
   produces<std::vector<gar::rec::TPCCluster> >();
   produces< art::Assns<gar::rec::TPCCluster, gar::rec::Track> >();
-
-  // setup the random number service
-  // obtain the random seed from NuRandomService
-  ::art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, "HepJamesRandom", "dayoneconverter", p, "RandomSeed");
-
-  ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
-  auto& engine = rng->getEngine(art::ScheduleID::first(),
-                                p.get<std::string>("module_label"),"dayoneconverter");
-  fEngine = cet::make_exempt_ptr(&engine);
 
   fGeo = gar::providerFrom<gar::geo::Geometry>();
   std::string fEncoding = fGeo->GetMinervaCellIDEncoding();
@@ -146,7 +139,7 @@ void dayoneconverter::produce(art::Event& e)
   G4ThreeVector zerovec(0,0,0);
   G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 
-  CLHEP::RandGauss GaussRand(*fEngine);
+  CLHEP::RandGauss GaussRand(fEngine);
 
   // first stab, just make all the TPC clusters in the event, and then worry later
   // about pattern recognition

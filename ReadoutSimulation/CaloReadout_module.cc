@@ -27,7 +27,7 @@
 #include "art/Persistency/Common/PtrMaker.h"
 
 // nutools extensions
-#include "nutools/RandomUtils/NuRandomService.h"
+#include "nurandom/RandomUtils/NuRandomService.h"
 
 // GArSoft Includes
 #include "DetectorInfo/DetectorClocksService.h"
@@ -96,7 +96,7 @@ namespace gar {
 
             // setup the random number service
             // obtain the random seed from NuRandomService
-            ::art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, "HepJamesRandom", "sipm", pset, "SiPMSeed");
+            //::art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, "HepJamesRandom", "sipm", pset, "SiPMSeed");
 
             this->reconfigure(pset);
 
@@ -116,8 +116,8 @@ namespace gar {
         //----------------------------------------------------------------------
         void CaloReadout::reconfigure(fhicl::ParameterSet const& pset)
         {
-            LOG_DEBUG("CaloReadout") << "Debug: CaloReadout()";
-            ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
+            MF_LOG_DEBUG("CaloReadout") << "Debug: CaloReadout()";
+            //::art::ServiceHandle<::art::RandomNumberGenerator> rng;
 
             fG4Label = pset.get<std::string >("G4ModuleLabel", "geant");
 
@@ -125,7 +125,8 @@ namespace gar {
             auto ECALROAlgName = ECALROAlgPars.get<std::string>("ECALReadoutSimType");
 
             if(ECALROAlgName.compare("Standard") == 0)
-            fROSimAlg = std::make_unique<gar::rosim::ECALReadoutSimStandardAlg>(rng->getEngine(art::ScheduleID::first(), pset.get<std::string>("module_label"), "sipm"), ECALROAlgPars);
+	      // fROSimAlg = std::make_unique<gar::rosim::ECALReadoutSimStandardAlg>(rng->getEngine(art::ScheduleID::first(), pset.get<std::string>("module_label"), "sipm"), ECALROAlgPars);
+	      fROSimAlg = std::make_unique<gar::rosim::ECALReadoutSimStandardAlg>(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, ECALROAlgPars, "sipm"), ECALROAlgPars );
             else
             throw cet::exception("CaloReadout")
             << "Unable to determine which ECAL readout simulation algorithm to use, bail";
@@ -136,7 +137,7 @@ namespace gar {
         //--------------------------------------------------------------------------
         void CaloReadout::produce(::art::Event& evt)
         {
-            LOG_DEBUG("CaloReadout") << "produce()";
+            MF_LOG_DEBUG("CaloReadout") << "produce()";
 
             //Collect the hits to be passed to the algo
             std::vector< art::Ptr<sdp::CaloDeposit> > artHits;

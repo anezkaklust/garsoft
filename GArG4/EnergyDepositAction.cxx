@@ -82,7 +82,7 @@ namespace gar {
       // With every step, handle energy deposition in gaseous argon
       void EnergyDepositAction::SteppingAction(const G4Step* step)
       {
-        LOG_DEBUG("EnergyDepositAction")
+        MF_LOG_DEBUG("EnergyDepositAction")
         << "EnergyDepositAction::SteppingAction";
 
         art::ServiceHandle<geo::Geometry> geo;
@@ -109,7 +109,7 @@ namespace gar {
         TGeoNode *node = geomanager->FindNode(pos.x()/CLHEP::cm, pos.y()/CLHEP::cm, pos.z()/CLHEP::cm);//Node in cm
 
         if(!node){
-          LOG_DEBUG("EnergyDepositAction")
+          MF_LOG_DEBUG("EnergyDepositAction")
           << "Node not found in "
           << pos.x() << " mm "
           << pos.y() << " mm "
@@ -123,7 +123,7 @@ namespace gar {
         // only worry about energy depositions larger than the minimum required
         if(step->GetTotalEnergyDeposit() * CLHEP::MeV / CLHEP::GeV > fEnergyCut ){
 
-          LOG_DEBUG("EnergyDepositAction")
+          MF_LOG_DEBUG("EnergyDepositAction")
           << "In volume "
           << VolumeName
           << " step size is "
@@ -150,13 +150,13 @@ namespace gar {
         // first check that we are not dealing with ionization, ie delta rays
         // if we have one of those, set the trackID to be the ID of the parent
         //if(trackID < 0)
-        //  LOG_VERBATIM("EnergyDepositAction")
+        //  MF_LOG_VERBATIM("EnergyDepositAction")
         //  << "TrackID "
         //  << trackID
         //  << " was created by process "
         //  << step->GetTrack()->GetCreatorProcess()->GetProcessName();
         //else
-        //  LOG_VERBATIM("EnergyDepositAction")
+        //  MF_LOG_VERBATIM("EnergyDepositAction")
         //  << "TrackID "
         //  << trackID
         //  << " is a primary particle ";

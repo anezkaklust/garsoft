@@ -9,7 +9,7 @@
 //
 
 #include "ReconstructionDataProducts/Track.h"
-#include "nutools/MagneticField/MagneticField.h"
+#include "nug4/MagneticField/MagneticField.h"
 #include "TMath.h"
 
 namespace gar {

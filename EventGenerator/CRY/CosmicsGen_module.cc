@@ -23,8 +23,8 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art_root_io/TFileService.h"
+#include "art_root_io/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 
@@ -32,7 +32,7 @@
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "nutools/EventGeneratorBase/evgenbase.h"
 #include "nutools/EventGeneratorBase/CRY/CRYHelper.h"
-#include "nutools/RandomUtils/NuRandomService.h"
+#include "nurandom/RandomUtils/NuRandomService.h"
 
 // garsoft includes
 #include "Geometry/Geometry.h"
@@ -125,15 +125,7 @@ namespace gar{
         fCRYHelp = 0;
       }
 
-    art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this);
-    art::ServiceHandle<art::RandomNumberGenerator> rng;
-    auto& engine = rng->getEngine(art::ScheduleID::first(),
-                                  p.get<std::string>("module_label"));
-    if (fSeed != 0) {
-      engine.setSeed(fSeed, 0 /* dummy? */);
-    }
-
-
+      CLHEP::HepRandomEngine &engine = art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,p,"Seed");
 
       auto geo = gar::providerFrom<gar::geo::Geometry>();
 

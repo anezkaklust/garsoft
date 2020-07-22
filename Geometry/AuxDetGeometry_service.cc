@@ -65,7 +65,7 @@ namespace gar {
       std::vector< art::Handle<sumdata::RunData> > rdcol;
       run.getManyByType(rdcol);
       if (rdcol.empty()) {
-        LOG_WARNING("LoadNewGeometry")
+        MF_LOG_WARNING("LoadNewGeometry")
         << "cannot find sumdata::RunData object to grab detector name\n"
         << "this is expected if generating MC files\n"
         << "using default geometry from configuration file\n";

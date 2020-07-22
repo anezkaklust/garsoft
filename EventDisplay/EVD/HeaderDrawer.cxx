@@ -5,10 +5,10 @@
 /// \version $Id: HeaderDrawer.cxx,v 1.2 2010/11/11 18:11:22 p-novaart Exp $
 ///
 #include "EventDisplay/EVD/HeaderDrawer.h"
-#include "nutools/EventDisplayBase/Colors.h"
-#include "nutools/EventDisplayBase/View2D.h"
-#include "nutools/EventDisplayBase/View3D.h"
-#include "nutools/EventDisplayBase/EventHolder.h"
+#include "nuevdb/EventDisplayBase/Colors.h"
+#include "nuevdb/EventDisplayBase/View2D.h"
+#include "nuevdb/EventDisplayBase/View3D.h"
+#include "nuevdb/EventDisplayBase/EventHolder.h"
 
 #include "TText.h"
 #include "TTimeStamp.h"

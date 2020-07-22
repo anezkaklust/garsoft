@@ -48,7 +48,7 @@ namespace gar {
     {
       // only add hits on the same channel
       if(fChannel != h.Channel()){
-        LOG_WARNING("Hit")
+        MF_LOG_WARNING("Hit")
         << "attempting to add hits from different channels, that will not work";
         return;
       }
@@ -58,7 +58,7 @@ namespace gar {
       float totSig = fSignal + h.Signal();
       
       if(totSig == 0.){
-        LOG_WARNING("Hit")
+        MF_LOG_WARNING("Hit")
         << "attempting to add two hits and neithr has any signal, bail.";
         return;
       }

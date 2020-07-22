@@ -26,8 +26,8 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art_root_io/TFileService.h"
+#include "art_root_io/TFileDirectory.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -38,8 +38,8 @@
 // nutools includes
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
-#include "nutools/EventGeneratorBase/evgenbase.h"
-#include "nutools/RandomUtils/NuRandomService.h"
+#include "nugen/EventGeneratorBase/evgenbase.h"
+#include "nurandom/RandomUtils/NuRandomService.h"
 
 // gar includes
 #include "Geometry/Geometry.h"
@@ -108,23 +108,17 @@ namespace gar{
       std::vector<double> fSigmaThetaYZ;   ///< Variation in angle in YZ plane
       int                 fAngleDist;      ///< How to distribute angles (gaus, uniform)
 
-      cet::exempt_ptr<CLHEP::HepRandomEngine> fEngine; // FIXME: This should be a reference.
-      rndm::NuRandomService::seed_t fSeed;  ///< override seed with a fcl parameter not equal to zero
+      CLHEP::HepRandomEngine &fEngine; 
 
     };
 
     //____________________________________________________________________________
     SingleGen::SingleGen(fhicl::ParameterSet const& pset) :
-    art::EDProducer{pset}
+      art::EDProducer{pset},
+      fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,pset,"Seed"))
     {
 
       this->reconfigure(pset);
-
-      // create a default random engine; obtain the random seed
-      // unless overridden in configuration with key "Seed"
-      //int seed = pset.get< unsigned int >("Seed", evgb::GetRandomNumberSeed());
-
-      //createEngine( seed );
 
       produces< std::vector<simb::MCTruth> >();
       produces< sumdata::RunData, ::art::InRun >();
@@ -139,8 +133,6 @@ namespace gar{
     //____________________________________________________________________________
     void SingleGen::reconfigure(fhicl::ParameterSet const& p)
     {
-      // do not put seed in reconfigure because we don't want to reset
-      // the seed midstream
 
       fPadOutVectors = p.get< bool                >("PadOutVectors");
       fMode          = p.get< int                 >("ParticleSelectionMode");
@@ -163,7 +155,6 @@ namespace gar{
       fSigmaThetaXZ  = p.get< std::vector<double> >("SigmaThetaXZ");
       fSigmaThetaYZ  = p.get< std::vector<double> >("SigmaThetaYZ");
       fAngleDist     = p.get< int                 >("AngleDist");
-      fSeed          = p.get< rndm::NuRandomService::seed_t >("Seed",0);
 
       std::vector<std::string> vlist(15);
       vlist[0]  = "PDG";
@@ -200,8 +191,6 @@ namespace gar{
       if( !this->PadVector(fT0          ) ) list.append(vlist[13].append(", \n"));
       if( !this->PadVector(fSigmaT      ) ) list.append(vlist[14].append(", \n"));
 
-
-
       if(list.size() > 0)
         throw cet::exception("SingleGen") << "The "<< list
         << "\n vector(s) defined in the fhicl files has/have "
@@ -211,17 +200,6 @@ namespace gar{
         << " and/or you have set fPadOutVectors to false. \n";
 
       if(fPDG.size() > 1 && fPadOutVectors) this->printVecs(vlist);
-
-    // create a default random engine; obtain the random seed from NuRandomService,
-    // unless overridden in configuration with key "Seed"
-    art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this);
-    art::ServiceHandle<art::RandomNumberGenerator> rng;
-    auto& engine = rng->getEngine(art::ScheduleID::first(),
-                                  p.get<std::string>("module_label"));
-    fEngine = cet::make_exempt_ptr(&engine);
-    if (fSeed != 0) {
-      fEngine->setSeed(fSeed, 0 /* dummy? */);
-    }
 
       return;
     }
@@ -278,7 +256,7 @@ namespace gar{
       truth.SetOrigin(simb::kSingleParticle);
       Sample(truth);
 
-      LOG_DEBUG("SingleGen") << truth;
+      MF_LOG_DEBUG("SingleGen") << truth;
 
       truthcol->push_back(truth);
 
@@ -294,8 +272,8 @@ namespace gar{
                               simb::MCTruth & mct){
 
       // get the random number generator service and make some CLHEP generators
-      CLHEP::RandFlat   flat(*fEngine);
-      CLHEP::RandGaussQ gauss(*fEngine);
+      CLHEP::RandFlat   flat(fEngine);
+      CLHEP::RandGaussQ gauss(fEngine);
 
         // Choose momentum
       double p = 0.0;
@@ -396,14 +374,14 @@ namespace gar{
         case 1: // Random selection mode: every event will exactly one particle
                 // selected randomly from the fPDG array
         {
-          CLHEP::RandFlat flat(*fEngine);
+          CLHEP::RandFlat flat(fEngine);
 
           unsigned int i=flat.fireInt(fPDG.size());
           SampleOne(i,mct);
         }
           break;
         default:
-          LOG_WARNING("UnrecognizeOption")
+          MF_LOG_WARNING("UnrecognizeOption")
           << "SingleGen does not recognize ParticleSelectionMode "
           << fMode;
           break;
@@ -416,7 +394,7 @@ namespace gar{
     void SingleGen::printVecs(std::vector<std::string> const& list)
     {
 
-      LOG_INFO("SingleGen")
+      MF_LOG_INFO("SingleGen")
       << " You are using vector values for SingleGen configuration.\n   "
       << " Some of the configuration vectors may have been padded out ,"
       << " because they (weren't) as long as the pdg vector"
@@ -456,7 +434,7 @@ namespace gar{
 
       }// end loop over vector names in list
 
-      LOG_INFO("SingleGen") << values;
+      MF_LOG_INFO("SingleGen") << values;
 
       return;
     }

@@ -31,8 +31,8 @@
 
 // nutools extensions
 #include "nusimdata/SimulationBase/MCTruth.h"
-#include "nutools/ParticleNavigation/ParticleList.h"
-#include "nutools/RandomUtils/NuRandomService.h"
+#include "nug4/ParticleNavigation/ParticleList.h"
+#include "nurandom/RandomUtils/NuRandomService.h"
 
 // GArSoft Includes
 #include "DetectorInfo/DetectorClocksService.h"
@@ -104,7 +104,7 @@ namespace gar {
       size_t                              fNumTicks;    ///< number of TDC samples
       const gar::geo::GeometryCore*       fGeo;         ///< geometry information
       bool                                fCheckChan;   ///< flag to check mapping of energy deposits to channels
-      cet::exempt_ptr<CLHEP::HepRandomEngine> fEngine;  // FIXME: This should be a reference.
+      CLHEP::HepRandomEngine              &fEngine;  ///< random engine
       std::string                         fPRFFileName; ///< where to find the pad response function histograms 
 
       TH2F                               *fHFILLPRF;   ///< pad response function for hole-filler chamber
@@ -121,17 +121,14 @@ namespace gar {
 
     //----------------------------------------------------------------------
     // Constructor
-    IonizationReadout::IonizationReadout(fhicl::ParameterSet const& pset) : art::EDProducer{pset}
+    IonizationReadout::IonizationReadout(fhicl::ParameterSet const& pset) : art::EDProducer{pset},
+      fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,pset,"Seed"))
     {
       fTime  = gar::providerFrom<detinfo::DetectorClocksService>();
 
       fNumTicks = gar::providerFrom<detinfo::DetectorPropertiesService>()->NumberTimeSamples();
 
       fGeo = gar::providerFrom<geo::Geometry>();
-
-      // setup the random number service
-      // obtain the random seed from NuRandomService
-      ::art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, "HepJamesRandom", "ionization", pset, "IonizationSeed");
 
       this->reconfigure(pset);
 
@@ -172,11 +169,8 @@ namespace gar {
     //----------------------------------------------------------------------
     void IonizationReadout::reconfigure(fhicl::ParameterSet const& pset)
     {
-      LOG_DEBUG("IonizationReadout") << "Debug: IonizationReadout()";
+      MF_LOG_DEBUG("IonizationReadout") << "Debug: IonizationReadout()";
       ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
-      auto& engine = rng->getEngine(art::ScheduleID::first(),
-				    pset.get<std::string>("module_label"),"ionization");
-      fEngine = cet::make_exempt_ptr(&engine);
 
       fISCalcPars  = pset.get<fhicl::ParameterSet>("ISCalcPars"                 );
       fG4Label     = pset.get<std::string        >("G4ModuleLabel",      "geant");
@@ -189,7 +183,7 @@ namespace gar {
 
 
       if(driftAlgName.compare("Standard") == 0)
-        fDriftAlg = std::make_unique<gar::rosim::ElectronDriftStandardAlg>(*fEngine,
+        fDriftAlg = std::make_unique<gar::rosim::ElectronDriftStandardAlg>(fEngine,
                                                                            driftAlgPars);
       else
         throw cet::exception("IonizationReadout")
@@ -199,7 +193,7 @@ namespace gar {
       auto tpcROAlgName = tpcROAlgPars.get<std::string>("TPCReadoutSimType");
 
       if(tpcROAlgName.compare("Standard") == 0)
-        fROSimAlg = std::make_unique<gar::rosim::TPCReadoutSimStandardAlg>(*fEngine,
+        fROSimAlg = std::make_unique<gar::rosim::TPCReadoutSimStandardAlg>(fEngine,
                                                                            tpcROAlgPars);
       else
         throw cet::exception("IonizationReadout")
@@ -216,7 +210,7 @@ namespace gar {
       // create the ionization and scintillation calculator;
       // this is a singleton (!) so we just need to make the instance in one
       // location
-      IonizationAndScintillation::CreateInstance(*fEngine,
+      IonizationAndScintillation::CreateInstance(fEngine,
                                                  fISCalcPars);
 
       return;
@@ -231,7 +225,7 @@ namespace gar {
     //--------------------------------------------------------------------------
     void IonizationReadout::produce(::art::Event& evt)
     {
-      LOG_DEBUG("IonizationReadout") << "produce()";
+      MF_LOG_DEBUG("IonizationReadout") << "produce()";
 
       // loop over the lists and put the particles and voxels into the event as collections
       std::unique_ptr< std::vector<raw::RawDigit>                      > rdCol (new std::vector<raw::RawDigit>                     );
@@ -260,14 +254,14 @@ namespace gar {
 	    // make the signal raw digits and set their associations to the energy deposits
 	    for(auto edide : eDepIDEs){
 
-	      LOG_DEBUG("IonizationReadout")
+	      MF_LOG_DEBUG("IonizationReadout")
 		<< "Current eDepIDE channel is "
 		<< edide.Channel
 		<< " previous channel is "
 		<< prevChan;
 
 	      if(edide.Channel != prevChan){
-		LOG_DEBUG("IonizationReadout")
+		MF_LOG_DEBUG("IonizationReadout")
 		  << "There are  "
 		  << digitEDepLocs.size()
 		  << " locations for "
@@ -318,7 +312,7 @@ namespace gar {
 				    *erassn,
 				    evt);
 
-	    LOG_DEBUG("IonizationReadout")
+	    MF_LOG_DEBUG("IonizationReadout")
 	      << "Created "
 	      << rdCol->size()
 	      << " raw digits from signal";
@@ -473,7 +467,7 @@ namespace gar {
 	    }
 
 
-          LOG_DEBUG("IonizationReadout")
+          MF_LOG_DEBUG("IonizationReadout")
 	    << "cluster time: "
 	    << clusterTime[c]
 	    << " TDC "
@@ -497,7 +491,7 @@ namespace gar {
     void IonizationReadout::CombineIDEs(std::vector<edepIDE>                 & edepIDEs,
                                         std::vector<sdp::EnergyDeposit> const& edepCol)
     {
-      LOG_DEBUG("IonizationReadout")
+      MF_LOG_DEBUG("IonizationReadout")
 	<< "starting with "
 	<< edepIDEs.size()
 	<< " energy deposits";
@@ -528,7 +522,7 @@ namespace gar {
       for(size_t e = 1; e < edepIDEs.size(); ++e){
         cur = edepIDEs[e];
 
-        LOG_DEBUG("IonizationReadout")
+        MF_LOG_DEBUG("IonizationReadout")
 	  << "current edepIDE: "
 	  << cur.NumElect
 	  << " "
@@ -539,7 +533,7 @@ namespace gar {
 	  << cur.edepLocs.size();
 
         if(cur != prev){
-          LOG_DEBUG("IonizationReadout")
+          MF_LOG_DEBUG("IonizationReadout")
 	    << "storing edepIDE sum: "
 	    << sum.NumElect
 	    << " "
@@ -563,7 +557,7 @@ namespace gar {
           prev = cur;
         }
         else{
-          LOG_DEBUG("IonizationReadout")
+          MF_LOG_DEBUG("IonizationReadout")
 	    << "summing current edepIDE";
 
           sum  += cur;
@@ -575,7 +569,7 @@ namespace gar {
       // now swap the input vector with the temp vector
       temp.swap(edepIDEs);
 
-      LOG_DEBUG("IonizationReadout")
+      MF_LOG_DEBUG("IonizationReadout")
 	<< "ending with "
 	<< edepIDEs.size()
 	<< " energy deposits";
@@ -601,7 +595,7 @@ namespace gar {
 	{
 	  digCol.emplace_back(tmpdigit);
 
-	  LOG_DEBUG("IonizationReadout")
+	  MF_LOG_DEBUG("IonizationReadout")
 	    << "Associating "
 	    << eDepLocs.size()
 	    << " energy deposits to digit for channel "
@@ -642,7 +636,7 @@ namespace gar {
 
       if(std::abs(edep.Y() - xyz[1]) > 1 ||
          std::abs(edep.Z() - xyz[2]) > 1){
-	//    LOG_VERBATIM("IonizationReadout")
+	//    MF_LOG_VERBATIM("IonizationReadout")
 	std::cout 
 	  << "In function "
 	  << id

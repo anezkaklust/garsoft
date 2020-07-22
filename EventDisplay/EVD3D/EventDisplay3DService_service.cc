@@ -6,10 +6,10 @@
 //
 
 #include "EventDisplay/EVD3D/EventDisplay3DService.h"
-#include "nutools/EventDisplayBase/NavState.h"
+#include "nuevdb/EventDisplayBase/NavState.h"
 
 // ART includes
-#include "art/Framework/IO/Root/RootInput.h"
+#include "art_root_io/RootInput.h"
 
 // ROOT includes
 #include "TApplication.h"

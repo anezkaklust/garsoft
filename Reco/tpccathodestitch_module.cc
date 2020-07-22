@@ -52,7 +52,7 @@
 
 #include "Geant4/G4ThreeVector.hh"
 
-#include "nutools/MagneticField/MagneticField.h"
+#include "nug4/MagneticField/MagneticField.h"
 
 namespace gar {
   namespace rec {
@@ -477,7 +477,7 @@ namespace gar {
 	      // assume directions are set so that itrack is the "beginning" and jtrack is the "end"
 	      if (mergedflag.at(itrack) < 0)
 		{
-		  LOG_WARNING("tpccathodestitch: inconsistent merge flags ") << itrack << " " << mergedflag.at(itrack);
+		  MF_LOG_WARNING("tpccathodestitch: inconsistent merge flags ") << itrack << " " << mergedflag.at(itrack);
 		  continue;
 		}
 	      size_t jtrack = mergedflag.at(itrack);
