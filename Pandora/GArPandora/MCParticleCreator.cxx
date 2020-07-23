@@ -257,6 +257,13 @@ namespace gar {
             cheat::BackTrackerCore const* bt = gar::providerFrom<cheat::BackTracker>();
             std::map< eveLoc, std::vector< art::Ptr<gar::rec::CaloHit> > > eveCaloHitMap;
 
+            MCParticleMap particleMap;
+            for (MCParticlesToMCTruth::const_iterator iter = artMCParticlesToMCTruth.begin(), iterEnd = artMCParticlesToMCTruth.end(); iter != iterEnd; ++iter)
+            {
+                const art::Ptr<simb::MCParticle> particle = iter->first;
+                particleMap[particle->TrackId()] = particle;
+            }
+
             // loop over all hits and fill in the map
             for( auto const& itr : calorimeterHitVector )
             {
@@ -288,37 +295,31 @@ namespace gar {
                     continue;
                 }
 
-                const int eveID = hitMapItr.first.GetEveID();
+                // const int eveID = hitMapItr.first.GetEveID();
                 const int trackID = part->TrackId();
-                const float partE = part->E();
+                // const float partE = part->E();
 
-                MF_LOG_DEBUG("MCParticleCreator::CreateCaloHitToMCParticleRelationships")
-                << " Found to MC part " << part
-                << " of pdg " << part->PdgCode()
-                << " with trackID " << trackID
-                << " associated to eveID " << eveID
-                << " of energy " << partE << " GeV";
-
-                for(auto const& itr : hitMapItr.second)
+                for (MCParticleMap::const_iterator iterI = particleMap.begin(), iterEndI = particleMap.end(); iterI != iterEndI; ++iterI)
                 {
-                    const gar::rec::CaloHit *hit = itr.get();
-                    try
-                    {
-                        MF_LOG_DEBUG("MCParticleCreator::CreateCaloHitToMCParticleRelationships")
-                        << " Linking " << part
-                        << " of pdg " << part->PdgCode()
-                        << " with trackID " << trackID
-                        << " associated to eveID " << eveID
-                        << " and with Energy " << partE << " GeV"
-                        << " to hit " << hit
-                        << " with energy " << hit->Energy() << " GeV";
+                    simb::MCParticle *pMCParticleCalo = const_cast<simb::MCParticle*>(iterI->second.get());
 
-                        PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetCaloHitToMCParticleRelationship(m_pandora, hit, part, hit->Energy()));
-                    }
-                    catch (const pandora::StatusCodeException &)
+                    if (nullptr == pMCParticleCalo)
+                    continue;
+                    if (trackID != pMCParticleCalo->TrackId())
+                    continue;
+
+                    for(auto const& itr : hitMapItr.second)
                     {
-                        MF_LOG_WARNING("MCParticleCreator") << "CreateCaloHitToMCParticleRelationships - unable to create calo hit to mc particle relationship, invalid information supplied " << std::endl;
-                        continue;
+                        const gar::rec::CaloHit *hit = itr.get();
+                        try
+                        {
+                            PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetCaloHitToMCParticleRelationship(m_pandora, hit, pMCParticleCalo, hit->Energy()));
+                        }
+                        catch (const pandora::StatusCodeException &)
+                        {
+                            MF_LOG_WARNING("MCParticleCreator") << "CreateCaloHitToMCParticleRelationships - unable to create calo hit to mc particle relationship, invalid information supplied " << std::endl;
+                            continue;
+                        }
                     }
                 }
             }
