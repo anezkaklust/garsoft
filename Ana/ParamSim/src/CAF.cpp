@@ -790,7 +790,7 @@ void CAF::loop()
                         //if they hit the ECAL and smear their energy
                         float ECAL_resolution = fRes->Eval(ptrue)*ptrue;
                         float ereco = _util->GaussianSmearing(ptrue, ECAL_resolution);
-                        erecon.push_back(ereco);
+                        erecon.push_back( (ereco > 0) ? ereco : 0. );
                         recopid.push_back(0);
                         detected.push_back(1);
 
@@ -889,7 +889,7 @@ void CAF::loop()
                         //if they hit the ECAL and smear their energy
                         float ECAL_resolution = fRes->Eval(ptrue)*ptrue;
                         float ereco = _util->GaussianSmearing(ptrue, ECAL_resolution);
-                        erecon.push_back(ereco);
+                        erecon.push_back((ereco > 0) ? ereco : 0.);
                         recopid.push_back(0);
                         detected.push_back(1);
 
@@ -1126,7 +1126,7 @@ void CAF::loop()
                                     float ereco = _util->GaussianSmearing(etrue, ECAL_resolution);
                                     if(mcp_process == "primary")
                                     std::cout << "Case charged particle in Calo pdg " << pdg << " etrue " << etrue << " ereco " << ereco << std::endl;
-                                    erecon.push_back(ereco);
+                                    erecon.push_back((ereco > 0) ? ereco : 0.);
                                     detected.push_back(1);
                                     // std::cout << "E/p " << ereco/preco << " true pdg " << pdg << std::endl;
 
@@ -1212,7 +1212,7 @@ void CAF::loop()
                                 if(mcp_process == "primary")
                                 std::cout << "Case charged particle through calo pdg " << pdg << " etrue " << ptrue << " ereco " << Erec << std::endl;
 
-                                erecon.push_back(Erec);
+                                erecon.push_back((Erec > 0) ? Erec : 0.);
                                 etime.push_back(ecaltime);
                                 detected.push_back(1);
 
