@@ -908,6 +908,18 @@ namespace gar {
 
         void ApplyMuIDSegmentationAlg(std::shared_ptr<gar::geo::seg::SegmentationAlg> pMuIDSegmentationAlg);
 
+        /// Returns the object handling the channel map
+        gar::geo::seg::ChannelMapAlg const* ChannelMap() const { return fChannelMapAlg.get(); }
+
+        /// Returns the object handling the ECAL segmentation
+        gar::geo::seg::SegmentationAlg const* ECALSegmentationAlg() const { return fECALSegmentationAlg.get(); }
+
+        ///Returns the object handling the Sc Tracker segmentation
+        gar::geo::seg::SegmentationAlg const* MinervaSegmentationAlg() const { return fMinervaSegmentationAlg.get(); }
+
+        ///Returns the object handling the MuID segmentation
+        gar::geo::seg::SegmentationAlg const* MuIDSegmentationAlg() const { return fMuIDSegmentationAlg.get(); }
+
         //Returns the ECAL minimum radius of the Inner Barrel
         float GetECALInnerBarrelRadius() const { return fECALRinner; }
 
@@ -995,18 +1007,6 @@ namespace gar {
 
         /// Sets the detector name
         void SetDetectorName(std::string new_name) { fDetectorName = new_name; }
-
-        /// Returns the object handling the channel map
-        gar::geo::seg::ChannelMapAlg const* ChannelMap() const { return fChannelMapAlg.get(); }
-
-        /// Returns the object handling the ECAL segmentation
-        gar::geo::seg::SegmentationAlg const* ECALSegmentationAlg() const { return fECALSegmentationAlg.get(); }
-
-        ///Returns the object handling the Sc Tracker segmentation
-        gar::geo::seg::SegmentationAlg const* MinervaSegmentationAlg() const { return fMinervaSegmentationAlg.get(); }
-
-        ///Returns the object handling the MuID segmentation
-        gar::geo::seg::SegmentationAlg const* MuIDSegmentationAlg() const { return fMuIDSegmentationAlg.get(); }
 
     private:
 
