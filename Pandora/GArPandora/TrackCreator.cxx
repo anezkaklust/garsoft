@@ -110,7 +110,7 @@ namespace gar {
                     this->TrackReachesECAL(pTrack, trackParameters);
                     this->DefineTrackPfoUsage(pTrack, trackParameters);
 
-                    MF_LOG_INFO("TrackCreator::CreateTracks()")
+                    MF_LOG_DEBUG("TrackCreator::CreateTracks()")
                     << "Creating Track " << pTrack << "\n"
                     << " starting at " << trackParameters.m_trackStateAtStart.Get() << "\n"
                     << " ending at " << trackParameters.m_trackStateAtEnd.Get() << "\n"
@@ -139,7 +139,7 @@ namespace gar {
 
         void TrackCreator::GetTrackStates(const gar::rec::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const
         {
-            const float *trackParams = pTrack->TrackParBeg(); //y, z, omega, phi, lambda
+            const float *trackParams = pTrack->TrackParEnd(); //y, z, omega, phi, lambda
             const float omega = trackParams[2] / CLHEP::cm;
 
             //Track momentum
@@ -179,7 +179,7 @@ namespace gar {
             if (trackParameters.m_trackStateAtCalorimeter.Get().GetPosition().GetMagnitude() < m_settings.m_minTrackECalDistanceFromIp)
             return false;
 
-            if (std::fabs(pTrack->TrackParBeg()[2] / CLHEP::cm) < std::numeric_limits<float>::epsilon())
+            if (std::fabs(pTrack->TrackParEnd()[2] / CLHEP::cm) < std::numeric_limits<float>::epsilon())
             {
                 MF_LOG_ERROR("TrackCreator::PassesQualityCuts")
                 << "Track has Omega = 0 ";
@@ -188,7 +188,7 @@ namespace gar {
 
             // Check momentum uncertainty is reasonable to use track
             const pandora::CartesianVector &momentumAtDca(trackParameters.m_momentumAtDca.Get());
-            const float sigmaPOverP(std::sqrt(pTrack->CovMatBegPacked()[5]) / std::fabs( pTrack->TrackParBeg()[2] / CLHEP::cm ));
+            const float sigmaPOverP(std::sqrt(pTrack->CovMatEndPacked()[5]) / std::fabs( pTrack->TrackParEnd()[2] / CLHEP::cm ));
 
             if (sigmaPOverP > m_settings.m_maxTrackSigmaPOverP)
             {
@@ -221,7 +221,7 @@ namespace gar {
 
             if (trackParameters.m_reachesCalorimeter.Get() && !this->IsParent(pTrack))
             {
-                const float *trackParams = pTrack->TrackParBeg(); //y, z, omega, phi, lambda
+                const float *trackParams = pTrack->TrackParEnd(); //y, z, omega, phi, lambda
                 const float d0(std::sqrt(trackParams[0]*trackParams[0] + trackParams[1]+trackParams[1]) * CLHEP::cm);
                 const float z0(std::fabs(pTrack->Vertex()[0]) * CLHEP::cm);
 
@@ -284,13 +284,13 @@ namespace gar {
             float fbestECalProjection[3] = {0., 0., 0.};
             //Use our TrackPropagator
             //First propagate to the barrel
-            int result = util::TrackPropagator::PropagateToCylinder(pTrack->TrackParBeg(), pTrack->Vertex(), m_settings.m_eCalBarrelInnerR / CLHEP::cm, m_settings.m_GArCenterY / CLHEP::cm, m_settings.m_GArCenterZ / CLHEP::cm, fbestECalProjection, m_settings.m_eCalEndCapInnerZ / CLHEP::cm );
+            int result = util::TrackPropagator::PropagateToCylinder(pTrack->TrackParEnd(), pTrack->End(), m_settings.m_eCalBarrelInnerR / CLHEP::cm, m_settings.m_GArCenterY / CLHEP::cm, m_settings.m_GArCenterZ / CLHEP::cm, fbestECalProjection, m_settings.m_eCalEndCapInnerZ / CLHEP::cm );
             bestECalProjection.SetValues(fbestECalProjection[0] * CLHEP::cm, fbestECalProjection[1] * CLHEP::cm, fbestECalProjection[2] * CLHEP::cm);
 
             if( result != 0 ) {
                 //Propagate to the Endcap
                 float endcapProjection[3] = {0., 0., 0.};
-                int result = util::TrackPropagator::PropagateToX( pTrack->TrackParBeg(), pTrack->Vertex(), (pTrack->Vertex()[0] > 0) ? m_settings.m_eCalEndCapInnerZ / CLHEP::cm : -m_settings.m_eCalEndCapInnerZ / CLHEP::cm, endcapProjection, m_settings.m_eCalBarrelInnerR / CLHEP::cm );
+                int result = util::TrackPropagator::PropagateToX( pTrack->TrackParEnd(), pTrack->End(), (pTrack->End()[0] > 0) ? m_settings.m_eCalEndCapInnerZ / CLHEP::cm : -m_settings.m_eCalEndCapInnerZ / CLHEP::cm, endcapProjection, m_settings.m_eCalBarrelInnerR / CLHEP::cm );
 
                 if(result == 0) {
                     bestECalProjection.SetValues(endcapProjection[0] * CLHEP::cm, endcapProjection[1] * CLHEP::cm, endcapProjection[2] * CLHEP::cm);
@@ -308,7 +308,7 @@ namespace gar {
         //------------------------------------------------------------------------------------------------------------------------------------------
         void TrackCreator::CalculateTimeAtCalo(const gar::rec::Track *const pTrack, float &timeAtCalo) const
         {
-            const float *trackParams = pTrack->TrackParBeg(); //y, z, omega, phi, lambda
+            const float *trackParams = pTrack->TrackParEnd(); //y, z, omega, phi, lambda
             const float omega = trackParams[2] / CLHEP::cm;
             const float tanl = std::tan(trackParams[4]);
             const float d0(std::sqrt(trackParams[0]*trackParams[0] + trackParams[1]+trackParams[1]) * CLHEP::cm);
