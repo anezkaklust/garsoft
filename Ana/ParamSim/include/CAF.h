@@ -73,8 +73,9 @@ private:
     std::vector<int> recopid, recopidecal;
     std::vector<double> prob_arr, partereco, anglereco, _preco, erecon, etime;
     //Geometry
-    std::vector<unsigned int> isFidStart, isTPCStart, isCaloStart, isThroughCaloStart;
-    std::vector<unsigned int> isFidEnd, isTPCEnd, isCaloEnd, isThroughCaloEnd;
+    std::vector<unsigned int> isFidStart, isTPCStart, isCaloStart, isInBetweenStart, isThroughCaloStart;
+    std::vector<unsigned int> isFidEnd, isTPCEnd, isCaloEnd, isInBetweenEnd, isThroughCaloEnd;
+    std::vector<unsigned int> isBarrelStart, isEndcapStart, isBarrelEnd, isEndcapEnd;
 };
 
 #endif

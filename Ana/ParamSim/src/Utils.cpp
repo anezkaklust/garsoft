@@ -69,14 +69,46 @@ bool Utils::PointInCalo(TVector3 point)
     return isInCalo;
 }
 
-bool Utils::isThroughCalo(TVector3 point)
+bool Utils::PointStopBetween(TVector3 point)
 {
-    return !PointInTPC(point) && !PointInCalo(point);
+    //Barrel Radius 278 cm
+    //Endcap starts at 364 cm
+    bool isStopBetween = false;
+    float r_point = std::sqrt( point.Y()*point.Y() + point.Z()*point.Z() );
+    //in the Barrel
+    if( r_point < _ECALInnerRadius && r_point > _TPCRadius && std::abs(point.X()) < _TPCLength ) isStopBetween = true;
+    //in the Endcap
+    if( r_point < _ECALInnerRadius && std::abs(point.X()) > _TPCLength && std::abs(point.X()) < _ECALStartX ) isStopBetween = true;
+
+    return isStopBetween;
 }
 
-bool Utils::hasDecayedInCalo(TVector3 epoint)
+bool Utils::isThroughCalo(TVector3 point)
 {
-    return PointInCalo(epoint);
+    return !PointInTPC(point) && !PointStopBetween(point) && !PointInCalo(point);
+}
+
+bool Utils::hasDecayedInCalo(TVector3 point)
+{
+    return PointInCalo(point);
+}
+
+bool Utils::isBarrel(TVector3 point)
+{
+    bool isBarrel = false;
+    float theta = std::atan(_ECALInnerRadius / std::abs(_ECALStartX) ); //angle for barrel/endcap transition
+    float r_point = std::sqrt( point.Y()*point.Y() + point.Z()*point.Z() );
+    float theta_point = std::atan(r_point / std::abs(point.X()) ); //angle for barrel/endcap transition for the point
+
+    if( theta_point > theta ) isBarrel = true;
+    return isBarrel;
+}
+
+bool Utils::isEndcap(TVector3 point)
+{
+    bool isEndcap = false;
+    if( !isBarrel(point) ) isEndcap = true;
+    return isEndcap;
 }
 
 bool Utils::isBackscatter(TVector3 spoint, TVector3 epoint)

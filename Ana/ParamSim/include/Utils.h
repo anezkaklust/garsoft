@@ -32,11 +32,20 @@ public:
     /* Check if MCP point is in the ECAL */
     bool PointInCalo(TVector3 point);
 
+    /* Check if MCP point is in between the TPC and the ECAL */
+    bool PointStopBetween(TVector3 point);
+
     /* Check if MCP point is not in the fiducial and not in the ECAL */
     bool isThroughCalo(TVector3 point);
 
     /* Check if MCP decayed in calo */
-    bool hasDecayedInCalo(TVector3 epoint);
+    bool hasDecayedInCalo(TVector3 point);
+
+    /* Check if MCP is in the Barrel region */
+    bool isBarrel(TVector3 point);
+
+    /* Check if MCP is in the Endcap region */
+    bool isEndcap(TVector3 point);
 
     /* Check if the mcp is a backscatter */
     bool isBackscatter(TVector3 spoint, TVector3 epoint);
