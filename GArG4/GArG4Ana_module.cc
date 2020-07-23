@@ -14,16 +14,18 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art_root_io/TFileService.h"
+#include "art_root_io/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/PtrVector.h"
 #include "cetlib_except/exception.h"
 
+// nutools includes
+#include "nug4/ParticleNavigation/ParticleList.h"
+
 // GArSoft Includes
 #include "MCCheater/BackTracker.h"
-#include "nutools/ParticleNavigation/ParticleList.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "Geometry/Geometry.h"
 #include "CoreUtils/ServiceUtil.h"
@@ -160,7 +162,7 @@ namespace gar {
       auto edepsCol = evt.getValidHandle<std::vector<gar::sdp::EnergyDeposit> >(fG4ModuleLabel);
       
       if( edepsCol.failedToGet() ){
-        LOG_VERBATIM("GArG4Ana")
+        MF_LOG_VERBATIM("GArG4Ana")
         << "failed to get energy depositions, bail";
         return;
       }
@@ -177,7 +179,7 @@ namespace gar {
         fPartInfo.energy  = part->E();
         fPartInfo.length  = part->Trajectory().TotalLength();
         
-        LOG_VERBATIM("GArG4Ana")
+        MF_LOG_VERBATIM("GArG4Ana")
         << part->TrackId()
         << " "
         << part->PdgCode()
@@ -206,7 +208,7 @@ namespace gar {
         fEDep.t       = edep.Time();
         fEDep.e       = edep.Energy();
         
-        LOG_DEBUG("GArG4Ana")
+        MF_LOG_DEBUG("GArG4Ana")
         << "pos: ("
         << fEDep.x
         << ", "

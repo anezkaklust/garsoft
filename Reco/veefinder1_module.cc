@@ -80,7 +80,7 @@ namespace gar {
     };
 
 
-    veefinder1::veefinder1(fhicl::ParameterSet const & p)
+    veefinder1::veefinder1(fhicl::ParameterSet const & p) : EDProducer{p} 
     {
       fTrackLabel            = p.get<std::string>("TrackLabel","track");
       fPCut                  = p.get<float>("PCut",0.1);  // in GeV

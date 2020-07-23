@@ -30,17 +30,17 @@
 #include "nusimdata/SimulationBase/GTruth.h"
 #include "nusimdata/SimulationBase/MCFlux.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
-#include "nutools/ParticleNavigation/ParticleList.h"
-#include "nutools/EventGeneratorBase/evgenbase.h"
-#include "nutools/EventGeneratorBase/GENIE/GENIE2ART.h"
-#include "nutools/EventGeneratorBase/GENIE/EVGBAssociationUtil.h"
+#include "nug4/ParticleNavigation/ParticleList.h"
+#include "nugen/EventGeneratorBase/evgenbase.h"
+#include "nugen/EventGeneratorBase/GENIE/GENIE2ART.h"
+#include "nugen/EventGeneratorBase/GENIE/EVGBAssociationUtil.h"
 
 //GENIE
-#include "Ntuple/NtpMCEventRecord.h"
-#include "Ntuple/NtpMCTreeHeader.h"
-#include "GHEP/GHepRecord.h"
-#include "GHEP/GHepParticle.h"
-#include "PDG/PDGLibrary.h"
+#include "GENIE/Framework/Ntuple/NtpMCEventRecord.h"
+#include "GENIE/Framework/Ntuple/NtpMCTreeHeader.h"
+#include "GENIE/Framework/GHEP/GHepRecord.h"
+#include "GENIE/Framework/GHEP/GHepParticle.h"
+#include "GENIE/Framework/ParticleData/PDGLibrary.h"
 
 // GArSoft Includes
 // #include "Utilities/AssociationUtil.h"
@@ -209,7 +209,7 @@ namespace util {
         fSpillCount = 0;
 
         if(!fkeepEMShowers){
-            LOG_DEBUG("ConvertEdep2Art")
+            MF_LOG_DEBUG("ConvertEdep2Art")
             << " Will not keep EM shower daughters!";
         }
 
@@ -256,7 +256,7 @@ namespace util {
                 genie::NtpMCRecHeader rec_header = fMCRec->hdr;
                 genie::EventRecord *event = fMCRec->event;
 
-                LOG_DEBUG("ConvertEdep2Art")
+                MF_LOG_DEBUG("ConvertEdep2Art")
                 << rec_header
                 << *event;
 
@@ -274,7 +274,7 @@ namespace util {
                 }
             }
 
-            LOG_INFO("ConvertEdep2Art::beginJob()")
+            MF_LOG_INFO("ConvertEdep2Art::beginJob()")
             << "Number of spills in the ghep file "
             << fSpillCount;
         }
@@ -383,7 +383,7 @@ namespace util {
         std::map<unsigned int, unsigned int>::const_iterator it = fTrkIDParent.find(trkid);
         while ( it != fTrkIDParent.end() )
         {
-            LOG_DEBUG("ConvertEdep2Art::GetParentage")
+            MF_LOG_DEBUG("ConvertEdep2Art::GetParentage")
             << "parentage for track id " << trkid
             << " is " << (*it).second;
 
@@ -650,7 +650,7 @@ namespace util {
             for( size_t ipart = 0; ipart < (size_t)mctrh.NParticles(); ipart++ ) {
                 if( isMCPMatch(mctrh.GetParticle(ipart), part) ) {
 
-                    LOG_DEBUG("ConvertEdep2Art") << "FindMCTruthIndex() \n"
+                    MF_LOG_DEBUG("ConvertEdep2Art") << "FindMCTruthIndex() \n"
                     << mctrh.GetParticle(ipart) << "\n"
                     << part << "\n";
 
@@ -667,7 +667,7 @@ namespace util {
 
     //--------------------------------------------------------------------------
     void ConvertEdep2Art::produce(::art::Event& evt) {
-        LOG_DEBUG("ConvertEdep2Art") << "produce()";
+        MF_LOG_DEBUG("ConvertEdep2Art") << "produce()";
         art::EventNumber_t eventnumber = evt.id().event();
 
         if( eventnumber > nEntries ){
@@ -758,7 +758,7 @@ namespace util {
                     simb::MCParticle part(trackid, p->GetPDGCode(), primary);
                     part.AddTrajectoryPoint(pos, pvec);
 
-                    LOG_DEBUG("ConvertEdep2Art") << "Adding primary particle with "
+                    MF_LOG_DEBUG("ConvertEdep2Art") << "Adding primary particle with "
                     << " momentum " << part.P()
                     << " position " << part.Vx() << " " << part.Vy() << " " << part.Vz();
 
@@ -766,7 +766,7 @@ namespace util {
                 }
             }
 
-            LOG_DEBUG("ConvertEdep2Art") << "Adding mctruth with "
+            MF_LOG_DEBUG("ConvertEdep2Art") << "Adding mctruth with "
             << " nParticles " << truth.NParticles()
             << " Origin " << truth.Origin();
 
@@ -804,7 +804,7 @@ namespace util {
                 process_name = t->Points.at(0).GetProcessName();
             }// end if not a primary particle
 
-            LOG_DEBUG("ConvertEdep2Art")
+            MF_LOG_DEBUG("ConvertEdep2Art")
             << " Particle " << name
             << " with pdg " << pdg
             << " trackID " << trackID
@@ -877,7 +877,7 @@ namespace util {
                         fTrkIDParent[trackID] = parentID;
                         fCurrentTrackID = -1 * GetParentage(trackID);
 
-                        LOG_DEBUG("ConvertEdep2Art")
+                        MF_LOG_DEBUG("ConvertEdep2Art")
                         << " Skipping EM shower daughter "
                         << " with trackID " << trackID
                         << " with parent id " << parentID
@@ -898,7 +898,7 @@ namespace util {
                     // if we still can't find the parent in the particle navigator,
                     // we have to give up
                     if( not fParticleList->KnownParticle(pid) ) {
-                        LOG_DEBUG("ConvertEdep2Art")
+                        MF_LOG_DEBUG("ConvertEdep2Art")
                         << "can't find parent id: "
                         << parentID << " in the particle list, or fTrkIDParent."
                         << " Make " << parentID << " the mother ID for track ID "
@@ -919,7 +919,7 @@ namespace util {
                     mcTruthIndex = fTrackIDToMCTruthIndex.at(parentID);
                 }
                 catch (std::exception& e) {
-                    LOG_DEBUG("ConvertEdep2Art")
+                    MF_LOG_DEBUG("ConvertEdep2Art")
                     << "Cannot find MCTruth index for track id "
                     << fCurrentTrackID << " or " << parentID
                     << " exception " << e.what();
@@ -938,7 +938,7 @@ namespace util {
         {
             simb::MCParticle& p = *(itPart->second);
 
-            LOG_DEBUG("ConvertEdep2Art")
+            MF_LOG_DEBUG("ConvertEdep2Art")
             << "adding mc particle with track id: "
             << p.TrackId();
 
@@ -952,7 +952,7 @@ namespace util {
                 }
             }
             catch ( std::exception& e ) {
-                LOG_DEBUG("ConvertEdep2Art")
+                MF_LOG_DEBUG("ConvertEdep2Art")
                 << "Cannot find MCTruth for Track Id: " << trackID
                 << " to create association between Particle and MCTruth"
                 << " exception " << e.what();
@@ -963,7 +963,7 @@ namespace util {
             ++nGeneratedParticles;
         }
 
-        LOG_DEBUG("ConvertEdep2Art") << "Finished linking MCTruth and MCParticles";
+        MF_LOG_DEBUG("ConvertEdep2Art") << "Finished linking MCTruth and MCParticles";
 
         //--------------------------------------------------------------------------
         std::unique_ptr< std::vector< gar::sdp::EnergyDeposit>  > TPCCol(new std::vector<gar::sdp::EnergyDeposit> );
@@ -1049,7 +1049,7 @@ namespace util {
                     gar::geo::LocalTransformation<TGeoHMatrix> trans;
                     fGeo->WorldToLocal(GlobalPosCM, LocalPosCM, trans);
 
-                    LOG_DEBUG("ConvertEdep2Art")
+                    MF_LOG_DEBUG("ConvertEdep2Art")
                     << "Sensitive volume " << d->first
                     << " Hit " << hit
                     << " in volume " << VolumeName
@@ -1109,7 +1109,7 @@ namespace util {
                     gar::geo::LocalTransformation<TGeoHMatrix> trans;
                     fGeo->WorldToLocal(GlobalPosCM, LocalPosCM, trans);
 
-                    LOG_DEBUG("ConvertEdep2Art")
+                    MF_LOG_DEBUG("ConvertEdep2Art")
                     << "Sensitive volume " << d->first
                     << " Hit " << hit
                     << " in volume " << VolumeName
@@ -1120,7 +1120,7 @@ namespace util {
 
                     gar::raw::CellID_t cellID = fGeo->GetCellID(node, det_id, 0, 0, layer, slice, LocalPosCM);//encoding the cellID on 64 bits
 
-                    LOG_DEBUG("ConvertEdep2Art")
+                    MF_LOG_DEBUG("ConvertEdep2Art")
                     << "Sensitive volume " << d->first
                     << " TrackLength " << stepLength
                     << " Energy " << edep
@@ -1177,7 +1177,7 @@ namespace util {
                     gar::geo::LocalTransformation<TGeoHMatrix> trans;
                     fGeo->WorldToLocal(GlobalPosCM, LocalPosCM, trans);
 
-                    LOG_DEBUG("ConvertEdep2Art")
+                    MF_LOG_DEBUG("ConvertEdep2Art")
                     << "Sensitive volume " << d->first
                     << " Hit " << hit
                     << " in volume " << VolumeName
@@ -1206,18 +1206,22 @@ namespace util {
                 }
             }
             else{
-                LOG_DEBUG("ConvertEdep2Art")
+                MF_LOG_DEBUG("ConvertEdep2Art")
                 << "Ignoring hits for sensitive material: "
                 << d->first;
                 continue;
             }
         }
 
-        LOG_DEBUG("ConvertEdep2Art") << "Finished collection sensitive hits";
+        MF_LOG_DEBUG("ConvertEdep2Art") << "Finished collection sensitive hits";
 
         //--------------------------------------------------------------------------
 
-        bool hasGAr, hasECAL, hasTrackerSc, hasMuID, hasLAr = false;
+        bool hasGAr = false;
+	bool hasECAL = false;
+	bool hasTrackerSc = false;
+	bool hasMuID = false;
+	bool hasLAr = false;
         if(fGArDeposits.size() > 0) hasGAr = true;
         if(m_ECALDeposits.size() > 0) hasECAL = true;
         if(m_TrackerDeposits.size() > 0) hasTrackerSc = true;
@@ -1228,7 +1232,7 @@ namespace util {
 
             for(auto const& garhit : fGArDeposits)
             {
-                LOG_DEBUG("ConvertEdep2Art")
+                MF_LOG_DEBUG("ConvertEdep2Art")
                 << "adding GAr deposits for track id: "
                 << garhit.TrackID();
                 TPCCol->emplace_back(garhit);
@@ -1241,7 +1245,7 @@ namespace util {
 
             for(auto const& ecalhit : fECALDeposits)
             {
-                LOG_DEBUG("ConvertEdep2Art")
+                MF_LOG_DEBUG("ConvertEdep2Art")
                 << "adding calo deposits for track id: "
                 << ecalhit.TrackID();
 
@@ -1256,7 +1260,7 @@ namespace util {
 
             for(auto const& trkhit : fTrackerDeposits)
             {
-                LOG_DEBUG("ConvertEdep2Art")
+                MF_LOG_DEBUG("ConvertEdep2Art")
                 << "adding tracker Sc deposits for track id: "
                 << trkhit.TrackID();
 
@@ -1270,7 +1274,7 @@ namespace util {
 
             for(auto const& muidhit : fMuIDDeposits)
             {
-                LOG_DEBUG("ConvertEdep2Art")
+                MF_LOG_DEBUG("ConvertEdep2Art")
                 << "adding muID deposits for track id: "
                 << muidhit.TrackID();
 

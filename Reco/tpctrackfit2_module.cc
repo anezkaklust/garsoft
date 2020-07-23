@@ -41,7 +41,7 @@
 
 #include "Geant4/G4ThreeVector.hh"
 
-#include "nutools/MagneticField/MagneticField.h"
+#include "nug4/MagneticField/MagneticField.h"
 
 namespace gar {
   namespace rec {
@@ -418,15 +418,22 @@ namespace gar {
               slope = 1E9;
             }
 
-          // relocate dx to be the location along the helix of the closest point.  
-          // Linearize for now near xpos.
-          // old calc was based on TPCCluster position in x:
+          // relocate dx to be the location along the helix which minimizes
+		  // [ (Xhit -Xhelix)/sigmaX ]^2 + [ (Yhit -Yhelix)/sigmaY ]^2 + [ (Zhit -Zhelix)/sigmaZ ]^2
+          // Linearize for now near xpos:
+          //        x = xpos + dx
+          //        y = parvec[0] + slope * dx * sin(phi)
+          //        z = parvec[1] + slope * dx * cos(phi)
+          // parvec is updated as the fit progresses so the 'zero point' where y_0, z_0, phi_0
+          // are defined is at the end of the fit, not at the place where the fit begins.
+          //
+          // old calc was just based on TPCCluster position in x:
           // float dx = xh - xpos;                                 
-          // new calc determines it from estimated pad space in (y,z);
 
-          float dxdenom = slope*slope/(fTPCClusterResolYZ*fTPCClusterResolYZ) + 1.0/(fTPCClusterResolX*fTPCClusterResolX);
+
           float dxnum = (slope/(fTPCClusterResolYZ*fTPCClusterResolYZ))*( (yh - parvec[0])*TMath::Sin(phi) + (zh - parvec[1])*TMath::Cos(phi) )
             + (xh - xpos)/(fTPCClusterResolX*fTPCClusterResolX);
+          float dxdenom = slope*slope/(fTPCClusterResolYZ*fTPCClusterResolYZ) + 1.0/(fTPCClusterResolX*fTPCClusterResolX);
           float dx = dxnum/dxdenom;
           if (dx == 0) dx = 1E-3;
           //std::cout << "dxdenom, dxnum: " << dxdenom << " " << dxnum << std::endl;

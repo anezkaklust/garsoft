@@ -14,8 +14,8 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art_root_io/TFileService.h"
+#include "art_root_io/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "canvas/Persistency/Common/Ptr.h"
 #include "canvas/Persistency/Common/FindMany.h"
@@ -24,7 +24,7 @@
 
 // GArSoft Includes
 #include "MCCheater/BackTracker.h"
-#include "nutools/ParticleNavigation/ParticleList.h"
+#include "nug4/ParticleNavigation/ParticleList.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "Geometry/Geometry.h"
 #include "RawDataProducts/RawDigit.h"
@@ -155,7 +155,7 @@ namespace gar {
       auto digCol = evt.getValidHandle<std::vector<gar::raw::RawDigit> >(fReadoutModuleLabel);
       
       if( digCol.failedToGet() ){
-        LOG_VERBATIM("RawDigitAna")
+        MF_LOG_VERBATIM("RawDigitAna")
         << "failed to get raw digits, bail";
         return;
       }
@@ -164,7 +164,7 @@ namespace gar {
       ::art::FindMany<gar::sdp::EnergyDeposit> fmEnergyDep(digCol, evt, fReadoutModuleLabel);
       
       if( !fmEnergyDep.isValid() ){
-        LOG_WARNING("RawDigitAna")
+        MF_LOG_WARNING("RawDigitAna")
         << "Unable to find valid association between RawDigits and "
         << "energy deposits, no analysis in this module is possible";
         
@@ -182,7 +182,7 @@ namespace gar {
         fmEnergyDep.get(d, edepsCol);
         if(edepsCol.size() < 1) continue;
         
-	LOG_DEBUG("RawDigitAna")
+	MF_LOG_DEBUG("RawDigitAna")
         << "There are "
         << edepsCol.size()
         << " energy depositions for channel "
@@ -211,7 +211,7 @@ namespace gar {
           fEDep.t       = edep->Time();
           fEDep.e       = edep->Energy();
           
-	  LOG_DEBUG("RawDigitAna")
+	  MF_LOG_DEBUG("RawDigitAna")
           << "pos: ("
           << fEDep.x
           << ", "
@@ -236,7 +236,7 @@ namespace gar {
                geo->ChannelToPosition(chan, xyzChan);
           
 //          if(std::abs(xyz[1] - fChannelInfo.y) > 0.33)
-//            LOG_VERBATIM("RawDigitAna")
+//            MF_LOG_VERBATIM("RawDigitAna")
 //            << "Channel "
 //            << fChannelInfo.channel
 //            << " / "
@@ -253,7 +253,7 @@ namespace gar {
 //            << std::abs(xyz[1] - fChannelInfo.y);
 //
 //          if(std::abs(xyz[2] - fChannelInfo.z) > 10.33)
-//            LOG_VERBATIM("RawDigitAna")
+//            MF_LOG_VERBATIM("RawDigitAna")
 //            << "Channel "
 //            << fChannelInfo.channel
 //            << " / "

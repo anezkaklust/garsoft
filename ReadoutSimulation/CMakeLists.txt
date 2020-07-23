@@ -50,7 +50,8 @@ art_make(LIB_LIBRARIES nusimdata_SimulationBase
                        ${ART_FRAMEWORK_PRINCIPAL}
                        ${ART_FRAMEWORK_SERVICES_REGISTRY}
                        ${ART_FRAMEWORK_SERVICES_OPTIONAL}
-                       ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+                       ${ART_ROOT_IO_TFILE_SUPPORT}
+                       ${ART_ROOT_IO_TFILESERVICE_SERVICE}
                        ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
                        art_Persistency_Common
                        art_Persistency_Provenance
@@ -71,7 +72,7 @@ art_make(LIB_LIBRARIES nusimdata_SimulationBase
                        GArRecoAlg
                        MCCheater_BackTracker_service
                        nusimdata_SimulationBase
-                       nutools_RandomUtils_NuRandomService_service
+                       nurandom_RandomUtils_NuRandomService_service
                        ${ART_FRAMEWORK_CORE}
                        ${ART_FRAMEWORK_IO_SOURCES}
                        ${ART_FRAMEWORK_PRINCIPAL}
@@ -81,7 +82,8 @@ art_make(LIB_LIBRARIES nusimdata_SimulationBase
                        canvas
                        ${ART_FRAMEWORK_SERVICES_REGISTRY}
                        ${ART_FRAMEWORK_SERVICES_OPTIONAL}
-                       ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+                       ${ART_ROOT_IO_TFILE_SUPPORT}
+                       ${ART_ROOT_IO_TFILESERVICE_SERVICE}
                        ${MF_MESSAGELOGGER}                       
                        ${FHICLCPP}
                        ${CETLIB_EXCEPT}

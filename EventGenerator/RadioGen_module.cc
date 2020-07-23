@@ -28,8 +28,8 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art_root_io/TFileService.h"
+#include "art_root_io/TFileDirectory.h"
 #include "art/Framework/Services/Optional/RandomNumberGenerator.h"
 #include "art/Framework/Core/ModuleMacros.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -41,8 +41,8 @@
 // nutools includes
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
-#include "nutools/EventGeneratorBase/evgenbase.h"
-#include "nutools/RandomUtils/NuRandomService.h"
+#include "nugen/EventGeneratorBase/evgenbase.h"
+#include "nurandom/RandomUtils/NuRandomService.h"
 
 // gar includes
 #include "Geometry/Geometry.h"
@@ -127,22 +127,19 @@ namespace gar {
       std::vector<TH1D*> gammaspectrum;
       std::vector<double> gammaintegral;
       
-      cet::exempt_ptr<CLHEP::HepRandomEngine> fEngine; // FIXME: This should be a reference.
-      rndm::NuRandomService::seed_t fSeed;  ///< override seed with a fcl parameter not equal to zero
+      CLHEP::HepRandomEngine &fEngine; 
+
     };
   }
   
   namespace evgen{
     
     //____________________________________________________________________________
-    RadioGen::RadioGen(fhicl::ParameterSet const& pset)
+    RadioGen::RadioGen(fhicl::ParameterSet const& pset) : EDProducer{pset},
+      fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,pset,"Seed"))
     {
       
       this->reconfigure(pset);
-      
-      int seed = pset.get< unsigned int >("Seed", evgb::GetRandomNumberSeed());
-      
-      createEngine( seed );
       
       produces< std::vector<simb::MCTruth> >();
       produces< sumdata::RunData, ::art::InRun >();
@@ -190,19 +187,6 @@ namespace gar {
       readfile("232Th","Thorium_232.root");
       readfile("238U","Uranium_238.root");
 
-      fSeed          = p.get< rndm::NuRandomService::seed_t >("Seed",0);
-      
-    // create a default random engine; obtain the random seed from NuRandomService,
-    // unless overridden in configuration with key "Seed"
-    art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this);
-    art::ServiceHandle<art::RandomNumberGenerator> rng;
-    auto& engine = rng->getEngine(art::ScheduleID::first(),
-                                  p.get<std::string>("module_label"));
-    fEngine = cet::make_exempt_ptr(&engine);
-    if (fSeed != 0) {
-      fEngine->setSeed(fSeed, 0 /* dummy? */);
-    }
-
       return;
     }
     
@@ -234,7 +218,7 @@ namespace gar {
         SampleOne(i,truth);
       }//end loop over nuclides
       
-      LOG_DEBUG("RadioGen") << truth;
+      MF_LOG_DEBUG("RadioGen") << truth;
       truthcol->push_back(truth);
       evt.put(std::move(truthcol));
       return;
@@ -245,9 +229,9 @@ namespace gar {
     void RadioGen::SampleOne(unsigned int i, simb::MCTruth &mct){
       
      // get the random number generator service and make some CLHEP generators
-      CLHEP::RandFlat   flat(*fEngine);
-      //CLHEP::RandGauss  gauss(*fEngine);
-      CLHEP::RandPoisson  poisson(*fEngine);
+      CLHEP::RandFlat   flat(fEngine);
+      //CLHEP::RandGauss  gauss(fEngine);
+      CLHEP::RandPoisson  poisson(fEngine);
       
       // figure out how many decays to generate
       
@@ -446,7 +430,7 @@ namespace gar {
     void RadioGen::samplespectrum(std::string nuclide, int &itype, double &t, double &m, double &p)
     {
       
-      CLHEP::RandFlat  flat(*fEngine);
+      CLHEP::RandFlat  flat(fEngine);
       
       int inuc = -1;
       for (size_t i=0; i<spectrumname.size(); i++)
@@ -508,7 +492,7 @@ namespace gar {
     // and a better handling of negative bin contents
     double RadioGen::samplefromth1d(TH1D *hist)
     {
-      CLHEP::RandFlat  flat(*fEngine);
+      CLHEP::RandFlat  flat(fEngine);
       
       int nbinsx = hist->GetNbinsX();
       std::vector<double> partialsum;

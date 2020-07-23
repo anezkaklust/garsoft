@@ -9,8 +9,8 @@
 #include "TPad.h"
 
 #include "EventDisplay/EVD/MCBriefPad.h"
-#include "nutools/EventDisplayBase/View2D.h"
-#include "nutools/EventDisplayBase/EventHolder.h"
+#include "nuevdb/EventDisplayBase/View2D.h"
+#include "nuevdb/EventDisplayBase/EventHolder.h"
 #include "EventDisplay/EVD/SimulationDrawer.h"
 
 namespace gar {

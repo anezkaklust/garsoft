@@ -38,7 +38,7 @@ namespace gar {
         
       }// end if found volume
       
-      LOG_DEBUG("Geometry") << "detector sensitive total  volume is " << fTotalVolume->GetName();
+      MF_LOG_DEBUG("Geometry") << "detector sensitive total  volume is " << fTotalVolume->GetName();
       
       // Build the matrix that takes us to the top world frame
       // build a matrix to take us from the local to the world coordinates
@@ -80,7 +80,7 @@ namespace gar {
     , fTotalVolume(volume)
     {
       
-      LOG_DEBUG("Geometry") << "detector sensitive total  volume is " << fTotalVolume->GetName();
+      MF_LOG_DEBUG("Geometry") << "detector sensitive total  volume is " << fTotalVolume->GetName();
       
       // set the ends depending on whether the shape is a box or trapezoid
       std::string volName(fTotalVolume->GetName());

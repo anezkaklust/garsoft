@@ -23,8 +23,8 @@
 
 #include "EventDisplay/EVD/ChangeTrackers.h"
 #include "EventDisplay/EVD/RawDataDrawer.h"
-#include "nutools/EventDisplayBase/View3D.h"
-#include "nutools/EventDisplayBase/EventHolder.h"
+#include "nuevdb/EventDisplayBase/View3D.h"
+#include "nuevdb/EventDisplayBase/EventHolder.h"
 #include "EventDisplay/EVD/ColorDrawingOptions.h"
 #include "EventDisplay/EVD/RawDrawingOptions.h"
 #include "RawDataProducts/RawDigit.h"

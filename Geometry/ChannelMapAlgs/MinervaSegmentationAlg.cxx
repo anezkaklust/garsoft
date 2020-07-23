@@ -117,7 +117,8 @@ namespace gar {
 
                     double localy = localY - cellOriginY; //transform it
                     double localz = localZ - cellOriginZ; //transform it
-                    bool above, below = false;
+                    bool above = false;
+		    bool below = false;
                     if(localy < 0) {
                         //Need to check if the point is below or above y = z
                         if(localy > localz) {
@@ -162,7 +163,7 @@ namespace gar {
                     }
                     else {
                         //exception
-                        LOG_ERROR("MinervaSegmentationAlg") << "Cannot determine if localX > | < 0";
+                        MF_LOG_ERROR("MinervaSegmentationAlg") << "Cannot determine if localX > | < 0";
                         return 0;
                     }
                 } //end if z < 0
@@ -183,7 +184,8 @@ namespace gar {
 
                     double localx = localX - cellOriginX; //transform it
                     double localz = localZ - cellOriginZ; //transform it
-                    bool above, below = false;
+                    bool above = false;
+		    bool below = false;
                     if(localx < 0) {
                         //Need to check if the point is below or above y = z
                         if(localx > localz) {
@@ -228,7 +230,7 @@ namespace gar {
                     }
                     else {
                         //exception
-                        LOG_ERROR("MinervaSegmentationAlg") << "Cannot determine if localX > | < 0";
+                        MF_LOG_ERROR("MinervaSegmentationAlg") << "Cannot determine if localX > | < 0";
                         return 0;
                     }
                 } //end if z >= 0

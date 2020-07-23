@@ -103,7 +103,7 @@ namespace gar {
                 // cluster the hits with a nearest neighbour condition
                 cluster( h.begin() , h.end() , std::back_inserter( cl )  , &dist ) ;
                 
-                LOG_DEBUG("KNNClusterAlg::DoClustering()")
+                MF_LOG_DEBUG("KNNClusterAlg::DoClustering()")
                 << "  Passing " << h.size() << " of " << nHit
                 << "  hits to clustering (E_cut: " << m_EnergyCut << ") "
                 << "  found  " << cl.size() << " clusters ";

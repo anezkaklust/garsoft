@@ -21,7 +21,7 @@
 #include "MCCheater/BackTracker.h"
 #include "DetectorInfo/DetectorClocksService.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
-#include "nutools/EventGeneratorBase/GENIE/EVGBAssociationUtil.h"
+#include "nugen/EventGeneratorBase/GENIE/EVGBAssociationUtil.h"
 
 #include "RecoAlg/ClusterShapes.h"
 #include "CLHEP/Vector/ThreeVector.h"
@@ -120,7 +120,7 @@ namespace gar {
 
                 for(auto hitMapItr : eveCaloHitMap) {
 
-                    LOG_DEBUG("CaloClusterCheater")
+                    MF_LOG_DEBUG("CaloClusterCheater")
                     << "Found cluster of " << hitMapItr.second.size() << " hits"
                     << " with eveid " << hitMapItr.first.GetEveID();
 
@@ -128,7 +128,7 @@ namespace gar {
 
                     const simb::MCParticle *part = bt->TrackIDToParticle(hitMapItr.first.GetEveID());
                     if(!part) {
-                        LOG_WARNING("CaloClusterCheater")
+                        MF_LOG_WARNING("CaloClusterCheater")
                         << "Cannot find MCParticle for eveid: " << hitMapItr.first.GetEveID();
                         continue;
                     }
@@ -140,7 +140,7 @@ namespace gar {
                     clustercol->emplace_back(cluster);
                     // association the hits to this cluster
                     evgb::util::CreateAssn(*this, e, *clustercol, hitMapItr.second, *assn, clustercol->size() - 1);
-                    LOG_DEBUG("CaloClusterCheater") << "adding cluster: \n" << clustercol->back() << "\nto collection.";
+                    MF_LOG_DEBUG("CaloClusterCheater") << "adding cluster: \n" << clustercol->back() << "\nto collection.";
 
                 } // end loop over the map
 

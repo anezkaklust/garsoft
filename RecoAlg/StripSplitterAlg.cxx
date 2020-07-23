@@ -82,7 +82,7 @@ namespace gar {
             //----------------------------------------------------------------------------
             void StripSplitterAlg::PrepareAlgo(const std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector)
             {
-                LOG_DEBUG("StripSplitterAlg")
+                MF_LOG_DEBUG("StripSplitterAlg")
                 << "StripSplitterAlg::PrepareAlgo()";
 
                 //Clear the lists
@@ -113,7 +113,7 @@ namespace gar {
             //----------------------------------------------------------------------------
             void StripSplitterAlg::DoStripSplitting()
             {
-                LOG_DEBUG("StripSplitterAlg")
+                MF_LOG_DEBUG("StripSplitterAlg")
                 << "StripSplitterAlg::DoStripSplitting()";
 
                 //Collection to split
@@ -126,7 +126,7 @@ namespace gar {
                 // loop over strip collections in even and odd layers (assumed to have perpendicular orientations)
                 for (int icol = 0; icol < 2; icol++)
                 {
-                    LOG_DEBUG("StripSplitterAlg")
+                    MF_LOG_DEBUG("StripSplitterAlg")
                     << "Start Loop " << icol;
 
                     switch (icol)
@@ -140,7 +140,7 @@ namespace gar {
                         toSplit = &m_CaloHitVecOdd;
                         break;
                         default:
-                        LOG_ERROR("StripSplitterAlg::DoStripSplitting")
+                        MF_LOG_ERROR("StripSplitterAlg::DoStripSplitting")
                         << "Crazy stuff!";
                         throw cet::exception("StripSplitterAlg::DoStripSplitting");
                     }
@@ -157,7 +157,7 @@ namespace gar {
 
                         if ( det_id != 1 && det_id != 2 )
                         {
-                            LOG_ERROR("StripSplitterAlg::DoStripSplitting")
+                            MF_LOG_ERROR("StripSplitterAlg::DoStripSplitting")
                             << " Check det it " << det_id
                             << " Problem with Hit " << i
                             << " isTile " << fGeo->isTile(hit->CellID())
@@ -176,7 +176,7 @@ namespace gar {
                         if (virtualhits.size() == 0)
                         {
 
-                            LOG_DEBUG("StripSplitterAlg")
+                            MF_LOG_DEBUG("StripSplitterAlg")
                             << " Adding unsplit hit1 " << i
                             << " isTile " << fGeo->isTile(hit->CellID())
                             << " pointing at " << hit
@@ -189,7 +189,7 @@ namespace gar {
                             for (uint hh = 0; hh < virtualhits.size(); hh++)
                             {
 
-                                LOG_DEBUG("StripSplitterAlg")
+                                MF_LOG_DEBUG("StripSplitterAlg")
                                 << "adding virtual hit " << hh;
 
                                 splitStripHits.emplace_back(virtualhits.at(hh));
@@ -204,7 +204,7 @@ namespace gar {
             //----------------------------------------------------------------------------
             void StripSplitterAlg::getVirtualHits(const gar::rec::CaloHit *hit, int orientation, bool isBarrel, std::vector <const gar::rec::CaloHit*> &virtualhits)
             {
-                LOG_DEBUG("StripSplitterAlg")
+                MF_LOG_DEBUG("StripSplitterAlg")
                 << "StripSplitterAlg::getVirtualHits()";
 
                 // this splits the strip into zero or more hits along its length
@@ -219,7 +219,7 @@ namespace gar {
                 fStripLength = fGeo->getStripLength(pt, hit->CellID());
                 fnVirtual = int(fStripLength / fStripWidth);
 
-                LOG_DEBUG("StripSplitterAlg")
+                MF_LOG_DEBUG("StripSplitterAlg")
                 << " StripSplitterAlg::getVirtualHits()"
                 << " Strip splitted in " << fnVirtual << " virtual cells";
 
@@ -312,7 +312,7 @@ namespace gar {
                             if (dlayer > 1) continue;   // more than 1 layer apart
                         }
 
-                        LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
+                        MF_LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
                         << " Getting hit2 " << i
                         << " isTile " << fGeo->isTile(hit2->CellID())
                         << " pointing at " << hit2
@@ -325,7 +325,7 @@ namespace gar {
                         float dist = std::sqrt( std::pow(hit2->Position()[0] - hit->Position()[0], 2) + std::pow(hit2->Position()[1] - hit->Position()[1], 2) + std::pow(hit2->Position()[2] - hit->Position()[2], 2) );
 
                         if (dist > 2*fStripLength) {
-                            LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
+                            MF_LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
                             << " Distance between hit1 and hit2 " << dist
                             << " > 2*fStripLength " << 2*fStripLength;
                             continue;
@@ -379,20 +379,20 @@ namespace gar {
                                     }
 
                                 } else {
-                                    LOG_DEBUG ("StripSplitterAlg::getVirtualHits()")
+                                    MF_LOG_DEBUG ("StripSplitterAlg::getVirtualHits()")
                                     << "strange segment " << segment
                                     << " frac = " << frac
                                     << " nvirt = " << fnVirtual;
                                 }
                             } else {
-                                LOG_DEBUG ("StripSplitterAlg::getVirtualHits()")
+                                MF_LOG_DEBUG ("StripSplitterAlg::getVirtualHits()")
                                 << "strange frac " << frac;
                             }
                         }
                     }
                 }
 
-                LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
+                MF_LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
                 << " Number of splitters " << nSplitters;
 
                 // now create the virtual cells, and assign energy
@@ -417,7 +417,7 @@ namespace gar {
                 // make the new hit
                     const gar::rec::CaloHit* newhit = new gar::rec::CaloHit(energy, hit->Time(), pos, hit->CellID(), hit->Layer());
 
-                    LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
+                    MF_LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
                     << " Creating new virtual hit pointing at " << newhit
                     << " Energy " << energy
                     << " Position " << pos[0] << " " << pos[1] << " " << pos[2];
@@ -464,7 +464,7 @@ namespace gar {
                 }
 
                 if (not isStrip[0]) {
-                    LOG_ERROR ("StripSplitterAlg::stripIntersect")
+                    MF_LOG_ERROR ("StripSplitterAlg::stripIntersect")
                     << "first hit should be a strip";
                     throw cet::exception("StripSplitterAlg::stripIntersect");
                 }
@@ -529,7 +529,7 @@ namespace gar {
                     }
                 }
 
-                LOG_DEBUG ("StripSplitterAlg::stripIntersect")
+                MF_LOG_DEBUG ("StripSplitterAlg::stripIntersect")
                 << "Intersection found " << intersect;
 
                 if (intersect) return x;

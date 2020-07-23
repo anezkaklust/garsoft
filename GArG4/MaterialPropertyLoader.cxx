@@ -37,7 +37,7 @@ namespace gar {
 
       fPropertyList[Material][Property] = PropVectorWithUnit;
 
-      LOG_INFO("MaterialPropertyLoader")
+      MF_LOG_INFO("MaterialPropertyLoader")
       <<"Added property "
       << Material<< "  "
 		  << Property;
@@ -51,7 +51,7 @@ namespace gar {
     {
       fConstPropertyList[Material][Property]=PropertyValue*Unit;
 
-      LOG_INFO("MaterialPropertyLoader")
+      MF_LOG_INFO("MaterialPropertyLoader")
       << "Added const property "
       << Material
       << "  "
@@ -66,7 +66,7 @@ namespace gar {
                                                   double             Unit)
     {
       fBirksConstants[Material] = PropertyValue * Unit;
-      LOG_INFO("MaterialPropertyLoader")
+      MF_LOG_INFO("MaterialPropertyLoader")
       << "Set Birks constant "
       << Material;
     }
@@ -77,7 +77,7 @@ namespace gar {
       std::map<std::string,G4MaterialPropertiesTable*> MaterialTables;
       std::map<std::string,bool> MaterialsSet;
 
-      LOG_INFO("MaterialPropertyLoader")
+      MF_LOG_INFO("MaterialPropertyLoader")
       << "UPDATING GEOMETRY";
 
       // Loop over each material with a property vector and create a new material table for it
@@ -117,7 +117,7 @@ namespace gar {
                                                 &g4MomentumVector[0],
                                                 &g4PropertyVector[0],
                                                 NoOfElements);
-          LOG_INFO("MaterialPropertyLoader")
+          MF_LOG_INFO("MaterialPropertyLoader")
           << "Added property "
           << Property
           << " to material table "
@@ -133,7 +133,7 @@ namespace gar {
           G4double PropertyValue = jitr.second;
           MaterialTables[Material]->AddConstProperty(Property.c_str(), PropertyValue);
 
-          LOG_INFO("MaterialPropertyLoader")
+          MF_LOG_INFO("MaterialPropertyLoader")
           << "Added const property "
           << Property
           << " to material table "

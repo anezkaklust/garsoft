@@ -17,8 +17,8 @@
 #include "TDatabasePDG.h"
 
 #include "EventDisplay/EVD/SimulationDrawer.h"
-#include "nutools/EventDisplayBase/View2D.h"
-#include "nutools/EventDisplayBase/View3D.h"
+#include "nuevdb/EventDisplayBase/View2D.h"
+#include "nuevdb/EventDisplayBase/View3D.h"
 #include "CoreUtils/ServiceUtil.h"
 #include "Geometry/Geometry.h"
 #include "nusimdata/SimulationBase/MCTruth.h"

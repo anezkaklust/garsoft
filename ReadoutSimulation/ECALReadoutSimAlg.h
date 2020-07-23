@@ -15,6 +15,8 @@
 
 #include <map>
 
+#include "CLHEP/Random/RandGauss.h"
+
 namespace fhicl {
     class ParameterSet;
 }

@@ -1,6 +1,6 @@
 #include "DetectorInfo/DetectorClocksServiceStandard.h"
 #include "TFile.h"
-#include "art/Framework/IO/Root/RootDB/SQLite3Wrapper.h"
+#include "art_root_io/RootDB/SQLite3Wrapper.h"
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -135,7 +135,7 @@ void gar::detinfo::DetectorClocksServiceStandard::postOpenFile(std::string const
         
         if(config_count.at(i) && cfgValue.at(i) != config_value.at(i)) {
           
-          LOG_INFO("DetectorClocksServiceStandard")
+          MF_LOG_INFO("DetectorClocksServiceStandard")
           << Form("\033[93mOverriding configuration parameter %s ... %g (fcl) => %g (data file)\033[00m",
                   cfgName.at(i).c_str(),
                   cfgValue.at(i),

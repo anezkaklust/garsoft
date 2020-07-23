@@ -15,8 +15,8 @@
 #include "cetlib_except/exception.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art_root_io/TFileService.h"
+#include "art_root_io/TFileDirectory.h"
 
 // C/C++ standard libraries
 
@@ -110,7 +110,7 @@ namespace gar {
         else if(calcName.compare("Separate") == 0)
         fISCalc = new rosim::ISCalculationSeparate(fEngine);
         else
-        LOG_WARNING("IonizationAndScintillation")
+        MF_LOG_WARNING("IonizationAndScintillation")
         << "No ISCalculation set, this can't be good.";
 
         // initialize the calculator
@@ -144,7 +144,7 @@ namespace gar {
 
           fISCalc->CalculateIonizationAndScintillation(fEnergyDeposit);
 
-          LOG_DEBUG("IonizationAndScintillation")
+          MF_LOG_DEBUG("IonizationAndScintillation")
           << "\nEnergy: "    << fISCalc->EnergyDeposit()
           << "\nElectrons: " << fISCalc->NumberIonizationElectrons()
           << "\nPhotons: "   << fISCalc->NumberScintillationPhotons();

@@ -153,7 +153,7 @@ namespace gar{
       std::ostringstream sstr;
       fRunTests.PrintConfiguration(sstr);
 
-      LOG_INFO("GeometryTestAlg") << "Test selection:" << sstr.str();
+      MF_LOG_INFO("GeometryTestAlg") << "Test selection:" << sstr.str();
 
     } // GeometryTestAlg::GeometryTestAlg()
 
@@ -169,10 +169,10 @@ namespace gar{
       unsigned int nErrors = 0; // currently unused
 
       // change the printed version number when changing the "GeometryTest" output
-      LOG_VERBATIM("GeometryTest")
+      MF_LOG_VERBATIM("GeometryTest")
       << "GeometryTest version 1.0";
 
-      LOG_VERBATIM("GeometryTest")
+      MF_LOG_VERBATIM("GeometryTest")
       << "\tRunning on detector: '"
       << geom->DetectorName()
       << "'"
@@ -181,7 +181,7 @@ namespace gar{
 
       try{
         if (shouldRunTests("CheckOverlaps")) {
-          LOG_INFO("GeometryTest") << "test for overlaps ...";
+          MF_LOG_INFO("GeometryTest") << "test for overlaps ...";
           gGeoManager->CheckOverlaps(1e-5);
           gGeoManager->PrintOverlaps();
           if (!gGeoManager->GetListOfOverlaps()->IsEmpty()) {
@@ -190,11 +190,11 @@ namespace gar{
             << " overlaps found in geometry during overlap test!";
             ++nErrors;
           }
-          LOG_INFO("GeometryTest") << "complete.";
+          MF_LOG_INFO("GeometryTest") << "complete.";
         }
 
         if (shouldRunTests("ThoroughCheck")) {
-          LOG_INFO("GeometryTest") << "thorough geometry test ...";
+          MF_LOG_INFO("GeometryTest") << "thorough geometry test ...";
           gGeoManager->CheckGeometryFull();
           if (!gGeoManager->GetListOfOverlaps()->IsEmpty()) {
             mf::LogError("GeometryTest")
@@ -202,25 +202,25 @@ namespace gar{
             << " overlaps found in geometry during thorough test!";
             ++nErrors;
           }
-          LOG_INFO("GeometryTest") << "complete.";
+          MF_LOG_INFO("GeometryTest") << "complete.";
         }
 
         if (shouldRunTests("FindVolumes")) {
-          LOG_INFO("GeometryTest") << "test FindAllVolumes method ...";
+          MF_LOG_INFO("GeometryTest") << "test FindAllVolumes method ...";
           testFindVolumes();
-          LOG_INFO("GeometryTest") << "complete.";
+          MF_LOG_INFO("GeometryTest") << "complete.";
         }
 
         if (shouldRunTests("NearestWire")) {
-          LOG_INFO("GeometryTest") << "testNearestChannel...";
+          MF_LOG_INFO("GeometryTest") << "testNearestChannel...";
           testNearestChannel();
-          LOG_INFO("GeometryTest") << "complete.";
+          MF_LOG_INFO("GeometryTest") << "complete.";
         }
 
         if (shouldRunTests("Stepping")) {
-          LOG_INFO("GeometryTest") << "testStepping...";
+          MF_LOG_INFO("GeometryTest") << "testStepping...";
           testStepping();
-          LOG_INFO("GeometryTest") << "complete.";
+          MF_LOG_INFO("GeometryTest") << "complete.";
         }
 
       }
@@ -261,7 +261,7 @@ namespace gar{
     void GeometryTestAlg::printChannelSummary()
     {
       uint32_t channels = geom->NChannels();
-      LOG_VERBATIM("GeometryTest")
+      MF_LOG_VERBATIM("GeometryTest")
       << "there are "
       << channels
       << " channels";
@@ -273,7 +273,7 @@ namespace gar{
     // great sanity check for geometry, only call in analyze when debugging
     void GeometryTestAlg::printDetDim()
     {
-      LOG_VERBATIM("GeometryTest")
+      MF_LOG_VERBATIM("GeometryTest")
       << "  TPC:    radius: "
       << geom->TPCRadius()
       << "    length: "
@@ -282,7 +282,7 @@ namespace gar{
       TVector3 origin(0., 0., 0.);
       TVector3 outside(1.e6, 1.e6, 1.e6);
 
-      LOG_VERBATIM("GeometryTest")
+      MF_LOG_VERBATIM("GeometryTest")
       << "test check of point in world: \n(0, 0, 0) is in volume "
       << geom->VolumeName(origin)
       << "\n (1e6, 1e6, 1e6) is in volume "
@@ -293,7 +293,7 @@ namespace gar{
 
     //--------------------------------------------------------------------------
     void GeometryTestAlg::printAllGeometry() const {
-      LOG_VERBATIM("GeometryTest")
+      MF_LOG_VERBATIM("GeometryTest")
       << "Detector " << geom->DetectorName();
     } // GeometryTestAlg::printAllGeometry()
 
@@ -403,7 +403,7 @@ namespace gar{
 
       try{
 
-        LOG_VERBATIM("GeometryTestAlg")
+        MF_LOG_VERBATIM("GeometryTestAlg")
         << " find nearest channel to point ("
         << posWorld[0]
         << ", "
@@ -415,7 +415,7 @@ namespace gar{
         // The float[] version tested here is used by the TVector3 version, so this test both.
         unsigned int nearest = geom->NearestChannel(posWorld);
 
-        LOG_VERBATIM("GeometryTestAlg")
+        MF_LOG_VERBATIM("GeometryTestAlg")
         << "\t ...nearest channel to point: "
         << nearest;
 
@@ -425,7 +425,7 @@ namespace gar{
 
         nearest = geom->NearestChannel(posWorldV.data());
 
-        LOG_VERBATIM("GeometryTestAlg")
+        MF_LOG_VERBATIM("GeometryTestAlg")
         << "\t ...nearest channel to point: "
         << nearest;
 
@@ -436,11 +436,11 @@ namespace gar{
       }
 
       //stopWatch.Stop();
-      LOG_DEBUG("GeometryTest") << "\tdone testing nearest channel";
+      MF_LOG_DEBUG("GeometryTest") << "\tdone testing nearest channel";
       //stopWatch.Print();
 
       // trigger an exception with NearestChannel
-      LOG_VERBATIM("GeometryTest")
+      MF_LOG_VERBATIM("GeometryTest")
       << "\tattempt to cause an exception to be caught "
       << "when looking for a nearest channel";
 
@@ -456,14 +456,14 @@ namespace gar{
         nearest_to_what = geom->NearestChannel(posWorld);
       }
       catch(const cet::exception& e){
-        LOG_WARNING("GeoTestCaughtException")
+        MF_LOG_WARNING("GeoTestCaughtException")
         << "caught execpetion: "
         << e;
         hasThrown = true;
       }
 
       if (!hasThrown) {
-        LOG_WARNING("GeoTestErrorNearestChannel")
+        MF_LOG_WARNING("GeoTestErrorNearestChannel")
         << "GeometryCore::NearestChannel() did not raise an exception on out-of-world position ("
         << posWorld[0]
         << "; "
@@ -488,7 +488,7 @@ namespace gar{
       double dxyz[3] = {0., 0., 1.};
 
 
-      LOG_VERBATIM("GeometryTest")
+      MF_LOG_VERBATIM("GeometryTest")
       << "initial"
       << "\n\tposition:"  << xyz[0]  << "\t" << xyz[1]  << "\t" << xyz[2]
       << "\n\tdirection:" << dxyz[0] << "\t" << dxyz[1] << "\t" << dxyz[2];
@@ -497,7 +497,7 @@ namespace gar{
       for (int i=0; i<10; ++i) {
         const double* pos = gGeoManager->GetCurrentPoint();
         const double* dir = gGeoManager->GetCurrentDirection();
-        LOG_VERBATIM("GeometryTest") << "\tnode = "
+        MF_LOG_VERBATIM("GeometryTest") << "\tnode = "
         << gGeoManager->GetCurrentNode()->GetName()
         << "\n\t\tpos=" << "\t"
         << pos[0] << "\t"
@@ -517,7 +517,7 @@ namespace gar{
 
       xyz[0] = 306.108; xyz[1] = -7.23775; xyz[2] = 856.757;
       gGeoManager->InitTrack(xyz, dxyz);
-      LOG_VERBATIM("GeometryTest") << "\tnode = "
+      MF_LOG_VERBATIM("GeometryTest") << "\tnode = "
       << gGeoManager->GetCurrentNode()->GetName()
       << "\n\tmat = "
       << gGeoManager->GetCurrentNode()->GetVolume()->GetMaterial()->GetName();

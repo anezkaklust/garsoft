@@ -66,7 +66,7 @@ namespace gar {
       
       // compare the energy deposition of this step to what is in the fNest object
       if(fNest->EnergyDeposition() != dep->Energy() / CLHEP::GeV)
-        LOG_WARNING("ISCalculationNest")
+        MF_LOG_WARNING("ISCalculationNest")
         << "NEST and G4 step depositions do not agree!\n"
         << fNest->EnergyDeposition()
         << " vs "

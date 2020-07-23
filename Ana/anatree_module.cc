@@ -14,7 +14,7 @@
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
-#include "art/Framework/Services/Optional/TFileService.h"
+#include "art_root_io/TFileService.h"
 #include "canvas/Utilities/InputTag.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -1108,7 +1108,7 @@ void gar::anatree::FillVectors(art::Event const & e) {
           momIndex = TrackIdToIndex[momTrkId];
           momPDG   = (*MCPHandle).at(momIndex).PdgCode();
         } else {
-          LOG_DEBUG("Anatree_module")
+          MF_LOG_DEBUG("Anatree_module")
             << " mcp trkid " << mcp.TrackId()
             << " pdg code " << mcp.PdgCode()
             << " could not find mother trk id " << momTrkId

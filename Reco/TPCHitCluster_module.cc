@@ -204,7 +204,7 @@ namespace gar {
           double cetime = 0;         // cluster end time
           double crms = 0;           // cluster RMS in X
           double ctime = 0;          // cluster time centroid
-          double cov[3][3] = {0,0,0,0,0,0,0,0,0};
+          double cov[3][3] = { {0,0,0}, {0,0,0}, {0,0,0} };
           
           for (size_t ix = 0; ix < hitsinclus.size(); ++ix)
             {

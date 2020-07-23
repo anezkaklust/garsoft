@@ -28,6 +28,7 @@ simple_plugin(DetectorClocksServiceStandard "service"
               ${MF_MESSAGELOGGER}
               ${FHICLCPP}
               ${CETLIB_EXCEPT}
+	      ${ART_ROOT_IO_ROOTDB}
 	      ${SQLITE3}
               ${ROOT_BASIC_LIB_LIST}
              )
@@ -45,8 +46,8 @@ simple_plugin(DetectorPropertiesServiceStandard "service"
 	      art_Utilities canvas
               ${ART_FRAMEWORK_IO_ROOT_ROOTDB}
               ${MF_MESSAGELOGGER}
-
               ${CETLIB_EXCEPT}
+	      ${ART_ROOT_IO_ROOTDB}
 	      ${SQLITE3}
               ${ROOT_BASIC_LIB_LIST}
              )
@@ -80,7 +81,8 @@ simple_plugin(MPDMagneticField "service"
              ${G4GEOMETRY}
              ${G4GLOBAL}
 	     ${ART_FRAMEWORK_SERVICES_OPTIONAL}
-             ${ART_FRAMEWORK_SERVICES_OPTIONAL_TFILESERVICE_SERVICE}
+             ${ART_ROOT_IO_TFILESERVICE_SERVICE}
+             ${ART_ROOT_IO_TFILE_SUPPORT}
 	     ${CLHEP}
              )
 

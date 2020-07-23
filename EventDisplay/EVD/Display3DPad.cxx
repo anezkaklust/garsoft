@@ -11,8 +11,8 @@
 #include "TPolyLine3D.h"
 
 #include "EventDisplay/EVD/Display3DPad.h"
-#include "nutools/EventDisplayBase/View3D.h"
-#include "nutools/EventDisplayBase/EventHolder.h"
+#include "nuevdb/EventDisplayBase/View3D.h"
+#include "nuevdb/EventDisplayBase/EventHolder.h"
 #include "Geometry/Geometry.h"
 #include "EventDisplay/EVD/HeaderDrawer.h"
 #include "EventDisplay/EVD/GeometryDrawer.h"

@@ -16,7 +16,7 @@
 #include "DetectorInfo/DetectorClocksService.h"
 
 // Art includes
-#include "art/Framework/IO/Root/RootDB/SQLite3Wrapper.h"
+#include "art_root_io/RootDB/SQLite3Wrapper.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -151,7 +151,7 @@ namespace gar {
           if(// fInheritNumberTimeSamples &&
              nNumberTimeSamples != 0 &&
              iNumberTimeSamples != fProp->NumberTimeSamples()) {
-            LOG_INFO("DetectorPropertiesServiceStandard")
+            MF_LOG_INFO("DetectorPropertiesServiceStandard")
             << "Overriding configuration parameter NumberTimeSamples using historical value.\n"
             << "  Configured value:        " << fProp->NumberTimeSamples() << "\n"
             << "  Historical (used) value: " << iNumberTimeSamples;

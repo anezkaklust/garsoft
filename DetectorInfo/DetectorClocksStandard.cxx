@@ -107,17 +107,17 @@ namespace gar {
   void detinfo::DetectorClocksStandard::debugReport() const
   //-----------------------------------------
   {
-    LOG_VERBATIM("DetectorClocksStandard")
+    MF_LOG_VERBATIM("DetectorClocksStandard")
     << "fConfigValues contents: ";
     
     for(size_t i = 0; i < kInheritConfigTypeMax; ++i)
-      LOG_VERBATIM("DetectorClocksStandard")
+      MF_LOG_VERBATIM("DetectorClocksStandard")
       << "    "
       << fConfigName.at(i).c_str()
       << " ... "
       << fConfigValue.at(i);
     
-    LOG_VERBATIM("DetectorClocksStandard")
+    MF_LOG_VERBATIM("DetectorClocksStandard")
     << "Trigger  time @ "                      << fTriggerTime              
     << "\nBeamGate time @ "                    << fBeamGateTime
     << "\nTrigOffsetTPC @ "                    << TriggerOffsetTPC()

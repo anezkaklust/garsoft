@@ -18,8 +18,8 @@
 #include "GArG4/ParticleFilters.h"
 
 #include "nusimdata/SimulationBase/MCParticle.h"
-#include "nutools/G4Base/UserAction.h"
-#include "nutools/ParticleNavigation/ParticleList.h"
+#include "nug4/G4Base/UserAction.h"
+#include "nug4/ParticleNavigation/ParticleList.h"
 
 #include "Geant4/globals.hh"
 #include <map>

@@ -25,7 +25,7 @@
 #include "ReconstructionDataProducts/Cluster.h"
 #include "RecoAlg/TrackPropagator.h"
 
-#include "art/Framework/Services/Optional/TFileService.h"
+#include "art_root_io/TFileService.h"
 #include "TH2D.h"
 
 
@@ -72,7 +72,8 @@ namespace gar {
 
 
 
-        TPCECALAssociation::TPCECALAssociation(fhicl::ParameterSet const & p) {
+        TPCECALAssociation::TPCECALAssociation(fhicl::ParameterSet const & p) : EDProducer{p}
+	{
 
             fTrackLabel     = p.get<std::string>("TrackLabel", "track");
             fClusterLabel   = p.get<std::string>("ClusterLabel","calocluster");

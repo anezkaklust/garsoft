@@ -40,7 +40,7 @@ namespace gar {
         
       }// end if found volume
       
-      LOG_DEBUG("Geometry") << "detector total  volume is " << fTotalVolume->GetName();
+      MF_LOG_DEBUG("Geometry") << "detector total  volume is " << fTotalVolume->GetName();
       
       // Build the matrix that takes us to the top world frame
       // build a matrix to take us from the local to the world coordinates

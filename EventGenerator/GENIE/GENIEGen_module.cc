@@ -34,8 +34,8 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Principal/Handle.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Optional/TFileService.h"
-#include "art/Framework/Services/Optional/TFileDirectory.h"
+#include "art_root_io/TFileService.h"
+#include "art_root_io/TFileDirectory.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "canvas/Persistency/Common/Assns.h"
 #include "art/Framework/Core/EDProducer.h"
@@ -43,8 +43,8 @@
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCFlux.h"
 #include "nusimdata/SimulationBase/GTruth.h"
-#include "nutools/EventGeneratorBase/GENIE/GENIEHelper.h"
-#include "nutools/RandomUtils/NuRandomService.h"
+#include "nugen/EventGeneratorBase/GENIE/GENIEHelper.h"
+#include "nurandom/RandomUtils/NuRandomService.h"
 
 // GArSoft includes
 #include "Geometry/Geometry.h"
@@ -152,7 +152,7 @@ namespace gar {
 
     //____________________________________________________________________________
     GENIEGen::GENIEGen(fhicl::ParameterSet const& pset)
-    : fGENIEHelp(0)
+    : EDProducer{pset}, fGENIEHelp(0)
     , fPassEmptySpills (pset.get< bool   >("PassEmptySpills"))
     , fGlobalTimeOffset(pset.get< double >("GlobalTimeOffset",0))
     , fRandomTimeOffset(pset.get< double >("RandomTimeOffset",1600.)) // BNB default value
@@ -332,7 +332,7 @@ namespace gar {
 
           // check to see if we are to pass empty spills
         if(truthcol->size() < 1 && fPassEmptySpills){
-          LOG_DEBUG("GENIEGen") << "no events made for this spill but "
+          MF_LOG_DEBUG("GENIEGen") << "no events made for this spill but "
           << "passing it on and ending the event anyway";
           break;
         }
@@ -464,7 +464,7 @@ namespace gar {
       }
 
 
-      LOG_DEBUG("GENIEInteractionInformation")
+      MF_LOG_DEBUG("GENIEInteractionInformation")
       << std::endl
       << "REACTION:  " << ReactionChannel(mc.GetNeutrino().CCNC(),mc.GetNeutrino().Mode())
       << std::endl
@@ -491,14 +491,14 @@ namespace gar {
         double Ek = (energy-mass); // Kinetic Energy (GeV)
         if(status == "kIStStableFinalState" ||
            status == "kIStHadronInTheNucleus")
-          LOG_DEBUG("GENIEFinalState")
+          MF_LOG_DEBUG("GENIEFinalState")
           << std::setiosflags(std::ios::left) << std::setw(20) << name
           << std::setiosflags(std::ios::left) << std::setw(32) <<status
           << std::setw(18)<< energy
           << std::setw(18)<< mass
           << std::setw(18)<< Ek <<std::endl;
         else
-          LOG_DEBUG("GENIEFinalState")
+          MF_LOG_DEBUG("GENIEFinalState")
           << std::setiosflags(std::ios::left) << std::setw(20) << name
           << std::setiosflags(std::ios::left) << std::setw(32) << status
           << std::setw(18) << energy

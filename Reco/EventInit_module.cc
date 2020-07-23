@@ -56,7 +56,8 @@ namespace gar {
 
 
 
-        EventInit::EventInit(fhicl::ParameterSet const & p) {
+        EventInit::EventInit(fhicl::ParameterSet const & p) : EDProducer{p} 
+        {
             fVerbosity = p.get<int>("Verbosity", 0);
         }
 

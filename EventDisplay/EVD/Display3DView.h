@@ -10,7 +10,7 @@
 
 #include "TGButton.h" // For TGCheckButton
 
-#include "nutools/EventDisplayBase/Canvas.h"
+#include "nuevdb/EventDisplayBase/Canvas.h"
 
 #include "EventDisplay/EVD/HeaderPad.h"
 #include "EventDisplay/EVD/MCBriefPad.h"

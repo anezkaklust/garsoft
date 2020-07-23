@@ -4,7 +4,7 @@
 //   by the ROOT events.  A ROOT dictionary needs to be generated for this.
 //
 
-#include "nutools/EventDisplayBase/NavState.h"
+#include "nuevdb/EventDisplayBase/NavState.h"
 #include "EventDisplay/EVD3D/EventDisplay3DUtils.h"
 
 #include <string>

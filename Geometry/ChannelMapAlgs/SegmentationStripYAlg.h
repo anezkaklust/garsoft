@@ -58,7 +58,7 @@ namespace gar {
 
                 const std::string& fieldNameSlice() const { return _sliceId; }
 
-                const unsigned int& nLayers() const { return _nLayers; }
+                const unsigned int& nLayers() const override { return _nLayers; }
 
                 void setStripSizeY(double stripSize) { _stripSizeY = stripSize; }
 
@@ -70,7 +70,7 @@ namespace gar {
 
                 void setFieldNameSlice(const std::string& fieldName) { _sliceId = fieldName; }
 
-                void setLayerDimXY(const double& dimX, const double& dimY) const { _layer_dim_X = dimX; _layer_dim_Y = dimY; }
+                void setLayerDimXY(const double& dimX, const double& dimY) const override { _layer_dim_X = dimX; _layer_dim_Y = dimY; }
 
             protected:
 

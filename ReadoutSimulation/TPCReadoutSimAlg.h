@@ -70,7 +70,7 @@ namespace gar {
       {
         if(Channel != b.Channel ||
            TDC     != b.TDC ){
-          LOG_WARNING("IonizationReadout")
+          MF_LOG_WARNING("IonizationReadout")
           << "Attempting to add edepIDE with different "
           << "Channels: "
           << Channel

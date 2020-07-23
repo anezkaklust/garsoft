@@ -70,7 +70,7 @@ namespace gar {
         };
 
         //----------------------------------------------------------------------------
-        CaloStripSplitter::CaloStripSplitter(fhicl::ParameterSet const & p)
+        CaloStripSplitter::CaloStripSplitter(fhicl::ParameterSet const & p) : EDProducer{p} 
         {
             fCaloHitLabel = p.get<std::string>("CaloHitLabel", "calohit");
 
@@ -85,7 +85,7 @@ namespace gar {
             fSaveStripEnds = fSSAAlgo->GetSaveStripEndsFlag();
 
             if(fSaveStripEnds) {
-                LOG_INFO("CaloStripSplitter_module")
+                MF_LOG_INFO("CaloStripSplitter_module")
                 << " Saving Strip ends flag turned on! ";
             }
 

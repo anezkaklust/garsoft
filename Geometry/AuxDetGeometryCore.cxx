@@ -92,7 +92,7 @@ namespace gar {
       fGDMLfile = gdmlfile;
       fROOTfile = rootfile;
 
-      LOG_INFO("AuxDetGeometryCore")
+      MF_LOG_INFO("AuxDetGeometryCore")
       << "New detector geometry loaded from "
       << "\n\t" << fROOTfile
       << "\n\t" << fGDMLfile << "\n";

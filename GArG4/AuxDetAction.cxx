@@ -101,7 +101,7 @@ namespace gar {
         // With every step, check and see if we are in an auxdet and save the energy
         void AuxDetAction::SteppingAction(const G4Step* step)
         {
-            LOG_DEBUG("AuxDetAction")
+            MF_LOG_DEBUG("AuxDetAction")
             << "AuxDetAction::SteppingAction";
 
             this->LArSteppingAction(step);
@@ -122,7 +122,7 @@ namespace gar {
         //------------------------------------------------------------------------------
         void AuxDetAction::LArSteppingAction(const G4Step* step)
         {
-            LOG_DEBUG("AuxDetAction")
+            MF_LOG_DEBUG("AuxDetAction")
             << "AuxDetAction::LArSteppingAction";
 
             // Get the pointer to the track
@@ -146,7 +146,7 @@ namespace gar {
             TGeoNode *node = fGeo->FindNode(pos.x()/CLHEP::cm, pos.y()/CLHEP::cm, pos.z()/CLHEP::cm);//Node in cm...
 
             if(!node){
-                LOG_DEBUG("AuxDetAction::LArSteppingAction")
+                MF_LOG_DEBUG("AuxDetAction::LArSteppingAction")
                 << "Node not found in "
                 << pos.x() << " mm "
                 << pos.y() << " mm "
@@ -160,7 +160,7 @@ namespace gar {
             // only worry about energy depositions larger than the minimum required
             if(step->GetTotalEnergyDeposit() * CLHEP::MeV / CLHEP::GeV > fLArEnergyCut){
 
-                LOG_DEBUG("AuxDetAction::LArSteppingAction")
+                MF_LOG_DEBUG("AuxDetAction::LArSteppingAction")
                 << "In volume "
                 << VolumeName
                 << " Material is "
@@ -196,7 +196,7 @@ namespace gar {
         //------------------------------------------------------------------------------
         void AuxDetAction::ECALSteppingAction(const G4Step* step)
         {
-            LOG_DEBUG("AuxDetAction")
+            MF_LOG_DEBUG("AuxDetAction")
             << "AuxDetAction::ECALSteppingAction";
 
             // Get the pointer to the track
@@ -220,7 +220,7 @@ namespace gar {
             TGeoNode *node = fGeo->FindNode(pos.x()/CLHEP::cm, pos.y()/CLHEP::cm, pos.z()/CLHEP::cm);//Node in cm...
 
             if(!node){
-                LOG_DEBUG("AuxDetAction::ECALSteppingAction")
+                MF_LOG_DEBUG("AuxDetAction::ECALSteppingAction")
                 << "Node not found in "
                 << pos.x() << " mm "
                 << pos.y() << " mm "
@@ -232,7 +232,7 @@ namespace gar {
             if ( ! std::regex_match(volmaterial, std::regex(fECALMaterial)) ) return;
 
             // only worry about energy depositions larger than the minimum required
-            LOG_DEBUG("AuxDetAction::ECALSteppingAction")
+            MF_LOG_DEBUG("AuxDetAction::ECALSteppingAction")
             << "In volume "
             << VolumeName
             << " Material is "
@@ -253,7 +253,7 @@ namespace gar {
             unsigned int stave = this->GetStaveNumber(VolumeName); //get the stave number
             unsigned int module = this->GetModuleNumber(VolumeName); //get the module number
 
-            LOG_DEBUG("AuxDetAction::ECALSteppingAction")
+            MF_LOG_DEBUG("AuxDetAction::ECALSteppingAction")
             << "det_id " << det_id
             << " stave " << stave
             << " module " << module
@@ -279,7 +279,7 @@ namespace gar {
 
             float edep = this->GetStepEnergy(step, true) * CLHEP::MeV / CLHEP::GeV;
 
-            LOG_DEBUG("AuxDetAction::ECALSteppingAction")
+            MF_LOG_DEBUG("AuxDetAction::ECALSteppingAction")
             << "Energy deposited "
             << step->GetTotalEnergyDeposit() * CLHEP::MeV / CLHEP::GeV
             << " GeV in cellID "
