@@ -23,19 +23,19 @@ namespace gar {
             {
             case kAxisX:
                 this->SetRotationX();
-                LOG_INFO("RotationTransformation")
+                MF_LOG_INFO("RotationTransformation")
                 << "Rotation set around the x axis with angle " << m_RotationAngle << " rad";
                 m_RotationSet = true;
                 break;
             case kAxisY:
                 this->SetRotationY();
-                LOG_INFO("RotationTransformation")
+                MF_LOG_INFO("RotationTransformation")
                 << "Rotation set around the y axis with angle " << m_RotationAngle << " rad";
                 m_RotationSet = true;
                 break;
             case kAxisZ:
                 this->SetRotationZ();
-                LOG_INFO("RotationTransformation")
+                MF_LOG_INFO("RotationTransformation")
                 << "Rotation set around the z axis with angle " << m_RotationAngle << " rad";
                 m_RotationSet = true;
                 break;
@@ -56,7 +56,7 @@ namespace gar {
             if(m_RotationSet) {
                 return pandora::CartesianVector( initialVec.GetX() * fRotMatrix[0] + initialVec.GetY() * fRotMatrix[3] + initialVec.GetZ() * fRotMatrix[6], initialVec.GetX() * fRotMatrix[1] + initialVec.GetY() * fRotMatrix[4] + initialVec.GetZ() * fRotMatrix[7], initialVec.GetX() * fRotMatrix[2] + initialVec.GetY() * fRotMatrix[5] + initialVec.GetZ() * fRotMatrix[8] );
             } else {
-                LOG_INFO("RotationTransformation")
+                MF_LOG_INFO("RotationTransformation")
                 << "No rotation axis was defined - operation aborted!";
                 return pandora::CartesianVector(initialVec.GetX(), initialVec.GetY(), initialVec.GetZ());
             }

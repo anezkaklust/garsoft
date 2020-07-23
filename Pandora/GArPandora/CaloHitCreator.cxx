@@ -102,7 +102,7 @@ namespace gar {
                     const float rCoordinate( std::sqrt( pCaloHit->Position()[1] * pCaloHit->Position()[1] + pCaloHit->Position()[2] * pCaloHit->Position()[2]) * CLHEP::cm );
                     if( rCoordinate > m_settings.m_eCalBarrelOuterR )
                     {
-                        LOG_DEBUG("CaloHitCreator::CreateECalCaloHits")
+                        MF_LOG_DEBUG("CaloHitCreator::CreateECalCaloHits")
                         << " Position x: " << pCaloHit->Position()[0] * CLHEP::cm
                         << " y: " << pCaloHit->Position()[1] * CLHEP::cm
                         << " z: " << pCaloHit->Position()[2] * CLHEP::cm
@@ -130,12 +130,12 @@ namespace gar {
                 }
                 catch (pandora::StatusCodeException &statusCodeException)
                 {
-                    LOG_ERROR("CaloHitCreator::CreateECalCaloHits()")
+                    MF_LOG_ERROR("CaloHitCreator::CreateECalCaloHits()")
                     << "Failed to extract ecal calo hit: " << statusCodeException.ToString();
                 }
                 catch (std::exception &exception)
                 {
-                    LOG_WARNING("CaloHitCreator::CreateECalCaloHits()")
+                    MF_LOG_WARNING("CaloHitCreator::CreateECalCaloHits()")
                     << "Failed to extract ecal calo hit: " << exception.what();
                 }
             }
@@ -188,7 +188,7 @@ namespace gar {
 
             if (caloHitParameters.m_nCellRadiationLengths.Get() < std::numeric_limits<float>::epsilon() || caloHitParameters.m_nCellInteractionLengths.Get() < std::numeric_limits<float>::epsilon())
             {
-                LOG_ERROR("CaloHitCreator::GetEndcapCaloHitProperties")
+                MF_LOG_ERROR("CaloHitCreator::GetEndcapCaloHitProperties")
                 << "Calo hit has 0 radiation length or interaction length: not creating a Pandora calo hit.";
                 throw pandora::StatusCodeException(pandora::STATUS_CODE_INVALID_PARAMETER);
             }
@@ -242,7 +242,7 @@ namespace gar {
 
             if (caloHitParameters.m_nCellRadiationLengths.Get() < std::numeric_limits<float>::epsilon() || caloHitParameters.m_nCellInteractionLengths.Get() < std::numeric_limits<float>::epsilon())
             {
-                LOG_ERROR("CaloHitCreator::GetBarrelCaloHitProperties")
+                MF_LOG_ERROR("CaloHitCreator::GetBarrelCaloHitProperties")
                 << "Calo hit has 0 radiation length or interaction length: not creating a Pandora calo hit.";
                 throw pandora::StatusCodeException(pandora::STATUS_CODE_INVALID_PARAMETER);
             }
@@ -268,7 +268,7 @@ namespace gar {
             {
                 const double phi = atan2( pCaloHit->Position()[2], pCaloHit->Position()[1] );
 
-                LOG_DEBUG( "CaloHitCreator::GetBarrelCaloHitProperties" )
+                MF_LOG_DEBUG( "CaloHitCreator::GetBarrelCaloHitProperties" )
                 << "This hit does not have any cellIDs set, will use phi-direction for normal vector "
                 << " phi:" << std::setw(15) << phi*180/M_PI;
 
@@ -357,11 +357,11 @@ namespace gar {
 
             if (!theHits.isValid())
             {
-                LOG_WARNING("CaloHitCreator::CreateECalCaloHits") << "  Failed to find ecal hits for label " << label << std::endl;
+                MF_LOG_WARNING("CaloHitCreator::CreateECalCaloHits") << "  Failed to find ecal hits for label " << label << std::endl;
                 return pandora::STATUS_CODE_NOT_FOUND;
             }
 
-            LOG_DEBUG("CaloHitCreator::CreateECalCaloHits") << "  Found: " << theHits->size() << " Hits " << std::endl;
+            MF_LOG_DEBUG("CaloHitCreator::CreateECalCaloHits") << "  Found: " << theHits->size() << " Hits " << std::endl;
 
             for (unsigned int i = 0; i < theHits->size(); ++i)
             {

@@ -1173,7 +1173,7 @@ namespace gar {
                         thickness_sum       += slice_thickness;
                         layer_thickness     += slice_thickness;
 
-                        LOG_DEBUG("GeometryCore::FindECALLayeredCalorimeterData")
+                        MF_LOG_DEBUG("GeometryCore::FindECALLayeredCalorimeterData")
                         << " Slice " << islice
                         << " RadLen " << nRadiationLengths
                         << " IntLen " << nInteractionLengths
@@ -1258,7 +1258,7 @@ namespace gar {
                         thickness_sum       += slice_thickness;
                         layer_thickness     += slice_thickness;
 
-                        LOG_DEBUG("GeometryCore::FindECALLayeredCalorimeterData")
+                        MF_LOG_DEBUG("GeometryCore::FindECALLayeredCalorimeterData")
                         << " Slice " << islice
                         << " RadLen " << nRadiationLengths
                         << " IntLen " << nInteractionLengths

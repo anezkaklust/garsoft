@@ -1,5 +1,5 @@
 #include "art/Framework/Principal/Handle.h"
-#include "nutools/MagneticField/MagneticField.h"
+#include "nug4/MagneticField/MagneticField.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "canvas/Persistency/Common/FindOneP.h"
@@ -99,7 +99,7 @@ namespace gar {
                             }
                             catch (const pandora::StatusCodeException &)
                             {
-                                LOG_WARNING("MCParticleCreator") << "CreatePandoraMCParticles - unable to create mc particle relationship, invalid information supplied " << std::endl;
+                                MF_LOG_WARNING("MCParticleCreator") << "CreatePandoraMCParticles - unable to create mc particle relationship, invalid information supplied " << std::endl;
                                 continue;
                             }
                         }
@@ -107,7 +107,7 @@ namespace gar {
                 }
             }
 
-            LOG_DEBUG("MCParticleCreator") << " Number of Pandora neutrinos: " << neutrinoCounter << std::endl;
+            MF_LOG_DEBUG("MCParticleCreator") << " Number of Pandora neutrinos: " << neutrinoCounter << std::endl;
 
             for (MCParticleMap::const_iterator iterI = particleMap.begin(), iterEndI = particleMap.end(); iterI != iterEndI; ++iterI)
             {
@@ -131,7 +131,7 @@ namespace gar {
                 mcParticleParameters.m_vertex = newvertex;
                 mcParticleParameters.m_endpoint = newendpoint;
 
-                LOG_DEBUG("MCParticleCreator") << " Adding MC Particle with parameters "
+                MF_LOG_DEBUG("MCParticleCreator") << " Adding MC Particle with parameters "
                 << " mcParticleParameters.m_energy = " << mcParticleParameters.m_energy.Get()
                 << " mcParticleParameters.m_particleId = " << mcParticleParameters.m_particleId.Get()
                 << " mcParticleParameters.m_mcParticleType = " << mcParticleParameters.m_mcParticleType.Get()
@@ -142,7 +142,7 @@ namespace gar {
 
                 try
                 {
-                    LOG_DEBUG("MCParticleCreator::CreateMCParticles")
+                    MF_LOG_DEBUG("MCParticleCreator::CreateMCParticles")
                     << " Creating mc particle " << pMcParticle.get()
                     << " of pdg " << pMcParticle->PdgCode()
                     << " with TrackID " << pMcParticle->TrackId()
@@ -157,7 +157,7 @@ namespace gar {
                     {
                         try
                         {
-                            LOG_DEBUG("MCParticleCreator::CreateMCParticles")
+                            MF_LOG_DEBUG("MCParticleCreator::CreateMCParticles")
                             << " Adding daughter relation " << iterJ->second.get()
                             << " to mc particle " << pMcParticle.get();
 
@@ -165,14 +165,14 @@ namespace gar {
                         }
                         catch (const pandora::StatusCodeException &)
                         {
-                            LOG_WARNING("MCParticleCreator") << "CreatePandoraMCParticles - Unable to create mc particle relationship, invalid information supplied " << std::endl;
+                            MF_LOG_WARNING("MCParticleCreator") << "CreatePandoraMCParticles - Unable to create mc particle relationship, invalid information supplied " << std::endl;
                             continue;
                         }
                     }
                 }
                 catch (const pandora::StatusCodeException &)
                 {
-                    LOG_WARNING("MCParticleCreator") << "CreatePandoraMCParticles - Unable to create MCParticle " << std::endl;
+                    MF_LOG_WARNING("MCParticleCreator") << "CreatePandoraMCParticles - Unable to create MCParticle " << std::endl;
                     continue;
                 }
             }
@@ -233,7 +233,7 @@ namespace gar {
                     if (nullptr == pBestMCParticle)
                     continue;
 
-                    LOG_DEBUG("MCParticleCreator::CreateTrackToMCParticleRelationships")
+                    MF_LOG_DEBUG("MCParticleCreator::CreateTrackToMCParticleRelationships")
                     << "Found MCParticle " << pBestMCParticle
                     << " associated to track " << pTrack
                     << " with best delta momentum " << bestDeltaMomentum;
@@ -242,7 +242,7 @@ namespace gar {
                 }
                 catch (pandora::StatusCodeException &statusCodeException)
                 {
-                    LOG_ERROR("MCParticleCreator::CreateTrackToMCParticleRelationships")
+                    MF_LOG_ERROR("MCParticleCreator::CreateTrackToMCParticleRelationships")
                     << "Failed to extract track to mc particle relationship: " << statusCodeException.ToString();
                 }
             }
@@ -264,7 +264,7 @@ namespace gar {
 
                 // loop over all eveides for this hit
                 for(size_t ieve = 0; ieve < eveides.size(); ieve++) {
-                    LOG_DEBUG("MCParticleCreator::CreateCaloHitToMCParticleRelationships")
+                    MF_LOG_DEBUG("MCParticleCreator::CreateCaloHitToMCParticleRelationships")
                     << " Found eveID " << eveides[ieve].trackID
                     << " associated to art hit " << itr;
 
@@ -277,13 +277,13 @@ namespace gar {
 
             for(auto const &hitMapItr : eveCaloHitMap)
             {
-                LOG_DEBUG("MCParticleCreator::CreateCaloHitToMCParticleRelationships")
+                MF_LOG_DEBUG("MCParticleCreator::CreateCaloHitToMCParticleRelationships")
                 << " Trying to find mcp associated to eveID " << hitMapItr.first.GetEveID();
 
                 const simb::MCParticle *part = bt->TrackIDToParticle(hitMapItr.first.GetEveID());
 
                 if( nullptr == part ) {
-                    LOG_WARNING("MCParticleCreator::CreateCaloHitToMCParticleRelationships")
+                    MF_LOG_WARNING("MCParticleCreator::CreateCaloHitToMCParticleRelationships")
                     << "Cannot find MCParticle for eveid: " << hitMapItr.first.GetEveID();
                     continue;
                 }
@@ -292,7 +292,7 @@ namespace gar {
                 const int trackID = part->TrackId();
                 const float partE = part->E();
 
-                LOG_DEBUG("MCParticleCreator::CreateCaloHitToMCParticleRelationships")
+                MF_LOG_DEBUG("MCParticleCreator::CreateCaloHitToMCParticleRelationships")
                 << " Found to MC part " << part
                 << " of pdg " << part->PdgCode()
                 << " with trackID " << trackID
@@ -304,7 +304,7 @@ namespace gar {
                     const gar::rec::CaloHit *hit = itr.get();
                     try
                     {
-                        LOG_DEBUG("MCParticleCreator::CreateCaloHitToMCParticleRelationships")
+                        MF_LOG_DEBUG("MCParticleCreator::CreateCaloHitToMCParticleRelationships")
                         << " Linking " << part
                         << " of pdg " << part->PdgCode()
                         << " with trackID " << trackID
@@ -317,7 +317,7 @@ namespace gar {
                     }
                     catch (const pandora::StatusCodeException &)
                     {
-                        LOG_WARNING("MCParticleCreator") << "CreateCaloHitToMCParticleRelationships - unable to create calo hit to mc particle relationship, invalid information supplied " << std::endl;
+                        MF_LOG_WARNING("MCParticleCreator") << "CreateCaloHitToMCParticleRelationships - unable to create calo hit to mc particle relationship, invalid information supplied " << std::endl;
                         continue;
                     }
                 }
@@ -335,11 +335,11 @@ namespace gar {
 
             if (!theParticles.isValid())
             {
-                LOG_WARNING("MCParticleCreator") << "  Failed to find MC particles for label " << label << std::endl;
+                MF_LOG_WARNING("MCParticleCreator") << "  Failed to find MC particles for label " << label << std::endl;
                 return pandora::STATUS_CODE_NOT_FOUND;
             }
 
-            LOG_DEBUG("MCParticleCreator") << "  Found: " << theParticles->size() << " MC particles " << std::endl;
+            MF_LOG_DEBUG("MCParticleCreator") << "  Found: " << theParticles->size() << " MC particles " << std::endl;
 
             for (unsigned int i = 0; i < theParticles->size(); ++i)
             {
@@ -359,11 +359,11 @@ namespace gar {
 
             if (!mcTruthBlocks.isValid())
             {
-                LOG_WARNING("MCParticleCreator") << "  Failed to find MC Truth for generator " << label << std::endl;
+                MF_LOG_WARNING("MCParticleCreator") << "  Failed to find MC Truth for generator " << label << std::endl;
                 return pandora::STATUS_CODE_NOT_FOUND;
             }
 
-            LOG_DEBUG("MCParticleCreator") << "  Found: " << mcTruthBlocks->size() << " MC truth blocks " << std::endl;
+            MF_LOG_DEBUG("MCParticleCreator") << "  Found: " << mcTruthBlocks->size() << " MC truth blocks " << std::endl;
 
             if (mcTruthBlocks->size() != 1)
             throw cet::exception("MCParticleCreator") << " PandoraCollector::CollectGeneratorMCParticles --- Unexpected number of MC truth blocks ";
@@ -386,11 +386,11 @@ namespace gar {
 
             if (!theParticles.isValid())
             {
-                LOG_WARNING("MCParticleCreator") << "  Failed to find MC particles for label " << label << std::endl;
+                MF_LOG_WARNING("MCParticleCreator") << "  Failed to find MC particles for label " << label << std::endl;
                 return pandora::STATUS_CODE_NOT_FOUND;
             }
 
-            LOG_DEBUG("MCParticleCreator") << "  Found: " << theParticles->size() << " MC particles " << std::endl;
+            MF_LOG_DEBUG("MCParticleCreator") << "  Found: " << theParticles->size() << " MC particles " << std::endl;
 
             art::FindOneP<simb::MCTruth> theTruthAssns(theParticles, pEvent, label);
 

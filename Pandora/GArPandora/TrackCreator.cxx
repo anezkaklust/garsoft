@@ -110,7 +110,7 @@ namespace gar {
                     this->TrackReachesECAL(pTrack, trackParameters);
                     this->DefineTrackPfoUsage(pTrack, trackParameters);
 
-                    LOG_INFO("TrackCreator::CreateTracks()")
+                    MF_LOG_INFO("TrackCreator::CreateTracks()")
                     << "Creating Track " << pTrack << "\n"
                     << " starting at " << trackParameters.m_trackStateAtStart.Get() << "\n"
                     << " ending at " << trackParameters.m_trackStateAtEnd.Get() << "\n"
@@ -126,7 +126,7 @@ namespace gar {
                 }
                 catch (pandora::StatusCodeException &statusCodeException)
                 {
-                    LOG_DEBUG("TrackCreator::CreateTracks")
+                    MF_LOG_DEBUG("TrackCreator::CreateTracks")
                     << "Failed to extract a track: " << statusCodeException.ToString();
                 }
 
@@ -181,7 +181,7 @@ namespace gar {
 
             if (std::fabs(pTrack->TrackParBeg()[2] / CLHEP::cm) < std::numeric_limits<float>::epsilon())
             {
-                LOG_ERROR("TrackCreator::PassesQualityCuts")
+                MF_LOG_ERROR("TrackCreator::PassesQualityCuts")
                 << "Track has Omega = 0 ";
                 return false;
             }
@@ -192,7 +192,7 @@ namespace gar {
 
             if (sigmaPOverP > m_settings.m_maxTrackSigmaPOverP)
             {
-                LOG_WARNING("TrackCreator::PassesQualityCuts")
+                MF_LOG_WARNING("TrackCreator::PassesQualityCuts")
                 << " Dropping track : " << momentumAtDca.GetMagnitude()
                 << " +- " << sigmaPOverP * (momentumAtDca.GetMagnitude())
                 << " chi2 = " <<  pTrack->ChisqForward();
@@ -259,13 +259,13 @@ namespace gar {
                 }
                 else if (this->IsDaughter(pTrack) || this->IsV0(pTrack))
                 {
-                    LOG_DEBUG("TrackCreator::DefineTrackPfoUsage")
+                    MF_LOG_DEBUG("TrackCreator::DefineTrackPfoUsage")
                     << "Recovering daughter or v0 track "
                     << trackParameters.m_momentumAtDca.Get().GetMagnitude();
                     canFormPfo = true;
                 }
 
-                LOG_DEBUG("TrackCreator::DefineTrackPfoUsage")
+                MF_LOG_DEBUG("TrackCreator::DefineTrackPfoUsage")
                 << " -- track canFormPfo = " << canFormPfo
                 << " -  canFormClusterlessPfo = " << canFormClusterlessPfo;
 
@@ -375,11 +375,11 @@ namespace gar {
 
             if (!theTrk.isValid())
             {
-                LOG_DEBUG("TrackCreator::CreateTracks") << "  Failed to find tracks... " << std::endl;
+                MF_LOG_DEBUG("TrackCreator::CreateTracks") << "  Failed to find tracks... " << std::endl;
                 return pandora::STATUS_CODE_NOT_FOUND;
             }
 
-            LOG_DEBUG("TrackCreator::CreateTracks") << "  Found: " << theTrk->size() << " tracks " << std::endl;
+            MF_LOG_DEBUG("TrackCreator::CreateTracks") << "  Found: " << theTrk->size() << " tracks " << std::endl;
 
             for (unsigned int i = 0; i < theTrk->size(); ++i)
             {

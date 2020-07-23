@@ -35,19 +35,19 @@ namespace gar {
 
                 std::string detectorName = "NDGAr";
 
-                LOG_INFO( "GeometryCreator::CreateGeometry()" ) << "Creating geometry for detector " << detectorName << std::endl;
+                MF_LOG_INFO( "GeometryCreator::CreateGeometry()" ) << "Creating geometry for detector " << detectorName << std::endl;
 
                 for (SubDetectorTypeMap::const_iterator iter = subDetectorTypeMap.begin(), iterEnd = subDetectorTypeMap.end(); iter != iterEnd; ++iter)
                 PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::Geometry::SubDetector::Create(m_pPandora, iter->second));
 
                 for (SubDetectorNameMap::const_iterator iter = subDetectorNameMap.begin(), iterEnd = subDetectorNameMap.end(); iter != iterEnd; ++iter){
-                    LOG_INFO( "GeometryCreator::CreateGeometry()" ) << "Creating geometry for additional subdetector " << iter->first << std::endl;
+                    MF_LOG_INFO( "GeometryCreator::CreateGeometry()" ) << "Creating geometry for additional subdetector " << iter->first << std::endl;
                     PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::Geometry::SubDetector::Create(m_pPandora, iter->second));
                 }
             }
             catch (std::exception &exception)
             {
-                LOG_ERROR( "GeometryCreator::CreateGeometry()" ) << "Failure in pandora geometry creator, exception: " << exception.what() << std::endl;
+                MF_LOG_ERROR( "GeometryCreator::CreateGeometry()" ) << "Failure in pandora geometry creator, exception: " << exception.what() << std::endl;
                 throw exception;
             }
 
@@ -110,7 +110,7 @@ namespace gar {
             parameters.m_isMirroredInZ = true;
             parameters.m_nLayers = layers.size();
 
-            LOG_DEBUG("GeometryCreator::SetDefaultSubDetectorParameters")
+            MF_LOG_DEBUG("GeometryCreator::SetDefaultSubDetectorParameters")
             << " parameters.m_subDetectorName = " << parameters.m_subDetectorName.Get()
             << " parameters.m_subDetectorType = " << parameters.m_subDetectorType.Get()
             << " parameters.m_innerRCoordinate = " << parameters.m_innerRCoordinate.Get()
@@ -140,7 +140,7 @@ namespace gar {
                 layerParameters.m_nRadiationLengths = totalNumberOfRadLengths;
                 layerParameters.m_nInteractionLengths = totalNumberOfIntLengths;
 
-                LOG_DEBUG("GeometryCreator::SetDefaultSubDetectorParameters")
+                MF_LOG_DEBUG("GeometryCreator::SetDefaultSubDetectorParameters")
                 << " layer " << i
                 << " layerParameters.m_closestDistanceToIp = " << layerParameters.m_closestDistanceToIp.Get()
                 << " layerParameters.m_nRadiationLengths = " << layerParameters.m_nRadiationLengths.Get()

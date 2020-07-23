@@ -11,7 +11,7 @@ Date 15.05.2020
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Persistency/Common/PtrMaker.h"
-#include "nutools/MagneticField/MagneticField.h"
+#include "nug4/MagneticField/MagneticField.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -112,7 +112,7 @@ namespace gar {
         {
             try
             {
-                LOG_INFO("PandoraInterface - beginJob");
+                MF_LOG_INFO("PandoraInterface - beginJob");
 
                 this->FinaliseSteeringParameters();
 
@@ -130,17 +130,17 @@ namespace gar {
             }
             catch (pandora::StatusCodeException &statusCodeException)
             {
-                LOG_ERROR("Failed to initialize PandoraInterface: ") << statusCodeException.ToString();
+                MF_LOG_ERROR("Failed to initialize PandoraInterface: ") << statusCodeException.ToString();
                 throw statusCodeException;
             }
             catch (std::exception &exception)
             {
-                LOG_ERROR("Failed to initialize PandoraInterface: std exception ") << exception.what();
+                MF_LOG_ERROR("Failed to initialize PandoraInterface: std exception ") << exception.what();
                 throw exception;
             }
             catch (...)
             {
-                LOG_ERROR("Failed to initialize PandoraInterface: unrecognized exception");
+                MF_LOG_ERROR("Failed to initialize PandoraInterface: unrecognized exception");
                 throw;
             }
         }
@@ -150,7 +150,7 @@ namespace gar {
         {
             try
             {
-                LOG_INFO("PandoraInterface - produce");
+                MF_LOG_INFO("PandoraInterface - produce");
 
                 PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, m_pMCParticleCreator->CreateMCParticles(e));
 
@@ -169,17 +169,17 @@ namespace gar {
             }
             catch (pandora::StatusCodeException &statusCodeException)
             {
-                LOG_ERROR("pandora failed to process event: ") << statusCodeException.ToString();
+                MF_LOG_ERROR("pandora failed to process event: ") << statusCodeException.ToString();
                 throw statusCodeException;
             }
             catch (std::exception &exception)
             {
-                LOG_ERROR("pandora failed to process event: std exception ") << exception.what();
+                MF_LOG_ERROR("pandora failed to process event: std exception ") << exception.what();
                 throw exception;
             }
             catch (...)
             {
-                LOG_ERROR("pandora failed to process event: unrecognized exception");
+                MF_LOG_ERROR("pandora failed to process event: unrecognized exception");
                 throw;
             }
         }
@@ -194,7 +194,7 @@ namespace gar {
             delete m_pMCParticleCreator;
             delete m_pPfoCreator;
 
-            LOG_INFO("PandoraInterface::endJob()");
+            MF_LOG_INFO("PandoraInterface::endJob()");
         }
 
         //-----------------------------------------------------------------------------------

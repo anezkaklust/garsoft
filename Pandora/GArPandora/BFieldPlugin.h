@@ -3,7 +3,7 @@
 
 #include "Plugins/BFieldPlugin.h"
 #include "Objects/CartesianVector.h"
-#include "nutools/MagneticField/MagneticField.h"
+#include "nug4/MagneticField/MagneticField.h"
 
 namespace gar {
     namespace gar_pandora {

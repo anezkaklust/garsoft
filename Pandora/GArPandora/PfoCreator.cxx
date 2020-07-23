@@ -78,7 +78,7 @@ namespace gar {
                         clustersTotalEnergy += clusterCorrectEnergy;
                     }
 
-                    LOG_DEBUG("PfoCreator::CreateParticleFlowObjects")
+                    MF_LOG_DEBUG("PfoCreator::CreateParticleFlowObjects")
                     << "Adding cluster " << &pCluster
                     << " with energy " << pCluster.Energy();
 
@@ -89,7 +89,7 @@ namespace gar {
                 {
                     if (clustersTotalEnergy < std::numeric_limits<float>::epsilon())
                     {
-                        LOG_DEBUG("PfoCreator::CreateParticleFlowObjects")
+                        MF_LOG_DEBUG("PfoCreator::CreateParticleFlowObjects")
                         << "invalid cluster energy " << clustersTotalEnergy;
                         throw pandora::StatusCodeException(pandora::STATUS_CODE_FAILURE);
                     }
@@ -107,7 +107,7 @@ namespace gar {
                 this->AddTracksToRecoParticle(pPandoraPfo, pReconstructedParticle);
                 this->SetRecoParticlePropertiesFromPFO(pPandoraPfo, pReconstructedParticle);
 
-                LOG_DEBUG("PfoCreator::CreateParticleFlowObjects")
+                MF_LOG_DEBUG("PfoCreator::CreateParticleFlowObjects")
                 << "Adding PFO " << &pReconstructedParticle
                 << " with energy " << pReconstructedParticle.Energy()
                 << " , mass " << pReconstructedParticle.Mass();
@@ -137,7 +137,7 @@ namespace gar {
                 const pandora::CaloHit *const pPandoraCaloHit(*hIter);
                 gar::rec::CaloHit *const pCalorimeterHit = (gar::rec::CaloHit*)(pPandoraCaloHit->GetParentAddress());
 
-                LOG_DEBUG("PfoCreator::SetClusterSubDetectorEnergies")
+                MF_LOG_DEBUG("PfoCreator::SetClusterSubDetectorEnergies")
                 << " hit " << pCalorimeterHit
                 << " energy " << pCalorimeterHit->Energy()
                 << " position x " << pCalorimeterHit->Position()[0]
@@ -187,7 +187,7 @@ namespace gar {
             }
             catch (...)
             {
-                LOG_WARNING("PfoCreator::SetClusterPositionAndError")
+                MF_LOG_WARNING("PfoCreator::SetClusterPositionAndError")
                 << "unidentified exception caught.";
             }
         }
@@ -235,7 +235,7 @@ namespace gar {
             {
                 if (totalTrackMomentumAtStart < std::numeric_limits<float>::epsilon())
                 {
-                    LOG_WARNING("PfoCreator::CalculateTrackBasedReferencePoint")
+                    MF_LOG_WARNING("PfoCreator::CalculateTrackBasedReferencePoint")
                     << "invalid track momentum " << totalTrackMomentumAtStart;
                     throw pandora::StatusCodeException(pandora::STATUS_CODE_FAILURE);
                 }
@@ -248,7 +248,7 @@ namespace gar {
             {
                 if (totalTrackMomentumAtDca < std::numeric_limits<float>::epsilon())
                 {
-                    LOG_WARNING("PfoCreator::CalculateTrackBasedReferencePoint")
+                    MF_LOG_WARNING("PfoCreator::CalculateTrackBasedReferencePoint")
                     << "invalid track momentum " << totalTrackMomentumAtDca;
                     throw pandora::StatusCodeException(pandora::STATUS_CODE_FAILURE);
                 }
@@ -273,7 +273,7 @@ namespace gar {
                 continue;
 
                 // ATTN This track must have a parent not in the all track list; still use it if it is the closest to the ip
-                LOG_WARNING("PfoCreator::IsValidParentTrack")
+                MF_LOG_WARNING("PfoCreator::IsValidParentTrack")
                 << "mismatch in track relationship information, use information as available ";
 
                 if (this->IsClosestTrackToIP(pPandoraTrack, allTrackList))
@@ -296,7 +296,7 @@ namespace gar {
             continue;
 
             // ATTN This track must have a sibling not in the all track list; still use it if it has a second sibling that is in the list
-            LOG_WARNING("PfoCreator::HasValidSiblingTrack") << "mismatch in track relationship information, use information as available ";
+            MF_LOG_WARNING("PfoCreator::HasValidSiblingTrack") << "mismatch in track relationship information, use information as available ";
 
             if (this->AreAnyOtherSiblingsInList(pPandoraTrack, allTrackList))
             return true;
