@@ -966,18 +966,6 @@ namespace util {
         MF_LOG_DEBUG("ConvertEdep2Art") << "Finished linking MCTruth and MCParticles";
 
         //--------------------------------------------------------------------------
-        std::unique_ptr< std::vector< gar::sdp::EnergyDeposit>  > TPCCol(new std::vector<gar::sdp::EnergyDeposit> );
-        std::unique_ptr< std::vector< gar::sdp::CaloDeposit > > ECALCol(new std::vector<gar::sdp::CaloDeposit> );
-        std::unique_ptr< std::vector< gar::sdp::CaloDeposit > > TrackerCol(new std::vector<gar::sdp::CaloDeposit> );
-        std::unique_ptr< std::vector< gar::sdp::CaloDeposit > > MuIDCol(new std::vector<gar::sdp::CaloDeposit> );
-        std::unique_ptr< std::vector< gar::sdp::LArDeposit > > LArCol(new std::vector<gar::sdp::LArDeposit> );
-
-        std::unique_ptr< art::Assns<gar::sdp::EnergyDeposit, simb::MCParticle> > ghmcassn(new art::Assns<gar::sdp::EnergyDeposit, simb::MCParticle>);
-        std::unique_ptr< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> > ehmcassn(new art::Assns<gar::sdp::CaloDeposit, simb::MCParticle>); //ECAL
-        std::unique_ptr< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> > thmcassn(new art::Assns<gar::sdp::CaloDeposit, simb::MCParticle>); //TrackerSc
-        std::unique_ptr< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> > mhmcassn(new art::Assns<gar::sdp::CaloDeposit, simb::MCParticle>); //MuID
-        // std::unique_ptr< art::Assns<gar::sdp::LArDeposit, simb::MCParticle> > lhmcassn(new art::Assns<gar::sdp::LArDeposit, simb::MCParticle>); //LAr
-
         m_ECALDeposits.clear();
         m_TrackerDeposits.clear();
         m_MuIDDeposits.clear();
@@ -1217,6 +1205,12 @@ namespace util {
 
         //--------------------------------------------------------------------------
 
+        std::unique_ptr< std::vector< gar::sdp::EnergyDeposit>  > TPCCol(new std::vector<gar::sdp::EnergyDeposit> );
+        std::unique_ptr< std::vector< gar::sdp::CaloDeposit > > ECALCol(new std::vector<gar::sdp::CaloDeposit> );
+        std::unique_ptr< std::vector< gar::sdp::CaloDeposit > > TrackerCol(new std::vector<gar::sdp::CaloDeposit> );
+        std::unique_ptr< std::vector< gar::sdp::CaloDeposit > > MuIDCol(new std::vector<gar::sdp::CaloDeposit> );
+        std::unique_ptr< std::vector< gar::sdp::LArDeposit > > LArCol(new std::vector<gar::sdp::LArDeposit> );
+
         bool hasGAr = false;
 	bool hasECAL = false;
 	bool hasTrackerSc = false;
@@ -1281,6 +1275,12 @@ namespace util {
                 MuIDCol->emplace_back(muidhit);
             }
         }
+
+        std::unique_ptr< art::Assns<gar::sdp::EnergyDeposit, simb::MCParticle> > ghmcassn(new art::Assns<gar::sdp::EnergyDeposit, simb::MCParticle>);
+        std::unique_ptr< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> > ehmcassn(new art::Assns<gar::sdp::CaloDeposit, simb::MCParticle>); //ECAL
+        std::unique_ptr< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> > thmcassn(new art::Assns<gar::sdp::CaloDeposit, simb::MCParticle>); //TrackerSc
+        std::unique_ptr< art::Assns<gar::sdp::CaloDeposit, simb::MCParticle> > mhmcassn(new art::Assns<gar::sdp::CaloDeposit, simb::MCParticle>); //MuID
+        // std::unique_ptr< art::Assns<gar::sdp::LArDeposit, simb::MCParticle> > lhmcassn(new art::Assns<gar::sdp::LArDeposit, simb::MCParticle>); //LAr
 
         //Create assn between hits and mcp
         art::PtrMaker<simb::MCParticle> makeMCPPtr(evt);
@@ -1354,23 +1354,14 @@ namespace util {
         }
         evt.put(std::move(tpassn));
         evt.put(std::move(partCol));
-
-        if(hasGAr) {
-            evt.put(std::move(TPCCol));
-            evt.put(std::move(ghmcassn));
-        }
-        if(hasECAL) {
-            evt.put(std::move(ECALCol), "ECAL");
-            evt.put(std::move(ehmcassn), "ECAL");
-        }
-        if(hasTrackerSc) {
-            evt.put(std::move(TrackerCol), "TrackerSc");
-            evt.put(std::move(thmcassn), "TrackerSc");
-        }
-        if(hasMuID) {
-            evt.put(std::move(MuIDCol), "MuID");
-            evt.put(std::move(mhmcassn), "MuID");
-        }
+        evt.put(std::move(TPCCol));
+        evt.put(std::move(ghmcassn));
+        evt.put(std::move(ECALCol), "ECAL");
+        evt.put(std::move(ehmcassn), "ECAL");
+        evt.put(std::move(TrackerCol), "TrackerSc");
+        evt.put(std::move(thmcassn), "TrackerSc");
+        evt.put(std::move(MuIDCol), "MuID");
+        evt.put(std::move(mhmcassn), "MuID");
         if(hasLAr) {
             // evt.put(std::move(LArCol));
             // evt.put(std::move(lhmcassn));
