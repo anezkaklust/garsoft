@@ -11,7 +11,7 @@
 namespace util{
 
     ClusterShapes::ClusterShapes(int nhits, float* a, float* x, float* y, float* z)
-    : _nHits(nhits), _aHit(nhits, 0.0), _xHit(nhits, 0.0), _yHit(nhits, 0.0), _zHit(nhits, 0.0), _ifNotGravity(1), _ifNotWidth(1), _ifNotInertia(1), _ifNotElipsoid(1)
+    : _nHits(nhits), _aHit(nhits, 0.0), _tHit(nhits, 0.0), _xHit(nhits, 0.0), _yHit(nhits, 0.0), _zHit(nhits, 0.0), _ifNotGravity(1), _ifNotWidth(1), _ifNotInertia(1), _ifNotElipsoid(1)
     {
         for (int i(0); i < nhits; ++i)
         {

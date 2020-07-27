@@ -3,6 +3,7 @@ include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
 art_make( BASENAME_ONLY
           LIBRARY_NAME      GArChannelMapAlg
           LIB_LIBRARIES     ${MF_MESSAGELOGGER}
+                            SimulationDataProducts
                             ${FHICLCPP}
                             ${CETLIB}
                             ${CETLIB_EXCEPT}
@@ -20,6 +21,7 @@ art_make( BASENAME_ONLY
                             ${Boost_SYSTEM_LIBRARY}
                             Geometry
           SERVICE_LIBRARIES Geometry
+                            SimulationDataProducts
                             ${ART_FRAMEWORK_CORE}
                             ${ART_FRAMEWORK_IO_SOURCES}
                             ${ART_FRAMEWORK_PRINCIPAL}
