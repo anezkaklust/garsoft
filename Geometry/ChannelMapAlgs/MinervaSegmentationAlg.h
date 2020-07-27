@@ -3,6 +3,9 @@
 
 #include "Geometry/ChannelMapAlgs/SegmentationAlg.h"
 
+#include "SimulationDataProducts/CaloDeposit.h"
+#include "RawDataProducts/CaloRawDigit.h"
+
 #include <string>
 #include <vector>
 #include <array>
@@ -68,7 +71,11 @@ namespace gar {
 
                 void setLayerDimXY(const double& dimX, const double& dimY) const override { _layer_dim_X = dimX; _layer_dim_Y = dimY; }
 
+                void AddHitsMinerva(std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > &m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits) const;
+
             protected:
+
+                gar::raw::CellID_t GetComplementaryCellID(gar::raw::CellID_t cellID, unsigned int comp) const;
 
                 void PrintParameters() const override;
 

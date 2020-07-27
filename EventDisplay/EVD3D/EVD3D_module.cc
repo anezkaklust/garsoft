@@ -86,6 +86,7 @@
 #include "ReconstructionDataProducts/CaloHit.h"
 
 #include "ReconstructionDataProducts/Cluster.h"
+#include "ReconstructionDataProducts/TPCCluster.h"
 #include "ReconstructionDataProducts/Track.h"
 #include "ReconstructionDataProducts/Vertex.h"
 
@@ -171,6 +172,7 @@ namespace gar{
             bool fDrawECALClusters;
             bool fDrawTracks;
             bool fDrawVertices;
+            bool fDrawTPCClusters;
             bool fDrawMCTruth;
             bool fDrawNeutronTraj;
 
@@ -182,6 +184,7 @@ namespace gar{
             std::vector<std::string> fCaloClusterLabels;    	        ///< module labels that produced Calorimeter Clusters
             std::vector<std::string> fTrackLabels;   		            ///< module labels that produced tracks
             std::vector<std::string> fVertexLabels;  		            ///< module labels that produced vertices
+            std::vector<std::string> fTPCClusterLabels;  		        ///< module labels that produced tpc clusters
 
             std::vector<std::string> fVolumesToShow;                    ///< list of volumes to show in the Eve display
 
@@ -195,6 +198,7 @@ namespace gar{
 
             //TPC
             TEveElementList* fTPCSimHitList;
+            TEveElementList* fTPCClusterList;
 
             //Calo specific
             TEveElementList* fCaloSimHitList;
@@ -232,6 +236,8 @@ namespace gar{
 
             void DrawRawHits(const art::Event& event);
 
+            void DrawTPCClusters(const art::Event& event);
+
             void DrawRecoHits(const art::Event& event);
 
             void DrawHighLevelReco(const art::Event& event);
@@ -259,6 +265,9 @@ namespace gar{
             //get calo clusters
             void GetCaloClusters(std::vector<const rec::Cluster*> &caloCluster, const art::Event& event);
 
+            //get tpc clusters
+            void GetTPCClusters(std::vector<const rec::TPCCluster*> &tpccluster, const art::Event& event);
+
             //get tracks clusters
             void GetTracks(std::vector<const rec::Track*> &track, const art::Event& event);
 
@@ -283,6 +292,8 @@ namespace gar{
             fTeEvt(0),
             fTlRun(0),
             fTlEvt(0),
+            fTPCSimHitList(0),
+            fTPCClusterList(0),
             fCaloSimHitList(0),
             fCaloRawHitList(0),
             fCaloRecoHitList(0),
@@ -308,6 +319,7 @@ namespace gar{
                 fDrawECALClusters          = pset.get<bool                       > ("drawECALClusters"     , false);
                 fDrawTracks                = pset.get<bool                       > ("drawTracks"           , false);
                 fDrawVertices              = pset.get<bool                       > ("drawVertices"         , false);
+                fDrawTPCClusters           = pset.get<bool                       > ("drawTPCClusters"      , false);
                 fDrawMCTruth               = pset.get<bool                       > ("drawMCTruth"          , true);
                 fDrawMCTPC                 = pset.get<bool                       > ("drawMCTPCTruth"       , true);
                 fDrawMCCaloTruth           = pset.get<bool                       > ("drawMCCaloTruth"      , true);
@@ -320,6 +332,7 @@ namespace gar{
                 fCaloClusterLabels         = pset.get< std::vector<std::string> > ("CaloClusterModuleLabels" );
                 fTrackLabels      	       = pset.get< std::vector<std::string> > ("TrackModuleLabels"     	 );
                 fVertexLabels     	       = pset.get< std::vector<std::string> > ("VertexModuleLabels"    	 );
+                fTPCClusterLabels          = pset.get< std::vector<std::string> > ("TPCClusterModuleLabels"    	 );
 
                 fScalingfactor      	   = pset.get<float                     > ("Scalingfactor",       1.0);
                 fDrawIntersection          = pset.get<bool                      > ("drawIntersection"     , false);
@@ -487,6 +500,10 @@ namespace gar{
                 //Draw raw hits
                 if(fDrawECALRawHits)
                 this->DrawRawHits(event);
+
+                //Draw TPC Clusters
+                if(fDrawTPCClusters)
+                this->DrawTPCClusters(event);
 
                 //Draw reco hits
                 if(fDrawECALRecoHits)
@@ -906,6 +923,39 @@ namespace gar{
             }
 
             //----------------------------------------------------
+            void EventDisplay3D::DrawTPCClusters(const art::Event& event)
+            {
+                std::vector<const rec::TPCCluster*> tpclusterlist;
+                this->GetTPCClusters(tpclusterlist, event);
+
+                fTPCClusterList = new TEveElementList("TPC Clusters", "Reconstructed TPC Clusters");
+                fTPCClusterList->SetMainColor(kRed);
+                fTPCClusterList->SetMainAlpha(1.0);
+
+                for(unsigned int p = 0; p < tpclusterlist.size(); ++p)
+                {
+                    const rec::TPCCluster* tpcCluster = tpclusterlist[p];
+
+                    std::ostringstream label;
+                    label << "TPC Cluster " << p << "\n";
+                    label << "Energy: " << tpcCluster->Signal() << " pe\n";
+                    label << "Position (" << tpcCluster->Position()[0] << ", " << tpcCluster->Position()[1] << ", " << tpcCluster->Position()[2] << " ) cm";
+
+                    TEvePointSet *evehit = new TEvePointSet(1);
+                    evehit->SetName(TString::Format("TPC Cluster %i", p));
+                    evehit->SetTitle(label.str().c_str());
+                    evehit->SetMarkerSize(0.5);
+                    evehit->SetMarkerStyle(20);
+                    evehit->SetMarkerColor(fEvtDisplayUtil->LogColor(tpcCluster->Signal(), 0, 1000, 5));
+                    evehit->SetPoint(0, tpcCluster->Position()[0], tpcCluster->Position()[1], tpcCluster->Position()[2]);//cm
+
+                    fTPCClusterList->AddElement(evehit);
+                }
+
+                fEve->AddElement(fTPCClusterList);
+            }
+
+            //----------------------------------------------------
             void EventDisplay3D::DrawRecoHits(const art::Event& event)
             {
                 std::vector<const rec::CaloHit*> recolist;
@@ -1110,8 +1160,8 @@ namespace gar{
 
                 //Forward case
                 int result = util::TrackPropagator::PropagateToCylinder(trk->TrackParEnd(), trk->End(), fGeometry->GetECALInnerBarrelRadius(),
-                                                                        fGeometry->TPCYCent(),fGeometry->TPCZCent(), xyz_intersection,
-                                                                        fGeometry->GetECALEndcapStartX() );
+                fGeometry->TPCYCent(),fGeometry->TPCZCent(), xyz_intersection,
+                fGeometry->GetECALEndcapStartX() );
                 std::ostringstream label;
 
                 if(result == 0)
@@ -1130,8 +1180,8 @@ namespace gar{
                 else{
                     //Try Endcap
                     result = util::TrackPropagator::PropagateToX( trk->TrackParEnd(), trk->End(),
-                                (trk->End()[0] > 0) ? fGeometry->GetECALEndcapStartX() : -fGeometry->GetECALEndcapStartX(),
-                                xyz_intersection, fGeometry->GetECALOuterBarrelRadius() );
+                    (trk->End()[0] > 0) ? fGeometry->GetECALEndcapStartX() : -fGeometry->GetECALEndcapStartX(),
+                    xyz_intersection, fGeometry->GetECALOuterBarrelRadius() );
 
                     if(result == 0)
                     {
@@ -1152,8 +1202,8 @@ namespace gar{
 
                 //Backward case
                 result = util::TrackPropagator::PropagateToCylinder(trk->TrackParBeg(), trk->Vertex(), fGeometry->GetECALInnerBarrelRadius(),
-                                                                    fGeometry->TPCYCent(),fGeometry->TPCZCent(), xyz_intersection,
-                                                                    fGeometry->GetECALEndcapStartX() );
+                fGeometry->TPCYCent(),fGeometry->TPCZCent(), xyz_intersection,
+                fGeometry->GetECALEndcapStartX() );
 
                 if(result == 0)
                 {
@@ -1173,8 +1223,8 @@ namespace gar{
                 else{
                     //Try Endcap
                     result = util::TrackPropagator::PropagateToX( trk->TrackParBeg(), trk->Vertex(),
-                                (trk->Vertex()[0] > 0) ? fGeometry->GetECALEndcapStartX() : -fGeometry->GetECALEndcapStartX(),
-                                xyz_intersection, fGeometry->GetECALOuterBarrelRadius() );
+                    (trk->Vertex()[0] > 0) ? fGeometry->GetECALEndcapStartX() : -fGeometry->GetECALEndcapStartX(),
+                    xyz_intersection, fGeometry->GetECALOuterBarrelRadius() );
 
                     if(result == 0)
                     {
@@ -1338,6 +1388,26 @@ namespace gar{
                 }
                 catch(cet::exception& e){
                     writeErrMsg("GetCaloClusters", e);
+                }
+
+                return;
+            }
+
+            //----------------------------------------------------
+            void EventDisplay3D::GetTPCClusters(std::vector<const rec::TPCCluster*> &tpccluster, const art::Event& event)
+            {
+                tpccluster.clear();
+
+                std::vector<const gar::rec::TPCCluster*> temp;
+
+                try{
+                    event.getView(fTPCClusterLabels.at(0), temp);
+                    for(size_t t = 0; t < temp.size(); ++t){
+                        tpccluster.push_back(temp[t]);
+                    }
+                }
+                catch(cet::exception& e){
+                    writeErrMsg("GetTPCClusters", e);
                 }
 
                 return;
