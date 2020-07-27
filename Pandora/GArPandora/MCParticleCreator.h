@@ -19,7 +19,7 @@ namespace gar {
 
         typedef std::vector< art::Ptr<simb::MCTruth> >      MCTruthVector;
         typedef std::vector< art::Ptr<simb::MCParticle> >   MCParticleVector;
-        typedef std::vector< simb::MCParticle>              RawMCParticleVector;
+        typedef std::vector< simb::MCParticle >             RawMCParticleVector;
         typedef std::map< art::Ptr<simb::MCTruth>,     MCParticleVector >             MCTruthToMCParticles;
         typedef std::map< art::Ptr<simb::MCParticle>,  art::Ptr<simb::MCTruth> >      MCParticlesToMCTruth;
         typedef std::map< int, art::Ptr<simb::MCParticle> >   MCParticleMap;
@@ -65,6 +65,9 @@ namespace gar {
             pandora::StatusCode CreateCaloHitToMCParticleRelationships(const CalorimeterHitVector &calorimeterHitVector) const;
 
             void Reset();
+
+            static const simb::MCParticle* GetFinalStateMCParticle(const MCParticleMap &particleMap, const simb::MCParticle *inputParticle);
+            static bool IsVisible(const art::Ptr<simb::MCParticle> particle);
 
         protected:
 

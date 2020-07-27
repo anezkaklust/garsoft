@@ -10,6 +10,8 @@
 
 #include "MCCheater/BackTracker.h"
 
+#include "Pandora/PdgTable.h"
+
 #include <cmath>
 #include <limits>
 
@@ -308,12 +310,17 @@ namespace gar {
                     if (trackID != pMCParticleCalo->TrackId())
                     continue;
 
+                    //Need to get the original monte carlo particle that created this one (mother <- daughters)
+                    const simb::MCParticle *pMCPrimary = MCParticleCreator::GetFinalStateMCParticle(particleMap, pMCParticleCalo);
+                    if (nullptr == pMCPrimary)
+                    continue;
+
                     for(auto const& itr : hitMapItr.second)
                     {
                         const gar::rec::CaloHit *hit = itr.get();
                         try
                         {
-                            PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetCaloHitToMCParticleRelationship(m_pandora, hit, pMCParticleCalo, hit->Energy()));
+                            PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetCaloHitToMCParticleRelationship(m_pandora, hit, pMCPrimary, hit->Energy()));
                         }
                         catch (const pandora::StatusCodeException &)
                         {
@@ -404,6 +411,57 @@ namespace gar {
             }
 
             return pandora::STATUS_CODE_SUCCESS;
+        }
+
+        //------------------------------------------------------------------------------------------------------------------------------------------
+
+        const simb::MCParticle* MCParticleCreator::GetFinalStateMCParticle(const MCParticleMap &particleMap, const simb::MCParticle *inputParticle)
+        {
+            // Navigate upward through MC daughter/parent links - collect this particle and all its parents
+            MCParticleVector mcVector;
+
+            int trackID(inputParticle->TrackId());
+
+            while(1)
+            {
+                MCParticleMap::const_iterator pIter = particleMap.find(trackID);
+                if (particleMap.end() == pIter)
+                break; // Can't find MC Particle for this track ID [break]
+
+                const art::Ptr<simb::MCParticle> particle = pIter->second;
+                mcVector.push_back(particle);
+
+                trackID = particle->Mother();
+            }
+
+            // Navigate downward through MC parent/daughter links - return the first long-lived charged particle
+            for (MCParticleVector::const_reverse_iterator iter = mcVector.rbegin(), iterEnd = mcVector.rend(); iter != iterEnd; ++iter)
+            {
+                const art::Ptr<simb::MCParticle> nextParticle = *iter;
+
+                if (MCParticleCreator::IsVisible(nextParticle))
+                return nextParticle.get();
+            }
+
+            throw cet::exception("LArPandora"); // need to catch this exception
+        }
+
+        //------------------------------------------------------------------------------------------------------------------------------------------
+
+        bool MCParticleCreator::IsVisible(const art::Ptr<simb::MCParticle> particle)
+        {
+            // Include long-lived charged particles
+            const int pdg(particle->PdgCode());
+
+            if ((pandora::E_MINUS == std::abs(pdg)) || (pandora::MU_MINUS == std::abs(pdg)) || (pandora::PROTON == std::abs(pdg)) ||
+            (pandora::PI_PLUS == std::abs(pdg)) || (pandora::K_PLUS == std::abs(pdg)) ||
+            (pandora::SIGMA_MINUS == std::abs(pdg)) || (pandora::SIGMA_PLUS == std::abs(pdg)) || (pandora::HYPERON_MINUS == std::abs(pdg)) ||
+            (pandora::PHOTON == std::abs(pdg)) || (pandora::NEUTRON == std::abs(pdg)))
+            return true;
+
+            // TODO: What about ions, neutrons, photons? (Have included neutrons and photons for now)
+
+            return false;
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
