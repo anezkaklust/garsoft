@@ -48,23 +48,43 @@ namespace gar {
 
     private:
 
-      std::string fHitLabel;        ///< label of module to get the hits from
+      std::string fHitLabel;    ///< label of module to get the hits from
       int fClusterHits;         ///< hit clustering algorithm number
       float fHitClusterDx;      ///< range in cm to look for hits to cluster in x
       float fHitClusterDyDz;    ///< range in cm to look for hits to cluster in y and z
+
+      float fHitClusterDr_I;    ///< range in R to look for hits to cluster for IROC, in cm
+      float fHitClusterDfi_I;   ///< range in R*dPhi to look for hits to cluster for IROC, in cm
+      float fHitClusterDrIO;    ///< range in R to look for hits to cluster for IOROC, in cm
+      float fHitClusterDfiIO;   ///< range in R*dPhi to look for hits to cluster for IROC, in cm
+      float fHitClusterDrOO;    ///< range in R to look for hits to cluster for OOROC, in cm
+      float fHitClusterDfiOO;   ///< range in R*dPhi to look for hits to cluster for IROC, in cm
+
       int fPrintLevel;              ///< debug printout:  0: none, 1: selected, 2: all
+
+      art::ServiceHandle<geo::Geometry> euclid;
 
     };
 
 
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
     TPCHitCluster::TPCHitCluster(fhicl::ParameterSet const& p) 
       : EDProducer{p}
     {
       fHitLabel         = p.get<std::string>("HitLabel","hit");
       fPrintLevel       = p.get<int>("PrintLevel",0);
       fClusterHits      = p.get<int>("ClusterHits",1);
-      fHitClusterDx     = p.get<float>("HitClusterDx",1.0);
-      fHitClusterDyDz   = p.get<float>("HitClusterDyDz",5.0);
+      fHitClusterDx     = p.get<float>("HitClusterDx",   1.00);
+      fHitClusterDyDz   = p.get<float>("HitClusterDyDz", 1.20);
+      fHitClusterDr_I   = p.get<float>("HitClusterDr_I", 1.50);
+      fHitClusterDfi_I  = p.get<float>("HitClusterDfi_I",1.06);
+      fHitClusterDrIO   = p.get<float>("HitClusterDrIO", 2.00);
+      fHitClusterDfiIO  = p.get<float>("HitClusterDfiIO",1.55);
+      fHitClusterDrOO   = p.get<float>("HitClusterDrOO", 3.00);
+      fHitClusterDfiOO  = p.get<float>("HitClusterDfiO)",1.73);
 
       art::InputTag hitTag(fHitLabel);
       consumes< std::vector<gar::rec::Hit> >(hitTag);
@@ -72,6 +92,11 @@ namespace gar {
       produces< art::Assns<gar::rec::Hit, gar::rec::TPCCluster> >();
     }
 
+
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
     void TPCHitCluster::produce(art::Event& e)
     {
       art::ServiceHandle<geo::Geometry> geo;
@@ -132,31 +157,22 @@ namespace gar {
               side = -1;
             }
 
-
-          double xyzlow[3] =
-            {
-              xyz[0] - fHitClusterDx,
-              xyz[1] - fHitClusterDyDz,
-              xyz[2] - fHitClusterDyDz
-            };
-          // clusters can be displaced in time and so this cut is artificial and not needed.  We may
-          // want to save which end of the chamber the data came from however and not cluster together charge
+          // Clusters can be displaced in time.  We may want to save which end of the 
+          // chamber the data came from however and not cluster together charge
           // that comes from different sides.
-
-          double xyzhigh[3] =
-            {
-              xyz[0] + fHitClusterDx,
-              xyz[1] + fHitClusterDyDz,
-              xyz[2] + fHitClusterDyDz
-            };
 
           if (fPrintLevel > 1)
             {
               std::cout << "Started a new TPC cluster.  Pos= " << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
               std::cout << "Side: " << side << std::endl;
-              std::cout << "Low bound search window: " << xyzlow[0] << " " << xyzlow[1] << " " << xyzlow[2] << std::endl;
-              std::cout << "High bound search window: " << xyzhigh[0] << " " << xyzhigh[1] << " " << xyzhigh[2] << std::endl;
             }
+
+          // Determine cluster position in endcap for cuts to accumulate more hits
+         float rHit = std::hypot(xyz[1],xyz[2]);
+         bool In_CROC =                                                  rHit < euclid->GetIROCInnerRadius();
+         bool In_IROC = euclid->GetIROCInnerRadius() < rHit 		  && rHit < euclid->GetIROCOuterRadius();
+         bool InIOROC = euclid->GetOROCInnerRadius() < rHit 		  && rHit < euclid->GetOROCPadHeightChangeRadius();
+         bool InOOROC = euclid->GetOROCPadHeightChangeRadius() < rHit && rHit < euclid->GetOROCOuterRadius();
 
           for (size_t ix = ihitx+1; ix<nhits; ++ix) // look for candidate hits to cluster in with this one
             {
@@ -183,17 +199,41 @@ namespace gar {
                             << used[ihc] << " " << ihc << " " << ix << std::endl;
                 }
 
-              if (xyz2[0] > xyzhigh[0] || xyz2[0] < xyzlow[0]) break;
-              if (xyz2[1] < xyzhigh[1] && xyz2[1] > xyzlow[1] && xyz2[2] < xyzhigh[2] && xyz2[2] > xyzlow[2] && (used[ihc] == 0))
+              // Check if hit ix is close to ihit, first in drift direction, then
+              // in transverse plane depending on which ROC has ihit
+              if ( fabs(xyz2[0] -xyz[0]) > fHitClusterDx ) continue;
+
+              if (In_CROC) {
+                if ( fabs(xyz2[1] -xyz[1]) > fHitClusterDyDz ) continue;
+                if ( fabs(xyz2[2] -xyz[2]) > fHitClusterDyDz ) continue;
+              }
+              // Project out the radial and rotational components of xyz2 -xyz.
+              float RhatY = xyz[1]/std::hypot(xyz[1],xyz[2]);
+              float RhatZ = xyz[2]/std::hypot(xyz[1],xyz[2]);
+              float clustDist = std::hypot(xyz2[1] -xyz[1],xyz2[2] -xyz[2]);
+              float dR  = (xyz2[1] -xyz[1])*RhatY +(xyz2[2] -xyz[2])*RhatZ;
+              float Rdfi = sqrt(clustDist*clustDist -dR*dR);
+              if (In_IROC) {
+                if (dR   > fHitClusterDr_I)  continue;
+                if (Rdfi > fHitClusterDfi_I) continue;
+              }
+              if (InIOROC) {
+                if (dR   > fHitClusterDrIO)  continue;
+                if (Rdfi > fHitClusterDfiIO) continue;
+              }
+              if (InOOROC) {
+                if (dR   > fHitClusterDrOO)  continue;
+                if (Rdfi > fHitClusterDfiOO) continue;
+              }
+
+              // add hit to cluster
+              hitsinclus.push_back(ihc);
+              used[ihc] = 1;
+              if (fPrintLevel > 1)
                 {
-                  // add hit to cluster
-                  hitsinclus.push_back(ihc);
-                  used[ihc] = 1;
-                  if (fPrintLevel > 1)
-                    {
-                      std::cout << "Added hit with pos: " << xyz2[0] << " " << xyz2[1] << " " << xyz2[2] << std::endl;
-                    }
+                  std::cout << "Added hit with pos: " << xyz2[0] << " " << xyz2[1] << " " << xyz2[2] << std::endl;
                 }
+              
             }
 
           // calculate cluster charge, centroid, min and max times, and covariance
