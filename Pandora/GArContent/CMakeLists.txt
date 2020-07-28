@@ -1,6 +1,5 @@
 include_directories( include/ )
 include_directories( $ENV{PANDORA_INC} )
-include_directories( $ENV{LCPANDORACONTENT_INC} )
 
 cet_make_library(LIBRARY_NAME GArContent
   SOURCE

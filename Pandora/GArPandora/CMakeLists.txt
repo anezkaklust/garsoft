@@ -1,7 +1,6 @@
 include_directories( $ENV{GEANT4_FQ_DIR}/include )
 include_directories( $ENV{NUTOOLS_DIR}/include   )
 include_directories( $ENV{PANDORA_INC} )
-include_directories( $ENV{LCPANDORACONTENT_INC} )
 include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
 include_directories( ../GArContent/include  )
 

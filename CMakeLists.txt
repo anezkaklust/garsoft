@@ -98,7 +98,7 @@ if( BUILD_W_PANDORA )
 find_ups_product( pandora )
 cet_find_library( PANDORASDK NAMES PandoraSDK PATHS ENV PANDORA_LIB )
 cet_find_library( PANDORAMONITORING NAMES PandoraMonitoring PATHS ENV PANDORA_LIB )
-cet_find_library( LCPANDORACONTENT NAMES LCContent PATHS ENV LCPANDORACONTENT_LIB )
+cet_find_library( LCPANDORACONTENT NAMES LCContent PATHS ENV PANDORA_LIB )
 
 add_subdirectory (Pandora)
 endif()
