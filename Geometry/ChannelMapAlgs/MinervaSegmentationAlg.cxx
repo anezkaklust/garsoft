@@ -321,12 +321,14 @@ namespace gar {
                             std::sort(vechit.begin(), vechit.end()); //sort per time
 
                             float esum = 0.;
+                            float stepLength = 0.;
                             float time = vechit.at(0).Time();
                             int trackID = vechit.at(0).TrackID();
                             double pos[3] = { vechit.at(0).X(), vechit.at(0).Y(), vechit.at(0).Z() };
 
                             for(auto const &hit : vechit) {
                                 esum += hit.Energy();
+                                stepLength += hit.StepLength();
                             }
 
                             //need to check if cellX or cellY are - 1
@@ -338,13 +340,14 @@ namespace gar {
 
                                 for(auto const &hit : vechit_comp) {
                                     esum += hit.Energy();
+                                    stepLength += hit.StepLength();
                                 }
 
                                 //remove the element from the map now to avoid double counting
                                 m_Deposits.erase(find->first);
                             }
 
-                            fDeposits.emplace_back( trackID, time, esum, pos, cellID );
+                            fDeposits.emplace_back( trackID, time, esum, pos, cellID, stepLength );
                         }
 
                         if(triangleNb == 3) {
@@ -353,12 +356,14 @@ namespace gar {
                             std::sort(vechit.begin(), vechit.end()); //sort per time
 
                             float esum = 0.;
+                            float stepLength = 0.;
                             float time = vechit.at(0).Time();
                             int trackID = vechit.at(0).TrackID();
                             double pos[3] = { vechit.at(0).X(), vechit.at(0).Y(), vechit.at(0).Z() };
 
                             for(auto const &hit : vechit) {
                                 esum += hit.Energy();
+                                stepLength += hit.StepLength();
                             }
 
                             //need to check if cellX or cellY are + 1
@@ -370,13 +375,14 @@ namespace gar {
 
                                 for(auto const &hit : vechit_comp) {
                                     esum += hit.Energy();
+                                    stepLength += hit.StepLength();
                                 }
 
                                 //remove the element from the map now to avoid double counting
                                 m_Deposits.erase(find->first);
                             }
 
-                            fDeposits.emplace_back( trackID, time, esum, pos, cellID );
+                            fDeposits.emplace_back( trackID, time, esum, pos, cellID, stepLength );
                         }
                     }
 
@@ -387,12 +393,14 @@ namespace gar {
                             std::sort(vechit.begin(), vechit.end()); //sort per time
 
                             float esum = 0.;
+                            float stepLength = 0.;
                             float time = vechit.at(0).Time();
                             int trackID = vechit.at(0).TrackID();
                             double pos[3] = { vechit.at(0).X(), vechit.at(0).Y(), vechit.at(0).Z() };
 
                             for(auto const &hit : vechit) {
                                 esum += hit.Energy();
+                                stepLength += hit.StepLength();
                             }
 
                             //need to check if cellX or cellY are the same
@@ -404,12 +412,13 @@ namespace gar {
 
                                 for(auto const &hit : vechit_comp) {
                                     esum += hit.Energy();
+                                    stepLength += hit.StepLength();
                                 }
 
                                 //remove the element from the map now to avoid double counting
                                 m_Deposits.erase(find->first);
                             }
-                            fDeposits.emplace_back( trackID, time, esum, pos, cellID );
+                            fDeposits.emplace_back( trackID, time, esum, pos, cellID, stepLength );
                         }
 
                         if(triangleNb == 2) {
@@ -417,12 +426,14 @@ namespace gar {
                             std::sort(vechit.begin(), vechit.end()); //sort per time
 
                             float esum = 0.;
+                            float stepLength = 0.;
                             float time = vechit.at(0).Time();
                             int trackID = vechit.at(0).TrackID();
                             double pos[3] = { vechit.at(0).X(), vechit.at(0).Y(), vechit.at(0).Z() };
 
                             for(auto const &hit : vechit) {
                                 esum += hit.Energy();
+                                stepLength += hit.StepLength();
                             }
 
                             //need to check if cellX or cellY are the same
@@ -434,12 +445,13 @@ namespace gar {
 
                                 for(auto const &hit : vechit_comp) {
                                     esum += hit.Energy();
+                                    stepLength += hit.StepLength();
                                 }
 
                                 //remove the element from the map now to avoid double counting
                                 m_Deposits.erase(find->first);
                             }
-                            fDeposits.emplace_back( trackID, time, esum, pos, cellID );
+                            fDeposits.emplace_back( trackID, time, esum, pos, cellID, stepLength );
                         }
                     }
 

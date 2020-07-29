@@ -19,6 +19,7 @@ namespace gar {
         , fTime   (0.)
         , fEnergy (0.)
         , fCellID (0)
+        , fStepLength(0.)
         {
             fPos[0] = 0.;
             fPos[1] = 0.;

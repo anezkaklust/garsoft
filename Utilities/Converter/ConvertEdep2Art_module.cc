@@ -407,15 +407,17 @@ namespace util {
             std::sort(vechit.begin(), vechit.end()); //sort per time
 
             float esum = 0.;
+            float stepLength = 0.;
             float time = vechit.at(0).Time();
             int trackID = vechit.at(0).TrackID();
             double pos[3] = { vechit.at(0).X(), vechit.at(0).Y(), vechit.at(0).Z() };
 
             for(auto const &hit : vechit) {
                 esum += hit.Energy();
+                stepLength += hit.StepLength();
             }
 
-            fDeposits.emplace_back( trackID, time, esum, pos, cellID );
+            fDeposits.emplace_back( trackID, time, esum, pos, cellID, stepLength );
             //remove the element from the map now
             m_Deposits.erase(it.first);
         }
@@ -781,7 +783,7 @@ namespace util {
                     double x = (hit->GetStart().X() + hit->GetStop().X())/2 /CLHEP::cm;
                     double y = (hit->GetStart().Y() + hit->GetStop().Y())/2 /CLHEP::cm;
                     double z = (hit->GetStart().Z() + hit->GetStop().Z())/2 /CLHEP::cm;
-                    double stepLength = hit->GetTrackLength() /CLHEP::cm;
+                    double stepLength = hit->GetTrackLength() / CLHEP::cm;
 
                     if(edep <= 0 || edep < fEnergyCut || stepLength <= 0)
                     continue;
@@ -802,7 +804,7 @@ namespace util {
 
                     int trackID = hit->GetPrimaryId();
                     double edep = VisibleEnergyDeposition(hit, fApplyBirks) * CLHEP::MeV / CLHEP::GeV;
-                    double stepLength = hit->GetTrackLength() /CLHEP::cm;
+                    double stepLength = hit->GetTrackLength() / CLHEP::cm;
                     double time = (hit->GetStart().T() + hit->GetStop().T())/2 / CLHEP::s;
                     double x = (hit->GetStart().X() + hit->GetStop().X())/2 /CLHEP::cm;
                     double y = (hit->GetStart().Y() + hit->GetStop().Y())/2 /CLHEP::cm;
@@ -846,7 +848,7 @@ namespace util {
                     G4Pos[1] = GlobalPosCM[1];
                     G4Pos[2] = GlobalPosCM[2];
 
-                    gar::sdp::CaloDeposit calohit( trackID, time, edep, G4Pos, cellID );
+                    gar::sdp::CaloDeposit calohit( trackID, time, edep, G4Pos, cellID, stepLength);
                     if(m_ECALDeposits.find(cellID) != m_ECALDeposits.end())
                     m_ECALDeposits[cellID].push_back(calohit);
                     else {
@@ -912,7 +914,7 @@ namespace util {
                     G4Pos[1] = GlobalPosCM[1];
                     G4Pos[2] = GlobalPosCM[2];
 
-                    gar::sdp::CaloDeposit calohit( trackID, time, edep, G4Pos, cellID );
+                    gar::sdp::CaloDeposit calohit( trackID, time, edep, G4Pos, cellID, stepLength );
                     if(m_TrackerDeposits.find(cellID) != m_TrackerDeposits.end())
                     m_TrackerDeposits[cellID].push_back(calohit);
                     else {
@@ -974,7 +976,7 @@ namespace util {
                     G4Pos[1] = GlobalPosCM[1];
                     G4Pos[2] = GlobalPosCM[2];
 
-                    gar::sdp::CaloDeposit calohit( trackID, time, edep, G4Pos, cellID );
+                    gar::sdp::CaloDeposit calohit( trackID, time, edep, G4Pos, cellID, stepLength );
                     if(m_MuIDDeposits.find(cellID) != m_MuIDDeposits.end())
                     m_MuIDDeposits[cellID].push_back(calohit);
                     else {
