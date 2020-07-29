@@ -91,6 +91,18 @@ add_subdirectory (RecoAlg)
 add_subdirectory (Ana)
 add_subdirectory (Filters)
 
+# Pandora
+option(BUILD_W_PANDORA "Build with Pandora" ON )
+
+if( BUILD_W_PANDORA )
+find_ups_product( pandora )
+cet_find_library( PANDORASDK NAMES PandoraSDK PATHS ENV PANDORA_LIB )
+cet_find_library( PANDORAMONITORING NAMES PandoraMonitoring PATHS ENV PANDORA_LIB )
+cet_find_library( LCPANDORACONTENT NAMES LCContent PATHS ENV PANDORA_LIB )
+
+add_subdirectory (Pandora)
+endif()
+
 # tests
 add_subdirectory (test)
 
