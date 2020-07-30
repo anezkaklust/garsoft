@@ -135,7 +135,6 @@ namespace gar {
             std::unique_ptr< art::Assns<gar::rec::TPCCluster,gar::rec::Track> > TPCClusterTrkAssns(new ::art::Assns<gar::rec::TPCCluster,gar::rec::Track>);
 
             art::InputTag tpcedeptag(fInputEdepLabel,fInputEdepInstanceTPC);
-            //art::InputTag muidedeptag(fInputEdepLabel,fInputEdepInstanceMuID);
             auto tccdHandle = e.getValidHandle< std::vector<gar::sdp::CaloDeposit> >(tpcedeptag);
             auto const& tccds = *tccdHandle;
 
