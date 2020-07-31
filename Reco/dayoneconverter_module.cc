@@ -296,11 +296,23 @@ namespace gar {
                     } // end loop over j in triplet
                 } // end loop over i in triplet
 
-                // so far can only make one track.  Look at other points in collection not yet used and make more tracks
+                // so far we can only make one track.  Look at other points in collection not yet used and make more tracks
 
                 if (bestnpts > 0)
                 {
-                    trkCol->push_back(besttrack);
+		  // "besttrack" above only has track parameters from the triplet.  make a new track from
+		  // all the TPC clusters
+		    //trkCol->push_back(besttrack);
+                    std::vector<gar::rec::TPCCluster> tcv;
+		    for (size_t i=0;i<besttpcclusindex.size(); ++i)
+		      {
+                        tcv.push_back(TPCClusterCol->at(besttpcclusindex.at(i)));
+		      }
+		    gar::rec::TrackPar btp;
+		    makepatrectrack(tcv,btp);
+		    gar::rec::Track btt = btp.CreateTrack();
+		    trkCol->push_back(btt);
+
                     auto const trackpointer = trackPtrMaker(trkCol->size()-1);
                     for (size_t i=0; i<besttpcclusindex.size(); ++i)
                     {
