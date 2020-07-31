@@ -73,7 +73,7 @@ namespace gar {
             float       fSmearX;         ///< amount by which to smear X, in cm
             float       fSmearY;         ///< amount by which to smear Y, in cm
             float       fSmearT;         ///< amount by which to smear T, in ns
-            float       fGeVtoPE;        ///< conversion factor from GeV to pe
+            float       fPECm;           ///< conversion factor from cm step length to pe
             float       fSmearLY;        ///< amount by which to smear the LY
             float       fThrPE;          ///< threshold cut in pe
             float       fZCut1;          ///< Cut to ensure TPC Clusters are on different planes
@@ -105,7 +105,7 @@ namespace gar {
             fSmearX = p.get<float>("SmearX",0.3);  // in cm
             fSmearY = p.get<float>("SmearY",0.3);  // in cm
             fSmearT = p.get<float>("SmearT",1.0);  // in ns
-            fGeVtoPE  = p.get<float>("GeVtoPE", 3000.);  // in pe/GeV
+            fPECm  = p.get<float>("PeCm", 50.);  // in pe/cm
             fSmearLY  = p.get<float>("SmearLY", 10.0);  // in pe
             fThrPE    = p.get<float>("ThrPE", 5.0);  // in pe
             fZCut1    = p.get<float>("ZCut1",10.0); // in cm
@@ -135,7 +135,6 @@ namespace gar {
             std::unique_ptr< art::Assns<gar::rec::TPCCluster,gar::rec::Track> > TPCClusterTrkAssns(new ::art::Assns<gar::rec::TPCCluster,gar::rec::Track>);
 
             art::InputTag tpcedeptag(fInputEdepLabel,fInputEdepInstanceTPC);
-            //art::InputTag muidedeptag(fInputEdepLabel,fInputEdepInstanceMuID);
             auto tccdHandle = e.getValidHandle< std::vector<gar::sdp::CaloDeposit> >(tpcedeptag);
             auto const& tccds = *tccdHandle;
 
@@ -347,7 +346,7 @@ namespace gar {
             time += GaussRand.fire(0., fSmearT);
 
             //convert energy to pe
-            energy *= fGeVtoPE;
+            energy = fPECm * cd.StepLength();
             energy += GaussRand.fire(0., fSmearLY);
 
             if(energy < fThrPE) energy = 0.;

@@ -19,6 +19,8 @@ standard_anatree:
 # GENIEGeneratorLabels:      [ "generator" ]
 
  GEANTLabel:               "geant"
+ GEANTInstanceCalo:        ""
+ GEANTInstanceMuID:        ""
  HitLabel:                 "hit"
  TPCClusterLabel:          "tpccluster"
  TrackLabel:               "track"

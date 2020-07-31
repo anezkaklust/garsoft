@@ -26,7 +26,8 @@
   <class name="gar::sdp::AuxDetIDE"                ClassVersion="10"         	 >
     <version ClassVersion="10" checksum="1916611417"/>
   </class>
-  <class name="gar::sdp::CaloDeposit"            ClassVersion="13"            >
+  <class name="gar::sdp::CaloDeposit"            ClassVersion="14"            >
+   <version ClassVersion="14" checksum="1691869710"/>
     <version ClassVersion="13" checksum="2861707046"/>
     <version ClassVersion="12" checksum="4038858597"/>
     <version ClassVersion="11" checksum="3127142797"/>

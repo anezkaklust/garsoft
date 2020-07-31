@@ -252,9 +252,11 @@ void CAF::CheckVectorSize()
 {
     std::cout << "Number of FSP " << _nFSP.at(0) << std::endl;
     std::cout << "Size of true pdg " << truepdg.size() << std::endl;
+    std::cout << "Size of erecon " << erecon.size() << std::endl;
+    std::cout << "Size of recopidecal " << recopidecal.size() << std::endl;
 
-    if(_nFSP.at(0) != truepdg.size()) {
-        throw "_nFSP and truepdg have different sizes";
+    if(_nFSP.at(0) != truepdg.size() || erecon.size() != recopidecal.size()) {
+        throw;
     }
 
     return;
@@ -407,7 +409,8 @@ void CAF::loop()
     _inttree->SetBranchAddress("TrajMCPTrajIndex", &TrajMCPTrajIndex);
 
     //gamma, neutron, pi0, k0L, k0S, k0, delta0
-    std::vector<int> pdg_neutral = {22, 2112, 111, 130, 310, 311, 2114, 14, 12, 16};
+    std::vector<int> neutrinos = {12, 14, 16};
+    std::vector<int> pdg_neutral = {22, 2112, 111, 130, 310, 311, 2114};
     //pion, muon, proton, kaon, deuteron, electron
     std::vector<int> pdg_charged = {211, 13, 2212, 321, 1000010020, 11};
     //-------------------------------------------------------------------
@@ -420,6 +423,7 @@ void CAF::loop()
         this->ClearVectors();
 
         // if(Event%100 == 0)
+        std::cout << "------------------------------------" << std::endl;
         std::cout << "Treating Evt " << Event << std::endl;
 
         //Filling MCTruth values
@@ -464,7 +468,7 @@ void CAF::loop()
         //--------------------------------------------------------------------------
         // Start of Parameterized Reconstruction
         //--------------------------------------------------------------------------
-        int nFSP = 0;
+        int nFSP = -1;
 
         //TODO we should skip particles that we don't see or cannot reconstruct! change filling caf with i to index counting the particle
         //have to be careful with indexes and continue
@@ -480,10 +484,13 @@ void CAF::loop()
             int mctrackid = MCPTrkID->at(i);
             int pdg = PDG->at(i);
 
-            // std::cout << "pdg " << pdg << " process " << mcp_process << " end process " << mcp_endprocess << std::endl;
-            // if(mcp_process != "primary" && mcp_process != "Decay" && mcp_process != "conv") continue;
+            //Ignore neutrinos!
+            if(std::find(neutrinos.begin(), neutrinos.end(), abs(pdg)) != neutrinos.end()) continue;
 
+            // if(mcp_process != "primary" && mcp_process != "Decay") continue;
+            std::cout << "pdg " << pdg << " process " << mcp_process << " end process " << mcp_endprocess << std::endl;
             nFSP++;
+
             TVector3 mcp(MCPStartPX->at(i), MCPStartPY->at(i), MCPStartPZ->at(i));
             float ptrue = (mcp).Mag();
 
@@ -512,9 +519,10 @@ void CAF::loop()
                 for(size_t itraj = 1; itraj < TrajMCPX->size(); itraj++)
                 {
                     //check that it is the correct mcp
-                    if(TrajMCPTrajIndex->at(itraj) == mctrackid){
+                    if(TrajMCPTrajIndex->at(itraj) == mctrackid)
+                    {
                         //Traj point+1
-                        TVector3 point(TrajMCPX->at(itraj)- _util->GetOrigin()[0], TrajMCPY->at(itraj)- _util->GetOrigin()[1], TrajMCPZ->at(itraj)- _util->GetOrigin()[2]);
+                        TVector3 point(TrajMCPX->at(itraj) - _util->GetOrigin()[0], TrajMCPY->at(itraj) - _util->GetOrigin()[1], TrajMCPZ->at(itraj) - _util->GetOrigin()[2]);
 
                         //point is not in the TPC anymore - stop traj loop
                         if(not _util->PointInTPC(point))
@@ -575,8 +583,9 @@ void CAF::loop()
             //***************************************************************************************************************/
 
             //Visible in the TPC
-            if( trkLen.at(i) > gastpc_len )
+            if( trkLen.at(nFSP) > gastpc_len )
             {
+            std::cout << "Enter TPC case" << std::endl;
                 for (int pidm = 0; pidm < 6; ++pidm)
                 {
                     if ( abs(pdg) == pdg_charged.at(pidm) )
@@ -623,11 +632,11 @@ void CAF::loop()
                         if( _util->PointInTPC(epoint) )
                         {
                             // calculate number of trackpoints
-                            float nHits = round (trkLen.at(i) / gastpc_padPitch);
+                            float nHits = round (trkLen.at(nFSP) / gastpc_padPitch);
                             // angular resolution first term
-                            float sigma_angle_1 = ((sigma_x * sigma_x * 0.0001) / trkLen.at(i)*trkLen.at(i)*0.0001) * (12*(nHits-1))/(nHits*(nHits+1));
+                            float sigma_angle_1 = ((sigma_x * sigma_x * 0.0001) / trkLen.at(nFSP)*trkLen.at(nFSP)*0.0001) * (12*(nHits-1))/(nHits*(nHits+1));
                             // scattering term in Gluckstern formula
-                            float sigma_angle_2 = (0.015*0.015 / (3. * ptrue * ptrue)) * (trkLen.at(i)/gastpc_X0);
+                            float sigma_angle_2 = (0.015*0.015 / (3. * ptrue * ptrue)) * (trkLen.at(nFSP)/gastpc_X0);
                             // angular resolution from the two terms above
                             float sigma_angle_short = sqrt(sigma_angle_1 + sigma_angle_2);
                             //reconstructed angle
@@ -635,25 +644,28 @@ void CAF::loop()
                             //reconstructed momentum
                             preco = _util->GaussianSmearing( ptrue, sigmaP_short );
 
-                            erecon.push_back(0);
                             if(preco > 0)
                             _preco.push_back(preco);
                             else
                             _preco.push_back(0);
                             anglereco.push_back(angle_reco);
+
+                            erecon.push_back(0);
                             recopidecal.push_back(0);
                             etime.push_back(0.);
                             detected.push_back(0);
+
+                        std::cout << "FSP " << nFSP << " pdg " << pdg << " trk id " << MCPTrkID->at(i) << " case seen tpc, stop in tpc, recopidecal " << recopidecal.at(nFSP) << std::endl;
                         }
                         else
                         {
                             //Case where the endpoint is not in the TPC, should be able to use the Gluckstern formula
                             // calculate number of trackpoints
-                            float nHits = round (trkLen.at(i) / gastpc_padPitch);
+                            float nHits = round (trkLen.at(nFSP) / gastpc_padPitch);
                             // measurement term in Gluckstern formula
-                            float fracSig_meas = sqrt(720./(nHits+4)) * ((0.01*gastpc_padPitch*ptrue) / (0.3 * gastpc_B * 0.0001 *trkLenPerp.at(i)*trkLenPerp.at(i)));
+                            float fracSig_meas = sqrt(720./(nHits+4)) * ((0.01*gastpc_padPitch*ptrue) / (0.3 * gastpc_B * 0.0001 *trkLenPerp.at(nFSP)*trkLenPerp.at(nFSP)));
                             // multiple Coulomb scattering term in Gluckstern formula
-                            float fracSig_MCS = (0.052*sqrt(1.43)) / (gastpc_B * sqrt(gastpc_X0*trkLenPerp.at(i)*0.0001));
+                            float fracSig_MCS = (0.052*sqrt(1.43)) / (gastpc_B * sqrt(gastpc_X0*trkLenPerp.at(nFSP)*0.0001));
                             // momentum resoltion from the two terms above
                             float sigmaP = ptrue * sqrt( fracSig_meas*fracSig_meas + fracSig_MCS*fracSig_MCS );
                             // now Gaussian smear the true momentum using the momentum resolution
@@ -661,9 +673,9 @@ void CAF::loop()
 
                             // measurement term in the Gluckstern formula for calculating the
                             // angular resolution
-                            float sigma_angle_1 = ((sigma_x * sigma_x * 0.0001) / trkLen.at(i)*trkLen.at(i)*0.0001) * (12*(nHits-1))/(nHits*(nHits+1));
+                            float sigma_angle_1 = ((sigma_x * sigma_x * 0.0001) / trkLen.at(nFSP)*trkLen.at(nFSP)*0.0001) * (12*(nHits-1))/(nHits*(nHits+1));
                             // scattering term in Gluckstern formula
-                            float sigma_angle_2 = (0.015*0.015 / (3. * ptrue * ptrue)) * (trkLen.at(i)/gastpc_X0);
+                            float sigma_angle_2 = (0.015*0.015 / (3. * ptrue * ptrue)) * (trkLen.at(nFSP)/gastpc_X0);
                             // angular resolution from the two terms above
                             float sigma_angle = sqrt(sigma_angle_1 + sigma_angle_2);
                             // now Gaussian smear the true angle using the angular resolution
@@ -674,12 +686,12 @@ void CAF::loop()
                             _preco.push_back(preco);
                             else
                             _preco.push_back(0);
+
                             anglereco.push_back(angle_reco);
 
                             //Reaches the ECAL and stops there
                             if( _util->PointInCalo(epoint) )
                             {
-                                etime.push_back(ecaltime);
                                 //Need energy measurement in ecal
                                 TParticlePDG *part = TDatabasePDG::Instance()->GetParticle(abs(pdg));
                                 if(nullptr == part)
@@ -693,12 +705,18 @@ void CAF::loop()
                                         erecon.push_back(ereco);
                                         recopidecal.push_back(0);
                                         detected.push_back(1);
+                                        etime.push_back(ecaltime);
+
+                                    std::cout << "FSP " << nFSP << " pdg " << pdg << " trk id " << MCPTrkID->at(i) << " case seen tpc, stop in calo, recopidecal " << recopidecal.at(nFSP) << std::endl;
                                     }
                                     else
                                     {
                                         erecon.push_back(0);
                                         recopidecal.push_back(0);
                                         detected.push_back(0);
+                                        etime.push_back(0.);
+
+                                    std::cout << "FSP " << nFSP << " pdg " << pdg << " trk id " << MCPTrkID->at(i) << " case seen tpc, stop in calo, part is nullptr, recopidecal " << recopidecal.at(nFSP) << std::endl;
                                     }
                                 }
                                 else
@@ -720,70 +738,102 @@ void CAF::loop()
                                     if( abs(pdg) == 11 ){
                                         recopidecal.push_back(11);
                                     }
-                                    //Muons and Pions
-                                    if( abs(pdg) == 13 || abs(pdg) == 211 )
+                                    else if( abs(pdg) == 13 || abs(pdg) == 211 )
                                     {
+                                        //Muons and Pions
                                         //ptrue < 480 MeV/c 100% separation
                                         //80% from 480 to 750
                                         //90% up to 750 to 900
                                         //95% over 900
                                         float random_number = _util->GetRamdomNumber();
 
-                                        if(ptrue < 0.48)
-                                        recopidecal.push_back(pdg);//100% efficiency by range
-
-                                        if(ptrue >= 0.48 && ptrue < 0.75)
-                                        {
-                                            //case muon
-                                            if(random_number > (1 - 0.8) && abs(pdg) == 13)
-                                            recopidecal.push_back(13);
-                                            else{
-                                                recopidecal.push_back(211);
-                                            }
-                                            //case pion
-                                            if(random_number > (1 - 0.8) && abs(pdg) == 211)
-                                            recopidecal.push_back(211);
-                                            else{
-                                                recopidecal.push_back(13);
-                                            }
+                                        if(ptrue < 0.48) {
+                                            std::cout << "ptrue " << ptrue << std::endl;
+                                            recopidecal.push_back(abs(pdg));//100% efficiency by range
                                         }
-
-                                        if(ptrue >= 0.75 && ptrue < 900)
+                                        else if(ptrue >= 0.48 && ptrue < 0.75)
                                         {
                                             //case muon
-                                            if(random_number > (1 - 0.9) && abs(pdg) == 13)
-                                            recopidecal.push_back(13);
-                                            else{
-                                                recopidecal.push_back(211);
+                                            if(abs(pdg) == 13)
+                                            {
+                                                if(random_number > (1 - 0.8)) {
+                                                    recopidecal.push_back(13);
+                                                }
+                                                else{
+                                                    recopidecal.push_back(211);
+                                                }
                                             }
+
                                             //case pion
-                                            if(random_number > (1 - 0.9) && abs(pdg) == 211)
-                                            recopidecal.push_back(211);
-                                            else{
-                                                recopidecal.push_back(13);
+                                            if(abs(pdg) == 211)
+                                            {
+                                                if(random_number > (1 - 0.8)) {
+                                                    recopidecal.push_back(211);
+                                                }
+                                                else{
+                                                    recopidecal.push_back(13);
+                                                }
                                             }
+
+                                            std::cout << "ptrue " << ptrue << std::endl;
                                         }
-
-                                        if(ptrue > 0.9)
+                                        else if(ptrue >= 0.75 && ptrue < 0.9)
                                         {
                                             //case muon
-                                            if(random_number > (1 - 0.95) && abs(pdg) == 13)
-                                            recopidecal.push_back(13);
-                                            else{
-                                                recopidecal.push_back(211);
+                                            if(abs(pdg) == 13){
+                                                if(random_number > (1 - 0.9)) {
+                                                    recopidecal.push_back(13);
+                                                }
+                                                else{
+                                                    recopidecal.push_back(211);
+                                                }
                                             }
                                             //case pion
-                                            if(random_number > (1 - 0.95) && abs(pdg) == 211)
-                                            recopidecal.push_back(211);
-                                            else{
-                                                recopidecal.push_back(13);
+                                            if(abs(pdg) == 211) {
+                                                if(random_number > (1 - 0.9)) {
+                                                    recopidecal.push_back(211);
+                                                }
+                                                else{
+                                                    recopidecal.push_back(13);
+                                                }
                                             }
+
+                                            std::cout << "ptrue " << ptrue << std::endl;
+                                        }
+                                        else
+                                        {
+                                            //case muon
+                                            if(abs(pdg) == 13){
+                                                if(random_number > (1 - 0.95)) {
+                                                    recopidecal.push_back(13);
+                                                }
+                                                else{
+                                                    recopidecal.push_back(211);
+                                                }
+                                            }
+                                            //case pion
+                                            if(abs(pdg) == 211){
+                                                if(random_number > (1 - 0.95)) {
+                                                    recopidecal.push_back(211);
+                                                }
+                                                else{
+                                                    recopidecal.push_back(13);
+                                                }
+                                            }
+                                            std::cout << "ptrue " << ptrue << std::endl;
                                         }
                                     }
-                                    if( abs(pdg) == 2212 )
+                                    else if( abs(pdg) == 2212 )
                                     {
                                         recopidecal.push_back(2212);//TODO for p/pi separation
+                                        std::cout << "ptrue " << ptrue << std::endl;
                                     }
+                                    else {
+                                        recopidecal.push_back(0);
+                                        std::cout << "ptrue " << ptrue << std::endl;
+                                    }
+
+                                std::cout << "FSP " << nFSP << " pdg " << pdg << " trk id " << MCPTrkID->at(i) << " case seen tpc, stop in calo, recopidecal " << recopidecal.at(nFSP) << std::endl;
                                 }
                             }
                             else if( _util->isThroughCalo(epoint) )
@@ -800,8 +850,14 @@ void CAF::loop()
                                 detected.push_back(1);
 
                                 //Muon/Pions/Protons are reco as Muons (without MuID detector)
-                                if( abs(pdg) == 13 || abs(pdg) == 211 || abs(pdg) == 2212 )
-                                recopidecal.push_back(13);
+                                if( abs(pdg) == 13 || abs(pdg) == 211 || abs(pdg) == 2212 ) {
+                                    recopidecal.push_back(13);
+                                }
+                                else{
+                                    recopidecal.push_back(0);
+                                }
+
+                            std::cout << "FSP " << nFSP << " pdg " << pdg << " trk id " << MCPTrkID->at(i) << " case seen tpc, through calo, recopidecal " << recopidecal.at(nFSP) << std::endl;
                             }
                             else
                             {
@@ -810,6 +866,8 @@ void CAF::loop()
                                 recopidecal.push_back(0.);
                                 etime.push_back(0.);
                                 detected.push_back(0);
+
+                            std::cout << "FSP " << nFSP << " pdg " << pdg << " trk id " << MCPTrkID->at(i) << " case seen tpc, does not reach ecal, recopidecal " << recopidecal.at(nFSP) << std::endl;
                             }
                         } //end endpoint is not in TPC
 
@@ -980,10 +1038,12 @@ void CAF::loop()
                             motherid.push_back(MCMotherIndex->at(i));
                             // std::cout << "particle seen in TPC but not {#pi, #mu, p, K, d, e}, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << " trk length " << trkLen.at(i) << std::endl;
 
-                            break;
+                        std::cout << "FSP " << nFSP << " pdg " << pdg << " trk id " << MCPTrkID->at(i) << " case seen tpc, but not in charged list, recopidecal " << recopidecal.at(nFSP) << std::endl;
+                            break; //break out of the loop over the vertical bining!
                         }
                     }
                 } // closes the vertical bining loop of the pid matrix
+            std::cout << "End TPC case" << std::endl;
             }//close if track_length > tpc_min_length
             else
             {
@@ -993,8 +1053,9 @@ void CAF::loop()
                 //***************************************************************************************************************/
 
                 //for neutrons
-                if(pdg == 2112)
+                if(std::abs(pdg) == 2112)
                 {
+                std::cout << "Enter neutron case" << std::endl;
                     if(_util->PointInCalo(epoint)) //needs to stop in the ECAL
                     {
                         //check if it can be detected by the ECAL
@@ -1050,6 +1111,7 @@ void CAF::loop()
                             mctrkid.push_back(MCPTrkID->at(i));
                             motherid.push_back(MCMotherIndex->at(i));
 
+                        std::cout << "FSP " << nFSP << " pdg " << pdg << " trk id " << MCPTrkID->at(i) << " case not seen tpc, detected neutron, endpoint in ecal, recopidecal " << recopidecal.at(nFSP) << std::endl;
                             // std::cout << "Neutron detected in ECAL, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                         }
                         else
@@ -1091,6 +1153,8 @@ void CAF::loop()
                             for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
                             mctrkid.push_back(MCPTrkID->at(i));
                             motherid.push_back(MCMotherIndex->at(i));
+
+                        std::cout << "FSP " << nFSP << " pdg " << pdg << " trk id " << MCPTrkID->at(i) << " case not seen tpc, not detected neutron, endpoint in ecal, recopidecal " << recopidecal.at(nFSP) << std::endl;
 
                             // std::cout << "Neutron not detected in ECAL, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                         }
@@ -1134,7 +1198,10 @@ void CAF::loop()
                         for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
                         mctrkid.push_back(MCPTrkID->at(i));
                         motherid.push_back(MCMotherIndex->at(i));
+
+                    std::cout << "FSP " << nFSP << " pdg " << pdg << " trk id " << MCPTrkID->at(i) << " case not seen tpc, not detected neutron, not endpoint in ecal, recopidecal " << recopidecal.at(nFSP) << std::endl;
                     }
+                std::cout << "End neutron case" << std::endl;
                 }
 
                 //End neutrons
@@ -1144,13 +1211,15 @@ void CAF::loop()
                 //***************************************************************************************************************/
 
                 //for pi0s
-                if(pdg == 111)
+                else if(std::abs(pdg) == 111)
                 {
+                std::cout << "Enter pi0 case" << std::endl;
                     //TODO smear the pi0 energy (and decay vertex?) according to previous pi0 reco studies
                     // float ereco = _util->GaussianSmearing( std::sqrt(ptrue*ptrue + pi0_mass*pi0_mass), ECAL_pi0_resolution*std::sqrt(ptrue*ptrue + pi0_mass*pi0_mass));
                     erecon.push_back(0);
                     recopid.push_back(0);
                     detected.push_back(0);
+                    recopidecal.push_back(0);
 
                     truep.push_back(ptrue);
                     truepdg.push_back(pdg);
@@ -1181,11 +1250,14 @@ void CAF::loop()
                     etime.push_back(0.);
                     _preco.push_back(0);
                     anglereco.push_back(0);
-                    recopidecal.push_back(0);//TODO??
+
                     for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
                     mctrkid.push_back(MCPTrkID->at(i));
                     motherid.push_back(MCMotherIndex->at(i));
 
+                std::cout << "FSP " << nFSP << " pdg " << pdg << " trk id " << MCPTrkID->at(i) << " case not seen tpc, pi0, recopidecal " << recopidecal.at(nFSP) << std::endl;
+
+                std::cout << "End pi0 case" << std::endl;
                     // std::cout << "pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                 }
 
@@ -1196,8 +1268,9 @@ void CAF::loop()
                 //***************************************************************************************************************/
 
                 //for gammas
-                if(pdg == 22)
+                else if(std::abs(pdg) == 22)
                 {
+                std::cout << "Enter gamma case" << std::endl;
                     if( PDGMother->at(i) != 111 )
                     {
                         //Endpoint is in the ECAL
@@ -1242,6 +1315,8 @@ void CAF::loop()
 
                             //reach the ECAL, should be tagged as gamma
                             recopidecal.push_back(22);
+
+                        std::cout << "FSP " << nFSP << " pdg " << pdg << " trk id " << MCPTrkID->at(i) << " case not seen tpc, gamma not from pi0 in calo, recopidecal " << recopidecal.at(nFSP) << std::endl;
 
                             for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
                             mctrkid.push_back(MCPTrkID->at(i));
@@ -1290,6 +1365,9 @@ void CAF::loop()
                             for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
                             mctrkid.push_back(MCPTrkID->at(i));
                             motherid.push_back(MCMotherIndex->at(i));
+
+                        std::cout << "FSP " << nFSP << " pdg " << pdg << " trk id " << MCPTrkID->at(i) << " case not seen tpc, gamma not from pi0 not in calo, recopidecal " << recopidecal.at(nFSP) << std::endl;
+
                             // std::cout << "gamma converted in ECAL not from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                         }
                         else{
@@ -1345,6 +1423,9 @@ void CAF::loop()
                             for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
                             mctrkid.push_back(MCPTrkID->at(i));
                             motherid.push_back(MCMotherIndex->at(i));
+
+                        std::cout << "FSP " << nFSP << " pdg "<< pdg << " trk id " << MCPTrkID->at(i) << " case not seen tpc, gamma from pi0 in calo, recopidecal " << recopidecal.at(nFSP) << std::endl;
+
                             // std::cout << "gamma detected in ECAL from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                         }
                         else if(_util->PointInTPC(epoint) || _util->PointStopBetween(epoint) || _util->isThroughCalo(epoint))
@@ -1388,12 +1469,16 @@ void CAF::loop()
                             for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
                             mctrkid.push_back(MCPTrkID->at(i));
                             motherid.push_back(MCMotherIndex->at(i));
+
+                        std::cout << "FSP " << nFSP << " pdg " << pdg << " trk id " << MCPTrkID->at(i) << " case not seen tpc, gamma from pi0 not in calo, recopidecal " << recopidecal.at(nFSP) << std::endl;
                             // std::cout << "gamma converted in ECAL from pi0, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << std::endl;
                         }
                         else{
                             std::cout << "Gamma endpoint in not inCalo, not inTPC, not in between and not though ECAL --- Sth wrong!" << std::endl;
                         }
                     }
+
+                std::cout << "End gamma case" << std::endl;
                 }
 
                 //end gammas
@@ -1402,8 +1487,9 @@ void CAF::loop()
                 //Case for particles that stop or go through ECAL (problematic particles with no track length????)
                 //Not visible in the TPC and not neutron or gamma or pi0 (otherwise it has been already done above)
 
-                if(pdg != 2112 && pdg != 111 && pdg != 22)
+                else
                 {
+                std::cout << "Enter other case" << std::endl;
                     if(_util->PointInCalo(epoint))
                     {
                         truepdg.push_back(pdg);
@@ -1440,7 +1526,105 @@ void CAF::loop()
                         float ECAL_resolution = fRes->Eval(ptrue)*ptrue;
                         float ereco = _util->GaussianSmearing(ptrue, ECAL_resolution);
                         erecon.push_back((ereco > 0) ? ereco : 0.);
-                        recopidecal.push_back(0);
+
+                        //Electron
+                        if( abs(pdg) == 11 ){
+                            recopidecal.push_back(11);
+                        }
+                        else if( abs(pdg) == 13 || abs(pdg) == 211 )
+                        {
+                            //Muons and Pions
+                            //ptrue < 480 MeV/c 100% separation
+                            //80% from 480 to 750
+                            //90% up to 750 to 900
+                            //95% over 900
+                            float random_number = _util->GetRamdomNumber();
+
+                            if(ptrue < 0.48) {
+                                std::cout << "ptrue " << ptrue << std::endl;
+                                recopidecal.push_back(abs(pdg));//100% efficiency by range
+                            }
+                            else if(ptrue >= 0.48 && ptrue < 0.75)
+                            {
+                                //case muon
+                                if(abs(pdg) == 13)
+                                {
+                                    if(random_number > (1 - 0.8)) {
+                                        recopidecal.push_back(13);
+                                    }
+                                    else{
+                                        recopidecal.push_back(211);
+                                    }
+                                }
+
+                                //case pion
+                                if(abs(pdg) == 211)
+                                {
+                                    if(random_number > (1 - 0.8)) {
+                                        recopidecal.push_back(211);
+                                    }
+                                    else{
+                                        recopidecal.push_back(13);
+                                    }
+                                }
+
+                                std::cout << "ptrue " << ptrue << std::endl;
+                            }
+                            else if(ptrue >= 0.75 && ptrue < 0.9)
+                            {
+                                //case muon
+                                if(abs(pdg) == 13){
+                                    if(random_number > (1 - 0.9)) {
+                                        recopidecal.push_back(13);
+                                    }
+                                    else{
+                                        recopidecal.push_back(211);
+                                    }
+                                }
+                                //case pion
+                                if(abs(pdg) == 211) {
+                                    if(random_number > (1 - 0.9)) {
+                                        recopidecal.push_back(211);
+                                    }
+                                    else{
+                                        recopidecal.push_back(13);
+                                    }
+                                }
+
+                                std::cout << "ptrue " << ptrue << std::endl;
+                            }
+                            else
+                            {
+                                //case muon
+                                if(abs(pdg) == 13){
+                                    if(random_number > (1 - 0.95)) {
+                                        recopidecal.push_back(13);
+                                    }
+                                    else{
+                                        recopidecal.push_back(211);
+                                    }
+                                }
+                                //case pion
+                                if(abs(pdg) == 211){
+                                    if(random_number > (1 - 0.95)) {
+                                        recopidecal.push_back(211);
+                                    }
+                                    else{
+                                        recopidecal.push_back(13);
+                                    }
+                                }
+                                std::cout << "ptrue " << ptrue << std::endl;
+                            }
+                        }
+                        else if( abs(pdg) == 2212 )
+                        {
+                            recopidecal.push_back(2212);//TODO for p/pi separation
+                            std::cout << "ptrue " << ptrue << std::endl;
+                        }
+                        else {
+                            recopidecal.push_back(0);
+                            std::cout << "ptrue " << ptrue << std::endl;
+                        }
 
                         _preco.push_back(0);
                         anglereco.push_back(0);
@@ -1449,6 +1633,8 @@ void CAF::loop()
 
                         mctrkid.push_back(MCPTrkID->at(i));
                         motherid.push_back(MCMotherIndex->at(i));
+
+                    std::cout << "FSP " << nFSP << " pdg " << pdg << " trk id " << MCPTrkID->at(i) << " case not seen tpc, not neutron, gamma or pi0, in calo, recopidecal " << recopidecal.at(nFSP) << std::endl;
                     }
                     else if (_util->isThroughCalo(epoint))
                     {
@@ -1495,8 +1681,12 @@ void CAF::loop()
                         detected.push_back(1);
 
                         //Muon/Pions/Protons are reco as Muons (without MuID detector)
-                        if( abs(pdg) == 13 || abs(pdg) == 211 || abs(pdg) == 2212 )
-                        recopidecal.push_back(13);
+                        if( abs(pdg) == 13 || abs(pdg) == 211 || abs(pdg) == 2212 ) {
+                            recopidecal.push_back(13);
+                        }
+                        else {
+                            recopidecal.push_back(0);
+                        }
 
                         _preco.push_back(0);
                         anglereco.push_back(0);
@@ -1505,8 +1695,10 @@ void CAF::loop()
 
                         mctrkid.push_back(MCPTrkID->at(i));
                         motherid.push_back(MCMotherIndex->at(i));
+
+                    std::cout << "FSP " << nFSP << " pdg " << pdg << " trk id " << MCPTrkID->at(i) << " case not seen tpc, not neutron, gamma or pi0, through calo, recopidecal " << recopidecal.at(nFSP) << std::endl;
                     }
-                    else
+                    else if(_util->PointInTPC(epoint) || _util->PointStopBetween(epoint))
                     {
                         // std::cout << "Not visible in TPC but no n, g or pi0" << std::endl;
                         // std::cout << pdg << std::endl;
@@ -1548,13 +1740,19 @@ void CAF::loop()
                         for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(0);
                         mctrkid.push_back(MCPTrkID->at(i));
                         motherid.push_back(MCMotherIndex->at(i));
+
+                    std::cout << "FSP " << nFSP << " pdg " << pdg << " trk id " << MCPTrkID->at(i) << " case not seen tpc, not neutron, gamma or pi0, not in calo, recopidecal " << recopidecal.at(nFSP) << std::endl;
                         // std::cout << "particle not seen in TPC, truepid " << truepdg.at(i) << " recopid " << recopid.at(i) << " trk length " << trkLen.at(i) << std::endl;
                     }
-                }
-            }
+                    else {
+                        std::cout << "Problem...." << std::endl;
+                    }
+                std::cout << "End other case" << std::endl;
+                }// end is not neutron, pi0 or gamma
+            }// end not visible in TPC
         } // closes the MC truth loop
 
-        _nFSP.push_back(nFSP);
+        _nFSP.push_back(nFSP+1);
 
         //Check if vectors have good size
         try {
@@ -1564,6 +1762,8 @@ void CAF::loop()
             std::cout << "loop() failed with: " << e.what();
         }
 
+        std::cout << "------------------------------------" << std::endl;
+        std::cout << std::endl;
         // std::cout << "Fill CAF TTree" << std::endl;
         this->FillTTree();
     } // closes the event loop

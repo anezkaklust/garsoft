@@ -20,6 +20,11 @@ namespace gar {
         }
 
         //--------------------------------------------------------------------------
+        void Cluster::setEnergyError(float energy_error ) {
+            fEnergyError = energy_error ;
+        }
+
+        //--------------------------------------------------------------------------
         void Cluster::setTime(float time, float time_diff ) {
             fTime = time ;
             fTimeDiffFirstLast = time_diff;
