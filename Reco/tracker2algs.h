@@ -16,6 +16,10 @@ namespace gar {
         float x3,float y3,
         float &xc, float &yc);
 
+	// from OPAL
+        void ouchef(double *x, double *y, int np, double &xcirccent, double &ycirccent,
+	            double &rcirc, double &chisq, int &ifail);
+
 
         int initial_trackpar_estimate(const std::vector<gar::rec::TPCCluster>  &TPCClusters,
         std::vector<int> &TPCClusterlist,

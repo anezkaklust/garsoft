@@ -10,7 +10,7 @@ IncludeMuIDhits:          false
 SmearX:                   0.3     # position smearing for edeps
 SmearY:                   0.3
 SmearT:                   1.0
-GeVtoPE:               3000.0     # energy conversion in pe/GeV
+PeCm:                    50.0     # energy conversion in pe/cm
 SmearLY:                 10.0     # spread of the LY in pe
 ThrPE:                    5.0     # energy threshold cut in pe
 ZCut1:                   10.0     # in cm to make sure initial TPC clusters are on different plane pairs
