@@ -201,7 +201,8 @@ namespace gar {
         std::vector<Float_t>            fTrajMCPZ;
         std::vector<Float_t>            fTrajMCPT;
         std::vector<Float_t>            fTrajMCPE;
-        std::vector<Int_t>              fTrajMCPTrajIndex;
+        std::vector<Int_t>              fTrajMCPIndex;
+        std::vector<Int_t>              fTrajMCPTrackID;
 
         // sim calo hit data
         UInt_t                          fSimnHits;
@@ -520,7 +521,8 @@ void gar::anatree::beginJob() {
             fTree->Branch("TrajMCPZ",          &fTrajMCPZ);
             fTree->Branch("TrajMCPT",          &fTrajMCPT);
             fTree->Branch("TrajMCPE",          &fTrajMCPE);
-            fTree->Branch("TrajMCPTrajIndex",  &fTrajMCPTrajIndex);
+            fTree->Branch("TrajMCPIndex",      &fTrajMCPIndex);
+            fTree->Branch("TrajMCPTrackID",    &fTrajMCPTrackID);
         }
     }
 
@@ -770,7 +772,8 @@ void gar::anatree::ClearVectors() {
         fTrajMCPZ.clear();
         fTrajMCPT.clear();
         fTrajMCPE.clear();
-        fTrajMCPTrajIndex.clear();
+        fTrajMCPIndex.clear();
+        fTrajMCPTrackID.clear();
     }
 
     if (fWriteMCCaloInfo) {
@@ -1230,7 +1233,7 @@ void gar::anatree::FillVectors(art::Event const & e) {
 
             if (fWriteMCPTrajectory) {
                 // It's in the MCParticle table
-                // Int_t mcpIndex = 0;
+                Int_t mcpIndex = 0;
                 for ( auto const& mcp : (*MCPHandle) ) {
                     const TDatabasePDG* databasePDG = TDatabasePDG::Instance();
                     const TParticlePDG* definition = databasePDG->GetParticle( mcp.PdgCode() );
@@ -1252,10 +1255,10 @@ void gar::anatree::FillVectors(art::Event const & e) {
                         fTrajMCPZ.push_back(zTraj);
                         fTrajMCPT.push_back(mcp.Trajectory().T(iTraj));
                         fTrajMCPE.push_back(mcp.Trajectory().E(iTraj));
-                        // fTrajMCPTrajIndex.push_back(mcpIndex);
-                        fTrajMCPTrajIndex.push_back(trackId);
+                        fTrajMCPIndex.push_back(mcpIndex);
+                        fTrajMCPTrackID.push_back(trackId);
                     }
-                    // mcpIndex++;
+                    mcpIndex++;
                 }
             }
 
