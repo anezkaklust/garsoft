@@ -5,9 +5,11 @@ standard_TPCHitCluster:
  module_type:        TPCHitCluster
  HitLabel:           "hit"
  ClusterHits:        1      # hit clustering algorithm.  1=first algorithm version
-# The clustering parameters are NOT optimized.  For now, set to 2x the pad dimensions with additional
-# allowance for trapezoidal projection of 10 degrees.  Because these are +/- in the code, that is 
-# full-span four pads.
+# The clustering parameters are NOT optimized.  For now, set to 2x the pad dimensions with 
+# additional allowance for trapezoidal projection of 10 degrees.  Because these are +/- in the
+# code, that is full-span four pads.
+# Important: Changing these parameters with change tracking residuals and necessitate new inputs
+# to the track fit (and maybe vertex fit) chi-squared computations.s
  HitClusterDx:       1.00   # range in which to look for charge contributing to clusters in x, in cm
  HitClusterDyDz:     1.20   # range in Y and Z to look for charge contributing to clusters for CROC, in cm
  HitClusterDr_I:     1.50   # range in R to look for charge contributing to clusters for IROC, in cm

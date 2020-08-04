@@ -228,6 +228,12 @@ namespace gar {
         std::vector<Float_t>            fTPCClusterSig;
         std::vector<Float_t>            fTPCClusterRMS;
         std::vector<ULong64_t>          fTPCClusterTrkIDNumber;
+        std::vector<Float_t>            fTPCClusterCovXX;
+        std::vector<Float_t>            fTPCClusterCovXY;
+        std::vector<Float_t>            fTPCClusterCovXZ;
+        std::vector<Float_t>            fTPCClusterCovYY;
+        std::vector<Float_t>            fTPCClusterCovYZ;
+        std::vector<Float_t>            fTPCClusterCovZZ;
 
         // track data
         std::vector<ULong64_t>          fTrackIDNumber;
@@ -552,6 +558,12 @@ void gar::anatree::beginJob() {
         fTree->Branch("TPCClusterSig",         &fTPCClusterSig);
         fTree->Branch("TPCClusterRMS",         &fTPCClusterRMS);
         fTree->Branch("TPCClusterTrkIDNumber", &fTPCClusterTrkIDNumber);
+        fTree->Branch("TPCClusterCovXX",       &fTPCClusterCovXX);
+        fTree->Branch("TPCClusterCovXY",       &fTPCClusterCovXY);
+        fTree->Branch("TPCClusterCovXZ",       &fTPCClusterCovXZ);
+        fTree->Branch("TPCClusterCovYY",       &fTPCClusterCovYY);
+        fTree->Branch("TPCClusterCovYZ",       &fTPCClusterCovYZ);
+        fTree->Branch("TPCClusterCovZZ",       &fTPCClusterCovZZ);
     }
 
     if (fWriteTracks) {                         // All position, momentum, etc
@@ -788,6 +800,12 @@ void gar::anatree::ClearVectors() {
         fTPCClusterSig.clear();
         fTPCClusterRMS.clear();
         fTPCClusterTrkIDNumber.clear();
+        fTPCClusterCovXX.clear();
+        fTPCClusterCovXY.clear();
+        fTPCClusterCovXZ.clear();
+        fTPCClusterCovYY.clear();
+        fTPCClusterCovYZ.clear();
+        fTPCClusterCovZZ.clear();
     }
 
     if (fWriteTracks) {
@@ -1283,6 +1301,14 @@ void gar::anatree::FillVectors(art::Event const & e) {
                 fTPCClusterZ.push_back(TPCCluster.Position()[2]);
                 fTPCClusterSig.push_back(TPCCluster.Signal());
                 fTPCClusterRMS.push_back(TPCCluster.RMS());
+                const float* cov;
+                cov = TPCCluster.CovMatPacked();
+                fTPCClusterCovXX.push_back(cov[0]);
+                fTPCClusterCovXY.push_back(cov[1]);
+                fTPCClusterCovXZ.push_back(cov[2]);
+                fTPCClusterCovYY.push_back(cov[3]);
+                fTPCClusterCovYZ.push_back(cov[4]);
+                fTPCClusterCovZZ.push_back(cov[5]);
 
                 Int_t trackForThisTPCluster = -1;
                 if (fWriteTracks) {

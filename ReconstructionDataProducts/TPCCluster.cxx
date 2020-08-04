@@ -40,7 +40,7 @@ namespace gar {
                             const float        endT,
                             const float        Time,
                             const float        RMS,
-                            const float *cov)
+                            const float       *cov)
       : fSignal   (sig   )
       , fTime     (Time  )
       , fStartTime(startT)
@@ -105,7 +105,8 @@ namespace gar {
     //--------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream& o, gar::rec::TPCCluster const& h)
     {
-      
+      const float* cov;
+      cov = h.CovMatPacked();
       o << "TPCCluster "
         << "\n\tID number = "
         << h.getIDNumber()
@@ -116,11 +117,17 @@ namespace gar {
         << ", "
         << h.Position()[2]
         << ")"
+        << "\n\tcovariance matrix = \n\t"
+        << cov[0] << "\t" << cov[1] << "\t" << cov[2] << "\n"
+        <<         "\t\t" << cov[3] << "\t" << cov[4] << "\n"
+        <<                         "\t\t\t" << cov[5]
         << "\n\tsignal = "
         << h.Signal()
+        << "\n\tdrift direction rms = "
+        << h.RMS()
         << "\n\tstart time: "
         << h.StartTime()
-        << " end time: "
+        << "\n\tend time: "
         << h.EndTime();
       
       return o;

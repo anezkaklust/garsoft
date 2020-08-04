@@ -51,12 +51,11 @@ namespace gar {
       
       const float*        Position()  const;
       float        const& Signal()    const;
-      unsigned int        Channel()   const;
       float               StartTime() const;
       float               EndTime()   const;
       float               Time()      const;
       float               RMS()       const;
-      const float*        CovMatPacked() const;
+      const float*        CovMatPacked()  const;
 
       void operator += (gar::rec::TPCCluster const& h);
       
