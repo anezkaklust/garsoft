@@ -1,0 +1,10 @@
+#include "evd.fcl"
+
+services.RecoDrawingOptions.DrawTPCClusters: 1
+services.RecoDrawingOptions.TrackModuleLabels: [ "dayone" ]
+#services.RecoDrawingOptions.TrackModuleLabels: [ "trackpass1" ]
+services.RecoDrawingOptions.TPCClusterModuleLabels: [ "dayone" ]
+services.RecoDrawingOptions.TPCClusterMarker: 20
+services.RecoDrawingOptions.TPCClusterMarkerSize: 1
+
+
