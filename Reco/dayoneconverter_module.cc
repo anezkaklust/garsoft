@@ -427,11 +427,11 @@ namespace gar {
             }
 
             energy = fMu2e->Eval(local_distance);
-            std::cout << "Volume " << name << std::endl;
-            std::cout << "CellX " << cellX << " CellY " << cellY << std::endl;
-            std::cout << "Global Position " << cd.X() << ", " << cd.Y() << ", " << cd.Z() << std::endl;
-            std::cout << "Local Position " << pointLocal[0] << ", " << pointLocal[1] << ", " << pointLocal[2] << std::endl;
-            std::cout << "local distance in strip " << local_distance << " cm has " << energy << " pe detected" << std::endl;
+            // std::cout << "Volume " << name << std::endl;
+            // std::cout << "CellX " << cellX << " CellY " << cellY << std::endl;
+            // std::cout << "Global Position " << cd.X() << ", " << cd.Y() << ", " << cd.Z() << std::endl;
+            // std::cout << "Local Position " << pointLocal[0] << ", " << pointLocal[1] << ", " << pointLocal[2] << std::endl;
+            // std::cout << "local distance in strip " << local_distance << " cm has " << energy << " pe detected" << std::endl;
             energy += GaussRand.fire(0., fSmearLY);
 
             if(energy < fThrPE) energy = 0.;
