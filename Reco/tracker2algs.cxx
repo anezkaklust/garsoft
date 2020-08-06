@@ -90,7 +90,10 @@ int printlevel)
 	ycc = dycc;
 	zcc = dzcc;
 	if (curvature_init < 0) drcc = -std::abs(drcc);
-	//std::cout << "updating curvature " << curvature_init << " with " << 1.0/drcc << std::endl;
+	//if (ict > 3)
+	//  {
+	//    std::cout << "updating curvature " << ict << " " << curvature_init << " with " << 1.0/drcc << std::endl;
+	//  }
 	curvature_init = 1.0/drcc;
       }
 

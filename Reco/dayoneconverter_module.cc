@@ -109,7 +109,7 @@ namespace gar {
             fSmearLY  = p.get<float>("SmearLY", 10.0);  // in pe
             fThrPE    = p.get<float>("ThrPE", 5.0);  // in pe
             fZCut1    = p.get<float>("ZCut1",10.0); // in cm
-            fZCut2    = p.get<float>("ZCut2",10.0); // in cm
+            fZCut2    = p.get<float>("ZCut2",0.5); // in cm
             fRCut     = p.get<float>("RCut" ,5.0);  // in cm
 
             art::InputTag tpcedeptag(fInputEdepLabel,fInputEdepInstanceTPC);
