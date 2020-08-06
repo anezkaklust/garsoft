@@ -23,6 +23,7 @@
 
 #include "TMath.h"
 #include "TVector3.h"
+#include "TF1.h"
 
 #include "Geant4/G4ThreeVector.hh"
 #include "nug4/MagneticField/MagneticField.h"
@@ -85,9 +86,11 @@ namespace gar {
             const gar::geo::GeometryCore* fGeo;               ///< geometry information
             gar::geo::BitFieldCoder *fFieldDecoderTrk;
             gar::geo::BitFieldCoder *fFieldDecoderMuID;
+            TF1* fMu2e;
 
             int makepatrectrack(std::vector<gar::rec::TPCCluster> &trackTPCClusters, gar::rec::TrackPar &trackpar);
-            void digitizeCaloHits(gar::sdp::CaloDeposit cd, float *fcpos, float &energy, float &time);
+            void digitizeCaloHitsSimple(gar::sdp::CaloDeposit cd, float *fcpos, float &energy, float &time);
+            void digitizeCaloHitsMu2e(gar::sdp::CaloDeposit cd, float *fcpos, float &energy, float &time);
         };
 
         dayoneconverter::dayoneconverter(fhicl::ParameterSet const& p)
@@ -125,6 +128,10 @@ namespace gar {
             fFieldDecoderTrk = new gar::geo::BitFieldCoder( fEncoding );
             std::string fEncodingMuID = fGeo->GetMuIDCellIDEncoding();
             fFieldDecoderMuID = new gar::geo::BitFieldCoder( fEncodingMuID );
+
+            fMu2e = new TF1("mu2e_pe", "[0] + [1]*x", 0, 600);
+            fMu2e->SetParameter(0, 50.);//pe
+            fMu2e->SetParameter(1, -0.06);//pe/cm
         }
 
         void dayoneconverter::produce(art::Event& e)
@@ -155,7 +162,8 @@ namespace gar {
                 float time = 0.;
                 float fcpos[3] = {0., 0., 0.};
 
-                this->digitizeCaloHits(cd, fcpos, energy, time);
+                // this->digitizeCaloHitsSimple(cd, fcpos, energy, time);
+                this->digitizeCaloHitsMu2e(cd, fcpos, energy, time);
 
                 float covmat[6] = {0,0,0,0,0,0};  // TODO -- fill this in with something reasonble
 
@@ -182,7 +190,8 @@ namespace gar {
                     float time = 0.;
                     float fcpos[3] = {0., 0., 0.};
 
-                    this->digitizeCaloHits(cd, fcpos, energy, time);
+                    // this->digitizeCaloHitsSimple(cd, fcpos, energy, time);
+                    this->digitizeCaloHitsMu2e(cd, fcpos, energy, time);
 
                     if(energy <= 0.) continue;
 
@@ -300,18 +309,19 @@ namespace gar {
 
                 if (bestnpts > 0)
                 {
-		  // "besttrack" above only has track parameters from the triplet.  make a new track from
-		  // all the TPC clusters
-		    //trkCol->push_back(besttrack);
+                    // "besttrack" above only has track parameters from the triplet.  make a new track from
+                    // all the TPC clusters
+                    //trkCol->push_back(besttrack);
                     std::vector<gar::rec::TPCCluster> tcv;
-		    for (size_t i=0;i<besttpcclusindex.size(); ++i)
-		      {
+                    for (size_t i=0;i<besttpcclusindex.size(); ++i)
+                    {
                         tcv.push_back(TPCClusterCol->at(besttpcclusindex.at(i)));
-		      }
-		    gar::rec::TrackPar btp;
-		    makepatrectrack(tcv,btp);
-		    gar::rec::Track btt = btp.CreateTrack();
-		    trkCol->push_back(btt);
+                    }
+
+                    gar::rec::TrackPar btp;
+                    makepatrectrack(tcv,btp);
+                    gar::rec::Track btt = btp.CreateTrack();
+                    trkCol->push_back(btt);
 
                     auto const trackpointer = trackPtrMaker(trkCol->size()-1);
                     for (size_t i=0; i<besttpcclusindex.size(); ++i)
@@ -329,7 +339,7 @@ namespace gar {
 
         // digitize the plane hits based on minerva numbers
 
-        void dayoneconverter::digitizeCaloHits(gar::sdp::CaloDeposit cd, float *fcpos, float &energy, float &time)
+        void dayoneconverter::digitizeCaloHitsSimple(gar::sdp::CaloDeposit cd, float *fcpos, float &energy, float &time)
         {
             //Need to check in which direction to smear (depends on the segmenetation)
             //Can use the cellID decoder to know looking at cellX and cellY values
@@ -345,12 +355,12 @@ namespace gar {
             energy = cd.Energy();
             time = cd.Time();
 
-            if(cellX == 1) {
+            if(cellX == 0) {
                 //Segmented in Y
                 fcpos[0] += GaussRand.fire(0., fSmearX);
             }
 
-            if(cellY == 1) {
+            if(cellY == 0) {
                 //Segmented in X
                 fcpos[1] += GaussRand.fire(0., fSmearY);
             }
@@ -365,6 +375,70 @@ namespace gar {
 
             return;
         }
+
+        //digitize based on Mu2e strip numbers
+
+        void dayoneconverter::digitizeCaloHitsMu2e(gar::sdp::CaloDeposit cd, float *fcpos, float &energy, float &time)
+        {
+            //Need to check in which direction to smear (depends on the segmenetation)
+            //Can use the cellID decoder to know looking at cellX and cellY values
+            CLHEP::RandGauss GaussRand(fEngine);
+
+            gar::raw::CellID_t cID = cd.CellID();
+            int cellX = fFieldDecoderTrk->get(cID, "cellX");
+            int cellY = fFieldDecoderTrk->get(cID, "cellY");
+
+            fcpos[0] = cd.X(); // default values
+            fcpos[1] = cd.Y();
+            fcpos[2] = cd.Z();
+            energy = cd.Energy();
+            time = cd.Time();
+
+            if(cellX == 0) {
+                //Segmented in Y
+                fcpos[0] += GaussRand.fire(0., fSmearX);
+            }
+
+            if(cellY == 0) {
+                //Segmented in X
+                fcpos[1] += GaussRand.fire(0., fSmearY);
+            }
+
+            time += GaussRand.fire(0., fSmearT);
+
+            //convert energy to pe based on the distance in the strip
+            //Curve as "linear" with parameters a = 0.06 pe/cm, b = 50 pe (80*0.6 from Mu2e)
+            double local_distance = 0.;
+            std::array<double, 3> point = {cd.X(), cd.Y(), cd.Z()};
+            std::array<double, 3> pointLocal;
+            gar::geo::LocalTransformation<TGeoHMatrix> trans;
+            fGeo->WorldToLocal(point, pointLocal, trans);
+            TVector3 tpoint(point[0], point[1], point[2]);
+            std::string name = fGeo->VolumeName(tpoint);
+
+            if(cellX == 0) {
+                //Segmented in Y -> get the x pos
+                local_distance = 300. - pointLocal[0];
+            }
+
+            if(cellY == 0) {
+                //Segmented in X -> get the y pos
+                local_distance = 300. - pointLocal[1];
+            }
+
+            energy = fMu2e->Eval(local_distance);
+            std::cout << "Volume " << name << std::endl;
+            std::cout << "CellX " << cellX << " CellY " << cellY << std::endl;
+            std::cout << "Global Position " << cd.X() << ", " << cd.Y() << ", " << cd.Z() << std::endl;
+            std::cout << "Local Position " << pointLocal[0] << ", " << pointLocal[1] << ", " << pointLocal[2] << std::endl;
+            std::cout << "local distance in strip " << local_distance << " cm has " << energy << " pe detected" << std::endl;
+            energy += GaussRand.fire(0., fSmearLY);
+
+            if(energy < fThrPE) energy = 0.;
+
+            return;
+        }
+
 
         // maybe refactor this so we don't have to duplicate it.  But need to pass in all the config parameters.
         // temporary: just hardcode the parameters to see if we can get something to work
