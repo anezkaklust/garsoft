@@ -32,6 +32,8 @@ void RecoDrawingOptions::reconfigure(fhicl::ParameterSet const& pset)
 {
     fDrawHits                  = pset.get< int                      >("DrawHits"                 );
     fDrawTPCClusters           = pset.get< int                      >("DrawTPCClusters"          );
+    fTPCClusterMarker          = pset.get< int                      >("TPCClusterMarker"         );
+    fTPCClusterMarkerSize      = pset.get< int                      >("TPCClusterMarkerSize"     );
     fDrawCaloClusters          = pset.get< int                      >("DrawCaloClusters"         );
     fDrawCaloHits              = pset.get< int                      >("DrawCaloHits"             );
     fDrawTracks      	       = pset.get< int                      >("DrawTracks"     	         );

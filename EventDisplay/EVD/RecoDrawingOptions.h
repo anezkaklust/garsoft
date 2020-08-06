@@ -31,6 +31,8 @@ public:
 
     int  fDrawHits;
     int  fDrawTPCClusters;
+    int  fTPCClusterMarker;
+    int  fTPCClusterMarkerSize;
     int  fDrawCaloClusters;
     int  fDrawCaloHits;
     int  fDrawTracks;

@@ -29,6 +29,8 @@ standard_recodrawingopt:
 {
  DrawHits:                  0          # 0 = off, 1 = on, will not draw if DrawRawOrReco is set to 0
  DrawTPCClusters:           0          # 0 = off, 1 = on, will not draw if DrawRawOrReco is set to 0
+ TPCClusterMarker:          1          # 1 for a point, 20 for a filled circle.  Other ROOT markers possible
+ TPCClusterMarkerSize:      1          # size of TPC cluster to pass
  DrawCaloClusters:          0          # 0 = off, 1 = on, will not draw if DrawRawOrReco is set to 0
  DrawCaloHits:              1          # 0 = off, 1 = on, will not draw if DrawRawOrReco is set to 0
  DrawTracks:                2  	       # 0 = off, 1 = on (helices) 2, fitted trajectories

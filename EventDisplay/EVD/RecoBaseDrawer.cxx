@@ -127,7 +127,9 @@ namespace gar {
 	std::vector<const gar::rec::TPCCluster*> TPCClusters;
 	this->GetTPCClusters(evt, which, TPCClusters);
 
-	this->DrawTPCCluster3D(TPCClusters, view, h%evd::kNCOLS);
+	this->DrawTPCCluster3D(TPCClusters, view, h%evd::kNCOLS, 
+			       recoOpt->fTPCClusterMarker, 
+			       recoOpt->fTPCClusterMarkerSize);
 	++h;
       }
 
@@ -361,8 +363,8 @@ namespace gar {
     void RecoBaseDrawer::DrawTPCCluster3D(std::vector<const gar::rec::TPCCluster*> const& TPCClusters,
 					  evdb::View3D                      * view,
 					  int                                 color,
-					  int                                 /*marker*/,
-					  int                                 /*size*/)
+					  int                                 marker,
+					  int                                 size)
     {
       //auto const* detp = gar::providerFrom<detinfo::DetectorPropertiesService>();
 
@@ -375,7 +377,7 @@ namespace gar {
       zcent = 0;
 
       // Make and fill a polymarker.
-      TPolyMarker3D& pm = view->AddPolyMarker3D(TPCClusters.size(), color, 1, 3);
+      TPolyMarker3D& pm = view->AddPolyMarker3D(TPCClusters.size(), color, marker, size);
 
       // Display all TPCClusters on the 3D view
       size_t p = 0;
@@ -662,13 +664,12 @@ namespace gar {
 	  for(size_t t = 0; t < trackView.size(); ++t){
 
 	    int color  = evd::kColor[t%evd::kNCOLS];
-	    int marker = 20;
-	    int size   = 2;
 
 	    // Draw track using only embedded information.
 	    auto const& TPCClusters = fmc.at(t);
 
-	    DrawTPCCluster3D(TPCClusters, view, color, marker, size);
+	    DrawTPCCluster3D(TPCClusters, view, color, recoOpt->fTPCClusterMarker, 
+			     recoOpt->fTPCClusterMarkerSize);
 
 	  }
 
