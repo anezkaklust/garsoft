@@ -238,7 +238,6 @@ namespace gar {
                         {
                             const float *kpos = TPCClusterCol->at(k).Position();
                             if (TMath::Abs( ipos[2] - kpos[2] ) < fZCut1) continue;
-                            if (TMath::Abs( jpos[2] - kpos[2] ) < fZCut1) continue;
                             std::vector<gar::rec::TPCCluster> triplet;
                             triplet.push_back(TPCClusterCol->at(i));
                             triplet.push_back(TPCClusterCol->at(j));
