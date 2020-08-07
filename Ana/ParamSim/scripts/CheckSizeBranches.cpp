@@ -2,19 +2,52 @@ void CheckSizeBranches()
 {
     // CaliceStyle();
 
-    //Compare between ptrue <-> preco and angle <-> anglereco
+    //Read sizes of the caf tree vectors and check that the sizes are consistent 
+
+    //if you are reading only one file, for debugging  purposes: 1) comment out lines 8 through 39 
+    //and then again lines 145 and 146, 2) un-comment lines 41 and 42.   
+    const char *dirname="/pnfs/dune/persistent/users/ND_GAr/2020_06_21/neutrino/";   
+    
+    const char *ext=".root";
+    std::vector<const char*> lista;
+    lista.clear();
+
     TChain *chain = new TChain("caf");
 
-    // for(int i = 5000; i < 5050; i++){
-    //     TString filename = TString::Format("../Cafs/caf_%i.root", i);
-    //     chain->Add(filename);
-    // }
+    TSystemDirectory dir(dirname, dirname);
+    TList *files = dir.GetListOfFiles();
+    
 
-    chain->Add("caf.root");
+    TSystemFile *file;
+    TString fname;
+    TIter next(files);
+    while ((file = (TSystemFile*)next())) {
+    fname = file->GetName();
+    if (file->IsDirectory() && fname.EndsWith(ext)) continue;
+
+    char result[255];   // array to hold the result.
+    strcpy(result,dirname); // copy string one into the result.
+    strcat(result,fname.Data()); // append string two to the result.
+    
+    lista.push_back(result);
+
+    for(std::vector<const char*>::iterator it = lista.begin(); it != lista.end(); it++)
+    {
+
+    std::cout << *it << std::endl;
+    string a(*it);
+    TFile * tf = new TFile ( Form("%s",a.c_str() ) );
+    chain->Add( Form("%s/caf", a.c_str()) );
+    
+    //TChain *chain = new TChain("caf");
+    //chain->Add("/pnfs/dune/persistent/users/ND_GAr/2020_06_21/neutrino/neutrino.nd_hall_mpd_only.volTPCGas.Ev336000.Ev336999.11141.caf.root"); 
+
+    //std::cout << *it << std::endl;
 
     int evt;
     std::vector<double>* mctime = 0;
     std::vector<int> *_nFSP = 0;
+    std::vector<double> *theta = 0;
     std::vector<int> *detected = 0;
     std::vector<int> *pdgmother = 0;
     std::vector<int> *truepdg = 0;
@@ -42,6 +75,7 @@ void CheckSizeBranches()
     std::vector<float> *erecon = 0;
 
     chain->SetBranchAddress("Event", &evt);
+    chain->SetBranchAddress("theta", &theta);
     chain->SetBranchAddress("nFSP", &_nFSP);
     chain->SetBranchAddress("detected", &detected);
     chain->SetBranchAddress("pdgmother", &pdgmother);
@@ -74,7 +108,7 @@ void CheckSizeBranches()
         chain->GetEntry(itree);
 
         std::cout << "Event " << evt << std::endl;
-
+        std::cout << "theta " << theta->size() << std::endl;
         std::cout << "Size pdgmother: " << pdgmother->size() << std::endl;
         std::cout << "Size MCPTime: " << mctime->size() << std::endl;
         std::cout << "Size MCPStartX: " << _MCPStartX->size() << std::endl;
@@ -100,6 +134,14 @@ void CheckSizeBranches()
         std::cout << "Size prob_arr: " << prob_arr->size() << std::endl;
         std::cout << "Size _nFSP: " << _nFSP->size() << " value " << _nFSP->at(0) << std::endl;
         std::cout << "Size detected: " << detected->size() << std::endl;
-    }
-
+    	
+	for(int i = 0; i < theta->size(); i++)
+        {
+   	
+		std::cout << "value of theta is: " << theta->at(i) << std::endl;	
+	
+	} 
+   }
+}
+}
 }
