@@ -1063,7 +1063,8 @@ void CAF::loop()
                         //check if it can be detected by the ECAL
                         //Assumes 40% efficiency to detect
                         float random_number = _util->GetRamdomNumber();
-                        float true_KE = ptrue*ptrue / (2*neutron_mass); // in GeV
+                        float true_KE = std::sqrt(ptrue*ptrue + neutron_mass*neutron_mass) - neutron_mass;
+                        // float true_KE = ptrue*ptrue / (2*neutron_mass); // in GeV
                         int index = (true_KE >= 0.05) ? 1 : 0;
 
                         // std::cout << "KE " << true_KE << " index " << index << " 1 - eff " << 1-NeutronECAL_detEff[index] << " rdnm " << random_number << std::endl;

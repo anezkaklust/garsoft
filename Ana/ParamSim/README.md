@@ -115,7 +115,7 @@ The module is designed to take GArSoft's analysis tree, anatree as input and pro
 
   * anglereco: reconstructed angle of the particle with respect to the beam direction (wrt the z-direction)
 
-  * erecon: reconstructed energy of neutral and charged particles that reach the ECAL (when track length != 0 and endpoint is in the calo). Particles that are not reconstructed in the ECAL have erecon of 0.
+  * erecon: reconstructed energy of neutral and charged particles that reach the ECAL (when track length != 0 and endpoint is in the calo). Particles that are not reconstructed in the ECAL have erecon of 0. Calculated from ECAL parametrisation using E = sqrt( p*p + m*m ) - m (kinetic energy)
 
   * prob_arr: array of PID scores/probabilities (using log-likelihood) for reconstructed particles
 
