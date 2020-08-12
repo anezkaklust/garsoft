@@ -46,7 +46,9 @@ namespace gar {
       float fChisquaredCut;
       int fPrintLevel;
       float fRCut;
+      float fDCut;
       std::string fTrackLabel;
+      int fNTPCClusCut;
 
       // Stub to check that the track is vertexable
       bool goodTrack(TrackPar trk, TrackEnd usebeg);
@@ -58,7 +60,9 @@ namespace gar {
     {
       fTrackLabel = p.get<std::string>("TrackLabel","track");
       fChisquaredCut = p.get<float>("ChisquaredPerDOFCut",5.0);
-      fRCut = p.get<float>("RCut", 12.0); // in cm
+      fRCut = p.get<float>("RCut", 12.0); // endpoints must be within this distnace in cm
+      fDCut = p.get<float>("DCut", 2.0); // doca must be smaller than this in cm
+      fNTPCClusCut = p.get<int>("NTPCClusCut",20);  // dimensionless
       fPrintLevel = p.get<int>("PrintLevel",0);
 
       art::InputTag trackTag(fTrackLabel);
@@ -71,9 +75,9 @@ namespace gar {
 
     void vertexfinder1::produce(art::Event & e) {
       std::unique_ptr< std::vector<rec::Vertex> >
-                          vtxCol(new std::vector<rec::Vertex>);
+        vtxCol(new std::vector<rec::Vertex>);
       std::unique_ptr< art::Assns<rec::Track, rec::Vertex, rec::TrackEnd> >
-                          trkVtxAssns(new::art::Assns<rec::Track, rec::Vertex, rec::TrackEnd>);
+        trkVtxAssns(new::art::Assns<rec::Track, rec::Vertex, rec::TrackEnd>);
 
       auto trackHandle = e.getValidHandle< std::vector<Track>  >(fTrackLabel);
       auto const& tracks = *trackHandle;
@@ -81,70 +85,94 @@ namespace gar {
       auto const vtxPtrMaker   = art::PtrMaker<rec::Vertex>(e);
       auto const trackPtrMaker = art::PtrMaker<rec::Track>(e, trackHandle.id());
 
-
-
       size_t nTrack = tracks.size();
+      std::vector<int> usedflag_beg(nTrack,0);  // to tell if we've used a track yet or not.
+      std::vector<int> usedflag_end(nTrack,0);  // to tell if we've used a track yet or not.
+
       if (nTrack>=2) {
+
         // For each track, build a vector of ends that can be vertexed with it.  Include
         // the number of the track for later ouroboros test
+
         std::vector< std::tuple<TrackPar,TrackEnd,int> > trackParEnds;
         for (size_t iTrack=0; iTrack<nTrack-1; ++iTrack) {
           TrackPar thisTrack = tracks.at(iTrack);
           // Build that vector for each of the 2 ends of the track
           for (int fin=0; fin<2; ++fin) {
-            TrackEnd thisTrackEnd(fin==0 ? 1 : 0);
             trackParEnds.clear();
-            if (goodTrack(thisTrack,thisTrackEnd)) {
-              trackParEnds.emplace_back( std::make_tuple(thisTrack,thisTrackEnd,iTrack) );
-            }
+            TrackEnd thisTrackEnd(fin == 0 ? 1 : 0);
+            if (! goodTrack(thisTrack,thisTrackEnd)) continue;
+            trackParEnds.emplace_back( std::make_tuple(thisTrack,thisTrackEnd,iTrack) );
             TVector3 thisEndinSpace;
-            if (thisTrackEnd==TrackEndBeg) {
-              thisEndinSpace = thisTrack.getXYZBeg();
-            } else {
-              thisEndinSpace = thisTrack.getXYZEnd();
-            }
+            if (thisTrackEnd == TrackEndBeg) 
+              { 
+		usedflag_beg.at(iTrack) = 1; 
+                thisEndinSpace = thisTrack.getXYZBeg();
+	      }
+            else
+              { 
+		usedflag_end.at(iTrack) = 1; 
+                thisEndinSpace = thisTrack.getXYZEnd();
+	      }
+
             // Loop over other trackends to see what is close
             for (size_t jTrack=iTrack+1; jTrack<nTrack; ++jTrack) {
               TrackPar thatTrack = tracks.at(jTrack);
-              TVector3 thatEndinSpace;
-              double distBeg, distEnd;	distBeg = distEnd = 2.0*fRCut;
-              if (goodTrack( thatTrack,TrackEndBeg )) {
-                thatEndinSpace = thatTrack.getXYZBeg();
-                distBeg = (thisEndinSpace -thatEndinSpace).Mag();
-              }
-              if (goodTrack(thatTrack,TrackEndEnd)) {
-                thatEndinSpace = thatTrack.getXYZEnd();
-                distEnd = (thisEndinSpace -thatEndinSpace).Mag();
-              }
-              // Push back only the closest end, if any.  Short track fragments can
-              // provide both ends within fRCut and we don't want both!
-              if (distBeg<fRCut && distBeg<distEnd) {
-                trackParEnds.emplace_back( std::make_tuple(thatTrack,TrackEndBeg,jTrack) );
-              }
-              if (distEnd<fRCut && distBeg>distEnd) {
-                trackParEnds.emplace_back( std::make_tuple(thatTrack,TrackEndEnd,jTrack) );
-              }
+              for (int fin2=0; fin2<2; ++fin2)
+                {
+                  TrackEnd thatTrackEnd(fin2 == 0 ? 1 : 0);
+                  if (thatTrackEnd == TrackEndBeg && usedflag_beg.at(jTrack) != 0) continue;
+                  if (thatTrackEnd == TrackEndEnd && usedflag_end.at(jTrack) != 0) continue;
+                  if (!goodTrack(thatTrack,thatTrackEnd)) continue;
+		  TVector3 thatEndinSpace;
+		  if (thatTrackEnd == TrackEndBeg) 
+		    { 
+		      thatEndinSpace = thatTrack.getXYZBeg();
+		    }
+		  else
+		    { 
+		      thatEndinSpace = thatTrack.getXYZEnd();
+		    }
+
+		  if ( (thisEndinSpace-thatEndinSpace).Mag() > fRCut) continue;
+
+
+                  // call the fitter to see what the docas are and cut on the doca
+
+                  std::vector<TrackPar> vtracks;
+                  std::vector<TrackEnd> usebeg;
+                  vtracks.push_back(thisTrack);
+                  vtracks.push_back(thatTrack);
+                  usebeg.push_back(thisTrackEnd);
+                  usebeg.push_back(thatTrackEnd);
+                  std::vector<float> xyz(3,0);
+                  std::vector< std::vector<float> > covmat;
+                  std::vector<float> doca;
+                  float chisquared=0;
+                  double time;
+
+                  if (gar::rec::fitVertex(vtracks,xyz,chisquared,covmat,time,usebeg,doca) == 0) 
+                    {
+                      if (doca.at(0) < fDCut && doca.at(1) < fDCut)
+                        {
+                          if (thatTrackEnd == TrackEndBeg)
+                            {
+                              usedflag_beg.at(jTrack) = 1;
+                            }
+                          else
+                            {
+                              usedflag_end.at(jTrack) = 1;
+                            }
+                          trackParEnds.emplace_back( std::make_tuple(thatTrack,thatTrackEnd,jTrack) );
+                          continue;  // don't add the other end of the same track
+                        } // end if doca test
+                    } // end if vertex fit succeeded
+                } // end loop over jtrack end
             } // End loop over jTrack
  
-
-
-            // Having found all the track ends that can be vertexed with thisTrack on this
-            // particular end (fin), it is time for the Ouroboros test: be certain that we
-            // are not vertexing one end of a looping track to its own other end
-            bool Ouroboros = false;
             size_t nTrackEnds = trackParEnds.size();
-            for (size_t iTrackEnd=0; iTrackEnd<nTrackEnds-1; ++iTrackEnd) {
-              for (size_t jTrackEnd=iTrackEnd+1; jTrackEnd<nTrackEnds; ++jTrackEnd) {
-                Ouroboros = (std::get<2>(trackParEnds[iTrackEnd])==std::get<2>(trackParEnds[jTrackEnd]));
-                // Double break!
-                if (Ouroboros) break;
-              }
-              if (Ouroboros) break;
-            }
 
-
-
-            if (!Ouroboros && nTrackEnds>=2) {
+            if ( nTrackEnds>=2) {
               // Feed the vertexable ends into the vertex finder
               std::vector<TrackPar> vtracks;
               std::vector<TrackEnd> usebeg;
@@ -154,9 +182,10 @@ namespace gar {
               }
               std::vector<float> xyz(3,0);
               std::vector< std::vector<float> > covmat;
+              std::vector<float> doca;
               float chisquared=0;
               double time;
-              if (gar::rec::fitVertex(vtracks,xyz,chisquared,covmat,time,usebeg) == 0) {
+              if (gar::rec::fitVertex(vtracks,xyz,chisquared,covmat,time,usebeg,doca) == 0) {
                 float cmv[9];
                 size_t icounter=0;
                 for (size_t i=0; i<3;++i) {
@@ -184,12 +213,14 @@ namespace gar {
     } // end produce method.
 
 
-    //--------------------------------------------------------------------------------------------------
+      //--------------------------------------------------------------------------------------------------
 
-    // goodTrack returns true if the track can be used in vertexing
+      // goodTrack returns true if the track can be used in vertexing
 
     bool vertexfinder1::goodTrack(TrackPar trk, TrackEnd usebeg)
     {
+      int trknclus = trk.getNTPCClusters();
+      if ( trknclus < fNTPCClusCut ) return false;
       return true;     // just a stub for now
     }
 

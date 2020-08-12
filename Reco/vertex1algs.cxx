@@ -6,11 +6,13 @@
 // It does not cut tracks from the vertex candidate set -- may need to do that in the caller.
 
 int gar::rec::fitVertex(std::vector<TrackPar> &tracks, 
-                             std::vector<float> &xyz, 
-                             float &chisquared, 
-                             std::vector< std::vector<float> > &covmat, 
-                             double &time,
-                             std::vector<TrackEnd> usebeg)
+                        std::vector<float> &xyz, 
+                        float &chisquared, 
+                        std::vector< std::vector<float> > &covmat, 
+                        double &time,
+			std::vector<TrackEnd> usebeg,
+			std::vector<float> &doca
+			)
 {
   // find the ends of the tracks that are closest to the other tracks' ends
   // pick the end that minimizes the sums of the min(dist) to the other tracks' endpoints
@@ -100,13 +102,16 @@ int gar::rec::fitVertex(std::vector<TrackPar> &tracks,
   xyz.at(2) = xyzsol[2];
 
   chisquared = 0;
+  //std::cout << "in vertexfit ntracks: " << tracks.size() << std::endl;
   for (size_t itrack=0; itrack < tracks.size(); ++itrack)
     {
       
       TVector3 dir3(dir.at(itrack)[0],dir.at(itrack)[1],dir.at(itrack)[2]);
       TVectorF diff = xyzsol - p.at(itrack);
       TVector3 diff3(diff[0],diff[1],diff[2]);
-      chisquared +=  (diff3.Cross(dir3)).Mag2();   // todo -- include track errors in chisquared calc
+      double dctmp = (diff3.Cross(dir3)).Mag2();
+      doca.push_back(dctmp);
+      chisquared +=  dctmp*dctmp;   // todo -- include track errors in chisquared calc
     }
 
   // to iterate -- extrapolate helical tracks to the closest point to the first found vertex and

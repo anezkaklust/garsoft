@@ -22,7 +22,8 @@ namespace gar {
                   float &chisquared, 
                   std::vector< std::vector<float> > &covmat, 
                   double &time,
-                  std::vector<TrackEnd> usebeg);
+                  std::vector<TrackEnd> usebeg,
+		  std::vector<float> &doca);
 
       }
 }
