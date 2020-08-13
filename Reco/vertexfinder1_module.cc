@@ -106,14 +106,14 @@ namespace gar {
             TVector3 thisEndinSpace;
             if (thisTrackEnd == TrackEndBeg) 
               { 
-		usedflag_beg.at(iTrack) = 1; 
+                usedflag_beg.at(iTrack) = 1; 
                 thisEndinSpace = thisTrack.getXYZBeg();
-	      }
+              }
             else
               { 
-		usedflag_end.at(iTrack) = 1; 
+                usedflag_end.at(iTrack) = 1; 
                 thisEndinSpace = thisTrack.getXYZEnd();
-	      }
+              }
 
             // Loop over other trackends to see what is close
             for (size_t jTrack=iTrack+1; jTrack<nTrack; ++jTrack) {
@@ -124,17 +124,17 @@ namespace gar {
                   if (thatTrackEnd == TrackEndBeg && usedflag_beg.at(jTrack) != 0) continue;
                   if (thatTrackEnd == TrackEndEnd && usedflag_end.at(jTrack) != 0) continue;
                   if (!goodTrack(thatTrack,thatTrackEnd)) continue;
-		  TVector3 thatEndinSpace;
-		  if (thatTrackEnd == TrackEndBeg) 
-		    { 
-		      thatEndinSpace = thatTrack.getXYZBeg();
-		    }
-		  else
-		    { 
-		      thatEndinSpace = thatTrack.getXYZEnd();
-		    }
+                  TVector3 thatEndinSpace;
+                  if (thatTrackEnd == TrackEndBeg) 
+                    { 
+                      thatEndinSpace = thatTrack.getXYZBeg();
+                    }
+                  else
+                    { 
+                      thatEndinSpace = thatTrack.getXYZEnd();
+                    }
 
-		  if ( (thisEndinSpace-thatEndinSpace).Mag() > fRCut) continue;
+                  if ( (thisEndinSpace-thatEndinSpace).Mag() > fRCut) continue;
 
 
                   // call the fitter to see what the docas are and cut on the doca

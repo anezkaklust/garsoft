@@ -23,7 +23,7 @@ namespace gar {
                   std::vector< std::vector<float> > &covmat, 
                   double &time,
                   std::vector<TrackEnd> usebeg,
-		  std::vector<float> &doca);
+                  std::vector<float> &doca);
 
       }
 }

@@ -10,9 +10,9 @@ int gar::rec::fitVertex(std::vector<TrackPar> &tracks,
                         float &chisquared, 
                         std::vector< std::vector<float> > &covmat, 
                         double &time,
-			std::vector<TrackEnd> usebeg,
-			std::vector<float> &doca
-			)
+                        std::vector<TrackEnd> usebeg,
+                        std::vector<float> &doca
+                        )
 {
   // find the ends of the tracks that are closest to the other tracks' ends
   // pick the end that minimizes the sums of the min(dist) to the other tracks' endpoints
