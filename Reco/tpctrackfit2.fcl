@@ -6,7 +6,6 @@ standard_tpctrackfit2:
  PatRecLabel:               "patrec"    # module label producing patrec tracks and TPCCluster assoications
 
  DumpTracks:                 0          # separate track dump printout
- TPCClusterResolYZinFit:     4.0        # resolution in cm in YZ used in the Kalman filter step in the fit
  RoadYZinFit:                1000.0     # how far in cm to keep a TPCCluster in the fit step
  FirstPassFitType:           "Kalman"   # helix or Kalman -- only Kalman supported for now
  SecondPassFitType:          "Kalman"   # helix or Kalman -- only Kalman supported for now
@@ -15,12 +14,19 @@ standard_tpctrackfit2:
  KalLambdaStepUncSq:         1.0E-4     # square of constant uncertainty term on each step of Kalman fit -- lambda
  SortTransWeight:            0.1        # for use in the hit sorting algorithm -- transverse distance weight factor
  SortDistBack:               2.0        # for use in the hit sorting algorithm -- how far to go back before raising the distance figure of merit
-
  MinNumTPCClusters:               20    # minimum number of TPCClusters on a track
  InitialTPNTPCClusters:          100    # number of TPCClusters to use for initial trackpar estimate, if present
  PrintLevel:                       0    # Debug printout:  0: none, 1: track parameters and residuals, 2: everything
-
  MinIonizGapCut:             5.0        # Do not compute dE/dx for dx over this
+
+ TPCClusterResid__CROC_b:    0.1593     # parameters to estimate residuals in YZ plane
+ TPCClusterResid__CROC_m:    0.0126     # used in the chi-squared calculation.  cm.
+ TPCClusterResid__IROC_b:    0.1027     # Not used in computing point of closest 
+ TPCClusterResid__IROC_m:    0.0238     # approach between the fit and the cluster
+ TPCClusterResid_IOROC_b:    0.0927     #
+ TPCClusterResid_IOROC_m:    0.0322     #
+ TPCClusterResid_OOROC_b:    0.0749     #
+ TPCClusterResid_OOROC_m:    0.0883     #
 }
 
 dayone_tpctrackfit2:
@@ -29,7 +35,6 @@ dayone_tpctrackfit2:
  PatRecLabel:               "dayone"    # module label producing patrec tracks and TPCCluster assoications
 
  DumpTracks:                 0          # separate track dump printout
- TPCClusterResolYZinFit:     0.3        # resolution in cm in YZ used in the Kalman filter step in the fit
  RoadYZinFit:                1000.0     # how far in cm to keep a TPCCluster in the fit step
  FirstPassFitType:           "Kalman"   # helix or Kalman -- only Kalman supported for now
  SecondPassFitType:          "Kalman"   # helix or Kalman -- only Kalman supported for now
@@ -38,12 +43,19 @@ dayone_tpctrackfit2:
  KalLambdaStepUncSq:         1.0E-4     # square of constant uncertainty term on each step of Kalman fit -- lambda
  SortTransWeight:            0.1        # for use in the hit sorting algorithm -- transverse distance weight factor
  SortDistBack:               2.0        # for use in the hit sorting algorithm -- how far to go back before raising the distance figure of merit
-
  MinNumTPCClusters:               3    # minimum number of TPCClusters on a track
  InitialTPNTPCClusters:         100    # number of TPCClusters to use for initial trackpar estimate, if present
  PrintLevel:                      0    # Debug printout:  0: none, 1: track parameters and residuals, 2: everything
-
  MinIonizGapCut:             5.0        # Do not compute dE/dx for dx over this
+
+ TPCClusterResid__CROC_b:    0.3        # parameters to estimate residuals in YZ plane
+ TPCClusterResid__CROC_m:    0.0        # used in the chi-squared calculation.  cm.
+ TPCClusterResid__IROC_b:    0.3        # Not used in computing point of closest 
+ TPCClusterResid__IROC_m:    0.0        # approach between the fit and the cluster
+ TPCClusterResid_IOROC_b:    0.3        #
+ TPCClusterResid_IOROC_m:    0.0        #
+ TPCClusterResid_OOROC_b:    0.3        #
+ TPCClusterResid_OOROC_m:    0.0        #
 }
 
 END_PROLOG

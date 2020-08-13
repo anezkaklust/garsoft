@@ -62,8 +62,6 @@ namespace gar {
 
       int fPrintLevel;              ///< debug printout:  0: none, 1: selected, 2: all
 
-      art::ServiceHandle<geo::Geometry> euclid;
-
     };
 
 
@@ -99,8 +97,8 @@ namespace gar {
 //==============================================================================
     void TPCHitCluster::produce(art::Event& e)
     {
-      art::ServiceHandle<geo::Geometry> geo;
-      float xtpccent = geo->TPCXCent();
+      art::ServiceHandle<geo::Geometry> euclid;
+      float xtpccent = euclid->TPCXCent();
       //float ytpccent = geo->TPCYCent();
       //float ztpccent = geo->TPCZCent(); 
 
@@ -147,7 +145,7 @@ namespace gar {
           int side=0;                                   // detector side of the seed hit.
           auto hitchan = hits.at(ihit).Channel();
           float chanpos[3] = {0,0,0};
-          geo->ChannelToPosition(hitchan, chanpos);
+          euclid->ChannelToPosition(hitchan, chanpos);
           if (chanpos[0] > xtpccent) 
             {
               side = 1;
@@ -168,11 +166,11 @@ namespace gar {
             }
 
           // Determine cluster position in endcap for cuts to accumulate more hits
-         float rHit = std::hypot(xyz[1],xyz[2]);
-         bool In_CROC =                                                  rHit < euclid->GetIROCInnerRadius();
-         bool In_IROC = euclid->GetIROCInnerRadius() < rHit 		  && rHit < euclid->GetIROCOuterRadius();
-         bool InIOROC = euclid->GetOROCInnerRadius() < rHit 		  && rHit < euclid->GetOROCPadHeightChangeRadius();
-         bool InOOROC = euclid->GetOROCPadHeightChangeRadius() < rHit && rHit < euclid->GetOROCOuterRadius();
+          float rHit = std::hypot(xyz[1],xyz[2]);
+          bool In_CROC =                                                  rHit < euclid->GetIROCInnerRadius();
+          bool In_IROC = euclid->GetIROCInnerRadius() < rHit 		  && rHit < euclid->GetIROCOuterRadius();
+          bool InIOROC = euclid->GetOROCInnerRadius() < rHit 		  && rHit < euclid->GetOROCPadHeightChangeRadius();
+          bool InOOROC = euclid->GetOROCPadHeightChangeRadius() < rHit && rHit < euclid->GetOROCOuterRadius();
 
           for (size_t ix = ihitx+1; ix<nhits; ++ix) // look for candidate hits to cluster in with this one
             {
@@ -181,7 +179,7 @@ namespace gar {
               int sidetest = 0;
               auto hitchantest = hits.at(ihc).Channel();
               float chanpostest[3] = {0,0,0};
-              geo->ChannelToPosition(hitchantest, chanpostest);
+              euclid->ChannelToPosition(hitchantest, chanpostest);
               if (chanpostest[0] > xtpccent) 
                 {
                   sidetest = 1;

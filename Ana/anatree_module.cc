@@ -256,6 +256,8 @@ namespace gar {
 
         std::vector<Float_t>            fTrackLenF;         // from foward fit, from the Beg end to the End end
         std::vector<Float_t>            fTrackLenB;
+        std::vector<Float_t>            fTrackChi2F;        // from foward fit, from the Beg end to the End end
+        std::vector<Float_t>            fTrackChi2B;
         std::vector<Int_t>              fNTPCClustersOnTrack;
         std::vector<Float_t>            fTrackAvgIonF;      // from foward fit, from the Beg end to the End end
         std::vector<Float_t>            fTrackAvgIonB;
@@ -589,6 +591,8 @@ void gar::anatree::beginJob() {
 
     fTree->Branch("TrackLenF",          &fTrackLenF);
     fTree->Branch("TrackLenB",          &fTrackLenB);
+    fTree->Branch("TrackChi2F",         &fTrackChi2F);
+    fTree->Branch("TrackChi2B",         &fTrackChi2B);
     fTree->Branch("NTPCClustersOnTrack",&fNTPCClustersOnTrack);
     fTree->Branch("TrackAvgIonF",       &fTrackAvgIonF);
     fTree->Branch("TrackAvgIonB",       &fTrackAvgIonB);
@@ -829,6 +833,8 @@ void gar::anatree::ClearVectors() {
         fTrackEndQ.clear();
         fTrackLenF.clear();
         fTrackLenB.clear();
+        fTrackChi2F.clear();
+        fTrackChi2B.clear();
         fTrackAvgIonF.clear();
         fTrackAvgIonB.clear();
         fNTPCClustersOnTrack.clear();
@@ -1361,6 +1367,8 @@ void gar::anatree::FillVectors(art::Event const & e) {
 
                     fTrackLenF.push_back(track.LengthForward());
                     fTrackLenB.push_back(track.LengthBackward());
+                    fTrackChi2F.push_back(track.ChisqForward());
+                    fTrackChi2B.push_back(track.ChisqBackward());
                     fNTPCClustersOnTrack.push_back(track.NHits());
 
                     if (findIonization->isValid()) {

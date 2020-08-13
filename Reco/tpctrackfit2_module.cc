@@ -75,11 +75,21 @@ namespace gar {
       unsigned int fInitialTPNTPCClusters; ///< number of TPCClusters to use for initial trackpar estimate, if present
       unsigned int fMinNumTPCClusters;     ///< minimum number of TPCClusters to define a track
       int fDumpTracks;                     ///< 0: do not print out tracks, 1: print out tracks
-      float fTPCClusterResolYZinFit;       ///< TPCCluster resolution parameter to use in fit
       float fRoadYZinFit;                  ///< cut in cm for dropping TPCClusters from tracks in fit
       float fSortTransWeight;              ///< for use in the hit sorting algorithm -- transverse distance weight factor
       float fSortDistBack;                 ///< for use in the hit sorting algorithm -- how far to go back before raising the distance figure of merit
       float fMinIonizGapCut;               ///< Don't compute dEdx for this dx or larger
+
+      float fTPCClusterResid__CROC_b;      ///< parameters to estimate residuals in YZ plane
+      float fTPCClusterResid__CROC_m;
+      float fTPCClusterResid__IROC_b;
+      float fTPCClusterResid__IROC_m;
+      float fTPCClusterResid_IOROC_b;
+      float fTPCClusterResid_IOROC_m;
+      float fTPCClusterResid_OOROC_b;
+      float fTPCClusterResid_OOROC_m;
+
+
 
       int KalmanFit( std::vector<TPCCluster> &TPCClusters,
                      std::vector<int> &TPCClusterlist,
@@ -93,6 +103,9 @@ namespace gar {
 
       int KalmanFitBothWays(std::vector<gar::rec::TPCCluster> &TPCClusters,
                             TrackPar &trackpar,  TrackIoniz &trackions, TrackTrajectory &tracktraj);
+
+      art::ServiceHandle<geo::Geometry> euclid;
+
     };
 
 
@@ -111,11 +124,19 @@ namespace gar {
       fDumpTracks        = p.get<int>("DumpTracks",0);
       fTPCClusterResolYZ        = p.get<float>("TPCClusterResolYZ",1.0); // TODO -- think about what this value is
       fTPCClusterResolX         = p.get<float>("TPCClusterResolX",0.5);  // this is probably much better
-      fTPCClusterResolYZinFit   = p.get<float>("TPCClusterResolYZinFit",4.0);
       fRoadYZinFit       = p.get<float>("RoadYZinFit",1.0);
       fSortTransWeight   = p.get<float>("SortTransWeight",0.1);
       fSortDistBack      = p.get<float>("SortDistBack",2.0);
       fMinIonizGapCut    = p.get<float>("MinIonizGapCut",5.0);
+
+      fTPCClusterResid__CROC_b = p.get<float>("TPCClusterResid__CROC_b", 0.2);
+      fTPCClusterResid__CROC_m = p.get<float>("TPCClusterResid__CROC_m", 0.1);
+      fTPCClusterResid__IROC_b = p.get<float>("TPCClusterResid__IROC_b", 0.1);
+      fTPCClusterResid__IROC_m = p.get<float>("TPCClusterResid__IROC_m", 0.2);
+      fTPCClusterResid_IOROC_b = p.get<float>("TPCClusterResid__CROC_b", 0.1);
+      fTPCClusterResid_IOROC_m = p.get<float>("TPCClusterResid__CROC_m", 0.3);
+      fTPCClusterResid_OOROC_b = p.get<float>("TPCClusterResid__CROC_b", 0.1);
+      fTPCClusterResid_OOROC_m = p.get<float>("TPCClusterResid__CROC_m", 0.9);
 
       art::InputTag patrecTag(fPatRecLabel);
       consumes< std::vector<gar::rec::Track> >(patrecTag);
@@ -160,10 +181,9 @@ namespace gar {
       G4ThreeVector zerovec(0,0,0);
       G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 
-      art::ServiceHandle<geo::Geometry> geo;
-      double xtpccent = geo->TPCXCent();
-      double ytpccent = geo->TPCYCent();
-      double ztpccent = geo->TPCZCent();
+      double xtpccent = euclid->TPCXCent();
+      double ytpccent = euclid->TPCYCent();
+      double ztpccent = euclid->TPCZCent();
       TVector3 tpccent(xtpccent,ytpccent,ztpccent);
       TVector3 xhat(1,0,0);
 
@@ -346,11 +366,12 @@ namespace gar {
       Q[3][3] = fKalPhiStepUncSq;      // phi
       Q[4][4] = fKalLambdaStepUncSq;   // lambda
 
-      // uncertainties on the measured points  (big for now)
+      // Noise covariance on the measured points.
+      // 2 cm initially, might reasonably be lowered to typicalResidual near line 552-67
       TMatrixF R(2,2);
       R.Zero();
-      R[0][0] = TMath::Sq(fTPCClusterResolYZinFit);  // in cm^2
-      R[1][1] = TMath::Sq(fTPCClusterResolYZinFit);  // in cm^2
+      R[0][0] = TMath::Sq(4.0);  // in cm^2
+      R[1][1] = TMath::Sq(4.0);  // in cm^2
 
       // add the TPCClusters and update the track parameters and uncertainties.  Put in additional terms to keep uncertainties from shrinking when
       // scattering and energy loss can change the track parameters along the way.
@@ -505,7 +526,33 @@ namespace gar {
               unused_TPCClusters.insert(iTPCCluster);
               continue;
             }
-          chisquared += ytilde.Norm2Sqr()/TMath::Sq(fTPCClusterResolYZinFit);
+
+          // Now the chisquared calculation.  Need the angle of track re line from axis of
+          // TPC, that is alpha; and to determine which part of the detector we are
+          // in.  The residual is determined based on a simple linear parameterization
+          float impactAngle;
+          TVector3 trajPerp(0.0, predstep[0],predstep[1]);
+          float rTrj = trajPerp.Mag();
+          TVector3 trajStepPerp(0.0, sin(predstep[3]),cos(predstep[3]));
+          impactAngle = trajPerp.Dot(trajStepPerp) / rTrj;
+          impactAngle = acos(abs(impactAngle));
+          float IROC_OROC_boundary = (euclid->GetIROCOuterRadius() +euclid->GetOROCInnerRadius())/2.0;
+          bool In_CROC =                                                  rTrj <= euclid->GetIROCInnerRadius();
+          bool In_IROC = euclid->GetIROCInnerRadius() < rTrj 		   && rTrj <= IROC_OROC_boundary;
+          bool InIOROC = IROC_OROC_boundary < rTrj 		               && rTrj <= euclid->GetOROCPadHeightChangeRadius();
+          bool InOOROC = euclid->GetOROCPadHeightChangeRadius() < rTrj;
+          float typicalResidual;
+          if (In_CROC) {
+            typicalResidual = fTPCClusterResid__CROC_m*impactAngle +fTPCClusterResid__CROC_b;
+          } else if (In_IROC) {
+            typicalResidual = fTPCClusterResid__IROC_m*impactAngle +fTPCClusterResid__IROC_b;
+          } else if (InIOROC) {
+            typicalResidual = fTPCClusterResid_IOROC_m*impactAngle +fTPCClusterResid_IOROC_b;
+          } else if (InOOROC) {
+            typicalResidual = fTPCClusterResid_OOROC_m*impactAngle +fTPCClusterResid_OOROC_b;
+          }
+
+          chisquared += ytilde.Norm2Sqr()/TMath::Sq(typicalResidual);
           if (fPrintLevel > 0)
             {
               std::cout << "ytilde (residuals): " << std::endl;
