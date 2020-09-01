@@ -70,6 +70,7 @@ namespace gar {
       float  fKalCurvStepUncSq;            ///< constant uncertainty term on each step of the Kalman fit -- squared, for curvature
       float  fKalPhiStepUncSq;             ///< constant uncertainty term on each step of the Kalman fit -- squared, for phi
       float  fKalLambdaStepUncSq;          ///< constant uncertainty term on each step of the Kalman fit -- squared, for lambda
+      float  fKalCovZYMeasure;             ///< constant uncertainty term on measurement in Kalman (the R matrix)
       float  fTPCClusterResolYZ;           ///< pad size in cm in YZ to determine step size
       float  fTPCClusterResolX;            ///< drift direction contribution to determine step size (resolution of a TPCCluster)
       unsigned int fInitialTPNTPCClusters; ///< number of TPCClusters to use for initial trackpar estimate, if present
@@ -120,6 +121,7 @@ namespace gar {
       fKalCurvStepUncSq  = p.get<float>("KalCurvStepUncSq",1.0E-9);
       fKalPhiStepUncSq   = p.get<float>("KalPhiStepUncSq",1.0E-9);
       fKalLambdaStepUncSq = p.get<float>("KalLambdaStepUncSq",1.0E-9);
+      fKalCovZYMeasure   = p.get<float>("KalCovZYMeasure", 4.0);
       fInitialTPNTPCClusters    = p.get<unsigned int>("InitialTPNTPCClusters",100);
       fDumpTracks        = p.get<int>("DumpTracks",0);
       fTPCClusterResolYZ        = p.get<float>("TPCClusterResolYZ",1.0); // TODO -- think about what this value is
@@ -139,15 +141,15 @@ namespace gar {
       fTPCClusterResid_OOROC_m = p.get<float>("TPCClusterResid__CROC_m", 0.9);
 
       art::InputTag patrecTag(fPatRecLabel);
-      consumes< std::vector<gar::rec::Track> >(patrecTag);
-      consumes< art::Assns<gar::rec::TPCCluster, gar::rec::Track> >(patrecTag);
+      consumes<std::vector<gar::rec::Track>>(patrecTag);
+      consumes<art::Assns<gar::rec::TPCCluster, gar::rec::Track>>(patrecTag);
 
       // probably don't need the vector hits at this point if we have the TPCClusters
       //consumes< std::vector<gar::rec::VecHit> >(patrecTag);
       //consumes< art::Assns<gar::rec::VecHit, gar::rec::Track> >(patrecTag);
 
-      produces< std::vector<gar::rec::Track> >();
-      produces< art::Assns<gar::rec::TPCCluster, gar::rec::Track> >();
+      produces<std::vector<gar::rec::Track>>();
+      produces<art::Assns<gar::rec::TPCCluster, gar::rec::Track>>();
       produces<std::vector<gar::rec::TrackIoniz>>();
       produces<art::Assns<rec::TrackIoniz, rec::Track>>();
       produces<std::vector<gar::rec::TrackTrajectory>>();
@@ -367,11 +369,11 @@ namespace gar {
       Q[4][4] = fKalLambdaStepUncSq;   // lambda
 
       // Noise covariance on the measured points.
-      // 2 cm initially, might reasonably be lowered to typicalResidual near line 552-67
+      // 16 cm2 initially, might reasonably be lowered to typicalResidual near line 552-67
       TMatrixF R(2,2);
       R.Zero();
-      R[0][0] = TMath::Sq(4.0);  // in cm^2
-      R[1][1] = TMath::Sq(4.0);  // in cm^2
+      R[0][0] = TMath::Sq(fKalCovZYMeasure);  // in cm^2
+      R[1][1] = TMath::Sq(fKalCovZYMeasure);  // in cm^2
 
       // add the TPCClusters and update the track parameters and uncertainties.  Put in additional terms to keep uncertainties from shrinking when
       // scattering and energy loss can change the track parameters along the way.
@@ -541,7 +543,7 @@ namespace gar {
           bool In_IROC = euclid->GetIROCInnerRadius() < rTrj 		   && rTrj <= IROC_OROC_boundary;
           bool InIOROC = IROC_OROC_boundary < rTrj 		               && rTrj <= euclid->GetOROCPadHeightChangeRadius();
           bool InOOROC = euclid->GetOROCPadHeightChangeRadius() < rTrj;
-          float typicalResidual;
+          float typicalResidual = 0;
           if (In_CROC) {
             typicalResidual = fTPCClusterResid__CROC_m*impactAngle +fTPCClusterResid__CROC_b;
           } else if (In_IROC) {
