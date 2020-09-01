@@ -43,7 +43,7 @@ public:
     void loop();
 
     /* Method to check vector size */
-    void CheckVectorSize();
+    bool CheckVectorSize();
 
 private:
 

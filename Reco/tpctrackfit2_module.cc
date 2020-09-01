@@ -110,7 +110,7 @@ namespace gar {
     };
 
 
-    tpctrackfit2::tpctrackfit2(fhicl::ParameterSet const& p) : EDProducer{p}  
+    tpctrackfit2::tpctrackfit2(fhicl::ParameterSet const& p) : EDProducer{p}
     {
       // Call appropriate produces<>() functions here.
       // Call appropriate consumes<>() for any products to be retrieved by this module.
@@ -339,7 +339,7 @@ namespace gar {
                                                ypos_init,
                                                zpos_init,
                                                x_other_end,
-                                               fInitialTPNTPCClusters, 
+                                               fInitialTPNTPCClusters,
                                                fPrintLevel) != 0)
         {
           //std::cout << "kalman fit failed on initial trackpar estimate" << std::endl;
@@ -423,7 +423,7 @@ namespace gar {
           float phi = parvec[3];
           float lambda = parvec[4];
 
-          // update prediction to the plane containing x.  Maybe we need to find 
+          // update prediction to the plane containing x.  Maybe we need to find
           // the closest point on the helix to the TPCCluster we are adding,
           // and not necessarily force it to be at this x
 
@@ -451,7 +451,7 @@ namespace gar {
           // are defined is at the end of the fit, not at the place where the fit begins.
           //
           // old calc was just based on TPCCluster position in x:
-          // float dx = xh - xpos;                                 
+          // float dx = xh - xpos;
 
 
           float dxnum = (slope/(fTPCClusterResolYZ*fTPCClusterResolYZ))*( (yh - parvec[0])*TMath::Sin(phi) + (zh - parvec[1])*TMath::Cos(phi) )
@@ -543,7 +543,7 @@ namespace gar {
           bool In_IROC = euclid->GetIROCInnerRadius() < rTrj 		   && rTrj <= IROC_OROC_boundary;
           bool InIOROC = IROC_OROC_boundary < rTrj 		               && rTrj <= euclid->GetOROCPadHeightChangeRadius();
           bool InOOROC = euclid->GetOROCPadHeightChangeRadius() < rTrj;
-          float typicalResidual = 0;
+          float typicalResidual = 1.0;	// Shaddup, compiler
           if (In_CROC) {
             typicalResidual = fTPCClusterResid__CROC_m*impactAngle +fTPCClusterResid__CROC_b;
           } else if (In_IROC) {
@@ -625,7 +625,7 @@ namespace gar {
           S.Print();
         }
 
-      // just for visualization of the initial track parameter guesses.  
+      // just for visualization of the initial track parameter guesses.
       //  Comment out when fitting tracks.
       //trackparatend[0] = ypos_init;
       //trackparatend[1] = zpos_init;
