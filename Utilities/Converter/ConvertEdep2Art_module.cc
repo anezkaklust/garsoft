@@ -68,10 +68,10 @@
 #include "TGeoNode.h"
 
 //Edep-Sim includes
-#include "EDepSim/TG4Event.h"
-#include "EDepSim/TG4HitSegment.h"
-#include "EDepSim/TG4PrimaryVertex.h"
-#include "EDepSim/TG4Trajectory.h"
+#include "TG4Event.h"
+#include "TG4HitSegment.h"
+#include "TG4PrimaryVertex.h"
+#include "TG4Trajectory.h"
 
 //CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -596,6 +596,7 @@ namespace util {
                 //Get the first point that created this particle
                 // process_name = t->Points.at(0).GetProcessName();
                 process_name = std::to_string(t->Points.at(0).GetProcess());
+                std::cout << "process name " << process_name << std::endl;
             }// end if not a primary particle
 
             MF_LOG_DEBUG("ConvertEdep2Art")

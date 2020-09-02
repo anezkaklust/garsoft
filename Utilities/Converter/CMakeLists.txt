@@ -1,6 +1,6 @@
 include_directories( $ENV{CLHEP_INCLUDE_DIR} )
 include_directories( $ENV{GENIE_INC}/GENIE )
-include_directories( $ENV{EDEPSIM_INC} )
+include_directories( $ENV{EDEPSIM_INC}/EDepSim )
 
 execute_process(COMMAND genie-config --libs OUTPUT_VARIABLE GENIE_LIBS_DIR_WITH_LFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 

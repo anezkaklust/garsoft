@@ -33,7 +33,7 @@ gallery         v1_14_02
 dune_pardata    v01_56_00
 duneutil        v08_58_00
 pandora         v03_15_00a
-edepsim         v03_0_0
+edepsim         v3_0_0
 cetbuildtools	v7_15_01	-	only_for_build
 end_product_list
 
