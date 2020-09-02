@@ -103,6 +103,9 @@ cet_find_library( LCPANDORACONTENT NAMES LCContent PATHS ENV PANDORA_LIB )
 add_subdirectory (Pandora)
 endif()
 
+find_ups_product( edepsim )
+cet_find_library( EDEPSIMIO NAMES edepsim_io PATHS ENV EDEPSIM_LIB )
+
 # tests
 add_subdirectory (test)
 

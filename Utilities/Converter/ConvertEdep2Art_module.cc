@@ -68,10 +68,10 @@
 #include "TGeoNode.h"
 
 //Edep-Sim includes
-#include "Utilities/Converter/edep-io/TG4Event.h"
-#include "Utilities/Converter/edep-io/TG4HitSegment.h"
-#include "Utilities/Converter/edep-io/TG4PrimaryVertex.h"
-#include "Utilities/Converter/edep-io/TG4Trajectory.h"
+#include "EDepSim/TG4Event.h"
+#include "EDepSim/TG4HitSegment.h"
+#include "EDepSim/TG4PrimaryVertex.h"
+#include "EDepSim/TG4Trajectory.h"
 
 //CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -594,7 +594,8 @@ namespace util {
             }
             else {
                 //Get the first point that created this particle
-                process_name = t->Points.at(0).GetProcessName();
+                // process_name = t->Points.at(0).GetProcessName();
+                process_name = std::to_string(t->Points.at(0).GetProcess());
             }// end if not a primary particle
 
             MF_LOG_DEBUG("ConvertEdep2Art")
@@ -617,13 +618,15 @@ namespace util {
                 double py = momentum.y() * CLHEP::MeV / CLHEP::GeV;
                 double pz = momentum.z() * CLHEP::MeV / CLHEP::GeV;
                 TLorentzVector fourMom(px, py, pz, std::sqrt( px*px + py*py + pz*pz + mass*mass ));
-                std::string process = p->GetProcessName();
+                // std::string process = p->GetProcessName();
+                std::string process = std::to_string(p->GetProcess());
 
                 if(p == t->Points.begin()) process = "Start";
                 fParticle->AddTrajectoryPoint(fourPos, fourMom, process);
             }
 
-            std::string end_process = t->Points.at(t->Points.size()-1).GetProcessName();
+            // std::string end_process = t->Points.at(t->Points.size()-1).GetProcessName();
+            std::string end_process = std::to_string(t->Points.at(t->Points.size()-1).GetProcess());
             fParticle->SetEndProcess(end_process);
 
             fParticleList->Add( fParticle );
