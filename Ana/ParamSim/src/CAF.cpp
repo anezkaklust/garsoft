@@ -301,7 +301,7 @@ void CAF::loop()
     fRes->FixParameter(1, ECAL_const);
 
     //ECAL sampling fraction
-    double sampling_frac = 4.32;
+    // double sampling_frac = 4.32;
     //ECAL nlayers
     int nLayers = 60;
     //ECAL MIP resolution (based on AHCAL numbers)
@@ -852,7 +852,7 @@ void CAF::loop()
                                 //Smearing to account for Gaussian detector noise (Landau negligible)
                                 Evis = _util->GaussianSmearing(Evis, ECAL_MIP_Res);
                                 //1 MIP = 0.814 MeV
-                                double Erec = Evis * MIP2GeV_factor * sampling_frac;
+                                double Erec = Evis * MIP2GeV_factor;
                                 erecon.push_back((Erec > 0) ? Erec : 0.);
                                 etime.push_back(ecaltime);
                                 detected.push_back(1);
@@ -1690,7 +1690,7 @@ void CAF::loop()
                         //Smearing to account for Gaussian detector noise (Landau negligible)
                         Evis = _util->GaussianSmearing(Evis, ECAL_MIP_Res);
                         //1 MIP = 0.814 MeV
-                        double Erec = Evis * MIP2GeV_factor * sampling_frac;
+                        double Erec = Evis * MIP2GeV_factor;
                         erecon.push_back((Erec > 0) ? Erec : 0.);
                         etime.push_back(ecaltime);
                         detected.push_back(1);

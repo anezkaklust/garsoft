@@ -586,7 +586,7 @@ namespace util {
                 process_name = gar::util::FindProcessName( process, subprocess );
             }// end if not a primary particle
 
-            MF_LOG_INFO("ConvertEdep2Art")
+            MF_LOG_DEBUG("ConvertEdep2Art")
             << " Particle " << name
             << " with pdg " << pdg
             << " trackID " << trackID
