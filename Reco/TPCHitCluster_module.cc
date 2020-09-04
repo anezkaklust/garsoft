@@ -209,7 +209,7 @@ namespace gar {
               float RhatY = xyz[1]/std::hypot(xyz[1],xyz[2]);
               float RhatZ = xyz[2]/std::hypot(xyz[1],xyz[2]);
               float clustDist = std::hypot(xyz2[1] -xyz[1],xyz2[2] -xyz[2]);
-              float dR  = (xyz2[1] -xyz[1])*RhatY +(xyz2[2] -xyz[2])*RhatZ;
+              float dR  = TMath::Abs((xyz2[1] -xyz[1])*RhatY +(xyz2[2] -xyz[2])*RhatZ);
               float Rdfi = sqrt(clustDist*clustDist -dR*dR);
               if (In_IROC) {
                 if (dR   > fHitClusterDr_I)  continue;
