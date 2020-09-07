@@ -199,7 +199,7 @@ namespace gar {
 
               // Check if hit ix is close to ihit, first in drift direction, then
               // in transverse plane depending on which ROC has ihit
-              if ( fabs(xyz2[0] -xyz[0]) > fHitClusterDx ) continue;
+              if ( fabs(xyz2[0] -xyz[0]) > fHitClusterDx ) break;
 
               if (In_CROC) {
                 if ( fabs(xyz2[1] -xyz[1]) > fHitClusterDyDz ) continue;
