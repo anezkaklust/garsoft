@@ -221,6 +221,7 @@ namespace gar {
         std::vector<Float_t>            fHitZ;
         std::vector<Float_t>            fHitSig;
         std::vector<Float_t>            fHitRMS;
+        std::vector<UInt_t>             fHitChan;
 
         // TPCCluster data
         std::vector<Float_t>            fTPCClusterX;
@@ -553,6 +554,7 @@ void gar::anatree::beginJob() {
         fTree->Branch("HitZ",        &fHitZ);
         fTree->Branch("HitSig",      &fHitSig);
         fTree->Branch("HitRMS",      &fHitRMS);
+        fTree->Branch("HitChan",     &fHitChan);
     }
 
     if (fWriteTPCClusters) {
@@ -571,138 +573,138 @@ void gar::anatree::beginJob() {
     }
 
     if (fWriteTracks) {                         // All position, momentum, etc
-    fTree->Branch("TrackIDNumber",      &fTrackIDNumber);
+        fTree->Branch("TrackIDNumber",      &fTrackIDNumber);
 
-    fTree->Branch("TrackStartX",        &fTrackStartX);
-    fTree->Branch("TrackStartY",        &fTrackStartY);
-    fTree->Branch("TrackStartZ",        &fTrackStartZ);
-    fTree->Branch("TrackStartPX",       &fTrackStartPX);
-    fTree->Branch("TrackStartPY",       &fTrackStartPY);
-    fTree->Branch("TrackStartPZ",       &fTrackStartPZ);
-    fTree->Branch("TrackStartQ",        &fTrackStartQ);
+        fTree->Branch("TrackStartX",        &fTrackStartX);
+        fTree->Branch("TrackStartY",        &fTrackStartY);
+        fTree->Branch("TrackStartZ",        &fTrackStartZ);
+        fTree->Branch("TrackStartPX",       &fTrackStartPX);
+        fTree->Branch("TrackStartPY",       &fTrackStartPY);
+        fTree->Branch("TrackStartPZ",       &fTrackStartPZ);
+        fTree->Branch("TrackStartQ",        &fTrackStartQ);
 
-    fTree->Branch("TrackEndX",          &fTrackEndX);
-    fTree->Branch("TrackEndY",          &fTrackEndY);
-    fTree->Branch("TrackEndZ",          &fTrackEndZ);
-    fTree->Branch("TrackEndPX",         &fTrackEndPX);
-    fTree->Branch("TrackEndPY",         &fTrackEndPY);
-    fTree->Branch("TrackEndPZ",         &fTrackEndPZ);
-    fTree->Branch("TrackEndQ",          &fTrackEndQ);
+        fTree->Branch("TrackEndX",          &fTrackEndX);
+        fTree->Branch("TrackEndY",          &fTrackEndY);
+        fTree->Branch("TrackEndZ",          &fTrackEndZ);
+        fTree->Branch("TrackEndPX",         &fTrackEndPX);
+        fTree->Branch("TrackEndPY",         &fTrackEndPY);
+        fTree->Branch("TrackEndPZ",         &fTrackEndPZ);
+        fTree->Branch("TrackEndQ",          &fTrackEndQ);
 
-    fTree->Branch("TrackLenF",          &fTrackLenF);
-    fTree->Branch("TrackLenB",          &fTrackLenB);
-    fTree->Branch("TrackChi2F",         &fTrackChi2F);
-    fTree->Branch("TrackChi2B",         &fTrackChi2B);
-    fTree->Branch("NTPCClustersOnTrack",&fNTPCClustersOnTrack);
-    fTree->Branch("TrackAvgIonF",       &fTrackAvgIonF);
-    fTree->Branch("TrackAvgIonB",       &fTrackAvgIonB);
-}
-
-if (fWriteVertices) {                     // Reco'd verts & their track-ends
-if (!fWriteTracks) {
-    throw cet::exception("anatree")
-    << " fWriteVertices, but !fWriteTracks."
-    << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-} else {
-    fTree->Branch("VertIDNumber",    &fVertexIDNumber);
-    fTree->Branch("VertX",           &fVertexX);
-    fTree->Branch("VertY",           &fVertexY);
-    fTree->Branch("VertZ",           &fVertexZ);
-    fTree->Branch("VertT",           &fVertexT);
-    fTree->Branch("VertN",           &fVertexN);
-    fTree->Branch("VertQ",           &fVertexQ);
-
-    fTree->Branch("VT_VertIDNumber", &fVTAssn_VertIDNumber);
-    fTree->Branch("VT_TrackIDNumber",&fVTAssn_TrackIDNumber);
-    fTree->Branch("VT_TrackEnd",     &fVTAssn_TrackEnd);
-}
-}
-
-if (fWriteVees) {                     // Reco'd vees & their track-ends
-if (!fWriteTracks) {
-    throw cet::exception("anatree")
-    << " fWriteVees, but !fWriteTracks."
-    << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-} else {
-    fTree->Branch("VeeIDNumber",     &fVeeIDNumber);
-    fTree->Branch("VeeX",            &fVeeX);
-    fTree->Branch("VeeY",            &fVeeY);
-    fTree->Branch("VeeZ",            &fVeeZ);
-    fTree->Branch("VeeT",            &fVeeT);
-    fTree->Branch("VeePXKpipi",      &fVeePXKpipi);
-    fTree->Branch("VeePYKpipi",      &fVeePYKpipi);
-    fTree->Branch("VeePZKpipi",      &fVeePZKpipi);
-    fTree->Branch("VeeEKpipi",       &fVeeEKpipi);
-    fTree->Branch("VeeMKpipi",       &fVeeMKpipi);
-    fTree->Branch("VeePXLppi",       &fVeePXLppi);
-    fTree->Branch("VeePYLppi",       &fVeePYLppi);
-    fTree->Branch("VeePZLppi",       &fVeePZLppi);
-    fTree->Branch("VeeELppi",        &fVeeELppi);
-    fTree->Branch("VeeMLppi",        &fVeeMLppi);
-    fTree->Branch("VeePXLpip",       &fVeePXLpip);
-    fTree->Branch("VeePYLpip",       &fVeePYLpip);
-    fTree->Branch("VeePZLpip",       &fVeePZLpip);
-    fTree->Branch("VeeELpip",        &fVeeELpip);
-    fTree->Branch("VeeMLpip",        &fVeeMLpip);
-    fTree->Branch("VeeT_VertIDNumber", &fVeeTAssn_VeeIDNumber);
-    fTree->Branch("VeeT_TrackIDNumber",&fVeeTAssn_TrackIDNumber);
-    fTree->Branch("VeeT_TrackEnd",     &fVeeTAssn_TrackEnd);
-}
-}
-
-if (fWriteCaloDigits) {                       // Write calorimetry digits
-fTree->Branch("DiginHits",        &fDiginHits);
-fTree->Branch("DigiHitX",         &fDigiHitX);
-fTree->Branch("DigiHitY",         &fDigiHitY);
-fTree->Branch("DigiHitZ",         &fDigiHitZ);
-fTree->Branch("DigiHitTime",      &fDigiHitTime);
-fTree->Branch("DigiHitADC",       &fDigiHitADC);
-fTree->Branch("DigiHitCellID",    &fDigiHitCellID);
-}
-
-if (fWriteCaloHits) {                         // Write calorimetry hits
-fTree->Branch("ReconHits",        &fReconHits);
-fTree->Branch("ReconHitIDNumber", &fReconHitIDNumber);
-fTree->Branch("RecoHitX",         &fRecoHitX);
-fTree->Branch("RecoHitY",         &fRecoHitY);
-fTree->Branch("RecoHitZ",         &fRecoHitZ);
-fTree->Branch("RecoHitTime",      &fRecoHitTime);
-fTree->Branch("RecoHitEnergy",    &fRecoHitEnergy);
-fTree->Branch("RecoHitCellID",    &fRecoHitCellID);
-fTree->Branch("RecoEnergySum",    &fRecoEnergySum);
-}
-
-if (fWriteCaloClusters) {                     // Write calorimetry clusters
-fTree->Branch("nCluster",         &fnCluster);
-fTree->Branch("ClusterIDNumber",  &fClusterIDNumber);
-fTree->Branch("ClusterNhits",     &fClusterNhits);
-fTree->Branch("ClusterEnergy",    &fClusterEnergy);
-fTree->Branch("ClusterTime",      &fClusterTime);
-fTree->Branch("ClusterTimeDiffFirstLast",      &fClusterTimeDiffFirstLast);
-fTree->Branch("ClusterX",         &fClusterX);
-fTree->Branch("ClusterY",         &fClusterY);
-fTree->Branch("ClusterZ",         &fClusterZ);
-fTree->Branch("ClusterTheta",     &fClusterTheta);
-fTree->Branch("ClusterPhi",       &fClusterPhi);
-fTree->Branch("ClusterPID",       &fClusterPID);
-// fTree->Branch("ClusterShape",  &fClusterShape);
-fTree->Branch("ClusterMainAxisX", &fClusterMainAxisX);
-fTree->Branch("ClusterMainAxisY", &fClusterMainAxisY);
-fTree->Branch("ClusterMainAxisZ", &fClusterMainAxisZ);
-}
-
-if (fWriteMatchedTracks) {
-    if (!fWriteTracks || !fWriteCaloClusters) {
-        throw cet::exception("anatree")
-        << " fWriteMatchedTracks, but (!fWriteTracks || !fWriteCaloClusters)."
-        << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-    } else {
-        fTree->Branch("ECALAssn_ClusIDNumber",   &fCALAssn_ClusIDNumber);
-        fTree->Branch("ECALAssn_TrackIDNumber",  &fCALAssn_TrackIDNumber);
-        fTree->Branch("ECALAssn_TrackEnd",       &fCALAssn_TrackEnd);
+        fTree->Branch("TrackLenF",          &fTrackLenF);
+        fTree->Branch("TrackLenB",          &fTrackLenB);
+        fTree->Branch("TrackChi2F",         &fTrackChi2F);
+        fTree->Branch("TrackChi2B",         &fTrackChi2B);
+        fTree->Branch("NTPCClustersOnTrack",&fNTPCClustersOnTrack);
+        fTree->Branch("TrackAvgIonF",       &fTrackAvgIonF);
+        fTree->Branch("TrackAvgIonB",       &fTrackAvgIonB);
     }
-}
-return;
+
+    if (fWriteVertices) {                     // Reco'd verts & their track-ends
+        if (!fWriteTracks) {
+            throw cet::exception("anatree")
+            << " fWriteVertices, but !fWriteTracks."
+            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+        } else {
+            fTree->Branch("VertIDNumber",    &fVertexIDNumber);
+            fTree->Branch("VertX",           &fVertexX);
+            fTree->Branch("VertY",           &fVertexY);
+            fTree->Branch("VertZ",           &fVertexZ);
+            fTree->Branch("VertT",           &fVertexT);
+            fTree->Branch("VertN",           &fVertexN);
+            fTree->Branch("VertQ",           &fVertexQ);
+
+            fTree->Branch("VT_VertIDNumber", &fVTAssn_VertIDNumber);
+            fTree->Branch("VT_TrackIDNumber",&fVTAssn_TrackIDNumber);
+            fTree->Branch("VT_TrackEnd",     &fVTAssn_TrackEnd);
+        }
+    }
+
+    if (fWriteVees) {                     // Reco'd vees & their track-ends
+        if (!fWriteTracks) {
+            throw cet::exception("anatree")
+            << " fWriteVees, but !fWriteTracks."
+            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+        } else {
+            fTree->Branch("VeeIDNumber",     &fVeeIDNumber);
+            fTree->Branch("VeeX",            &fVeeX);
+            fTree->Branch("VeeY",            &fVeeY);
+            fTree->Branch("VeeZ",            &fVeeZ);
+            fTree->Branch("VeeT",            &fVeeT);
+            fTree->Branch("VeePXKpipi",      &fVeePXKpipi);
+            fTree->Branch("VeePYKpipi",      &fVeePYKpipi);
+            fTree->Branch("VeePZKpipi",      &fVeePZKpipi);
+            fTree->Branch("VeeEKpipi",       &fVeeEKpipi);
+            fTree->Branch("VeeMKpipi",       &fVeeMKpipi);
+            fTree->Branch("VeePXLppi",       &fVeePXLppi);
+            fTree->Branch("VeePYLppi",       &fVeePYLppi);
+            fTree->Branch("VeePZLppi",       &fVeePZLppi);
+            fTree->Branch("VeeELppi",        &fVeeELppi);
+            fTree->Branch("VeeMLppi",        &fVeeMLppi);
+            fTree->Branch("VeePXLpip",       &fVeePXLpip);
+            fTree->Branch("VeePYLpip",       &fVeePYLpip);
+            fTree->Branch("VeePZLpip",       &fVeePZLpip);
+            fTree->Branch("VeeELpip",        &fVeeELpip);
+            fTree->Branch("VeeMLpip",        &fVeeMLpip);
+            fTree->Branch("VeeT_VertIDNumber", &fVeeTAssn_VeeIDNumber);
+            fTree->Branch("VeeT_TrackIDNumber",&fVeeTAssn_TrackIDNumber);
+            fTree->Branch("VeeT_TrackEnd",     &fVeeTAssn_TrackEnd);
+        }
+    }
+
+    if (fWriteCaloDigits) {                       // Write calorimetry digits
+        fTree->Branch("DiginHits",        &fDiginHits);
+        fTree->Branch("DigiHitX",         &fDigiHitX);
+        fTree->Branch("DigiHitY",         &fDigiHitY);
+        fTree->Branch("DigiHitZ",         &fDigiHitZ);
+        fTree->Branch("DigiHitTime",      &fDigiHitTime);
+        fTree->Branch("DigiHitADC",       &fDigiHitADC);
+        fTree->Branch("DigiHitCellID",    &fDigiHitCellID);
+    }
+
+    if (fWriteCaloHits) {                         // Write calorimetry hits
+        fTree->Branch("ReconHits",        &fReconHits);
+        fTree->Branch("ReconHitIDNumber", &fReconHitIDNumber);
+        fTree->Branch("RecoHitX",         &fRecoHitX);
+        fTree->Branch("RecoHitY",         &fRecoHitY);
+        fTree->Branch("RecoHitZ",         &fRecoHitZ);
+        fTree->Branch("RecoHitTime",      &fRecoHitTime);
+        fTree->Branch("RecoHitEnergy",    &fRecoHitEnergy);
+        fTree->Branch("RecoHitCellID",    &fRecoHitCellID);
+        fTree->Branch("RecoEnergySum",    &fRecoEnergySum);
+    }
+
+    if (fWriteCaloClusters) {                     // Write calorimetry clusters
+        fTree->Branch("nCluster",         &fnCluster);
+        fTree->Branch("ClusterIDNumber",  &fClusterIDNumber);
+        fTree->Branch("ClusterNhits",     &fClusterNhits);
+        fTree->Branch("ClusterEnergy",    &fClusterEnergy);
+        fTree->Branch("ClusterTime",      &fClusterTime);
+        fTree->Branch("ClusterTimeDiffFirstLast",      &fClusterTimeDiffFirstLast);
+        fTree->Branch("ClusterX",         &fClusterX);
+        fTree->Branch("ClusterY",         &fClusterY);
+        fTree->Branch("ClusterZ",         &fClusterZ);
+        fTree->Branch("ClusterTheta",     &fClusterTheta);
+        fTree->Branch("ClusterPhi",       &fClusterPhi);
+        fTree->Branch("ClusterPID",       &fClusterPID);
+        // fTree->Branch("ClusterShape",  &fClusterShape);
+        fTree->Branch("ClusterMainAxisX", &fClusterMainAxisX);
+        fTree->Branch("ClusterMainAxisY", &fClusterMainAxisY);
+        fTree->Branch("ClusterMainAxisZ", &fClusterMainAxisZ);
+    }
+
+    if (fWriteMatchedTracks) {
+        if (!fWriteTracks || !fWriteCaloClusters) {
+            throw cet::exception("anatree")
+            << " fWriteMatchedTracks, but (!fWriteTracks || !fWriteCaloClusters)."
+            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+        } else {
+            fTree->Branch("ECALAssn_ClusIDNumber",   &fCALAssn_ClusIDNumber);
+            fTree->Branch("ECALAssn_TrackIDNumber",  &fCALAssn_TrackIDNumber);
+            fTree->Branch("ECALAssn_TrackEnd",       &fCALAssn_TrackEnd);
+        }
+    }
+    return;
 }  // End of :anatree::beginJob
 
 
@@ -798,6 +800,7 @@ void gar::anatree::ClearVectors() {
         fHitZ.clear();
         fHitSig.clear();
         fHitRMS.clear();
+        fHitChan.clear();
     }
 
     if (fWriteTPCClusters) {
@@ -1295,6 +1298,7 @@ void gar::anatree::FillVectors(art::Event const & e) {
                 fHitZ.push_back(Hit.Position()[2]);
                 fHitSig.push_back(Hit.Signal());
                 fHitRMS.push_back(Hit.RMS());
+                fHitChan.push_back(Hit.Channel());
             }
         }
 

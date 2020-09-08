@@ -360,9 +360,9 @@ namespace gar{
 
             /* DEB hits without edeps
             std::cout << "Channel " << channel << ", at (z,y) = (" << chanpos[2] << ", "
-				<< chanpos[1] << ") has " << chanEDeps.size() << " edeps, and " << 
-				hitIDEs.size() << " are in-time between " << start << " and " << stop
-				<< std::endl; */
+                << chanpos[1] << ") has " << chanEDeps.size() << " edeps, and " << 
+                hitIDEs.size() << " are in-time between " << start << " and " << stop
+                << std::endl; */
 
             // loop over the hitIDEs to set the fractional energy for each TrackID
             for (size_t i = 0; i < hitIDEs.size(); ++i) {
