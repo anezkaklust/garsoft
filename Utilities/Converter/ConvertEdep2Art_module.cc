@@ -68,10 +68,12 @@
 #include "TGeoNode.h"
 
 //Edep-Sim includes
-#include "Utilities/Converter/edep-io/TG4Event.h"
-#include "Utilities/Converter/edep-io/TG4HitSegment.h"
-#include "Utilities/Converter/edep-io/TG4PrimaryVertex.h"
-#include "Utilities/Converter/edep-io/TG4Trajectory.h"
+#include "TG4Event.h"
+#include "TG4HitSegment.h"
+#include "TG4PrimaryVertex.h"
+#include "TG4Trajectory.h"
+
+#include "ProcessTable.hh"
 
 //CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -355,26 +357,8 @@ namespace util {
     bool ConvertEdep2Art::CheckProcess( std::string process_name ) const {
         bool isEMShowerProcess = false;
 
-        //avoid false positive
-        if(process_name.find("photonNuclear") != std::string::npos)
-        return isEMShowerProcess;
-
-        if( process_name.find("conv")        != std::string::npos  ||
-        process_name.find("LowEnConversion") != std::string::npos  ||
-        process_name.find("Pair")            != std::string::npos  ||
-        process_name.find("compt")           != std::string::npos  ||
-        process_name.find("Compt")           != std::string::npos  ||
-        process_name.find("Brem")            != std::string::npos  ||
-        process_name.find("phot")            != std::string::npos  ||
-        process_name.find("Photo")           != std::string::npos  ||
-        process_name.find("hIoni")           != std::string::npos  ||
-        process_name.find("eIoni")           != std::string::npos  ||
-        process_name.find("ionIoni")         != std::string::npos  ||
-        (process_name.find("Ion")            != std::string::npos  && process_name.find("mu") != std::string::npos) ||
-        process_name.find("annihil")         != std::string::npos ) {
+        if( process_name.find("EM") != std::string::npos )
             isEMShowerProcess = true;
-        }
-
 
         return isEMShowerProcess;
     }
@@ -419,7 +403,7 @@ namespace util {
 
             fDeposits.emplace_back( trackID, time, esum, pos, cellID, stepLength );
             //remove the element from the map now
-            m_Deposits.erase(it.first);
+            // m_Deposits.erase(it.first);
         }
     }
 
@@ -586,15 +570,20 @@ namespace util {
             int pdg = t->GetPDGCode();
             std::string name = t->GetName();
             double mass = pdglib->Find(pdg)->Mass();//in GeV
+            int process = 0;
+            int subprocess = 0;
             std::string process_name = "unknown";
 
             if(parentID == -1) {
                 process_name = "primary";
-                parentID = 0;
+                // parentID = 0;
             }
             else {
                 //Get the first point that created this particle
-                process_name = t->Points.at(0).GetProcessName();
+                // process_name = t->Points.at(0).GetProcessName();
+                process = t->Points.at(0).GetProcess();
+                subprocess = t->Points.at(0).GetSubprocess();
+                process_name = gar::util::FindProcessName( process, subprocess );
             }// end if not a primary particle
 
             MF_LOG_DEBUG("ConvertEdep2Art")
@@ -617,13 +606,19 @@ namespace util {
                 double py = momentum.y() * CLHEP::MeV / CLHEP::GeV;
                 double pz = momentum.z() * CLHEP::MeV / CLHEP::GeV;
                 TLorentzVector fourMom(px, py, pz, std::sqrt( px*px + py*py + pz*pz + mass*mass ));
-                std::string process = p->GetProcessName();
+                // std::string process = p->GetProcessName();
+                int pt_process = p->GetProcess();
+                int pt_subprocess = p->GetSubprocess();
+                std::string pt_process_name = gar::util::FindProcessName( pt_process, pt_subprocess );
 
-                if(p == t->Points.begin()) process = "Start";
-                fParticle->AddTrajectoryPoint(fourPos, fourMom, process);
+                if(p == t->Points.begin()) pt_process_name = "Start";
+                fParticle->AddTrajectoryPoint(fourPos, fourMom, pt_process_name);
             }
 
-            std::string end_process = t->Points.at(t->Points.size()-1).GetProcessName();
+            // std::string end_process = t->Points.at(t->Points.size()-1).GetProcessName();
+            process = t->Points.at(t->Points.size()-1).GetProcess();
+            subprocess = t->Points.at(t->Points.size()-1).GetSubprocess();
+            std::string end_process = gar::util::FindProcessName( process, subprocess );
             fParticle->SetEndProcess(end_process);
 
             fParticleList->Add( fParticle );
