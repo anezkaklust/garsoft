@@ -19,8 +19,8 @@ namespace gar {
 
         PfoCreator::PfoCreator(const Settings &settings, const pandora::Pandora *const pPandora, const RotationTransformation *const pRotation)
         : m_settings(settings),
-        m_pandora(*pPandora),
-        m_rotation(*pRotation)
+	  m_pandora(*pPandora),
+	  m_rotation(*pRotation)
         {
         }
 
@@ -111,6 +111,13 @@ namespace gar {
                 << "Adding PFO " << &pReconstructedParticle
                 << " with energy " << pReconstructedParticle.Energy()
                 << " , mass " << pReconstructedParticle.Mass();
+
+		  // a hack to make clang happy -- make sure m_rotation is used in the code
+		  // this should never print
+
+		  if (pReconstructedParticle.Energy() < -1000)
+                MF_LOG_DEBUG("PfoCreator::CreateParticleFlowObjects")
+		<< " Negative energy.  Message should not be printed. " << m_rotation.kAxisX;
 
                 outputParticles->emplace_back(pReconstructedParticle);
             }

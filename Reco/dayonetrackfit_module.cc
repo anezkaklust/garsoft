@@ -72,8 +72,8 @@ namespace gar {
       float  fTPCClusterResolYZ;           ///< pad size in cm in YZ to determine step size
       float  fTPCClusterResolX;            ///< drift direction contribution to determine step size (resolution of a TPCCluster)
       int fDumpTracks;                     ///< 0: do not print out tracks, 1: print out tracks
-      float fRoadYZinFit;                  ///< cut in cm for dropping TPCClusters from tracks in fit
-      float fMinIonizGapCut;               ///< Don't compute dEdx for this dx or larger
+      //      float fRoadYZinFit;                  ///< cut in cm for dropping TPCClusters from tracks in fit
+      //      float fMinIonizGapCut;               ///< Don't compute dEdx for this dx or larger
 
       int DayOneFitBothWays(const gar::rec::Track &patrectrack, std::vector<gar::rec::TPCCluster> &TPCClusters,
                             TrackPar &trackpar,  TrackIoniz &trackions, TrackTrajectory &tracktraj);
