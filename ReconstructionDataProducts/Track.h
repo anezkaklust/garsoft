@@ -26,7 +26,9 @@ namespace gar {
         // vertexing.  If the Start/Vtx/beg end of track i is used, want true for 
         // the TrackEnd; if the far/End end, use false.  However, we can't use a bool
         // because the C++ STL does wierd stuff to make std::vector<bool> efficient...
-        // thereby breaking all our code.
+        // thereby breaking all our code.  Another thing that will break code is
+        // changing the numeric values (1, 0) of TrackEndBeg and TrackEndEnd.  Don't
+        // do that casually, OK?  Thanks.
         typedef int TrackEnd;
         TrackEnd const TrackEndBeg = 1;      TrackEnd const TrackEndEnd = 0;
 

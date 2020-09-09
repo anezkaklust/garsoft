@@ -23,6 +23,7 @@ namespace gar {
       kClockSpeedExternal,
       kDefaultTrigTime,
       kDefaultBeamTime,
+      kDefaultSpillLength,
       kInheritConfigTypeMax
     };
     
@@ -46,6 +47,9 @@ namespace gar {
       /// Beam gate electronics clock time in [ns]
       virtual double BeamGateTime() const = 0;
       
+      /// Duration of spill [ns]
+      virtual double SpillLength() const = 0;
+  
       virtual std::vector<std::string> ConfigNames() const = 0;
       virtual std::vector<double> ConfigValues() const = 0;
       

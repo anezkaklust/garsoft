@@ -34,6 +34,8 @@ void gar::detinfo::DetectorClocksServiceStandard::preProcessEvent(::art::Event c
   
   std::vector<std::string> cfgNames = fClocks->ConfigNames();
   std::vector<double> cfgValues = fClocks->ConfigValues();
+
+  fClocks->SetSpillLength( cfgValues.at(detinfo::kDefaultSpillLength) );
   
   if(!trig_handle.isValid() || trig_handle->empty()) {
       // Trigger simulation has not run yet!
@@ -53,7 +55,7 @@ void gar::detinfo::DetectorClocksServiceStandard::preProcessEvent(::art::Event c
   
   fClocks->SetTriggerTime(trig_ptr->TriggerTime(),
                           trig_ptr->BeamGateTime() );
-  
+
   return;
 }
 

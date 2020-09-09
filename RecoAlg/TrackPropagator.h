@@ -35,11 +35,13 @@ namespace util {
         static const float TWO_PI;
         static const float PI;
 
+
+
         /** Finds an intersections of a helix with an infinite cylinder of radius
         rCyl, centered at yCyl, zCyl and parallel to the x axis, storing the
         "closest" intersection in retXYZ, meaning that the value of phi at the
-        intersection is closest to at Xpoint.  Status codes: 0 is success; 1,2
-        and 3 are no-intersection conditions.  If the helix cylinder and given
+        intersection is closest to what it is at Xpoint.  Status codes: 0 is success;
+        1,2 and 3 are no-intersection conditions.  If the helix cylinder and given
         cylinder are disjoint, returns 1; if one is entirely inside the other,
         status is 2; if the cylinders have a common axes, status is 3.  Status
         code 4 results when the phi calculation has to take the acos of a number
@@ -51,13 +53,17 @@ namespace util {
         */
         static int PropagateToCylinder(const float* trackpar, const float* Xpoint, const float rCyl, const float yCyl, const float zCyl, float* retXYZ, const float Xmax=0.0, const float epsilon = 2.0e-5);
 
+
+
         /** Finds the point on the track in 3d, given the x value.  You might call it like this:
-        util::TrackPropagator::PropagateToX( Track::TrackParBeg(), Track::Vertex(),
-        float, float[3])
+
+        util::TrackPropagator::PropagateToX( Track::TrackParBeg(), Track::Vertex(), float, float[3])
+
         where the first float is the x input and the float[3] will be the computed (X,y,z)
         point.  Or, you may call it like this:
-        util::TrackPropagator::PropagateToX( Track::TrackParEnd(), Track::End(),
-        float, float[3], 250.0)
+
+        util::TrackPropagator::PropagateToX( Track::TrackParEnd(), Track::End(), float, float[3], 250.0)
+
         but don't mix the ends!
 
         Return values are 0 for good finish, 1 for straight track; if Rmax > 0 , returns
@@ -65,13 +71,17 @@ namespace util {
         */
         static int PropagateToX(const float* trackpar, const float* Xpoint, const float x, float* retXYZ, const float Rmax=0.0 );
 
-        /** Finds the distance from the point setXYZ to this track.  You may call it so:
-        util::TrackPropagator::DistXYZ( Track::TrackParBeg(), Track::Vertex(), float[3],
-        &float)
+
+
+        /** Finds the distance from the point xyz to this track.  You may call it so:
+
+        util::TrackPropagator::DistXYZ( Track::TrackParBeg(), Track::Vertex(), float[3], &float)
+
         where the float[3] is the input (x,y,z) point and last float will be the computed
         distance.  Or, you may call it like this:
-        util::TrackPropagator::DistXYZ( Track::TrackParEnd(), Track::End(), float[3],
-        &float)
+
+        util::TrackPropagator::DistXYZ( Track::TrackParEnd(), Track::End(), float[3], &float)
+
         but don't mix the ends!
 
         Return values are 0 for good finish, 1 for straight track, or 2 for track
