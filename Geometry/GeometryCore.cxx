@@ -782,7 +782,7 @@ namespace gar {
         {
             std::string vol_name = this->VolumeName(point);
 
-            if( vol_name.find("barrel") == std::string::npos || vol_name.find("Barrel") == std::string::npos)
+            if( vol_name.find("barrel") == std::string::npos && vol_name.find("Barrel") == std::string::npos)
             return false;
 
             return true;
@@ -793,7 +793,7 @@ namespace gar {
         {
             std::string vol_name = this->VolumeName(point);
 
-            if( vol_name.find("endcap") == std::string::npos || vol_name.find("Endcap") == std::string::npos)
+            if( vol_name.find("endcap") == std::string::npos && vol_name.find("Endcap") == std::string::npos)
             return false;
 
             return true;

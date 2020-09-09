@@ -13,6 +13,7 @@ standard_clocks:
  ClockSpeedExternal: 31.25   # external clock speed in MHz
  DefaultTrigTime:    0.      # Default trigger time [ns].
  DefaultBeamTime:    0.      # Default beam time [ns].
+ DefaultSpillLength: 10000.  # Default beam spill length [ns].
 }
 
 

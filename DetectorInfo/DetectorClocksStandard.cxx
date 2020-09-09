@@ -27,6 +27,7 @@ namespace gar {
     fConfigName.at(detinfo::kClockSpeedExternal) = "ClockSpeedExternal";
     fConfigName.at(detinfo::kDefaultTrigTime)    = "DefaultTrigTime";
     fConfigName.at(detinfo::kDefaultBeamTime)    = "DefaultBeamTime";
+    fConfigName.at(detinfo::kDefaultSpillLength) = "DefaultSpillLength";
     
     fInheritClockConfig = false;
   }
@@ -65,6 +66,7 @@ namespace gar {
     fConfigValue.at(kClockSpeedExternal) = pset.get< double      >( fConfigName.at(kClockSpeedExternal).c_str() );
     fConfigValue.at(kDefaultTrigTime)    = pset.get< double      >( fConfigName.at(kDefaultTrigTime)   .c_str() );
     fConfigValue.at(kDefaultBeamTime)    = pset.get< double      >( fConfigName.at(kDefaultBeamTime)   .c_str() );
+    fConfigValue.at(kDefaultSpillLength) = pset.get< double      >( fConfigName.at(kDefaultSpillLength).c_str() );
     
     // Save fcl parameters in a container to check for inheritance
     fBeamGateTime = fTriggerTime = 0;

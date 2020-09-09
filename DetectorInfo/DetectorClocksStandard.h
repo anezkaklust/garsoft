@@ -52,7 +52,11 @@ namespace gar {
       
       /// Beam gate electronics clock time in [us]
       virtual double BeamGateTime() const { return fBeamGateTime; }
-      
+
+      // Beam spill duration in ns.
+      virtual double SpillLength() const { return fSpillLength; }
+
+
       virtual std::vector<std::string> ConfigNames() const { return fConfigName; }
       virtual std::vector<double> ConfigValues() const { return fConfigValue; }
       
@@ -66,6 +70,7 @@ namespace gar {
         fTPCClock.SetTime(trig_time);
         fTriggerClock.SetTime(trig_time);
       }
+      virtual void SetSpillLength(double spillLength) { fSpillLength = spillLength; }
       
       //
       // Getters of TPC ElecClock
@@ -215,12 +220,15 @@ namespace gar {
       /// Time offset from trigger to TPC readout start
       double fTriggerOffsetTPC;
       
-        /// Trigger time in [ns]
+      /// Trigger time in [ns]
       double fTriggerTime;
       
-        /// BeamGate time in [ns]
+      /// BeamGate time in [ns]
       double fBeamGateTime;
-      
+
+      /// Duration of beam spill, ns.
+      double fSpillLength;
+
     }; // class DetectorClocksStandard
     
   } //namespace detinfo
