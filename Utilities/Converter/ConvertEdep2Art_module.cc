@@ -358,7 +358,7 @@ namespace util {
         bool isEMShowerProcess = false;
 
         if( process_name.find("EM") != std::string::npos )
-            isEMShowerProcess = true;
+        isEMShowerProcess = true;
 
         return isEMShowerProcess;
     }
@@ -473,6 +473,11 @@ namespace util {
 
                 genie::NtpMCRecHeader rec_header = fMCRec->hdr;
                 genie::EventRecord *event = fMCRec->event;
+                // genie::Interaction *interaction = event->Summary();
+
+                MF_LOG_INFO("ConvertEdep2Art") << rec_header;
+                MF_LOG_INFO("ConvertEdep2Art") << *event;
+                // MF_LOG_INFO("ConvertEdep2Art") << *interaction;
 
                 genie::GHepParticle *neutrino = event->Probe();
                 //avoid rootino events
@@ -501,6 +506,11 @@ namespace util {
 
             genie::NtpMCRecHeader rec_header = fMCRec->hdr;
             genie::EventRecord *event = fMCRec->event;
+            // genie::Interaction *interaction = event->Summary();
+
+            MF_LOG_INFO("ConvertEdep2Art") << rec_header;
+            MF_LOG_INFO("ConvertEdep2Art") << *event;
+            // MF_LOG_INFO("ConvertEdep2Art") << *interaction;
 
             simb::MCTruth mctruth;
             simb::GTruth  gtruth;
@@ -585,14 +595,6 @@ namespace util {
                 subprocess = t->Points.at(0).GetSubprocess();
                 process_name = gar::util::FindProcessName( process, subprocess );
             }// end if not a primary particle
-
-            MF_LOG_DEBUG("ConvertEdep2Art")
-            << " Particle " << name
-            << " with pdg " << pdg
-            << " trackID " << trackID
-            << " parent id " << parentID
-            << " created with process [ " << process_name << " ]"
-            << " is EM " << CheckProcess( process_name );
 
             simb::MCParticle *fParticle = new simb::MCParticle(trackID, pdg, process_name, parentID, mass);
 
@@ -731,6 +733,15 @@ namespace util {
             << p.TrackId();
 
             int trackID = p.TrackId();
+
+            MF_LOG_DEBUG("ConvertEdep2Art")
+            << " Particle with pdg " << p.PdgCode()
+            << " trackID " << p.TrackId()
+            << " parent id " << p.Mother()
+            << " created with process [ " << p.Process() << " ]"
+            << " is EM " << CheckProcess( p.Process() )
+            << " with energy " << p.E();
+
             partCol->push_back(std::move(p));
 
             try {
