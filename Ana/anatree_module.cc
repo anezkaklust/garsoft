@@ -177,6 +177,7 @@ namespace gar {
         std::vector<Int_t>              fMCTrkID;
         std::vector<Int_t>              fMCPDG;
         std::vector<Int_t>              fMCMotherIndex;
+        std::vector<Int_t>              fMCMotherTrkID;
         std::vector<Int_t>              fMCPDGMother;
         std::vector<Float_t>            fMCPStartX;
         std::vector<Float_t>            fMCPStartY;
@@ -491,6 +492,7 @@ void gar::anatree::beginJob() {
         fTree->Branch("MCTrkID",     &fMCTrkID);
         fTree->Branch("PDG",         &fMCPDG);
         fTree->Branch("MotherIndex", &fMCMotherIndex);    // Index into these vector branches
+        fTree->Branch("MotherTrkID", &fMCMotherTrkID);    // trackid of the mother
         fTree->Branch("PDGMother",   &fMCPDGMother);
         fTree->Branch("MCPStartX",   &fMCPStartX);
         fTree->Branch("MCPStartY",   &fMCPStartY);
@@ -753,6 +755,7 @@ void gar::anatree::ClearVectors() {
         fMCTrkID.clear();
         fMCPDG.clear();
         fMCMotherIndex.clear();
+        fMCMotherTrkID.clear();
         fMCPDGMother.clear();
         fMCPStartX.clear();
         fMCPStartY.clear();
@@ -1167,6 +1170,7 @@ void gar::anatree::FillVectors(art::Event const & e) {
             }
 
             fMCMotherIndex.push_back(momIndex);
+            fMCMotherTrkID.push_back(mcp.Mother());//directly trackid not index
             fMCPDGMother.push_back(momPDG);
 
             const TLorentzVector& position = mcp.Position(0);
