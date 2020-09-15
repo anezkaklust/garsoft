@@ -40,4 +40,31 @@ strip_endcap_layers: ["7:60"] #first:last
 strip_on_same_layer: false
 }
 
+standard_ecalmultigridstripxysegalgpars_v2:
+{
+SegmentationAlgName: "MultiGridStripXY"
+cellEncoding: "system:3,module:3,stave:4,layer:7,slice:3,cellX:32:-16,cellY:-16"
+grid_size_x: 2.5 # cm
+grid_size_y: 2.5 # cm
+offset_x: 1.25 # cm for the tiles only
+offset_y: 1.25 # cm for the tiles only
+nlayers: 60
+active_slice: 2
+
+identifier_x: "cellX"
+identifier_y: "cellY"
+identifier_layer: "layer"
+identifier_slice: "slice"
+strip_size_x: 4.0 # cm
+strip_size_y: 4.0 # cm
+
+grid_barrel_layers: ["1:8"] #first:last
+strip_barrel_layers: ["9:60"] #first:last
+
+grid_endcap_layers: ["1:6"] #first:last
+strip_endcap_layers: ["7:34"] #first:last
+
+strip_on_same_layer: false
+}
+
 END_PROLOG

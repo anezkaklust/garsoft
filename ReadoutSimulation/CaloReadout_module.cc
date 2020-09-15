@@ -80,6 +80,7 @@ namespace gar {
             std::map<raw::CellID_t, std::vector< art::Ptr<sdp::CaloDeposit> > > MakeCellIDMapArtPtr(std::vector< art::Ptr<sdp::CaloDeposit> > &hitVector);
 
             std::string                         fG4Label;    ///< label of G4 module
+            std::string                         fG4InstanceName; ///< product instance name for the ECAL
             const gar::geo::GeometryCore*       fGeo;        ///< geometry information
             std::unique_ptr<ECALReadoutSimAlg>  fROSimAlg;   ///< algorithm to simulate the electronics
         };
@@ -100,7 +101,8 @@ namespace gar {
 
             this->reconfigure(pset);
 
-            consumes< std::vector<sdp::CaloDeposit> >(fG4Label);
+            art::InputTag ecaltag(fG4Label,fG4InstanceName);
+            consumes< std::vector<sdp::CaloDeposit> >(ecaltag);
             produces< std::vector<raw::CaloRawDigit> >();
             produces< art::Assns<raw::CaloRawDigit, sdp::CaloDeposit>  >();
 
@@ -120,6 +122,7 @@ namespace gar {
             //::art::ServiceHandle<::art::RandomNumberGenerator> rng;
 
             fG4Label = pset.get<std::string >("G4ModuleLabel", "geant");
+            fG4InstanceName =  pset.get<std::string >("G4InstanceName", "ECAL");
 
             auto ECALROAlgPars = pset.get<fhicl::ParameterSet>("ECALReadoutSimAlgPars");
             auto ECALROAlgName = ECALROAlgPars.get<std::string>("ECALReadoutSimType");

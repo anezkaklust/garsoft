@@ -15,6 +15,12 @@ ECALSegmentationAlgPars: @local::standard_ecalmultigridstripxysegalgpars
 MuIDSegmentationAlgPars: @local::standard_muidsegalgpars
 }
 
+standard_mpd_spyv2_segals:
+{
+ECALSegmentationAlgPars: @local::standard_ecalmultigridstripxysegalgpars_v2
+MuIDSegmentationAlgPars: @local::standard_muidsegalgpars_v2
+}
+
 standard_dayone:
 {
 MinervaSegmentationAlgPars: @local::standard_minervasegalgpars
