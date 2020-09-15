@@ -15,10 +15,10 @@ ECALSegmentationAlgPars: @local::standard_ecalmultigridstripxysegalgpars
 MuIDSegmentationAlgPars: @local::standard_muidsegalgpars
 }
 
-standard_mpd_temporary:
+standard_dayone:
 {
 MinervaSegmentationAlgPars: @local::standard_minervasegalgpars
-MuIDSegmentationAlgPars: @local::standard_muidsegalgpars
+MuIDSegmentationAlgPars: @local::standard_muidsegalgpars_v2
 }
 
 END_PROLOG

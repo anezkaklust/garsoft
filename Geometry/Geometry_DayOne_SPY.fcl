@@ -2,7 +2,7 @@
 
 BEGIN_PROLOG
 
-standard_geo:
+standard_dayone:
 {
  ForceUseFCLOnly:   false
  SortingParameters:
@@ -10,10 +10,10 @@ standard_geo:
   PixelActiveSize: 0.3      # cm
   PixelPitch:      0.333333 # cm
  }
- SegmentationAlgPars: @local::standard_mpd_temporary
+ SegmentationAlgPars: @local::standard_dayone
  RelativePath:      ""
- GDML:              "MPD_Standalone/Temporary_Det_SPY_wMuID.gdml"
- ROOT:              "MPD_Standalone/Temporary_Det_SPY_wMuID.gdml"
+ GDML:              "MPD_Standalone/DayOne_SPY_v2_wMuID.gdml"
+ ROOT:              "MPD_Standalone/DayOne_SPY_v2_wMuID.gdml"
  SurfaceY:          0.          # cm
  Name:              "Realistic"
  PositionEpsilon:   1.e-4
@@ -27,7 +27,7 @@ standard_geometry_helper:
 
 standard_auxdet_geo:
 {
- GDML:              "MPD_Standalone/Temporary_Det_SPY_wMuID.gdml"
+ GDML:              "MPD_Standalone/DayOne_SPY_v2_wMuID.gdml"
  RelativePath:      ""
  ForceUseFCLOnly:   false
  SortingParameters: {}
