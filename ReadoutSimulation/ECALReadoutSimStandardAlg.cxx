@@ -265,7 +265,7 @@ namespace gar {
             std::string base_new_node_name = newnodename.substr(0, newnodename.find("_layer_") + 9);
 
             if( base_new_node_name != base_node_name ){
-                MF_LOG_ERROR("ECALReadoutSimStandardAlg") << "CalculatePosition()"
+                MF_LOG_DEBUG("ECALReadoutSimStandardAlg") << "CalculatePosition()"
                 << " isTile " << fGeo->isTile(cID) << "\n"
                 << " Strip length " << fGeo->getStripLength(point, cID) << "\n"
                 << " Local Point before new position ( " << pointLocal[0] << ", " << pointLocal[1] << ", " << pointLocal[2] << " ) in node " << nodename << "\n"

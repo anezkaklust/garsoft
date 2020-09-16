@@ -75,7 +75,7 @@ namespace gar {
 
         private:
 
-            void CollectHits(const art::Event &evt, const std::string &label, std::vector< art::Ptr<sdp::CaloDeposit> > &hitVector);
+            void CollectHits(const art::Event &evt, const std::string &label, const std::string &instance, std::vector< art::Ptr<sdp::CaloDeposit> > &hitVector);
 
             std::map<raw::CellID_t, std::vector< art::Ptr<sdp::CaloDeposit> > > MakeCellIDMapArtPtr(std::vector< art::Ptr<sdp::CaloDeposit> > &hitVector);
 
@@ -128,8 +128,8 @@ namespace gar {
             auto ECALROAlgName = ECALROAlgPars.get<std::string>("ECALReadoutSimType");
 
             if(ECALROAlgName.compare("Standard") == 0)
-	      // fROSimAlg = std::make_unique<gar::rosim::ECALReadoutSimStandardAlg>(rng->getEngine(art::ScheduleID::first(), pset.get<std::string>("module_label"), "sipm"), ECALROAlgPars);
-	      fROSimAlg = std::make_unique<gar::rosim::ECALReadoutSimStandardAlg>(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, ECALROAlgPars, "sipm"), ECALROAlgPars );
+            // fROSimAlg = std::make_unique<gar::rosim::ECALReadoutSimStandardAlg>(rng->getEngine(art::ScheduleID::first(), pset.get<std::string>("module_label"), "sipm"), ECALROAlgPars);
+            fROSimAlg = std::make_unique<gar::rosim::ECALReadoutSimStandardAlg>(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, ECALROAlgPars, "sipm"), ECALROAlgPars );
             else
             throw cet::exception("CaloReadout")
             << "Unable to determine which ECAL readout simulation algorithm to use, bail";
@@ -144,7 +144,7 @@ namespace gar {
 
             //Collect the hits to be passed to the algo
             std::vector< art::Ptr<sdp::CaloDeposit> > artHits;
-            this->CollectHits(evt, fG4Label, artHits);
+            this->CollectHits(evt, fG4Label, fG4InstanceName, artHits);
 
             //Get contributions per cellID for association to digi hit
             std::map<raw::CellID_t, std::vector< art::Ptr<sdp::CaloDeposit> > > m_cIDMapArtPtrVec = this->MakeCellIDMapArtPtr(artHits);
@@ -181,10 +181,10 @@ namespace gar {
         } // CaloReadout::produce()
 
         //--------------------------------------------------------------------------
-        void CaloReadout::CollectHits(const art::Event &evt, const std::string &label, std::vector< art::Ptr<sdp::CaloDeposit> > &hitVector)
+        void CaloReadout::CollectHits(const art::Event &evt, const std::string &label, const std::string &instance, std::vector< art::Ptr<sdp::CaloDeposit> > &hitVector)
         {
             art::Handle< std::vector<sdp::CaloDeposit> > theHits;
-            evt.getByLabel(label, theHits);
+            evt.getByLabel(label, instance, theHits);
 
             if (!theHits.isValid())
             return;

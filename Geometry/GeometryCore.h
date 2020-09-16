@@ -1074,6 +1074,8 @@ namespace gar {
 
         bool           fPointInWarnings; ///< Generate warnings from failed inputs to PointIn* methods
 
+        bool           fECALEndcapOutside; ///< Is the ECAL Endcap outside the PV
+        
         float          fTPCRadius = 0.;      ///< Radius of the TPC
         float          fTPCLength = 0.;      ///< length of the TPC
 

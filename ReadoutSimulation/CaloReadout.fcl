@@ -6,7 +6,7 @@ standard_caloreadout:
 {
  module_type:          "CaloReadout"
  G4ModuleLabel:        "geant"
- G4InstanceName:       "ECAL"
+ G4InstanceName:       ""
  ECALReadoutSimAlgPars: @local::standard_ecalreadoutsimalg
 }
 
