@@ -3,14 +3,11 @@
 
 namespace util {
 
-    const float TrackPropagator::TWO_PI = static_cast<float>(2. * std::acos(-1.0));
-    const float TrackPropagator::PI     = static_cast<float>(TWO_PI / 2.0);
+
 
     //----------------------------------------------------------------------
     int TrackPropagator::PropagateToCylinder(const float* trackpar, const float* Xpoint, const float rCyl, const float yCyl, const float zCyl, float* retXYZ, const float Xmax, const float epsilon)
     {
-        // std::cout << "TrackPropagator::PropagateToCylinder" << std::endl;
-
         //track fitted parameters (y, z, curvature, phi, lambda)
         const float y0   = trackpar[0];
         const float z0   = trackpar[1];
@@ -18,8 +15,7 @@ namespace util {
         const float phi0 = trackpar[3];
         const float tanl = std::tan(trackpar[4]);
 
-        // std::cout << "Init parameters, y0 " << y0 << " z0 " << z0 << " curv " << curv << " phi0 " << phi0 << " tanl " << tanl << std::endl;
-        // std::cout << " Xpoint " << Xpoint[0] << " " << Xpoint[1] << " " <<  Xpoint[2] << " rCyl " << rCyl << " yCyl " << yCyl << " zCyl " << zCyl << " Xmax " << Xmax << std::endl;
+
 
         // Radius of curvature of track
         float radius = 0;
@@ -67,27 +63,27 @@ namespace util {
         // phi0 by more than 2pi.
         const float zz1  = zCyl + rCyl * std::cos(phiCentre + phiStar);
         const float yy1  = yCyl + rCyl * std::sin(phiCentre + phiStar);
-        const float phi1 = atan2( yy1-ycc, zz1-zcc ) +PI/2.0;
+        const float phi1 = atan2( yy1-ycc, zz1-zcc ) +M_PI/2.0;
         float dphi1 = phi1 -phi0;
         const float zz2  = zCyl + rCyl * std::cos(phiCentre-phiStar);
         const float yy2  = yCyl + rCyl * std::sin(phiCentre-phiStar);
-        const float phi2 = atan2( yy2-ycc, zz2-zcc ) +PI/2.0;
+        const float phi2 = atan2( yy2-ycc, zz2-zcc ) +M_PI/2.0;
         float dphi2 = phi2 -phi0;
 
         if ( fabs(dphi1) < fabs(dphi2) )
         {
-            int nturns = dphi1/TWO_PI;
-            if (dphi1 > +TWO_PI) dphi1 -= TWO_PI*nturns;
-            if (dphi1 < -TWO_PI) dphi1 += TWO_PI*nturns;
+            int nturns = dphi1/(2.0*M_PI);
+            if (dphi1 > +(2.0*M_PI)) dphi1 -= (2.0*M_PI)*nturns;
+            if (dphi1 < -(2.0*M_PI)) dphi1 += (2.0*M_PI)*nturns;
             retXYZ[1] = yy1;
             retXYZ[2] = zz1;
             retXYZ[0] = Xpoint[0] + radius * tanl * dphi1;
         }
         else
         {
-            int nturns = dphi2/TWO_PI;
-            if (dphi2 > +TWO_PI) dphi2 -= TWO_PI*nturns;
-            if (dphi2 < -TWO_PI) dphi2 += TWO_PI*nturns;
+            int nturns = dphi2/(2.0*M_PI);
+            if (dphi2 > +(2.0*M_PI)) dphi2 -= (2.0*M_PI)*nturns;
+            if (dphi2 < -(2.0*M_PI)) dphi2 += (2.0*M_PI)*nturns;
             retXYZ[1] = yy2;
             retXYZ[2] = zz2;
             retXYZ[0] = Xpoint[0] + radius * tanl * dphi2;
@@ -102,16 +98,12 @@ namespace util {
             }
         }
 
-        // std::cout << "x " << retXYZ[0] << ", y " << retXYZ[1] << ", z " << retXYZ[2] << std::endl;
-
         return 0;
     }
 
     //----------------------------------------------------------------------
     int TrackPropagator::PropagateToX(const float* trackpar, const float* Xpoint, const float x, float* retXYZ, const float Rmax)
     {
-        // std::cout << "TrackPropagator::PropagateToX" << std::endl;
-
         int retval = 0;
         float y, z;
 
@@ -124,8 +116,7 @@ namespace util {
         float YCent = trackpar[0] + radius*std::cos(phi0);
         float s = std::tan( trackpar[4] );
 
-        // std::cout << "Init parameters, y0 " << trackpar[0] << " z0 " << trackpar[1] << " curv " << trackpar[2] << " phi0 " << trackpar[3] << " tanl " << std::tan( trackpar[4] ) << std::endl;
-        // std::cout << " Xpoint " << Xpoint[0] << " " << Xpoint[1] << " " <<  Xpoint[2] << " x " << x << " Rmax " << Rmax << std::endl;
+
 
         if (radius == 0)
         {
@@ -149,13 +140,12 @@ namespace util {
             y = YCent - radius * std::cos(phi);
             z = ZCent + radius * std::sin(phi);
 
-            if ( Rmax > 0 )
-            if ( (retXYZ[1]*retXYZ[1] +retXYZ[2]*retXYZ[2]) > Rmax*Rmax ) retval = -1;
+            if ( Rmax > 0 ) {
+                if ( (retXYZ[1]*retXYZ[1] +retXYZ[2]*retXYZ[2]) > Rmax*Rmax ) retval = -1;
+            }
         }
 
         retXYZ[0] = x;    retXYZ[1] = y;   retXYZ[2] = z;
-        // std::cout << "Result " << retval << std::endl;
-        // std::cout << "x " << retXYZ[0] << ", y " << retXYZ[1] << ", z " << retXYZ[2] << std::endl;
 
         return retval;
     }
@@ -216,7 +206,7 @@ namespace util {
         }
 
         // general case -- need to compute distance from a point to a helix
-        float span = TMath::Pi();
+        float span = M_PI;
         float gold = 1.61803398875;
 
         // First guess is phi for this xt; but try also +/- a half turn as

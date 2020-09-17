@@ -7,5 +7,5 @@ Verbosity:          1
 TrackEndXCut:       240.0
 TrackEndRCut:       238.0
 TrackPerpRCut:      10.0
-TrackBarrelXCut:    10.0                # Added to drift distance mismatch
+TrackBarrelXCut:    20.0                # Added to drift distance mismatch for barrel clusters
 }
