@@ -1,12 +1,14 @@
 BEGIN_PROLOG
 
-standard_CaloHitFinder:
+standard_SiPMHitFinder:
 {
-module_type:        CaloHitFinder
-RawDigitLabel:      "daqecal"
+module_type:        SiPMHitFinder
+RawDigitLabel:      "daqsipm"
+ECALInstanceName:       ""
+MuIDInstanceName:       ""
 MIPThreshold:       0.25      # apply this threshold if we don't already have zero-suppressed raw digits
 Desaturation:       true
-SamplingFactorGeV:  4.32
+ECALSamplingFactorGeV:  4.32
 UseTimePositionReco: true
 }
 

@@ -1,24 +1,24 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  ECALUtils.h
-/// \brief Interface to ECALReadoutSimAlg class for ECAL specific
+/// \file  SiPMUtils.h
+/// \brief Interface to SiPMReadoutSimAlg class for SiPM specific
 ///
 /// \version $Id:  $
 /// \author  eldwan.brianne@desy.de
 ////////////////////////////////////////////////////////////////////////
-#ifndef ECALUTILS_H
-#define ECALUTILS_H
+#ifndef SiPMUtils_H
+#define SiPMUtils_H
 
 namespace util {
 
-    class ECALUtils {
+    class SiPMUtils {
 
     public:
 
-        ECALUtils();
+        SiPMUtils();
 
-        ECALUtils(double NeffPx);
+        SiPMUtils(double NeffPx);
 
-        ~ECALUtils();
+        ~SiPMUtils();
 
         double Saturate(const double unsat_px);
 
@@ -29,4 +29,4 @@ namespace util {
     };
 } // util
 
-#endif // ECALUTILS_H
+#endif // SiPMUtils_H

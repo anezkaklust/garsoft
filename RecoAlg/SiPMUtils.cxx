@@ -1,34 +1,34 @@
 ////////////////////////////////////////////////////////////////////////
-/// \file  ECALUtils.cxx
-/// \brief Interface to algorithm class ECAL specific
+/// \file  SiPMUtils.cxx
+/// \brief Interface to algorithm class SiPM specific
 ///
 /// \author  eldwan.brianne@desy.de
 ////////////////////////////////////////////////////////////////////////
 
-#include "RecoAlg/ECALUtils.h"
+#include "RecoAlg/SiPMUtils.h"
 #include <cmath>
 
 namespace util {
 
     //----------------------------------------------------------------------
-    ECALUtils::ECALUtils()
+    SiPMUtils::SiPMUtils()
     : fNeffPx(0)
     {
     }
 
     //----------------------------------------------------------------------
-    ECALUtils::ECALUtils(double NeffPx)
+    SiPMUtils::SiPMUtils(double NeffPx)
     : fNeffPx(NeffPx)
     {
     }
 
     //----------------------------------------------------------------------
-    ECALUtils::~ECALUtils()
+    SiPMUtils::~SiPMUtils()
     {
     }
 
     //----------------------------------------------------------------------------
-    double ECALUtils::Saturate(const double unsat_px)
+    double SiPMUtils::Saturate(const double unsat_px)
     {
         /*  protect against negative/zero input*/
         if ( unsat_px <= 0 ) return unsat_px;
@@ -40,7 +40,7 @@ namespace util {
     }
 
     //----------------------------------------------------------------------------
-    double ECALUtils::DeSaturate(const double sat_px)
+    double SiPMUtils::DeSaturate(const double sat_px)
     {
         /*  protect against negative/zero input*/
         if ( sat_px <= 0 ) return sat_px;

@@ -1010,19 +1010,19 @@ namespace gar {
 
         std::array<double, 3> GetPosition(const TGeoNode *node, const gar::raw::CellID_t &cID) const;
 
-        bool isTile(const gar::raw::CellID_t& cID) const;
+        bool isTile(const std::array<double, 3>& point, const gar::raw::CellID_t& cID) const;
 
-        double getStripWidth() const;
+        double getStripWidth(const std::array<double, 3>& point) const;
 
-        double getTileSize() const;
+        double getTileSize(const std::array<double, 3>& point) const;
 
-        double getStripLength(std::array<double, 3> const& point, const gar::raw::CellID_t &cID) const;
+        double getStripLength(const std::array<double, 3>& point, const gar::raw::CellID_t &cID) const;
 
-        std::pair<TVector3, TVector3> GetStripEnds(std::array<double, 3> const& point, const gar::raw::CellID_t &cID) const;
+        std::pair<TVector3, TVector3> GetStripEnds(const std::array<double, 3>& point, const gar::raw::CellID_t &cID) const;
 
-        std::pair<float, float> CalculateLightPropagation(std::array<double, 3>const& point, const std::array<double, 3> &local, const gar::raw::CellID_t &cID) const;
+        std::pair<float, float> CalculateLightPropagation(const std::array<double, 3>& point, const std::array<double, 3> &local, const gar::raw::CellID_t &cID) const;
 
-        std::array<double, 3> ReconstructStripHitPosition(const std::array<double, 3> &local, const float &xlocal, const gar::raw::CellID_t &cID) const;
+        std::array<double, 3> ReconstructStripHitPosition(const std::array<double, 3>& point, const std::array<double, 3>& local, const float &xlocal, const gar::raw::CellID_t &cID) const;
 
         //Prints information on the detector geometry
         void PrintGeometry() const;
@@ -1033,7 +1033,7 @@ namespace gar {
         void SetDetectorName(std::string new_name) { fDetectorName = new_name; }
 
     private:
-        
+
         void InitVariables();
 
         /// Deletes the detector geometry structures
@@ -1096,6 +1096,9 @@ namespace gar {
 
         //Sets the number of sides of the MuID barrel
         bool FindMuIDInnerSymmetry();
+
+        //Sets the number of layers in the MuID
+        bool FindMuIDnLayers();
 
         double         fSurfaceY;       ///< The point where air meets earth for this detector.
         std::string    fDetectorName;   ///< Name of the detector.
@@ -1182,6 +1185,7 @@ namespace gar {
         float fMuIDRinner;              ///< Minimum radius of the MuID inner barrel
         float fMuIDRouter;              ///< Minimum radius of the MuID outer barrel
         int fMuIDSymmetry;              ///< Number of sides of the MuID Barrel
+        unsigned int fMuIDnLayers;      ///< number of MuID layers from the seg algorithm
 
         typedef std::shared_ptr<const gar::geo::seg::ChannelMapAlg> ChannelMapPtr;
         ChannelMapPtr  fChannelMapAlg;  ///< Object containing the channel to wire mapping

@@ -51,7 +51,7 @@ namespace gar {
             fSaturation = pset.get<bool>("Saturation", false);
             fTimeSmearing = pset.get<bool>("TimeSmearing", false);
 
-            fECALUtils = std::make_unique<util::ECALUtils>(fDetProp->EffectivePixel());
+            fSiPMUtils = std::make_unique<util::SiPMUtils>(fDetProp->EffectivePixel());
 
             return;
         }
@@ -159,7 +159,7 @@ namespace gar {
             //Saturation
             float sat_pixel = 0.;
             if(fSaturation)
-                sat_pixel = fECALUtils->Saturate(pixel);
+                sat_pixel = fSiPMUtils->Saturate(pixel);
             else
                 sat_pixel = pixel;
 

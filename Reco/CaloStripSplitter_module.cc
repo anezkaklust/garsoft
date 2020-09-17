@@ -54,11 +54,13 @@ namespace gar {
         private:
 
             // Declare member data here.
-            void CollectHits(const art::Event &evt, const std::string &label, std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector);
+            void CollectHits(const art::Event &evt, const std::string &label, const std::string &instance, std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector);
             std::array<double, 3> CalculateStripHitPosition(float x, float y, float z, std::pair<float, float> time, raw::CellID_t cID);
             float CorrectStripHitTime(float x, float y, float z, std::pair<float, float> hitTime, raw::CellID_t cID);
 
             std::string fCaloHitLabel;  ///< label to find the right reco calo hits
+            std::string fECALInstanceName; ///< product instance name for the ECAL
+
             bool fSaveStripEndsOnly;
             bool fSaveUnsplitHits;
             bool fSaveStripEnds;
@@ -70,9 +72,10 @@ namespace gar {
         };
 
         //----------------------------------------------------------------------------
-        CaloStripSplitter::CaloStripSplitter(fhicl::ParameterSet const & p) : EDProducer{p} 
+        CaloStripSplitter::CaloStripSplitter(fhicl::ParameterSet const & p) : EDProducer{p}
         {
             fCaloHitLabel = p.get<std::string>("CaloHitLabel", "calohit");
+            fECALInstanceName =  p.get<std::string >("ECALInstanceName", "");
 
             fGeo     = gar::providerFrom<geo::Geometry>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
@@ -89,7 +92,8 @@ namespace gar {
                 << " Saving Strip ends flag turned on! ";
             }
 
-            consumes< std::vector<gar::rec::CaloHit> >(fCaloHitLabel);
+            art::InputTag ecaltag(fCaloHitLabel, fECALInstanceName);
+            consumes< std::vector<gar::rec::CaloHit> >(ecaltag);
             produces< std::vector<gar::rec::CaloHit> >();
         }
 
@@ -98,7 +102,7 @@ namespace gar {
         {
             //Collect the hits to be passed to the algo
             std::vector< art::Ptr<gar::rec::CaloHit> > artHits;
-            this->CollectHits(e, fCaloHitLabel, artHits);
+            this->CollectHits(e, fCaloHitLabel, fECALInstanceName, artHits);
 
             //Prepare the hits for SSA
             fSSAAlgo->PrepareAlgo(artHits);
@@ -124,12 +128,19 @@ namespace gar {
                     float newpos[3] = { pos[0], pos[1], pos[2] };
                     float newtime = time.first;
                     unsigned int layer = it->Layer();
+                    const std::array<double, 3> point = { pos[0], pos[1], pos[2] };
 
-                    if(not fGeo->isTile(cellID)) {
+                    if(not fGeo->isTile(point, cellID)) {
                         newtime = this->CorrectStripHitTime(newpos[0], newpos[1], newpos[2], time, cellID);
                     }
 
                     rec::CaloHit hit(energy, newtime, newpos, cellID, layer);
+
+                    MF_LOG_INFO("CaloStripSplitter_module") << "recohit " << &hit
+                    << " with cellID " << cellID
+                    << " has energy " << energy * CLHEP::MeV / CLHEP::GeV
+                    << " pos (" << newpos[0] << ", " <<  newpos[1] << ", " << newpos[2] << ")";
+
                     HitCol->emplace_back(hit);
                 }
 
@@ -145,8 +156,9 @@ namespace gar {
                         float newpos[3] = { pos[0], pos[1], pos[2] };
                         float newtime = time.first;
                         unsigned int layer = it->Layer();
+                        const std::array<double, 3> point = { pos[0], pos[1], pos[2] };
 
-                        if(not fGeo->isTile(cellID)) {
+                        if(not fGeo->isTile(point, cellID)) {
                             // Need to correct for the position of these based on time information
                             std::array<double, 3> strip_pos = this->CalculateStripHitPosition(newpos[0], newpos[1], newpos[2], time, cellID);
                             newpos[0] = strip_pos[0];
@@ -179,7 +191,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        void CaloStripSplitter::CollectHits(const art::Event &evt, const std::string &label, std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector)
+        void CaloStripSplitter::CollectHits(const art::Event &evt, const std::string &label, const std::string &instance, std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector)
         {
             art::Handle< std::vector<gar::rec::CaloHit> > theHits;
             evt.getByLabel(label, theHits);
@@ -206,7 +218,7 @@ namespace gar {
             float c = (CLHEP::c_light * CLHEP::mm / CLHEP::ns) / CLHEP::cm; // in cm/ns
             float xlocal = c * ( time.first - time.second ) / 2.;
 
-            std::array<double, 3> local_back = fGeo->ReconstructStripHitPosition(pointLocal, xlocal, cID);
+            std::array<double, 3> local_back = fGeo->ReconstructStripHitPosition(point, pointLocal, xlocal, cID);
             std::array<double, 3> world_back;
             fGeo->LocalToWorld(local_back, world_back, trans);
 

@@ -63,12 +63,14 @@ namespace gar {
         private:
 
             std::string  fCaloHitModuleLabel; ///< label for module creating rec::CaloHit objects
+            std::string fECALInstanceName; ///< product instance name for the ECAL
+
             unsigned int fMinHits;            ///< minimum number of hits to make a cluster
             bool fIgnoreNeutrons;             ///< flag to ignore creating neutron clusters
 
             gar::geo::GeometryCore const* fGeo;        ///< geometry information
 
-            void CollectHits(const art::Event &evt, const std::string &label, std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector);
+            void CollectHits(const art::Event &evt, const std::string &label, const std::string &instance, std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector);
             gar::rec::Cluster CreateCluster(const simb::MCParticle *part, std::vector< art::Ptr<gar::rec::CaloHit> > hitVec);
         };
 
@@ -78,11 +80,15 @@ namespace gar {
             EDProducer{pset}
             {
                 fCaloHitModuleLabel    = pset.get< std::string  >("CaloHitModuleLabel", "calohit"  );
+                fECALInstanceName      =  pset.get<std::string >("ECALInstanceName", "");
+
                 fMinHits               = pset.get< unsigned int >("MinHits",            1          );
                 fIgnoreNeutrons        = pset.get< bool >("IgnoreNeutrons",             true      );
 
                 fGeo = gar::providerFrom<geo::Geometry>();
 
+                art::InputTag ecaltag(fCaloHitModuleLabel, fECALInstanceName);
+                consumes< std::vector<gar::rec::CaloHit> >(ecaltag);
                 produces< std::vector<gar::rec::Cluster> >();
                 produces< art::Assns<gar::rec::Cluster, gar::rec::CaloHit> >();
             }
@@ -94,7 +100,7 @@ namespace gar {
 
                 //Collect the hits to be passed to the algo
                 std::vector< art::Ptr<gar::rec::CaloHit> > artHits;
-                this->CollectHits(e, fCaloHitModuleLabel, artHits);
+                this->CollectHits(e, fCaloHitModuleLabel, fECALInstanceName, artHits);
 
                 std::map< eveLoc, std::vector< art::Ptr<gar::rec::CaloHit> > > eveCaloHitMap;
 
@@ -149,10 +155,10 @@ namespace gar {
             }
 
             //-----------------------------------------------------------------------------------
-            void CaloClusterCheater::CollectHits(const art::Event &evt, const std::string &label, std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector)
+            void CaloClusterCheater::CollectHits(const art::Event &evt, const std::string &label, const std::string &instance, std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector)
             {
                 art::Handle< std::vector<gar::rec::CaloHit> > theHits;
-                evt.getByLabel(label, theHits);
+                evt.getByLabel(label, instance, theHits);
 
                 if (!theHits.isValid())
                 return;

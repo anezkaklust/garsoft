@@ -92,6 +92,8 @@ namespace gar {
 
                 void setLayerDimXY(const double& dimX, const double& dimY) const override { _layer_dim_X = dimX; _layer_dim_Y = dimY; }
 
+                void setVariables(const double& innerangle, const double &endcapsidelength) const override { _InnerAngle = innerangle; _EndcapSideLength = endcapsidelength; }
+
             protected:
 
                 void PrintParameters() const override;
@@ -138,6 +140,10 @@ namespace gar {
                 mutable double _layer_dim_X;
                 /// layer dimension in Y
                 mutable double _layer_dim_Y;
+                /// Inner Angle
+                mutable double _InnerAngle;
+                /// Endcap Side Length
+                mutable double _EndcapSideLength;
                 /// are the strips on the same layer?
                 bool _OnSameLayer;
             };

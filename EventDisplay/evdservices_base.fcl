@@ -201,7 +201,7 @@ VolumesToShow        : ["volGArTPC", "volPVBarrel", "volPVEndcap", "volBarrelECa
 G4ModuleLabel             : "geant"
 InstanceName              : [""]
 RawHitModuleLabels        : ["daqsipm"]
-RecoHitModuleLabels       : ["calohit"]
+RecoHitModuleLabels       : ["sscalohit"]
 CaloClusterModuleLabels   : ["calocluster"]
 TrackModuleLabels         : ["track"]
 VertexModuleLabels        : ["vertex"]
@@ -229,7 +229,7 @@ VolumesToShow        : ["Tracker_layer00_vol", "Tracker_layer01_vol", "Tracker_l
 G4ModuleLabel             : "edepconvert"
 InstanceName              : ["TrackerSc", "MuID"]
 RawHitModuleLabels        : ["daqsipm"]
-RecoHitModuleLabels       : ["calohit"]
+RecoHitModuleLabels       : ["sipmhit"]
 CaloClusterModuleLabels   : ["calocluster"]
 TrackModuleLabels         : ["track"]
 VertexModuleLabels        : ["vertex"]

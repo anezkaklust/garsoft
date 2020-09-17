@@ -9,7 +9,7 @@
 
 #include "ReadoutSimulation/SiPMReadoutSimAlg.h"
 
-#include "RecoAlg/ECALUtils.h"
+#include "RecoAlg/SiPMUtils.h"
 
 #include <unordered_map>
 
@@ -56,7 +56,7 @@ namespace gar{
 
         private:
 
-            std::unique_ptr<util::ECALUtils> fECALUtils; ///<used for the SiPM saturation
+            std::unique_ptr<util::SiPMUtils> fSiPMUtils; ///<used for the SiPM saturation
 
             std::vector<const sdp::CaloDeposit*> m_SimCaloHitVec; ///<used to store the simulated hits
 

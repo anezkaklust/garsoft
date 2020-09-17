@@ -51,7 +51,7 @@ namespace gar {
             fSaturation = pset.get<bool>("Saturation", false);
             fTimeSmearing = pset.get<bool>("TimeSmearing", false);
 
-            fECALUtils = std::make_unique<util::ECALUtils>(fDetProp->EffectivePixel());
+            fSiPMUtils = std::make_unique<util::SiPMUtils>(fDetProp->EffectivePixel());
 
             return;
         }
@@ -96,11 +96,12 @@ namespace gar {
                 float x = it->X();
                 float y = it->Y();
                 float z = it->Z();
+                std::array<double, 3> point = {x, y, z};
                 raw::CellID_t cellID = it->CellID();
 
                 raw::CaloRawDigit *digihit = nullptr;
 
-                if(fGeo->isTile(cellID)) {
+                if(fGeo->isTile(point, cellID)) {
                     digihit = this->DoTileDigitization(x, y, z, energy, time, cellID);
                 } else {
                     digihit = this->DoStripDigitization(x, y, z, energy, time, cellID);
@@ -196,7 +197,7 @@ namespace gar {
             //Saturation
             float sat_pixel = 0.;
             if(fSaturation)
-                sat_pixel = fECALUtils->Saturate(pixel);
+                sat_pixel = fSiPMUtils->Saturate(pixel);
             else
                 sat_pixel = pixel;
 
@@ -266,7 +267,7 @@ namespace gar {
 
             if( base_new_node_name != base_node_name ){
                 MF_LOG_DEBUG("ECALReadoutSimStandardAlg") << "CalculatePosition()"
-                << " isTile " << fGeo->isTile(cID) << "\n"
+                << " isTile " << fGeo->isTile(point, cID) << "\n"
                 << " Strip length " << fGeo->getStripLength(point, cID) << "\n"
                 << " Local Point before new position ( " << pointLocal[0] << ", " << pointLocal[1] << ", " << pointLocal[2] << " ) in node " << nodename << "\n"
                 << " Local Point after new position ( " << pointLocal_back[0] << ", " << pointLocal_back[1] << ", " << pointLocal_back[2] << " ) in node " << newnodename << "\n"

@@ -896,13 +896,14 @@ namespace gar{
                 for(unsigned int p = 0; p < rawlist.size(); ++p)
                 {
                     const raw::CaloRawDigit* rawHit = rawlist[p];
+                    const std::array<double, 3> point = { rawHit->X(), rawHit->Y(), rawHit->Z() };
 
                     std::ostringstream label;
                     label << "Digi Hit " << p << "\n";
                     label << "Energy: " << rawHit->ADC().first << " ADC\n";
                     label << "Position (" << rawHit->X() << ", " << rawHit->Y() << ", " << rawHit->Z() << " ) cm\n";
                     label << "CellID: " << rawHit->CellID() << "\n";
-                    label << "isTile: " << fGeometry->isTile(rawHit->CellID()) << "\n";
+                    label << "isTile: " << fGeometry->isTile(point, rawHit->CellID()) << "\n";
                     label << "DetID: " << fFieldDecoder->get(rawHit->CellID(), "system") << "\n";
                     label << "Stave: " << fFieldDecoder->get(rawHit->CellID(), "stave") << "\n";
                     label << "Module: " << fFieldDecoder->get(rawHit->CellID(), "module") << "\n";
@@ -968,13 +969,14 @@ namespace gar{
                 for(unsigned int p = 0; p < recolist.size(); ++p)
                 {
                     const rec::CaloHit* recoHit = recolist[p];
+                    const std::array<double, 3> point = { recoHit->Position()[0], recoHit->Position()[1], recoHit->Position()[2] };
 
                     std::ostringstream label;
                     label << "Reco Hit " << p << "\n";
                     label << "Energy: " << recoHit->Energy() * 1000 << " MeV\n";
                     label << "Position (" << recoHit->Position()[0] << ", " << recoHit->Position()[1] << ", " << recoHit->Position()[2] << " ) cm\n";
                     label << "CellID: " << recoHit->CellID() << "\n";
-                    label << "isTile: " << fGeometry->isTile(recoHit->CellID()) << "\n";
+                    label << "isTile: " << fGeometry->isTile(point, recoHit->CellID()) << "\n";
                     label << "DetID: " << fFieldDecoder->get(recoHit->CellID(), "system") << "\n";
                     label << "Stave: " << fFieldDecoder->get(recoHit->CellID(), "stave") << "\n";
                     label << "Module: " << fFieldDecoder->get(recoHit->CellID(), "module") << "\n";
