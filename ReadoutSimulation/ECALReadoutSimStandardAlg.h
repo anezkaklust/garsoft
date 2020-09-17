@@ -7,9 +7,9 @@
 #ifndef GAR_READOUTSIM_ECALReadoutSimStandardAlg_h
 #define GAR_READOUTSIM_ECALReadoutSimStandardAlg_h
 
-#include "ReadoutSimulation/ECALReadoutSimAlg.h"
+#include "ReadoutSimulation/SiPMReadoutSimAlg.h"
 
-#include "RecoAlg/ECALUtils.h"
+#include "RecoAlg/SiPMUtils.h"
 
 #include <unordered_map>
 
@@ -20,7 +20,7 @@ namespace fhicl{
 namespace gar{
     namespace rosim{
 
-        class ECALReadoutSimStandardAlg : public ECALReadoutSimAlg {
+        class ECALReadoutSimStandardAlg : public SiPMReadoutSimAlg {
 
         public:
 
@@ -56,7 +56,7 @@ namespace gar{
 
         private:
 
-            std::unique_ptr<util::ECALUtils> fECALUtils; ///<used for the SiPM saturation
+            std::unique_ptr<util::SiPMUtils> fSiPMUtils; ///<used for the SiPM saturation
 
             std::vector<const sdp::CaloDeposit*> m_SimCaloHitVec; ///<used to store the simulated hits
 

@@ -199,9 +199,9 @@ drawMCTPCTruth       : true
 VolumesToShow        : ["volGArTPC", "volPVBarrel", "volPVEndcap", "volBarrelECal", "volEndcapECal"]
 
 G4ModuleLabel             : "geant"
-G4InstanceName            : [""]
-RawHitModuleLabels        : ["daqecal"]
-RecoHitModuleLabels       : ["calohit"]
+InstanceName              : [""]
+RawHitModuleLabels        : ["daqsipm"]
+RecoHitModuleLabels       : ["sscalohit"]
 CaloClusterModuleLabels   : ["calocluster"]
 TrackModuleLabels         : ["track"]
 VertexModuleLabels        : ["vertex"]
@@ -227,9 +227,9 @@ drawMCTPCTruth       : false
 VolumesToShow        : ["Tracker_layer00_vol", "Tracker_layer01_vol", "Tracker_layer02_vol", "Tracker_layer03_vol", "Tracker_layer04_vol", "volYokeBarrel"]
 
 G4ModuleLabel             : "edepconvert"
-G4InstanceName            : ["TrackerSc", "MuID"]
-RawHitModuleLabels        : ["daqecal"]
-RecoHitModuleLabels       : ["calohit"]
+InstanceName              : ["TrackerSc", "MuID"]
+RawHitModuleLabels        : ["daqsipm"]
+RecoHitModuleLabels       : ["sipmhit"]
 CaloClusterModuleLabels   : ["calocluster"]
 TrackModuleLabels         : ["track"]
 VertexModuleLabels        : ["vertex"]

@@ -25,9 +25,10 @@ standard_mag_garsoft:
 GlobalScaleFactor:   1.0   # to scale all of the individual field descriptions
 
 FieldDescriptions: [ { UseField:         1  # 0--off 1--Constant field
-                                            # 2--RZ Field map 
+                                            # 2--RZ Field map
                        ConstantField:    [ 0.5, 0.0, 0.0 ] # in Tesla
-                       MagnetizedVolume: "volNDHPgTPC"
+                       #MagnetizedVolume: "volNDHPgTPC"
+                       MagnetizedVolume: "volMPD"
 		       ScaleFactor: 1.0 } ]
 }
 
@@ -36,10 +37,10 @@ five_coil_rz_mag_garsoft:
 GlobalScaleFactor:   1.0  # to scale all of the individual field descriptions
 
 FieldDescriptions: [ { UseField:         2  # 0--off 1--Constant field
-                                            # 2--Field map 
+                                            # 2--Field map
                        ConstantField:    [ 0.0, 0.0, 0.0 ] # in Tesla
-                       #MagnetizedVolume: "volNDHPgTPC" 
-                       MagnetizedVolume: "volWorld" 
+                       #MagnetizedVolume: "volNDHPgTPC"
+                       MagnetizedVolume: "volWorld"
 		       RZFieldMapFilename: "ND_5coils_Field_Map_XZ_090919a.txt"
 		       ZAxis: [ 1.0, 0.0, 0.0 ]   # What's X in GArSoft is Z in this map
 		       CoordOffset: [ 0.0, 0.0, 0.0 ]  # center of coordinates for the field map relative to MPD center

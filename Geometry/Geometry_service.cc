@@ -188,7 +188,7 @@ namespace gar {
 
             // now init the detector Segmentations (Channel Map, ECAL etc...)
             InitializeSegmentations();
-
+            PrintGeometry();
         } // Geometry::LoadNewGeometry()
 
         DEFINE_ART_SERVICE(Geometry)

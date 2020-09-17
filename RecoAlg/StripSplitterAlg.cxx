@@ -30,7 +30,7 @@ namespace gar {
 
                 fGeo = gar::providerFrom<geo::Geometry>();
                 fInnerSymmetry = fGeo->GetECALInnerSymmetry();
-                fStripWidth = fGeo->getStripWidth();//cm
+                fStripWidth = -1;//cm
                 fStripLength = -1;//cm
                 fnVirtual = 1;
 
@@ -149,7 +149,6 @@ namespace gar {
                     for (uint i = 0; i < toSplit->size(); i++)
                     {
                         const gar::rec::CaloHit* hit = toSplit->at(i);
-
                         // is this a barrel or endcap collection?
                         TVector3 point(hit->Position()[0], hit->Position()[1], hit->Position()[2]);
                         //1 == Barrel, 2 == Endcap
@@ -160,12 +159,16 @@ namespace gar {
                             MF_LOG_ERROR("StripSplitterAlg::DoStripSplitting")
                             << " Check det it " << det_id
                             << " Problem with Hit " << i
-                            << " isTile " << fGeo->isTile(hit->CellID())
                             << " pointing at " << hit
                             << " at position ( " << hit->Position()[0] << " cm , " << hit->Position()[1] << " cm , " << hit->Position()[2] << " cm )"
                             << " orientation " << (orientation == LONGITUDINAL ? "LONGITUDINAL" : "TRANSVERSE");
                             throw cet::exception("StripSplitterAlg::DoStripSplitting");
                         }
+
+                        MF_LOG_INFO("StripSplitterAlg::DoStripSplitting") << "recohit " << hit
+                        << " with cellID " << hit->CellID()
+                        << " has energy " << hit->Energy() * CLHEP::MeV / CLHEP::GeV
+                        << " pos (" << hit->Position()[0] << ", " <<  hit->Position()[1] << ", " << hit->Position()[2] << ")";
 
                         // split the hits
                         std::vector <const gar::rec::CaloHit*> virtualhits;
@@ -178,7 +181,6 @@ namespace gar {
 
                             MF_LOG_DEBUG("StripSplitterAlg")
                             << " Adding unsplit hit1 " << i
-                            << " isTile " << fGeo->isTile(hit->CellID())
                             << " pointing at " << hit
                             << " orientation " << (orientation == LONGITUDINAL ? "LONGITUDINAL" : "TRANSVERSE");
 
@@ -215,7 +217,8 @@ namespace gar {
                 int module = fFieldDecoder->get(hit->CellID(), "module");
                 int stave  = fFieldDecoder->get(hit->CellID(), "stave");
 
-                std::array<double, 3> pt = { hit->Position()[0], hit->Position()[1], hit->Position()[2] };
+                const std::array<double, 3> pt = { hit->Position()[0], hit->Position()[1], hit->Position()[2] };
+                fStripWidth = fGeo->getStripWidth(pt);
                 fStripLength = fGeo->getStripLength(pt, hit->CellID());
                 fnVirtual = int(fStripLength / fStripWidth);
 
@@ -314,7 +317,6 @@ namespace gar {
 
                         MF_LOG_DEBUG("StripSplitterAlg::getVirtualHits()")
                         << " Getting hit2 " << i
-                        << " isTile " << fGeo->isTile(hit2->CellID())
                         << " pointing at " << hit2
                         << " orientation " << (splitterOrientation == LONGITUDINAL ? "LONGITUDINAL" : "TRANSVERSE")
                         << " dtave " << dstave
@@ -439,7 +441,7 @@ namespace gar {
                 stripCentre[0].SetXYZ( hit0->Position()[0], hit0->Position()[1], hit0->Position()[2] );
                 stripCentre[1].SetXYZ( hit1->Position()[0], hit1->Position()[1], hit1->Position()[2] );
 
-                std::array<double, 3> pt = { hit0->Position()[0], hit0->Position()[1], hit0->Position()[2] };
+                const std::array<double, 3> pt = { hit0->Position()[0], hit0->Position()[1], hit0->Position()[2] };
                 fStripLength = fGeo->getStripLength(pt, hit0->CellID());
 
                 // direction of strip long axis

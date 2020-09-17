@@ -83,6 +83,8 @@ namespace gar {
 
                 virtual void setLayerDimXY(const double& dimX, const double& dimY) const = 0;
 
+                virtual void setVariables(const double& innerangle, const double &endcapsidelength) const = 0;
+
                 //Non-pure virtual member functions
                 virtual double getStripLength(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const;
 

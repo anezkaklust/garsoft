@@ -1,0 +1,15 @@
+#include "SiPMReadoutSimAlg.fcl"
+
+BEGIN_PROLOG
+
+standard_sipmreadout:
+{
+ module_type:          "SiPMReadout"
+ G4ModuleLabel:        "geant"
+ ECALInstanceName:       ""
+ MuIDInstanceName:       ""
+ ECALReadoutSimAlgPars: @local::standard_ecalreadoutsimalg
+ MuIDReadoutSimAlgPars: @local::standard_muidreadoutsimalg
+}
+
+END_PROLOG

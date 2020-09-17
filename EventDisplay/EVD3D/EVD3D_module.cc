@@ -177,7 +177,7 @@ namespace gar{
             bool fDrawNeutronTraj;
 
             std::string fG4Label;                                       ///< module label that produced G4 hits
-            std::vector<std::string> fG4InstanceName;
+            std::vector<std::string> fInstanceName;
             std::vector<std::string> fSimHitLabels;     		        ///< module labels that produced sim hits
             std::vector<std::string> fRawHitLabels;     		        ///< module labels that produced raw hits
             std::vector<std::string> fRecoHitLabels;     		        ///< module labels that produced reco hits
@@ -326,7 +326,7 @@ namespace gar{
                 fVolumesToShow             = pset.get< std::vector<std::string>  > ("VolumesToShow"              );
 
                 fG4Label                   = pset.get< std::string              > ("G4ModuleLabel"           );
-                fG4InstanceName            = pset.get< std::vector<std::string> > ("G4InstanceName"          );
+                fInstanceName              = pset.get< std::vector<std::string> > ("InstanceName"          );
                 fRawHitLabels              = pset.get< std::vector<std::string> > ("RawHitModuleLabels"      );
                 fRecoHitLabels             = pset.get< std::vector<std::string> > ("RecoHitModuleLabels"     );
                 fCaloClusterLabels         = pset.get< std::vector<std::string> > ("CaloClusterModuleLabels" );
@@ -336,7 +336,7 @@ namespace gar{
 
                 fScalingfactor      	   = pset.get<float                     > ("Scalingfactor",       1.0);
                 fDrawIntersection          = pset.get<bool                      > ("drawIntersection"     , false);
-                fDrawNeutronTraj           = pset.get<bool                    > ("drawNeutronTrajectories", false);
+                fDrawNeutronTraj           = pset.get<bool                      > ("drawNeutronTrajectories", false);
 
                 std::string fEncoding = fGeometry->GetECALCellIDEncoding();
                 fFieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
@@ -896,13 +896,14 @@ namespace gar{
                 for(unsigned int p = 0; p < rawlist.size(); ++p)
                 {
                     const raw::CaloRawDigit* rawHit = rawlist[p];
+                    const std::array<double, 3> point = { rawHit->X(), rawHit->Y(), rawHit->Z() };
 
                     std::ostringstream label;
                     label << "Digi Hit " << p << "\n";
                     label << "Energy: " << rawHit->ADC().first << " ADC\n";
                     label << "Position (" << rawHit->X() << ", " << rawHit->Y() << ", " << rawHit->Z() << " ) cm\n";
                     label << "CellID: " << rawHit->CellID() << "\n";
-                    label << "isTile: " << fGeometry->isTile(rawHit->CellID()) << "\n";
+                    label << "isTile: " << fGeometry->isTile(point, rawHit->CellID()) << "\n";
                     label << "DetID: " << fFieldDecoder->get(rawHit->CellID(), "system") << "\n";
                     label << "Stave: " << fFieldDecoder->get(rawHit->CellID(), "stave") << "\n";
                     label << "Module: " << fFieldDecoder->get(rawHit->CellID(), "module") << "\n";
@@ -968,13 +969,14 @@ namespace gar{
                 for(unsigned int p = 0; p < recolist.size(); ++p)
                 {
                     const rec::CaloHit* recoHit = recolist[p];
+                    const std::array<double, 3> point = { recoHit->Position()[0], recoHit->Position()[1], recoHit->Position()[2] };
 
                     std::ostringstream label;
                     label << "Reco Hit " << p << "\n";
                     label << "Energy: " << recoHit->Energy() * 1000 << " MeV\n";
                     label << "Position (" << recoHit->Position()[0] << ", " << recoHit->Position()[1] << ", " << recoHit->Position()[2] << " ) cm\n";
                     label << "CellID: " << recoHit->CellID() << "\n";
-                    label << "isTile: " << fGeometry->isTile(recoHit->CellID()) << "\n";
+                    label << "isTile: " << fGeometry->isTile(point, recoHit->CellID()) << "\n";
                     label << "DetID: " << fFieldDecoder->get(recoHit->CellID(), "system") << "\n";
                     label << "Stave: " << fFieldDecoder->get(recoHit->CellID(), "stave") << "\n";
                     label << "Module: " << fFieldDecoder->get(recoHit->CellID(), "module") << "\n";
@@ -1328,8 +1330,8 @@ namespace gar{
 
                 try
                 {
-                    for(unsigned int i = 0; i < fG4InstanceName.size(); i++) {
-                        event.getView(fG4Label, fG4InstanceName.at(i), tempCalo);
+                    for(unsigned int i = 0; i < fInstanceName.size(); i++) {
+                        event.getView(fG4Label, fInstanceName.at(i), tempCalo);
                         for(size_t t = 0; t < tempCalo.size(); ++t)
                         simCalo.push_back(tempCalo[t]);
                     }
@@ -1347,9 +1349,11 @@ namespace gar{
 
                 try
                 {
-                    event.getView(fRawHitLabels.at(0), tempCalo);
-                    for(size_t t = 0; t < tempCalo.size(); ++t)
-                    digitCalo.push_back(tempCalo[t]);
+                    for(unsigned int i = 0; i < fInstanceName.size(); i++) {
+                        event.getView(fRawHitLabels.at(0), fInstanceName.at(i), tempCalo);
+                        for(size_t t = 0; t < tempCalo.size(); ++t)
+                        digitCalo.push_back(tempCalo[t]);
+                    }
                 }
                 catch(cet::exception& e){
                     writeErrMsg("GetDigits Calo", e);

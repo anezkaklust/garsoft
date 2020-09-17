@@ -3,7 +3,8 @@
 standard_CaloClustering:
 {
 module_type:        CaloClustering
-CaloHitLabel:       "calohit"
+CaloHitLabel:       "sipmhit"
+ECALInstanceName:   ""
 TrackLabel:         "track"
 ClusterAlgPars:     @local::knnclusteralg
 }
@@ -11,7 +12,8 @@ ClusterAlgPars:     @local::knnclusteralg
 standard_CaloClusterCheater:
 {
 module_type:        CaloClusterCheater
-CaloHitModuleLabel: "calohit"
+CaloHitModuleLabel: "sipmhit"
+ECALInstanceName:   ""
 MinHits:            1
 IgnoreNeutrons:     true
 }

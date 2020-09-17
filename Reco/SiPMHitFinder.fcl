@@ -1,0 +1,15 @@
+BEGIN_PROLOG
+
+standard_SiPMHitFinder:
+{
+module_type:        SiPMHitFinder
+RawDigitLabel:      "daqsipm"
+ECALInstanceName:       ""
+MuIDInstanceName:       ""
+MIPThreshold:       0.25      # apply this threshold if we don't already have zero-suppressed raw digits
+Desaturation:       true
+ECALSamplingFactorGeV:  4.32
+UseTimePositionReco: true
+}
+
+END_PROLOG

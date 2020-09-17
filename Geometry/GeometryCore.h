@@ -959,6 +959,27 @@ namespace gar {
         //Returns the ECAL outer x of the endcap
         float GetECALEndcapOuterX() const { return fECALEndcapOuterX; }
 
+        //Muon ID detector (only Barrel so far)
+        bool HasMuonDetector() const { return fHasMuonDetector; }
+
+        //Returns the MuID minimum radius of the Inner Barrel
+        float GetMuIDInnerBarrelRadius() const { return fMuIDRinner; }
+
+        //Returns the MuID minimum radius of the Outer Barrel
+        float GetMuIDOuterBarrelRadius() const { return fMuIDRouter; }
+
+        //Returns the number of sides of the barrel MuID
+        int GetMuIDInnerSymmetry() const { return fMuIDSymmetry; }
+
+        //Returns the inner angle of the polyhedra
+        float GetMuIDInnerAngle() const { return (( fMuIDSymmetry - 2 ) * M_PI / fMuIDSymmetry); }
+
+        //Returns the side length of the polyhedra MuID
+        float GetMuIDBarrelSideLength() const { return ( 2 * std::sin( M_PI / fMuIDSymmetry ) * fMuIDRouter ); }
+
+        //Returns the apothem length of the polyhedra MuID
+        float GetMuIDBarrelApothemLength() const { return ( std::cos( M_PI / fMuIDSymmetry ) * fMuIDRouter ); }
+
         std::string GetWorldVolumeName() const { return "volWorld"; }
 
         bool PointInWorld(TVector3 const& point) const;
@@ -989,19 +1010,22 @@ namespace gar {
 
         std::array<double, 3> GetPosition(const TGeoNode *node, const gar::raw::CellID_t &cID) const;
 
-        bool isTile(const gar::raw::CellID_t& cID) const;
+        bool isTile(const std::array<double, 3>& point, const gar::raw::CellID_t& cID) const;
 
-        double getStripWidth() const;
+        double getStripWidth(const std::array<double, 3>& point) const;
 
-        double getTileSize() const;
+        double getTileSize(const std::array<double, 3>& point) const;
 
-        double getStripLength(std::array<double, 3> const& point, const gar::raw::CellID_t &cID) const;
+        double getStripLength(const std::array<double, 3>& point, const gar::raw::CellID_t &cID) const;
 
-        std::pair<TVector3, TVector3> GetStripEnds(std::array<double, 3> const& point, const gar::raw::CellID_t &cID) const;
+        std::pair<TVector3, TVector3> GetStripEnds(const std::array<double, 3>& point, const gar::raw::CellID_t &cID) const;
 
-        std::pair<float, float> CalculateLightPropagation(std::array<double, 3>const& point, const std::array<double, 3> &local, const gar::raw::CellID_t &cID) const;
+        std::pair<float, float> CalculateLightPropagation(const std::array<double, 3>& point, const std::array<double, 3> &local, const gar::raw::CellID_t &cID) const;
 
-        std::array<double, 3> ReconstructStripHitPosition(const std::array<double, 3> &local, const float &xlocal, const gar::raw::CellID_t &cID) const;
+        std::array<double, 3> ReconstructStripHitPosition(const std::array<double, 3>& point, const std::array<double, 3>& local, const float &xlocal, const gar::raw::CellID_t &cID) const;
+
+        //Prints information on the detector geometry
+        void PrintGeometry() const;
 
     protected:
 
@@ -1011,9 +1035,6 @@ namespace gar {
     private:
 
         void InitVariables();
-
-        //Prints information on the detector geometry
-        void PrintGeometry() const;
 
         /// Deletes the detector geometry structures
         void ClearGeometry();
@@ -1064,6 +1085,21 @@ namespace gar {
         //Sets the ECAL Layered struct
         bool MakeECALLayeredCalorimeterData();
 
+        //Muon ID detector
+        void StoreMuIDParameters();
+
+        //Sets the MuID inner barrel minimum radius
+        bool FindMuIDInnerBarrelRadius();
+
+        //Sets the MuID outer barrel minimum radius
+        bool FindMuIDOuterBarrelRadius();
+
+        //Sets the number of sides of the MuID barrel
+        bool FindMuIDInnerSymmetry();
+
+        //Sets the number of layers in the MuID
+        bool FindMuIDnLayers();
+
         double         fSurfaceY;       ///< The point where air meets earth for this detector.
         std::string    fDetectorName;   ///< Name of the detector.
         std::string    fGDMLfile;       ///< path to geometry file used for Geant4 simulation
@@ -1073,6 +1109,8 @@ namespace gar {
         double         fPositionWiggle; ///< accounting for rounding errors when testing positions
 
         bool           fPointInWarnings; ///< Generate warnings from failed inputs to PointIn* methods
+
+        bool           fECALEndcapOutside; ///< Is the ECAL Endcap outside the PV
 
         float          fTPCRadius = 0.;      ///< Radius of the TPC
         float          fTPCLength = 0.;      ///< length of the TPC
@@ -1141,6 +1179,13 @@ namespace gar {
         float fECALEndcapStartX;        ///< Position of the start xplane of the ECAL endcap
         float fECALEndcapOuterX;        ///< Position of the end xplane of the ECAL endcap
         unsigned int fECALnLayers;      ///< number of ECAL layers from the seg algorithm
+
+        //Related to the MuID
+        bool fHasMuonDetector;
+        float fMuIDRinner;              ///< Minimum radius of the MuID inner barrel
+        float fMuIDRouter;              ///< Minimum radius of the MuID outer barrel
+        int fMuIDSymmetry;              ///< Number of sides of the MuID Barrel
+        unsigned int fMuIDnLayers;      ///< number of MuID layers from the seg algorithm
 
         typedef std::shared_ptr<const gar::geo::seg::ChannelMapAlg> ChannelMapPtr;
         ChannelMapPtr  fChannelMapAlg;  ///< Object containing the channel to wire mapping

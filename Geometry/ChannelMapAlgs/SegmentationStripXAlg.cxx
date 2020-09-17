@@ -75,8 +75,18 @@ namespace gar {
             //----------------------------------------------------------------------------
             std::array<double, 3> SegmentationStripXAlg::GetPosition(const gar::geo::GeometryCore& geo, const gar::raw::CellID_t& cID) const
             {
-                /* no op */
-                return std::array<double, 3>{ 0., 0., 0. };
+                std::array<double, 3> cellPosition;
+
+                int cellIndexX = _decoder->get(cID,_xId);
+                int cellIndexY = _decoder->get(cID,_yId);
+
+                int nCellsY = 1;
+
+                cellPosition[0] = ( cellIndexX + 0.5 ) * _stripSizeX;
+                cellPosition[1] = ( cellIndexY + 0.5 ) * (_layer_dim_Y / nCellsY ) - (_layer_dim_Y / 2.);
+                cellPosition[2] = 0.;
+
+                return cellPosition;
             }
 
             //----------------------------------------------------------------------------
