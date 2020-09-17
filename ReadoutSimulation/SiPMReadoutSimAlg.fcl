@@ -1,10 +1,16 @@
-#include "ECALSegmentationAlg.fcl"
-
 BEGIN_PROLOG
 
 standard_ecalreadoutsimalg:
 {
  ECALReadoutSimType:       Standard
+ AddNoise:                 true  # add noise hits
+ Saturation:               true  # do SiPM saturation
+ TimeSmearing:             true  # perform time smearing
+}
+
+standard_muidreadoutsimalg:
+{
+ MuIDReadoutSimType:       Standard
  AddNoise:                 true  # add noise hits
  Saturation:               true  # do SiPM saturation
  TimeSmearing:             true  # perform time smearing

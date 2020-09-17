@@ -7,7 +7,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "ReadoutSimulation/ECALReadoutSimStandardAlg.h"
+#include "ReadoutSimulation/MuIDReadoutSimStandardAlg.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "Geometry/Geometry.h"
 #include "Geometry/LocalTransformation.h"
@@ -26,7 +26,7 @@ namespace gar {
     namespace rosim{
 
         //----------------------------------------------------------------------------
-        ECALReadoutSimStandardAlg::ECALReadoutSimStandardAlg(CLHEP::HepRandomEngine& engine, fhicl::ParameterSet const& pset)
+        MuIDReadoutSimStandardAlg::MuIDReadoutSimStandardAlg(CLHEP::HepRandomEngine& engine, fhicl::ParameterSet const& pset)
         : SiPMReadoutSimAlg(engine, pset)
         {
             fGeo = gar::providerFrom<geo::Geometry>();
@@ -39,13 +39,13 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        ECALReadoutSimStandardAlg::~ECALReadoutSimStandardAlg()
+        MuIDReadoutSimStandardAlg::~MuIDReadoutSimStandardAlg()
         {
             return;
         }
 
         //----------------------------------------------------------------------------
-        void ECALReadoutSimStandardAlg::reconfigure(fhicl::ParameterSet const& pset)
+        void MuIDReadoutSimStandardAlg::reconfigure(fhicl::ParameterSet const& pset)
         {
             fAddNoise = pset.get<bool>("AddNoise", false);
             fSaturation = pset.get<bool>("Saturation", false);
@@ -57,14 +57,14 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        void ECALReadoutSimStandardAlg::ClearLists()
+        void MuIDReadoutSimStandardAlg::ClearLists()
         {
             m_SimCaloHitVec.clear();
             m_DigitHitVec.clear();
         }
 
         //----------------------------------------------------------------------------
-        void ECALReadoutSimStandardAlg::PrepareAlgo(const std::vector< art::Ptr<sdp::CaloDeposit> > &hitVector)
+        void MuIDReadoutSimStandardAlg::PrepareAlgo(const std::vector< art::Ptr<sdp::CaloDeposit> > &hitVector)
         {
             //Clear the lists
             ClearLists();
@@ -84,9 +84,9 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        void ECALReadoutSimStandardAlg::DoDigitization()
+        void MuIDReadoutSimStandardAlg::DoDigitization()
         {
-            MF_LOG_DEBUG("ECALReadoutSimStandardAlg") << "DoDigitization()";
+            MF_LOG_DEBUG("MuIDReadoutSimStandardAlg") << "DoDigitization()";
 
             //Treating tiled hits
             for(auto const &it : m_SimCaloHitVec)
@@ -98,58 +98,21 @@ namespace gar {
                 float z = it->Z();
                 raw::CellID_t cellID = it->CellID();
 
-                raw::CaloRawDigit *digihit = nullptr;
-
-                if(fGeo->isTile(cellID)) {
-                    digihit = this->DoTileDigitization(x, y, z, energy, time, cellID);
-                } else {
-                    digihit = this->DoStripDigitization(x, y, z, energy, time, cellID);
-                }
+                raw::CaloRawDigit *digihit = this->DoStripDigitization(x, y, z, energy, time, cellID);
 
                 if( nullptr != digihit) {
                     m_DigitHitVec.emplace_back(digihit);
                 } else {
-                    MF_LOG_DEBUG("ECALReadoutSimStandardAlg")
+                    MF_LOG_DEBUG("MuIDReadoutSimStandardAlg")
                     << "Could not digitize the simulated hit " << it;
                 }
             }
         }
 
         //----------------------------------------------------------------------------
-        raw::CaloRawDigit* ECALReadoutSimStandardAlg::DoTileDigitization(float x, float y, float z, float energy, float time, raw::CellID_t cID) const
+        raw::CaloRawDigit* MuIDReadoutSimStandardAlg::DoStripDigitization(float x, float y, float z, float energy, float time, raw::CellID_t cID) const
         {
-            MF_LOG_DEBUG("ECALReadoutSimStandardAlg") << "DoTileDigitization()";
-
-            float new_energy = this->DoPhotonStatistics(x, y, z, energy);
-            float new_time = time;
-
-            if(fTimeSmearing)
-                new_time = this->DoTimeSmearing(time);
-
-            //Calculate the position of the strip
-            std::pair< std::array<double, 3>, bool > calc_pos = this->CalculatePosition(x, y, z, cID);
-            //Check if need to drop the hit
-            if ( calc_pos.second ) {
-                return nullptr;
-            }
-
-            std::array<double, 3> pos = calc_pos.first;
-
-            raw::CaloRawDigit *digihit = new raw::CaloRawDigit( static_cast<unsigned int>(new_energy), new_time, pos[0], pos[1], pos[2], cID );
-
-            MF_LOG_DEBUG("ECALReadoutSimStandardAlg") << "Tile digihit " << digihit
-            << " with cellID " << cID
-            << " has energy " << static_cast<unsigned int>(new_energy)
-            << " time " << new_time << " ns"
-            << " pos (" << pos[0] << ", " <<  pos[1] << ", " << pos[2] << ")";
-
-            return digihit;
-        }
-
-        //----------------------------------------------------------------------------
-        raw::CaloRawDigit* ECALReadoutSimStandardAlg::DoStripDigitization(float x, float y, float z, float energy, float time, raw::CellID_t cID) const
-        {
-            MF_LOG_DEBUG("ECALReadoutSimStandardAlg") << "DoStripDigitization()";
+            MF_LOG_DEBUG("MuIDReadoutSimStandardAlg") << "DoStripDigitization()";
 
             //Calculate the light propagation along the strip
             std::pair<float, float> times = this->DoLightPropagation(x, y, z, time, cID);
@@ -169,7 +132,7 @@ namespace gar {
             //make the shared ptr
             raw::CaloRawDigit *digihit = new raw::CaloRawDigit( static_cast<unsigned int>(new_energy), times, pos[0], pos[1], pos[2], cID );
 
-            MF_LOG_DEBUG("ECALReadoutSimStandardAlg") << "Strip digihit " << digihit
+            MF_LOG_DEBUG("MuIDReadoutSimStandardAlg") << "Strip digihit " << digihit
             << " with cellID " << cID
             << " has energy " << static_cast<unsigned int>(new_energy)
             << " time (" << times.first << ", " << times.second << ")"
@@ -179,9 +142,9 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        float ECALReadoutSimStandardAlg::DoPhotonStatistics(float x, float y, float z, float energy) const
+        float MuIDReadoutSimStandardAlg::DoPhotonStatistics(float x, float y, float z, float energy) const
         {
-            MF_LOG_DEBUG("ECALReadoutSimStandardAlg") << "DoPhotonStatistics()";
+            MF_LOG_DEBUG("MuIDReadoutSimStandardAlg") << "DoPhotonStatistics()";
             CLHEP::RandBinomial BinomialRand(fEngine);
 
             TVector3 point(x, y, z);
@@ -222,18 +185,18 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        float ECALReadoutSimStandardAlg::DoTimeSmearing(float time) const
+        float MuIDReadoutSimStandardAlg::DoTimeSmearing(float time) const
         {
-            MF_LOG_DEBUG("ECALReadoutSimStandardAlg") << "DoTimeSmearing()";
+            MF_LOG_DEBUG("MuIDReadoutSimStandardAlg") << "DoTimeSmearing()";
             CLHEP::RandGauss GausRand(fEngine);
             float smeared_time = time + GausRand.fire(0., fDetProp->TimeResolution());
             return smeared_time;
         }
 
         //----------------------------------------------------------------------------
-        float ECALReadoutSimStandardAlg::AddElectronicNoise(float energy) const
+        float MuIDReadoutSimStandardAlg::AddElectronicNoise(float energy) const
         {
-            MF_LOG_DEBUG("ECALReadoutSimStandardAlg") << "AddElectronicNoise()";
+            MF_LOG_DEBUG("MuIDReadoutSimStandardAlg") << "AddElectronicNoise()";
 
             //Random noise shooting (Gaussian electronic noise)
             CLHEP::RandGauss GausRand(fEngine);
@@ -242,7 +205,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::pair< std::array<double, 3>, bool > ECALReadoutSimStandardAlg::CalculatePosition(float x, float y, float z, raw::CellID_t cID) const
+        std::pair< std::array<double, 3>, bool > MuIDReadoutSimStandardAlg::CalculatePosition(float x, float y, float z, raw::CellID_t cID) const
         {
             bool drop = false;
 
@@ -265,8 +228,7 @@ namespace gar {
             std::string base_new_node_name = newnodename.substr(0, newnodename.find("_layer_") + 9);
 
             if( base_new_node_name != base_node_name ){
-                MF_LOG_DEBUG("ECALReadoutSimStandardAlg") << "CalculatePosition()"
-                << " isTile " << fGeo->isTile(cID) << "\n"
+                MF_LOG_DEBUG("MuIDReadoutSimStandardAlg") << "CalculatePosition()"
                 << " Strip length " << fGeo->getStripLength(point, cID) << "\n"
                 << " Local Point before new position ( " << pointLocal[0] << ", " << pointLocal[1] << ", " << pointLocal[2] << " ) in node " << nodename << "\n"
                 << " Local Point after new position ( " << pointLocal_back[0] << ", " << pointLocal_back[1] << ", " << pointLocal_back[2] << " ) in node " << newnodename << "\n"
@@ -280,7 +242,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::pair<float, float> ECALReadoutSimStandardAlg::DoLightPropagation(float x, float y, float z, float time, raw::CellID_t cID) const
+        std::pair<float, float> MuIDReadoutSimStandardAlg::DoLightPropagation(float x, float y, float z, float time, raw::CellID_t cID) const
         {
             //Find the volume path
             std::array<double, 3> point = {x, y, z};

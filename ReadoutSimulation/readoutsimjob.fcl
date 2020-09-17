@@ -14,8 +14,7 @@
 #Plugins
 #include "IonizationReadout.fcl"
 #include "RawDigitAna.fcl"
-
-#include "CaloReadout.fcl"
+#include "SiPMReadout.fcl"
 
 process_name: DetReadout
 
@@ -53,7 +52,7 @@ physics:
  producers:
  {
   daq: @local::standard_ionizationreadout
-  daqecal: @local::standard_caloreadout
+  daqsipm: @local::standard_sipmreadout
   rns: { module_type: "RandomNumberSaver"}
  }
  analyzers:
@@ -63,7 +62,7 @@ physics:
 
  #define the producer and filter modules for this path, order matters,
  #filters reject all following items.  see lines starting physics.producers below
- simulate: [ daq, daqecal, rns ]
+ simulate: [ daq, daqsipm, rns ]
 
  #define the output stream, there could be more than one if using filters
  #stream1:  [ daqana, out1 ]

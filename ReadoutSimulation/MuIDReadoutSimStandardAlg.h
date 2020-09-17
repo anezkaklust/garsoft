@@ -1,11 +1,11 @@
 //
-//  ECALReadoutSimStandardAlg.h
+//  MuIDReadoutSimStandardAlg.h
 //
 //  Created by Eldwan Brianne on 8/27/18.
 //
 
-#ifndef GAR_READOUTSIM_ECALReadoutSimStandardAlg_h
-#define GAR_READOUTSIM_ECALReadoutSimStandardAlg_h
+#ifndef GAR_READOUTSIM_MuIDReadoutSimStandardAlg_h
+#define GAR_READOUTSIM_MuIDReadoutSimStandardAlg_h
 
 #include "ReadoutSimulation/SiPMReadoutSimAlg.h"
 
@@ -20,13 +20,13 @@ namespace fhicl{
 namespace gar{
     namespace rosim{
 
-        class ECALReadoutSimStandardAlg : public SiPMReadoutSimAlg {
+        class MuIDReadoutSimStandardAlg : public SiPMReadoutSimAlg {
 
         public:
 
-            ECALReadoutSimStandardAlg(CLHEP::HepRandomEngine& engine, fhicl::ParameterSet const& pset);
+            MuIDReadoutSimStandardAlg(CLHEP::HepRandomEngine& engine, fhicl::ParameterSet const& pset);
 
-            virtual ~ECALReadoutSimStandardAlg();
+            virtual ~MuIDReadoutSimStandardAlg();
 
             void reconfigure(fhicl::ParameterSet const& pset);
 
@@ -45,8 +45,6 @@ namespace gar{
             float DoTimeSmearing(float time) const;
 
             float AddElectronicNoise(float energy) const;
-
-            raw::CaloRawDigit* DoTileDigitization(float x, float y, float z, float energy, float time, raw::CellID_t cID) const;
 
             raw::CaloRawDigit* DoStripDigitization(float x, float y, float z, float energy, float time, raw::CellID_t cID) const;
 
@@ -68,4 +66,4 @@ namespace gar{
     }
 }
 
-#endif /* GAR_READOUTSIM_TPCReadoutSimStandardAlg_h */
+#endif /* GAR_READOUTSIM_MuIDReadoutSimStandardAlg_h */

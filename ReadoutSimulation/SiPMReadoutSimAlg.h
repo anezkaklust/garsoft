@@ -4,8 +4,8 @@
 //  Created by Eldwan Brianne on 8/27/18.
 //
 
-#ifndef GAR_READOUTSIMULATION_ECALReadoutSimAlg_hpp
-#define GAR_READOUTSIMULATION_ECALReadoutSimAlg_hpp
+#ifndef GAR_READOUTSIMULATION_SiPMReadoutSimAlg_hpp
+#define GAR_READOUTSIMULATION_SiPMReadoutSimAlg_hpp
 
 #include "SimulationDataProducts/CaloDeposit.h"
 #include "RawDataProducts/CaloRawDigit.h"
@@ -25,13 +25,13 @@ namespace gar {
 
     namespace rosim {
 
-        class ECALReadoutSimAlg{
+        class SiPMReadoutSimAlg{
 
         public:
 
-            ECALReadoutSimAlg(CLHEP::HepRandomEngine& engine, fhicl::ParameterSet const& pset);
+            SiPMReadoutSimAlg(CLHEP::HepRandomEngine& engine, fhicl::ParameterSet const& pset);
 
-            virtual ~ECALReadoutSimAlg();
+            virtual ~SiPMReadoutSimAlg();
 
             virtual void reconfigure(fhicl::ParameterSet const& pset) = 0;
 
@@ -58,4 +58,4 @@ namespace gar {
 } // end gar
 
 
-#endif /* GAR_READOUTSIMULATION_TPCReadoutSimAlg_hpp */
+#endif /* GAR_READOUTSIMULATION_SiPMReadoutSimAlg_hpp */
