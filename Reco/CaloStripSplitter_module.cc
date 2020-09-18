@@ -136,7 +136,7 @@ namespace gar {
 
                     rec::CaloHit hit(energy, newtime, newpos, cellID, layer);
 
-                    MF_LOG_INFO("CaloStripSplitter_module") << "recohit " << &hit
+                    MF_LOG_DEBUG("CaloStripSplitter_module") << "recohit " << &hit
                     << " with cellID " << cellID
                     << " has energy " << energy * CLHEP::MeV / CLHEP::GeV
                     << " pos (" << newpos[0] << ", " <<  newpos[1] << ", " << newpos[2] << ")";
@@ -194,7 +194,7 @@ namespace gar {
         void CaloStripSplitter::CollectHits(const art::Event &evt, const std::string &label, const std::string &instance, std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector)
         {
             art::Handle< std::vector<gar::rec::CaloHit> > theHits;
-            evt.getByLabel(label, theHits);
+            evt.getByLabel(label, instance, theHits);
 
             if (!theHits.isValid())
             return;

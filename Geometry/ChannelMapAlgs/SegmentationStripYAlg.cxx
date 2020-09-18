@@ -76,7 +76,7 @@ namespace gar {
             std::array<double, 3> SegmentationStripYAlg::GetPosition(const gar::geo::GeometryCore& geo, const gar::raw::CellID_t& cID) const
             {
                 std::array<double, 3> cellPosition;
-                
+
                 int cellIndexX = _decoder->get(cID,_xId);
                 int cellIndexY = _decoder->get(cID,_yId);
 
@@ -146,29 +146,52 @@ namespace gar {
             //----------------------------------------------------------------------------
             double SegmentationStripYAlg::getStripLength(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
             {
-                /* no op */
-                return 0.;
+                return _layer_dim_X;
             }
 
             //----------------------------------------------------------------------------
             std::pair<TVector3, TVector3> SegmentationStripYAlg::getStripEnds(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
             {
-                /* no op */
-                return std::make_pair(TVector3(), TVector3());
+                TVector3 stripEnd1(0., 0., 0.);
+                TVector3 stripEnd2(0., 0., 0.);
+
+                stripEnd1.SetX(-_layer_dim_X/2.);
+                stripEnd2.SetX(_layer_dim_X/2.);
+                stripEnd1.SetY(local[1]);
+                stripEnd2.SetY(local[1]);
+                stripEnd1.SetZ(local[2]);
+                stripEnd2.SetZ(local[2]);
+
+                return std::make_pair(stripEnd1, stripEnd2);
             }
 
             //----------------------------------------------------------------------------
             std::pair<float, float> SegmentationStripYAlg::CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
             {
-                /* no op */
-                return std::make_pair(0., 0.);
+                float c = (CLHEP::c_light * CLHEP::mm / CLHEP::ns) / CLHEP::cm; // in cm/ns
+                //time1 is left SiPM
+                float time1 = 0.;
+                //time2 is right SiPM
+                float time2 = 0.;
+
+                time1 = ( _layer_dim_X / 2 + local[0] ) / c;
+                time2 = ( _layer_dim_X / 2 - local[0] ) / c;
+
+                return std::make_pair(time1, time2);
             }
 
             //----------------------------------------------------------------------------
             std::array<double, 3> SegmentationStripYAlg::ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const gar::raw::CellID_t& cID) const
             {
-                /* no op */
-                return std::array<double, 3>{ 0., 0., 0.};
+                float pos = xlocal;
+                //Need to check if the local position is bigger than the strip length!
+                // bool isBarrel = this->isBarrel(cID);
+                float stripLength = this->getStripLength(geo, local, cID);
+
+                if( std::abs(pos) > stripLength / 2. ) pos = (pos > 0) ? stripLength / 2. : -stripLength / 2.;
+
+                std::array<double, 3> newlocal = {pos, local[1], local[2]};
+                return newlocal;
             }
 
         }//seg

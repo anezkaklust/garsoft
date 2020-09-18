@@ -170,6 +170,7 @@ namespace gar{
             bool fDrawECALRawHits;
             bool fDrawECALRecoHits;
             bool fDrawECALClusters;
+            bool fDrawMuIDRecoHits;
             bool fDrawTracks;
             bool fDrawVertices;
             bool fDrawTPCClusters;
@@ -180,7 +181,8 @@ namespace gar{
             std::vector<std::string> fInstanceName;
             std::vector<std::string> fSimHitLabels;     		        ///< module labels that produced sim hits
             std::vector<std::string> fRawHitLabels;     		        ///< module labels that produced raw hits
-            std::vector<std::string> fRecoHitLabels;     		        ///< module labels that produced reco hits
+            std::vector<std::string> fRecoECALHitLabels;     		    ///< module labels that produced reco hits ecal
+            std::vector<std::string> fRecoMuIDHitLabels;                ///< module labels that produced reco hits muid
             std::vector<std::string> fCaloClusterLabels;    	        ///< module labels that produced Calorimeter Clusters
             std::vector<std::string> fTrackLabels;   		            ///< module labels that produced tracks
             std::vector<std::string> fVertexLabels;  		            ///< module labels that produced vertices
@@ -204,6 +206,9 @@ namespace gar{
             TEveElementList* fCaloSimHitList;
             TEveElementList* fCaloRawHitList;
             TEveElementList* fCaloRecoHitList;
+
+            //MuID
+            TEveElementList* fCaloMuIDHitList;
 
             //High level reco (clusters and tracks)
             TEveElementList* fCaloClusterList;
@@ -262,6 +267,9 @@ namespace gar{
             //get reco hits from the event handle
             void GetRecoCaloHits(std::vector<const rec::CaloHit*> &recoCalo, const art::Event& event);
 
+            //get muid reco hits from the event handle
+            void GetRecoMuIDHits(std::vector<const rec::CaloHit*> &recoMuID, const art::Event& event);
+
             //get calo clusters
             void GetCaloClusters(std::vector<const rec::Cluster*> &caloCluster, const art::Event& event);
 
@@ -297,6 +305,7 @@ namespace gar{
             fCaloSimHitList(0),
             fCaloRawHitList(0),
             fCaloRecoHitList(0),
+            fCaloMuIDHitList(0),
             fCaloClusterList(0),
             fTrackList(0),
             fVertexList(0),
@@ -317,6 +326,7 @@ namespace gar{
                 fDrawECALRawHits           = pset.get<bool                       > ("drawECALRawHits"      , false);
                 fDrawECALRecoHits          = pset.get<bool                       > ("drawECALRecoHits"     , false);
                 fDrawECALClusters          = pset.get<bool                       > ("drawECALClusters"     , false);
+                fDrawMuIDRecoHits          = pset.get<bool                       > ("drawMuIDRecoHits"     , false);
                 fDrawTracks                = pset.get<bool                       > ("drawTracks"           , false);
                 fDrawVertices              = pset.get<bool                       > ("drawVertices"         , false);
                 fDrawTPCClusters           = pset.get<bool                       > ("drawTPCClusters"      , false);
@@ -328,7 +338,9 @@ namespace gar{
                 fG4Label                   = pset.get< std::string              > ("G4ModuleLabel"           );
                 fInstanceName              = pset.get< std::vector<std::string> > ("InstanceName"          );
                 fRawHitLabels              = pset.get< std::vector<std::string> > ("RawHitModuleLabels"      );
-                fRecoHitLabels             = pset.get< std::vector<std::string> > ("RecoHitModuleLabels"     );
+                fRecoECALHitLabels         = pset.get< std::vector<std::string> > ("RecoECALHitModuleLabels"     );
+                fRecoMuIDHitLabels         = pset.get< std::vector<std::string> > ("RecoMuIDHitModuleLabels"     );
+
                 fCaloClusterLabels         = pset.get< std::vector<std::string> > ("CaloClusterModuleLabels" );
                 fTrackLabels      	       = pset.get< std::vector<std::string> > ("TrackModuleLabels"     	 );
                 fVertexLabels     	       = pset.get< std::vector<std::string> > ("VertexModuleLabels"    	 );
@@ -995,6 +1007,46 @@ namespace gar{
                 }
 
                 fEve->AddElement(fCaloRecoHitList);
+
+                //MuID hits
+                if(fGeometry->HasMuonDetector()) {
+                    recolist.clear();
+                    this->GetRecoMuIDHits(recolist, event);
+
+                    fCaloMuIDHitList = new TEveElementList("MuID Reco Hits", "Reconstructed MuID hits");
+                    fCaloMuIDHitList->SetMainColor(kRed);
+                    fCaloMuIDHitList->SetMainAlpha(1.0);
+
+                    for(unsigned int p = 0; p < recolist.size(); ++p)
+                    {
+                        const rec::CaloHit* recoHit = recolist[p];
+                        const std::array<double, 3> point = { recoHit->Position()[0], recoHit->Position()[1], recoHit->Position()[2] };
+
+                        std::ostringstream label;
+                        label << "Reco Hit " << p << "\n";
+                        label << "Energy: " << recoHit->Energy() * 1000 << " MeV\n";
+                        label << "Position (" << recoHit->Position()[0] << ", " << recoHit->Position()[1] << ", " << recoHit->Position()[2] << " ) cm\n";
+                        label << "CellID: " << recoHit->CellID() << "\n";
+                        label << "isTile: " << fGeometry->isTile(point, recoHit->CellID()) << "\n";
+                        label << "DetID: " << fFieldDecoder->get(recoHit->CellID(), "system") << "\n";
+                        label << "Stave: " << fFieldDecoder->get(recoHit->CellID(), "stave") << "\n";
+                        label << "Module: " << fFieldDecoder->get(recoHit->CellID(), "module") << "\n";
+                        label << "Layer: " << fFieldDecoder->get(recoHit->CellID(), "layer") << "\n";
+                        label << "Slice: " << fFieldDecoder->get(recoHit->CellID(), "slice");
+
+                        TEvePointSet *evehit = new TEvePointSet(1);
+                        evehit->SetName(TString::Format("MuID reco hit %i", p));
+                        evehit->SetTitle(label.str().c_str());
+                        evehit->SetMarkerSize(0.5);
+                        evehit->SetMarkerStyle(20);
+                        evehit->SetMarkerColor(fEvtDisplayUtil->LogColor(recoHit->Energy() * 1000, 0, 1000, 5));
+                        evehit->SetPoint(0, recoHit->Position()[0], recoHit->Position()[1], recoHit->Position()[2]);//cm
+
+                        fCaloMuIDHitList->AddElement(evehit);
+                    }
+
+                    fEve->AddElement(fCaloMuIDHitList);
+                }
             }
 
             //----------------------------------------------------
@@ -1368,12 +1420,29 @@ namespace gar{
 
                 try
                 {
-                    event.getView(fRecoHitLabels.at(0), tempCalo);
+                    event.getView(fRecoECALHitLabels.at(0), tempCalo);
                     for(size_t t = 0; t < tempCalo.size(); ++t)
                     recoCalo.push_back(tempCalo[t]);
                 }
                 catch(cet::exception& e){
                     writeErrMsg("GetHits Calo", e);
+                }
+            }
+
+            //----------------------------------------------------
+            void EventDisplay3D::GetRecoMuIDHits(std::vector<const rec::CaloHit*> &recoMuID, const art::Event& event)
+            {
+                recoMuID.clear();
+                std::vector<const rec::CaloHit*> tempMuID;
+
+                try
+                {
+                    event.getView(fRecoMuIDHitLabels.at(0), "MuID", tempMuID);
+                    for(size_t t = 0; t < tempMuID.size(); ++t)
+                    recoMuID.push_back(tempMuID[t]);
+                }
+                catch(cet::exception& e){
+                    writeErrMsg("GetHits MuID", e);
                 }
             }
 

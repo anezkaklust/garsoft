@@ -190,6 +190,7 @@ module_type          : EVD3D
 drawECALRawHits      : false
 drawECALRecoHits     : false
 drawECALClusters     : false
+drawMuIDRecoHits     : false
 drawTracks           : false
 drawVertices         : false
 drawTPCClusters      : false
@@ -201,7 +202,38 @@ VolumesToShow        : ["volGArTPC", "volPVBarrel", "volPVEndcap", "volBarrelECa
 G4ModuleLabel             : "geant"
 InstanceName              : [""]
 RawHitModuleLabels        : ["daqsipm"]
-RecoHitModuleLabels       : ["sscalohit"]
+RecoECALHitModuleLabels   : ["sscalohit"]
+RecoMuIDHitModuleLabels   : ["sipmhit"]
+CaloClusterModuleLabels   : ["calocluster"]
+TrackModuleLabels         : ["track"]
+VertexModuleLabels        : ["vertex"]
+TPCClusterModuleLabels    : ["tpccluster"]
+
+Scalingfactor         : 1.
+drawIntersection      : false
+drawNeutronTrajectories : false
+}
+
+standard_evd3D_SPYv2:
+{
+module_type          : EVD3D
+drawECALRawHits      : false
+drawECALRecoHits     : false
+drawECALClusters     : false
+drawMuIDRecoHits     : false
+drawTracks           : false
+drawVertices         : false
+drawTPCClusters      : false
+drawMCTruth          : true
+drawMCCaloTruth      : true
+drawMCTPCTruth       : true
+VolumesToShow        : ["volGArTPC", "volPVBarrel", "volPVEndcap", "volBarrelECal", "volEndcapECal", "volYokeBarrel", "volYokeEndcap"]
+
+G4ModuleLabel             : "geant"
+InstanceName              : ["ECAL", "MuID"]
+RawHitModuleLabels        : ["daqsipm"]
+RecoECALHitModuleLabels   : ["sscalohit"]
+RecoMuIDHitModuleLabels   : ["sipmhit"]
 CaloClusterModuleLabels   : ["calocluster"]
 TrackModuleLabels         : ["track"]
 VertexModuleLabels        : ["vertex"]
@@ -218,18 +250,20 @@ module_type          : EVD3D
 drawECALRawHits      : false
 drawECALRecoHits     : false
 drawECALClusters     : false
+drawMuIDRecoHits     : false
 drawTracks           : false
 drawVertices         : false
 drawTPCClusters      : true
 drawMCTruth          : true
 drawMCCaloTruth      : false
 drawMCTPCTruth       : false
-VolumesToShow        : ["Tracker_layer00_vol", "Tracker_layer01_vol", "Tracker_layer02_vol", "Tracker_layer03_vol", "Tracker_layer04_vol", "volYokeBarrel"]
+VolumesToShow        : ["Tracker_layer00_vol", "Tracker_layer01_vol", "Tracker_layer02_vol", "Tracker_layer03_vol", "Tracker_layer04_vol", "volYokeBarrel", "volYokeEndcap"]
 
 G4ModuleLabel             : "edepconvert"
 InstanceName              : ["TrackerSc", "MuID"]
 RawHitModuleLabels        : ["daqsipm"]
-RecoHitModuleLabels       : ["sipmhit"]
+RecoECALHitModuleLabels   : ["sipmhit"]
+RecoMuIDHitModuleLabels   : ["sipmhit"]
 CaloClusterModuleLabels   : ["calocluster"]
 TrackModuleLabels         : ["track"]
 VertexModuleLabels        : ["vertex"]

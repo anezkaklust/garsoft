@@ -264,18 +264,11 @@ namespace gar {
                     float pos[3] = {0., 0., 0.};
                     std::pair<float, float> time;
 
-                    if(fUseTimePositionReco){
-                        std::array<double, 3> strip_pos = this->CalculateStripHitPosition(x, y, z, hitTime, cellID);
-                        pos[0] = strip_pos[0];
-                        pos[1] = strip_pos[1];
-                        pos[2] = strip_pos[2];
-                        time = std::make_pair( this->CorrectStripHitTime(pos[0], pos[1], pos[2], hitTime, cellID), 0. );
-                    } else {
-                        pos[0] = x;
-                        pos[1] = y;
-                        pos[2] = z;
-                        time = hitTime;
-                    }
+                    std::array<double, 3> strip_pos = this->CalculateStripHitPosition(x, y, z, hitTime, cellID);
+                    pos[0] = strip_pos[0];
+                    pos[1] = strip_pos[1];
+                    pos[2] = strip_pos[2];
+                    time = std::make_pair( this->CorrectStripHitTime(pos[0], pos[1], pos[2], hitTime, cellID), 0. );
 
                     //Store the hit (energy in GeV, time in ns, pos in cm and cellID)
                     unsigned int layer = fFieldDecoder->get(cellID, "layer");
