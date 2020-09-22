@@ -64,6 +64,7 @@ namespace gar {
             bool fSaveStripEndsOnly;
             bool fSaveUnsplitHits;
             bool fSaveStripEnds;
+            bool fChattyLog;
 
             const detinfo::DetectorProperties*  fDetProp;      ///< detector properties
             const geo::GeometryCore*            fGeo;          ///< pointer to the geometry
@@ -80,14 +81,15 @@ namespace gar {
             fGeo     = gar::providerFrom<geo::Geometry>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fSaveStripEndsOnly = p.get<bool>("SaveStripEndsOnly", false);
-            fSaveUnsplitHits = p.get<bool>("SaveUnsplitHits", true);
+            fSaveUnsplitHits   = p.get<bool>("SaveUnsplitHits", true);
+            fChattyLog         = p.get<bool>("ChattyLog", true);
 
             //configure the cluster algorithm
             auto fSSAAlgoPars = p.get<fhicl::ParameterSet>("SSAAlgPars");
             fSSAAlgo = std::make_unique<rec::alg::StripSplitterAlg>(fSSAAlgoPars);
             fSaveStripEnds = fSSAAlgo->GetSaveStripEndsFlag();
 
-            if(fSaveStripEnds) {
+            if(fSaveStripEnds && fChattyLog) {
                 MF_LOG_INFO("CaloStripSplitter_module")
                 << " Saving Strip ends flag turned on! ";
             }
@@ -136,11 +138,12 @@ namespace gar {
 
                     rec::CaloHit hit(energy, newtime, newpos, cellID, layer);
 
-                    MF_LOG_INFO("CaloStripSplitter_module") << "recohit " << &hit
-                    << " with cellID " << cellID
-                    << " has energy " << energy * CLHEP::MeV / CLHEP::GeV
-                    << " pos (" << newpos[0] << ", " <<  newpos[1] << ", " << newpos[2] << ")";
-
+                    if(fChattyLog) {
+                        MF_LOG_INFO("CaloStripSplitter_module") << "recohit " << &hit
+                        << " with cellID " << cellID
+                        << " has energy " << energy * CLHEP::MeV / CLHEP::GeV
+                        << " pos (" << newpos[0] << ", " <<  newpos[1] << ", " << newpos[2] << ")";
+                    }
                     HitCol->emplace_back(hit);
                 }
 

@@ -8,4 +8,5 @@ ECALInstanceName:   ""
 SaveStripEndsOnly:  false
 SaveUnsplitHits:    true
 SSAAlgPars:         @local::stripsplitteralg
+ChattyLog:          false
 }
