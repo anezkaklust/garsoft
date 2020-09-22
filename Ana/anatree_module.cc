@@ -113,7 +113,8 @@ namespace gar {
 
         // Optionally keep/drop parts of the analysis tree
         bool  fWriteMCinfo;        ///< Info from MCTruth, GTruth     Default=true
-        bool  fWriteMCPTrajectory; ///< MCP Trajectory                Default=true
+        bool  fWriteMCPTrajectory; ///< Write MCP Trajectory                Default=true
+        bool  fWriteMCPTrajMomenta; ///< Write Momenta associated with MCP Trajectory  Default=false
         bool  fWriteMCCaloInfo;    ///< Write MC info for calorimeter Default=true
         float fMatchMCPtoVertDist; ///< MCParticle to MC vertex match Default=roundoff
 
@@ -204,6 +205,9 @@ namespace gar {
         std::vector<Float_t>            fTrajMCPE;
         std::vector<Int_t>              fTrajMCPIndex;
         std::vector<Int_t>              fTrajMCPTrackID;
+        std::vector<Float_t>            fTrajMCPPX;
+        std::vector<Float_t>            fTrajMCPPY;
+        std::vector<Float_t>            fTrajMCPPZ;
 
         // sim calo hit data
         UInt_t                          fSimnHits;
@@ -381,9 +385,10 @@ gar::anatree::anatree(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
     fECALAssnLabel    = p.get<std::string>("ECALAssnLabel","trkecalassn");
 
     // What to write
-    fWriteMCinfo              = p.get<bool>("WriteMCinfo",       true);
-    fWriteMCPTrajectory       = p.get<bool>("WriteMCPTrajectory",true);
-    fWriteMCCaloInfo          = p.get<bool>("WriteMCCaloInfo",   true);
+    fWriteMCinfo              = p.get<bool>("WriteMCinfo",        true);
+    fWriteMCPTrajectory       = p.get<bool>("WriteMCPTrajectory", true);
+    fWriteMCPTrajMomenta      = p.get<bool>("WriteMCPTrajMomenta",false);
+    fWriteMCCaloInfo          = p.get<bool>("WriteMCCaloInfo",    true);
     float MCPtoVertDefault    = 10.0*std::numeric_limits<Float_t>::epsilon();
     fMatchMCPtoVertDist       = p.get<float>("MatchMCPtoVertDist",MCPtoVertDefault);
 
@@ -525,6 +530,11 @@ void gar::anatree::beginJob() {
             fTree->Branch("TrajMCPY",          &fTrajMCPY);
             fTree->Branch("TrajMCPZ",          &fTrajMCPZ);
             fTree->Branch("TrajMCPT",          &fTrajMCPT);
+	    if (fWriteMCPTrajMomenta) {
+              fTree->Branch("TrajMCPPX",          &fTrajMCPPX);
+              fTree->Branch("TrajMCPPY",          &fTrajMCPPY);
+              fTree->Branch("TrajMCPPZ",          &fTrajMCPPZ);
+	    }
             fTree->Branch("TrajMCPE",          &fTrajMCPE);
             fTree->Branch("TrajMCPIndex",      &fTrajMCPIndex);
             fTree->Branch("TrajMCPTrackID",    &fTrajMCPTrackID);
@@ -780,6 +790,11 @@ void gar::anatree::ClearVectors() {
         fTrajMCPY.clear();
         fTrajMCPZ.clear();
         fTrajMCPT.clear();
+        if (fWriteMCPTrajMomenta) {
+          fTrajMCPPX.clear();
+          fTrajMCPPY.clear();
+          fTrajMCPPZ.clear();
+	}
         fTrajMCPE.clear();
         fTrajMCPIndex.clear();
         fTrajMCPTrackID.clear();
@@ -1267,6 +1282,11 @@ void gar::anatree::FillVectors(art::Event const & e) {
                         fTrajMCPY.push_back(yTraj);
                         fTrajMCPZ.push_back(zTraj);
                         fTrajMCPT.push_back(mcp.Trajectory().T(iTraj));
+                        if (fWriteMCPTrajMomenta) {
+                          fTrajMCPPX.push_back(mcp.Trajectory().Px(iTraj));
+                          fTrajMCPPY.push_back(mcp.Trajectory().Py(iTraj));
+                          fTrajMCPPZ.push_back(mcp.Trajectory().Pz(iTraj));
+			}
                         fTrajMCPE.push_back(mcp.Trajectory().E(iTraj));
                         fTrajMCPIndex.push_back(mcpIndex);
                         fTrajMCPTrackID.push_back(trackId);

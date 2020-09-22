@@ -35,8 +35,10 @@ standard_anatree:
 # MC info is: (a) MCTruth, GTruth, MCParticle if WriteMCinfo; (b) MCPtrajectory if
 # (WriteMCPTrajectory && WriteMCinfo); and (c) MC info in calorimeter if
 # (WriteMCCaloInfo && WriteMCinfo).
+# Write momenta associated with MC trajectories only if the trajectory is also written
  WriteMCinfo:               true
  WriteMCPTrajectory:        false
+ WriteMCPTrajMomenta:       false
  WriteMCCaloInfo:           true
 # The origin of an MCParticle might be a short distance from the MCTrue interaction
 # vertex - maybe it is a pi0, tau or charm produced in the interaction and decayed
