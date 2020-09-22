@@ -59,8 +59,9 @@ namespace gar {
             int fVerbosity;
             float fTrackEndXCut;        ///< Extrapolate only track ends outside central drift
             float fTrackEndRCut;        ///< Extrapolate only track ends outside central region
-            float fTrackPerpRCut;       ///< Max dist cluster center to circle of track (z,y) only
-            float fTrackBarrelXCut;     ///< Max dist cluster center (drift time compensated) track in x
+            float fPerpRCut;            ///< Max dist cluster center to circle of track (z,y) only
+            float fBarrelXCut;          ///< Max dist cluster center (drift time compensated) track in x
+            float fEndcapRphiCut;       ///< Max dist cluster center (drift time compensated) track in r*phi
 
             const detinfo::DetectorProperties*  fDetProp;    ///< detector properties
             const detinfo::DetectorClocks*      fClocks;     ///< Detector clock information
@@ -77,13 +78,14 @@ namespace gar {
 
         TPCECALAssociation::TPCECALAssociation(fhicl::ParameterSet const & p) : EDProducer{p} {
 
-            fTrackLabel      = p.get<std::string>("TrackLabel", "track");
-            fClusterLabel    = p.get<std::string>("ClusterLabel","calocluster");
-            fVerbosity       = p.get<int>("Verbosity", 0);
-            fTrackEndXCut    = p.get<float>("TrackEndXCut",    240.0);
-            fTrackEndRCut    = p.get<float>("TrackEndRCut",    238.0);
-            fTrackPerpRCut   = p.get<float>("fTrackPerpRCut",   10.0);
-            fTrackBarrelXCut = p.get<float>("fTrackBarrelXCut", 20.0);
+            fTrackLabel    = p.get<std::string>("TrackLabel", "track");
+            fClusterLabel  = p.get<std::string>("ClusterLabel","calocluster");
+            fVerbosity     = p.get<int>("Verbosity", 0);
+            fTrackEndXCut  = p.get<float>("TrackEndXCut",     240.0);
+            fTrackEndRCut  = p.get<float>("TrackEndRCut",     238.0);
+            fPerpRCut       = p.get<float>("fPerpRCut",        10.0);
+            fBarrelXCut    = p.get<float>("fBarrelXCut",      20.0);
+            fEndcapRphiCut = p.get<float>("fEndXCut",          32.0);
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fClocks  = gar::providerFrom<detinfo::DetectorClocksService>();
             fGeo     = gar::providerFrom<geo::Geometry>();
@@ -170,7 +172,7 @@ namespace gar {
                             distRadially = abs(distRadially);
                             radClusTrack->Fill( distRadially );
                             
-                            if ( distRadially > fTrackPerpRCut ) {
+                            if ( distRadially > fPerpRCut ) {
                                 // This track-cluster match fails
                                 outside[tEnd] = false;
                                 continue;
@@ -197,7 +199,7 @@ namespace gar {
                                 if (trackEnd[0]<-25) expected_mean = +maxXdisplacement/2.0;
                                 if (trackEnd[0]>+25) expected_mean = -maxXdisplacement/2.0;
                                 float cutQuantity = extrapXerr -expected_mean;
-                                if ( abs(cutQuantity) > maxXdisplacement+fTrackBarrelXCut ) {
+                                if ( abs(cutQuantity) > maxXdisplacement+fBarrelXCut ) {
                                     outside[tEnd] = false;
                                     continue;
                                 }
@@ -226,7 +228,12 @@ namespace gar {
                                 if (extrapPhiErr > +M_PI) extrapPhiErr -= 2.0*M_PI;
                                 if (extrapPhiErr < -M_PI) extrapPhiErr += 2.0*M_PI;
                                 phiClusTrack->Fill(extrapPhiErr);
-                                rPhiClusTrack->Fill( abs(radius)*extrapPhiErr );
+                                float extrapRphiErr = abs(radius)*extrapPhiErr;
+                                rPhiClusTrack->Fill( extrapRphiErr );
+                                if (abs(extrapRphiErr) > fEndcapRphiCut) {
+                                    outside[tEnd] = false;
+                                    continue;
+                                }
                             }    
                         }
                     }

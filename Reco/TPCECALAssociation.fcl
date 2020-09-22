@@ -6,6 +6,7 @@ TrackLabel:         "track"
 Verbosity:          1
 TrackEndXCut:       240.0
 TrackEndRCut:       238.0
-TrackPerpRCut:      10.0
-TrackBarrelXCut:    20.0                # Added to drift distance mismatch for barrel clusters
+PerpRCut:            S10.0
+BarrelXCut:          20.0                # Added to drift distance mismatch for barrel clusters
+EndcapRphiCut:       32.0
 }
