@@ -165,7 +165,7 @@ namespace gar {
                             throw cet::exception("StripSplitterAlg::DoStripSplitting");
                         }
 
-                        MF_LOG_INFO("StripSplitterAlg::DoStripSplitting") << "recohit " << hit
+                        MF_LOG_DEBUG("StripSplitterAlg::DoStripSplitting") << "recohit " << hit
                         << " with cellID " << hit->CellID()
                         << " has energy " << hit->Energy() * CLHEP::MeV / CLHEP::GeV
                         << " pos (" << hit->Position()[0] << ", " <<  hit->Position()[1] << ", " << hit->Position()[2] << ")";

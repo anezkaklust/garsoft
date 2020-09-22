@@ -6,7 +6,7 @@ module_type:        CaloStripSplitter
 CaloHitLabel:       "sipmhit"
 ECALInstanceName:   ""
 SaveStripEndsOnly:  false
-SaveUnsplitHits:    true
+SaveUnsplitHits:    false
 SSAAlgPars:         @local::stripsplitteralg
 ChattyLog:          true
 }

@@ -144,6 +144,7 @@ namespace gar {
                         << " has energy " << energy * CLHEP::MeV / CLHEP::GeV
                         << " pos (" << newpos[0] << ", " <<  newpos[1] << ", " << newpos[2] << ")";
                     }
+
                     HitCol->emplace_back(hit);
                 }
 
@@ -197,7 +198,7 @@ namespace gar {
         void CaloStripSplitter::CollectHits(const art::Event &evt, const std::string &label, const std::string &instance, std::vector< art::Ptr<gar::rec::CaloHit> > &hitVector)
         {
             art::Handle< std::vector<gar::rec::CaloHit> > theHits;
-            evt.getByLabel(label, theHits);
+            evt.getByLabel(label, instance, theHits);
 
             if (!theHits.isValid())
             return;

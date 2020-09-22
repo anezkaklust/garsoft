@@ -1514,8 +1514,9 @@ namespace gar {
         double GeometryCore::getStripLength(const std::array<double, 3>& point, const gar::raw::CellID_t &cID) const
         {
             double strip_length = 0.;
-            std::string node_name = this->FindNode(point)->GetName();
-
+            const TGeoNode *node = this->FindNode(point);
+            std::string node_name = node->GetName();
+            
             std::array<double, 3> localtemp;
             gar::geo::LocalTransformation<TGeoHMatrix> trans;
             this->WorldToLocal(point, localtemp, trans);
@@ -1592,12 +1593,15 @@ namespace gar {
         {
             std::array<double, 3> pos;
             std::string node_name = this->FindNode(point)->GetName();
+            const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
 
             if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
+                fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
                 pos = fECALSegmentationAlg->ReconstructStripHitPosition(*this, local, xlocal, cID);
             }
 
             if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
+                fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
                 pos = fMuIDSegmentationAlg->ReconstructStripHitPosition(*this, local, xlocal, cID);
             }
 
