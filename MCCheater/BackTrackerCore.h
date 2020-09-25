@@ -84,6 +84,13 @@ namespace gar{
                 fParticleList.AdoptEveIdCalculator(ec);
             }
 
+            // Getter functions for users re. what back-trackable info is available in this event.
+            bool HasMC()       {return fHasMC;      }
+            bool HasHits()     {return fHasHits;    }
+            bool HasCalHits()  {return fHasCalHits; }
+            bool HasTracks()   {return fHasTracks;  }
+            bool HasClusters() {return fHasClusters;}
+
 
 
 
@@ -215,7 +222,6 @@ namespace gar{
 
       
         private:
-
             std::vector<HitIDE>
             ChannelToHitIDEs(raw::Channel_t const& channel,
                              double const start, double const stop) const;
@@ -226,7 +232,6 @@ namespace gar{
 
 
         protected:
-
             bool fHasMC, fHasHits, fHasCalHits, fHasTracks, fHasClusters;
             int  fSTFU;
 

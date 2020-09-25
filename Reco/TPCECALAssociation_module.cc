@@ -64,7 +64,7 @@ namespace gar {
             float fEndcapRphiCut;       ///< Max dist cluster center (drift time compensated) track in r*phi
 
             const detinfo::DetectorProperties*  fDetProp;    ///< detector properties
-            const detinfo::DetectorClocks*      fClocks;     ///< Detector clock information
+            const detinfo::DetectorClocks*      fClocks;     ///< detector clock information
             const geo::GeometryCore*            fGeo;        ///< pointer to the geometry
             float                               maxXdisplacement;
 
@@ -131,6 +131,10 @@ namespace gar {
 
             std::unique_ptr<art::Assns<gar::rec::Cluster, gar::rec::Track, gar::rec::TrackEnd>>
                             ClusterTrackAssns(new art::Assns<gar::rec::Cluster,gar::rec::Track, gar::rec::TrackEnd>);
+            auto const clusterPtrMaker = art::PtrMaker<rec::Cluster>(e, theClusterHandle.id());
+            auto const   trackPtrMaker = art::PtrMaker<rec::Track>  (e, theTrackHandle.id());
+
+
 
             for (size_t iCluster=0; iCluster<theClusterHandle->size(); ++iCluster) {
                 gar::rec::Cluster cluster = (*theClusterHandle)[iCluster];
@@ -154,10 +158,10 @@ namespace gar {
                     }
 
                     // Plot and cut on the distance of cluster to helix in transverse plane.
-                    for (TrackEnd tEnd = TrackEndBeg; tEnd >= TrackEndEnd; --tEnd) {
-                        if (outside[tEnd]) {
+                    for (TrackEnd iEnd = TrackEndBeg; iEnd >= TrackEndEnd; --iEnd) {
+                        if (outside[iEnd]) {
                             float trackPar[5];    float trackEnd[3];
-                            if (tEnd==TrackEndBeg) {
+                            if (iEnd==TrackEndBeg) {
                                 for (int i=0; i<5; ++i) trackPar[i] = track.TrackParBeg()[i];
                                 for (int i=0; i<3; ++i) trackEnd[i] = track.Vertex()[i];
                             } else {
@@ -174,7 +178,7 @@ namespace gar {
                             
                             if ( distRadially > fPerpRCut ) {
                                 // This track-cluster match fails
-                                outside[tEnd] = false;
+                                outside[iEnd] = false;
                                 continue;
                             }
 
@@ -188,7 +192,7 @@ namespace gar {
                                 if ( errcode!=0 ) {
                                     // This track-cluster match fails.  Error code 1, there is
                                     // no intersection at all, is possible
-                                    outside[tEnd] = false;
+                                    outside[iEnd] = false;
                                     continue;
                                 }
                                 float extrapXerr = retXYZ[0] -clusterCenter.X();
@@ -200,7 +204,7 @@ namespace gar {
                                 if (trackEnd[0]>+25) expected_mean = -maxXdisplacement/2.0;
                                 float cutQuantity = extrapXerr -expected_mean;
                                 if ( abs(cutQuantity) > maxXdisplacement+fBarrelXCut ) {
-                                    outside[tEnd] = false;
+                                    outside[iEnd] = false;
                                     continue;
                                 }
                             } else {
@@ -209,14 +213,14 @@ namespace gar {
                                                       / tan(trackPar[4]);
                                 if ( abs(radiansInDrift) >= 2.0*M_PI ) {
                                     // Drat!  No distinguishing power here.
-                                    outside[tEnd] = false;
+                                    outside[iEnd] = false;
                                     continue;
                                 }
                                 int errcode = util::TrackPropagator::PropagateToX(
                                     trackPar,trackEnd, xClus, retXYZ);
                                 if ( errcode!=0 ) {
                                     // This track-cluster match fails.
-                                    outside[tEnd] = false;
+                                    outside[iEnd] = false;
                                     continue;
                                 }
                                 // Find how many radians the closest point on the propagated
@@ -231,14 +235,18 @@ namespace gar {
                                 float extrapRphiErr = abs(radius)*extrapPhiErr;
                                 rPhiClusTrack->Fill( extrapRphiErr );
                                 if (abs(extrapRphiErr) > fEndcapRphiCut) {
-                                    outside[tEnd] = false;
+                                    outside[iEnd] = false;
                                     continue;
                                 }
-                            }    
+                            }
+                            // Make the cluster-track association
+                            art::Ptr<gar::rec::Cluster> const clusterPtr = clusterPtrMaker(iCluster);
+                            art::Ptr<gar::rec::Track>   const   trackPtr = trackPtrMaker(iTrack);
+                            ClusterTrackAssns->addSingle(clusterPtr,trackPtr,iEnd);
                         }
-                    }
+                    } // end loop over 2 ends of track
                 }
-            }
+            } // end loop over clusters
 
             e.put(std::move(ClusterTrackAssns));
             return;

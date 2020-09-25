@@ -1,11 +1,10 @@
 BEGIN_PROLOG
 
-standard_performancestudy:
+standard_momentumstudy:
 {
  module_type:               MomentumPerformance
 
  GEANTLabel:               "geant"
- HitLabel:                 "hit"
  TPCClusterLabel:          "tpccluster"
  TrackLabel:               "track"
 

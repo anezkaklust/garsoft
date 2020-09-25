@@ -447,6 +447,8 @@ gar::anatree::anatree(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
     consumes<std::vector<rec::CaloHit> >(fCaloHitLabel);
     consumes<std::vector<rec::Cluster> >(fClusterLabel);
     consumes<art::Assns<rec::Cluster, rec::Track>>(fECALAssnLabel);
+
+    return;
 } // end constructor
 
 
@@ -530,11 +532,11 @@ void gar::anatree::beginJob() {
             fTree->Branch("TrajMCPY",          &fTrajMCPY);
             fTree->Branch("TrajMCPZ",          &fTrajMCPZ);
             fTree->Branch("TrajMCPT",          &fTrajMCPT);
-	    if (fWriteMCPTrajMomenta) {
-              fTree->Branch("TrajMCPPX",          &fTrajMCPPX);
-              fTree->Branch("TrajMCPPY",          &fTrajMCPPY);
-              fTree->Branch("TrajMCPPZ",          &fTrajMCPPZ);
-	    }
+            if (fWriteMCPTrajMomenta) {
+                fTree->Branch("TrajMCPPX",          &fTrajMCPPX);
+                fTree->Branch("TrajMCPPY",          &fTrajMCPPY);
+                fTree->Branch("TrajMCPPZ",          &fTrajMCPPZ);
+            }
             fTree->Branch("TrajMCPE",          &fTrajMCPE);
             fTree->Branch("TrajMCPIndex",      &fTrajMCPIndex);
             fTree->Branch("TrajMCPTrackID",    &fTrajMCPTrackID);
@@ -791,10 +793,10 @@ void gar::anatree::ClearVectors() {
         fTrajMCPZ.clear();
         fTrajMCPT.clear();
         if (fWriteMCPTrajMomenta) {
-          fTrajMCPPX.clear();
-          fTrajMCPPY.clear();
-          fTrajMCPPZ.clear();
-	}
+            fTrajMCPPX.clear();
+            fTrajMCPPY.clear();
+            fTrajMCPPZ.clear();
+        }
         fTrajMCPE.clear();
         fTrajMCPIndex.clear();
         fTrajMCPTrackID.clear();
@@ -947,6 +949,8 @@ void gar::anatree::ClearVectors() {
         fCALAssn_TrackIDNumber.clear();
         fCALAssn_TrackEnd.clear();
     }
+
+    return;
 } // end :anatree::ClearVectors
 
 
@@ -1283,10 +1287,10 @@ void gar::anatree::FillVectors(art::Event const & e) {
                         fTrajMCPZ.push_back(zTraj);
                         fTrajMCPT.push_back(mcp.Trajectory().T(iTraj));
                         if (fWriteMCPTrajMomenta) {
-                          fTrajMCPPX.push_back(mcp.Trajectory().Px(iTraj));
-                          fTrajMCPPY.push_back(mcp.Trajectory().Py(iTraj));
-                          fTrajMCPPZ.push_back(mcp.Trajectory().Pz(iTraj));
-			}
+                            fTrajMCPPX.push_back(mcp.Trajectory().Px(iTraj));
+                            fTrajMCPPY.push_back(mcp.Trajectory().Py(iTraj));
+                            fTrajMCPPZ.push_back(mcp.Trajectory().Pz(iTraj));
+                        }
                         fTrajMCPE.push_back(mcp.Trajectory().E(iTraj));
                         fTrajMCPIndex.push_back(mcpIndex);
                         fTrajMCPTrackID.push_back(trackId);
@@ -1588,7 +1592,7 @@ void gar::anatree::FillVectors(art::Event const & e) {
             } // end branch on fWriteCaloInfo
 
 
-
+            return;
         } // end :anatree::FillVectors
 
 
