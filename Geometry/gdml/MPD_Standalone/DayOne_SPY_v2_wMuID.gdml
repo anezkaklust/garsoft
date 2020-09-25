@@ -17,80 +17,226 @@
     <position unit="cm" name="Tracker_layer04_slice1_pos" x="0.0" y="0.0" z="0.0"/>
     <position unit="cm" name="Tracker_layer04_pos" x="240" y="0.0" z="0.0"/>
     <rotation unit="degree" name="Tracker_layer04_rot" x="0" y="90" z="0"/>
-    <position unit="cm" name="MPTMuIDLayer_slice1_pos" x="0.0" y="0.0" z="-1.0009999999999992"/>
-    <position unit="cm" name="MPTMuIDLayer_slice2_pos" x="0.0" y="0.0" z="7.5"/>
+    <position unit="cm" name="MPTMuIDLayer_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="MPTMuIDLayer_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="MPTMuIDLayer_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="MPTMuIDLayer_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="MPTMuIDLayer_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
     <position unit="cm" name="Magnet_Coil0_pos" x="0.0" y="0.0" z="-260.0"/>
     <position unit="cm" name="Magnet_Coil1_pos" x="0.0" y="0.0" z="-80.0"/>
     <position unit="cm" name="Magnet_Coil2_pos" x="0.0" y="0.0" z="80.0"/>
     <position unit="cm" name="Magnet_Coil3_pos" x="0.0" y="0.0" z="260.0"/>
-    <position unit="cm" name="YokeBarrel_stave01_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-1.0009999999999992"/>
-    <position unit="cm" name="YokeBarrel_stave01_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="7.5"/>
+    <position unit="cm" name="YokeBarrel_stave01_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave01_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave01_module01_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave01_module01_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave01_module01_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
     <position unit="cm" name="YokeBarrel_stave01_module01_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
-    <position unit="cm" name="YokeBarrel_stave01_module01_vol_pos" x="72.08606907528144" y="-362.40114189427413" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave01_module01_vol_pos" x="72.47654235479672" y="-364.3641836330012" z="-167.45"/>
     <rotation unit="degree" name="YokeBarrel_stave01_module01_vol_rot" x="90.0" y="191.25" z="0"/>
-    <position unit="cm" name="YokeBarrel_stave02_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-1.0009999999999992"/>
-    <position unit="cm" name="YokeBarrel_stave02_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="7.5"/>
+    <position unit="cm" name="YokeBarrel_stave01_module02_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave01_module02_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave01_module02_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave01_module02_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave01_module02_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
+    <position unit="cm" name="YokeBarrel_stave01_module02_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave01_module02_vol_pos" x="72.47654235479672" y="-364.3641836330012" z="167.44999999999996"/>
+    <rotation unit="degree" name="YokeBarrel_stave01_module02_vol_rot" x="90.0" y="191.25" z="0"/>
+    <position unit="cm" name="YokeBarrel_stave02_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave02_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave02_module01_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave02_module01_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave02_module01_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
     <position unit="cm" name="YokeBarrel_stave02_module01_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
-    <position unit="cm" name="YokeBarrel_stave02_module01_vol_pos" x="205.2837566709761" y="-307.2288532154028" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave02_module01_vol_pos" x="206.3957304923648" y="-308.8930396444264" z="-167.45"/>
     <rotation unit="degree" name="YokeBarrel_stave02_module01_vol_rot" x="90.0" y="213.75" z="0"/>
-    <position unit="cm" name="YokeBarrel_stave03_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-1.0009999999999992"/>
-    <position unit="cm" name="YokeBarrel_stave03_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="7.5"/>
+    <position unit="cm" name="YokeBarrel_stave02_module02_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave02_module02_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave02_module02_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave02_module02_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave02_module02_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
+    <position unit="cm" name="YokeBarrel_stave02_module02_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave02_module02_vol_pos" x="206.3957304923648" y="-308.8930396444264" z="167.44999999999996"/>
+    <rotation unit="degree" name="YokeBarrel_stave02_module02_vol_rot" x="90.0" y="213.75" z="0"/>
+    <position unit="cm" name="YokeBarrel_stave03_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave03_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave03_module01_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave03_module01_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave03_module01_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
     <position unit="cm" name="YokeBarrel_stave03_module01_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
-    <position unit="cm" name="YokeBarrel_stave03_module01_vol_pos" x="307.2288532154028" y="-205.28375667097603" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave03_module01_vol_pos" x="308.8930396444264" y="-206.3957304923648" z="-167.45"/>
     <rotation unit="degree" name="YokeBarrel_stave03_module01_vol_rot" x="90.0" y="236.25" z="0"/>
-    <position unit="cm" name="YokeBarrel_stave04_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-1.0009999999999992"/>
-    <position unit="cm" name="YokeBarrel_stave04_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="7.5"/>
+    <position unit="cm" name="YokeBarrel_stave03_module02_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave03_module02_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave03_module02_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave03_module02_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave03_module02_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
+    <position unit="cm" name="YokeBarrel_stave03_module02_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave03_module02_vol_pos" x="308.8930396444264" y="-206.3957304923648" z="167.44999999999996"/>
+    <rotation unit="degree" name="YokeBarrel_stave03_module02_vol_rot" x="90.0" y="236.25" z="0"/>
+    <position unit="cm" name="YokeBarrel_stave04_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave04_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave04_module01_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave04_module01_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave04_module01_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
     <position unit="cm" name="YokeBarrel_stave04_module01_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
-    <position unit="cm" name="YokeBarrel_stave04_module01_vol_pos" x="362.40114189427413" y="-72.08606907528142" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave04_module01_vol_pos" x="364.3641836330012" y="-72.47654235479669" z="-167.45"/>
     <rotation unit="degree" name="YokeBarrel_stave04_module01_vol_rot" x="90.0" y="258.75" z="0"/>
-    <position unit="cm" name="YokeBarrel_stave05_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-1.0009999999999992"/>
-    <position unit="cm" name="YokeBarrel_stave05_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="7.5"/>
+    <position unit="cm" name="YokeBarrel_stave04_module02_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave04_module02_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave04_module02_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave04_module02_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave04_module02_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
+    <position unit="cm" name="YokeBarrel_stave04_module02_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave04_module02_vol_pos" x="364.3641836330012" y="-72.47654235479669" z="167.44999999999996"/>
+    <rotation unit="degree" name="YokeBarrel_stave04_module02_vol_rot" x="90.0" y="258.75" z="0"/>
+    <position unit="cm" name="YokeBarrel_stave05_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave05_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave05_module01_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave05_module01_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave05_module01_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
     <position unit="cm" name="YokeBarrel_stave05_module01_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
-    <position unit="cm" name="YokeBarrel_stave05_module01_vol_pos" x="362.40114189427413" y="72.08606907528142" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave05_module01_vol_pos" x="364.3641836330012" y="72.47654235479669" z="-167.45"/>
     <rotation unit="degree" name="YokeBarrel_stave05_module01_vol_rot" x="90.0" y="281.25" z="0"/>
-    <position unit="cm" name="YokeBarrel_stave06_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-1.0009999999999992"/>
-    <position unit="cm" name="YokeBarrel_stave06_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="7.5"/>
+    <position unit="cm" name="YokeBarrel_stave05_module02_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave05_module02_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave05_module02_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave05_module02_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave05_module02_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
+    <position unit="cm" name="YokeBarrel_stave05_module02_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave05_module02_vol_pos" x="364.3641836330012" y="72.47654235479669" z="167.44999999999996"/>
+    <rotation unit="degree" name="YokeBarrel_stave05_module02_vol_rot" x="90.0" y="281.25" z="0"/>
+    <position unit="cm" name="YokeBarrel_stave06_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave06_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave06_module01_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave06_module01_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave06_module01_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
     <position unit="cm" name="YokeBarrel_stave06_module01_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
-    <position unit="cm" name="YokeBarrel_stave06_module01_vol_pos" x="307.2288532154028" y="205.28375667097603" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave06_module01_vol_pos" x="308.8930396444264" y="206.3957304923648" z="-167.45"/>
     <rotation unit="degree" name="YokeBarrel_stave06_module01_vol_rot" x="90.0" y="303.75" z="0"/>
-    <position unit="cm" name="YokeBarrel_stave07_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-1.0009999999999992"/>
-    <position unit="cm" name="YokeBarrel_stave07_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="7.5"/>
+    <position unit="cm" name="YokeBarrel_stave06_module02_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave06_module02_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave06_module02_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave06_module02_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave06_module02_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
+    <position unit="cm" name="YokeBarrel_stave06_module02_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave06_module02_vol_pos" x="308.8930396444264" y="206.3957304923648" z="167.44999999999996"/>
+    <rotation unit="degree" name="YokeBarrel_stave06_module02_vol_rot" x="90.0" y="303.75" z="0"/>
+    <position unit="cm" name="YokeBarrel_stave07_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave07_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave07_module01_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave07_module01_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave07_module01_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
     <position unit="cm" name="YokeBarrel_stave07_module01_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
-    <position unit="cm" name="YokeBarrel_stave07_module01_vol_pos" x="205.2837566709761" y="307.2288532154028" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave07_module01_vol_pos" x="206.3957304923648" y="308.8930396444264" z="-167.45"/>
     <rotation unit="degree" name="YokeBarrel_stave07_module01_vol_rot" x="90.0" y="326.25" z="0"/>
-    <position unit="cm" name="YokeBarrel_stave11_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-1.0009999999999992"/>
-    <position unit="cm" name="YokeBarrel_stave11_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="7.5"/>
+    <position unit="cm" name="YokeBarrel_stave07_module02_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave07_module02_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave07_module02_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave07_module02_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave07_module02_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
+    <position unit="cm" name="YokeBarrel_stave07_module02_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave07_module02_vol_pos" x="206.3957304923648" y="308.8930396444264" z="167.44999999999996"/>
+    <rotation unit="degree" name="YokeBarrel_stave07_module02_vol_rot" x="90.0" y="326.25" z="0"/>
+    <position unit="cm" name="YokeBarrel_stave11_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave11_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave11_module01_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave11_module01_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave11_module01_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
     <position unit="cm" name="YokeBarrel_stave11_module01_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
-    <position unit="cm" name="YokeBarrel_stave11_module01_vol_pos" x="-307.22885321540286" y="205.28375667097603" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave11_module01_vol_pos" x="-308.8930396444264" y="206.3957304923648" z="-167.45"/>
     <rotation unit="degree" name="YokeBarrel_stave11_module01_vol_rot" x="90.0" y="416.25" z="0"/>
-    <position unit="cm" name="YokeBarrel_stave12_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-1.0009999999999992"/>
-    <position unit="cm" name="YokeBarrel_stave12_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="7.5"/>
+    <position unit="cm" name="YokeBarrel_stave11_module02_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave11_module02_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave11_module02_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave11_module02_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave11_module02_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
+    <position unit="cm" name="YokeBarrel_stave11_module02_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave11_module02_vol_pos" x="-308.8930396444264" y="206.3957304923648" z="167.44999999999996"/>
+    <rotation unit="degree" name="YokeBarrel_stave11_module02_vol_rot" x="90.0" y="416.25" z="0"/>
+    <position unit="cm" name="YokeBarrel_stave12_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave12_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave12_module01_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave12_module01_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave12_module01_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
     <position unit="cm" name="YokeBarrel_stave12_module01_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
-    <position unit="cm" name="YokeBarrel_stave12_module01_vol_pos" x="-362.40114189427413" y="72.08606907528154" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave12_module01_vol_pos" x="-364.3641836330012" y="72.47654235479682" z="-167.45"/>
     <rotation unit="degree" name="YokeBarrel_stave12_module01_vol_rot" x="90.0" y="438.75" z="0"/>
-    <position unit="cm" name="YokeBarrel_stave13_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-1.0009999999999992"/>
-    <position unit="cm" name="YokeBarrel_stave13_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="7.5"/>
+    <position unit="cm" name="YokeBarrel_stave12_module02_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave12_module02_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave12_module02_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave12_module02_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave12_module02_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
+    <position unit="cm" name="YokeBarrel_stave12_module02_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave12_module02_vol_pos" x="-364.3641836330012" y="72.47654235479682" z="167.44999999999996"/>
+    <rotation unit="degree" name="YokeBarrel_stave12_module02_vol_rot" x="90.0" y="438.75" z="0"/>
+    <position unit="cm" name="YokeBarrel_stave13_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave13_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave13_module01_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave13_module01_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave13_module01_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
     <position unit="cm" name="YokeBarrel_stave13_module01_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
-    <position unit="cm" name="YokeBarrel_stave13_module01_vol_pos" x="-362.40114189427413" y="-72.08606907528144" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave13_module01_vol_pos" x="-364.3641836330012" y="-72.47654235479673" z="-167.45"/>
     <rotation unit="degree" name="YokeBarrel_stave13_module01_vol_rot" x="90.0" y="461.25000000000006" z="0"/>
-    <position unit="cm" name="YokeBarrel_stave14_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-1.0009999999999992"/>
-    <position unit="cm" name="YokeBarrel_stave14_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="7.5"/>
+    <position unit="cm" name="YokeBarrel_stave13_module02_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave13_module02_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave13_module02_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave13_module02_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave13_module02_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
+    <position unit="cm" name="YokeBarrel_stave13_module02_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave13_module02_vol_pos" x="-364.3641836330012" y="-72.47654235479673" z="167.44999999999996"/>
+    <rotation unit="degree" name="YokeBarrel_stave13_module02_vol_rot" x="90.0" y="461.25000000000006" z="0"/>
+    <position unit="cm" name="YokeBarrel_stave14_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave14_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave14_module01_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave14_module01_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave14_module01_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
     <position unit="cm" name="YokeBarrel_stave14_module01_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
-    <position unit="cm" name="YokeBarrel_stave14_module01_vol_pos" x="-307.2288532154029" y="-205.28375667097595" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave14_module01_vol_pos" x="-308.8930396444264" y="-206.3957304923647" z="-167.45"/>
     <rotation unit="degree" name="YokeBarrel_stave14_module01_vol_rot" x="90.0" y="483.75" z="0"/>
-    <position unit="cm" name="YokeBarrel_stave15_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-1.0009999999999992"/>
-    <position unit="cm" name="YokeBarrel_stave15_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="7.5"/>
+    <position unit="cm" name="YokeBarrel_stave14_module02_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave14_module02_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave14_module02_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave14_module02_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave14_module02_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
+    <position unit="cm" name="YokeBarrel_stave14_module02_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave14_module02_vol_pos" x="-308.8930396444264" y="-206.3957304923647" z="167.44999999999996"/>
+    <rotation unit="degree" name="YokeBarrel_stave14_module02_vol_rot" x="90.0" y="483.75" z="0"/>
+    <position unit="cm" name="YokeBarrel_stave15_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave15_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave15_module01_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave15_module01_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave15_module01_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
     <position unit="cm" name="YokeBarrel_stave15_module01_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
-    <position unit="cm" name="YokeBarrel_stave15_module01_vol_pos" x="-205.28375667097603" y="-307.2288532154028" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave15_module01_vol_pos" x="-206.3957304923648" y="-308.8930396444264" z="-167.45"/>
     <rotation unit="degree" name="YokeBarrel_stave15_module01_vol_rot" x="90.0" y="506.25" z="0"/>
-    <position unit="cm" name="YokeBarrel_stave16_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-1.0009999999999992"/>
-    <position unit="cm" name="YokeBarrel_stave16_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="7.5"/>
+    <position unit="cm" name="YokeBarrel_stave15_module02_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave15_module02_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave15_module02_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave15_module02_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave15_module02_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
+    <position unit="cm" name="YokeBarrel_stave15_module02_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave15_module02_vol_pos" x="-206.3957304923648" y="-308.8930396444264" z="167.44999999999996"/>
+    <rotation unit="degree" name="YokeBarrel_stave15_module02_vol_rot" x="90.0" y="506.25" z="0"/>
+    <position unit="cm" name="YokeBarrel_stave16_module01_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave16_module01_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave16_module01_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave16_module01_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave16_module01_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
     <position unit="cm" name="YokeBarrel_stave16_module01_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
-    <position unit="cm" name="YokeBarrel_stave16_module01_vol_pos" x="-72.08606907528156" y="-362.4011418942741" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave16_module01_vol_pos" x="-72.47654235479685" y="-364.3641836330011" z="-167.45"/>
     <rotation unit="degree" name="YokeBarrel_stave16_module01_vol_rot" x="90.0" y="528.75" z="0"/>
-    <position unit="cm" name="YokeEndcapLL_pos" x="0.0" y="0.0" z="343.45099999999996"/>
+    <position unit="cm" name="YokeBarrel_stave16_module02_layer_01_slice1_pos" x="0.0" y="0.0" z="-9.502500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave16_module02_layer_01_slice2_pos" x="0.0" y="0.0" z="-4.751500000000001"/>
+    <position unit="cm" name="YokeBarrel_stave16_module02_layer_01_slice3_pos" x="0.0" y="0.0" z="-0.0005000000000009664"/>
+    <position unit="cm" name="YokeBarrel_stave16_module02_layer_01_slice4_pos" x="0.0" y="0.0" z="4.7505"/>
+    <position unit="cm" name="YokeBarrel_stave16_module02_layer_01_slice5_pos" x="0.0" y="0.0" z="9.501499999999998"/>
+    <position unit="cm" name="YokeBarrel_stave16_module02_layer_01_pos" x="0.0" y="0.0" z="0.0"/>
+    <position unit="cm" name="YokeBarrel_stave16_module02_vol_pos" x="-72.47654235479685" y="-364.3641836330011" z="167.44999999999996"/>
+    <rotation unit="degree" name="YokeBarrel_stave16_module02_vol_rot" x="90.0" y="528.75" z="0"/>
+    <position unit="cm" name="YokeEndcapLL_pos" x="0.0" y="0.0" z="345.45249999999993"/>
     <rotation unit="degree" name="YokeEndcapLL_rot" x="0" y="0" z="0"/>
-    <position unit="cm" name="YokeEndcapLRR_pos" x="0.0" y="0.0" z="-343.45099999999996"/>
+    <position unit="cm" name="YokeEndcapLRR_pos" x="0.0" y="0.0" z="-345.45249999999993"/>
     <rotation unit="degree" name="YokeEndcapLRR_rot" x="0" y="0" z="0"/>
     <rotation unit="degree" name="volYokeBarrel_rot" x="0" y="0" z="101.25"/>
     <rotation unit="degree" name="volYokeEndcap_rot" x="0" y="0" z="101.25"/>
@@ -649,77 +795,210 @@
     <box name="Tracker_layer03_slice1" lunit="cm" x="600.0" y="500.0" z="4.0"/>
     <box name="Tracker_layer04" lunit="cm" x="600.0" y="500.0" z="4.0"/>
     <box name="Tracker_layer04_slice1" lunit="cm" x="600.0" y="500.0" z="4.0"/>
-    <box name="MPTMuIDLayer" lunit="cm" x="10.0" y="10.0" z="17.002"/>
-    <box name="MPTMuIDLayer_slice1" lunit="cm" x="10.0" y="10.0" z="15.0"/>
-    <box name="MPTMuIDLayer_slice2" lunit="cm" x="10.0" y="10.0" z="2.0"/>
+    <box name="MPTMuIDLayer" lunit="cm" x="10.0" y="10.0" z="21.005000000000003"/>
+    <box name="MPTMuIDLayer_slice1" lunit="cm" x="10.0" y="10.0" z="2.0"/>
+    <box name="MPTMuIDLayer_slice2" lunit="cm" x="10.0" y="10.0" z="7.5"/>
+    <box name="MPTMuIDLayer_slice3" lunit="cm" x="10.0" y="10.0" z="2.0"/>
+    <box name="MPTMuIDLayer_slice4" lunit="cm" x="10.0" y="10.0" z="7.5"/>
+    <box name="MPTMuIDLayer_slice5" lunit="cm" x="10.0" y="10.0" z="2.0"/>
     <tube name="Magnet" lunit="cm" aunit="radian" rmin="350.0" rmax="360.0" z="669.6" startphi="0.0" deltaphi="6.283185307179586"/>
     <tube name="Magnet_Coil0" lunit="cm" aunit="radian" rmin="350.0" rmax="360.0" z="149.6" startphi="0.0" deltaphi="6.283185307179586"/>
     <tube name="Magnet_Coil1" lunit="cm" aunit="radian" rmin="350.0" rmax="360.0" z="149.6" startphi="0.0" deltaphi="6.283185307179586"/>
     <tube name="Magnet_Coil2" lunit="cm" aunit="radian" rmin="350.0" rmax="360.0" z="149.6" startphi="0.0" deltaphi="6.283185307179586"/>
     <tube name="Magnet_Coil3" lunit="cm" aunit="radian" rmin="350.0" rmax="360.0" z="149.6" startphi="0.0" deltaphi="6.283185307179586"/>
     <polyhedra name="YokeBarrel" lunit="cm" aunit="radian" startphi="0.0" deltaphi="6.283185307179586" numsides="16">
-      <zplane rmin="361.0" rmax="378.10200000000003" z="334.9"/>
-      <zplane rmin="361.0" rmax="378.10200000000003" z="-334.9"/>
+      <zplane rmin="361.0" rmax="382.105" z="334.9"/>
+      <zplane rmin="361.0" rmax="382.105" z="-334.9"/>
     </polyhedra>
-    <trd name="YokeBarrel_stave01_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="150.4183278619669" y1="669.6999999999999" y2="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave01_module01_layer_01" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave01_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="15.0"/>
-    <box name="YokeBarrel_stave01_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="2.0"/>
-    <trd name="YokeBarrel_stave02_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="150.4183278619669" y1="669.6999999999999" y2="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave02_module01_layer_01" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave02_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="15.0"/>
-    <box name="YokeBarrel_stave02_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="2.0"/>
-    <trd name="YokeBarrel_stave03_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="150.4183278619669" y1="669.6999999999999" y2="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave03_module01_layer_01" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave03_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="15.0"/>
-    <box name="YokeBarrel_stave03_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="2.0"/>
-    <trd name="YokeBarrel_stave04_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="150.4183278619669" y1="669.6999999999999" y2="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave04_module01_layer_01" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave04_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="15.0"/>
-    <box name="YokeBarrel_stave04_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="2.0"/>
-    <trd name="YokeBarrel_stave05_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="150.4183278619669" y1="669.6999999999999" y2="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave05_module01_layer_01" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave05_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="15.0"/>
-    <box name="YokeBarrel_stave05_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="2.0"/>
-    <trd name="YokeBarrel_stave06_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="150.4183278619669" y1="669.6999999999999" y2="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave06_module01_layer_01" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave06_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="15.0"/>
-    <box name="YokeBarrel_stave06_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="2.0"/>
-    <trd name="YokeBarrel_stave07_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="150.4183278619669" y1="669.6999999999999" y2="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave07_module01_layer_01" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave07_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="15.0"/>
-    <box name="YokeBarrel_stave07_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="2.0"/>
-    <trd name="YokeBarrel_stave11_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="150.4183278619669" y1="669.6999999999999" y2="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave11_module01_layer_01" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave11_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="15.0"/>
-    <box name="YokeBarrel_stave11_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="2.0"/>
-    <trd name="YokeBarrel_stave12_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="150.4183278619669" y1="669.6999999999999" y2="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave12_module01_layer_01" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave12_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="15.0"/>
-    <box name="YokeBarrel_stave12_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="2.0"/>
-    <trd name="YokeBarrel_stave13_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="150.4183278619669" y1="669.6999999999999" y2="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave13_module01_layer_01" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave13_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="15.0"/>
-    <box name="YokeBarrel_stave13_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="2.0"/>
-    <trd name="YokeBarrel_stave14_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="150.4183278619669" y1="669.6999999999999" y2="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave14_module01_layer_01" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave14_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="15.0"/>
-    <box name="YokeBarrel_stave14_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="2.0"/>
-    <trd name="YokeBarrel_stave15_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="150.4183278619669" y1="669.6999999999999" y2="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave15_module01_layer_01" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave15_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="15.0"/>
-    <box name="YokeBarrel_stave15_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="2.0"/>
-    <trd name="YokeBarrel_stave16_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="150.4183278619669" y1="669.6999999999999" y2="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave16_module01_layer_01" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="17.002"/>
-    <box name="YokeBarrel_stave16_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="15.0"/>
-    <box name="YokeBarrel_stave16_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="669.6999999999999" z="2.0"/>
+    <trd name="YokeBarrel_stave01_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave01_module01_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave01_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave01_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave01_module01_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave01_module01_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave01_module01_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave01_module02" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave01_module02_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave01_module02_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave01_module02_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave01_module02_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave01_module02_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave01_module02_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave02_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave02_module01_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave02_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave02_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave02_module01_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave02_module01_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave02_module01_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave02_module02" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave02_module02_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave02_module02_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave02_module02_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave02_module02_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave02_module02_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave02_module02_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave03_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave03_module01_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave03_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave03_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave03_module01_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave03_module01_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave03_module01_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave03_module02" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave03_module02_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave03_module02_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave03_module02_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave03_module02_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave03_module02_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave03_module02_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave04_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave04_module01_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave04_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave04_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave04_module01_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave04_module01_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave04_module01_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave04_module02" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave04_module02_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave04_module02_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave04_module02_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave04_module02_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave04_module02_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave04_module02_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave05_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave05_module01_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave05_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave05_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave05_module01_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave05_module01_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave05_module01_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave05_module02" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave05_module02_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave05_module02_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave05_module02_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave05_module02_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave05_module02_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave05_module02_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave06_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave06_module01_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave06_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave06_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave06_module01_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave06_module01_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave06_module01_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave06_module02" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave06_module02_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave06_module02_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave06_module02_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave06_module02_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave06_module02_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave06_module02_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave07_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave07_module01_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave07_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave07_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave07_module01_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave07_module01_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave07_module01_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave07_module02" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave07_module02_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave07_module02_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave07_module02_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave07_module02_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave07_module02_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave07_module02_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave11_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave11_module01_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave11_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave11_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave11_module01_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave11_module01_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave11_module01_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave11_module02" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave11_module02_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave11_module02_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave11_module02_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave11_module02_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave11_module02_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave11_module02_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave12_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave12_module01_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave12_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave12_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave12_module01_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave12_module01_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave12_module01_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave12_module02" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave12_module02_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave12_module02_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave12_module02_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave12_module02_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave12_module02_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave12_module02_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave13_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave13_module01_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave13_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave13_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave13_module01_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave13_module01_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave13_module01_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave13_module02" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave13_module02_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave13_module02_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave13_module02_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave13_module02_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave13_module02_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave13_module02_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave14_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave14_module01_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave14_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave14_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave14_module01_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave14_module01_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave14_module01_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave14_module02" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave14_module02_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave14_module02_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave14_module02_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave14_module02_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave14_module02_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave14_module02_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave15_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave15_module01_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave15_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave15_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave15_module01_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave15_module01_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave15_module01_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave15_module02" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave15_module02_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave15_module02_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave15_module02_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave15_module02_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave15_module02_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave15_module02_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave16_module01" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave16_module01_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave16_module01_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave16_module01_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave16_module01_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave16_module01_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave16_module01_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <trd name="YokeBarrel_stave16_module02" lunit="cm" aunit="radian" x1="143.6147292481131" x2="152.01082027520846" y1="334.8" y2="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave16_module02_layer_01" lunit="cm" x="143.6147292481131" y="334.8" z="21.005000000000003"/>
+    <box name="YokeBarrel_stave16_module02_layer_01_slice1" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave16_module02_layer_01_slice2" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave16_module02_layer_01_slice3" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
+    <box name="YokeBarrel_stave16_module02_layer_01_slice4" lunit="cm" x="143.6147292481131" y="334.8" z="7.5"/>
+    <box name="YokeBarrel_stave16_module02_layer_01_slice5" lunit="cm" x="143.6147292481131" y="334.8" z="2.0"/>
     <polyhedra name="YokeEndcap_min" lunit="cm" aunit="radian" startphi="0.0" deltaphi="6.283185307179586" numsides="16">
-      <zplane rmin="274.0" rmax="378.10200000000003" z="334.9"/>
-      <zplane rmin="274.0" rmax="378.10200000000003" z="-334.9"/>
+      <zplane rmin="274.0" rmax="382.105" z="334.9"/>
+      <zplane rmin="274.0" rmax="382.105" z="-334.9"/>
     </polyhedra>
     <polyhedra name="YokeEndcap_max" lunit="cm" aunit="radian" startphi="0.0" deltaphi="6.283185307179586" numsides="16">
-      <zplane rmin="274.0" rmax="378.10200000000003" z="352.00199999999995"/>
-      <zplane rmin="274.0" rmax="378.10200000000003" z="-352.00199999999995"/>
+      <zplane rmin="274.0" rmax="382.105" z="356.00499999999994"/>
+      <zplane rmin="274.0" rmax="382.105" z="-356.00499999999994"/>
     </polyhedra>
     <subtraction name="YokeEndcap">
       <first ref="YokeEndcap_max"/>
@@ -728,14 +1007,14 @@
       <rotationref ref="identity"/>
     </subtraction>
     <polyhedra name="YokeEndcapL" lunit="cm" aunit="radian" startphi="0.0" deltaphi="6.283185307179586" numsides="16">
-      <zplane rmin="274.0" rmax="378.10200000000003" z="8.550999999999998"/>
-      <zplane rmin="274.0" rmax="378.10200000000003" z="-8.550999999999998"/>
+      <zplane rmin="274.0" rmax="382.105" z="10.552499999999988"/>
+      <zplane rmin="274.0" rmax="382.105" z="-10.552499999999988"/>
     </polyhedra>
     <polyhedra name="YokeEndcapLR" lunit="cm" aunit="radian" startphi="0.0" deltaphi="6.283185307179586" numsides="16">
-      <zplane rmin="274.0" rmax="378.10200000000003" z="8.550999999999998"/>
-      <zplane rmin="274.0" rmax="378.10200000000003" z="-8.550999999999998"/>
+      <zplane rmin="274.0" rmax="382.105" z="10.552499999999988"/>
+      <zplane rmin="274.0" rmax="382.105" z="-10.552499999999988"/>
     </polyhedra>
-    <box name="MPD" lunit="cm" x="776.2040000000001" y="776.2040000000001" z="724.0039999999999"/>
+    <box name="MPD" lunit="cm" x="784.21" y="784.21" z="732.0099999999999"/>
     <box name="DetEnclosure" lunit="cm" x="1798.32" y="1536.192" z="3003.2325"/>
     <box name="World" lunit="cm" x="40000.0" y="40000.0" z="40000.0"/>
   </solids>
@@ -881,12 +1160,26 @@
       </physvol>
     </volume>
     <volume name="YokeBarrel_stave01_module01_layer_01_slice1_vol">
-      <materialref ref="Iron"/>
+      <materialref ref="Scintillator"/>
       <solidref ref="YokeBarrel_stave01_module01_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave01_module01_layer_01_slice2_vol">
-      <materialref ref="Scintillator"/>
+      <materialref ref="Iron"/>
       <solidref ref="YokeBarrel_stave01_module01_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave01_module01_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave01_module01_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave01_module01_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave01_module01_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave01_module01_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave01_module01_layer_01_slice5"/>
       <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave01_module01_layer_01_vol">
@@ -902,6 +1195,21 @@
         <positionref ref="YokeBarrel_stave01_module01_layer_01_slice2_pos"/>
         <rotationref ref="identity"/>
       </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave01_module01_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave01_module01_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave01_module01_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave01_module01_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave01_module01_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave01_module01_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
     </volume>
     <volume name="YokeBarrel_stave01_module01_vol">
       <materialref ref="Iron"/>
@@ -912,13 +1220,88 @@
         <rotationref ref="identity"/>
       </physvol>
     </volume>
-    <volume name="YokeBarrel_stave02_module01_layer_01_slice1_vol">
+    <volume name="YokeBarrel_stave01_module02_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave01_module02_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave01_module02_layer_01_slice2_vol">
       <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave01_module02_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave01_module02_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave01_module02_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave01_module02_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave01_module02_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave01_module02_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave01_module02_layer_01_slice5"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave01_module02_layer_01_vol">
+      <materialref ref="Air"/>
+      <solidref ref="YokeBarrel_stave01_module02_layer_01"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave01_module02_layer_01_slice1_vol"/>
+        <positionref ref="YokeBarrel_stave01_module02_layer_01_slice1_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave01_module02_layer_01_slice2_vol"/>
+        <positionref ref="YokeBarrel_stave01_module02_layer_01_slice2_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave01_module02_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave01_module02_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave01_module02_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave01_module02_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave01_module02_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave01_module02_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave01_module02_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave01_module02"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave01_module02_layer_01_vol"/>
+        <positionref ref="YokeBarrel_stave01_module02_layer_01_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave02_module01_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
       <solidref ref="YokeBarrel_stave02_module01_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave02_module01_layer_01_slice2_vol">
-      <materialref ref="Scintillator"/>
+      <materialref ref="Iron"/>
       <solidref ref="YokeBarrel_stave02_module01_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave02_module01_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave02_module01_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave02_module01_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave02_module01_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave02_module01_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave02_module01_layer_01_slice5"/>
       <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave02_module01_layer_01_vol">
@@ -934,6 +1317,21 @@
         <positionref ref="YokeBarrel_stave02_module01_layer_01_slice2_pos"/>
         <rotationref ref="identity"/>
       </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave02_module01_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave02_module01_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave02_module01_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave02_module01_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave02_module01_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave02_module01_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
     </volume>
     <volume name="YokeBarrel_stave02_module01_vol">
       <materialref ref="Iron"/>
@@ -944,13 +1342,88 @@
         <rotationref ref="identity"/>
       </physvol>
     </volume>
-    <volume name="YokeBarrel_stave03_module01_layer_01_slice1_vol">
+    <volume name="YokeBarrel_stave02_module02_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave02_module02_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave02_module02_layer_01_slice2_vol">
       <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave02_module02_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave02_module02_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave02_module02_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave02_module02_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave02_module02_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave02_module02_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave02_module02_layer_01_slice5"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave02_module02_layer_01_vol">
+      <materialref ref="Air"/>
+      <solidref ref="YokeBarrel_stave02_module02_layer_01"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave02_module02_layer_01_slice1_vol"/>
+        <positionref ref="YokeBarrel_stave02_module02_layer_01_slice1_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave02_module02_layer_01_slice2_vol"/>
+        <positionref ref="YokeBarrel_stave02_module02_layer_01_slice2_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave02_module02_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave02_module02_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave02_module02_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave02_module02_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave02_module02_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave02_module02_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave02_module02_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave02_module02"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave02_module02_layer_01_vol"/>
+        <positionref ref="YokeBarrel_stave02_module02_layer_01_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave03_module01_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
       <solidref ref="YokeBarrel_stave03_module01_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave03_module01_layer_01_slice2_vol">
-      <materialref ref="Scintillator"/>
+      <materialref ref="Iron"/>
       <solidref ref="YokeBarrel_stave03_module01_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave03_module01_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave03_module01_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave03_module01_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave03_module01_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave03_module01_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave03_module01_layer_01_slice5"/>
       <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave03_module01_layer_01_vol">
@@ -966,6 +1439,21 @@
         <positionref ref="YokeBarrel_stave03_module01_layer_01_slice2_pos"/>
         <rotationref ref="identity"/>
       </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave03_module01_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave03_module01_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave03_module01_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave03_module01_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave03_module01_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave03_module01_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
     </volume>
     <volume name="YokeBarrel_stave03_module01_vol">
       <materialref ref="Iron"/>
@@ -976,13 +1464,88 @@
         <rotationref ref="identity"/>
       </physvol>
     </volume>
-    <volume name="YokeBarrel_stave04_module01_layer_01_slice1_vol">
+    <volume name="YokeBarrel_stave03_module02_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave03_module02_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave03_module02_layer_01_slice2_vol">
       <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave03_module02_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave03_module02_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave03_module02_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave03_module02_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave03_module02_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave03_module02_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave03_module02_layer_01_slice5"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave03_module02_layer_01_vol">
+      <materialref ref="Air"/>
+      <solidref ref="YokeBarrel_stave03_module02_layer_01"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave03_module02_layer_01_slice1_vol"/>
+        <positionref ref="YokeBarrel_stave03_module02_layer_01_slice1_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave03_module02_layer_01_slice2_vol"/>
+        <positionref ref="YokeBarrel_stave03_module02_layer_01_slice2_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave03_module02_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave03_module02_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave03_module02_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave03_module02_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave03_module02_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave03_module02_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave03_module02_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave03_module02"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave03_module02_layer_01_vol"/>
+        <positionref ref="YokeBarrel_stave03_module02_layer_01_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave04_module01_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
       <solidref ref="YokeBarrel_stave04_module01_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave04_module01_layer_01_slice2_vol">
-      <materialref ref="Scintillator"/>
+      <materialref ref="Iron"/>
       <solidref ref="YokeBarrel_stave04_module01_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave04_module01_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave04_module01_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave04_module01_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave04_module01_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave04_module01_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave04_module01_layer_01_slice5"/>
       <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave04_module01_layer_01_vol">
@@ -998,6 +1561,21 @@
         <positionref ref="YokeBarrel_stave04_module01_layer_01_slice2_pos"/>
         <rotationref ref="identity"/>
       </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave04_module01_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave04_module01_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave04_module01_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave04_module01_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave04_module01_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave04_module01_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
     </volume>
     <volume name="YokeBarrel_stave04_module01_vol">
       <materialref ref="Iron"/>
@@ -1008,13 +1586,88 @@
         <rotationref ref="identity"/>
       </physvol>
     </volume>
-    <volume name="YokeBarrel_stave05_module01_layer_01_slice1_vol">
+    <volume name="YokeBarrel_stave04_module02_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave04_module02_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave04_module02_layer_01_slice2_vol">
       <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave04_module02_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave04_module02_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave04_module02_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave04_module02_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave04_module02_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave04_module02_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave04_module02_layer_01_slice5"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave04_module02_layer_01_vol">
+      <materialref ref="Air"/>
+      <solidref ref="YokeBarrel_stave04_module02_layer_01"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave04_module02_layer_01_slice1_vol"/>
+        <positionref ref="YokeBarrel_stave04_module02_layer_01_slice1_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave04_module02_layer_01_slice2_vol"/>
+        <positionref ref="YokeBarrel_stave04_module02_layer_01_slice2_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave04_module02_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave04_module02_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave04_module02_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave04_module02_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave04_module02_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave04_module02_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave04_module02_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave04_module02"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave04_module02_layer_01_vol"/>
+        <positionref ref="YokeBarrel_stave04_module02_layer_01_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave05_module01_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
       <solidref ref="YokeBarrel_stave05_module01_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave05_module01_layer_01_slice2_vol">
-      <materialref ref="Scintillator"/>
+      <materialref ref="Iron"/>
       <solidref ref="YokeBarrel_stave05_module01_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave05_module01_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave05_module01_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave05_module01_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave05_module01_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave05_module01_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave05_module01_layer_01_slice5"/>
       <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave05_module01_layer_01_vol">
@@ -1030,6 +1683,21 @@
         <positionref ref="YokeBarrel_stave05_module01_layer_01_slice2_pos"/>
         <rotationref ref="identity"/>
       </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave05_module01_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave05_module01_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave05_module01_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave05_module01_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave05_module01_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave05_module01_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
     </volume>
     <volume name="YokeBarrel_stave05_module01_vol">
       <materialref ref="Iron"/>
@@ -1040,13 +1708,88 @@
         <rotationref ref="identity"/>
       </physvol>
     </volume>
-    <volume name="YokeBarrel_stave06_module01_layer_01_slice1_vol">
+    <volume name="YokeBarrel_stave05_module02_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave05_module02_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave05_module02_layer_01_slice2_vol">
       <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave05_module02_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave05_module02_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave05_module02_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave05_module02_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave05_module02_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave05_module02_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave05_module02_layer_01_slice5"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave05_module02_layer_01_vol">
+      <materialref ref="Air"/>
+      <solidref ref="YokeBarrel_stave05_module02_layer_01"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave05_module02_layer_01_slice1_vol"/>
+        <positionref ref="YokeBarrel_stave05_module02_layer_01_slice1_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave05_module02_layer_01_slice2_vol"/>
+        <positionref ref="YokeBarrel_stave05_module02_layer_01_slice2_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave05_module02_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave05_module02_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave05_module02_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave05_module02_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave05_module02_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave05_module02_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave05_module02_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave05_module02"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave05_module02_layer_01_vol"/>
+        <positionref ref="YokeBarrel_stave05_module02_layer_01_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave06_module01_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
       <solidref ref="YokeBarrel_stave06_module01_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave06_module01_layer_01_slice2_vol">
-      <materialref ref="Scintillator"/>
+      <materialref ref="Iron"/>
       <solidref ref="YokeBarrel_stave06_module01_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave06_module01_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave06_module01_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave06_module01_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave06_module01_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave06_module01_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave06_module01_layer_01_slice5"/>
       <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave06_module01_layer_01_vol">
@@ -1062,6 +1805,21 @@
         <positionref ref="YokeBarrel_stave06_module01_layer_01_slice2_pos"/>
         <rotationref ref="identity"/>
       </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave06_module01_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave06_module01_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave06_module01_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave06_module01_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave06_module01_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave06_module01_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
     </volume>
     <volume name="YokeBarrel_stave06_module01_vol">
       <materialref ref="Iron"/>
@@ -1072,13 +1830,88 @@
         <rotationref ref="identity"/>
       </physvol>
     </volume>
-    <volume name="YokeBarrel_stave07_module01_layer_01_slice1_vol">
+    <volume name="YokeBarrel_stave06_module02_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave06_module02_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave06_module02_layer_01_slice2_vol">
       <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave06_module02_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave06_module02_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave06_module02_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave06_module02_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave06_module02_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave06_module02_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave06_module02_layer_01_slice5"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave06_module02_layer_01_vol">
+      <materialref ref="Air"/>
+      <solidref ref="YokeBarrel_stave06_module02_layer_01"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave06_module02_layer_01_slice1_vol"/>
+        <positionref ref="YokeBarrel_stave06_module02_layer_01_slice1_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave06_module02_layer_01_slice2_vol"/>
+        <positionref ref="YokeBarrel_stave06_module02_layer_01_slice2_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave06_module02_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave06_module02_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave06_module02_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave06_module02_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave06_module02_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave06_module02_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave06_module02_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave06_module02"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave06_module02_layer_01_vol"/>
+        <positionref ref="YokeBarrel_stave06_module02_layer_01_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave07_module01_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
       <solidref ref="YokeBarrel_stave07_module01_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave07_module01_layer_01_slice2_vol">
-      <materialref ref="Scintillator"/>
+      <materialref ref="Iron"/>
       <solidref ref="YokeBarrel_stave07_module01_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave07_module01_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave07_module01_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave07_module01_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave07_module01_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave07_module01_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave07_module01_layer_01_slice5"/>
       <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave07_module01_layer_01_vol">
@@ -1094,6 +1927,21 @@
         <positionref ref="YokeBarrel_stave07_module01_layer_01_slice2_pos"/>
         <rotationref ref="identity"/>
       </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave07_module01_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave07_module01_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave07_module01_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave07_module01_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave07_module01_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave07_module01_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
     </volume>
     <volume name="YokeBarrel_stave07_module01_vol">
       <materialref ref="Iron"/>
@@ -1104,13 +1952,88 @@
         <rotationref ref="identity"/>
       </physvol>
     </volume>
-    <volume name="YokeBarrel_stave11_module01_layer_01_slice1_vol">
+    <volume name="YokeBarrel_stave07_module02_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave07_module02_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave07_module02_layer_01_slice2_vol">
       <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave07_module02_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave07_module02_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave07_module02_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave07_module02_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave07_module02_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave07_module02_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave07_module02_layer_01_slice5"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave07_module02_layer_01_vol">
+      <materialref ref="Air"/>
+      <solidref ref="YokeBarrel_stave07_module02_layer_01"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave07_module02_layer_01_slice1_vol"/>
+        <positionref ref="YokeBarrel_stave07_module02_layer_01_slice1_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave07_module02_layer_01_slice2_vol"/>
+        <positionref ref="YokeBarrel_stave07_module02_layer_01_slice2_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave07_module02_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave07_module02_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave07_module02_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave07_module02_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave07_module02_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave07_module02_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave07_module02_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave07_module02"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave07_module02_layer_01_vol"/>
+        <positionref ref="YokeBarrel_stave07_module02_layer_01_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave11_module01_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
       <solidref ref="YokeBarrel_stave11_module01_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave11_module01_layer_01_slice2_vol">
-      <materialref ref="Scintillator"/>
+      <materialref ref="Iron"/>
       <solidref ref="YokeBarrel_stave11_module01_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave11_module01_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave11_module01_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave11_module01_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave11_module01_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave11_module01_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave11_module01_layer_01_slice5"/>
       <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave11_module01_layer_01_vol">
@@ -1126,6 +2049,21 @@
         <positionref ref="YokeBarrel_stave11_module01_layer_01_slice2_pos"/>
         <rotationref ref="identity"/>
       </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave11_module01_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave11_module01_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave11_module01_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave11_module01_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave11_module01_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave11_module01_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
     </volume>
     <volume name="YokeBarrel_stave11_module01_vol">
       <materialref ref="Iron"/>
@@ -1136,13 +2074,88 @@
         <rotationref ref="identity"/>
       </physvol>
     </volume>
-    <volume name="YokeBarrel_stave12_module01_layer_01_slice1_vol">
+    <volume name="YokeBarrel_stave11_module02_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave11_module02_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave11_module02_layer_01_slice2_vol">
       <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave11_module02_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave11_module02_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave11_module02_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave11_module02_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave11_module02_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave11_module02_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave11_module02_layer_01_slice5"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave11_module02_layer_01_vol">
+      <materialref ref="Air"/>
+      <solidref ref="YokeBarrel_stave11_module02_layer_01"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave11_module02_layer_01_slice1_vol"/>
+        <positionref ref="YokeBarrel_stave11_module02_layer_01_slice1_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave11_module02_layer_01_slice2_vol"/>
+        <positionref ref="YokeBarrel_stave11_module02_layer_01_slice2_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave11_module02_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave11_module02_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave11_module02_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave11_module02_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave11_module02_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave11_module02_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave11_module02_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave11_module02"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave11_module02_layer_01_vol"/>
+        <positionref ref="YokeBarrel_stave11_module02_layer_01_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave12_module01_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
       <solidref ref="YokeBarrel_stave12_module01_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave12_module01_layer_01_slice2_vol">
-      <materialref ref="Scintillator"/>
+      <materialref ref="Iron"/>
       <solidref ref="YokeBarrel_stave12_module01_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave12_module01_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave12_module01_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave12_module01_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave12_module01_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave12_module01_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave12_module01_layer_01_slice5"/>
       <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave12_module01_layer_01_vol">
@@ -1158,6 +2171,21 @@
         <positionref ref="YokeBarrel_stave12_module01_layer_01_slice2_pos"/>
         <rotationref ref="identity"/>
       </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave12_module01_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave12_module01_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave12_module01_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave12_module01_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave12_module01_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave12_module01_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
     </volume>
     <volume name="YokeBarrel_stave12_module01_vol">
       <materialref ref="Iron"/>
@@ -1168,13 +2196,88 @@
         <rotationref ref="identity"/>
       </physvol>
     </volume>
-    <volume name="YokeBarrel_stave13_module01_layer_01_slice1_vol">
+    <volume name="YokeBarrel_stave12_module02_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave12_module02_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave12_module02_layer_01_slice2_vol">
       <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave12_module02_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave12_module02_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave12_module02_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave12_module02_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave12_module02_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave12_module02_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave12_module02_layer_01_slice5"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave12_module02_layer_01_vol">
+      <materialref ref="Air"/>
+      <solidref ref="YokeBarrel_stave12_module02_layer_01"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave12_module02_layer_01_slice1_vol"/>
+        <positionref ref="YokeBarrel_stave12_module02_layer_01_slice1_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave12_module02_layer_01_slice2_vol"/>
+        <positionref ref="YokeBarrel_stave12_module02_layer_01_slice2_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave12_module02_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave12_module02_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave12_module02_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave12_module02_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave12_module02_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave12_module02_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave12_module02_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave12_module02"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave12_module02_layer_01_vol"/>
+        <positionref ref="YokeBarrel_stave12_module02_layer_01_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave13_module01_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
       <solidref ref="YokeBarrel_stave13_module01_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave13_module01_layer_01_slice2_vol">
-      <materialref ref="Scintillator"/>
+      <materialref ref="Iron"/>
       <solidref ref="YokeBarrel_stave13_module01_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave13_module01_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave13_module01_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave13_module01_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave13_module01_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave13_module01_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave13_module01_layer_01_slice5"/>
       <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave13_module01_layer_01_vol">
@@ -1190,6 +2293,21 @@
         <positionref ref="YokeBarrel_stave13_module01_layer_01_slice2_pos"/>
         <rotationref ref="identity"/>
       </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave13_module01_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave13_module01_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave13_module01_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave13_module01_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave13_module01_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave13_module01_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
     </volume>
     <volume name="YokeBarrel_stave13_module01_vol">
       <materialref ref="Iron"/>
@@ -1200,13 +2318,88 @@
         <rotationref ref="identity"/>
       </physvol>
     </volume>
-    <volume name="YokeBarrel_stave14_module01_layer_01_slice1_vol">
+    <volume name="YokeBarrel_stave13_module02_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave13_module02_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave13_module02_layer_01_slice2_vol">
       <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave13_module02_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave13_module02_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave13_module02_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave13_module02_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave13_module02_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave13_module02_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave13_module02_layer_01_slice5"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave13_module02_layer_01_vol">
+      <materialref ref="Air"/>
+      <solidref ref="YokeBarrel_stave13_module02_layer_01"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave13_module02_layer_01_slice1_vol"/>
+        <positionref ref="YokeBarrel_stave13_module02_layer_01_slice1_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave13_module02_layer_01_slice2_vol"/>
+        <positionref ref="YokeBarrel_stave13_module02_layer_01_slice2_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave13_module02_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave13_module02_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave13_module02_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave13_module02_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave13_module02_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave13_module02_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave13_module02_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave13_module02"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave13_module02_layer_01_vol"/>
+        <positionref ref="YokeBarrel_stave13_module02_layer_01_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave14_module01_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
       <solidref ref="YokeBarrel_stave14_module01_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave14_module01_layer_01_slice2_vol">
-      <materialref ref="Scintillator"/>
+      <materialref ref="Iron"/>
       <solidref ref="YokeBarrel_stave14_module01_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave14_module01_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave14_module01_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave14_module01_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave14_module01_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave14_module01_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave14_module01_layer_01_slice5"/>
       <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave14_module01_layer_01_vol">
@@ -1222,6 +2415,21 @@
         <positionref ref="YokeBarrel_stave14_module01_layer_01_slice2_pos"/>
         <rotationref ref="identity"/>
       </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave14_module01_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave14_module01_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave14_module01_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave14_module01_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave14_module01_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave14_module01_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
     </volume>
     <volume name="YokeBarrel_stave14_module01_vol">
       <materialref ref="Iron"/>
@@ -1232,13 +2440,88 @@
         <rotationref ref="identity"/>
       </physvol>
     </volume>
-    <volume name="YokeBarrel_stave15_module01_layer_01_slice1_vol">
+    <volume name="YokeBarrel_stave14_module02_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave14_module02_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave14_module02_layer_01_slice2_vol">
       <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave14_module02_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave14_module02_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave14_module02_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave14_module02_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave14_module02_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave14_module02_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave14_module02_layer_01_slice5"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave14_module02_layer_01_vol">
+      <materialref ref="Air"/>
+      <solidref ref="YokeBarrel_stave14_module02_layer_01"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave14_module02_layer_01_slice1_vol"/>
+        <positionref ref="YokeBarrel_stave14_module02_layer_01_slice1_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave14_module02_layer_01_slice2_vol"/>
+        <positionref ref="YokeBarrel_stave14_module02_layer_01_slice2_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave14_module02_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave14_module02_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave14_module02_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave14_module02_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave14_module02_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave14_module02_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave14_module02_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave14_module02"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave14_module02_layer_01_vol"/>
+        <positionref ref="YokeBarrel_stave14_module02_layer_01_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave15_module01_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
       <solidref ref="YokeBarrel_stave15_module01_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave15_module01_layer_01_slice2_vol">
-      <materialref ref="Scintillator"/>
+      <materialref ref="Iron"/>
       <solidref ref="YokeBarrel_stave15_module01_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave15_module01_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave15_module01_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave15_module01_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave15_module01_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave15_module01_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave15_module01_layer_01_slice5"/>
       <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave15_module01_layer_01_vol">
@@ -1254,6 +2537,21 @@
         <positionref ref="YokeBarrel_stave15_module01_layer_01_slice2_pos"/>
         <rotationref ref="identity"/>
       </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave15_module01_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave15_module01_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave15_module01_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave15_module01_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave15_module01_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave15_module01_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
     </volume>
     <volume name="YokeBarrel_stave15_module01_vol">
       <materialref ref="Iron"/>
@@ -1264,13 +2562,88 @@
         <rotationref ref="identity"/>
       </physvol>
     </volume>
-    <volume name="YokeBarrel_stave16_module01_layer_01_slice1_vol">
+    <volume name="YokeBarrel_stave15_module02_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave15_module02_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave15_module02_layer_01_slice2_vol">
       <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave15_module02_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave15_module02_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave15_module02_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave15_module02_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave15_module02_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave15_module02_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave15_module02_layer_01_slice5"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave15_module02_layer_01_vol">
+      <materialref ref="Air"/>
+      <solidref ref="YokeBarrel_stave15_module02_layer_01"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave15_module02_layer_01_slice1_vol"/>
+        <positionref ref="YokeBarrel_stave15_module02_layer_01_slice1_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave15_module02_layer_01_slice2_vol"/>
+        <positionref ref="YokeBarrel_stave15_module02_layer_01_slice2_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave15_module02_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave15_module02_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave15_module02_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave15_module02_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave15_module02_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave15_module02_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave15_module02_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave15_module02"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave15_module02_layer_01_vol"/>
+        <positionref ref="YokeBarrel_stave15_module02_layer_01_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave16_module01_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
       <solidref ref="YokeBarrel_stave16_module01_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave16_module01_layer_01_slice2_vol">
-      <materialref ref="Scintillator"/>
+      <materialref ref="Iron"/>
       <solidref ref="YokeBarrel_stave16_module01_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave16_module01_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave16_module01_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave16_module01_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave16_module01_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave16_module01_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave16_module01_layer_01_slice5"/>
       <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
     </volume>
     <volume name="YokeBarrel_stave16_module01_layer_01_vol">
@@ -1286,6 +2659,21 @@
         <positionref ref="YokeBarrel_stave16_module01_layer_01_slice2_pos"/>
         <rotationref ref="identity"/>
       </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave16_module01_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave16_module01_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave16_module01_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave16_module01_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave16_module01_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave16_module01_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
     </volume>
     <volume name="YokeBarrel_stave16_module01_vol">
       <materialref ref="Iron"/>
@@ -1293,6 +2681,67 @@
       <physvol>
         <volumeref ref="YokeBarrel_stave16_module01_layer_01_vol"/>
         <positionref ref="YokeBarrel_stave16_module01_layer_01_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave16_module02_layer_01_slice1_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave16_module02_layer_01_slice1"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave16_module02_layer_01_slice2_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave16_module02_layer_01_slice2"/>
+    </volume>
+    <volume name="YokeBarrel_stave16_module02_layer_01_slice3_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave16_module02_layer_01_slice3"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave16_module02_layer_01_slice4_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave16_module02_layer_01_slice4"/>
+    </volume>
+    <volume name="YokeBarrel_stave16_module02_layer_01_slice5_vol">
+      <materialref ref="Scintillator"/>
+      <solidref ref="YokeBarrel_stave16_module02_layer_01_slice5"/>
+      <auxiliary auxtype="SensDet" auxvalue="MuID_vol"/>
+    </volume>
+    <volume name="YokeBarrel_stave16_module02_layer_01_vol">
+      <materialref ref="Air"/>
+      <solidref ref="YokeBarrel_stave16_module02_layer_01"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave16_module02_layer_01_slice1_vol"/>
+        <positionref ref="YokeBarrel_stave16_module02_layer_01_slice1_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave16_module02_layer_01_slice2_vol"/>
+        <positionref ref="YokeBarrel_stave16_module02_layer_01_slice2_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave16_module02_layer_01_slice3_vol"/>
+        <positionref ref="YokeBarrel_stave16_module02_layer_01_slice3_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave16_module02_layer_01_slice4_vol"/>
+        <positionref ref="YokeBarrel_stave16_module02_layer_01_slice4_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave16_module02_layer_01_slice5_vol"/>
+        <positionref ref="YokeBarrel_stave16_module02_layer_01_slice5_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+    </volume>
+    <volume name="YokeBarrel_stave16_module02_vol">
+      <materialref ref="Iron"/>
+      <solidref ref="YokeBarrel_stave16_module02"/>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave16_module02_layer_01_vol"/>
+        <positionref ref="YokeBarrel_stave16_module02_layer_01_pos"/>
         <rotationref ref="identity"/>
       </physvol>
     </volume>
@@ -1305,9 +2754,19 @@
         <rotationref ref="YokeBarrel_stave01_module01_vol_rot"/>
       </physvol>
       <physvol>
+        <volumeref ref="YokeBarrel_stave01_module02_vol"/>
+        <positionref ref="YokeBarrel_stave01_module02_vol_pos"/>
+        <rotationref ref="YokeBarrel_stave01_module02_vol_rot"/>
+      </physvol>
+      <physvol>
         <volumeref ref="YokeBarrel_stave02_module01_vol"/>
         <positionref ref="YokeBarrel_stave02_module01_vol_pos"/>
         <rotationref ref="YokeBarrel_stave02_module01_vol_rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave02_module02_vol"/>
+        <positionref ref="YokeBarrel_stave02_module02_vol_pos"/>
+        <rotationref ref="YokeBarrel_stave02_module02_vol_rot"/>
       </physvol>
       <physvol>
         <volumeref ref="YokeBarrel_stave03_module01_vol"/>
@@ -1315,9 +2774,19 @@
         <rotationref ref="YokeBarrel_stave03_module01_vol_rot"/>
       </physvol>
       <physvol>
+        <volumeref ref="YokeBarrel_stave03_module02_vol"/>
+        <positionref ref="YokeBarrel_stave03_module02_vol_pos"/>
+        <rotationref ref="YokeBarrel_stave03_module02_vol_rot"/>
+      </physvol>
+      <physvol>
         <volumeref ref="YokeBarrel_stave04_module01_vol"/>
         <positionref ref="YokeBarrel_stave04_module01_vol_pos"/>
         <rotationref ref="YokeBarrel_stave04_module01_vol_rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave04_module02_vol"/>
+        <positionref ref="YokeBarrel_stave04_module02_vol_pos"/>
+        <rotationref ref="YokeBarrel_stave04_module02_vol_rot"/>
       </physvol>
       <physvol>
         <volumeref ref="YokeBarrel_stave05_module01_vol"/>
@@ -1325,9 +2794,19 @@
         <rotationref ref="YokeBarrel_stave05_module01_vol_rot"/>
       </physvol>
       <physvol>
+        <volumeref ref="YokeBarrel_stave05_module02_vol"/>
+        <positionref ref="YokeBarrel_stave05_module02_vol_pos"/>
+        <rotationref ref="YokeBarrel_stave05_module02_vol_rot"/>
+      </physvol>
+      <physvol>
         <volumeref ref="YokeBarrel_stave06_module01_vol"/>
         <positionref ref="YokeBarrel_stave06_module01_vol_pos"/>
         <rotationref ref="YokeBarrel_stave06_module01_vol_rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave06_module02_vol"/>
+        <positionref ref="YokeBarrel_stave06_module02_vol_pos"/>
+        <rotationref ref="YokeBarrel_stave06_module02_vol_rot"/>
       </physvol>
       <physvol>
         <volumeref ref="YokeBarrel_stave07_module01_vol"/>
@@ -1335,9 +2814,19 @@
         <rotationref ref="YokeBarrel_stave07_module01_vol_rot"/>
       </physvol>
       <physvol>
+        <volumeref ref="YokeBarrel_stave07_module02_vol"/>
+        <positionref ref="YokeBarrel_stave07_module02_vol_pos"/>
+        <rotationref ref="YokeBarrel_stave07_module02_vol_rot"/>
+      </physvol>
+      <physvol>
         <volumeref ref="YokeBarrel_stave11_module01_vol"/>
         <positionref ref="YokeBarrel_stave11_module01_vol_pos"/>
         <rotationref ref="YokeBarrel_stave11_module01_vol_rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave11_module02_vol"/>
+        <positionref ref="YokeBarrel_stave11_module02_vol_pos"/>
+        <rotationref ref="YokeBarrel_stave11_module02_vol_rot"/>
       </physvol>
       <physvol>
         <volumeref ref="YokeBarrel_stave12_module01_vol"/>
@@ -1345,9 +2834,19 @@
         <rotationref ref="YokeBarrel_stave12_module01_vol_rot"/>
       </physvol>
       <physvol>
+        <volumeref ref="YokeBarrel_stave12_module02_vol"/>
+        <positionref ref="YokeBarrel_stave12_module02_vol_pos"/>
+        <rotationref ref="YokeBarrel_stave12_module02_vol_rot"/>
+      </physvol>
+      <physvol>
         <volumeref ref="YokeBarrel_stave13_module01_vol"/>
         <positionref ref="YokeBarrel_stave13_module01_vol_pos"/>
         <rotationref ref="YokeBarrel_stave13_module01_vol_rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave13_module02_vol"/>
+        <positionref ref="YokeBarrel_stave13_module02_vol_pos"/>
+        <rotationref ref="YokeBarrel_stave13_module02_vol_rot"/>
       </physvol>
       <physvol>
         <volumeref ref="YokeBarrel_stave14_module01_vol"/>
@@ -1355,14 +2854,29 @@
         <rotationref ref="YokeBarrel_stave14_module01_vol_rot"/>
       </physvol>
       <physvol>
+        <volumeref ref="YokeBarrel_stave14_module02_vol"/>
+        <positionref ref="YokeBarrel_stave14_module02_vol_pos"/>
+        <rotationref ref="YokeBarrel_stave14_module02_vol_rot"/>
+      </physvol>
+      <physvol>
         <volumeref ref="YokeBarrel_stave15_module01_vol"/>
         <positionref ref="YokeBarrel_stave15_module01_vol_pos"/>
         <rotationref ref="YokeBarrel_stave15_module01_vol_rot"/>
       </physvol>
       <physvol>
+        <volumeref ref="YokeBarrel_stave15_module02_vol"/>
+        <positionref ref="YokeBarrel_stave15_module02_vol_pos"/>
+        <rotationref ref="YokeBarrel_stave15_module02_vol_rot"/>
+      </physvol>
+      <physvol>
         <volumeref ref="YokeBarrel_stave16_module01_vol"/>
         <positionref ref="YokeBarrel_stave16_module01_vol_pos"/>
         <rotationref ref="YokeBarrel_stave16_module01_vol_rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="YokeBarrel_stave16_module02_vol"/>
+        <positionref ref="YokeBarrel_stave16_module02_vol_pos"/>
+        <rotationref ref="YokeBarrel_stave16_module02_vol_rot"/>
       </physvol>
     </volume>
     <volume name="volYokeEndcapLL">
