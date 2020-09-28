@@ -252,11 +252,6 @@ bool CAF::CheckVectorSize()
 {
     bool isOK = true;
 
-    std::cout << "Event " << _Event << std::endl;
-    std::cout << "Number of FSP " << _nFSP.at(0) << std::endl;
-    std::cout << "Size of recopid " << recopid.size() << std::endl;
-    std::cout << "Size of detected " << detected.size() << std::endl;
-
     if(_nFSP.at(0) != recopid.size() || _nFSP.at(0) != detected.size()) {
         isOK = false;
     }
@@ -427,7 +422,6 @@ void CAF::loop()
 
         // if(Event%100 == 0)
         // std::cout << "------------------------------------" << std::endl;
-        // std::cout << "Treating Evt " << Event << std::endl;
 
         //Filling MCTruth values
         // std::cout << "Event " << Event << " Run " << Run << std::endl;
@@ -436,6 +430,9 @@ void CAF::loop()
         _Event = Event;
         _Run = Run;
         _SubRun = SubRun;
+
+        // if(Event != 564) continue;
+        // std::cout << "Treating Evt " << Event << std::endl;
 
         for(size_t i = 0; i < NType->size(); i++)
         {
@@ -488,9 +485,11 @@ void CAF::loop()
             std::string mcp_endprocess = MCPEndProc->at(i);
             int mctrackid = MCPTrkID->at(i);
             int pdg = PDG->at(i);
+            TVector3 spoint(MCPStartX->at(i)- _util->GetOrigin()[0], MCPStartY->at(i)- _util->GetOrigin()[1], MCPStartZ->at(i)- _util->GetOrigin()[2]);
+            TVector3 epoint(MCPEndX->at(i)- _util->GetOrigin()[0], MCPEndY->at(i)- _util->GetOrigin()[1], MCPEndZ->at(i)- _util->GetOrigin()[2]);
 
             //Ignore neutrinos!
-            if(std::find(neutrinos.begin(), neutrinos.end(), abs(pdg)) != neutrinos.end()) continue;
+            // if(std::find(neutrinos.begin(), neutrinos.end(), abs(pdg)) != neutrinos.end()) continue;
 
             // if(mcp_process != "primary" && mcp_process != "Decay") continue;
             // std::cout << "pdg " << pdg << " process " << mcp_process << " end process " << mcp_endprocess << std::endl;
@@ -563,9 +562,6 @@ void CAF::loop()
             float angle  = atan(mcp.X() / mcp.Z());
             float ecaltime = _util->GaussianSmearing(MCPTime->at(i), ECAL_time_resolution);
             float time = MCPTime->at(i);
-
-            TVector3 spoint(MCPStartX->at(i)- _util->GetOrigin()[0], MCPStartY->at(i)- _util->GetOrigin()[1], MCPStartZ->at(i)- _util->GetOrigin()[2]);
-            TVector3 epoint(MCPEndX->at(i)- _util->GetOrigin()[0], MCPEndY->at(i)- _util->GetOrigin()[1], MCPEndZ->at(i)- _util->GetOrigin()[2]);
 
             //Check where start point is for the mcp
             isFidStart.push_back(_util->PointInFiducial(spoint));
@@ -1493,6 +1489,52 @@ void CAF::loop()
                 //end gammas
                 //***************************************************************************************************************/
 
+                //Case for neutrinos from NC interactions
+
+                else if(std::find(neutrinos.begin(), neutrinos.end(), abs(pdg)) != neutrinos.end())
+                {
+                    truepdg.push_back(pdg);
+                    detected.push_back(0);
+                    truepx.push_back(MCPStartPX->at(i));
+                    truepy.push_back(MCPStartPY->at(i));
+                    truepz.push_back(MCPStartPZ->at(i));
+                    if(_correct4origin){
+                        _MCPStartX.push_back(MCPStartX->at(i) - _util->GetOrigin()[0]);
+                        _MCPStartY.push_back(MCPStartY->at(i) - _util->GetOrigin()[1]);
+                        _MCPStartZ.push_back(MCPStartZ->at(i) - _util->GetOrigin()[2]);
+                        _MCPEndX.push_back(MCPEndX->at(i) - _util->GetOrigin()[0]);
+                        _MCPEndY.push_back(MCPEndY->at(i) - _util->GetOrigin()[1]);
+                        _MCPEndZ.push_back(MCPEndZ->at(i) - _util->GetOrigin()[2]);
+                    } else {
+                        _MCPStartX.push_back(MCPStartX->at(i));
+                        _MCPStartY.push_back(MCPStartY->at(i));
+                        _MCPStartZ.push_back(MCPStartZ->at(i));
+                        _MCPEndX.push_back(MCPEndX->at(i));
+                        _MCPEndY.push_back(MCPEndY->at(i));
+                        _MCPEndZ.push_back(MCPEndZ->at(i));
+                    }
+                    pdgmother.push_back(PDGMother->at(i));
+                    // save the true momentum
+                    truep.push_back(ptrue);
+                    // save the true angle
+                    _angle.push_back(angle);
+                    //Save MC process
+                    _MCProc.push_back(mcp_process);
+                    _MCEndProc.push_back(mcp_endprocess);
+                    mctime.push_back(time);
+
+                    etime.push_back(0.);
+                    erecon.push_back(0.);
+                    recopidecal.push_back(-1);
+                    _preco.push_back(-1);
+                    anglereco.push_back(-1);
+                    recopid.push_back(-1);
+                    for (int pidr = 0; pidr < 6; ++pidr) prob_arr.push_back(-1);
+
+                    mctrkid.push_back(MCPTrkID->at(i));
+                    motherid.push_back(MCMotherTrkID->at(i));
+                }
+
                 //Case for particles that stop or go through ECAL (problematic particles with no track length????)
                 //Not visible in the TPC and not neutron or gamma or pi0 (otherwise it has been already done above)
 
@@ -1682,8 +1724,6 @@ void CAF::loop()
                         _MCProc.push_back(mcp_process);
                         _MCEndProc.push_back(mcp_endprocess);
                         mctime.push_back(time);
-
-                        etime.push_back(ecaltime);
                         //Case the endpoint is outside the CALO -> it went through the ECAL (mu/pi/p possible)
                         //the ECAL will see 60 MIPs on average
                         double Evis = (double)nLayers; //in MIP

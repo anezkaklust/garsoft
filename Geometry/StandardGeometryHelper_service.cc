@@ -14,6 +14,7 @@
 #include "Geometry/ChannelMapAlgs/MinervaSegmentationAlg.h"
 #include "Geometry/ChannelMapAlgs/SegmentationStripXAlg.h"
 #include "Geometry/ChannelMapAlgs/SegmentationStripYAlg.h"
+#include "Geometry/ChannelMapAlgs/SegmentationMuIDAlg.h"
 #include "Geometry/GeometryCore.h"
 
 // C/C++ libraries
@@ -110,6 +111,8 @@ namespace gar
       fMuIDSegmentationAlg = std::make_shared<gar::geo::seg::SegmentationStripXAlg>(segParameters);
       else if(SegmentationAlgName.compare("SegmentationStripYAlg") == 0)
       fMuIDSegmentationAlg = std::make_shared<gar::geo::seg::SegmentationStripYAlg>(segParameters);
+      else if(SegmentationAlgName.compare("SegmentationMuIDAlg") == 0)
+      fMuIDSegmentationAlg = std::make_shared<gar::geo::seg::SegmentationMuIDAlg>(segParameters);
       else{
           throw cet::exception("StandardGeometryHelper::doConfigureMuIDSegmentationAlg")
           << "Unable to determine which MuID Segmentation algorithm to use, bail";

@@ -839,7 +839,7 @@ namespace gar{
                     const sdp::EnergyDeposit* simHit = simlist[p];
 
                     std::ostringstream label;
-                    label << "Sim Hit " << p << "\n";
+                    label << "TPC Sim Hit " << p << "\n";
                     label << "Energy: " << simHit->Energy() << " GeV\n";
                     label << "Position (" << simHit->X() << ", " << simHit->Y() << ", " << simHit->Z() << " ) cm\n";
 
@@ -871,7 +871,7 @@ namespace gar{
                     const sdp::CaloDeposit* simHit = simlist[p];
 
                     std::ostringstream label;
-                    label << "Sim Hit " << p << "\n";
+                    label << "ECAL/MuID Sim Hit " << p << "\n";
                     label << "Energy: " << simHit->Energy() << " GeV\n";
                     label << "Position (" << simHit->X() << ", " << simHit->Y() << ", " << simHit->Z() << " ) cm\n";
                     label << "CellID: " << simHit->CellID() << "\n";
@@ -911,7 +911,7 @@ namespace gar{
                     const std::array<double, 3> point = { rawHit->X(), rawHit->Y(), rawHit->Z() };
 
                     std::ostringstream label;
-                    label << "Digi Hit " << p << "\n";
+                    label << "ECAL/MuID Digi Hit " << p << "\n";
                     label << "Energy: " << rawHit->ADC().first << " ADC\n";
                     label << "Position (" << rawHit->X() << ", " << rawHit->Y() << ", " << rawHit->Z() << " ) cm\n";
                     label << "CellID: " << rawHit->CellID() << "\n";
@@ -984,7 +984,7 @@ namespace gar{
                     const std::array<double, 3> point = { recoHit->Position()[0], recoHit->Position()[1], recoHit->Position()[2] };
 
                     std::ostringstream label;
-                    label << "Reco Hit " << p << "\n";
+                    label << "ECAL Reco Hit " << p << "\n";
                     label << "Energy: " << recoHit->Energy() * 1000 << " MeV\n";
                     label << "Position (" << recoHit->Position()[0] << ", " << recoHit->Position()[1] << ", " << recoHit->Position()[2] << " ) cm\n";
                     label << "CellID: " << recoHit->CellID() << "\n";
@@ -1023,7 +1023,7 @@ namespace gar{
                         const std::array<double, 3> point = { recoHit->Position()[0], recoHit->Position()[1], recoHit->Position()[2] };
 
                         std::ostringstream label;
-                        label << "Reco Hit " << p << "\n";
+                        label << "MuID Reco Hit " << p << "\n";
                         label << "Energy: " << recoHit->Energy() * 1000 << " MeV\n";
                         label << "Position (" << recoHit->Position()[0] << ", " << recoHit->Position()[1] << ", " << recoHit->Position()[2] << " ) cm\n";
                         label << "CellID: " << recoHit->CellID() << "\n";
