@@ -4,7 +4,7 @@
 #include "DetectorProperties.fcl"
 #include "GArProperties.fcl"
 #include "ECALProperties.fcl"
-#include "Geometry_Temp_SPY.fcl"
+#include "Geometry_DayOne_SPY.fcl"
 
 process_name: ConvertEdep2Art
 
@@ -12,7 +12,7 @@ services:
 {
 # Load the service that manages root files for histograms.
 TFileService:           { fileName: "convert_hist.root" }
-Geometry:               @local::standard_geo
+Geometry:               @local::standard_dayone
 ExptGeoHelperInterface: @local::standard_geometry_helper
 DetectorClocks:         @local::standard_clocks
 DetectorProperties:     @local::standard_detproperties
