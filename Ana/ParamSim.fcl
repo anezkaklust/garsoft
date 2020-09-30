@@ -1,0 +1,11 @@
+BEGIN_PROLOG
+
+standard_ParamSim:
+{
+module_type:               ParamSim
+GeneratorLabel:            "edepconvert"
+GEANTLabel:                "edepconvert"
+Correct4Origin:            false
+}
+
+END_PROLOG
