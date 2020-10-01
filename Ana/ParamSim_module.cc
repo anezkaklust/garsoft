@@ -53,32 +53,32 @@ namespace gar {
         ~CAFHelper();
 
         /* Check if MCP point is in fiducial */
-        bool PointInFiducial(TVector3 point);
+        bool PointInFiducial(const TVector3& point);
 
         /* Check if MCP point is in TPC Volume (can be outside Fid) */
-        bool PointInTPC(TVector3 point);
+        bool PointInTPC(const TVector3& point);
 
         /* Check if MCP point is in the ECAL */
-        bool PointInCalo(TVector3 point);
+        bool PointInCalo(const TVector3& point);
 
         /* Check if MCP point is in between the TPC and the ECAL */
-        bool PointStopBetween(TVector3 point);
+        bool PointStopBetween(const TVector3& point);
 
         /* Check if MCP point is not in the fiducial and not in the ECAL */
-        bool isThroughCalo(TVector3 point);
+        bool isThroughCalo(const TVector3& point);
 
         /* Check if MCP decayed in calo */
-        bool hasDecayedInCalo(TVector3 point);
+        bool hasDecayedInCalo(const TVector3& point);
 
         /* Check if MCP is in the Barrel region */
-        bool isBarrel(TVector3 point);
+        bool isBarrel(const TVector3& point);
 
         /* Check if MCP is in the Endcap region */
-        bool isEndcap(TVector3 point);
+        bool isEndcap(const TVector3& point);
 
         float GetRamdomNumber() { return _rando->Rndm(); }
 
-        float GaussianSmearing(float mean, float sigma) { return _rando->Gaus(mean, sigma); }
+        float GaussianSmearing(const float& mean, const float& sigma) { return _rando->Gaus(mean, sigma); }
 
     private:
         TRandom3 *_rando;                ///< random generator
@@ -117,7 +117,7 @@ namespace gar {
     }
 
     //==============================================================================
-    bool CAFHelper::PointInFiducial(TVector3 point)
+    bool CAFHelper::PointInFiducial(const TVector3& point)
     {
         //TPC Fiducial volume defined as
         //R < 260 cm
@@ -132,7 +132,7 @@ namespace gar {
     }
 
     //==============================================================================
-    bool CAFHelper::PointInTPC(TVector3 point)
+    bool CAFHelper::PointInTPC(const TVector3& point)
     {
         //TPC volume defined as
         //R < 260 cm
@@ -148,7 +148,7 @@ namespace gar {
     }
 
     //==============================================================================
-    bool CAFHelper::PointInCalo(TVector3 point)
+    bool CAFHelper::PointInCalo(const TVector3& point)
     {
         //Barrel Radius 278 cm
         //Endcap starts at 364 cm
@@ -163,7 +163,7 @@ namespace gar {
     }
 
     //==============================================================================
-    bool CAFHelper::PointStopBetween(TVector3 point)
+    bool CAFHelper::PointStopBetween(const TVector3& point)
     {
         //Barrel Radius 278 cm
         //Endcap starts at 364 cm
@@ -178,19 +178,19 @@ namespace gar {
     }
 
     //==============================================================================
-    bool CAFHelper::isThroughCalo(TVector3 point)
+    bool CAFHelper::isThroughCalo(const TVector3& point)
     {
         return !PointInTPC(point) && !PointStopBetween(point) && !PointInCalo(point);
     }
 
     //==============================================================================
-    bool CAFHelper::hasDecayedInCalo(TVector3 point)
+    bool CAFHelper::hasDecayedInCalo(const TVector3& point)
     {
         return PointInCalo(point);
     }
 
     //==============================================================================
-    bool CAFHelper::isBarrel(TVector3 point)
+    bool CAFHelper::isBarrel(const TVector3& point)
     {
         bool isBarrel = false;
         float theta = std::atan(fECALBarrelInnerRadius / std::abs(fECALStartX) ); //angle for barrel/endcap transition
@@ -202,7 +202,7 @@ namespace gar {
     }
 
     //==============================================================================
-    bool CAFHelper::isEndcap(TVector3 point)
+    bool CAFHelper::isEndcap(const TVector3& point)
     {
         bool isEndcap = false;
         if( !isBarrel(point) ) isEndcap = true;
@@ -247,7 +247,8 @@ namespace gar {
 
         //TTree
         TTree *fTree;
-        TFile *pidfile;
+        std::unordered_map<int, TH2F*> m_pidinterp;
+
         //Geometry
         const geo::GeometryCore* fGeo; ///< pointer to the geometry
         CAFHelper* fHelper;
@@ -264,37 +265,37 @@ namespace gar {
         const std::vector<int> pdg_neutral = {22, 2112, 111, 130, 310, 311, 2114};
         //pion, muon, proton, kaon, deuteron, electron
         const std::vector<int> pdg_charged = {211, 13, 2212, 321, 1000010020, 11};
-        float gastpc_len = 2.; // new track length cut in cm based on Thomas' study of low energy protons
-        float gastpc_B = 0.5; // B field strength in Tesla
-        float gastpc_padPitch = 0.1; // 1 mm. Actual pad pitch varies, which is going to be impossible to implement
-        float gastpc_X0 = 1300.; // cm = 13m radiation length
+        const float gastpc_len = 2.; // new track length cut in cm based on Thomas' study of low energy protons
+        const float gastpc_B = 0.5; // B field strength in Tesla
+        const float gastpc_padPitch = 0.1; // 1 mm. Actual pad pitch varies, which is going to be impossible to implement
+        const float gastpc_X0 = 1300.; // cm = 13m radiation length
         //Resolution for short tracks //TODO check this numbers!
-        float sigmaP_short = 0.1; //in GeV
+        const float sigmaP_short = 0.1; //in GeV
         // point resolution
-        float sigma_x = 0.1;
+        const float sigma_x = 0.1;
         //as function of KE
         //0 -> 50 MeV ~ 20%
         //> 50 MeV ~ 40%
-        float NeutronECAL_detEff[2] = {0.2, 0.4};
-        float sigmaNeutronECAL_first = 0.11;
+        const float NeutronECAL_detEff[2] = {0.2, 0.4};
+        const float sigmaNeutronECAL_first = 0.11;
         //TODO fraction of rescatters
         // float sigmaNeutronECAL_rescatter = 0.26;
         //ECAL energy resolution sigmaE/E
-        float ECAL_stock = 0.06; //in %
-        float ECAL_const = 0.02;
+        const float ECAL_stock = 0.06; //in %
+        const float ECAL_const = 0.02;
         TF1 *fRes;
         //ECAL sampling fraction
         // double sampling_frac = 4.32;
         //ECAL nlayers
-        int nLayers = 60;
+        const int nLayers = 60;
         //ECAL MIP resolution (based on AHCAL numbers)
-        double ECAL_MIP_Res = 0.23;
+        const double ECAL_MIP_Res = 0.23;
         //MIP2GeV conversion factor
-        double MIP2GeV_factor = 0.814 / 1000;
+        const double MIP2GeV_factor = 0.814 / 1000;
         //float ECAL_pi0_resolution = 0.13; //sigmaE/E in between at rest (17%) and high energy (~few %)
-        float ECAL_time_resolution = 1.; // 1 ns time resolution
+        const float ECAL_time_resolution = 1.; // 1 ns time resolution
         TParticlePDG *neutron = TDatabasePDG::Instance()->GetParticle(2112);
-        float neutron_mass = neutron->Mass(); //in GeV
+        const float neutron_mass = neutron->Mass(); //in GeV
 
         //CAF variables
         //Event-wise values
@@ -309,7 +310,7 @@ namespace gar {
         std::vector<double> trkLen, trkLenPerp, truep, truepx, truepy, truepz, _angle;
         //Reco values
         std::vector<int> recopid, recopidecal;
-        std::vector<double> prob_arr, partereco, anglereco, _preco, erecon, etime;
+        std::vector<double> prob_arr, anglereco, _preco, erecon, etime;
         //Geometry
         std::vector<unsigned int> isFidStart, isTPCStart, isCaloStart, isInBetweenStart, isThroughCaloStart;
         std::vector<unsigned int> isFidEnd, isTPCEnd, isCaloEnd, isInBetweenEnd, isThroughCaloEnd;
@@ -342,6 +343,24 @@ namespace gar {
         fOrigin[0] = fGeo->TPCXCent();
         fOrigin[1] = fGeo->TPCYCent();
         fOrigin[2] = fGeo->TPCZCent();
+
+        // read the PID parametrization ntuple from T. Junk
+        TString filename = "${DUNE_PARDATA_DIR}/MPD/dedxPID/dedxpidmatrices8kevcm.root";
+        TFile pidfile(filename, "READ");
+
+        m_pidinterp.clear();
+        char str[11];
+        for (int q = 0; q < 501; ++q)
+        {
+            sprintf(str, "%d", q);
+            std::string s = "pidmatrix";
+            s.append(str);
+            // read the 500 histograms one by one; each histogram is a
+            // 6 by 6 matrix of probabilities for a given momentum value
+            m_pidinterp.insert( std::make_pair(q, (TH2F*) pidfile.Get(s.c_str())->Clone("pidinterp")) );
+        }
+
+        // pidfile.Close();
 
         art::ServiceHandle<art::TFileService> tfs;
         fTree = tfs->make<TTree>("caf","caf tree");
@@ -421,10 +440,6 @@ namespace gar {
         fTree->Branch("isInBetweenEnd", &isInBetweenEnd);
         fTree->Branch("isBarrelEnd", &isBarrelEnd);
         fTree->Branch("isEndcapEnd", &isEndcapEnd);
-
-        // read the PID parametrization ntuple from T. Junk
-        TString filename = "${DUNE_PARDATA_DIR}/MPD/dedxPID/dedxpidmatrices8kevcm.root";
-        pidfile = new TFile(filename, "READ");
     }
 
     //==============================================================================
@@ -444,8 +459,55 @@ namespace gar {
         } else {
             std::cerr << "Event " << fEvent << std::endl;
             std::cerr << "Number of FSP " << _nFSP << std::endl;
-            std::cerr << "Size of recopid " << recopid.size() << std::endl;
+
+            std::cerr << "Size of pdgmother " << pdgmother.size() << std::endl;
+            std::cerr << "Size of truepdg " << truepdg.size() << std::endl;
+            std::cerr << "Size of mctime " << mctime.size() << std::endl;
+            std::cerr << "Size of mctrkid " << mctrkid.size() << std::endl;
+            std::cerr << "Size of motherid " << motherid.size() << std::endl;
+            std::cerr << "Size of _MCPStartX " << _MCPStartX.size() << std::endl;
+            std::cerr << "Size of _MCPStartY " << _MCPStartY.size() << std::endl;
+            std::cerr << "Size of _MCPStartZ " << _MCPStartZ.size() << std::endl;
+            std::cerr << "Size of _MCPEndX " << _MCPEndX.size() << std::endl;
+            std::cerr << "Size of _MCPEndY " << _MCPEndY.size() << std::endl;
+            std::cerr << "Size of _MCPEndZ " << _MCPEndZ.size() << std::endl;
+            std::cerr << "Size of _MCProc " << _MCProc.size() << std::endl;
+            std::cerr << "Size of _MCEndProc " << _MCEndProc.size() << std::endl;
+            std::cerr << "Size of trkLen " << trkLen.size() << std::endl;
+            std::cerr << "Size of trkLenPerp " << trkLenPerp.size() << std::endl;
+            std::cerr << "Size of truep " << truep.size() << std::endl;
+            std::cerr << "Size of truepx " << truepx.size() << std::endl;
+            std::cerr << "Size of truepy " << truepy.size() << std::endl;
+            std::cerr << "Size of truepz " << truepz.size() << std::endl;
+            std::cerr << "Size of _angle " << _angle.size() << std::endl;
+
+            //Reco values
             std::cerr << "Size of detected " << detected.size() << std::endl;
+            std::cerr << "Size of recopid " << recopid.size() << std::endl;
+            std::cerr << "Size of recopidecal " << recopidecal.size() << std::endl;
+            // std::cerr << "Size of prob_arr " << prob_arr.size() << std::endl;
+            std::cerr << "Size of anglereco " << anglereco.size() << std::endl;
+            std::cerr << "Size of _preco " << _preco.size() << std::endl;
+            std::cerr << "Size of erecon " << erecon.size() << std::endl;
+            std::cerr << "Size of etime " << etime.size() << std::endl;
+
+            //Geometry
+            std::cerr << "Size of isFidStart " << isFidStart.size() << std::endl;
+            std::cerr << "Size of isTPCStart " << isTPCStart.size() << std::endl;
+            std::cerr << "Size of isCaloStart " << isCaloStart.size() << std::endl;
+            std::cerr << "Size of isThroughCaloStart " << isThroughCaloStart.size() << std::endl;
+            std::cerr << "Size of isInBetweenStart " << isInBetweenStart.size() << std::endl;
+            std::cerr << "Size of isBarrelStart " << isBarrelStart.size() << std::endl;
+            std::cerr << "Size of isEndcapStart " << isEndcapStart.size() << std::endl;
+
+            std::cerr << "Size of isFidEnd " << isFidEnd.size() << std::endl;
+            std::cerr << "Size of isTPCEnd " << isTPCEnd.size() << std::endl;
+            std::cerr << "Size of isCaloEnd " << isCaloEnd.size() << std::endl;
+            std::cerr << "Size of isThroughCaloEnd " << isThroughCaloEnd.size() << std::endl;
+            std::cerr << "Size of isInBetweenEnd " << isInBetweenEnd.size() << std::endl;
+            std::cerr << "Size of isBarrelEnd " << isBarrelEnd.size() << std::endl;
+            std::cerr << "Size of isEndcapEnd " << isEndcapEnd.size() << std::endl;
+
             std::cerr << "Event with wrong vector sizes... skipped" << std::endl;
         }
 
@@ -528,11 +590,11 @@ namespace gar {
             const int mothertrackid = mcp.Mother();
             const int pdg = mcp.PdgCode();
             const TLorentzVector& position = mcp.Position(0);
-            TVector3 spoint(position.X() - fOrigin[0], position.Y() - fOrigin[1], position.Z() - fOrigin[2]);
+            const TVector3 spoint(position.X() - fOrigin[0], position.Y() - fOrigin[1], position.Z() - fOrigin[2]);
             const TLorentzVector& positionEnd = mcp.EndPosition();
-            TVector3 epoint(positionEnd.X() - fOrigin[0], positionEnd.Y() - fOrigin[1], positionEnd.Z() - fOrigin[2]);
+            const TVector3 epoint(positionEnd.X() - fOrigin[0], positionEnd.Y() - fOrigin[1], positionEnd.Z() - fOrigin[2]);
             const TLorentzVector& momentum = mcp.Momentum(0);
-            TVector3 mom(momentum.X(), momentum.Y(), momentum.Z());
+            const TVector3 mom(momentum.X(), momentum.Y(), momentum.Z());
             const float ptrue = mom.Mag();
             const float angle  = atan(mom.X() / mom.Z());
             const float time = mcp.T();
@@ -575,8 +637,8 @@ namespace gar {
     //==============================================================================
     void ParamSim::FillCommonVariables(const int pdg, const TLorentzVector& momentum, const TLorentzVector& position, const TLorentzVector& positionEnd, const int mctrackid, const int mothertrackid, const int motherpdg, const float ptrue, const float angle, const std::string mcp_process, const std::string mcp_endprocess, const float time)
     {
-        TVector3 spoint(position.X() - fOrigin[0], position.Y() - fOrigin[1], position.Z() - fOrigin[2]);
-        TVector3 epoint(positionEnd.X() - fOrigin[0], positionEnd.Y() - fOrigin[1], positionEnd.Z() - fOrigin[2]);
+        const TVector3 spoint(position.X() - fOrigin[0], position.Y() - fOrigin[1], position.Z() - fOrigin[2]);
+        const TVector3 epoint(positionEnd.X() - fOrigin[0], positionEnd.Y() - fOrigin[1], positionEnd.Z() - fOrigin[2]);
 
         truepdg.push_back(pdg);
         truepx.push_back(momentum.X());
@@ -798,6 +860,7 @@ namespace gar {
                         float ereco = fHelper->GaussianSmearing(etrue, ECAL_resolution);
                         erecon.push_back((ereco > 0) ? ereco : 0.);
                         detected.push_back(1);
+                        etime.push_back(ecaltime);
 
                         //Electron
                         if( abs(pdg) == 11 ){
@@ -957,7 +1020,6 @@ namespace gar {
             if ( abs(pdg) == pdg_charged.at(pidm) )
             {
                 float p = _preco.at(_nFSP);
-                char str[11];
                 std::vector<double> vec;
                 std::vector<std::string> pnamelist     = {"#pi", "#mu", "p", "K", "d", "e"};
                 std::vector<std::string> recopnamelist = {"#pi", "#mu", "p", "K", "d", "e"};
@@ -967,14 +1029,8 @@ namespace gar {
 
                 for (int q = 0; q < 501; ++q)
                 {
-                    sprintf(str, "%d", q);
-                    std::string s = "pidmatrix";
-                    s.append(str);
-                    // read the 500 histograms one by one; each histogram is a
-                    // 6 by 6 matrix of probabilities for a given momentum value
-                    TH2F *pidinterp = (TH2F*) pidfile->Get(s.c_str())->Clone("pidinterp");
                     //Check the title and the reco momentum take only the one that fits
-                    std::string fulltitle = pidinterp->GetTitle();
+                    std::string fulltitle = m_pidinterp[q]->GetTitle();
                     unsigned first = fulltitle.find("=");
                     unsigned last = fulltitle.find("GeV");
                     std::string substr = fulltitle.substr(first+1, last - first-1);
@@ -986,36 +1042,32 @@ namespace gar {
                         dist = disttemp;
                         qclosest = q;
                     }
-
-                    delete pidinterp;
                 } // closes the "pidmatrix" loop
-
-                sprintf(str, "%d", qclosest);
-                std::string mtx = "pidmatrix";
-                mtx.append(str);
-                TH2F *pidinterp = (TH2F*) pidfile->Get(mtx.c_str())->Clone("pidinterp");
 
                 //loop over the columns (true pid)
                 std::vector< std::pair<float, std::string> > v_prob;
                 //get true particle name
-                std::string trueparticlename = pidinterp->GetXaxis()->GetBinLabel(pidm+1);
-                // // std::cout << trueparticlename << std::endl;
+                std::string trueparticlename = m_pidinterp[qclosest]->GetXaxis()->GetBinLabel(pidm+1);
+                // std::cout << trueparticlename << std::endl;
                 if ( trueparticlename == pnamelist[pidm] )
                 {
                     //loop over the rows (reco pid)
                     for (int pidr = 0; pidr < 6; ++pidr)
                     {
-                        std::string recoparticlename = pidinterp->GetYaxis()->GetBinLabel(pidr+1);
+                        std::string recoparticlename = m_pidinterp[qclosest]->GetYaxis()->GetBinLabel(pidr+1);
+                        // std::cout << recoparticlename << std::endl;
                         if (recoparticlename == recopnamelist[pidr])
                         {
-                            float prob = pidinterp->GetBinContent(pidm+1,pidr+1);
+                            float prob = m_pidinterp[qclosest]->GetBinContent(pidm+1,pidr+1);
                             prob_arr.push_back(prob);
                             //Need to check random number value and prob value then associate the recopdg to the reco prob
                             v_prob.push_back( std::make_pair(prob, recoparticlename) );
                         }
                     }
 
-                    if(v_prob.size() > 1) {
+                    int pid = -1;
+                    if(v_prob.size() > 1)
+                    {
                         //Order the vector of prob
                         std::sort(v_prob.begin(), v_prob.end());
                         //Throw a random number between 0 and 1
@@ -1024,17 +1076,19 @@ namespace gar {
                         std::partial_sum(v_prob.begin(), v_prob.end(), v_prob.begin(), [](const std::pair<float, std::string>& _x, const std::pair<float, std::string>& _y){return std::pair<float, std::string>(_x.first + _y.first, _y.second);});
                         for(size_t ivec = 0; ivec < v_prob.size()-1; ivec++)
                         {
-                            if( random_number < v_prob.at(ivec+1).first && random_number >= v_prob.at(ivec).first ) {
-                                recopid.push_back( pdg_charged.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(ivec+1).second) ) ) );
+                            if( random_number < v_prob.at(ivec+1).first && random_number >= v_prob.at(ivec).first )
+                            {
+                                pid = pdg_charged.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(ivec+1).second) ) );
                             }
                         }
                     }
-                    else{
-                        recopid.push_back( pdg_charged.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(0).second) ) ) );
+                    else
+                    {
+                        pid = pdg_charged.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(0).second) ) );
                     }
-                } // closes the if statement
 
-                delete pidinterp;
+                    recopid.push_back( pid );
+                } // closes the if statement
             } // end if charged in pdg list
         } // end loop pidm
 
@@ -1435,7 +1489,6 @@ namespace gar {
         recopid.clear();
         recopidecal.clear();
         prob_arr.clear();
-        partereco.clear();
         anglereco.clear();
         _preco.clear();
         erecon.clear();
@@ -1463,9 +1516,55 @@ namespace gar {
     bool ParamSim::CheckVectorSize()
     {
         bool isOK = true;
-        if(_nFSP != recopid.size() || _nFSP != detected.size()) {
-            isOK = false;
-        }
+
+        if(_nFSP != pdgmother.size()) isOK = false;
+        if(_nFSP != truepdg.size()) isOK = false;
+        if(_nFSP != mctime.size()) isOK = false;
+        if(_nFSP != mctrkid.size()) isOK = false;
+        if(_nFSP != motherid.size()) isOK = false;
+        if(_nFSP != _MCPStartX.size()) isOK = false;
+        if(_nFSP != _MCPStartY.size()) isOK = false;
+        if(_nFSP != _MCPStartZ.size()) isOK = false;
+        if(_nFSP != _MCPEndX.size()) isOK = false;
+        if(_nFSP != _MCPEndY.size()) isOK = false;
+        if(_nFSP != _MCPEndZ.size()) isOK = false;
+        if(_nFSP != _MCProc.size()) isOK = false;
+        if(_nFSP != _MCEndProc.size()) isOK = false;
+        if(_nFSP != trkLen.size()) isOK = false;
+        if(_nFSP != trkLenPerp.size()) isOK = false;
+        if(_nFSP != truep.size()) isOK = false;
+        if(_nFSP != truepx.size()) isOK = false;
+        if(_nFSP != truepy.size()) isOK = false;
+        if(_nFSP != truepz.size()) isOK = false;
+        if(_nFSP != _angle.size()) isOK = false;
+
+        //Reco values
+        if(_nFSP != recopid.size()) isOK = false;
+        if(_nFSP != detected.size()) isOK = false;
+        if(_nFSP != recopidecal.size()) isOK = false;
+        // if(_nFSP != prob_arr.size()) isOK = false;
+        if(_nFSP != anglereco.size()) isOK = false;
+        if(_nFSP != _preco.size()) isOK = false;
+        if(_nFSP != erecon.size()) isOK = false;
+        if(_nFSP != etime.size()) isOK = false;
+
+        //Geometry
+        if(_nFSP != isFidStart.size()) isOK = false;
+        if(_nFSP != isTPCStart.size()) isOK = false;
+        if(_nFSP != isCaloStart.size()) isOK = false;
+        if(_nFSP != isThroughCaloStart.size()) isOK = false;
+        if(_nFSP != isInBetweenStart.size()) isOK = false;
+        if(_nFSP != isBarrelStart.size()) isOK = false;
+        if(_nFSP != isEndcapStart.size()) isOK = false;
+
+        if(_nFSP != isFidEnd.size()) isOK = false;
+        if(_nFSP != isTPCEnd.size()) isOK = false;
+        if(_nFSP != isCaloEnd.size()) isOK = false;
+        if(_nFSP != isThroughCaloEnd.size()) isOK = false;
+        if(_nFSP != isInBetweenEnd.size()) isOK = false;
+        if(_nFSP != isBarrelEnd.size()) isOK = false;
+        if(_nFSP != isEndcapEnd.size()) isOK = false;
+
         return isOK;
     }
 

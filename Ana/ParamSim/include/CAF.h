@@ -3,8 +3,11 @@
 
 #include "TFile.h"
 #include "TTree.h"
+#include "TH2F.h"
 
 #include "Utils.h"
+
+#include <unordered_map>
 
 class CAF {
 
@@ -49,6 +52,7 @@ private:
 
     TFile * cafFile; ///< The output TFile pointer */
     TTree * cafMVA; ///< The output TTree pointer */
+    std::unordered_map<int, TH2F*> m_pidinterp;
 
     TFile* _intfile;
     TTree* _inttree;
@@ -65,13 +69,13 @@ private:
     std::vector<int> mode, ccnc, ntype, gint, weight, tgtpdg, gt_t, intert, detected;
     std::vector<double> q2, w, y, x, theta, t, mctime, mcnupx, mcnupy, mcnupz, vertx, verty, vertz;
     //MC Particle Values, with motherid added
-    std::vector<unsigned int> _nFSP;
+    unsigned int _nFSP;
     std::vector<int> mctrkid, motherid, pdgmother, truepdg, _MCPStartX, _MCPStartY, _MCPStartZ, _MCPEndX, _MCPEndY, _MCPEndZ;
     std::vector<std::string> _MCProc, _MCEndProc;
     std::vector<double> trkLen, trkLenPerp, truep, truepx, truepy, truepz, _angle;
     //Reco values
     std::vector<int> recopid, recopidecal;
-    std::vector<double> prob_arr, partereco, anglereco, _preco, erecon, etime;
+    std::vector<double> prob_arr, anglereco, _preco, erecon, etime;
     //Geometry
     std::vector<unsigned int> isFidStart, isTPCStart, isCaloStart, isInBetweenStart, isThroughCaloStart;
     std::vector<unsigned int> isFidEnd, isTPCEnd, isCaloEnd, isInBetweenEnd, isThroughCaloEnd;
