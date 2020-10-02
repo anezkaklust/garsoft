@@ -9,7 +9,7 @@ standard_backtracker:
  RawTPCDataLabel:           "daq"         # module that made the RawDigits for the TPC
 
  RawCaloDataLabel:          "daqsipm"     # module that made the CaloRawDigits for the ECAL
- RawCaloDataECALInstance:   ""            # instance name for the raw hits of the ECAL (to distinguish with MuID hits)
+ RawCaloDataECALInstance:   "ECAL"        # instance name for the raw hits of the ECAL (to distinguish with MuID hits)
  ECALtimeResolution:        1.0          # time resolution for hits in ECAL, nsec. (3, 4 sigma, OK?)
  MinHitEnergyFraction:      0.1          # min frac of total E a G4 track contributes to a TPC hit to be counted
  MinCaloHitEnergyFrac:      0.1          # min frac of total E a G4 track contributes to a CaloHit to be counted

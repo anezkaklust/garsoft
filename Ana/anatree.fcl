@@ -19,12 +19,12 @@ standard_anatree:
 # GENIEGeneratorLabels:      [ "generator" ]
 
  GEANTLabel:               "geant"
- GEANTInstanceCalo:        ""
- GEANTInstanceMuID:        ""
+ GEANTInstanceCalo:        "ECAL"
+ GEANTInstanceMuID:        "MuID"
 
  RawCaloHitLabel:          "daqsipm"
- RawCaloHitInstanceCalo:   ""
- RawCaloHitInstanceMuID:   ""
+ RawCaloHitInstanceCalo:   "ECAL"
+ RawCaloHitInstanceMuID:   "MuID"
 
  HitLabel:                 "hit"
 

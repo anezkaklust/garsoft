@@ -200,7 +200,7 @@ drawMCTPCTruth       : true
 VolumesToShow        : ["volGArTPC", "volPVBarrel", "volPVEndcap", "volBarrelECal", "volEndcapECal"]
 
 G4ModuleLabel             : "geant"
-InstanceName              : [""]
+InstanceName              : ["ECAL", "MuID"]
 RawHitModuleLabels        : ["daqsipm"]
 RecoECALHitModuleLabels   : ["sscalohit"]
 RecoMuIDHitModuleLabels   : ["sipmhit"]

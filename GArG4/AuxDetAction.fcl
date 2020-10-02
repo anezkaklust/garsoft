@@ -2,12 +2,13 @@ BEGIN_PROLOG
 
 standard_auxdetaction:
 {
-ECALMaterial: "Scintillator"
-ApplyBirksLaw: true
-
 LArEnergyCut: 0.000001 # GeV
 LArVolumeName: ["volLArActive"]
 LArMaterial: "LAr"
+
+ECALMaterial: "Scintillator"
+MuIDMaterial: "Scintillator"
+ApplyBirksLaw: true
 }
 
 END_PROLOG

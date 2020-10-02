@@ -30,4 +30,32 @@ standard_singlep:
  AngleDist:             1           # 0 - uniform, 1 - gaussian
 }
 
+standard_singlep_cdr:
+{
+ module_type:           "SingleGen"
+ ParticleSelectionMode: 0           # 0 = use full list, 1 =  randomly select a single listed particle
+ PadOutVectors:		false	    # false: require all vectors to be same length
+                                    # true:  pad out if a vector is size one
+ PDG:                   [ 11 ]      # list of pdg codes for particles to make
+ P0:                    [ 1. ]      # central value of momentum for each particle
+ SigmaP:                [ 0. ]      # variation about the central value
+ PDist:                 1           # 0 - uniform, 1 - gaussian distribution
+ X0:                    [ 10. ]     # in cm in world coordinates -- x=0 is at the cathode plane of the TPC
+ Y0:                    [ -150. ]      # in cm in world coordinates, ie y = 218.196 is at the center of the TPC
+ Z0:                    [ 1486. ]      # in cm in world coordinates, ie z = 1124.02 is at the center of the TPC
+                                    # the TPC and increases with the beam direction
+ T0:                    [ 0. ]      # starting time
+ SigmaX:                [ 0. ]      # variation in the starting x position
+ SigmaY:                [ 0. ]      # variation in the starting y position
+ SigmaZ:                [ 0. ]     # variation in the starting z position
+ SigmaT:                [ 0.0 ]     # variation in the starting time
+ PosDist:               1           # 0 - uniform, 1 - gaussian
+ TDist:                 0           # 0 - uniform, 1 - gaussian
+ Theta0XZ:              [ 20. ]      #angle in XZ plane (degrees)
+ Theta0YZ:              [ 0 ]       #angle in YZ plane (degrees)
+ SigmaThetaXZ:          [ 0. ]      #in degrees
+ SigmaThetaYZ:          [ 0. ]      #in degrees
+ AngleDist:             1           # 0 - uniform, 1 - gaussian
+}
+
 END_PROLOG

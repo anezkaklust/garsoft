@@ -63,12 +63,13 @@ namespace gar {
         //-------------------------------------------------------------
         void AuxDetAction::reconfigure(fhicl::ParameterSet const& pset)
         {
-            fECALMaterial = pset.get<std::string>("ECALMaterial", "Scintillator");
-            fApplyBirksLaw = pset.get<bool>("ApplyBirksLaw", true);
-
             fLArEnergyCut = pset.get<double>("LArEnergyCut", 0.);
             fLArVolumeName = pset.get<std::vector<std::string>>("LArVolumeName");
             fLArMaterial = pset.get<std::string>("LArMaterial", "LAr");
+
+            fECALMaterial = pset.get<std::string>("ECALMaterial", "Scintillator");
+            fMuIDMaterial = pset.get<std::string>("MuIDMaterial", "Scintillator");
+            fApplyBirksLaw = pset.get<bool>("ApplyBirksLaw", true);
 
             std::cout << "AuxDetAction: Name of the Volumes to track for the LArTPC" << std::endl;
             for(unsigned int i = 0; i < fLArVolumeName.size(); i++) std::cout << fLArVolumeName.at(i) << " ";
@@ -83,6 +84,8 @@ namespace gar {
             // Clear any previous information.
             m_ECALDeposits.clear();
             fECALDeposits.clear();
+            m_MuIDDeposits.clear();
+            fMuIDDeposits.clear();
             fLArDeposits.clear();
         }
 
@@ -108,15 +111,23 @@ namespace gar {
 
             this->ECALSteppingAction(step);
 
+            if(fGeo->HasMuonDetector())
+            this->MuIDSteppingAction(step);
         }// end of AuxDetAction::SteppingAction
 
         //------------------------------------------------------------------------------
         void AuxDetAction::EndOfEventAction(const G4Event*)
         {
-            this->AddECALHits();
             //sort per time the hits
-            std::sort(fECALDeposits.begin(), fECALDeposits.end());
             std::sort(fLArDeposits.begin(), fLArDeposits.end());
+
+            this->AddECALHits();
+            std::sort(fECALDeposits.begin(), fECALDeposits.end());
+
+            if(fGeo->HasMuonDetector()) {
+                this->AddMuIDHits();
+                std::sort(fMuIDDeposits.begin(), fMuIDDeposits.end());
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -212,8 +223,7 @@ namespace gar {
             // check that we are in the correct material to record a hit
             std::string VolumeName   = this->GetVolumeName(track);
 
-            // if( std::find( fECALVolumeName.begin(), fECALVolumeName.end(), VolumeName ) == fECALVolumeName.end() )
-            // return;
+            if(VolumeName.find("ECal") == std::string::npos) return;
 
             // check the material
             auto pos = 0.5 * (start + stop);
@@ -300,6 +310,111 @@ namespace gar {
         }
 
         //------------------------------------------------------------------------------
+        void AuxDetAction::MuIDSteppingAction(const G4Step* step)
+        {
+            MF_LOG_DEBUG("AuxDetAction")
+            << "AuxDetAction::MuIDSteppingAction";
+
+            // Get the pointer to the track
+            G4Track *track = step->GetTrack();
+
+            const CLHEP::Hep3Vector &start = step->GetPreStepPoint()->GetPosition();
+            const CLHEP::Hep3Vector &stop  = track->GetPosition();
+
+            // If it's a null step, don't use it.
+            if(start == stop) return;
+            if(step->GetTotalEnergyDeposit() == 0) return;
+
+            // check that we are in the correct material to record a hit
+            std::string VolumeName   = this->GetVolumeName(track);
+
+            if(VolumeName.find("Yoke") == std::string::npos) return;
+
+            // check the material
+            auto pos = 0.5 * (start + stop);
+            TGeoNode *node = fGeo->FindNode(pos.x()/CLHEP::cm, pos.y()/CLHEP::cm, pos.z()/CLHEP::cm);//Node in cm...
+
+            if(!node){
+                MF_LOG_DEBUG("AuxDetAction::MuIDSteppingAction")
+                << "Node not found in "
+                << pos.x() << " mm "
+                << pos.y() << " mm "
+                << pos.z() << " mm";
+                return;
+            }
+
+            std::string volmaterial = node->GetMedium()->GetMaterial()->GetName();
+            if ( ! std::regex_match(volmaterial, std::regex(fMuIDMaterial)) ) return;
+
+            // only worry about energy depositions larger than the minimum required
+            MF_LOG_DEBUG("AuxDetAction::MuIDSteppingAction")
+            << "In volume "
+            << VolumeName
+            << " Material is "
+            << volmaterial
+            << " step size is "
+            << step->GetStepLength() / CLHEP::cm
+            << " cm and deposited "
+            << step->GetTotalEnergyDeposit()
+            << " MeV of energy";
+
+            // the step mid point is used for the position of the deposit
+            G4ThreeVector G4Global = 0.5 * (step->GetPreStepPoint()->GetPosition() + step->GetPostStepPoint()->GetPosition() );
+
+            //get layer and slice number from the volume name (easier for segmentation later)
+            unsigned int layer = this->GetLayerNumber(VolumeName); //get layer number
+            unsigned int slice = this->GetSliceNumber(VolumeName); // get slice number
+            unsigned int det_id = this->GetDetNumber(VolumeName); // 1 == Barrel, 2 = Endcap
+            unsigned int stave = this->GetStaveNumber(VolumeName); //get the stave number
+            unsigned int module = this->GetModuleNumber(VolumeName); //get the module number
+
+            MF_LOG_DEBUG("AuxDetAction::MuIDSteppingAction")
+            << "det_id " << det_id
+            << " stave " << stave
+            << " module " << module
+            << " layer " << layer
+            << " slice " << slice;
+
+            //Transform from global coordinates to local coordinates in mm
+            G4ThreeVector G4Local = this->globalToLocal(step, G4Global);
+            //Transform in cm
+            std::array<double, 3> G4Localcm = {G4Local.x() / CLHEP::cm, G4Local.y() / CLHEP::cm, G4Local.z() / CLHEP::cm};
+            //Get cellID
+            raw::CellID_t cellID = fGeo->GetCellID(node, det_id, stave, module, layer, slice, G4Localcm);//encoding the cellID on 64 bits
+
+            //Don't correct for the strip or tile position yet
+            double G4Pos[3] = {0., 0., 0.}; // in cm
+            G4Pos[0] = G4Global.x() / CLHEP::cm;
+            G4Pos[1] = G4Global.y() / CLHEP::cm;
+            G4Pos[2] = G4Global.z() / CLHEP::cm;
+
+            // get the track id for this step
+            auto trackID = ParticleListAction::GetCurrentTrackID();
+            float time = step->GetPreStepPoint()->GetGlobalTime();
+
+            float edep = this->GetStepEnergy(step, true) * CLHEP::MeV / CLHEP::GeV;
+
+            MF_LOG_DEBUG("AuxDetAction::MuIDSteppingAction")
+            << "Energy deposited "
+            << step->GetTotalEnergyDeposit() * CLHEP::MeV / CLHEP::GeV
+            << " GeV in cellID "
+            << cellID
+            << " after Birks "
+            << edep
+            << " GeV";
+
+            //Create a map of cellID to SimHit
+            gar::sdp::CaloDeposit hit( trackID, time, edep, G4Pos, cellID );
+            if(m_MuIDDeposits.find(cellID) != m_MuIDDeposits.end())
+            m_MuIDDeposits[cellID].push_back(hit);
+            else {
+                std::vector<gar::sdp::CaloDeposit> vechit;
+                vechit.push_back(hit);
+                m_MuIDDeposits.emplace(cellID, vechit);
+            }
+        }
+
+        //------------------------------------------------------------------------------
         std::string AuxDetAction::GetVolumeName(const G4Track *track)
         {
             std::string VolName = track->GetVolume()->GetName();
@@ -324,10 +439,21 @@ namespace gar {
         {
             unsigned int det_id = 0;
 
-            if( volname.find("Barrel") !=  std::string::npos )
-            det_id = 1;
-            if( volname.find("Endcap") !=  std::string::npos )
-            det_id = 2;
+            if( volname.find("ECal") !=  std::string::npos )
+            {
+                if( volname.find("Barrel") !=  std::string::npos )
+                det_id = 1;
+                if( volname.find("Endcap") !=  std::string::npos )
+                det_id = 2;
+            }
+
+            if( volname.find("Yoke") !=  std::string::npos )
+            {
+                if( volname.find("Barrel") !=  std::string::npos )
+                det_id = 4;
+                if( volname.find("Endcap") !=  std::string::npos )
+                det_id = 4;
+            }
 
             return det_id;
         }
@@ -422,6 +548,28 @@ namespace gar {
             }
         }
 
+        //------------------------------------------------------------------------------
+        void AuxDetAction::AddMuIDHits()
+        {
+            //Loop over the hits in the map and add them together
+            for(auto const &it : m_MuIDDeposits) {
+
+                raw::CellID_t cellID = it.first;
+                std::vector<gar::sdp::CaloDeposit> vechit = it.second;
+                std::sort(vechit.begin(), vechit.end()); //sort per time
+
+                float esum = 0.;
+                float time = vechit.at(0).Time();
+                int trackID = vechit.at(0).TrackID();
+                double pos[3] = { vechit.at(0).X(), vechit.at(0).Y(), vechit.at(0).Z() };
+
+                for(auto const &hit : vechit) {
+                    esum += hit.Energy();
+                }
+
+                fMuIDDeposits.emplace_back( trackID, time, esum, pos, cellID );
+            }
+        }
     } // garg4
 
 } // gar
