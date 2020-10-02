@@ -32,7 +32,7 @@
 
 namespace gar {
   namespace cheat {
-    
+
     //----------------------------------------------------------------------
     BackTracker::BackTracker(fhicl::ParameterSet const& pset,
                              art::ActivityRegistry    & reg)
@@ -52,14 +52,14 @@ namespace gar {
 
     //----------------------------------------------------------------------
     void BackTracker::Rebuild(art::Event const& evt, art::ScheduleContext) {
-      // Just drop the ScheduleContext that art requires. 
+      // Just drop the ScheduleContext that art requires.
       RebuildNoSC(evt);
     }
 
     void BackTracker::RebuildNoSC(art::Event const& evt) {
       // do nothing if this is data
       if (evt.isRealData()) return;
-      
+
       // do nothing if we are asked to do nothing
       if (fDisableRebuild) return;
 
@@ -97,22 +97,22 @@ namespace gar {
                 << "failed to associate MCTruth to MCParticle with " << fG4ModuleLabel
                 << "; all attempts to backtrack will fail\n";
             }
-            return;        
+            return;
 
           } else {
             for (size_t iPart = 0; iPart < partCol->size(); ++iPart) {
 
               simb::MCParticle *part = new simb::MCParticle(partCol->at(iPart));
               fParticleList.Add(part);
-          
+
               // get the simb::MCTruth associated to this MCParticle
               try {
                 art::Ptr<simb::MCTruth> mct = fo.at(iPart);
                 if (fMCTruthList.size() < 1) {
                   fMCTruthList.push_back(mct);
                 } else {
-                  // check that we are not adding a simb::MCTruth twice to 
-                  // the collection we know that all the particles for a 
+                  // check that we are not adding a simb::MCTruth twice to
+                  // the collection we know that all the particles for a
                   // given simb::MCTruth are put into the collection of
                   // particles at the same time, so we can just check that the
                   // current ::art::Ptr has a different id than the last one put
@@ -162,7 +162,7 @@ namespace gar {
 
       fGeo = gar::providerFrom<geo::Geometry>();
 
-      // Create the channel to energy deposit collection.  Start by 
+      // Create the channel to energy deposit collection.  Start by
       // looking for the RawDigit collection from the event and create
       // a FindMany mapping between the digits and energy deposits if it exists.
       for (auto vec : fChannelToEDepCol) vec.clear();
@@ -187,7 +187,7 @@ namespace gar {
               << "energy deposits in " << fRawTPCDataLabel <<
               "; no backtracking in TPC will be possible";
           }
- 
+
         } else {
           fChannelToEDepCol.resize(fGeo->NChannels());
           ++fSTFU;
@@ -210,23 +210,24 @@ namespace gar {
 
 
 
-      // Create the CellID to energy deposit collection.  Start by 
+      // Create the CellID to energy deposit collection.  Start by
       // looking for the CaloRawDigit collection from the event and create
       // a FindMany mapping between these digits and CaloDeposits if it exists.
       fECALTrackToTPCTrack->clear();
       fCellIDToEDepCol.clear();
       art::Handle<std::vector<raw::CaloRawDigit>> caloDigCol;
-      evt.getByLabel(fRawCaloDataLabel, caloDigCol);
+      art::InputTag ecalrawtag(fRawCaloDataLabel, fRawCaloDataECALInstance);
+      evt.getByLabel(ecalrawtag, caloDigCol);
       if (!caloDigCol.isValid()) {
         ++fSTFU;
         if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
           MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
             << "Unable to find CaloRawDigits in " << fRawCaloDataLabel <<
             "; no backtracking in ECAL will be possible";
-        }            
+        }
 
       } else {
-        art::FindMany<sdp::CaloDeposit> fmCaloDep(caloDigCol, evt, fRawCaloDataLabel);
+        art::FindMany<sdp::CaloDeposit> fmCaloDep(caloDigCol, evt, ecalrawtag);
         if (!fmCaloDep.isValid()) {
           ++fSTFU;
           if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
@@ -251,7 +252,7 @@ namespace gar {
 
 
       // Create an unordered map of IDNumbers of reco'd Tracks to the hits in those tracks
-      // Just to keep the code comprehensible, first map Tracks to TPCClusters, then 
+      // Just to keep the code comprehensible, first map Tracks to TPCClusters, then
       // TPCClusters to Hits, then build the combined map.
       std::unordered_map< rec::IDNumber, std::vector<const rec::TPCCluster*> > lTrackIDToTPCClusters;
       art::Handle<std::vector<rec::Track>> recoTrackCol;
@@ -262,7 +263,7 @@ namespace gar {
           MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
             << "Unable to find rec::Tracks in " << fTrackLabel <<
             "; no backtracking of reconstructed tracks will be possible";
-        }        
+        }
 
       } else {
         art::FindMany<rec::TPCCluster> fmTPCClusts(recoTrackCol, evt, fTrackLabel);
@@ -328,7 +329,7 @@ namespace gar {
             lTrackIDToTPCClusters[ aTrack.getIDNumber() ];
           std::vector<art::Ptr<rec::Hit>> hitsThisTrack;
           for (const rec::TPCCluster* aTPClus : tpclusThisTrack) {
-            std::vector<art::Ptr<rec::Hit>> hitsThisClus = 
+            std::vector<art::Ptr<rec::Hit>> hitsThisClus =
               lTPClusIDsToHits[aTPClus->getIDNumber()];
             hitsThisTrack.insert( hitsThisTrack.end(),
                                   hitsThisClus.begin(),hitsThisClus.end() );

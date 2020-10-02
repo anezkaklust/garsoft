@@ -20,18 +20,23 @@
 #include "canvas/Persistency/Common/FindMany.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 
+// nutools extensions
+#include "nurandom/RandomUtils/NuRandomService.h"
+
 #include "nusimdata/SimulationBase/GTruth.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "CoreUtils/ServiceUtil.h"
 #include "Geometry/Geometry.h"
 
+#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandFlat.h"
+
 #include "TFile.h"
 #include "TTree.h"
 #include "TDatabasePDG.h"
 #include "TParticlePDG.h"
 #include "TVector3.h"
-#include "TRandom3.h"
 #include "TF1.h"
 #include "TH1.h"
 #include "TH2.h"
@@ -47,7 +52,7 @@ namespace gar {
     {
     public:
         /* C'tor */
-        CAFHelper(const geo::GeometryCore *fGeo);
+        CAFHelper(const geo::GeometryCore *fGeo, CLHEP::HepRandomEngine& engine);
 
         /* D'tor */
         ~CAFHelper();
@@ -76,12 +81,12 @@ namespace gar {
         /* Check if MCP is in the Endcap region */
         bool isEndcap(const TVector3& point);
 
-        float GetRamdomNumber() { return _rando->Rndm(); }
+        float GetRamdomNumber();
 
-        float GaussianSmearing(const float& mean, const float& sigma) { return _rando->Gaus(mean, sigma); }
+        float GaussianSmearing(const float& mean, const float& sigma);
 
     private:
-        TRandom3 *_rando;                ///< random generator
+        CLHEP::HepRandomEngine& fEngine;
 
         //For the fiducial volume
         const double fTPCFidRadius = 222.5;
@@ -98,8 +103,24 @@ namespace gar {
     };
 
     //==============================================================================
-    CAFHelper::CAFHelper(const geo::GeometryCore *fGeo)
-    : _rando(new TRandom3(0))
+    inline float CAFHelper::GetRamdomNumber() {
+        CLHEP::RandFlat FlatRand(fEngine);
+        float value = FlatRand.fire();
+        std::cout << "CAFHelper::GetRamdomNumber " << value << std::endl;
+        return value;
+    }
+
+    //==============================================================================
+    inline float CAFHelper::GaussianSmearing(const float& mean, const float& sigma) {
+        CLHEP::RandGauss GausRand(fEngine);
+        float value = GausRand.fire(mean, sigma);
+        std::cout << "CAFHelper::GaussianSmearing(" << mean << ", " << sigma << ") " << value << std::endl;
+        return value;
+    }
+
+    //==============================================================================
+    CAFHelper::CAFHelper(const geo::GeometryCore *fGeo, CLHEP::HepRandomEngine& engine)
+    : fEngine(engine)
     {
         fTPCRadius = fGeo->TPCRadius();
         fTPCLength = fGeo->TPCLength()/2.;
@@ -113,11 +134,11 @@ namespace gar {
 
     CAFHelper::~CAFHelper()
     {
-        delete _rando;
+
     }
 
     //==============================================================================
-    bool CAFHelper::PointInFiducial(const TVector3& point)
+    inline bool CAFHelper::PointInFiducial(const TVector3& point)
     {
         //TPC Fiducial volume defined as
         //R < 260 cm
@@ -132,7 +153,7 @@ namespace gar {
     }
 
     //==============================================================================
-    bool CAFHelper::PointInTPC(const TVector3& point)
+    inline bool CAFHelper::PointInTPC(const TVector3& point)
     {
         //TPC volume defined as
         //R < 260 cm
@@ -148,7 +169,7 @@ namespace gar {
     }
 
     //==============================================================================
-    bool CAFHelper::PointInCalo(const TVector3& point)
+    inline bool CAFHelper::PointInCalo(const TVector3& point)
     {
         //Barrel Radius 278 cm
         //Endcap starts at 364 cm
@@ -163,7 +184,7 @@ namespace gar {
     }
 
     //==============================================================================
-    bool CAFHelper::PointStopBetween(const TVector3& point)
+    inline bool CAFHelper::PointStopBetween(const TVector3& point)
     {
         //Barrel Radius 278 cm
         //Endcap starts at 364 cm
@@ -178,19 +199,19 @@ namespace gar {
     }
 
     //==============================================================================
-    bool CAFHelper::isThroughCalo(const TVector3& point)
+    inline bool CAFHelper::isThroughCalo(const TVector3& point)
     {
         return !PointInTPC(point) && !PointStopBetween(point) && !PointInCalo(point);
     }
 
     //==============================================================================
-    bool CAFHelper::hasDecayedInCalo(const TVector3& point)
+    inline bool CAFHelper::hasDecayedInCalo(const TVector3& point)
     {
         return PointInCalo(point);
     }
 
     //==============================================================================
-    bool CAFHelper::isBarrel(const TVector3& point)
+    inline bool CAFHelper::isBarrel(const TVector3& point)
     {
         bool isBarrel = false;
         float theta = std::atan(fECALBarrelInnerRadius / std::abs(fECALStartX) ); //angle for barrel/endcap transition
@@ -202,7 +223,7 @@ namespace gar {
     }
 
     //==============================================================================
-    bool CAFHelper::isEndcap(const TVector3& point)
+    inline bool CAFHelper::isEndcap(const TVector3& point)
     {
         bool isEndcap = false;
         if( !isBarrel(point) ) isEndcap = true;
@@ -252,6 +273,7 @@ namespace gar {
         //Geometry
         const geo::GeometryCore* fGeo; ///< pointer to the geometry
         CAFHelper* fHelper;
+        CLHEP::HepRandomEngine              &fEngine;  ///< random engine
 
         //fcl parameters
         std::string fGeneratorLabel;
@@ -319,10 +341,12 @@ namespace gar {
 
     //==============================================================================
     ParamSim::ParamSim(fhicl::ParameterSet const & p)
-    : EDAnalyzer(p)
+    : EDAnalyzer(p),
+    fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "Seed"))
     {
         fGeo     = gar::providerFrom<geo::Geometry>();
-        fHelper  = new CAFHelper(fGeo);
+        fHelper  = new CAFHelper(fGeo, fEngine);
+
         fRes = new TF1("fRes", "TMath::Sqrt ( [0]*[0]/x + [1]*[1] )", 3);
         fRes->FixParameter(0, ECAL_stock);
         fRes->FixParameter(1, ECAL_const);

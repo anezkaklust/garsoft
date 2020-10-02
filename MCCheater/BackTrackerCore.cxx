@@ -38,10 +38,11 @@ namespace gar{
 
             fRawTPCDataLabel      = pset.get<std::string>("RawTPCDataLabel",         "daq");
 
-            fRawCaloDataLabel     = pset.get<std::string>("RawCaloDataLabel",        "daqecal");
-            fECALtimeResolution   = pset.get<double     >("ECALtimeResolution",       1.0);
-            fMinHitEnergyFraction = pset.get<double     >("MinHitEnergyFraction",     0.1);
-            fMinCaloHitEnergyFrac = pset.get<double     >("MinCaloHitEnergyFrac",     0.1);
+            fRawCaloDataLabel         = pset.get<std::string>("RawCaloDataLabel",        "daqsipm");
+            fRawCaloDataECALInstance  = pset.get<std::string>("RawCaloDataECALInstance",    ""    );
+            fECALtimeResolution       = pset.get<double     >("ECALtimeResolution",       1.0);
+            fMinHitEnergyFraction     = pset.get<double     >("MinHitEnergyFraction",     0.1);
+            fMinCaloHitEnergyFrac     = pset.get<double     >("MinCaloHitEnergyFrac",     0.1);
 
             fTrackLabel           = pset.get<std::string>("TrackLabel",              "track");
             fTPCClusterLabel      = pset.get<std::string>("TPCClusterLabel",         "tpccluster");
@@ -360,7 +361,7 @@ namespace gar{
 
             /* DEB hits without edeps
             std::cout << "Channel " << channel << ", at (z,y) = (" << chanpos[2] << ", "
-                << chanpos[1] << ") has " << chanEDeps.size() << " edeps, and " << 
+                << chanpos[1] << ") has " << chanEDeps.size() << " edeps, and " <<
                 hitIDEs.size() << " are in-time between " << start << " and " << stop
                 << std::endl; */
 
