@@ -15,7 +15,7 @@ nlayers: 3
 
 standard_muidsegalgpars_v2:
 {
-SegmentationAlgName: "SegmentationStripYAlg"
+SegmentationAlgName: "SegmentationMuIDAlg"
 cellEncoding: "system:3,module:3,stave:4,layer:7,slice:3,cellX:32:-16,cellY:-16"
 identifier_x: "cellX"
 identifier_y: "cellY"

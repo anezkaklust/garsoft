@@ -200,7 +200,7 @@ drawMCTPCTruth       : true
 VolumesToShow        : ["volGArTPC", "volPVBarrel", "volPVEndcap", "volBarrelECal", "volEndcapECal"]
 
 G4ModuleLabel             : "geant"
-InstanceName              : [""]
+InstanceName              : ["ECAL", "MuID"]
 RawHitModuleLabels        : ["daqsipm"]
 RecoECALHitModuleLabels   : ["sscalohit"]
 RecoMuIDHitModuleLabels   : ["sipmhit"]
@@ -244,7 +244,7 @@ drawIntersection      : false
 drawNeutronTrajectories : false
 }
 
-standard_evd3D_tempMPD:
+standard_evd3D_dayone:
 {
 module_type          : EVD3D
 drawECALRawHits      : false

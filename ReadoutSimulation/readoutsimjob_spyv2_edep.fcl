@@ -1,0 +1,6 @@
+#include "readoutsimjob_spyv2.fcl"
+
+physics.producers.daq.G4ModuleLabel:        "edepconvert"
+physics.producers.daqsipm.G4ModuleLabel:    "edepconvert"
+physics.producers.daqsipm.ECALInstanceName:   "ECAL"
+physics.producers.daqsipm.MuIDInstanceName:   "MuID"

@@ -63,5 +63,3 @@ SelectEvents: [ simulate ]
 physics.producers.edepconvert.EDepSimFile: ""
 physics.producers.edepconvert.GhepFile: ""
 physics.producers.edepconvert.OverlayFile: false
-
-services.Geometry.GDML: "nd_hall_mpd_only/nd_hall_mpd_only_ECalOctagon_60l_UniformMagnet.gdml"

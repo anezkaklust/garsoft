@@ -7,7 +7,7 @@
 #include "DetectorProperties.fcl"
 #include "GArProperties.fcl"
 #include "ECALProperties.fcl"
-#include "Geometry.fcl"
+#include "Geometry_CDR.fcl"
 #include "RunHistory.fcl"
 #include "BackTracker.fcl"
 

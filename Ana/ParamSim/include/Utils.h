@@ -24,38 +24,38 @@ public:
     void SetOrigin(double *origin);
 
     /* Check if MCP point is in fiducial */
-    bool PointInFiducial(TVector3 point);
+    bool PointInFiducial(const TVector3 &point);
 
     /* Check if MCP point is in TPC Volume (can be outside Fid) */
-    bool PointInTPC(TVector3 point);
+    bool PointInTPC(const TVector3 &point);
 
     /* Check if MCP point is in the ECAL */
-    bool PointInCalo(TVector3 point);
+    bool PointInCalo(const TVector3 &point);
 
     /* Check if MCP point is in between the TPC and the ECAL */
-    bool PointStopBetween(TVector3 point);
+    bool PointStopBetween(const TVector3 &point);
 
     /* Check if MCP point is not in the fiducial and not in the ECAL */
-    bool isThroughCalo(TVector3 point);
+    bool isThroughCalo(const TVector3 &point);
 
     /* Check if MCP decayed in calo */
-    bool hasDecayedInCalo(TVector3 point);
+    bool hasDecayedInCalo(const TVector3 &point);
 
     /* Check if MCP is in the Barrel region */
-    bool isBarrel(TVector3 point);
+    bool isBarrel(const TVector3 &point);
 
     /* Check if MCP is in the Endcap region */
-    bool isEndcap(TVector3 point);
+    bool isEndcap(const TVector3 &point);
 
     /* Check if the mcp is a backscatter */
-    bool isBackscatter(TVector3 spoint, TVector3 epoint);
+    bool isBackscatter(const TVector3 &spoint, const TVector3 &epoint);
 
     /* Check if it is a Bremsstrahlung photon */
-    bool isBremsstrahlung(TVector3 spoint, int pdg, int motherpdg);
+    bool isBremsstrahlung(const TVector3 &spoint, const int& pdg, const int& motherpdg);
 
     float GetRamdomNumber() { return _rando->Rndm(); }
 
-    float GaussianSmearing(float mean, float sigma) { return _rando->Gaus(mean, sigma); }
+    float GaussianSmearing(const float& mean, const float& sigma) { return _rando->Gaus(mean, sigma); }
 
     double* GetOrigin() { return &_origin[0]; }
 

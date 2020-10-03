@@ -4,10 +4,10 @@ BEGIN_PROLOG
 
 standard_sipmreadout:
 {
- module_type:          "SiPMReadout"
- G4ModuleLabel:        "geant"
- ECALInstanceName:       ""
- MuIDInstanceName:       ""
+ module_type:           "SiPMReadout"
+ G4ModuleLabel:         "geant"
+ ECALInstanceName:      "ECAL"
+ MuIDInstanceName:      "MuID"
  ECALReadoutSimAlgPars: @local::standard_ecalreadoutsimalg
  MuIDReadoutSimAlgPars: @local::standard_muidreadoutsimalg
 }

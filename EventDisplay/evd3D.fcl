@@ -1,4 +1,4 @@
-#include "Geometry.fcl"
+#include "Geometry_CDR.fcl"
 #include "evdservices_base.fcl"
 #include "DetectorProperties.fcl"
 #include "GArProperties.fcl"

@@ -26,7 +26,7 @@ void Utils::SetOrigin(double *origin)
     _origin[2] = origin[2];
 }
 
-bool Utils::PointInFiducial(TVector3 point)
+bool Utils::PointInFiducial(const TVector3 &point)
 {
     //TPC Fiducial volume defined as
     //R < 260 cm
@@ -40,7 +40,7 @@ bool Utils::PointInFiducial(TVector3 point)
     return isInFiducial;
 }
 
-bool Utils::PointInTPC(TVector3 point)
+bool Utils::PointInTPC(const TVector3 &point)
 {
     //TPC volume defined as
     //R < 260 cm
@@ -55,7 +55,7 @@ bool Utils::PointInTPC(TVector3 point)
     return isInTPC;
 }
 
-bool Utils::PointInCalo(TVector3 point)
+bool Utils::PointInCalo(const TVector3 &point)
 {
     //Barrel Radius 278 cm
     //Endcap starts at 364 cm
@@ -69,7 +69,7 @@ bool Utils::PointInCalo(TVector3 point)
     return isInCalo;
 }
 
-bool Utils::PointStopBetween(TVector3 point)
+bool Utils::PointStopBetween(const TVector3 &point)
 {
     //Barrel Radius 278 cm
     //Endcap starts at 364 cm
@@ -83,17 +83,17 @@ bool Utils::PointStopBetween(TVector3 point)
     return isStopBetween;
 }
 
-bool Utils::isThroughCalo(TVector3 point)
+bool Utils::isThroughCalo(const TVector3 &point)
 {
     return !PointInTPC(point) && !PointStopBetween(point) && !PointInCalo(point);
 }
 
-bool Utils::hasDecayedInCalo(TVector3 point)
+bool Utils::hasDecayedInCalo(const TVector3 &point)
 {
     return PointInCalo(point);
 }
 
-bool Utils::isBarrel(TVector3 point)
+bool Utils::isBarrel(const TVector3 &point)
 {
     bool isBarrel = false;
     float theta = std::atan(_ECALInnerRadius / std::abs(_ECALStartX) ); //angle for barrel/endcap transition
@@ -104,14 +104,14 @@ bool Utils::isBarrel(TVector3 point)
     return isBarrel;
 }
 
-bool Utils::isEndcap(TVector3 point)
+bool Utils::isEndcap(const TVector3 &point)
 {
     bool isEndcap = false;
     if( !isBarrel(point) ) isEndcap = true;
     return isEndcap;
 }
 
-bool Utils::isBackscatter(TVector3 spoint, TVector3 epoint)
+bool Utils::isBackscatter(const TVector3 &spoint, const TVector3 &epoint)
 {
     bool isBackscatter = false;
 
@@ -127,7 +127,7 @@ bool Utils::isBackscatter(TVector3 spoint, TVector3 epoint)
     return isBackscatter;
 }
 
-bool Utils::isBremsstrahlung(TVector3 spoint, int pdg, int motherpdg)
+bool Utils::isBremsstrahlung(const TVector3 &spoint, const int& pdg, const int& motherpdg)
 {
     bool isBremsstrahlung = false;
 

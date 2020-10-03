@@ -89,7 +89,7 @@ namespace gar {
             fSSAAlgo = std::make_unique<rec::alg::StripSplitterAlg>(fSSAAlgoPars);
             fSaveStripEnds = fSSAAlgo->GetSaveStripEndsFlag();
 
-            if(fSaveStripEnds && fChattyLog) {
+            if(fSaveStripEnds) {
                 MF_LOG_INFO("CaloStripSplitter_module")
                 << " Saving Strip ends flag turned on! ";
             }

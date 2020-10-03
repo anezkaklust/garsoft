@@ -6,7 +6,7 @@
 #include "DetectorProperties.fcl"
 #include "GArProperties.fcl"
 #include "ECALProperties.fcl"
-#include "Geometry.fcl"
+#include "Geometry_CDR.fcl"
 #include "RunHistory.fcl"
 
 #Plugins
@@ -53,7 +53,7 @@ physics:
 
  producers:
  {
-   generator: @local::standard_singlep
+   generator: @local::standard_singlep_cdr
    geant:     @local::standard_geant
    rns:       { module_type: "RandomNumberSaver" }
  }

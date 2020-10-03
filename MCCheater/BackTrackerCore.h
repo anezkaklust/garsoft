@@ -75,7 +75,7 @@ namespace gar{
 
         class BackTrackerCore {
         public:
-      
+
             explicit BackTrackerCore(fhicl::ParameterSet const& pset);
             ~BackTrackerCore();
 
@@ -83,6 +83,13 @@ namespace gar{
             void AdoptEveIdCalculator(sim::EveIdCalculator* ec) {
                 fParticleList.AdoptEveIdCalculator(ec);
             }
+
+            // Getter functions for users re. what back-trackable info is available in this event.
+            bool HasMC()       {return fHasMC;      }
+            bool HasHits()     {return fHasHits;    }
+            bool HasCalHits()  {return fHasCalHits; }
+            bool HasTracks()   {return fHasTracks;  }
+            bool HasClusters() {return fHasClusters;}
 
 
 
@@ -108,14 +115,14 @@ namespace gar{
 
             simb::MCParticle* const FindEve(simb::MCParticle* const p) const;
 
-            // FindTPCEve is not a const method because it saves result of previous 
+            // FindTPCEve is not a const method because it saves result of previous
             // calls in `this' for efficiency.  2nd signature mostly for internal use.
             simb::MCParticle* const FindTPCEve(simb::MCParticle* const p) const;
             simb::MCParticle* const FindTPCEve(int const trackId) const;
 
             bool IsDescendedFrom(simb::MCParticle* const forebear,
                                  simb::MCParticle* const afterbear) const;
-      
+
             // Returns an ::art::Ptr<> to simb::MCTruth
             art::Ptr<simb::MCTruth> const ParticleToMCTruth(simb::MCParticle* const p) const;
 
@@ -144,7 +151,7 @@ namespace gar{
                       std::vector<art::Ptr<rec::Hit>> const& hits,
                       bool weightByCharge=false) const;
 
-            // method to return the fraction of all hits in an event from a specific set of 
+            // method to return the fraction of all hits in an event from a specific set of
             // Geant4 track IDs that arerepresented in a collection of hits
             std::pair<double,double>
             HitEfficiency(simb::MCParticle* const p,
@@ -168,15 +175,15 @@ namespace gar{
             ParticleToCaloHits(simb::MCParticle* const p,
                                std::vector<art::Ptr<rec::CaloHit>> const& allhits) const;
 
-            // Find the fraction of CaloHits in a collection that come from the specified 
-            // MCParticle with statistical uncertainty.  Binomial uncertainty in weighted 
+            // Find the fraction of CaloHits in a collection that come from the specified
+            // MCParticle with statistical uncertainty.  Binomial uncertainty in weighted
             // events is from the usual primitive algorithm, which is not obviously right to me.
             std::pair<double,double>
             CaloHitPurity(simb::MCParticle* const p,
                           std::vector<art::Ptr<rec::CaloHit>> const& hits,
                           bool weightByCharge=false) const;
 
-            // method to return the fraction of all hits in an event from a specific set of 
+            // method to return the fraction of all hits in an event from a specific set of
             // Geant4 track IDs that arerepresented in a collection of hits
             std::pair<double,double>
             CaloHitEfficiency(simb::MCParticle* const p,
@@ -213,9 +220,8 @@ namespace gar{
                               std::vector<art::Ptr<rec::Cluster>> const& clusters);
 
 
-      
-        private:
 
+        private:
             std::vector<HitIDE>
             ChannelToHitIDEs(raw::Channel_t const& channel,
                              double const start, double const stop) const;
@@ -226,7 +232,6 @@ namespace gar{
 
 
         protected:
-
             bool fHasMC, fHasHits, fHasCalHits, fHasTracks, fHasClusters;
             int  fSTFU;
 
@@ -237,6 +242,7 @@ namespace gar{
             std::string                                         fG4ModuleLabel;         ///< label for geant4 module
             std::string                                         fRawTPCDataLabel;       ///< label for TPC readout module
             std::string                                         fRawCaloDataLabel;      ///< label for ECAL readout module
+            std::string                                         fRawCaloDataECALInstance; ///< instance name for the ECAL raw hits
             double                                              fECALtimeResolution;    ///< time resolution for hits in ECAL, nsec.
             double                                              fMinHitEnergyFraction;  ///< min frac of ionization a track has to count in a TPC hit
             double                                              fMinCaloHitEnergyFrac;  ///< min frac of ionization a track has to count in a CaloHit

@@ -52,17 +52,20 @@ namespace gar {
             void PostTrackingAction(const G4Track*);
             void SteppingAction    (const G4Step* );
 
-            //  Returns the CaloDeposit set accumulated during the current event.
-            std::vector<gar::sdp::CaloDeposit> const& CaloDeposits() const { return fECALDeposits; }
-
             //  Returns the LArDeposit set accumulated during the current event.
             std::vector<gar::sdp::LArDeposit> const& LArDeposits() const { return fLArDeposits; }
+            //  Returns the CaloDeposit set accumulated during the current event.
+            std::vector<gar::sdp::CaloDeposit> const& CaloDeposits() const { return fECALDeposits; }
+            //  Returns the CaloDeposit set accumulated during the current event.
+            std::vector<gar::sdp::CaloDeposit> const& MuIDDeposits() const { return fMuIDDeposits; }
 
         private:
 
             void LArSteppingAction(const G4Step* );
             void ECALSteppingAction(const G4Step* );
             void AddECALHits();
+            void MuIDSteppingAction(const G4Step* );
+            void AddMuIDHits();
 
             std::string GetVolumeName(const G4Track *track);
 
@@ -77,16 +80,18 @@ namespace gar {
             float GetStepEnergy(const G4Step* step, bool birks);
             float birksAttenuation(const G4Step* step);
 
-            std::string fECALMaterial;                             ///< Material for the ECAL
-            bool fApplyBirksLaw;
-
             double                             fLArEnergyCut;     ///< The minimum energy in GeV for a particle to be included in the list.
             std::string fLArMaterial;                             ///< Material for the LArTPC
             std::vector<std::string>           fLArVolumeName;    ///< volume we will record energy depositions in
+            std::string fECALMaterial;                             ///< Material for the ECAL
+            std::string fMuIDMaterial;                             ///< Material for the MuID
+            bool fApplyBirksLaw;
 
+            std::vector<gar::sdp::LArDeposit> fLArDeposits;          ///< energy fDeposits for the LArTPC
             std::map< raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_ECALDeposits;
             std::vector<gar::sdp::CaloDeposit> fECALDeposits;          ///< energy fDeposits for the ECAL
-            std::vector<gar::sdp::LArDeposit> fLArDeposits;          ///< energy fDeposits for the LArTPC
+            std::map< raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_MuIDDeposits;
+            std::vector<gar::sdp::CaloDeposit> fMuIDDeposits;          ///< energy fDeposits for the MuID
 
             const gar::geo::GeometryCore*      fGeo;               ///< geometry information
             const detinfo::DetectorProperties*       fDetProp;  ///< detector properties

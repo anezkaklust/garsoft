@@ -1,0 +1,13 @@
+BEGIN_PROLOG
+
+standard_matchingstudy:
+{
+ module_type:               MatchingPerformance
+
+ GEANTLabel:               "geant"
+ TrackLabel:               "track"
+ ClusterLabel:             "calocluster"
+ ECALAssnLabel:            "trkecalassn"
+}
+
+END_PROLOG

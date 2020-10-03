@@ -4,11 +4,12 @@ standard_backtracker:
 {
  DisableRebuild:            false        # switches off Backtracker functionality
 
- G4ModuleLabel:            "geant"       # module that produced the sim::Particle and sim::SimChannel objects
+ G4ModuleLabel:             "geant"       # module that produced the sim::Particle and sim::SimChannel objects
 
- RawTPCDataLabel:          "daq"         # module that made the RawDigits for the TPC
+ RawTPCDataLabel:           "daq"         # module that made the RawDigits for the TPC
 
- RawCaloDataLabel:         "daqecal"     # module that made the CaloRawDigits for the ECAL
+ RawCaloDataLabel:          "daqsipm"     # module that made the CaloRawDigits for the ECAL
+ RawCaloDataECALInstance:   "ECAL"        # instance name for the raw hits of the ECAL (to distinguish with MuID hits)
  ECALtimeResolution:        1.0          # time resolution for hits in ECAL, nsec. (3, 4 sigma, OK?)
  MinHitEnergyFraction:      0.1          # min frac of total E a G4 track contributes to a TPC hit to be counted
  MinCaloHitEnergyFrac:      0.1          # min frac of total E a G4 track contributes to a CaloHit to be counted
