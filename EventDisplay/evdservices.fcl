@@ -4,7 +4,7 @@
 # Version: 1.0
 #
 
-#include "Geometry.fcl"
+#include "Geometry_CDR.fcl"
 #include "DetectorProperties.fcl"
 #include "GArProperties.fcl"
 #include "ECALProperties.fcl"
