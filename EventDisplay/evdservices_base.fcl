@@ -43,7 +43,7 @@ standard_recodrawingopt:
  HitModuleLabels:           ["hit"]    # list of module labels in which to look for gar::rec::Hits
  TPCClusterModuleLabels:    ["tpccluster"]    # list of module labels in which to look for gar::rec::TPCClusters
  CaloClusterModuleLabels:   ["calocluster"]   # list of module labels in which to look for gar::rec::Clusters
- CaloHitModuleLabels:       ["calohit"]   # list of module labels in which to look for gar::rec::Clusters
+ CaloHitModuleLabels:       ["sipmhit:ECAL", "sscalohit" ]   # list of module labels in which to look for gar::rec::Clusters
  TrackModuleLabels:         ["track"]  # list of module labels in which to look for gar::rec::Tracks
  ShowerModuleLabels:        ["shower"] # list of module labels in which to look for gar::rec::Showers
  VecHitModuleLabels:        ["vechit"] # list of module labels in which to look for gar::rec::VecHits
