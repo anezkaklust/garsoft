@@ -13,8 +13,10 @@ standard_tpctrackfit2:
  KalPhiStepUncSq:            1.0E-9     # square of constant uncertainty term on each step of Kalman fit -- phi
  KalLambdaStepUncSq:         1.0E-4     # square of constant uncertainty term on each step of Kalman fit -- lambda
  KalCovZYMeasure:            4.0        # constant uncertainty term on measurement in Kalman (the R matrix) in cm
- SortTransWeight:            0.1        # for use in the hit sorting algorithm -- transverse distance weight factor
- SortDistBack:               2.0        # for use in the hit sorting algorithm -- how far to go back before raising the distance figure of merit
+ SortAlg:                          2    # 1: old sort alg, 2: greedy distance sorting
+ SortTransWeight:            0.1        # for use in hit sorting algorithm #1 -- transverse distance weight factor
+ SortDistBack:               2.0        # for use in hit sorting algorithm #1 -- how far to go back before raising the distance figure of merit
+ SortDistCut:               50.0        # distance cut for sort algorithm #2
  MinNumTPCClusters:               15    # minimum number of TPCClusters on a track
  InitialTPNTPCClusters:          100    # number of TPCClusters to use for initial trackpar estimate, if present
  PrintLevel:                       0    # Debug printout:  0: none, 1: track parameters and residuals, 2: everything

@@ -77,8 +77,10 @@ namespace gar {
       unsigned int fMinNumTPCClusters;     ///< minimum number of TPCClusters to define a track
       int fDumpTracks;                     ///< 0: do not print out tracks, 1: print out tracks
       float fRoadYZinFit;                  ///< cut in cm for dropping TPCClusters from tracks in fit
-      float fSortTransWeight;              ///< for use in the hit sorting algorithm -- transverse distance weight factor
-      float fSortDistBack;                 ///< for use in the hit sorting algorithm -- how far to go back before raising the distance figure of merit
+      int   fSortAlg;                      ///< which hit sorting alg to use.  1: old, 2: greedy distance sort
+      float fSortDistCut;                  ///< distance cut to pass to hit sorter #2
+      float fSortTransWeight;              ///< for use in hit sorting algorithm #1 -- transverse distance weight factor
+      float fSortDistBack;                 ///< for use in hit sorting algorithm #1 -- how far to go back before raising the distance figure of merit
       float fMinIonizGapCut;               ///< Don't compute dEdx for this dx or larger
 
       float fTPCClusterResid__CROC_b;      ///< parameters to estimate residuals in YZ plane
@@ -130,6 +132,8 @@ namespace gar {
       fSortTransWeight   = p.get<float>("SortTransWeight",0.1);
       fSortDistBack      = p.get<float>("SortDistBack",2.0);
       fMinIonizGapCut    = p.get<float>("MinIonizGapCut",5.0);
+      fSortDistCut       = p.get<float>("SortDistCut",10.0);
+      fSortAlg           = p.get<int>("SortAlg",2);
 
       fTPCClusterResid__CROC_b = p.get<float>("TPCClusterResid__CROC_b", 0.2);
       fTPCClusterResid__CROC_m = p.get<float>("TPCClusterResid__CROC_m", 0.1);
@@ -243,8 +247,18 @@ namespace gar {
       std::vector<int> hlb;
       float lftmp=0;  // need these dummy arguments so we can share code with the patrec sorter
       float lbtmp=0;
-      gar::rec::sort_TPCClusters_along_track(TPCClusters,hlf,hlb,fPrintLevel,lftmp,lbtmp,fSortTransWeight,fSortDistBack);
-
+      if (fSortAlg == 1)
+	{
+          gar::rec::sort_TPCClusters_along_track(TPCClusters,hlf,hlb,fPrintLevel,lftmp,lbtmp,fSortTransWeight,fSortDistBack);
+	}
+      else if (fSortAlg == 2)
+	{
+	  gar::rec::sort_TPCClusters_along_track2(TPCClusters,hlf,hlb,fPrintLevel,lftmp,lbtmp,fSortDistCut);
+	}
+      else
+	{
+	  throw cet::exception("tpctrackfit2_module") << "Sort Algorithm swithc not understood: " << fSortAlg; 
+	}
       std::vector<float> tparend(6);
       float covmatend[25];
       float chisqforwards = 0;
