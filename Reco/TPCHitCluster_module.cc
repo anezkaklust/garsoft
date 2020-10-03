@@ -99,8 +99,8 @@ namespace gar {
     {
       art::ServiceHandle<geo::Geometry> euclid;
       float xtpccent = euclid->TPCXCent();
-      //float ytpccent = geo->TPCYCent();
-      //float ztpccent = geo->TPCZCent(); 
+      float ytpccent = euclid->TPCYCent();
+      float ztpccent = euclid->TPCZCent(); 
 
       // input: hits
 
@@ -135,7 +135,8 @@ namespace gar {
           size_t ihit = hsi[ihitx];  // unwound index to hit array
           if (used[ihit]) continue;
 
-          const float *xyz = hits.at(ihit).Position();
+          const float *xyz_fromhit = hits.at(ihit).Position();
+	  float xyz[3] = {xyz_fromhit[0] - xtpccent, xyz_fromhit[1] - ytpccent, xyz_fromhit[2] - ztpccent};
 
           // start a cluster with just this hit
           std::vector<size_t> hitsinclus;  // keep track of hit indices in this cluster so we can make associations
@@ -190,7 +191,9 @@ namespace gar {
                 }
               if (sidetest != side) continue;  // don't cluster hits that were detected on opposite TPC endplates.
 
-              const float *xyz2 = hits.at(ihc).Position();
+              const float *xyz2_fromhit = hits.at(ihc).Position();
+	      float xyz2[3] = {xyz2_fromhit[0] - xtpccent, xyz2_fromhit[1] - ytpccent, xyz2_fromhit[2] - ztpccent};
+
               if (fPrintLevel > 1)
                 {
                   std::cout << " Testing a hit: " << xyz2[0] << " " << xyz2[1] << " " << xyz2[2] << " " << sidetest << " "
