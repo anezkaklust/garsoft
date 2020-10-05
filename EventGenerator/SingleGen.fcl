@@ -8,7 +8,7 @@ standard_singlep:
  ParticleSelectionMode: 0           # 0 = use full list, 1 =  randomly select a single listed particle
  PadOutVectors:		false	    # false: require all vectors to be same length
                                     # true:  pad out if a vector is size one
- PDG:                   [ 11 ]      # list of pdg codes for particles to make
+ PDG:                   [ 13 ]      # list of pdg codes for particles to make
  P0:                    [ 1. ]      # central value of momentum for each particle
  SigmaP:                [ 0. ]      # variation about the central value
  PDist:                 1           # 0 - uniform, 1 - gaussian distribution
@@ -36,7 +36,7 @@ standard_singlep_cdr:
  ParticleSelectionMode: 0           # 0 = use full list, 1 =  randomly select a single listed particle
  PadOutVectors:		false	    # false: require all vectors to be same length
                                     # true:  pad out if a vector is size one
- PDG:                   [ 11 ]      # list of pdg codes for particles to make
+ PDG:                   [ 13 ]      # list of pdg codes for particles to make
  P0:                    [ 1. ]      # central value of momentum for each particle
  SigmaP:                [ 0. ]      # variation about the central value
  PDist:                 1           # 0 - uniform, 1 - gaussian distribution
