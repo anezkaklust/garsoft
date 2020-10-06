@@ -92,6 +92,16 @@ bool CAF::BookTFile()
         cafMVA->Branch("verty", &verty);
         cafMVA->Branch("vertz", &vertz);
 
+        //List of particles from GENIE from the interaction and their status flag
+        cafMVA->Branch("nGPart", &nGPart);
+        cafMVA->Branch("GPartName", &GPartName);
+        cafMVA->Branch("GPartPdg", &GPartPdg);
+        cafMVA->Branch("GPartStatus", &GPartStatus);
+        cafMVA->Branch("GPartFirstMom", &GPartFirstMom);
+        cafMVA->Branch("GPartLastMom", &GPartLastMom);
+        cafMVA->Branch("GPartFirstDaugh", &GPartFirstDaugh);
+        cafMVA->Branch("GPartLastDaugh", &GPartLastDaugh);
+
         //Number of final state particle (primaries)
         cafMVA->Branch("nFSP", &_nFSP);
         //MC Particle info
@@ -198,6 +208,15 @@ void CAF::ClearVectors()
     vertx.clear();
     verty.clear();
     vertz.clear();
+
+    nGPart.clear();
+    GPartPdg.clear();
+    GPartStatus.clear();
+    GPartName.clear();
+    GPartFirstMom.clear();
+    GPartLastMom.clear();
+    GPartFirstDaugh.clear();
+    GPartLastDaugh.clear();
 
     //MC Particle values
     _nFSP = 0;
@@ -415,6 +434,23 @@ void CAF::loop()
     std::vector<float> *Weight = 0;
     TBranch            *b_Weight = 0;
 
+    std::vector<int> *_nGPart = 0;
+    TBranch            *b_nGPart = 0;
+    std::vector<int> *_GPartPdg = 0;
+    TBranch            *b_GPartPdg = 0;
+    std::vector<int> *_GPartStatus = 0;
+    TBranch            *b_GPartStatus = 0;
+    std::vector<std::string> *_GPartName = 0;
+    TBranch            *b_GPartName = 0;
+    std::vector<int> *_GPartFirstMom = 0;
+    TBranch            *b_GPartFirstMom = 0;
+    std::vector<int> *_GPartLastMom = 0;
+    TBranch            *b_GPartLastMom = 0;
+    std::vector<int> *_GPartFirstDaugh = 0;
+    TBranch            *b_GPartFirstDaugh = 0;
+    std::vector<int> *_GPartLastDaugh = 0;
+    TBranch            *b_GPartLastDaugh = 0;
+
     std::vector<int>     *PDG = 0;
     TBranch              *b_PDG = 0;
     std::vector<int>     *MCPTrkID = 0;
@@ -480,6 +516,15 @@ void CAF::loop()
     _inttree->SetBranchAddress("MCNuPz", &MCNuPz, &b_MCNuPz);
     _inttree->SetBranchAddress("InterT", &InterT, &b_InterT);
     _inttree->SetBranchAddress("Weight", &Weight, &b_Weight);
+
+    _inttree->SetBranchAddress("nGPart", &_nGPart, &b_nGPart);
+    _inttree->SetBranchAddress("GPartPdg", &_GPartPdg, &b_GPartPdg);
+    _inttree->SetBranchAddress("GPartStatus", &_GPartStatus, &b_GPartStatus);
+    _inttree->SetBranchAddress("GPartName", &_GPartName, &b_GPartName);
+    _inttree->SetBranchAddress("GPartFirstMom", &_GPartFirstMom, &b_GPartFirstMom);
+    _inttree->SetBranchAddress("GPartLastMom", &_GPartLastMom, &b_GPartLastMom);
+    _inttree->SetBranchAddress("GPartFirstDaugh", &_GPartFirstDaugh, &b_GPartFirstDaugh);
+    _inttree->SetBranchAddress("GPartLastDaugh", &_GPartLastDaugh, &b_GPartLastDaugh);
 
     //MC info
     _inttree->SetBranchAddress("PDG", &PDG, &b_PDG);
@@ -553,9 +598,23 @@ void CAF::loop()
         for(size_t i = 0; i < Gint->size(); i++)
         {
             gint.push_back(Gint->at(i));
-            tgtpdg.push_back(TgtPDG->at(i));
+            tgtpdg.push_back(TgtPDG->at(i));//target pdg
             gt_t.push_back(GT_T->at(i));
             weight.push_back(Weight->at(i));
+        }
+
+        for(size_t i = 0; i < _nGPart->size(); i++)
+        {
+            nGPart.push_back(_nGPart->at(i));
+            for(int j = 0; j < _nGPart->at(i); j++) {
+                GPartPdg.push_back(_GPartPdg->at(j));
+                GPartStatus.push_back(_GPartStatus->at(j));
+                GPartName.push_back(_GPartName->at(j));
+                GPartFirstMom.push_back(_GPartFirstMom->at(j));
+                GPartLastMom.push_back(_GPartLastMom->at(j));
+                GPartFirstDaugh.push_back(_GPartFirstDaugh->at(j));
+                GPartLastDaugh.push_back(_GPartLastDaugh->at(j));
+            }
         }
 
         //--------------------------------------------------------------------------
@@ -1031,7 +1090,7 @@ void CAF::loop()
                             {
                                 pid = pdg_charged.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(0).second) ) );
                             }
-                            
+
                             recopid.push_back( pid );
                         } // closes the if statement
 
