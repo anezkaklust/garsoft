@@ -1,9 +1,6 @@
 include_directories( $ENV{GEANT4_FQ_DIR}/include )
 include_directories( $ENV{NUTOOLS_DIR}/include   )
 include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
-include_directories( $ENV{GENIE_INC}/GENIE )
-
-execute_process(COMMAND genie-config --libs OUTPUT_VARIABLE GENIE_LIBS_DIR_WITH_LFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 art_make(BASENAME_ONLY
       MODULE_LIBRARIES Geometry
@@ -31,8 +28,6 @@ art_make(BASENAME_ONLY
                        ${CETLIB_EXCEPT}
                        ${ROOT_BASIC_LIB_LIST}
                        ${ROOT_EG}
-                       ${ROOT_EGPYTHIA6}
-                       ${GENIE_LIBS_DIR_WITH_LFLAGS}
          )
 
 install_headers()

@@ -18,9 +18,6 @@ standard_anatree:
 
 # GENIEGeneratorLabels:      [ "generator" ]
 
-# Path to the original GHEP file used to generate the neutrino interactions in order to store the list of particles generated inside the nucleus in the interaction with their status flag (in order to understand better what happened)
- GENIEFile:                ""
-
  GEANTLabel:               "geant"
  GEANTInstanceCalo:        "ECAL"
  GEANTInstanceMuID:        "MuID"
@@ -98,9 +95,6 @@ standard_anatree_spyv2:
 # to look for all GTruth data products in the event.
 
 # GENIEGeneratorLabels:      [ "generator" ]
-
-# Path to the original GHEP file used to generate the neutrino interactions in order to store the list of particles generated inside the nucleus in the interaction with their status flag (in order to understand better what happened)
- GENIEFile:                ""
 
  GEANTLabel:               "edepconvert"
  GEANTInstanceCalo:        "ECAL"

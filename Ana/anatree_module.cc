@@ -24,16 +24,15 @@
 #include "canvas/Persistency/Common/FindMany.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 
-#include "GENIE/Framework/Ntuple/NtpMCEventRecord.h"
-#include "GENIE/Framework/GHEP/GHepRecord.h"
-#include "GENIE/Framework/GHEP/GHepParticle.h"
-
 #include "nusimdata/SimulationBase/GTruth.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
+
+#include "SimulationDataProducts/GenieParticle.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "SimulationDataProducts/SimChannel.h"
 #include "SimulationDataProducts/CaloDeposit.h"
+
 #include "ReconstructionDataProducts/TPCCluster.h"
 #include "ReconstructionDataProducts/Hit.h"
 #include "ReconstructionDataProducts/Track.h"
@@ -42,11 +41,12 @@
 #include "ReconstructionDataProducts/Vee.h"
 #include "ReconstructionDataProducts/CaloHit.h"
 #include "ReconstructionDataProducts/Cluster.h"
+
 #include "RawDataProducts/CaloRawDigit.h"
+
 #include "CoreUtils/ServiceUtil.h"
 #include "Geometry/Geometry.h"
 
-#include "TChain.h"
 #include "TTree.h"
 #include "TDatabasePDG.h"
 #include "TParticlePDG.h"
@@ -151,12 +151,6 @@ namespace gar {
         // the analysis tree
         TTree *fTree;
 
-        //The GHEP record
-        std::string fGhepfile;
-        bool fHasGHEP;
-        TChain* fGTreeChain;
-        genie::NtpMCEventRecord*                 fMCRec;
-
         //Geometry
         const geo::GeometryCore* fGeo; ///< pointer to the geometry
 
@@ -198,6 +192,8 @@ namespace gar {
 
         //GENIE particle list from event record
         std::vector<Int_t>             fnGPart;
+        std::vector<Int_t>             fGPartIntIdx;
+        std::vector<Int_t>             fGPartIdx;
         std::vector<Int_t>             fGPartPdg;
         std::vector<Int_t>             fGPartStatus;
         std::vector<Int_t>             fGPartFirstMom;
@@ -205,6 +201,11 @@ namespace gar {
         std::vector<Int_t>             fGPartFirstDaugh;
         std::vector<Int_t>             fGPartLastDaugh;
         std::vector<std::string>       fGPartName;
+        std::vector<Float_t>           fGPartPx;
+        std::vector<Float_t>           fGPartPy;
+        std::vector<Float_t>           fGPartPz;
+        std::vector<Float_t>           fGPartE;
+        std::vector<Float_t>           fGPartMass;
 
         // MCParticle data
         std::vector<Int_t>              fMCTrkID;
@@ -419,10 +420,7 @@ namespace gar {
 //==============================================================================
 // constructor
 gar::anatree::anatree(fhicl::ParameterSet const & p)
-: EDAnalyzer(p),
-fHasGHEP(false),
-fGTreeChain(new TChain("gtree")),
-fMCRec(nullptr)
+: EDAnalyzer(p)
 {
     fGeo     = gar::providerFrom<geo::Geometry>();
 
@@ -433,9 +431,6 @@ fMCRec(nullptr)
     bool usegeniegenlabels  =
     p.get_if_present<std::vector<std::string> >("GENIEGeneratorLabels",fGENIEGeneratorLabels);
     if (!usegeniegenlabels) fGENIEGeneratorLabels.clear();
-
-    //Path to the GENIE file
-    fGhepfile          = p.get<std::string>("GENIEFile", "");
 
     //Sim Hits
     fGeantLabel        = p.get<std::string>("GEANTLabel","geant");
@@ -484,13 +479,6 @@ fMCRec(nullptr)
     fIonizTruncate            = p.get<float>("IonizTruncate",    0.70);
     fWriteCohInfo             = p.get<bool> ("WriteCohInfo",     false);
 
-    //If ghep file is provided
-    if(not fGhepfile.empty()) {
-        fGTreeChain->Add(fGhepfile.c_str());
-        fGTreeChain->SetBranchAddress("gmcrec", &fMCRec);
-        fHasGHEP = true;
-    }
-
     if (usegenlabels) {
         for (size_t i=0; i<fGeneratorLabels.size(); ++i) {
             consumes<std::vector<simb::MCTruth> >(fGeneratorLabels.at(i));
@@ -507,6 +495,7 @@ fMCRec(nullptr)
         consumesMany<std::vector<simb::GTruth> >();
     }
 
+    consumesMany<std::vector<sdp::GenieParticle> >();
     //consumes<art::Assns<simb::MCTruth, simb::MCParticle> >(fGeantLabel);
     consumes<std::vector<simb::MCParticle> >(fGeantLabel);
 
@@ -594,16 +583,21 @@ void gar::anatree::beginJob() {
         fTree->Branch("GT_T",        &fgT);
 
         //GENIE particle list from the event record
-        if(fHasGHEP) {
-            fTree->Branch("nGPart",        &fnGPart);
-            fTree->Branch("GPartName",     &fGPartName);
-            fTree->Branch("GPartPdg",      &fGPartPdg);
-            fTree->Branch("GPartStatus",   &fGPartStatus);
-            fTree->Branch("GPartFirstMom",    &fGPartFirstMom);
-            fTree->Branch("GPartLastMom",     &fGPartLastMom);
-            fTree->Branch("GPartFirstDaugh",  &fGPartFirstDaugh);
-            fTree->Branch("GPartLastDaugh",   &fGPartLastDaugh);
-        }
+        fTree->Branch("nGPart",        &fnGPart);
+        fTree->Branch("GPartIntIdx",     &fGPartIntIdx);
+        fTree->Branch("GPartIdx",     &fGPartIdx);
+        fTree->Branch("GPartName",     &fGPartName);
+        fTree->Branch("GPartPdg",      &fGPartPdg);
+        fTree->Branch("GPartStatus",   &fGPartStatus);
+        fTree->Branch("GPartFirstMom",    &fGPartFirstMom);
+        fTree->Branch("GPartLastMom",     &fGPartLastMom);
+        fTree->Branch("GPartFirstDaugh",  &fGPartFirstDaugh);
+        fTree->Branch("GPartLastDaugh",   &fGPartLastDaugh);
+        fTree->Branch("GPartPx",   &fGPartPx);
+        fTree->Branch("GPartPy",   &fGPartPy);
+        fTree->Branch("GPartPz",   &fGPartPz);
+        fTree->Branch("GPartE",   &fGPartE);
+        fTree->Branch("GPartMass",   &fGPartMass);
 
         fTree->Branch("MCTrkID",     &fMCTrkID);
         fTree->Branch("PDG",         &fMCPDG);
@@ -934,6 +928,8 @@ void gar::anatree::ClearVectors() {
         fgT.clear();
 
         fnGPart.clear();
+        fGPartIntIdx.clear();
+        fGPartIdx.clear();
         fGPartPdg.clear();
         fGPartStatus.clear();
         fGPartName.clear();
@@ -941,6 +937,11 @@ void gar::anatree::ClearVectors() {
         fGPartLastMom.clear();
         fGPartFirstDaugh.clear();
         fGPartLastDaugh.clear();
+        fGPartPx.clear();
+        fGPartPy.clear();
+        fGPartPz.clear();
+        fGPartE.clear();
+        fGPartMass.clear();
 
         fMCTrkID.clear();
         fMCPDG.clear();
@@ -1238,29 +1239,28 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
     }
 
     // Save the particle list from the GENIE event record
-    /* /!\ does not work for overlay at the moment /!\ */
-    if(fHasGHEP)
-    {
-        fGTreeChain->GetEntry(e.id().event() - 1);
-        genie::EventRecord *event = fMCRec->event;
+    std::vector< art::Handle< std::vector<sdp::GenieParticle> > > gparthandlelist;
+    e.getManyByType(gparthandlelist);
 
-        MF_LOG_DEBUG("Anatree_module") << *event;
-
-        genie::GHepParticle * p = 0;
+    for (size_t igphl = 0; igphl < gparthandlelist.size(); ++igphl) {
         unsigned int nGPart = 0;
-        TObjArrayIter piter(event);
-
-        while( (p = (genie::GHepParticle *) piter.Next()) ) {
-            fGPartPdg.push_back(p->Pdg());
-            fGPartStatus.push_back(p->Status());
-            fGPartName.push_back(p->Name());
-            fGPartFirstMom.push_back(p->FirstMother());
-            fGPartLastMom.push_back(p->LastMother());
-            fGPartFirstDaugh.push_back(p->FirstDaughter());
-            fGPartLastDaugh.push_back(p->LastDaughter());
+        for ( auto const& gpart : (*gparthandlelist.at(igphl)) ) {
+            fGPartIntIdx.push_back(gpart.InteractionIndex());
+            fGPartIdx.push_back(gpart.Index());
+            fGPartPdg.push_back(gpart.Pdg());
+            fGPartStatus.push_back(gpart.Status());
+            fGPartName.push_back(gpart.Name());
+            fGPartFirstMom.push_back(gpart.FirstMother());
+            fGPartLastMom.push_back(gpart.LastMother());
+            fGPartFirstDaugh.push_back(gpart.FirstDaughter());
+            fGPartLastDaugh.push_back(gpart.LastDaughter());
+            fGPartPx.push_back(gpart.Px());
+            fGPartPy.push_back(gpart.Py());
+            fGPartPz.push_back(gpart.Pz());
+            fGPartE.push_back(gpart.E());
+            fGPartMass.push_back(gpart.Mass());
             nGPart++;
         }
-
         fnGPart.push_back(nGPart);
     }
 

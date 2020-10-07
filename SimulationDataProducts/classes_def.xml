@@ -27,7 +27,7 @@
     <version ClassVersion="10" checksum="1916611417"/>
   </class>
   <class name="gar::sdp::CaloDeposit"            ClassVersion="14"            >
-   <version ClassVersion="14" checksum="1691869710"/>
+    <version ClassVersion="14" checksum="1691869710"/>
     <version ClassVersion="13" checksum="2861707046"/>
     <version ClassVersion="12" checksum="4038858597"/>
     <version ClassVersion="11" checksum="3127142797"/>
@@ -37,6 +37,9 @@
     <version ClassVersion="11" checksum="3616863233"/>
     <version ClassVersion="10" checksum="1282437952"/>
   </class>
+  <class name="gar::sdp::GenieParticle"            ClassVersion="10"            >
+   <version ClassVersion="10" checksum="863799891"/>
+  </class>
   <enum name="gar::sdp::BeamType_t"                                            />
 
   <class name="std::vector<gar::sdp::AuxDetIDE>"                               />
@@ -44,12 +47,16 @@
   <class name="std::vector<gar::sdp::EnergyDeposit>"                           />
   <class name="std::vector<gar::sdp::CaloDeposit>"                           />
   <class name="std::vector<gar::sdp::LArDeposit>"                           />
+  <class name="std::vector<gar::sdp::GenieParticle>"                           />
 
   <class name="std::set<gar::sdp::IDE>"                                        />
   <class name="art::Wrapper<std::vector<gar::sdp::AuxDetSimChannel> >"         />
   <class name="art::Wrapper<std::vector<gar::sdp::EnergyDeposit   > >"         />
   <class name="art::Wrapper<std::vector<gar::sdp::CaloDeposit   > >"         />
   <class name="art::Wrapper<std::vector<gar::sdp::LArDeposit   > >"         />
+  <class name="art::Wrapper<std::vector<gar::sdp::GenieParticle   > >"         />
+
+  <class name="art::Ptr<gar::sdp::GenieParticle>"                                          />
 
   <class name="std::pair< art::Ptr<gar::sdp::EnergyDeposit>, art::Ptr<gar::raw::RawDigit> >" />
   <class name="std::pair< art::Ptr<gar::raw::RawDigit>,      art::Ptr<gar::sdp::EnergyDeposit>     >" />
