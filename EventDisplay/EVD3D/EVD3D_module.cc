@@ -10,54 +10,10 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Framework/Principal/View.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "canvas/Persistency/Common/FindMany.h"
 
 // Framework includes
 #include "art/Framework/Core/ModuleMacros.h"
-
-// ROOT includes
-// ... libCore
-#include <TApplication.h>
-#include <TString.h>
-#include <TSystem.h>
-#include <TROOT.h>
-// ... libRIO
-#include <TFile.h>
-// ... libGui
-#include <TGString.h>
-#include <TGLabel.h>
-#include <TGButton.h>
-#include <TGButtonGroup.h>
-#include <TGTextEntry.h>
-#include <TGTextView.h>
-#include <TGLayout.h>
-#include <TGTab.h>
-#include <TG3DLine.h>
-// ... libGeom
-#include <TGeoManager.h>
-#include <TGeoNode.h>
-#include <TGeoTube.h>
-#include <TGeoCompositeShape.h>
-#include <TGeoBoolNode.h>
-// ... libEG
-#include <TParticle.h>
-// ... libRGL
-#include <TGLViewer.h>
-// ... libEve
-#include <TEveManager.h>
-#include <TEveEventManager.h>
-#include <TEveBrowser.h>
-#include <TEveGeoNode.h>
-#include <TEveViewer.h>
-#include <TEveScene.h>
-#include <TEveProjectionManager.h>
-#include <TEveProjectionAxes.h>
-#include <TEvePointSet.h>
-#include <TEveTrackPropagator.h>
-#include <TEveLine.h>
-#include "TEveTrack.h"
-#include "TEveTrackPropagator.h"
-#include "TEvePathMark.h"
-#include "TTimeStamp.h"
 
 #include "nuevdb/EventDisplayBase/NavState.h"
 #include "Geometry/Geometry.h"
@@ -89,6 +45,7 @@
 #include "ReconstructionDataProducts/TPCCluster.h"
 #include "ReconstructionDataProducts/Track.h"
 #include "ReconstructionDataProducts/Vertex.h"
+#include "ReconstructionDataProducts/TrackTrajectory.h"
 
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
@@ -97,6 +54,33 @@
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/Exception.h"
 
+// ROOT includes
+#include <TApplication.h>
+#include <TString.h>
+#include <TSystem.h>
+#include <TROOT.h>
+#include <TFile.h>
+#include <TGString.h>
+#include <TGLabel.h>
+#include <TGButton.h>
+#include <TGButtonGroup.h>
+#include <TGTextEntry.h>
+#include <TGTextView.h>
+#include <TGLayout.h>
+#include <TGTab.h>
+#include <TG3DLine.h>
+#include <TGeoManager.h>
+#include <TGeoNode.h>
+#include <TGeoTube.h>
+#include <TGeoCompositeShape.h>
+#include <TGeoBoolNode.h>
+#include <TEveGeoNode.h>
+#include <TEvePointSet.h>
+#include <TEveLine.h>
+#include "TEveTrack.h"
+#include "TEveTrackPropagator.h"
+#include "TEvePathMark.h"
+#include "TTimeStamp.h"
 #include "TEveManager.h"
 #include "TEveEventManager.h"
 #include "TEveScene.h"
@@ -116,13 +100,13 @@
 #include "TEveArrow.h"
 #include "TGLAnnotation.h"
 #include "TGLFontManager.h"
+#include "TPolyLine3D.h"
+#include "TDatabasePDG.h"
+#include "TParticle.h"
 
 #include <sstream>
 #include <iostream>
 #include <iomanip>
-
-#include "TDatabasePDG.h"
-#include "TParticle.h"
 
 namespace {
     // Utility function to make uniform error messages.
@@ -186,7 +170,6 @@ namespace gar{
             std::vector<std::string> fCaloClusterLabels;    	        ///< module labels that produced Calorimeter Clusters
             std::vector<std::string> fTrackLabels;   		            ///< module labels that produced tracks
             std::vector<std::string> fVertexLabels;  		            ///< module labels that produced vertices
-            std::vector<std::string> fTPCClusterLabels;  		        ///< module labels that produced tpc clusters
 
             std::vector<std::string> fVolumesToShow;                    ///< list of volumes to show in the Eve display
 
@@ -194,6 +177,7 @@ namespace gar{
             TEveManager*  fEve;
             TGLViewer* glViewer;
             TGLAnnotation* ann;
+            double origin[3];
 
             TGTextEntry      *fTeRun, *fTeEvt;
             TGLabel          *fTlRun, *fTlEvt;
@@ -241,13 +225,15 @@ namespace gar{
 
             void DrawRawHits(const art::Event& event);
 
-            void DrawTPCClusters(const art::Event& event);
-
             void DrawRecoHits(const art::Event& event);
 
             void DrawHighLevelReco(const art::Event& event);
 
             void DrawTrack(const gar::rec::Track* trk, TEveElementList* &eve_list, int counter, bool forward);
+
+            void DrawTrackPolyLine3D(std::vector<const gar::rec::TrackTrajectory*> const& trajectories, TEveElementList* &eve_list, int counter);
+
+            void DrawTPCCluster3D(std::vector<const gar::rec::TPCCluster*> const& TPCClusters, TEveElementList* &eve_list);
 
             void DrawIntersections(const gar::rec::Track* trk, TEveElementList* &fTrackList, int counter);
 
@@ -273,11 +259,8 @@ namespace gar{
             //get calo clusters
             void GetCaloClusters(std::vector<const rec::Cluster*> &caloCluster, const art::Event& event);
 
-            //get tpc clusters
-            void GetTPCClusters(std::vector<const rec::TPCCluster*> &tpccluster, const art::Event& event);
-
             //get tracks clusters
-            void GetTracks(std::vector<const rec::Track*> &track, const art::Event& event);
+            void GetTracks(art::View<gar::rec::Track> &track, const art::Event& event);
 
             //get reco vertexes
             void GetVertices(std::vector<const rec::Vertex*> &vertex, const art::Event& event);
@@ -344,7 +327,6 @@ namespace gar{
                 fCaloClusterLabels         = pset.get< std::vector<std::string> > ("CaloClusterModuleLabels" );
                 fTrackLabels      	       = pset.get< std::vector<std::string> > ("TrackModuleLabels"     	 );
                 fVertexLabels     	       = pset.get< std::vector<std::string> > ("VertexModuleLabels"    	 );
-                fTPCClusterLabels          = pset.get< std::vector<std::string> > ("TPCClusterModuleLabels"    	 );
 
                 fScalingfactor      	   = pset.get<float                     > ("Scalingfactor",       1.0);
                 fDrawIntersection          = pset.get<bool                      > ("drawIntersection"     , false);
@@ -448,14 +430,16 @@ namespace gar{
 
                 //Sets the GL viewer parameters
                 glViewer = fEve->GetDefaultGLViewer();
-                double ref[3] = {fGeometry->TPCXCent(), fGeometry->TPCYCent(), fGeometry->TPCZCent()};
+                origin[0] = fGeometry->TPCXCent();
+                origin[1] = fGeometry->TPCYCent();
+                origin[2] = fGeometry->TPCZCent();
 
                 glViewer->ColorSet().Background().SetColor(kWhite);
                 glViewer->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
-                glViewer->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kTRUE, ref);
+                glViewer->SetGuideState(TGLUtil::kAxesEdge, kTRUE, kTRUE, origin);
                 glViewer->SetDrawCameraCenter(kTRUE);
 
-                std::cout << "Drawing at reference (" << ref[0] << ", " << ref[1] << ", " << ref[2] << ")" << std::endl;
+                std::cout << "Drawing at reference (" << origin[0] << ", " << origin[1] << ", " << origin[2] << ")" << std::endl;
 
                 ann = new TGLAnnotation(glViewer, "", 0.75, 0.85);
                 ann->SetRole(TGLOverlayElement::kViewer);
@@ -512,10 +496,6 @@ namespace gar{
                 //Draw raw hits
                 if(fDrawECALRawHits)
                 this->DrawRawHits(event);
-
-                //Draw TPC Clusters
-                if(fDrawTPCClusters)
-                this->DrawTPCClusters(event);
 
                 //Draw reco hits
                 if(fDrawECALRecoHits)
@@ -846,8 +826,8 @@ namespace gar{
                     TEvePointSet *evehit = new TEvePointSet(1);
                     evehit->SetName(TString::Format("TPC sim hit %i", p).Data());
                     evehit->SetTitle(label.str().c_str());
-                    evehit->SetMarkerSize(0.7);
-                    evehit->SetMarkerStyle(20);
+                    evehit->SetMarkerSize(1);
+                    evehit->SetMarkerStyle(1);
                     evehit->SetMarkerColor(fEvtDisplayUtil->LogColor(simHit->Energy(), 0, 1., 5));
                     evehit->SetPoint(0, simHit->X(), simHit->Y(), simHit->Z());//cm
                     fTPCSimHitList->AddElement(evehit);
@@ -885,7 +865,7 @@ namespace gar{
                     TEvePointSet *evehit = new TEvePointSet(1);
                     evehit->SetName(TString::Format("ECAL sim hit %i", p).Data());
                     evehit->SetTitle(label.str().c_str());
-                    evehit->SetMarkerSize(0.7);
+                    evehit->SetMarkerSize(1);
                     evehit->SetMarkerStyle(20);
                     evehit->SetMarkerColor(fEvtDisplayUtil->LogColor(simHit->Energy(), 0, 1., 5));
                     evehit->SetPoint(0, simHit->X(), simHit->Y(), simHit->Z());//cm
@@ -925,7 +905,7 @@ namespace gar{
                     TEvePointSet *evehit = new TEvePointSet(1);
                     evehit->SetName(TString::Format("ECAL digi hit %i", p).Data());
                     evehit->SetTitle(label.str().c_str());
-                    evehit->SetMarkerSize(0.5);
+                    evehit->SetMarkerSize(1);
                     evehit->SetMarkerStyle(20);
                     evehit->SetMarkerColor(fEvtDisplayUtil->LogColor(rawHit->ADC().first, 0, 4096, 5));
                     evehit->SetPoint(0, rawHit->X(), rawHit->Y(), rawHit->Z());//cm
@@ -933,39 +913,6 @@ namespace gar{
                 }
 
                 fEve->AddElement(fCaloRawHitList);
-            }
-
-            //----------------------------------------------------
-            void EventDisplay3D::DrawTPCClusters(const art::Event& event)
-            {
-                std::vector<const rec::TPCCluster*> tpclusterlist;
-                this->GetTPCClusters(tpclusterlist, event);
-
-                fTPCClusterList = new TEveElementList("TPC Clusters", "Reconstructed TPC Clusters");
-                fTPCClusterList->SetMainColor(kRed);
-                fTPCClusterList->SetMainAlpha(1.0);
-
-                for(unsigned int p = 0; p < tpclusterlist.size(); ++p)
-                {
-                    const rec::TPCCluster* tpcCluster = tpclusterlist[p];
-
-                    std::ostringstream label;
-                    label << "TPC Cluster " << p << "\n";
-                    label << "Energy: " << tpcCluster->Signal() << " pe\n";
-                    label << "Position (" << tpcCluster->Position()[0] << ", " << tpcCluster->Position()[1] << ", " << tpcCluster->Position()[2] << " ) cm";
-
-                    TEvePointSet *evehit = new TEvePointSet(1);
-                    evehit->SetName(TString::Format("TPC Cluster %i", p));
-                    evehit->SetTitle(label.str().c_str());
-                    evehit->SetMarkerSize(0.5);
-                    evehit->SetMarkerStyle(20);
-                    evehit->SetMarkerColor(fEvtDisplayUtil->LogColor(tpcCluster->Signal(), 0, 1000, 5));
-                    evehit->SetPoint(0, tpcCluster->Position()[0], tpcCluster->Position()[1], tpcCluster->Position()[2]);//cm
-
-                    fTPCClusterList->AddElement(evehit);
-                }
-
-                fEve->AddElement(fTPCClusterList);
             }
 
             //----------------------------------------------------
@@ -998,7 +945,7 @@ namespace gar{
                     TEvePointSet *evehit = new TEvePointSet(1);
                     evehit->SetName(TString::Format("ECAL reco hit %i", p));
                     evehit->SetTitle(label.str().c_str());
-                    evehit->SetMarkerSize(0.5);
+                    evehit->SetMarkerSize(1);
                     evehit->SetMarkerStyle(20);
                     evehit->SetMarkerColor(fEvtDisplayUtil->LogColor(recoHit->Energy() * 1000, 0, 1000, 5));
                     evehit->SetPoint(0, recoHit->Position()[0], recoHit->Position()[1], recoHit->Position()[2]);//cm
@@ -1037,7 +984,7 @@ namespace gar{
                         TEvePointSet *evehit = new TEvePointSet(1);
                         evehit->SetName(TString::Format("MuID reco hit %i", p));
                         evehit->SetTitle(label.str().c_str());
-                        evehit->SetMarkerSize(0.5);
+                        evehit->SetMarkerSize(1);
                         evehit->SetMarkerStyle(20);
                         evehit->SetMarkerColor(fEvtDisplayUtil->LogColor(recoHit->Energy() * 1000, 0, 1000, 5));
                         evehit->SetPoint(0, recoHit->Position()[0], recoHit->Position()[1], recoHit->Position()[2]);//cm
@@ -1111,27 +1058,53 @@ namespace gar{
                     fEve->AddElement(fCaloClusterList);
                 }
 
+
+                art::View<gar::rec::Track> trackView;
+                this->GetTracks(trackView, event);
+                if(!trackView.isValid()) return;
+
+                art::FindMany<gar::rec::TPCCluster> fmc(trackView, event, fTrackLabels.at(0));
+                if(!fmc.isValid()) return;
+
+                art::FindMany<gar::rec::TrackTrajectory> fmt(trackView, event, fTrackLabels.at(0));
+
+                if(fDrawTPCClusters) {
+
+                    fTPCClusterList = new TEveElementList("TPC Clusters", "Reconstructed TPC Clusters");
+                    fTPCClusterList->SetMainColor(kRed);
+                    fTPCClusterList->SetMainAlpha(1.0);
+
+                    for(size_t t = 0; t < trackView.size(); ++t) {
+                        // Draw track using only embedded information.
+                        auto const& TPCClusters = fmc.at(t);
+                        this->DrawTPCCluster3D(TPCClusters, fTPCClusterList);
+                    }
+
+                    fEve->AddElement(fTPCClusterList);
+                }
+
                 if(fDrawTracks)
                 {
-                    std::vector<const gar::rec::Track*> tracks;
-                    this->GetTracks(tracks, event);
-
                     fTrackList = new TEveElementList("Fitted Tracks", "Tracks in the TPC");
                     fTrackList->SetMainColor(kRed);
                     fTrackList->SetMainAlpha(1.0);
 
                     unsigned int icounter = 0;
-                    for (auto tv = tracks.begin(); tv != tracks.end(); ++tv)
+                    for (auto tv = trackView.begin(); tv != trackView.end(); ++tv)
                     {
-                        //Forward
-                        this->DrawTrack((*tv), fTrackList, icounter, true);
-                        //Backward
-                        this->DrawTrack((*tv), fTrackList, icounter, false);
+                        if(!fmt.isValid()) {
+                            //Forward
+                            this->DrawTrack((*tv), fTrackList, icounter, true);
+                            //Backward
+                            this->DrawTrack((*tv), fTrackList, icounter, false);
+                        }
+                        else
+                        {
+                            this->DrawTrackPolyLine3D(fmt.at(icounter), fTrackList, icounter);
+                        }
 
                         if(fDrawIntersection)
-                        {
-                            this->DrawIntersections((*tv), fTrackList, icounter);
-                        }
+                        this->DrawIntersections((*tv), fTrackList, icounter);
 
                         ++icounter;
                     }
@@ -1203,6 +1176,52 @@ namespace gar{
                 eve_list->AddElement(arrow);
 
                 return;
+            }
+
+            //----------------------------------------------------
+            void EventDisplay3D::DrawTrackPolyLine3D(std::vector<const gar::rec::TrackTrajectory*> const& trajectories, TEveElementList* &eve_list, int counter)
+            {
+                int color  = evd::kColor[counter%evd::kNCOLS];
+
+                for (auto itr : trajectories)  // there should only be one
+                {
+                    std::vector<TVector3> ftraj = itr->getFWDTrajectory();  // later -- decide if we need the backward one too
+                    TEveLine* tpoly = new TEveLine();
+                    tpoly->SetLineColor(color);
+                    tpoly->SetLineWidth(2);
+                    tpoly->SetLineStyle(1);
+
+                    for (size_t i=0; i<ftraj.size(); ++i)
+                    tpoly->SetPoint(i, ftraj.at(i).X(), ftraj.at(i).Y(), ftraj.at(i).Z());
+
+                    eve_list->AddElement(tpoly);
+                }
+
+                return;
+            }
+
+            //----------------------------------------------------
+            void EventDisplay3D::DrawTPCCluster3D(std::vector<const gar::rec::TPCCluster*> const& TPCClusters, TEveElementList* &eve_list)
+            {
+                unsigned int idx = 0;
+                for(auto itr : TPCClusters)
+                {
+                    std::ostringstream label;
+                    label << "TPC Cluster " << idx << "\n";
+                    label << "Energy: " << itr->Signal() << " pe\n";
+                    label << "Position (" << itr->Position()[0] << ", " << itr->Position()[1] << ", " << itr->Position()[2] << " ) cm";
+
+                    TEvePointSet *evehit = new TEvePointSet(1);
+                    evehit->SetName(TString::Format("TPC Cluster %i", idx));
+                    evehit->SetTitle(label.str().c_str());
+                    evehit->SetMarkerSize(1);
+                    evehit->SetMarkerStyle(1);
+                    evehit->SetMarkerColor(fEvtDisplayUtil->LogColor(itr->Signal(), 0, 1000, 5));
+                    evehit->SetPoint(0, itr->Position()[0], itr->Position()[1], itr->Position()[2]);//cm
+
+                    eve_list->AddElement(evehit);
+                    idx++;
+                }
             }
 
             //----------------------------------------------------
@@ -1467,37 +1486,10 @@ namespace gar{
             }
 
             //----------------------------------------------------
-            void EventDisplay3D::GetTPCClusters(std::vector<const rec::TPCCluster*> &tpccluster, const art::Event& event)
+            void EventDisplay3D::GetTracks(art::View<gar::rec::Track> &track, const art::Event& event)
             {
-                tpccluster.clear();
-
-                std::vector<const gar::rec::TPCCluster*> temp;
-
                 try{
-                    event.getView(fTPCClusterLabels.at(0), temp);
-                    for(size_t t = 0; t < temp.size(); ++t){
-                        tpccluster.push_back(temp[t]);
-                    }
-                }
-                catch(cet::exception& e){
-                    writeErrMsg("GetTPCClusters", e);
-                }
-
-                return;
-            }
-
-            //----------------------------------------------------
-            void EventDisplay3D::GetTracks(std::vector<const rec::Track*> &track, const art::Event& event)
-            {
-                track.clear();
-
-                std::vector<const gar::rec::Track*> temp;
-
-                try{
-                    event.getView(fTrackLabels.at(0), temp);
-                    for(size_t t = 0; t < temp.size(); ++t){
-                        track.push_back(temp[t]);
-                    }
+                    event.getView(fTrackLabels.at(0), track);
                 }
                 catch(cet::exception& e){
                     writeErrMsg("GetTracks", e);
