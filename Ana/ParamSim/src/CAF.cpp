@@ -219,7 +219,7 @@ void CAF::ClearVectors()
     GPartLastDaugh.clear();
 
     //MC Particle values
-    _nFSP = 0;
+    _nFSP.clear();
     pdgmother.clear();
     truepdg.clear();
     mctime.clear();
@@ -273,53 +273,53 @@ bool CAF::CheckVectorSize()
 {
     bool isOK = true;
 
-    if(_nFSP != pdgmother.size()) isOK = false;
-    if(_nFSP != truepdg.size()) isOK = false;
-    if(_nFSP != mctime.size()) isOK = false;
-    if(_nFSP != mctrkid.size()) isOK = false;
-    if(_nFSP != motherid.size()) isOK = false;
-    if(_nFSP != _MCPStartX.size()) isOK = false;
-    if(_nFSP != _MCPStartY.size()) isOK = false;
-    if(_nFSP != _MCPStartZ.size()) isOK = false;
-    if(_nFSP != _MCPEndX.size()) isOK = false;
-    if(_nFSP != _MCPEndY.size()) isOK = false;
-    if(_nFSP != _MCPEndZ.size()) isOK = false;
-    if(_nFSP != _MCProc.size()) isOK = false;
-    if(_nFSP != _MCEndProc.size()) isOK = false;
-    if(_nFSP != trkLen.size()) isOK = false;
-    if(_nFSP != trkLenPerp.size()) isOK = false;
-    if(_nFSP != truep.size()) isOK = false;
-    if(_nFSP != truepx.size()) isOK = false;
-    if(_nFSP != truepy.size()) isOK = false;
-    if(_nFSP != truepz.size()) isOK = false;
-    if(_nFSP != _angle.size()) isOK = false;
+    if(_nFSP.at(0) != pdgmother.size()) isOK = false;
+    if(_nFSP.at(0) != truepdg.size()) isOK = false;
+    if(_nFSP.at(0) != mctime.size()) isOK = false;
+    if(_nFSP.at(0) != mctrkid.size()) isOK = false;
+    if(_nFSP.at(0) != motherid.size()) isOK = false;
+    if(_nFSP.at(0) != _MCPStartX.size()) isOK = false;
+    if(_nFSP.at(0) != _MCPStartY.size()) isOK = false;
+    if(_nFSP.at(0) != _MCPStartZ.size()) isOK = false;
+    if(_nFSP.at(0) != _MCPEndX.size()) isOK = false;
+    if(_nFSP.at(0) != _MCPEndY.size()) isOK = false;
+    if(_nFSP.at(0) != _MCPEndZ.size()) isOK = false;
+    if(_nFSP.at(0) != _MCProc.size()) isOK = false;
+    if(_nFSP.at(0) != _MCEndProc.size()) isOK = false;
+    if(_nFSP.at(0) != trkLen.size()) isOK = false;
+    if(_nFSP.at(0) != trkLenPerp.size()) isOK = false;
+    if(_nFSP.at(0) != truep.size()) isOK = false;
+    if(_nFSP.at(0) != truepx.size()) isOK = false;
+    if(_nFSP.at(0) != truepy.size()) isOK = false;
+    if(_nFSP.at(0) != truepz.size()) isOK = false;
+    if(_nFSP.at(0) != _angle.size()) isOK = false;
 
     //Reco values
-    if(_nFSP != recopid.size()) isOK = false;
-    if(_nFSP != detected.size()) isOK = false;
-    if(_nFSP != recopidecal.size()) isOK = false;
-    // if(_nFSP != prob_arr.size()) isOK = false;
-    if(_nFSP != anglereco.size()) isOK = false;
-    if(_nFSP != _preco.size()) isOK = false;
-    if(_nFSP != erecon.size()) isOK = false;
-    if(_nFSP != etime.size()) isOK = false;
+    if(_nFSP.at(0) != recopid.size()) isOK = false;
+    if(_nFSP.at(0) != detected.size()) isOK = false;
+    if(_nFSP.at(0) != recopidecal.size()) isOK = false;
+    // if(_nFSP.at(0) != prob_arr.size()) isOK = false;
+    if(_nFSP.at(0) != anglereco.size()) isOK = false;
+    if(_nFSP.at(0) != _preco.size()) isOK = false;
+    if(_nFSP.at(0) != erecon.size()) isOK = false;
+    if(_nFSP.at(0) != etime.size()) isOK = false;
 
     //Geometry
-    if(_nFSP != isFidStart.size()) isOK = false;
-    if(_nFSP != isTPCStart.size()) isOK = false;
-    if(_nFSP != isCaloStart.size()) isOK = false;
-    if(_nFSP != isThroughCaloStart.size()) isOK = false;
-    if(_nFSP != isInBetweenStart.size()) isOK = false;
-    if(_nFSP != isBarrelStart.size()) isOK = false;
-    if(_nFSP != isEndcapStart.size()) isOK = false;
+    if(_nFSP.at(0) != isFidStart.size()) isOK = false;
+    if(_nFSP.at(0) != isTPCStart.size()) isOK = false;
+    if(_nFSP.at(0) != isCaloStart.size()) isOK = false;
+    if(_nFSP.at(0) != isThroughCaloStart.size()) isOK = false;
+    if(_nFSP.at(0) != isInBetweenStart.size()) isOK = false;
+    if(_nFSP.at(0) != isBarrelStart.size()) isOK = false;
+    if(_nFSP.at(0) != isEndcapStart.size()) isOK = false;
 
-    if(_nFSP != isFidEnd.size()) isOK = false;
-    if(_nFSP != isTPCEnd.size()) isOK = false;
-    if(_nFSP != isCaloEnd.size()) isOK = false;
-    if(_nFSP != isThroughCaloEnd.size()) isOK = false;
-    if(_nFSP != isInBetweenEnd.size()) isOK = false;
-    if(_nFSP != isBarrelEnd.size()) isOK = false;
-    if(_nFSP != isEndcapEnd.size()) isOK = false;
+    if(_nFSP.at(0) != isFidEnd.size()) isOK = false;
+    if(_nFSP.at(0) != isTPCEnd.size()) isOK = false;
+    if(_nFSP.at(0) != isCaloEnd.size()) isOK = false;
+    if(_nFSP.at(0) != isThroughCaloEnd.size()) isOK = false;
+    if(_nFSP.at(0) != isInBetweenEnd.size()) isOK = false;
+    if(_nFSP.at(0) != isBarrelEnd.size()) isOK = false;
+    if(_nFSP.at(0) != isEndcapEnd.size()) isOK = false;
 
     return isOK;
 }
@@ -1841,14 +1841,14 @@ void CAF::loop()
             nFSP++;
         } // closes the MC truth loop
 
-        _nFSP = nFSP;
+        _nFSP.push_back(nFSP);
 
         //Check if vectors have good size
         if(this->CheckVectorSize()) {
             this->FillTTree();
         } else {
             std::cerr << "Event " << _Event << std::endl;
-            std::cerr << "Number of FSP " << _nFSP << std::endl;
+            std::cerr << "Number of FSP " << nFSP << std::endl;
 
             std::cerr << "Size of pdgmother " << pdgmother.size() << std::endl;
             std::cerr << "Size of truepdg " << truepdg.size() << std::endl;
