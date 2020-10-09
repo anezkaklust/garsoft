@@ -197,7 +197,7 @@ namespace util {
         //If ghep file is provided
         if(not fGhepfile.empty()) {
             fGTreeChain->Add(fGhepfile.c_str());
-            nEntriesGhep = fTreeChain->GetEntries();
+            nEntriesGhep = fGTreeChain->GetEntries();
             fGTreeChain->SetBranchAddress("gmcrec", &fMCRec);
             fHasGHEP = true;
         }
