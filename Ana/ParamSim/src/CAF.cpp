@@ -92,6 +92,16 @@ bool CAF::BookTFile()
         cafMVA->Branch("verty", &verty);
         cafMVA->Branch("vertz", &vertz);
 
+        //List of particles from GENIE from the interaction and their status flag
+        cafMVA->Branch("nGPart", &nGPart);
+        cafMVA->Branch("GPartName", &GPartName);
+        cafMVA->Branch("GPartPdg", &GPartPdg);
+        cafMVA->Branch("GPartStatus", &GPartStatus);
+        cafMVA->Branch("GPartFirstMom", &GPartFirstMom);
+        cafMVA->Branch("GPartLastMom", &GPartLastMom);
+        cafMVA->Branch("GPartFirstDaugh", &GPartFirstDaugh);
+        cafMVA->Branch("GPartLastDaugh", &GPartLastDaugh);
+
         //Number of final state particle (primaries)
         cafMVA->Branch("nFSP", &_nFSP);
         //MC Particle info
@@ -199,8 +209,17 @@ void CAF::ClearVectors()
     verty.clear();
     vertz.clear();
 
+    nGPart.clear();
+    GPartPdg.clear();
+    GPartStatus.clear();
+    GPartName.clear();
+    GPartFirstMom.clear();
+    GPartLastMom.clear();
+    GPartFirstDaugh.clear();
+    GPartLastDaugh.clear();
+
     //MC Particle values
-    _nFSP = 0;
+    _nFSP.clear();
     pdgmother.clear();
     truepdg.clear();
     mctime.clear();
@@ -254,53 +273,53 @@ bool CAF::CheckVectorSize()
 {
     bool isOK = true;
 
-    if(_nFSP != pdgmother.size()) isOK = false;
-    if(_nFSP != truepdg.size()) isOK = false;
-    if(_nFSP != mctime.size()) isOK = false;
-    if(_nFSP != mctrkid.size()) isOK = false;
-    if(_nFSP != motherid.size()) isOK = false;
-    if(_nFSP != _MCPStartX.size()) isOK = false;
-    if(_nFSP != _MCPStartY.size()) isOK = false;
-    if(_nFSP != _MCPStartZ.size()) isOK = false;
-    if(_nFSP != _MCPEndX.size()) isOK = false;
-    if(_nFSP != _MCPEndY.size()) isOK = false;
-    if(_nFSP != _MCPEndZ.size()) isOK = false;
-    if(_nFSP != _MCProc.size()) isOK = false;
-    if(_nFSP != _MCEndProc.size()) isOK = false;
-    if(_nFSP != trkLen.size()) isOK = false;
-    if(_nFSP != trkLenPerp.size()) isOK = false;
-    if(_nFSP != truep.size()) isOK = false;
-    if(_nFSP != truepx.size()) isOK = false;
-    if(_nFSP != truepy.size()) isOK = false;
-    if(_nFSP != truepz.size()) isOK = false;
-    if(_nFSP != _angle.size()) isOK = false;
+    if(_nFSP.at(0) != pdgmother.size()) isOK = false;
+    if(_nFSP.at(0) != truepdg.size()) isOK = false;
+    if(_nFSP.at(0) != mctime.size()) isOK = false;
+    if(_nFSP.at(0) != mctrkid.size()) isOK = false;
+    if(_nFSP.at(0) != motherid.size()) isOK = false;
+    if(_nFSP.at(0) != _MCPStartX.size()) isOK = false;
+    if(_nFSP.at(0) != _MCPStartY.size()) isOK = false;
+    if(_nFSP.at(0) != _MCPStartZ.size()) isOK = false;
+    if(_nFSP.at(0) != _MCPEndX.size()) isOK = false;
+    if(_nFSP.at(0) != _MCPEndY.size()) isOK = false;
+    if(_nFSP.at(0) != _MCPEndZ.size()) isOK = false;
+    if(_nFSP.at(0) != _MCProc.size()) isOK = false;
+    if(_nFSP.at(0) != _MCEndProc.size()) isOK = false;
+    if(_nFSP.at(0) != trkLen.size()) isOK = false;
+    if(_nFSP.at(0) != trkLenPerp.size()) isOK = false;
+    if(_nFSP.at(0) != truep.size()) isOK = false;
+    if(_nFSP.at(0) != truepx.size()) isOK = false;
+    if(_nFSP.at(0) != truepy.size()) isOK = false;
+    if(_nFSP.at(0) != truepz.size()) isOK = false;
+    if(_nFSP.at(0) != _angle.size()) isOK = false;
 
     //Reco values
-    if(_nFSP != recopid.size()) isOK = false;
-    if(_nFSP != detected.size()) isOK = false;
-    if(_nFSP != recopidecal.size()) isOK = false;
-    // if(_nFSP != prob_arr.size()) isOK = false;
-    if(_nFSP != anglereco.size()) isOK = false;
-    if(_nFSP != _preco.size()) isOK = false;
-    if(_nFSP != erecon.size()) isOK = false;
-    if(_nFSP != etime.size()) isOK = false;
+    if(_nFSP.at(0) != recopid.size()) isOK = false;
+    if(_nFSP.at(0) != detected.size()) isOK = false;
+    if(_nFSP.at(0) != recopidecal.size()) isOK = false;
+    // if(_nFSP.at(0) != prob_arr.size()) isOK = false;
+    if(_nFSP.at(0) != anglereco.size()) isOK = false;
+    if(_nFSP.at(0) != _preco.size()) isOK = false;
+    if(_nFSP.at(0) != erecon.size()) isOK = false;
+    if(_nFSP.at(0) != etime.size()) isOK = false;
 
     //Geometry
-    if(_nFSP != isFidStart.size()) isOK = false;
-    if(_nFSP != isTPCStart.size()) isOK = false;
-    if(_nFSP != isCaloStart.size()) isOK = false;
-    if(_nFSP != isThroughCaloStart.size()) isOK = false;
-    if(_nFSP != isInBetweenStart.size()) isOK = false;
-    if(_nFSP != isBarrelStart.size()) isOK = false;
-    if(_nFSP != isEndcapStart.size()) isOK = false;
+    if(_nFSP.at(0) != isFidStart.size()) isOK = false;
+    if(_nFSP.at(0) != isTPCStart.size()) isOK = false;
+    if(_nFSP.at(0) != isCaloStart.size()) isOK = false;
+    if(_nFSP.at(0) != isThroughCaloStart.size()) isOK = false;
+    if(_nFSP.at(0) != isInBetweenStart.size()) isOK = false;
+    if(_nFSP.at(0) != isBarrelStart.size()) isOK = false;
+    if(_nFSP.at(0) != isEndcapStart.size()) isOK = false;
 
-    if(_nFSP != isFidEnd.size()) isOK = false;
-    if(_nFSP != isTPCEnd.size()) isOK = false;
-    if(_nFSP != isCaloEnd.size()) isOK = false;
-    if(_nFSP != isThroughCaloEnd.size()) isOK = false;
-    if(_nFSP != isInBetweenEnd.size()) isOK = false;
-    if(_nFSP != isBarrelEnd.size()) isOK = false;
-    if(_nFSP != isEndcapEnd.size()) isOK = false;
+    if(_nFSP.at(0) != isFidEnd.size()) isOK = false;
+    if(_nFSP.at(0) != isTPCEnd.size()) isOK = false;
+    if(_nFSP.at(0) != isCaloEnd.size()) isOK = false;
+    if(_nFSP.at(0) != isThroughCaloEnd.size()) isOK = false;
+    if(_nFSP.at(0) != isInBetweenEnd.size()) isOK = false;
+    if(_nFSP.at(0) != isBarrelEnd.size()) isOK = false;
+    if(_nFSP.at(0) != isEndcapEnd.size()) isOK = false;
 
     return isOK;
 }
@@ -415,6 +434,23 @@ void CAF::loop()
     std::vector<float> *Weight = 0;
     TBranch            *b_Weight = 0;
 
+    std::vector<int> *_nGPart = 0;
+    TBranch            *b_nGPart = 0;
+    std::vector<int> *_GPartPdg = 0;
+    TBranch            *b_GPartPdg = 0;
+    std::vector<int> *_GPartStatus = 0;
+    TBranch            *b_GPartStatus = 0;
+    std::vector<std::string> *_GPartName = 0;
+    TBranch            *b_GPartName = 0;
+    std::vector<int> *_GPartFirstMom = 0;
+    TBranch            *b_GPartFirstMom = 0;
+    std::vector<int> *_GPartLastMom = 0;
+    TBranch            *b_GPartLastMom = 0;
+    std::vector<int> *_GPartFirstDaugh = 0;
+    TBranch            *b_GPartFirstDaugh = 0;
+    std::vector<int> *_GPartLastDaugh = 0;
+    TBranch            *b_GPartLastDaugh = 0;
+
     std::vector<int>     *PDG = 0;
     TBranch              *b_PDG = 0;
     std::vector<int>     *MCPTrkID = 0;
@@ -480,6 +516,15 @@ void CAF::loop()
     _inttree->SetBranchAddress("MCNuPz", &MCNuPz, &b_MCNuPz);
     _inttree->SetBranchAddress("InterT", &InterT, &b_InterT);
     _inttree->SetBranchAddress("Weight", &Weight, &b_Weight);
+
+    _inttree->SetBranchAddress("nGPart", &_nGPart, &b_nGPart);
+    _inttree->SetBranchAddress("GPartPdg", &_GPartPdg, &b_GPartPdg);
+    _inttree->SetBranchAddress("GPartStatus", &_GPartStatus, &b_GPartStatus);
+    _inttree->SetBranchAddress("GPartName", &_GPartName, &b_GPartName);
+    _inttree->SetBranchAddress("GPartFirstMom", &_GPartFirstMom, &b_GPartFirstMom);
+    _inttree->SetBranchAddress("GPartLastMom", &_GPartLastMom, &b_GPartLastMom);
+    _inttree->SetBranchAddress("GPartFirstDaugh", &_GPartFirstDaugh, &b_GPartFirstDaugh);
+    _inttree->SetBranchAddress("GPartLastDaugh", &_GPartLastDaugh, &b_GPartLastDaugh);
 
     //MC info
     _inttree->SetBranchAddress("PDG", &PDG, &b_PDG);
@@ -553,9 +598,23 @@ void CAF::loop()
         for(size_t i = 0; i < Gint->size(); i++)
         {
             gint.push_back(Gint->at(i));
-            tgtpdg.push_back(TgtPDG->at(i));
+            tgtpdg.push_back(TgtPDG->at(i));//target pdg
             gt_t.push_back(GT_T->at(i));
             weight.push_back(Weight->at(i));
+        }
+
+        for(size_t i = 0; i < _nGPart->size(); i++)
+        {
+            nGPart.push_back(_nGPart->at(i));
+            for(int j = 0; j < _nGPart->at(i); j++) {
+                GPartPdg.push_back(_GPartPdg->at(j));
+                GPartStatus.push_back(_GPartStatus->at(j));
+                GPartName.push_back(_GPartName->at(j));
+                GPartFirstMom.push_back(_GPartFirstMom->at(j));
+                GPartLastMom.push_back(_GPartLastMom->at(j));
+                GPartFirstDaugh.push_back(_GPartFirstDaugh->at(j));
+                GPartLastDaugh.push_back(_GPartLastDaugh->at(j));
+            }
         }
 
         //--------------------------------------------------------------------------
@@ -1031,7 +1090,7 @@ void CAF::loop()
                             {
                                 pid = pdg_charged.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(0).second) ) );
                             }
-                            
+
                             recopid.push_back( pid );
                         } // closes the if statement
 
@@ -1782,14 +1841,14 @@ void CAF::loop()
             nFSP++;
         } // closes the MC truth loop
 
-        _nFSP = nFSP;
+        _nFSP.push_back(nFSP);
 
         //Check if vectors have good size
         if(this->CheckVectorSize()) {
             this->FillTTree();
         } else {
             std::cerr << "Event " << _Event << std::endl;
-            std::cerr << "Number of FSP " << _nFSP << std::endl;
+            std::cerr << "Number of FSP " << nFSP << std::endl;
 
             std::cerr << "Size of pdgmother " << pdgmother.size() << std::endl;
             std::cerr << "Size of truepdg " << truepdg.size() << std::endl;

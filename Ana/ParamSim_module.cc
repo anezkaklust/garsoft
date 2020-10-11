@@ -83,9 +83,11 @@ namespace gar {
 
         float GetRamdomNumber();
 
-        float GaussianSmearing(const float& mean, const float& sigma);
+        float GaussianSmearing(const float mean, const float sigma);
 
     private:
+        void PrintParameters();
+
         CLHEP::HepRandomEngine& fEngine;
 
         //For the fiducial volume
@@ -105,17 +107,13 @@ namespace gar {
     //==============================================================================
     inline float CAFHelper::GetRamdomNumber() {
         CLHEP::RandFlat FlatRand(fEngine);
-        float value = FlatRand.fire();
-        std::cout << "CAFHelper::GetRamdomNumber " << value << std::endl;
-        return value;
+        return FlatRand.fire();;
     }
 
     //==============================================================================
-    inline float CAFHelper::GaussianSmearing(const float& mean, const float& sigma) {
+    inline float CAFHelper::GaussianSmearing(const float mean, const float sigma) {
         CLHEP::RandGauss GausRand(fEngine);
-        float value = GausRand.fire(mean, sigma);
-        std::cout << "CAFHelper::GaussianSmearing(" << mean << ", " << sigma << ") " << value << std::endl;
-        return value;
+        return GausRand.fire(mean, sigma);;
     }
 
     //==============================================================================
@@ -130,11 +128,29 @@ namespace gar {
         fECALEndcapOuterRadius = fGeo->GetECALOuterEndcapRadius();
         fECALStartX = fGeo->GetECALEndcapStartX();
         fECALEndX = fGeo->GetECALEndcapOuterX();
+
+        PrintParameters();
     }
 
+    //==============================================================================
     CAFHelper::~CAFHelper()
     {
 
+    }
+
+    //==============================================================================
+    void CAFHelper::PrintParameters()
+    {
+        std::cout << " ==== CAFHelper Parameters ==== " << std::endl;
+        std::cout << "TPC Radius " << fTPCRadius << " cm" << std::endl;
+        std::cout << "TPC Length " << fTPCLength << " cm" << std::endl;
+        std::cout << "ECAL Barrel Inner Radius " << fECALBarrelInnerRadius << " cm" << std::endl;
+        std::cout << "ECAL Barrel Outer Radius " << fECALBarrelOuterRadius << " cm" << std::endl;
+        std::cout << "ECAL Endcap Inner Radius  " << fECALEndcapInnerRadius << " cm" << std::endl;
+        std::cout << "ECAL Endcap Outer Radius  " << fECALEndcapOuterRadius << " cm" << std::endl;
+        std::cout << "ECAL Endcap Start X " << fECALStartX << " cm" << std::endl;
+        std::cout << "ECAL Endcap End X " << fECALEndX << " cm" << std::endl;
+        std::cout << " ==== CAFHelper Parameters ==== " << std::endl;
     }
 
     //==============================================================================
@@ -252,8 +268,8 @@ namespace gar {
         void ClearVectors();
         void SaveGtruthMCtruth(art::Event const & e);
         void TreatMCParticles(art::Event const & e);
-        void TreatTPCVisible();
-        void TreatTPCNotVisible();
+        void TreatTPCVisible(const float ecaltime);
+        void TreatTPCNotVisible(const float ecaltime);
 
         //Helpers
         void FillCommonVariables(const int pdg, const TLorentzVector& momentum, const TLorentzVector& position, const TLorentzVector& positionEnd, const int mctrackid, const int mothertrackid, const int motherpdg, const float ptrue, const float angle, const std::string mcp_process, const std::string mcp_endprocess, const float time);
@@ -261,9 +277,9 @@ namespace gar {
         void DoRangeCalculation(float &preco, float &angle_reco);
         void DoGluckSternCalculation(float &preco, float &angle_reco);
         void TPCParticleIdentification();
-        void TreatNeutrons();
-        void TreatPhotons();
-        void TreatOthers();
+        void TreatNeutrons(const float ecaltime);
+        void TreatPhotons(const float ecaltime);
+        void TreatOthers(const float ecaltime);
         bool CheckVectorSize();
 
         //TTree
@@ -315,7 +331,7 @@ namespace gar {
         //MIP2GeV conversion factor
         const double MIP2GeV_factor = 0.814 / 1000;
         //float ECAL_pi0_resolution = 0.13; //sigmaE/E in between at rest (17%) and high energy (~few %)
-        const float ECAL_time_resolution = 1.; // 1 ns time resolution
+        const float fECALTimeResolution = 1.; // 1 ns time resolution
         TParticlePDG *neutron = TDatabasePDG::Instance()->GetParticle(2112);
         const float neutron_mass = neutron->Mass(); //in GeV
 
@@ -345,15 +361,9 @@ namespace gar {
     fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "Seed"))
     {
         fGeo     = gar::providerFrom<geo::Geometry>();
-        fHelper  = new CAFHelper(fGeo, fEngine);
-
-        fRes = new TF1("fRes", "TMath::Sqrt ( [0]*[0]/x + [1]*[1] )", 3);
-        fRes->FixParameter(0, ECAL_stock);
-        fRes->FixParameter(1, ECAL_const);
 
         fGeneratorLabel    = p.get<std::string>("GeneratorLabel","genie");
         fGeantLabel        = p.get<std::string>("GEANTLabel","geant");
-
         fCorrect4origin    = p.get<bool>("Correct4Origin", false);
 
         consumes<std::vector<simb::MCTruth> >(fGeneratorLabel);
@@ -367,6 +377,11 @@ namespace gar {
         fOrigin[0] = fGeo->TPCXCent();
         fOrigin[1] = fGeo->TPCYCent();
         fOrigin[2] = fGeo->TPCZCent();
+
+        fRes = new TF1("fRes", "TMath::Sqrt ( [0]*[0]/x + [1]*[1] )", 3);
+        fRes->FixParameter(0, ECAL_stock);
+        fRes->FixParameter(1, ECAL_const);
+        fHelper  = new CAFHelper(fGeo, fEngine);
 
         // read the PID parametrization ntuple from T. Junk
         TString filename = "${DUNE_PARDATA_DIR}/MPD/dedxPID/dedxpidmatrices8kevcm.root";
@@ -608,6 +623,10 @@ namespace gar {
         //Loop over the mcp
         for ( auto const& mcp : (*MCPHandle) ) {
 
+            const TDatabasePDG* databasePDG = TDatabasePDG::Instance();
+            const TParticlePDG* definition = databasePDG->GetParticle( mcp.PdgCode() );
+            if (definition == nullptr) continue;
+
             const std::string mcp_process = mcp.Process();
             const std::string mcp_endprocess = mcp.EndProcess();
             const int mctrackid = mcp.TrackId();
@@ -642,16 +661,18 @@ namespace gar {
                 ComputeTrkLength(mcp);
             }
 
+            float ecaltime = fHelper->GaussianSmearing(time, fECALTimeResolution);
+
             //Store common mcp properties
             FillCommonVariables(pdg, momentum, position, positionEnd, mctrackid, mothertrackid, motherpdg, ptrue, angle, mcp_process, mcp_endprocess, time);
 
             //Treat visible particles in the TPC
             if( trkLen.at(_nFSP) > gastpc_len ) {
-                TreatTPCVisible();
+                TreatTPCVisible(ecaltime);
             }
             else
             {
-                TreatTPCNotVisible();
+                TreatTPCNotVisible(ecaltime);
             }// end trkLen.at(_nFSP) < gastpc_len
 
             _nFSP++;
@@ -739,10 +760,7 @@ namespace gar {
 
             //point is not in the TPC anymore - stop traj loop
             if(not fHelper->PointInTPC(point))
-            {
-                // // std::cout << "Point not within the TPC: " << point.X() << " r " << std::sqrt(point.Y()*point.Y() + point.Z()*point.Z()) << std::endl;
-                continue;
-            }
+            continue;
 
             // find the length of the track by getting the distance between each hit
             TVector3 diff(xTraj - mcp.Trajectory().X(itraj - 1), yTraj - mcp.Trajectory().Y(itraj - 1), zTraj - mcp.Trajectory().Z(itraj - 1));
@@ -802,17 +820,17 @@ namespace gar {
     }
 
     //==============================================================================
-    void ParamSim::TreatTPCVisible()
+    void ParamSim::TreatTPCVisible(const float ecaltime)
     {
         //start tpc
         //***************************************************************************************************************/
         int pdg = truepdg.at(_nFSP);
-        TVector3 epoint(_MCPEndX.at(_nFSP), _MCPEndY.at(_nFSP), _MCPEndZ.at(_nFSP));
-        float ptrue = truep.at(_nFSP);
-        float ecaltime = fHelper->GaussianSmearing(mctime.at(_nFSP), ECAL_time_resolution);
 
         if ( std::find(pdg_charged.begin(), pdg_charged.end(), std::abs(pdg)) != pdg_charged.end() )
         {
+            TVector3 epoint(_MCPEndX.at(_nFSP), _MCPEndY.at(_nFSP), _MCPEndZ.at(_nFSP));
+            float ptrue = truep.at(_nFSP);
+
             //Use range instead of Gluckstern for stopping tracks
             //TODO is that correct? What if it is a scatter in the TPC? Need to check if daughter is same particle
             float preco = 0.;
@@ -852,12 +870,13 @@ namespace gar {
                     if(nullptr == part)
                     {
                         //deuteron
-                        if( pdg == 1000010020 ) {
+                        if( pdg == 1000010020 )
+                        {
                             float mass = 1.8756;//in GeV mass deuteron
                             float etrue = std::sqrt(ptrue*ptrue + mass*mass) - mass;
                             float ECAL_resolution = fRes->Eval(etrue)*etrue;
                             float ereco = fHelper->GaussianSmearing(etrue, ECAL_resolution);
-                            erecon.push_back(ereco);
+                            erecon.push_back((ereco > 0) ? ereco : 0.);
                             recopidecal.push_back(-1);
                             detected.push_back(1);
                             etime.push_back(ecaltime);
@@ -1121,7 +1140,7 @@ namespace gar {
     }
 
     //==============================================================================
-    void ParamSim::TreatTPCNotVisible()
+    void ParamSim::TreatTPCNotVisible(const float ecaltime)
     {
         int pdg = truepdg.at(_nFSP);
 
@@ -1139,7 +1158,7 @@ namespace gar {
         }
         else if( std::abs(pdg) == 2112 )
         {
-            TreatNeutrons();
+            TreatNeutrons(ecaltime);
         }
         else if(std::abs(pdg) == 111)
         {
@@ -1156,18 +1175,17 @@ namespace gar {
         }
         else if(std::abs(pdg) == 22)
         {
-            TreatPhotons();
+            TreatPhotons(ecaltime);
         }
         else
         {
-            TreatOthers();
+            TreatOthers(ecaltime);
         }//end case charged but not visible in TPC
     }
 
     //==============================================================================
-    void ParamSim::TreatNeutrons()
+    void ParamSim::TreatNeutrons(const float ecaltime)
     {
-        float ecaltime = fHelper->GaussianSmearing(mctime.at(_nFSP), ECAL_time_resolution);
         TVector3 epoint(_MCPEndX.at(_nFSP), _MCPEndY.at(_nFSP), _MCPEndZ.at(_nFSP));
         //start neutrons
         //***************************************************************************************************************/
@@ -1227,9 +1245,8 @@ namespace gar {
     }
 
     //==============================================================================
-    void ParamSim::TreatPhotons()
+    void ParamSim::TreatPhotons(const float ecaltime)
     {
-        float ecaltime = fHelper->GaussianSmearing(mctime.at(_nFSP), ECAL_time_resolution);
         TVector3 epoint(_MCPEndX.at(_nFSP), _MCPEndY.at(_nFSP), _MCPEndZ.at(_nFSP));
         //start gammas
         //***************************************************************************************************************/
@@ -1303,10 +1320,9 @@ namespace gar {
     }
 
     //==============================================================================
-    void ParamSim::TreatOthers()
+    void ParamSim::TreatOthers(const float ecaltime)
     {
         int pdg = truepdg.at(_nFSP);
-        float ecaltime = fHelper->GaussianSmearing(mctime.at(_nFSP), ECAL_time_resolution);
         TVector3 epoint(_MCPEndX.at(_nFSP), _MCPEndY.at(_nFSP), _MCPEndZ.at(_nFSP));
         //Case for particles that stop or go through ECAL (problematic particles with no track length????)
         //Not visible in the TPC and not neutron or gamma or pi0 (otherwise it has been already done above)

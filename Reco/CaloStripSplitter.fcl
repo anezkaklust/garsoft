@@ -4,7 +4,7 @@ standard_CaloStripSplitter:
 {
 module_type:        CaloStripSplitter
 CaloHitLabel:       "sipmhit"
-ECALInstanceName:   ""
+ECALInstanceName:   "ECAL"
 SaveStripEndsOnly:  false
 SaveUnsplitHits:    false
 SSAAlgPars:         @local::stripsplitteralg

@@ -27,9 +27,12 @@
 #include "nusimdata/SimulationBase/GTruth.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
+
+#include "SimulationDataProducts/GenieParticle.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "SimulationDataProducts/SimChannel.h"
 #include "SimulationDataProducts/CaloDeposit.h"
+
 #include "ReconstructionDataProducts/TPCCluster.h"
 #include "ReconstructionDataProducts/Hit.h"
 #include "ReconstructionDataProducts/Track.h"
@@ -38,7 +41,9 @@
 #include "ReconstructionDataProducts/Vee.h"
 #include "ReconstructionDataProducts/CaloHit.h"
 #include "ReconstructionDataProducts/Cluster.h"
+
 #include "RawDataProducts/CaloRawDigit.h"
+
 #include "CoreUtils/ServiceUtil.h"
 #include "Geometry/Geometry.h"
 
@@ -49,8 +54,6 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-
-
 
 namespace gar {
 
@@ -186,6 +189,23 @@ namespace gar {
         std::vector<Int_t>              fTgtPDG;
         std::vector<Float_t>            fWeight;
         std::vector<Float_t>            fgT;
+
+        //GENIE particle list from event record
+        std::vector<Int_t>             fnGPart;
+        std::vector<Int_t>             fGPartIntIdx;
+        std::vector<Int_t>             fGPartIdx;
+        std::vector<Int_t>             fGPartPdg;
+        std::vector<Int_t>             fGPartStatus;
+        std::vector<Int_t>             fGPartFirstMom;
+        std::vector<Int_t>             fGPartLastMom;
+        std::vector<Int_t>             fGPartFirstDaugh;
+        std::vector<Int_t>             fGPartLastDaugh;
+        std::vector<std::string>       fGPartName;
+        std::vector<Float_t>           fGPartPx;
+        std::vector<Float_t>           fGPartPy;
+        std::vector<Float_t>           fGPartPz;
+        std::vector<Float_t>           fGPartE;
+        std::vector<Float_t>           fGPartMass;
 
         // MCParticle data
         std::vector<Int_t>              fMCTrkID;
@@ -395,14 +415,13 @@ namespace gar {
     };
 }
 
-
-
 //==============================================================================
 //==============================================================================
 //==============================================================================
 // constructor
-gar::anatree::anatree(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
-
+gar::anatree::anatree(fhicl::ParameterSet const & p)
+: EDAnalyzer(p)
+{
     fGeo     = gar::providerFrom<geo::Geometry>();
 
     bool usegenlabels =
@@ -476,6 +495,7 @@ gar::anatree::anatree(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
         consumesMany<std::vector<simb::GTruth> >();
     }
 
+    consumesMany<std::vector<sdp::GenieParticle> >();
     //consumes<art::Assns<simb::MCTruth, simb::MCParticle> >(fGeantLabel);
     consumes<std::vector<simb::MCParticle> >(fGeantLabel);
 
@@ -520,8 +540,6 @@ gar::anatree::anatree(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
     return;
 } // end constructor
 
-
-
 //==============================================================================
 //==============================================================================
 //==============================================================================
@@ -563,6 +581,23 @@ void gar::anatree::beginJob() {
         fTree->Branch("TgtPDG",      &fTgtPDG);
         fTree->Branch("Weight",      &fWeight);
         fTree->Branch("GT_T",        &fgT);
+
+        //GENIE particle list from the event record
+        fTree->Branch("nGPart",        &fnGPart);
+        fTree->Branch("GPartIntIdx",     &fGPartIntIdx);
+        fTree->Branch("GPartIdx",     &fGPartIdx);
+        fTree->Branch("GPartName",     &fGPartName);
+        fTree->Branch("GPartPdg",      &fGPartPdg);
+        fTree->Branch("GPartStatus",   &fGPartStatus);
+        fTree->Branch("GPartFirstMom",    &fGPartFirstMom);
+        fTree->Branch("GPartLastMom",     &fGPartLastMom);
+        fTree->Branch("GPartFirstDaugh",  &fGPartFirstDaugh);
+        fTree->Branch("GPartLastDaugh",   &fGPartLastDaugh);
+        fTree->Branch("GPartPx",   &fGPartPx);
+        fTree->Branch("GPartPy",   &fGPartPy);
+        fTree->Branch("GPartPz",   &fGPartPz);
+        fTree->Branch("GPartE",   &fGPartE);
+        fTree->Branch("GPartMass",   &fGPartMass);
 
         fTree->Branch("MCTrkID",     &fMCTrkID);
         fTree->Branch("PDG",         &fMCPDG);
@@ -834,8 +869,6 @@ void gar::anatree::beginJob() {
     return;
 }  // End of :anatree::beginJob
 
-
-
 //==============================================================================
 //==============================================================================
 //==============================================================================
@@ -865,8 +898,6 @@ void gar::anatree::analyze(art::Event const & e) {
     return;
 }
 
-
-
 //==============================================================================
 //==============================================================================
 //==============================================================================
@@ -895,6 +926,22 @@ void gar::anatree::ClearVectors() {
         fTgtPDG.clear();
         fWeight.clear();
         fgT.clear();
+
+        fnGPart.clear();
+        fGPartIntIdx.clear();
+        fGPartIdx.clear();
+        fGPartPdg.clear();
+        fGPartStatus.clear();
+        fGPartName.clear();
+        fGPartFirstMom.clear();
+        fGPartLastMom.clear();
+        fGPartFirstDaugh.clear();
+        fGPartLastDaugh.clear();
+        fGPartPx.clear();
+        fGPartPy.clear();
+        fGPartPz.clear();
+        fGPartE.clear();
+        fGPartMass.clear();
 
         fMCTrkID.clear();
         fMCPDG.clear();
@@ -1120,7 +1167,6 @@ void gar::anatree::ClearVectors() {
 } // end :anatree::ClearVectors
 
 //==============================================================================
-
 void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
 
     // =============  Get art handles ==========================================
@@ -1190,6 +1236,32 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
             fWeight.push_back(gt.fweight);
             fgT.push_back(gt.fgT);
         }
+    }
+
+    // Save the particle list from the GENIE event record
+    std::vector< art::Handle< std::vector<sdp::GenieParticle> > > gparthandlelist;
+    e.getManyByType(gparthandlelist);
+
+    for (size_t igphl = 0; igphl < gparthandlelist.size(); ++igphl) {
+        unsigned int nGPart = 0;
+        for ( auto const& gpart : (*gparthandlelist.at(igphl)) ) {
+            fGPartIntIdx.push_back(gpart.InteractionIndex());
+            fGPartIdx.push_back(gpart.Index());
+            fGPartPdg.push_back(gpart.Pdg());
+            fGPartStatus.push_back(gpart.Status());
+            fGPartName.push_back(gpart.Name());
+            fGPartFirstMom.push_back(gpart.FirstMother());
+            fGPartLastMom.push_back(gpart.LastMother());
+            fGPartFirstDaugh.push_back(gpart.FirstDaughter());
+            fGPartLastDaugh.push_back(gpart.LastDaughter());
+            fGPartPx.push_back(gpart.Px());
+            fGPartPy.push_back(gpart.Py());
+            fGPartPz.push_back(gpart.Pz());
+            fGPartE.push_back(gpart.E());
+            fGPartMass.push_back(gpart.Mass());
+            nGPart++;
+        }
+        fnGPart.push_back(nGPart);
     }
 
     art::Handle< std::vector<simb::MCParticle> > MCPHandle;
@@ -1269,9 +1341,11 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
     // event I (Leo Bellantoni) tested, with 40 vertices and 351 primary
     // particles, particle 143, a proton, evidently decayed or something and is
     // not in (*MCPHandle).  So we use the following primitive earth technology.
-    size_t nMCParticles = (*MCPHandle).size();        size_t iMCParticle=0;
+    size_t nMCParticles = (*MCPHandle).size();
+    size_t iMCParticle=0;
     fMCPVertIndex.resize(nMCParticles);
-    for (; iMCParticle<nMCParticles; ++iMCParticle) {
+    for (; iMCParticle<nMCParticles; ++iMCParticle)
+    {
         foundMCvert:
             // Assign noprimary to start with
             fMCPVertIndex[iMCParticle] = -1;
@@ -1281,15 +1355,19 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
             Float_t trackY = fMCPStartY[iMCParticle];
             Float_t trackZ = fMCPStartZ[iMCParticle];
             int vertexIndex = 0;
-            for (size_t imchl = 0; imchl < mcthandlelist.size(); ++imchl) {
-                for ( auto const& mct : (*mcthandlelist.at(imchl)) ) {
-                    if (mct.NeutrinoSet()) {
+            for (size_t imchl = 0; imchl < mcthandlelist.size(); ++imchl)
+            {
+                for ( auto const& mct : (*mcthandlelist.at(imchl)) )
+                {
+                    if (mct.NeutrinoSet())
+                    {
                         simb::MCNeutrino nuw = mct.GetNeutrino();
                         Float_t vertX = nuw.Nu().EndX();
                         Float_t vertY = nuw.Nu().EndY();
                         Float_t vertZ = nuw.Nu().EndZ();
                         Float_t dist = std::hypot(trackX-vertX,trackY-vertY,trackZ-vertZ);
-                        if ( dist <= fMatchMCPtoVertDist ) {
+                        if ( dist <= fMatchMCPtoVertDist )
+                        {
                             fMCPVertIndex[iMCParticle] = vertexIndex;
                             ++iMCParticle; goto foundMCvert;
                         }
@@ -1298,8 +1376,10 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
                 }
             }
         }
+
         // Now the secondaries.  As they are after the primaries, do not re-init iMCParticle
-        for (; iMCParticle<nMCParticles; ++iMCParticle) {
+        for (; iMCParticle<nMCParticles; ++iMCParticle)
+        {
             int momIndex = fMCMotherIndex[iMCParticle];
             int lastMCParticle = iMCParticle;
             while (momIndex != -1) {
@@ -1309,7 +1389,8 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
             fMCPVertIndex[iMCParticle] = fMCPVertIndex[lastMCParticle];
         }
 
-        if (fWriteMCPTrajectory) {
+        if (fWriteMCPTrajectory)
+        {
             // It's in the MCParticle table
             Int_t mcpIndex = 0;
             for ( auto const& mcp : (*MCPHandle) ) {
@@ -1350,8 +1431,8 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
         art::Handle< std::vector<gar::sdp::CaloDeposit> > MuIDSimHitHandle;//ecal
         art::InputTag ecalgeanttag(fGeantLabel, fGeantInstanceCalo);
         art::InputTag muidgeanttag(fGeantLabel, fGeantInstanceMuID);
-        if (fWriteMCCaloInfo) {
-
+        if (fWriteMCCaloInfo)
+        {
             if (!e.getByLabel(ecalgeanttag, SimHitHandle)) {
                 throw cet::exception("anatree") << " No gar::sdp::CaloDeposit branch."
                 << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;

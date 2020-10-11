@@ -47,6 +47,7 @@
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "SimulationDataProducts/CaloDeposit.h"
 #include "SimulationDataProducts/LArDeposit.h"
+#include "SimulationDataProducts/GenieParticle.h"
 #include "RawDataProducts/CaloRawDigit.h"
 #include "Geometry/GeometryCore.h"
 #include "Geometry/Geometry.h"
@@ -196,7 +197,7 @@ namespace util {
         //If ghep file is provided
         if(not fGhepfile.empty()) {
             fGTreeChain->Add(fGhepfile.c_str());
-            nEntriesGhep = fTreeChain->GetEntries();
+            nEntriesGhep = fGTreeChain->GetEntries();
             fGTreeChain->SetBranchAddress("gmcrec", &fMCRec);
             fHasGHEP = true;
         }
@@ -222,6 +223,7 @@ namespace util {
 
         produces< std::vector<simb::MCTruth> >();
         if(fHasGHEP) {
+            produces< std::vector<gar::sdp::GenieParticle> >();
             produces< std::vector<simb::GTruth>  >();
             produces< art::Assns<simb::MCTruth, simb::GTruth> >();
         }
@@ -456,6 +458,8 @@ namespace util {
         std::unique_ptr< std::vector<simb::GTruth> > gtruthcol( new std::vector<simb::GTruth> );
         std::unique_ptr< art::Assns<simb::MCTruth, simb::GTruth> > tgassn( new art::Assns<simb::MCTruth, simb::GTruth> );
 
+        std::unique_ptr< std::vector<gar::sdp::GenieParticle> > geniepartcol( new std::vector<gar::sdp::GenieParticle> );
+
         art::PtrMaker<simb::MCTruth> makeMCTruthPtr(evt);
         std::vector< ::art::Ptr<simb::MCTruth> > mctPtrs;
 
@@ -464,9 +468,9 @@ namespace util {
         //Starts at 0, evt starts at 1
         fTreeChain->GetEntry(eventnumber-1);
 
+        unsigned int_idx = 0;
         //--------------------------------------------------------------------------
-        if(fOverlay && fHasGHEP){
-            size_t index = 0;
+        if(fOverlay && fHasGHEP) {
             for(int ientry = fStartSpill[eventnumber-1]; ientry < fStopSpill[eventnumber-1]; ientry++)
             {
                 fGTreeChain->GetEntry(ientry);
@@ -475,13 +479,26 @@ namespace util {
                 genie::EventRecord *event = fMCRec->event;
                 // genie::Interaction *interaction = event->Summary();
 
-                MF_LOG_INFO("ConvertEdep2Art") << rec_header;
-                MF_LOG_INFO("ConvertEdep2Art") << *event;
+                MF_LOG_DEBUG("ConvertEdep2Art") << rec_header;
+                MF_LOG_DEBUG("ConvertEdep2Art") << *event;
                 // MF_LOG_INFO("ConvertEdep2Art") << *interaction;
 
                 genie::GHepParticle *neutrino = event->Probe();
                 //avoid rootino events
-                if(nullptr == neutrino) continue;
+                if(nullptr == neutrino) {
+                    int_idx = 0;
+                    continue;
+                }
+
+                //Store the list of GENIE particles
+                genie::GHepParticle* p = nullptr;
+                TObjArrayIter piter(event);
+                unsigned int idx = 0;
+
+                while( (p = (genie::GHepParticle*) piter.Next()) ) {
+                    geniepartcol->emplace_back(int_idx, idx, p->Pdg(), p->Status(), p->Name(), p->FirstMother(), p->LastMother(), p->FirstDaughter(), p->LastDaughter(), p->Px(), p->Py(), p->Pz(), p->E(), p->Mass(), p->RescatterCode());
+                    idx++;
+                }
 
                 simb::MCTruth mctruth;
                 simb::GTruth  gtruth;
@@ -497,7 +514,7 @@ namespace util {
                 mctPtrs.push_back(MCTruthPtr);
 
                 evgb::util::CreateAssn(*this, evt, *mctruthcol, *gtruthcol, *tgassn, gtruthcol->size()-1, gtruthcol->size());
-                index++;
+                int_idx++;
             }
         }
         else if(not fOverlay && fHasGHEP){
@@ -508,9 +525,19 @@ namespace util {
             genie::EventRecord *event = fMCRec->event;
             // genie::Interaction *interaction = event->Summary();
 
-            MF_LOG_INFO("ConvertEdep2Art") << rec_header;
-            MF_LOG_INFO("ConvertEdep2Art") << *event;
+            MF_LOG_DEBUG("ConvertEdep2Art") << rec_header;
+            MF_LOG_DEBUG("ConvertEdep2Art") << *event;
             // MF_LOG_INFO("ConvertEdep2Art") << *interaction;
+
+            //Store the list of GENIE particles
+            genie::GHepParticle* p = nullptr;
+            TObjArrayIter piter(event);
+            unsigned int idx = 0;
+
+            while( (p = (genie::GHepParticle*) piter.Next()) ) {
+                geniepartcol->emplace_back(int_idx, idx, p->Pdg(), p->Status(), p->Name(), p->FirstMother(), p->LastMother(), p->FirstDaughter(), p->LastDaughter(), p->Px(), p->Py(), p->Pz(), p->E(), p->Mass(), p->RescatterCode());
+                idx++;
+            }
 
             simb::MCTruth mctruth;
             simb::GTruth  gtruth;
@@ -1149,6 +1176,7 @@ namespace util {
         if(fHasGHEP) {
             evt.put(std::move(gtruthcol));
             evt.put(std::move(tgassn));
+            evt.put(std::move(geniepartcol));
         }
         evt.put(std::move(tpassn));
         evt.put(std::move(partCol));

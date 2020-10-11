@@ -12,6 +12,7 @@ art_make(BASENAME_ONLY
                        nusimdata_SimulationBase
                        nurandom_RandomUtils_NuRandomService_service
                        nug4_MagneticField_MagneticField_service
+                       nugen_EventGeneratorBase_GENIE
                        ${ART_FRAMEWORK_CORE}
                        ${ART_FRAMEWORK_IO_SOURCES}
                        ${ART_FRAMEWORK_PRINCIPAL}
@@ -26,6 +27,7 @@ art_make(BASENAME_ONLY
                        ${FHICLCPP}
                        ${CETLIB_EXCEPT}
                        ${ROOT_BASIC_LIB_LIST}
+                       ${ROOT_EG}
          )
 
 install_headers()

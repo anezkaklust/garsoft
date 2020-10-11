@@ -16,6 +16,7 @@
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "SimulationDataProducts/CaloDeposit.h"
 #include "SimulationDataProducts/LArDeposit.h"
+#include "SimulationDataProducts/GenieParticle.h"
 
 // RawData includes
 #include "RawDataProducts/RawDigit.h"
