@@ -259,6 +259,7 @@ namespace gar {
 	{
 	  throw cet::exception("tpctrackfit2_module") << "Sort Algorithm swithc not understood: " << fSortAlg; 
 	}
+      if (hlf.size() == 0) return 1;
       std::vector<float> tparend(6);
       float covmatend[25];
       float chisqforwards = 0;

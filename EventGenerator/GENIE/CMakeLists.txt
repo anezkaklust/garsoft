@@ -1,4 +1,4 @@
-
+include_directories( $ENV{CLHEP_INCLUDE_DIR} )
 include_directories ( $ENV{GENIE_INC}/GENIE )
 
 # genie
@@ -12,6 +12,7 @@ art_make( MODULE_LIBRARIES SimulationDataProducts
                            nugen_EventGeneratorBase_GENIE
                            nurandom_RandomUtils_NuRandomService_service
                            ${ART_FRAMEWORK_CORE}
+                           ${ART_FRAMEWORK_IO_SOURCES}
                            ${ART_FRAMEWORK_PRINCIPAL}
                            ${ART_FRAMEWORK_SERVICES_REGISTRY}
                            ${ART_FRAMEWORK_SERVICES_OPTIONAL}
