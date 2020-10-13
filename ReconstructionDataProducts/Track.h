@@ -83,7 +83,7 @@ namespace gar {
             const float *vtxDir,
             const float *endDir,
             const size_t nhits,
-            const int    charge,   // units of e.  Need this to convert momentum into  curvature
+            const int    charge,   // units of e.  Need this to convert momentum into curvature
             const double time);
 
             // constructor to fill after the fits -- including covariance matrix
@@ -125,8 +125,8 @@ namespace gar {
             void CovMatEndSymmetric(float *cme) const; // fill a 5x5 array of floats owned by the caller with the values of the covariance matrix at the beginning of the track
             const float* CovMatBegPacked() const;
             const float* CovMatEndPacked() const;
-            int ChargeBeg() const;
-            int ChargeEnd() const;
+            int ChargeBeg() const;                     // Charge if the true particle progressed from Vertex to End
+            int ChargeEnd() const;                     // Charge if the starting of the particle's track is End not Vertex
             //   the charge assumes the track started at the beginning or the end above, and is expected to change sign
             // depending on which way the track is hypothesized to go
             double  const&       Time()      const;

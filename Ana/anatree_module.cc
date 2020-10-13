@@ -503,7 +503,7 @@ gar::anatree::anatree(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
     consumes<std::vector<rec::CaloHit> >(ecalhittag);
 
     //Muon system related
-    if(fGeo->HasMuonDetector()) {
+    if (fGeo->HasMuonDetector()) {
         art::InputTag muidgeanttag(fGeantLabel, fGeantInstanceMuID);
         consumes<std::vector<gar::sdp::CaloDeposit> >(muidgeanttag);
 

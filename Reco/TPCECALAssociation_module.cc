@@ -68,6 +68,9 @@ namespace gar {
             const geo::GeometryCore*            fGeo;        ///< pointer to the geometry
             float                               maxXdisplacement;
 
+            // Position of TPC from geometry service; 1 S Boston Ave.
+            float ItsInTulsa[3];
+
             TH1F* radClusTrack;                              ///< Cluster to track in transverse plane
             TH2F* xClusTrack;                                ///< Cluster to track in barrel, x only, vs x of trackend
             TH1F* phiClusTrack;                              ///< Cluster to track in endcap
@@ -81,10 +84,12 @@ namespace gar {
             fTrackLabel    = p.get<std::string>("TrackLabel", "track");
             fClusterLabel  = p.get<std::string>("ClusterLabel","calocluster");
             fVerbosity     = p.get<int>("Verbosity", 0);
-            fTrackEndXCut  = p.get<float>("TrackEndXCut",     240.0);
-            fTrackEndRCut  = p.get<float>("TrackEndRCut",     238.0);
-            fPerpRCut       = p.get<float>("fPerpRCut",        10.0);
-            fBarrelXCut    = p.get<float>("fBarrelXCut",      20.0);
+            // Needs to be computed in produce; so will be 0.0 to do that 
+            // otherwise of course the fcl file value appears
+            fTrackEndXCut  = p.get<float>("TrackEndXCut",     215.0);
+            fTrackEndRCut  = p.get<float>("TrackEndRCut",     230.0);
+            fPerpRCut      = p.get<float>("fPerpRCut",         10.0);
+            fBarrelXCut    = p.get<float>("fBarrelXCut",       20.0);
             fEndcapRphiCut = p.get<float>("fEndXCut",          32.0);
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fClocks  = gar::providerFrom<detinfo::DetectorClocksService>();
@@ -96,6 +101,11 @@ namespace gar {
 
 
         void TPCECALAssociation::beginJob() {
+
+            ItsInTulsa[0] = fGeo->TPCXCent();
+            ItsInTulsa[1] = fGeo->TPCYCent();
+            ItsInTulsa[2] = fGeo->TPCZCent();
+
             if (fVerbosity>0) {
                 art::ServiceHandle< art::TFileService > tfs;
                 radClusTrack = tfs->make<TH1F>("radClusTrack",
@@ -127,8 +137,6 @@ namespace gar {
             maxXdisplacement = fDetProp->DriftVelocity(fDetProp->Efield(),fDetProp->Temperature())
                               *fClocks->SpillLength();
 
-
-
             std::unique_ptr<art::Assns<gar::rec::Cluster, gar::rec::Track, gar::rec::TrackEnd>>
                             ClusterTrackAssns(new art::Assns<gar::rec::Cluster,gar::rec::Track, gar::rec::TrackEnd>);
             auto const clusterPtrMaker = art::PtrMaker<rec::Cluster>(e, theClusterHandle.id());
@@ -138,8 +146,14 @@ namespace gar {
 
             for (size_t iCluster=0; iCluster<theClusterHandle->size(); ++iCluster) {
                 gar::rec::Cluster cluster = (*theClusterHandle)[iCluster];
-                float yClus = cluster.Position()[1];    float zClus = cluster.Position()[2];
-                float rClus = std::hypot(zClus,yClus);  float xClus = cluster.Position()[0];
+                TVector3 clusterCenter(cluster.Position());
+                bool inECALBarrel = fGeo->PointInECALBarrel(clusterCenter);
+                // fGeo uses one coordinate system, this code uses another.
+                clusterCenter -=ItsInTulsa;
+                float yClus = clusterCenter[1];
+                float zClus = clusterCenter[2];
+                float rClus = std::hypot(zClus,yClus);  
+                float xClus = clusterCenter[0];
 
                 for (size_t iTrack=0; iTrack<theTrackHandle->size(); ++iTrack) {
                     gar::rec::Track track = (*theTrackHandle)[iTrack];
@@ -147,13 +161,15 @@ namespace gar {
                     // Which if any ends of the track are near the outer edges of the TPC?
                     // These specific cuts could perhaps be increased
                     bool outside[2]; outside[0] = outside[1] = false;
-                    
-                    if ( abs(track.Vertex()[0]) > fTrackEndXCut ||
-                        std::hypot(track.Vertex()[1],track.Vertex()[2]) > fTrackEndRCut ) {
+
+                    if ( abs(track.Vertex()[0] -ItsInTulsa[0]) > fTrackEndXCut ||
+                        std::hypot(track.Vertex()[1] -ItsInTulsa[1],
+                                   track.Vertex()[2] -ItsInTulsa[2]) > fTrackEndRCut ) {
                         outside[TrackEndBeg] = true;
                     }
                     if ( abs(track.End()[0]) > fTrackEndXCut ||
-                        std::hypot(track.End()[1],track.End()[2]) > fTrackEndRCut ) {
+                        std::hypot(track.End()[1] -ItsInTulsa[1],
+                                   track.End()[2] -ItsInTulsa[2])    > fTrackEndRCut ) {
                         outside[TrackEndEnd] = true;
                     }
 
@@ -168,8 +184,12 @@ namespace gar {
                                 for (int i=0; i<5; ++i) trackPar[i] = track.TrackParEnd()[i];
                                 for (int i=0; i<3; ++i) trackEnd[i] = track.End()[i];
                             }
+                            // Translate to the center-of-MPD coordinate system
+                            trackPar[0] -=ItsInTulsa[1];        trackPar[1] -=ItsInTulsa[2];
+                            for (int i=0; i<3; ++i) trackEnd[i] -= ItsInTulsa[i];
+                            
                             float radius = 1.0/trackPar[2];
-                            float zCent = trackPar[1] - radius*sin(trackPar[3]);                        
+                            float zCent = trackPar[1] - radius*sin(trackPar[3]);						
                             float yCent = trackPar[0] + radius*cos(trackPar[3]);
 
                             float distRadially = std::hypot(zClus-zCent,yClus-yCent) -abs(radius);
@@ -178,21 +198,18 @@ namespace gar {
                             
                             if ( distRadially > fPerpRCut ) {
                                 // This track-cluster match fails
-                                outside[iEnd] = false;
                                 continue;
                             }
 
                             // Require plausible extrapolation in x as well
-                            TVector3 clusterCenter(cluster.Position());
                             float retXYZ[3];
-                            if (fGeo->PointInECALBarrel(clusterCenter)) {
-                                // Extrapolate track to that radius
+                            if (inECALBarrel) {
+                                // Extrapolate track to that radius.  Using MPD center coords.
                                 int errcode = util::TrackPropagator::PropagateToCylinder(
                                     trackPar,trackEnd,rClus, 0.0, 0.0, retXYZ);
                                 if ( errcode!=0 ) {
                                     // This track-cluster match fails.  Error code 1, there is
                                     // no intersection at all, is possible
-                                    outside[iEnd] = false;
                                     continue;
                                 }
                                 float extrapXerr = retXYZ[0] -clusterCenter.X();
@@ -204,7 +221,6 @@ namespace gar {
                                 if (trackEnd[0]>+25) expected_mean = -maxXdisplacement/2.0;
                                 float cutQuantity = extrapXerr -expected_mean;
                                 if ( abs(cutQuantity) > maxXdisplacement+fBarrelXCut ) {
-                                    outside[iEnd] = false;
                                     continue;
                                 }
                             } else {
@@ -213,14 +229,12 @@ namespace gar {
                                                       / tan(trackPar[4]);
                                 if ( abs(radiansInDrift) >= 2.0*M_PI ) {
                                     // Drat!  No distinguishing power here.
-                                    outside[iEnd] = false;
                                     continue;
                                 }
                                 int errcode = util::TrackPropagator::PropagateToX(
                                     trackPar,trackEnd, xClus, retXYZ);
                                 if ( errcode!=0 ) {
                                     // This track-cluster match fails.
-                                    outside[iEnd] = false;
                                     continue;
                                 }
                                 // Find how many radians the closest point on the propagated
@@ -235,7 +249,6 @@ namespace gar {
                                 float extrapRphiErr = abs(radius)*extrapPhiErr;
                                 rPhiClusTrack->Fill( extrapRphiErr );
                                 if (abs(extrapRphiErr) > fEndcapRphiCut) {
-                                    outside[iEnd] = false;
                                     continue;
                                 }
                             }

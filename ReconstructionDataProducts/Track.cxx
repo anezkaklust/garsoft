@@ -220,7 +220,7 @@ namespace gar {
         // to fEnd or the otherway round; but under either assumption we can find
         // if phi is increasing or decreasing.  All we need is the x component of
         // the cross product of the direction with the lever arm (position of track
-        // end in the (Z,y) plane relative to (Zc, Yc).
+        // end in the (z,y) plane relative to (Zc, Yc).
         // N.b. this has no concept of charge +-2 or other values than abs(charge)=1
 
         int Track::ChargeBeg() const {

@@ -6,9 +6,12 @@ namespace util {
 
 
     //----------------------------------------------------------------------
-    int TrackPropagator::PropagateToCylinder(const float* trackpar, const float* Xpoint, const float rCyl, const float yCyl, const float zCyl, float* retXYZ, const float Xmax, const float epsilon)
+    int TrackPropagator::PropagateToCylinder(const float* trackpar, const float* Xpoint,
+        const float rCyl, const float yCyl, const float zCyl, float* retXYZ,
+        const float Xmax, const float epsilon)
     {
         //track fitted parameters (y, z, curvature, phi, lambda)
+        // Don't forget r can be negative!  But rCyl can't :)
         const float y0   = trackpar[0];
         const float z0   = trackpar[1];
         const float curv = trackpar[2];
@@ -18,69 +21,94 @@ namespace util {
 
 
         // Radius of curvature of track
-        float radius = 0;
-        if (curv != 0) radius = 1.0 / curv;
+        float radius;
+        if (curv != 0) {
+            radius = 1.0 / curv;
+        } else {
+            // Straight-line algorithm not tested.  Probably not needed, really.
+            // From Wolfram MathWorld
+            float zL[2];    float yL[2];
+            zL[0] = zCyl -rCyl -1.0;        zL[1] = zCyl +rCyl +1.0;
+            for (int i=0; i<2; ++i) yL[i] = y0 +(zL[i] -z0)*std::tan(phi0);
+
+            float Dx = zL[1] -zL[0];        float Dy = yL[1] -yL[0];
+            float Dr = std::hypot(Dx,Dy);   float D = zL[0]*yL[1] -zL[1]*yL[0];
+            float det = (rCyl*Dr)*(rCyl*Dr) - D*D;
+            if (det<0) return 4;
+
+            float zz1 = (D*Dy +Dx*det) / (Dr*Dr);
+            float zz2 = (D*Dy -Dx*det) / (Dr*Dr);
+            float yy1 = y0 +(zz1 -z0)*std::tan(phi0);
+            float yy2 = y0 +(zz2 -z0)*std::tan(phi0);
+            if ( std::hypot(zz1-z0,yy1-y0) < std::hypot(zz2-z0,yy2-y0) ) {
+                retXYZ[1] = yy1;
+                retXYZ[2] = zz1;
+            } else {
+                retXYZ[1] = yy2;
+                retXYZ[2] = zz2;
+            }
+            retXYZ[0] = ( retXYZ[2]-z0 ) / std::cos(phi0);
+            return 0;
+        }
+
 
         //Coordinate of the center of the circle of radius r
-        const float zcc = z0 - radius * std::sin(phi0);
-        const float ycc = y0 + radius * std::cos(phi0);
+        float zcc = z0 - radius * std::sin(phi0);
+        float ycc = y0 + radius * std::cos(phi0);
 
         // dz and dy are the 'horizontal' and 'vertical' distances between
         // the circle centers.
-        const float dz = zcc - zCyl;
-        const float dy = ycc - yCyl;
+        float dz = zcc - zCyl;
+        float dy = ycc - yCyl;
 
         /* Determine the straight-line distance between the centers. */
         const float d = std::hypot(dy, dz);
 
         /* Check for solvability. */
-        if ( d > (rCyl + radius) ) {
+        if ( d > (rCyl + abs(radius)) ) {
             /* no solution. circles do not intersect. */
-            // std::cout << "1 - no solution. circles do not intersect" << std::endl;
             return 1;
         }
-        if (d < std::fabs(rCyl - radius)) {
+        if (d < std::fabs(rCyl - abs(radius))) {
             /* no solution. one circle is contained in the other */
-            // std::cout << "2 - no solution. one circle is contained in the other" << std::endl;
             return 2;
         }
         if (d < epsilon) {
             /* no solution. circles have common centre */
-            // std::cout << "3 - no solution. circles have common centre" << std::endl;
             return 3;
         }
 
         // Calculate the intersection point between the cylinder and the track
         float phiStar = (d*d + rCyl*rCyl - radius*radius);
         phiStar /= 2 * std::max(1.e-20f, rCyl * d);
-        if (phiStar > +1.f) phiStar = 0.9999999f;
+        if (phiStar > +1.f) phiStar = +0.9999999f;
         if (phiStar < -1.f) phiStar = -0.9999999f;
         phiStar = std::acos(phiStar);
 
-        const float phiCentre(std::atan2(dy, dz));
+        float phiCentre(std::atan2(dy, dz));
 
         // There are two solutions which can not differ in phi from
         // phi0 by more than 2pi.
-        const float zz1  = zCyl + rCyl * std::cos(phiCentre + phiStar);
-        const float yy1  = yCyl + rCyl * std::sin(phiCentre + phiStar);
-        const float phi1 = atan2( yy1-ycc, zz1-zcc ) +M_PI/2.0;
+        float zz1  = zCyl + rCyl * std::cos(phiCentre + phiStar);
+        float yy1  = yCyl + rCyl * std::sin(phiCentre + phiStar);
+        // Add pi/2 or 3pi/2 because of definition of where phi = 0
+        float phi1  = atan2( yy1-ycc, zz1-zcc );
+              phi1 += (curv>=0) ? M_PI/2.0 : 3.0*M_PI/2.0;
         float dphi1 = phi1 -phi0;
-        const float zz2  = zCyl + rCyl * std::cos(phiCentre-phiStar);
-        const float yy2  = yCyl + rCyl * std::sin(phiCentre-phiStar);
-        const float phi2 = atan2( yy2-ycc, zz2-zcc ) +M_PI/2.0;
+        float zz2  = zCyl + rCyl * std::cos(phiCentre - phiStar);
+        float yy2  = yCyl + rCyl * std::sin(phiCentre - phiStar);
+        float phi2  = atan2( yy2-ycc, zz2-zcc );
+              phi2 += (curv>=0) ? M_PI/2.0 : 3.0*M_PI/2.0;
         float dphi2 = phi2 -phi0;
 
-        if ( fabs(dphi1) < fabs(dphi2) )
-        {
+        if ( fabs(dphi1) < fabs(dphi2) ) {
             int nturns = dphi1/(2.0*M_PI);
             if (dphi1 > +(2.0*M_PI)) dphi1 -= (2.0*M_PI)*nturns;
             if (dphi1 < -(2.0*M_PI)) dphi1 += (2.0*M_PI)*nturns;
             retXYZ[1] = yy1;
             retXYZ[2] = zz1;
             retXYZ[0] = Xpoint[0] + radius * tanl * dphi1;
-        }
-        else
-        {
+        } else {
             int nturns = dphi2/(2.0*M_PI);
             if (dphi2 > +(2.0*M_PI)) dphi2 -= (2.0*M_PI)*nturns;
             if (dphi2 < -(2.0*M_PI)) dphi2 += (2.0*M_PI)*nturns;
@@ -102,36 +130,36 @@ namespace util {
     }
 
     //----------------------------------------------------------------------
-    int TrackPropagator::PropagateToX(const float* trackpar, const float* Xpoint, const float x, float* retXYZ, const float Rmax)
+    int TrackPropagator::PropagateToX(const float* trackpar, const float* Xpoint,
+        const float x, float* retXYZ, const float Rmax)
     {
         int retval = 0;
         float y, z;
 
-        float phi0 = trackpar[3];
-        float curv = trackpar[2];
+        const float y0   = trackpar[0];
+        const float z0   = trackpar[1];
+        const float phi0 = trackpar[3];
+        const float curv = trackpar[2];
         float radius = 0;
         if (curv != 0) radius = 1.0 / curv;
 
         float ZCent = trackpar[1] - radius*std::sin(phi0);
         float YCent = trackpar[0] + radius*std::cos(phi0);
-        float s = std::tan( trackpar[4] );
+        float tanl  = std::tan(trackpar[4]);
 
 
 
-        if (radius == 0)
-        {
-            y = 0;
-            z = 0;
+        if (radius == 0) {
+            // Straight-line case not tested yet
+            float dT = (x -Xpoint[0]) / tanl;
+            y = y0 +dT*std::sin(phi0);
+            z = z0 +dT*std::cos(phi0);
             retval = 1;
-        }
-        else
-        {
-            if (s != 0)
-            {
-                s = 1.0/s;
-            }
-            else
-            {
+        } else {
+            float s;
+            if (tanl != 0) {
+                s = 1.0/tanl;
+            } else {
                 s = 1E9;
                 retval = 1;
             }
@@ -139,10 +167,10 @@ namespace util {
             float phi = (x - Xpoint[0]) * s / radius + phi0;
             y = YCent - radius * std::cos(phi);
             z = ZCent + radius * std::sin(phi);
+        }
 
-            if ( Rmax > 0 ) {
-                if ( (retXYZ[1]*retXYZ[1] +retXYZ[2]*retXYZ[2]) > Rmax*Rmax ) retval = -1;
-            }
+        if ( Rmax > 0 ) {
+            if ( std::hypot(z,y) > Rmax ) retval = 2;
         }
 
         retXYZ[0] = x;    retXYZ[1] = y;   retXYZ[2] = z;
@@ -151,8 +179,8 @@ namespace util {
     }
 
     //----------------------------------------------------------------------
-    int TrackPropagator::DistXYZ(const float* trackpar, const float* Xpoint, const float* xyz,
-    float& retDist) {
+    int TrackPropagator::DistXYZ(const float* trackpar, const float* Xpoint, 
+        const float* xyz, float& retDist) {
 
         retDist = 0;
 
@@ -256,7 +284,8 @@ namespace util {
     }
 
     //----------------------------------------------------------------------
-    float TrackPropagator::d2(float xt, float yt, float zt, float x0, float yc, float zc, float r, float s, float phi, float phi0)
+    float TrackPropagator::d2(float xt, float yt, float zt,
+        float x0, float yc, float zc, float r, float s, float phi, float phi0)
     {
         float dx = (xt -x0) - (r/s)*(phi -phi0);
         float dy = (yt -yc) + r*TMath::Cos(phi);

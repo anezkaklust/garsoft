@@ -361,11 +361,19 @@ namespace gar {
 
             //Check if it is ECAL endcap -> layer size is not the BBox! It is the apothem
             bool isBarrel = true;
-            if(volname.find("endcap") != std::string::npos || volname.find("Endcap") != std::string::npos ) isBarrel = false;
+            if (volname.find("barrel") == std::string::npos &&
+                volname.find("Barrel") == std::string::npos) {
+                isBarrel =  false;
+            }
+            if (volname.find("PV") != std::string::npos) {
+                isBarrel =  false;
+            }
+            // Old code commented out here but keep it a bit for reference
+            // if(volname.find("endcap") != std::string::npos || volname.find("Endcap") != std::string::npos ) isBarrel = false;
 
             std::array<double, 3> shape;
 
-            if(vol)
+            if (vol)
             {
                 TGeoBBox *box = (TGeoBBox*)(vol->GetShape());
 
@@ -789,10 +797,17 @@ namespace gar {
         {
             std::string vol_name = this->VolumeName(point);
 
-            if( vol_name.find("barrel") == std::string::npos && vol_name.find("Barrel") == std::string::npos)
-            return false;
+            if (vol_name.find("barrel") == std::string::npos &&
+                vol_name.find("Barrel") == std::string::npos) {
+                return false;
+            }
 
-            return true;
+            // There is a barrel to the pressure vessel!
+            if (vol_name.find("PV") != std::string::npos) {
+                return false;
+            } else {
+                return true;
+            }
         }
 
         //......................................................................
@@ -800,10 +815,17 @@ namespace gar {
         {
             std::string vol_name = this->VolumeName(point);
 
-            if( vol_name.find("endcap") == std::string::npos && vol_name.find("Endcap") == std::string::npos)
-            return false;
+            if (vol_name.find("endcap") == std::string::npos &&
+                vol_name.find("Endcap") == std::string::npos) {
+                return false;
+            }
 
-            return true;
+            // There is an endcap to the pressure vessel!
+            if (vol_name.find("PV") != std::string::npos) {
+                return false;
+            } else {
+                return true;
+            }
         }
 
         //......................................................................
