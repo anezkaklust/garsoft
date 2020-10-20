@@ -818,7 +818,7 @@ namespace util {
                     double z = (hit->GetStart().Z() + hit->GetStop().Z())/2 /CLHEP::cm;
                     double stepLength = hit->GetTrackLength() / CLHEP::cm;
 
-                    if(edep <= 0 || edep < fEnergyCut || stepLength <= 0)
+                    if(edep < fEnergyCut)
                     continue;
 
                     TGeoNode *node = fGeo->FindNode(x, y, z);//Node in cm...
@@ -843,7 +843,7 @@ namespace util {
                     double y = (hit->GetStart().Y() + hit->GetStop().Y())/2 /CLHEP::cm;
                     double z = (hit->GetStart().Z() + hit->GetStop().Z())/2 /CLHEP::cm;
 
-                    if(edep <= 0 || edep < fEnergyCut || stepLength <= 0)
+                    if(edep < fEnergyCut)
                     continue;
 
                     //Check if it is in the active material of the ECAL
@@ -905,7 +905,7 @@ namespace util {
                     double y = (hit->GetStart().Y() + hit->GetStop().Y())/2 /CLHEP::cm;
                     double z = (hit->GetStart().Z() + hit->GetStop().Z())/2 /CLHEP::cm;
 
-                    if(edep <= 0 || edep < fEnergyCut || stepLength <= 0)
+                    if(edep < fEnergyCut)
                     continue;
 
                     //Check if it is in the active material of the ECAL
@@ -971,7 +971,7 @@ namespace util {
                     double y = (hit->GetStart().Y() + hit->GetStop().Y())/2 /CLHEP::cm;
                     double z = (hit->GetStart().Z() + hit->GetStop().Z())/2 /CLHEP::cm;
 
-                    if(edep <= 0 || edep < fEnergyCut || stepLength <= 0)
+                    if(edep < fEnergyCut)
                     continue;
 
                     //Check if it is in the active material of the ECAL
