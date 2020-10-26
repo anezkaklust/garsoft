@@ -606,7 +606,20 @@ namespace util {
             int parentID = t->GetParentId();
             int pdg = t->GetPDGCode();
             std::string name = t->GetName();
-            double mass = pdglib->Find(pdg)->Mass();//in GeV
+
+            //Avoid breaking.... some pdg don't exist in the library...
+            TParticlePDG *part = pdglib->Find(pdg);
+            double mass = 0.;
+            if(nullptr != part) {
+                mass = part->Mass();//in GeV
+            }
+            else{
+                MF_LOG_INFO("ConvertEdep2Art")
+                << " Could not find TParticlePDG for pdg "
+                << pdg
+                << " Mass is ut to 0 GeV";
+            }
+
             int process = 0;
             int subprocess = 0;
             std::string process_name = "unknown";
