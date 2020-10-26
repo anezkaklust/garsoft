@@ -1393,7 +1393,7 @@ namespace gar {
                 fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
                 cellID = fECALSegmentationAlg->GetCellID(*this, det_id, stave, module, layer, slice, localPosition);
 
-            } else if(node_name.find("TrackerSc") != std::string::npos || node_name.find("trackersc") != std::string::npos) {
+            } else if(node_name.find("TrackerSc") != std::string::npos || node_name.find("trackersc") != std::string::npos || node_name.find("Tracker") != std::string::npos || node_name.find("tracker") != std::string::npos) {
 
                 const std::array<double, 3> shape = this->FindShapeSize(node);
                 fMinervaSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
@@ -1516,7 +1516,7 @@ namespace gar {
             double strip_length = 0.;
             const TGeoNode *node = this->FindNode(point);
             std::string node_name = node->GetName();
-            
+
             std::array<double, 3> localtemp;
             gar::geo::LocalTransformation<TGeoHMatrix> trans;
             this->WorldToLocal(point, localtemp, trans);
