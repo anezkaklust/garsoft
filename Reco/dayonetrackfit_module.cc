@@ -5,7 +5,7 @@
 //
 // copied from tpctrackfit2_module.cc and modified for the day one tracker
 // need to step in Z and not X and compute track parameters nonlinearly
-// second try, non-kalman: starting with the patrec track parameters 
+// second try, non-kalman: starting with the patrec track parameters
 // and minimize chisquared swimming the particle from one station to the next
 ////////////////////////////////////////////////////////////////////////
 
@@ -92,7 +92,7 @@ namespace gar {
     };
 
 
-    dayonetrackfit::dayonetrackfit(fhicl::ParameterSet const& p) : EDProducer{p}  
+    dayonetrackfit::dayonetrackfit(fhicl::ParameterSet const& p) : EDProducer{p}
     {
       // Call appropriate produces<>() functions here.
       // Call appropriate consumes<>() for any products to be retrieved by this module.
@@ -143,9 +143,9 @@ namespace gar {
       G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 
       art::ServiceHandle<geo::Geometry> geo;
-      double xtpccent = geo->TPCXCent();
-      double ytpccent = geo->TPCYCent();
-      double ztpccent = geo->TPCZCent();
+      double xtpccent = geo->GetOriginX();
+      double ytpccent = geo->GetOriginY();
+      double ztpccent = geo->GetOriginZ();
       TVector3 tpccent(xtpccent,ytpccent,ztpccent);
       TVector3 xhat(1,0,0);
 
@@ -161,7 +161,7 @@ namespace gar {
           TrackPar trackparams;
           TrackIoniz trackions;
           TrackTrajectory tracktraj;
-          if (DayOneFitBothWays(patrecTracks.at(itrack),TPCClusters,trackparams,trackions,tracktraj) == 0)   
+          if (DayOneFitBothWays(patrecTracks.at(itrack),TPCClusters,trackparams,trackions,tracktraj) == 0)
             {
               trkCol->push_back(trackparams.CreateTrack());
               ionCol->push_back(trackions);
@@ -188,8 +188,8 @@ namespace gar {
 
     int dayonetrackfit::DayOneFitBothWays(const gar::rec::Track &patrectrack,
 					  std::vector<gar::rec::TPCCluster> &TPCClusters,
-                                          TrackPar &trackpar, 
-					  TrackIoniz &trackions, 
+                                          TrackPar &trackpar,
+					  TrackIoniz &trackions,
 					  TrackTrajectory &tracktraj)
 
     {
@@ -356,7 +356,7 @@ namespace gar {
       float phiex=phip1 + niphi1*TMath::TwoPi();
       if (dphip1a > dphip2a)
 	{
-	  phiex = phip2 + niphi2*TMath::TwoPi(); 
+	  phiex = phip2 + niphi2*TMath::TwoPi();
 	}
 
       // update predstep to values at this z.  Leave curvature and lambda
@@ -365,7 +365,7 @@ namespace gar {
       predstep[0] = yc - r*TMath::Cos(phiex);   // y
       predstep[1] = parvec[1] + r*tanlambda*(phiex-parvec[3]);  // x
       predstep[3] = phiex;
-      
+
       dlength = TMath::Abs( r * (phiex - parvec[3]) / TMath::Cos(parvec[4]) );
     }
 

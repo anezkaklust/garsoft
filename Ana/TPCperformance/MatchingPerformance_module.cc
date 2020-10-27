@@ -4,7 +4,7 @@
 // File:		MatchingPerformance_module.cc
 //
 // Generated 25 Sep 2020 by Leo Bellantoni
-// 
+//
 // For each reco track
 //     Use backtracker to get matching MCparticles.  Take charged & stable
 //         matching MCParticle with largest energy fraction for the track
@@ -16,7 +16,7 @@
 //             Does the cluster come from the track's MCParticle?
 //             Is the cluster matched to the initial track?
 //             ...and of course, are both true?
-// 
+//
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -168,9 +168,9 @@ gar::MatchingPerformance::MatchingPerformance(fhicl::ParameterSet const & p) : E
 void gar::MatchingPerformance::beginJob() {
 
 	fGeo = gar::providerFrom<geo::Geometry>();
-	ItsInTulsa[0] = fGeo->TPCXCent();		// 1 S Boston Ave
-	ItsInTulsa[1] = fGeo->TPCYCent();
-	ItsInTulsa[2] = fGeo->TPCZCent();
+	ItsInTulsa[0] = fGeo->GetOriginX();		// 1 S Boston Ave
+	ItsInTulsa[1] = fGeo->GetOriginY();
+	ItsInTulsa[2] = fGeo->GetOriginZ();
 
 	art::ServiceHandle<art::TFileService> tfs;
 	fTree = tfs->make<TTree>("GArAnaTree","GArAnaTree");
@@ -290,7 +290,7 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
     // BUILD art::FindManyP<rec::Track, rec::TrackEnd>* findManyCALTrackEnd = NULL;
     // BUILD findManyCALTrackEnd = new art::FindManyP<rec::Track, rec::TrackEnd>
     // BUILD         (RecoClusterHandle,event,fECALAssnLabel);
- 
+
 	// Get handles for MCinfo, also good for MCPTrajectory.  Want to get all
 	// MCTruths, regardless of generator label.
 	std::vector< art::Handle< std::vector<simb::MCTruth> > > mctruthHandles;
@@ -380,7 +380,7 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
             fTrackQ.push_back   (track.ChargeBeg());
             fTrackLen.push_back (track.LengthBackward());
 			fTrackChi2.push_back(track.ChisqBackward());
-			
+
         } else {
             fTrackX.push_back  (track.End()[0]);
             fTrackY.push_back  (track.End()[1]);
@@ -389,7 +389,7 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
             fTrackPY.push_back (track.Momentum_end()*track.EndDir()[1]);
             fTrackPZ.push_back (track.Momentum_end()*track.EndDir()[2]);
             fTrackQ.push_back  (track.ChargeEnd());
-            fTrackLen.push_back(track.LengthForward());		
+            fTrackLen.push_back(track.LengthForward());
         }
         fNTPCClustersOnTrack.push_back(track.NHits());
 		fTrackTime.push_back(track.Time());
@@ -414,7 +414,7 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
 
         fMCPProc.push_back(theMCPart.Process());
         fMCPEndProc.push_back(theMCPart.EndProcess());
-	    fMCPTime.push_back(theMCPart.T());	
+	    fMCPTime.push_back(theMCPart.T());
 
 	} // end loop over TrackHandle
 
