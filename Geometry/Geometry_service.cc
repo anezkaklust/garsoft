@@ -188,6 +188,11 @@ namespace gar {
 
             // now init the detector Segmentations (Channel Map, ECAL etc...)
             InitializeSegmentations();
+
+            //Get detector parameters
+            GetGeometryParameters();
+
+            //Print the geometry parameters
             PrintGeometry();
         } // Geometry::LoadNewGeometry()
 
