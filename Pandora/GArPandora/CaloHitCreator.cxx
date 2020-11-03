@@ -46,7 +46,7 @@ namespace gar {
 
         pandora::StatusCode CaloHitCreator::CreateCaloHits(const art::Event &pEvent)
         {
-            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CollectECALCaloHits(pEvent, m_settings.m_CaloHitCollection, artCalorimeterHitVector));
+            PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CollectECALCaloHits(pEvent, m_settings.m_CaloHitCollection, m_settings.m_CaloHitInstanceName, artCalorimeterHitVector));
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, this->CreateECalCaloHits());
 
             return pandora::STATUS_CODE_SUCCESS;
@@ -350,10 +350,10 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        pandora::StatusCode CaloHitCreator::CollectECALCaloHits(const art::Event &pEvent, const std::string &label, CalorimeterHitVector &ecalCaloHitVector)
+        pandora::StatusCode CaloHitCreator::CollectECALCaloHits(const art::Event &pEvent, const std::string &label, const std::string &instanceName, CalorimeterHitVector &ecalCaloHitVector)
         {
             art::Handle< RawCalorimeterHitVector > theHits;
-            pEvent.getByLabel(label, theHits);
+            pEvent.getByLabel(label, instanceName, theHits);
 
             if (!theHits.isValid())
             {
@@ -376,6 +376,7 @@ namespace gar {
 
         CaloHitCreator::Settings::Settings()
         : m_CaloHitCollection( "" ),
+        m_CaloHitInstanceName( "" ),
         m_eCalToMip(1.f),
         m_eCalMipThreshold(0.f),
         m_eCalToEMGeV(1.f),

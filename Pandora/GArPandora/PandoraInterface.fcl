@@ -21,7 +21,8 @@ MinTrackECalDistanceFromIp: 100.
 MaxTrackSigmaPOverP: 0.15
 
 # CaloHitCreatorSettings
-CaloHitLabel:       "calohit"
+CaloHitLabel:       "sscalohit"
+CaloHitInstanceCalo: ""
 ECaltoMipCalibration: 1228.5
 ECalMipThreshold: 0.25
 ECalToEMGeVCalibration: 1.
