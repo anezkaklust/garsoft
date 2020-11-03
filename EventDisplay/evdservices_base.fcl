@@ -265,7 +265,7 @@ RawHitModuleLabels        : ["daqsipm"]
 RecoECALHitModuleLabels   : ["sipmhit"]
 RecoMuIDHitModuleLabels   : ["sipmhit"]
 CaloClusterModuleLabels   : ["calocluster"]
-TrackModuleLabels         : ["track"]
+TrackModuleLabels         : ["trackpass1"]
 VertexModuleLabels        : ["vertex"]
 TPCClusterModuleLabels    : ["dayone"]
 

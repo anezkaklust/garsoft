@@ -502,7 +502,7 @@ namespace gar{
                 this->DrawRecoHits(event);
 
                 //Draw high level reco
-                if(fDrawECALClusters || fDrawTracks || fDrawVertices)
+                // if(fDrawECALClusters || fDrawTracks || fDrawVertices)
                 this->DrawHighLevelReco(event);
 
                 return;
@@ -1253,7 +1253,7 @@ namespace gar{
                     evehit->SetName(TString::Format("TPC Cluster %i", idx));
                     evehit->SetTitle(label.str().c_str());
                     evehit->SetMarkerSize(1);
-                    evehit->SetMarkerStyle(1);
+                    evehit->SetMarkerStyle(20);
                     evehit->SetMarkerColor(fEvtDisplayUtil->LogColor(itr->Signal(), 0, 1000, 5));
                     evehit->SetPoint(0, itr->Position()[0], itr->Position()[1], itr->Position()[2]);//cm
 
