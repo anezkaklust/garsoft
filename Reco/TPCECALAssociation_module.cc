@@ -126,12 +126,12 @@ namespace gar {
         
             // Get tracks and clusters.  If either is missing, just skip this event
             // processing.  That's not an exception
-            art::Handle< std::vector<gar::rec::Cluster> > theClusterHandle;
-            e.getByLabel(fClusterLabel, theClusterHandle);
-            if (!theClusterHandle.isValid()) return;
-            art::Handle< std::vector<gar::rec::Track> >   theTrackHandle;
-            e.getByLabel(fTrackLabel, theTrackHandle);
-            if (!theTrackHandle.isValid()) return;
+            art::Handle< std::vector<gar::rec::Cluster> > ClusterHandle;
+            e.getByLabel(fClusterLabel, ClusterHandle);
+            if (!ClusterHandle.isValid()) return;
+            art::Handle< std::vector<gar::rec::Track> >   TrackHandle;
+            e.getByLabel(fTrackLabel, TrackHandle);
+            if (!TrackHandle.isValid()) return;
 
             // fClocks service provides this info on event-by-event basis not at beginJob.
             maxXdisplacement = fDetProp->DriftVelocity(fDetProp->Efield(),fDetProp->Temperature())
@@ -139,13 +139,13 @@ namespace gar {
 
             std::unique_ptr<art::Assns<gar::rec::Cluster, gar::rec::Track, gar::rec::TrackEnd>>
                             ClusterTrackAssns(new art::Assns<gar::rec::Cluster,gar::rec::Track, gar::rec::TrackEnd>);
-            auto const clusterPtrMaker = art::PtrMaker<rec::Cluster>(e, theClusterHandle.id());
-            auto const   trackPtrMaker = art::PtrMaker<rec::Track>  (e, theTrackHandle.id());
+            auto const clusterPtrMaker = art::PtrMaker<rec::Cluster>(e, ClusterHandle.id());
+            auto const   trackPtrMaker = art::PtrMaker<rec::Track>  (e, TrackHandle.id());
 
 
 
-            for (size_t iCluster=0; iCluster<theClusterHandle->size(); ++iCluster) {
-                gar::rec::Cluster cluster = (*theClusterHandle)[iCluster];
+            for (size_t iCluster=0; iCluster<ClusterHandle->size(); ++iCluster) {
+                gar::rec::Cluster cluster = (*ClusterHandle)[iCluster];
                 TVector3 clusterCenter(cluster.Position());
                 bool inECALBarrel = fGeo->PointInECALBarrel(clusterCenter);
                 // fGeo uses one coordinate system, this code uses another.
@@ -155,8 +155,8 @@ namespace gar {
                 float rClus = std::hypot(zClus,yClus);  
                 float xClus = clusterCenter[0];
 
-                for (size_t iTrack=0; iTrack<theTrackHandle->size(); ++iTrack) {
-                    gar::rec::Track track = (*theTrackHandle)[iTrack];
+                for (size_t iTrack=0; iTrack<TrackHandle->size(); ++iTrack) {
+                    gar::rec::Track track = (*TrackHandle)[iTrack];
 
                     // Which if any ends of the track are near the outer edges of the TPC?
                     // These specific cuts could perhaps be increased

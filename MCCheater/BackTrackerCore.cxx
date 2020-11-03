@@ -39,7 +39,7 @@ namespace gar{
             fRawTPCDataLabel      = pset.get<std::string>("RawTPCDataLabel",         "daq");
 
             fRawCaloDataLabel         = pset.get<std::string>("RawCaloDataLabel",        "daqsipm");
-            fRawCaloDataECALInstance  = pset.get<std::string>("RawCaloDataECALInstance",    ""    );
+            fRawCaloDataECALInstance  = pset.get<std::string>("RawCaloDataECALInstance", ""  );
             fECALtimeResolution       = pset.get<double     >("ECALtimeResolution",       1.0);
             fMinHitEnergyFraction     = pset.get<double     >("MinHitEnergyFraction",     0.1);
             fMinCaloHitEnergyFrac     = pset.get<double     >("MinCaloHitEnergyFrac",     0.1);
@@ -736,7 +736,7 @@ namespace gar{
                 hitIDECol.insert(hitIDECol.end(), IDEsThisHit.begin(),IDEsThisHit.end());
             }
 
-            // A tree is a good way to accumulate the info we need
+            // A tree to accumulate the found energy for each GEANT/GENIE track
             std::map<int,float> lTrackIdToEnergy;
             for (auto hitIDE : hitIDECol) {
                lTrackIdToEnergy[hitIDE.trackID] += hitIDE.energyFrac * hitIDE.energyTot;
