@@ -7,7 +7,7 @@
 //  Finds pairs of tracks on either side of the cathode plane and merges them.
 //  Inputs -- tracks fit by the track fitter, and associations with TPCClusters
 //   Outputs -- a completely new set of tracks, trackioniz, and associations of tracks with TPCClusters and trackioniz.
-//   Also a new set of vertices that are now moved because we have new locations for the tracks.  
+//   Also a new set of vertices that are now moved because we have new locations for the tracks.
 //   No change for tracks that have not been stitched, just copies.  Tracks that have been stitched correspond to fewer tracks on output
 //    also fills in a time for the stitched track.  Because the magnetic field is nonuniform, tracks ought to be re-fit.
 //
@@ -96,7 +96,7 @@ namespace gar {
     };
 
 
-    tpccathodestitch::tpccathodestitch(fhicl::ParameterSet const& p) : EDProducer{p}  
+    tpccathodestitch::tpccathodestitch(fhicl::ParameterSet const& p) : EDProducer{p}
     {
       fInputTrackLabel      = p.get<std::string>("InputTrackLabel","track");
       fInputVertexLabel     = p.get<std::string>("InputVertexLabel","vertex");
@@ -141,7 +141,7 @@ namespace gar {
 
       // some useful structs
 
-      typedef struct locVtx 
+      typedef struct locVtx
       {
         float fPosition[3];
 	float fCovMat[9];
@@ -159,7 +159,7 @@ namespace gar {
       } trkiend_t;
 
       art::ServiceHandle<geo::Geometry> geo;
-      float xtpccent = geo->TPCXCent();
+      float xtpccent = geo->GetOriginX();
 
       // get the distance corresponding to one ADC tick so we can report the time in ticks
 
@@ -228,7 +228,7 @@ namespace gar {
 		{
 		  auto hitchan = HitsFromInputTPCClusters.at(icindex).at(ihit)->Channel();
                   geo->ChannelToPosition(hitchan, chanpos);
-	          if (chanpos[0] > xtpccent) 
+	          if (chanpos[0] > xtpccent)
 		    {
 		      nplus++;
 		    }
@@ -266,10 +266,10 @@ namespace gar {
 	      if (trackside.at(itrack) == trackside.at(jtrack)) continue;  // don't merge tracks on the same side
 	      if (cathodematch(inputTracks.at(itrack),inputTracks.at(jtrack),fwdflag.at(itrack),fwdflag.at(jtrack),dx.at(itrack)))
 		{
-		  if (fPrintLevel >0) 
+		  if (fPrintLevel >0)
 		    {
-		      std::cout << "found a merge.  dx= " << 
-			dx.at(itrack) << 
+		      std::cout << "found a merge.  dx= " <<
+			dx.at(itrack) <<
 			" flip flags: " << fwdflag.at(itrack) << " " << fwdflag.at(jtrack) <<  std::endl;
 		    }
 		  mergedflag.at(itrack) = jtrack;
@@ -281,14 +281,14 @@ namespace gar {
 	}
 
       // we have lists of tracks to merge and how much to shift them by, and which ones to flip.  Look for associated vertices
-      // and follow the chain of associated tracks, proposing new shifts to them. 
+      // and follow the chain of associated tracks, proposing new shifts to them.
 
       // make a local copy of vertex information so we can change the X locations
 
       std::map<rec::IDNumber,locVtx_t> vtxmap;  // index of vertices by Leo's IDNumber
 
       // a map of vertex to track associations, the inverse of the track to vertex assocation list
-      std::map<rec::IDNumber,std::vector<trkiend_t>>  vttrackmap;   
+      std::map<rec::IDNumber,std::vector<trkiend_t>>  vttrackmap;
 
       // keep track of which vertices we have already shifted
       std::map<rec::IDNumber,bool>  vtxshifted;
@@ -358,7 +358,7 @@ namespace gar {
 		      ++numdx;
 		    }
 		}
-	      if (numdx > 0) 
+	      if (numdx > 0)
 		{
 		  avgdx /= (float) numdx;
 		  vtxshifted[vtxi.first] = true;  // we are shifting a vertex.
@@ -449,7 +449,7 @@ namespace gar {
 		    }
 		}
 
-	      // copy trkioniz and associations to the output collections.  
+	      // copy trkioniz and associations to the output collections.
 	      // this loop may be unnecessary as there is only one TrackIoniz per Track, but just in case
 
 	      for (size_t iTrkIoniz=0; iTrkIoniz<TrackIonizFromInputTracks.at(itrack).size(); ++iTrkIoniz)
@@ -640,7 +640,7 @@ namespace gar {
 
     bool tpccathodestitch::cathodematch(const rec::Track &atrack, const rec::Track &btrack, int &afw, int &bfw, float &deltaX)
     {
-      afw = 0;  
+      afw = 0;
       bfw = 0;
       bool matchable = false;
 
@@ -650,7 +650,7 @@ namespace gar {
       // G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 
       art::ServiceHandle<geo::Geometry> geo;
-      double xtpccent = geo->TPCXCent();
+      double xtpccent = geo->GetOriginX();
       TVector3 xhat(1,0,0);
       TVector3 xcentv = xhat*xtpccent;
 

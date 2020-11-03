@@ -374,9 +374,9 @@ namespace gar {
     //==============================================================================
     void ParamSim::beginJob()
     {
-        fOrigin[0] = fGeo->TPCXCent();
-        fOrigin[1] = fGeo->TPCYCent();
-        fOrigin[2] = fGeo->TPCZCent();
+        fOrigin[0] = fGeo->GetOriginX();
+        fOrigin[1] = fGeo->GetOriginY();
+        fOrigin[2] = fGeo->GetOriginZ();
 
         fRes = new TF1("fRes", "TMath::Sqrt ( [0]*[0]/x + [1]*[1] )", 3);
         fRes->FixParameter(0, ECAL_stock);

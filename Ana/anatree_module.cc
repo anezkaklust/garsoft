@@ -44,12 +44,19 @@
 
 #include "RawDataProducts/CaloRawDigit.h"
 
+// nutools extensions
+#include "nurandom/RandomUtils/NuRandomService.h"
+
 #include "CoreUtils/ServiceUtil.h"
 #include "Geometry/Geometry.h"
 
 #include "TTree.h"
 #include "TDatabasePDG.h"
 #include "TParticlePDG.h"
+#include "TH2.h"
+#include "TFile.h"
+
+#include "CLHEP/Random/RandFlat.h"
 
 #include <string>
 #include <vector>
@@ -58,6 +65,8 @@
 
 
 namespace gar {
+
+    typedef std::pair<float, std::string> P;
 
     class anatree : public art::EDAnalyzer {
     public:
@@ -96,6 +105,9 @@ namespace gar {
 
         // Compute T for coherent pion analysis
         float computeT( simb::MCTruth theMCTruth );
+
+        // Calculate the track PID based on reco momentum and Tom's parametrization
+        std::vector< std::pair<int, float> > processPIDInfo( float p );
 
         // Position of TPC from geometry service; 1 S Boston Ave.
         float ItsInTulsa[3];
@@ -314,6 +326,11 @@ namespace gar {
         std::vector<Float_t>            fTrackAvgIonF;      // from foward fit, from the Beg end to the End end
         std::vector<Float_t>            fTrackAvgIonB;
 
+        std::vector<Int_t>              fTrackPIDF;
+        std::vector<Float_t>            fTrackPIDProbF;
+        std::vector<Int_t>              fTrackPIDB;
+        std::vector<Float_t>            fTrackPIDProbB;
+
         // vertex branches
         std::vector<ULong64_t>          fVertexIDNumber;
         std::vector<Float_t>            fVertexX;
@@ -414,6 +431,10 @@ namespace gar {
         std::vector<ULong64_t>          fCALAssn_ClusIDNumber;   // Being the cluster which this Assn belongs to
         std::vector<ULong64_t>          fCALAssn_TrackIDNumber;  // The rec::TrackEnd (see Track.h) that extrapolated to cluster
         std::vector<gar::rec::TrackEnd> fCALAssn_TrackEnd;
+
+        //map of PID TH2 per momentum value
+        CLHEP::HepRandomEngine &fEngine;  ///< random engine
+        std::unordered_map<int, TH2F*> m_pidinterp;
     };
 }
 
@@ -424,7 +445,8 @@ namespace gar {
 //==============================================================================
 // constructor
 gar::anatree::anatree(fhicl::ParameterSet const & p)
-: EDAnalyzer(p)
+: EDAnalyzer(p),
+fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "Seed"))
 {
     fGeo     = gar::providerFrom<geo::Geometry>();
 
@@ -549,9 +571,9 @@ gar::anatree::anatree(fhicl::ParameterSet const & p)
 //==============================================================================
 void gar::anatree::beginJob() {
 
-    ItsInTulsa[0] = fGeo->TPCXCent();
-    ItsInTulsa[1] = fGeo->TPCYCent();
-    ItsInTulsa[2] = fGeo->TPCZCent();
+    ItsInTulsa[0] = fGeo->GetOriginX();
+    ItsInTulsa[1] = fGeo->GetOriginY();
+    ItsInTulsa[2] = fGeo->GetOriginZ();
 
     xTPC = fGeo->TPCLength() / 2.;
     rTPC = fGeo->TPCRadius();
@@ -732,6 +754,11 @@ void gar::anatree::beginJob() {
         fTree->Branch("NTPCClustersOnTrack",&fNTPCClustersOnTrack);
         fTree->Branch("TrackAvgIonF",       &fTrackAvgIonF);
         fTree->Branch("TrackAvgIonB",       &fTrackAvgIonB);
+
+        fTree->Branch("TrackPIDF",       &fTrackPIDF);
+        fTree->Branch("TrackPIDProbF",   &fTrackPIDProbF);
+        fTree->Branch("TrackPIDB",       &fTrackPIDB);
+        fTree->Branch("TrackPIDProbB",   &fTrackPIDProbB);
     }
 
     // Reco'd verts & their track-ends
@@ -865,6 +892,21 @@ void gar::anatree::beginJob() {
             fTree->Branch("ECALAssn_TrackIDNumber",  &fCALAssn_TrackIDNumber);
             fTree->Branch("ECALAssn_TrackEnd",       &fCALAssn_TrackEnd);
         }
+    }
+
+    std::string filename = "${DUNE_PARDATA_DIR}/MPD/dedxPID/dedxpidmatrices8kevcm.root";
+    TFile infile(filename.c_str(), "READ");
+
+    m_pidinterp.clear();
+    char str[11];
+    for (int q = 0; q < 501; ++q)
+    {
+        sprintf(str, "%d", q);
+        std::string s = "pidmatrix";
+        s.append(str);
+        // read the 500 histograms one by one; each histogram is a
+        // 6 by 6 matrix of probabilities for a given momentum value
+        m_pidinterp.insert( std::make_pair(q, (TH2F*) infile.Get(s.c_str())->Clone("pidinterp")) );
     }
 
     return;
@@ -1052,6 +1094,10 @@ void gar::anatree::ClearVectors() {
         fTrackChi2B.clear();
         fTrackAvgIonF.clear();
         fTrackAvgIonB.clear();
+        fTrackPIDF.clear();
+        fTrackPIDProbF.clear();
+        fTrackPIDB.clear();
+        fTrackPIDProbF.clear();
         fNTPCClustersOnTrack.clear();
     }
 
@@ -1715,6 +1761,26 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
                     fTrackChi2B.push_back(track.ChisqBackward());
                     fNTPCClustersOnTrack.push_back(track.NHits());
 
+                    //Add the PID information based on Tom's parametrization
+                    TVector3 momF(track.Momentum_beg()*track.VtxDir()[0], track.Momentum_beg()*track.VtxDir()[1], track.Momentum_beg()*track.VtxDir()[2]);
+                    TVector3 momB(track.Momentum_end()*track.EndDir()[0], track.Momentum_end()*track.EndDir()[1], track.Momentum_end()*track.EndDir()[2]);
+
+                    //Reconstructed momentum forward and backward
+                    float pF = momF.Mag();
+                    float pB = momB.Mag();
+                    std::vector< std::pair<int, float> > pidF = processPIDInfo( pF );
+                    std::vector< std::pair<int, float> > pidB = processPIDInfo( pB );
+
+                    //Fill the pid and its probability
+                    for(size_t ipid = 0; ipid < pidF.size(); ipid++) {
+                        fTrackPIDF.push_back( pidF.at(ipid).first );
+                        fTrackPIDProbF.push_back( pidF.at(ipid).second );
+                    }
+                    for(size_t ipid = 0; ipid < pidB.size(); ipid++) {
+                        fTrackPIDB.push_back( pidB.at(ipid).first );
+                        fTrackPIDProbB.push_back( pidB.at(ipid).second );
+                    }
+
                     if (findIonization->isValid()) {
                         // No calibration for now.  Someday this should all be in reco
                         rec::TrackIoniz ionization = *(findIonization->at(iTrack));
@@ -1987,6 +2053,81 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
             E[nu] -= E[pi];   Px[nu] -= Px[pi];   Py[nu] -= Py[pi];   Pz[nu] -= Pz[pi];
             float t = E[nu]*E[nu] -Px[nu]*Px[nu] -Py[nu]*Py[nu] -Pz[nu]*Pz[nu];
             return t;
+        }
+
+        //==============================================================================
+        //==============================================================================
+        //==============================================================================
+        std::vector< std::pair<int, float> > gar::anatree::processPIDInfo( float p )
+        {
+            std::vector<std::string> recopnamelist = {"#pi", "#mu", "p", "K", "d", "e"};
+            std::vector<int> pdg_charged = {211, 13, 2212, 321, 1000010020, 11};
+            std::vector< std::pair<int, float> > pid;
+            pid.resize(6);
+
+            int qclosest = 0;
+            float dist = 100000000.;
+            CLHEP::RandFlat FlatRand(fEngine);
+
+            for (int q = 0; q < 501; ++q)
+            {
+                //Check the title and the reco momentum take only the one that fits
+                std::string fulltitle = m_pidinterp[q]->GetTitle();
+                unsigned first = fulltitle.find("=");
+                unsigned last = fulltitle.find("GeV");
+                std::string substr = fulltitle.substr(first+1, last - first-1);
+                float pidinterp_mom = std::atof(substr.c_str());
+                //calculate the distance between the bin and mom, store the q the closest
+                float disttemp = std::abs(pidinterp_mom - p);
+
+                if( disttemp < dist ){
+                    dist = disttemp;
+                    qclosest = q;
+                }
+            } // closes the "pidmatrix" loop
+
+            //Compute all the probabities for each type of true to reco
+            //loop over the columns (true pid)
+            for (int pidm = 0; pidm < 6; ++pidm)
+            {
+                //loop over the columns (true pid)
+                std::vector< std::pair<float, std::string> > v_prob;
+
+                //loop over the rows (reco pid)
+                for (int pidr = 0; pidr < 6; ++pidr)
+                {
+                    std::string recoparticlename = m_pidinterp[qclosest]->GetYaxis()->GetBinLabel(pidr+1);
+                    float prob = m_pidinterp[qclosest]->GetBinContent(pidm+1, pidr+1);
+                    //Need to check random number value and prob value then associate the recopdg to the reco prob
+                    v_prob.push_back( std::make_pair(prob, recoparticlename) );
+                }
+
+                //Compute the pid from it
+                if(v_prob.size() > 1)
+                {
+                    //Order the vector of prob
+                    std::sort(v_prob.begin(), v_prob.end());
+                    //Throw a random number between 0 and 1
+                    float random_number = FlatRand.fire();
+                    //Make cumulative sum to get the range
+                    std::partial_sum(v_prob.begin(), v_prob.end(), v_prob.begin(), [](const P& _x, const P& _y){return P(_x.first + _y.first, _y.second);});
+
+                    for(size_t ivec = 0; ivec < v_prob.size()-1; ivec++)
+                    {
+                        if( random_number < v_prob.at(ivec+1).first && random_number >= v_prob.at(ivec).first )
+                        {
+                            pid.push_back( std::make_pair(pdg_charged.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(ivec+1).second) ) ), v_prob.at(ivec+1).first) );
+                        }
+                    }
+                }
+                else
+                {
+                    pid.push_back( std::make_pair(pdg_charged.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(0).second) ) ), v_prob.at(0).first) );
+                }
+            }
+
+            //return a vector of pid and prob
+            return pid;
         }
 
 

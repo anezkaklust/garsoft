@@ -257,7 +257,8 @@ namespace gar {
             m_trackCreatorSettings.m_minTrackECalDistanceFromIp = pset.get<float>("MinTrackECalDistanceFromIp", 100.); //Track quality cut: separation between ip and track projected at ECAL
             m_trackCreatorSettings.m_maxTrackSigmaPOverP = pset.get<float>("MaxTrackSigmaPOverP", 0.15); //Cut on fractional track momentum error
 
-            m_caloHitCreatorSettings.m_CaloHitCollection = pset.get<std::string>("CaloHitLabel", "calohit"); //Calo hits
+            m_caloHitCreatorSettings.m_CaloHitCollection = pset.get<std::string>("CaloHitLabel", "sscalohit"); //Calo hits
+            m_caloHitCreatorSettings.m_CaloHitInstanceName = pset.get<std::string>("CaloHitInstanceCalo", ""); //Calo hits instance name
             m_caloHitCreatorSettings.m_eCalToMip = pset.get<float>("ECaltoMipCalibration", 1.); //The calibration from deposited ECal energy to mip
             m_caloHitCreatorSettings.m_eCalMipThreshold = pset.get<float>("ECalMipThreshold", 0.25); //Threshold for creating calo hits in the ECal, units mip
             m_caloHitCreatorSettings.m_eCalToEMGeV = pset.get<float>("ECalToEMGeVCalibration", 1.); //The calibration from deposited ECal energy to EM energy

@@ -545,6 +545,12 @@ namespace gar {
             /// Access to the ROOT geometry description manager
             TGeoManager* ROOTGeoManager() const;
 
+            float GetOriginX() const { return fOriginX; }
+
+            float GetOriginY() const { return fOriginY; }
+
+            float GetOriginZ() const { return fOriginZ; }
+
             float GetWorldX() const { return fWorldX; }
 
             float GetWorldY() const { return fWorldY; }
@@ -620,6 +626,16 @@ namespace gar {
             unsigned int GetNLayers(std::string det) const;
 
             std::map< gar::geo::LayeredCalorimeterData::LayoutType, std::shared_ptr<gar::geo::LayeredCalorimeterData> > GetECALLayeredCalorimeterData() const { return fECALLayeredCalorimeterData; }
+
+            float GArLiteXCent() const { return fGArLiteXCent; }
+
+            float GArLiteYCent() const { return fGArLiteYCent; }
+
+            float GArLiteZCent() const { return fGArLiteZCent; }
+
+            float GArLiteRadius() const { return fGArLiteRadius; }
+
+            float GArLiteLength() const { return fGArLiteLength; }
 
             /**
             * @brief Returns the name of the deepest volume containing specified point
@@ -827,8 +843,7 @@ namespace gar {
 
         unsigned int GapChannelNumber() const;
 
-        void ChannelToPosition(unsigned int const channel,
-        float*       const worldLoc) const;
+        void ChannelToPosition(unsigned int const channel, float* const worldLoc) const;
 
         //
         // unsorted methods
@@ -848,8 +863,6 @@ namespace gar {
         * @todo resort source code for a bit of speed up
         */
         bool ValueInRange(double value, double min, double max) const;
-
-
 
         /// @name Geometry initialization
         /// @{
@@ -877,9 +890,7 @@ namespace gar {
         * initialized yet, since it's still necessary to provide or update the
         * channel mapping.
         */
-        void LoadGeometryFile(std::string const& gdmlfile,
-        std::string const& rootfile,
-        bool bForceReload = false);
+        void LoadGeometryFile(std::string const& gdmlfile, std::string const& rootfile, bool bForceReload = false);
 
         /**
         * @brief Initializes the geometry to work with this channel map
@@ -959,6 +970,24 @@ namespace gar {
         //Returns the ECAL outer x of the endcap
         float GetECALEndcapOuterX() const { return fECALEndcapOuterX; }
 
+        //Has Rock in Geometry
+        bool HasRock() const { return fHasRock; }
+
+        //Has Enclosure in Geometry
+        bool HasEnclosure() const { return fHasEnclosure; }
+
+        //Has LArTPC in Geometry
+        bool HasLArTPCDetector() const { return fHasLArTPCDetector; }
+
+        //Has Gas TPC in Geometry
+        bool HasGasTPCDetector() const { return fHasGasTPCDetector; }
+
+        //Has ECAL in Geometry
+        bool HasECALDetector() const { return fHasECALDetector; }
+
+        //ND-GAr lite
+        bool HasTrackerScDetector() const { return fHasTrackerScDetector; }
+
         //Muon ID detector (only Barrel so far)
         bool HasMuonDetector() const { return fHasMuonDetector; }
 
@@ -1024,13 +1053,14 @@ namespace gar {
 
         std::array<double, 3> ReconstructStripHitPosition(const std::array<double, 3>& point, const std::array<double, 3>& local, const float &xlocal, const gar::raw::CellID_t &cID) const;
 
-        //Prints information on the detector geometry
-        void PrintGeometry() const;
-
     protected:
 
         /// Sets the detector name
         void SetDetectorName(std::string new_name) { fDetectorName = new_name; }
+
+        void GetGeometryParameters();
+        //Prints information on the detector geometry
+        void PrintGeometry() const;
 
     private:
 
@@ -1039,21 +1069,34 @@ namespace gar {
         /// Deletes the detector geometry structures
         void ClearGeometry();
 
-        void FindWorldVolume();
-
-        void FindRockVolume();
-
-        void FindEnclosureVolume();
-
-        void FindMPDVolume();
-
-        void FindLArTPCVolume();
-
-        void FindActiveTPCVolume();
-
-        void FindActiveLArTPCVolume();
-
+        void GetDetectorsPresent();
+        void StoreTPCParameters();
         void StoreECALParameters();
+        //Muon ID detector
+        void StoreMuIDParameters();
+        void StoreOtherParameters();
+
+        void SetDetectorOrigin();
+
+        bool FindWorldVolume();
+
+        bool FindRockVolume();
+
+        bool FindEnclosureVolume();
+
+        bool FindMPDVolume();
+
+        bool FindLArTPCVolume();
+
+        bool FindActiveTPCVolume();
+
+        bool FindActiveLArTPCVolume();
+
+        bool FindGasTPCVolume();
+
+        bool FindECALVolume();
+
+        bool FindMuIDVolume();
 
         //Sets the ECAL inner barrel minimum radius
         bool FindECALInnerBarrelRadius();
@@ -1085,9 +1128,6 @@ namespace gar {
         //Sets the ECAL Layered struct
         bool MakeECALLayeredCalorimeterData();
 
-        //Muon ID detector
-        void StoreMuIDParameters();
-
         //Sets the MuID inner barrel minimum radius
         bool FindMuIDInnerBarrelRadius();
 
@@ -1100,6 +1140,8 @@ namespace gar {
         //Sets the number of layers in the MuID
         bool FindMuIDnLayers();
 
+        bool FindTrackerScVolume();
+
         double         fSurfaceY;       ///< The point where air meets earth for this detector.
         std::string    fDetectorName;   ///< Name of the detector.
         std::string    fGDMLfile;       ///< path to geometry file used for Geant4 simulation
@@ -1107,10 +1149,12 @@ namespace gar {
         double         fMinWireZDist;   ///< Minimum distance in Z from a point in which
         ///< to look for the closest wire
         double         fPositionWiggle; ///< accounting for rounding errors when testing positions
-
         bool           fPointInWarnings; ///< Generate warnings from failed inputs to PointIn* methods
-
         bool           fECALEndcapOutside; ///< Is the ECAL Endcap outside the PV
+
+        float          fOriginX = 0.; //Origin of the ND-GAr
+        float          fOriginY = 0.; //Origin of the ND-GAr
+        float          fOriginZ = 0.; //Origin of the ND-GAr
 
         float          fTPCRadius = 0.;      ///< Radius of the TPC
         float          fTPCLength = 0.;      ///< length of the TPC
@@ -1167,7 +1211,21 @@ namespace gar {
         float          fLArTPCActiveHalfHeight = 0.;
         float          fLArTPCActiveLength = 0.;
 
+        float          fGArLiteXCent = 0;
+        float          fGArLiteYCent = 0;
+        float          fGArLiteZCent = 0;
+
+        float          fGArLiteRadius = 0;
+        float          fGArLiteLength = 0;
+
         std::map<std::string, std::vector<const TGeoNode*> > fECALNodePath; ///< Stored map of vectors of nodes for the ecal to speedup node searching
+
+        bool fHasRock;
+        bool fHasEnclosure;
+        bool fHasLArTPCDetector;
+        bool fHasGasTPCDetector;
+        bool fHasECALDetector;
+        bool fHasTrackerScDetector;
 
         //Related to the ECAL
         float fECALRinner;              ///< Minimum radius of the ECAL inner barrel

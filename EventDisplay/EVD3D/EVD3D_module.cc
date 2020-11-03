@@ -177,7 +177,7 @@ namespace gar{
             TEveManager*  fEve;
             TGLViewer* glViewer;
             TGLAnnotation* ann;
-            double origin[3];
+            double origin[3] = {0., 0., 0.};
 
             TGTextEntry      *fTeRun, *fTeEvt;
             TGLabel          *fTlRun, *fTlEvt;
@@ -430,9 +430,9 @@ namespace gar{
 
                 //Sets the GL viewer parameters
                 glViewer = fEve->GetDefaultGLViewer();
-                origin[0] = fGeometry->TPCXCent();
-                origin[1] = fGeometry->TPCYCent();
-                origin[2] = fGeometry->TPCZCent();
+                origin[0] = fGeometry->GetOriginX();
+                origin[1] = fGeometry->GetOriginY();
+                origin[2] = fGeometry->GetOriginZ();
 
                 glViewer->ColorSet().Background().SetColor(kWhite);
                 glViewer->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
@@ -502,7 +502,7 @@ namespace gar{
                 this->DrawRecoHits(event);
 
                 //Draw high level reco
-                if(fDrawECALClusters || fDrawTracks || fDrawVertices)
+                // if(fDrawECALClusters || fDrawTracks || fDrawVertices)
                 this->DrawHighLevelReco(event);
 
                 return;
@@ -580,18 +580,18 @@ namespace gar{
                     topND = top->GetMatrix();
                 }
 
-                //Get the matrix of the top volume (rotation of the full ND)
-                topnodes = fGeometry->FindVolumePath("volNDHPgTPC");
-                //Matrix ND
-                TGeoMatrix* topND2 = &nullmatgm;
-                for(unsigned int i = 0; i < topnodes.size(); i++)
-                {
-                    std::string nodename(topnodes.at(i)->GetName());
-                    if(nodename.find("volNDHPgTPC") == std::string::npos) continue;
-
-                    const TGeoNode *top = topnodes.at(i);
-                    topND2 = top->GetMatrix();
-                }
+                // //Get the matrix of the top volume (rotation of the full ND)
+                // topnodes = fGeometry->FindVolumePath("volNDHPgTPC");
+                // //Matrix ND
+                // TGeoMatrix* topND2 = &nullmatgm;
+                // for(unsigned int i = 0; i < topnodes.size(); i++)
+                // {
+                //     std::string nodename(topnodes.at(i)->GetName());
+                //     if(nodename.find("volNDHPgTPC") == std::string::npos) continue;
+                //
+                //     const TGeoNode *top = topnodes.at(i);
+                //     topND2 = top->GetMatrix();
+                // }
 
                 for(auto volname : fVolumesToShow)
                 {
@@ -634,7 +634,7 @@ namespace gar{
                                 TGeoMatrix* mat = currMat->MakeClone();
                                 TGeoHMatrix *m = new TGeoHMatrix(*mat);
                                 m->MultiplyLeft(topECal);
-                                m->MultiplyLeft(topND2);
+                                // m->MultiplyLeft(topND2);
                                 m->MultiplyLeft(topND);
                                 if(hasEnclosure) m->MultiplyLeft(topEnclosure);
                                 if(hasHall) m->MultiplyLeft(topHall);
@@ -668,7 +668,6 @@ namespace gar{
                             TGeoMatrix* currMat = node->GetMatrix();
                             TGeoMatrix* mat = currMat->MakeClone();
                             TGeoHMatrix *m = new TGeoHMatrix(*mat);
-                            m->MultiplyLeft(topND2);
                             m->MultiplyLeft(topND);
                             if(hasEnclosure) m->MultiplyLeft(topEnclosure);
                             if(hasHall) m->MultiplyLeft(topHall);
@@ -679,6 +678,45 @@ namespace gar{
                         }
                     }
                     nodevec.clear();
+                }
+
+                //Add the LAr if present
+                bool hasLAr = false;
+                topnodes = fGeometry->FindVolumePath("volArgonCubeDetector");
+                if(topnodes.size() != 0) hasLAr = true;
+
+                if(hasLAr) {
+                    for(unsigned int i = 0; i < topnodes.size(); i++)
+                    {
+                        std::string nodename(topnodes.at(i)->GetName());
+                        if(nodename.find("volArgonCubeDetector") == std::string::npos) continue;
+
+                        const TGeoNode *node = topnodes.at(i);
+
+                        TGeoScale nullmatgm;
+                        TGeoMatrix* topLAr = &nullmatgm;
+                        topLAr = node->GetMatrix();
+
+                        for(int idaugh = 0; idaugh < node->GetNdaughters(); idaugh++)
+                        {
+                            const TGeoNode *daugh_node = node->GetDaughter(idaugh);
+                            TGeoShape *daugh_shape = daugh_node->GetVolume()->GetShape();
+                            TGeoShape* daugh_clonedShape = dynamic_cast<TGeoShape*> (daugh_shape->Clone("fakeShape"));
+                            TEveGeoShape *daugh_fakeShape = new TEveGeoShape(daugh_shape->GetName());
+                            daugh_fakeShape->SetShape(daugh_clonedShape);
+                            daugh_fakeShape->SetMainColor(kGreen+1);
+                            daugh_fakeShape->SetMainTransparency(80);
+                            TGeoMatrix* currMat = daugh_node->GetMatrix();
+                            TGeoMatrix* mat = currMat->MakeClone();
+                            TGeoHMatrix *m = new TGeoHMatrix(*mat);
+                            m->MultiplyLeft(topLAr);
+                            if(hasEnclosure) m->MultiplyLeft(topEnclosure);
+                            if(hasHall) m->MultiplyLeft(topHall);
+                            daugh_fakeShape->SetTransMatrix(*m);
+
+                            list->AddElement(daugh_fakeShape);
+                        }
+                    }
                 }
 
                 return;
@@ -748,7 +786,7 @@ namespace gar{
 
                             // If the original simulated hit did not occur in the enclosure volume then don't draw it
                             TVector3 point(xPos, yPos, zPos);
-                            if (!fGeometry->PointInMPD(point)) continue;
+                            // if (!fGeometry->PointInMPD(point)) continue;
 
                             MCtrack->SetPoint(hitIdx, xPos, yPos, zPos);
                         }
@@ -1215,7 +1253,7 @@ namespace gar{
                     evehit->SetName(TString::Format("TPC Cluster %i", idx));
                     evehit->SetTitle(label.str().c_str());
                     evehit->SetMarkerSize(1);
-                    evehit->SetMarkerStyle(1);
+                    evehit->SetMarkerStyle(20);
                     evehit->SetMarkerColor(fEvtDisplayUtil->LogColor(itr->Signal(), 0, 1000, 5));
                     evehit->SetPoint(0, itr->Position()[0], itr->Position()[1], itr->Position()[2]);//cm
 
@@ -1361,7 +1399,7 @@ namespace gar{
             void EventDisplay3D::DrawArrow3D(const float *fVertex, const float *fDir, int color, TEveArrow* &arrow)
             {
                 //Draw arraw
-                TVector3 cent(fGeometry->TPCXCent(), fGeometry->TPCYCent(), fGeometry->TPCZCent());
+                TVector3 cent(fGeometry->GetOriginX(), fGeometry->GetOriginY(), fGeometry->GetOriginZ());
                 TVector3 spv(fVertex);
                 TVector3 spcv = spv + cent;
                 TVector3 av(fDir);

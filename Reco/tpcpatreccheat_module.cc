@@ -124,7 +124,7 @@ namespace gar {
       auto bt = gar::providerFrom<cheat::BackTracker>();
       auto geo = gar::providerFrom<geo::Geometry>();
       TVector3 xhat(1,0,0);
-      TVector3 tpccent(geo->TPCXCent(),geo->TPCYCent(),geo->TPCZCent());
+      TVector3 tpccent(geo->GetOriginX(),geo->GetOriginY(),geo->GetOriginZ());
 
 
       // Do everything separately for the two sides -- do not make a single track out of pieces on either side of the cathode

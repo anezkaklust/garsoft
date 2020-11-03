@@ -182,13 +182,13 @@ gar::MomentumPerformance::MomentumPerformance(fhicl::ParameterSet const & p) : E
 void gar::MomentumPerformance::beginJob() {
 
     art::ServiceHandle<geo::Geometry> euclid;
-    ItsInTulsa[0] = euclid->TPCXCent();
-    ItsInTulsa[1] = euclid->TPCYCent();
-    ItsInTulsa[2] = euclid->TPCZCent();
+    ItsInTulsa[0] = euclid->GetOriginX();
+    ItsInTulsa[1] = euclid->GetOriginY();
+    ItsInTulsa[2] = euclid->GetOriginZ();
 
     art::ServiceHandle<art::TFileService> tfs;
     fTree = tfs->make<TTree>("GArAnaTree","GArAnaTree");
-    
+
     cheat::BackTrackerCore const* const_bt = gar::providerFrom<cheat::BackTracker>();
     fBack = const_cast<cheat::BackTrackerCore*>(const_bt);
 
@@ -403,7 +403,7 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
 
         // Which track end you want?
         float minDist = 1e6;
-        int pickedTrack = -1;        
+        int pickedTrack = -1;
         rec::TrackEnd kate = rec::TrackEndBeg;
         size_t iTrack;
         for (iTrack=0; iTrack<matchedTracks.size(); ++iTrack) {
@@ -467,7 +467,7 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
             fTrackPY.push_back (theTrack.Momentum_end()*theTrack.EndDir()[1]);
             fTrackPZ.push_back (theTrack.Momentum_end()*theTrack.EndDir()[2]);
             fTrackQ.push_back  (theTrack.ChargeEnd());
-            fTrackLen.push_back(theTrack.LengthForward());        
+            fTrackLen.push_back(theTrack.LengthForward());
             trackInPhase = new TVector3( theTrack.EndDir() );
             trackInSpace = new TVector3( theTrack.End() );
         }

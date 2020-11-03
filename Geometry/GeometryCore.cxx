@@ -71,16 +71,6 @@ namespace gar {
         //......................................................................
         void GeometryCore::ApplyChannelMap(std::shared_ptr<geo::seg::ChannelMapAlg> pChannelMap)
         {
-            FindWorldVolume();
-            FindRockVolume();
-            FindEnclosureVolume();
-            FindMPDVolume();
-            FindActiveTPCVolume();
-
-            //For the LArTPC
-            FindLArTPCVolume();
-            FindActiveLArTPCVolume();
-
             pChannelMap->Initialize(*this);
             fChannelMapAlg = pChannelMap;
         } // GeometryCore::ApplyChannelMap()
@@ -90,8 +80,6 @@ namespace gar {
         {
             pECALSegmentationAlg->Initialize(*this);
             fECALSegmentationAlg = pECALSegmentationAlg;
-
-            StoreECALParameters();
         } // GeometryCore::ApplyECALSegmentationAlg()
 
         //......................................................................
@@ -99,7 +87,6 @@ namespace gar {
         {
             pMinervaSegmentationAlg->Initialize(*this);
             fMinervaSegmentationAlg = pMinervaSegmentationAlg;
-
         } // GeometryCore::ApplyMinervaSegmentationAlg()
 
         //......................................................................
@@ -107,9 +94,6 @@ namespace gar {
         {
             pMuIDSegmentationAlg->Initialize(*this);
             fMuIDSegmentationAlg = pMuIDSegmentationAlg;
-
-            StoreMuIDParameters();
-            fHasMuonDetector = true;
         } // GeometryCore::ApplyMuIDSegmentationAlg()
 
         //......................................................................
@@ -145,200 +129,6 @@ namespace gar {
             << "\n\t" << fGDMLfile;
 
         } // GeometryCore::LoadGeometryFile()
-
-        //......................................................................
-        void GeometryCore::FindWorldVolume()
-        {
-            std::vector<TGeoNode const*> path = this->FindVolumePath("volWorld");
-            if(path.size() == 0) return;
-
-            const TGeoNode *world_node = path.at(path.size()-1);
-            if(world_node == nullptr) {
-                std::cout << "Cannot find node volWorld_0" << std::endl;
-                return;
-            }
-
-            const double *origin = world_node->GetMatrix()->GetTranslation();
-
-            fWorldX = origin[0];
-            fWorldY = origin[1];
-            fWorldZ = origin[2];
-
-            fWorldHalfWidth = ((TGeoBBox*)world_node->GetVolume()->GetShape())->GetDZ();
-            fWorldHalfHeight = ((TGeoBBox*)world_node->GetVolume()->GetShape())->GetDY();
-            fWorldLength = 2.0 * ((TGeoBBox*)world_node->GetVolume()->GetShape())->GetDX();
-
-            return;
-        }
-
-        //......................................................................
-        void GeometryCore::FindRockVolume()
-        {
-            std::vector<TGeoNode const*> path = this->FindVolumePath("rockBox_lv");
-            if(path.size() == 0) return;
-
-            const TGeoNode *rock_node = path.at(path.size()-1);
-            if(rock_node == nullptr) {
-                std::cout << "Cannot find node rockBox_lv_0" << std::endl;
-                return;
-            }
-
-            const double *origin = rock_node->GetMatrix()->GetTranslation();
-
-            fRockX = origin[0];
-            fRockY = origin[1];
-            fRockZ = origin[2];
-
-            fRockHalfWidth = ((TGeoBBox*)rock_node->GetVolume()->GetShape())->GetDZ();
-            fRockHalfHeight = ((TGeoBBox*)rock_node->GetVolume()->GetShape())->GetDY();
-            fRockLength = 2.0 * ((TGeoBBox*)rock_node->GetVolume()->GetShape())->GetDX();
-
-            return;
-        }
-
-        //......................................................................
-        void GeometryCore::FindEnclosureVolume()
-        {
-            std::vector<TGeoNode const*> path = this->FindVolumePath("volDetEnclosure");
-            if(path.size() == 0) return;
-
-            const TGeoNode *enc_node = path.at(path.size()-1);
-            if(enc_node == nullptr) {
-                std::cout << "Cannot find node volDetEnclosure_0" << std::endl;
-                return;
-            }
-
-            const double *origin = enc_node->GetMatrix()->GetTranslation();
-
-            fEnclosureX = origin[0];
-            fEnclosureY = origin[1];
-            fEnclosureZ = origin[2];
-
-            fEnclosureHalfWidth = ((TGeoBBox*)enc_node->GetVolume()->GetShape())->GetDZ();
-            fEnclosureHalfHeight = ((TGeoBBox*)enc_node->GetVolume()->GetShape())->GetDY();
-            fEnclosureLength = 2.0 * ((TGeoBBox*)enc_node->GetVolume()->GetShape())->GetDX();
-
-            return;
-        }
-
-        //......................................................................
-        void GeometryCore::FindLArTPCVolume()
-        {
-            std::vector<TGeoNode const*> path = this->FindVolumePath("volArgonCubeDetector");
-            if(path.size() == 0)
-            return;
-
-            const TGeoNode *lar_node = path.at(path.size()-1);
-            if(lar_node == nullptr) {
-                std::cout << "Cannot find node volArgonCubeDetector_0" << std::endl;
-                return;
-            }
-
-            const double *origin = lar_node->GetMatrix()->GetTranslation();
-
-            fLArTPCX = origin[0];
-            fLArTPCY = origin[1];
-            fLArTPCZ = origin[2];
-
-            fLArTPCHalfWidth = ((TGeoBBox*)lar_node->GetVolume()->GetShape())->GetDZ();
-            fLArTPCHalfHeight = ((TGeoBBox*)lar_node->GetVolume()->GetShape())->GetDY();
-            fLArTPCLength = 2.0 * ((TGeoBBox*)lar_node->GetVolume()->GetShape())->GetDX();
-
-            return;
-        }
-
-        //......................................................................
-        void GeometryCore::FindMPDVolume()
-        {
-            std::vector<TGeoNode const*> path = this->FindVolumePath("volMPD");
-            if(path.size() == 0)
-            return;
-
-            const TGeoNode *mpd_node = path.at(path.size()-1);
-            if(mpd_node == nullptr) {
-                std::cout << "Cannot find node volMPD_0" << std::endl;
-                return;
-            }
-
-            const double *origin = mpd_node->GetMatrix()->GetTranslation();
-
-            fMPDX = origin[0];
-            fMPDY = origin[1];
-            fMPDZ = origin[2];
-
-            fMPDHalfWidth = ((TGeoBBox*)mpd_node->GetVolume()->GetShape())->GetDZ();
-            fMPDHalfHeight = ((TGeoBBox*)mpd_node->GetVolume()->GetShape())->GetDY();
-            fMPDLength = 2.0 * ((TGeoBBox*)mpd_node->GetVolume()->GetShape())->GetDX();
-
-            return;
-        }
-
-
-        //......................................................................
-        void GeometryCore::FindActiveLArTPCVolume()
-        {
-            // check if the current level of the detector is the active TPC volume, if
-            // not, then dig a bit deeper
-            std::vector<TGeoNode const*> path = this->FindVolumePath("volArgonCubeActive");
-            if(path.size() == 0)
-            return;
-
-            const TGeoNode *LArTPC_node = path.at(path.size()-1);
-            if(LArTPC_node == nullptr) {
-                std::cout << "Cannot find node volArgonCubeActive_0" << std::endl;
-                return;
-            }
-
-            TGeoMatrix *mat = LArTPC_node->GetMatrix();
-            const double *origin = mat->GetTranslation();
-
-            //Get the origin correctly
-            fLArTPCXCent =  fWorldX + fRockX + fEnclosureX + fLArTPCX + origin[0];
-            fLArTPCYCent =  fWorldY + fRockY + fEnclosureY + fLArTPCY + origin[1];
-            fLArTPCZCent =  fWorldZ + fRockZ + fEnclosureZ + fLArTPCZ + origin[2];
-
-            //Get the dimension of the active volume
-            fLArTPCActiveHalfWidth = ((TGeoBBox*)LArTPC_node->GetVolume()->GetShape())->GetDZ();
-            fLArTPCActiveHalfHeight = ((TGeoBBox*)LArTPC_node->GetVolume()->GetShape())->GetDY();
-            fLArTPCActiveLength = 2.0 * ((TGeoBBox*)LArTPC_node->GetVolume()->GetShape())->GetDX();
-
-            return;
-        }
-
-        //......................................................................
-        void GeometryCore::FindActiveTPCVolume()
-        {
-            // check if the current level of the detector is the active TPC volume, if
-            // not, then dig a bit deeper
-            std::vector<TGeoNode const*> path = this->FindVolumePath("TPCGas_vol");
-            if(path.size() == 0)
-            path = this->FindVolumePath("volTPCGas");
-            if(path.size() == 0)
-            return;
-
-            const TGeoNode *GArTPC_node = path.at(path.size()-1);
-            if(GArTPC_node == nullptr) {
-                std::cout << "Cannot find node TPCGas_vol_0/TPCGas_vol_0" << std::endl;
-                return;
-            }
-
-            TGeoMatrix *mat = GArTPC_node->GetMatrix();
-            const double *origin = mat->GetTranslation();
-
-            //Get the origin correctly
-            fTPCXCent =  fWorldX + fRockX + fEnclosureX + fMPDX + origin[0];
-            fTPCYCent =  fWorldY + fRockY + fEnclosureY + fMPDY + origin[1];
-            fTPCZCent =  fWorldZ + fRockZ + fEnclosureZ + fMPDZ + origin[2];
-
-            //Get the dimension of the active volume
-            TGeoVolume *activeVol = GArTPC_node->GetVolume();
-            float rOuter = ((TGeoTube*)activeVol->GetShape())->GetRmax();
-
-            fTPCRadius = rOuter;
-            fTPCLength = 2.0 * ((TGeoTube*)activeVol->GetShape())->GetDZ();
-
-            return;
-        }
 
         //......................................................................
         const float GeometryCore::GetSensVolumeThickness(const TVector3& point) const
@@ -716,7 +506,7 @@ namespace gar {
         //......................................................................
         bool GeometryCore::PointInMPD(TVector3 const& point) const
         {
-            TVector3 tpc_origin(TPCXCent(), TPCYCent(), TPCZCent());
+            TVector3 tpc_origin(GetOriginX(), GetOriginY(), GetOriginZ());
             TVector3 new_point = point - tpc_origin;
             // check that the given point is in the enclosure volume at least
             if (std::abs(new_point.x()) > fMPDHalfWidth  ||
@@ -743,9 +533,9 @@ namespace gar {
         bool GeometryCore::PointInGArTPC(TVector3 const& point) const
         {
             // check that the given point is in the enclosure volume at least
-            float y = std::abs(point.y() - fTPCYCent);
-            float z = std::abs(point.z() - fTPCZCent);
-            if (std::abs(point.x() - fTPCXCent) > fTPCLength/2.0  ||
+            float y = std::abs(point.y() - GetOriginY());
+            float z = std::abs(point.z() - GetOriginZ());
+            if (std::abs(point.x() - GetOriginX()) > fTPCLength/2.0  ||
             std::hypot(z,y)                 > fTPCRadius) {
                 if (fPointInWarnings) {
                     MF_LOG_WARNING("GeometryCoreBadInputPoint")
@@ -992,23 +782,650 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
+        gar::raw::CellID_t GeometryCore::GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
+        {
+            std::string node_name = node->GetName();
+            gar::raw::CellID_t cellID = 0.;
+
+            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
+
+                const std::array<double, 3> shape = this->FindShapeSize(node);
+                fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                cellID = fECALSegmentationAlg->GetCellID(*this, det_id, stave, module, layer, slice, localPosition);
+
+            } else if(node_name.find("TrackerSc") != std::string::npos || node_name.find("trackersc") != std::string::npos || node_name.find("Tracker") != std::string::npos || node_name.find("tracker") != std::string::npos) {
+
+                const std::array<double, 3> shape = this->FindShapeSize(node);
+                fMinervaSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                cellID = fMinervaSegmentationAlg->GetCellID(*this, det_id, 0, 0, layer, slice, localPosition);
+
+            } else if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
+
+                const std::array<double, 3> shape = this->FindShapeSize(node);
+                fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                cellID = fMuIDSegmentationAlg->GetCellID(*this, det_id, stave, module, layer, slice, localPosition);
+
+            } else {
+                MF_LOG_WARNING("GeometryCore::GetCellID")
+                << "Detector id " << det_id << " unknown!"
+                << " Node name " << node_name;
+            }
+
+            return cellID;
+        }
+
+        //----------------------------------------------------------------------------
+        std::string GeometryCore::GetECALCellIDEncoding() const
+        {
+            if(fECALSegmentationAlg)
+            return fECALSegmentationAlg->cellEncoding();
+            else
+            return "";
+        }
+
+        //----------------------------------------------------------------------------
+        std::string GeometryCore::GetMinervaCellIDEncoding() const
+        {
+            if(fMinervaSegmentationAlg)
+            return fMinervaSegmentationAlg->cellEncoding();
+            else
+            return "";
+        }
+
+        //----------------------------------------------------------------------------
+        std::string GeometryCore::GetMuIDCellIDEncoding() const
+        {
+            if(fMuIDSegmentationAlg)
+            return fMuIDSegmentationAlg->cellEncoding();
+            else
+            return "";
+        }
+
+        //----------------------------------------------------------------------------
+        std::array<double, 3> GeometryCore::GetPosition(const TGeoNode *node, const gar::raw::CellID_t &cID) const
+        {
+            std::string node_name = node->GetName();
+            std::array<double, 3> pos;
+
+            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
+                const std::array<double, 3> shape = this->FindShapeSize(node);
+                fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                fECALSegmentationAlg->setVariables(GetECALInnerAngle(), GetECALEndcapSideLength());
+                pos = fECALSegmentationAlg->GetPosition(*this, cID);
+            }
+
+            if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
+                const std::array<double, 3> shape = this->FindShapeSize(node);
+                fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                pos = fMuIDSegmentationAlg->GetPosition(*this, cID);
+            }
+
+            return pos;
+        }
+
+        //----------------------------------------------------------------------------
+        bool GeometryCore::isTile(const std::array<double, 3>& point, const gar::raw::CellID_t& cID) const
+        {
+            bool isTile = false;
+            std::string node_name = this->FindNode(point)->GetName();
+
+            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
+                isTile = fECALSegmentationAlg->isTile(cID);
+            }
+
+            if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
+                isTile = fMuIDSegmentationAlg->isTile(cID);
+            }
+
+            return isTile;
+        }
+
+        //----------------------------------------------------------------------------
+        double GeometryCore::getStripWidth(const std::array<double, 3>& point) const
+        {
+            double strip_width = 0.;
+            std::string node_name = this->FindNode(point)->GetName();
+
+            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
+                strip_width = fECALSegmentationAlg->stripSizeX();
+            }
+
+            if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
+                strip_width = fMuIDSegmentationAlg->stripSizeX();
+            }
+
+            return strip_width;
+        }
+
+        //----------------------------------------------------------------------------
+        double GeometryCore::getTileSize(const std::array<double, 3>& point) const
+        {
+            double tilesize = 0.;
+            std::string node_name = this->FindNode(point)->GetName();
+
+            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
+                tilesize = fECALSegmentationAlg->gridSizeX();
+            }
+
+            return tilesize;
+        }
+
+        //----------------------------------------------------------------------------
+        double GeometryCore::getStripLength(const std::array<double, 3>& point, const gar::raw::CellID_t &cID) const
+        {
+            double strip_length = 0.;
+            const TGeoNode *node = this->FindNode(point);
+            std::string node_name = node->GetName();
+
+            std::array<double, 3> localtemp;
+            gar::geo::LocalTransformation<TGeoHMatrix> trans;
+            this->WorldToLocal(point, localtemp, trans);
+            const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
+
+            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
+                fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                strip_length = fECALSegmentationAlg->getStripLength(*this, localtemp, cID);
+            }
+
+            if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
+                fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                strip_length = fMuIDSegmentationAlg->getStripLength(*this, localtemp, cID);
+            }
+
+            return strip_length;
+        }
+
+        //----------------------------------------------------------------------------
+        std::pair<TVector3, TVector3> GeometryCore::GetStripEnds(const std::array<double, 3>& point, const gar::raw::CellID_t &cID) const
+        {
+            std::string node_name = this->FindNode(point)->GetName();
+            std::pair<TVector3, TVector3> localStripEnds;
+
+            //Get the matrix to make the transformation from Local to World
+            std::array<double, 3> localtemp;
+            gar::geo::LocalTransformation<TGeoHMatrix> trans;
+            this->WorldToLocal(point, localtemp, trans);
+            const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
+
+            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
+                fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                localStripEnds = fECALSegmentationAlg->getStripEnds(*this, localtemp, cID);
+            }
+
+            if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
+                fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                localStripEnds = fMuIDSegmentationAlg->getStripEnds(*this, localtemp, cID);
+            }
+
+            //Get the world coordinates from both local coordinates of the strip ends
+            std::array<double, 3> stripEnd1local = { localStripEnds.first.X(), localStripEnds.first.Y(), localStripEnds.first.Z() };
+            std::array<double, 3> stripEnd2local = { localStripEnds.second.X(), localStripEnds.second.Y(), localStripEnds.second.Z() };
+            std::array<double, 3> stripEnd1;
+            std::array<double, 3> stripEnd2;
+            this->LocalToWorld(stripEnd1local, stripEnd1, trans);
+            this->LocalToWorld(stripEnd2local, stripEnd2, trans);
+
+            return std::make_pair( TVector3(stripEnd1[0], stripEnd1[1], stripEnd1[2]), TVector3(stripEnd2[0], stripEnd2[1], stripEnd2[2]) );
+        }
+
+        //----------------------------------------------------------------------------
+        std::pair<float, float> GeometryCore::CalculateLightPropagation(const std::array<double, 3>& point, const std::array<double, 3> &local, const gar::raw::CellID_t &cID) const
+        {
+            std::pair<float, float> light_prop;
+            std::string node_name = this->FindNode(point)->GetName();
+            const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
+
+            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
+                fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                light_prop = fECALSegmentationAlg->CalculateLightPropagation(*this, local, cID);
+            }
+
+            if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
+                fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                light_prop = fMuIDSegmentationAlg->CalculateLightPropagation(*this, local, cID);
+            }
+
+            return light_prop;
+        }
+
+        //----------------------------------------------------------------------------
+        std::array<double, 3> GeometryCore::ReconstructStripHitPosition(const std::array<double, 3>& point, const std::array<double, 3> &local, const float &xlocal, const gar::raw::CellID_t &cID) const
+        {
+            std::array<double, 3> pos;
+            std::string node_name = this->FindNode(point)->GetName();
+            const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
+
+            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
+                fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                pos = fECALSegmentationAlg->ReconstructStripHitPosition(*this, local, xlocal, cID);
+            }
+
+            if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
+                fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                pos = fMuIDSegmentationAlg->ReconstructStripHitPosition(*this, local, xlocal, cID);
+            }
+
+            return pos;
+        }
+
+        //----------------------------------------------------------------------------
+        void GeometryCore::GetGeometryParameters()
+        {
+            GetDetectorsPresent();
+
+            if(fHasGasTPCDetector)
+            StoreTPCParameters();
+            if(fHasECALDetector)
+            StoreECALParameters();
+            if(fHasMuonDetector)
+            StoreMuIDParameters();
+
+            StoreOtherParameters();
+        }
+
+        //----------------------------------------------------------------------------
+        void GeometryCore::GetDetectorsPresent()
+        {
+            FindWorldVolume();
+            fHasRock = FindRockVolume();
+            fHasEnclosure = FindEnclosureVolume();
+            //MPD Mother volume
+            FindMPDVolume();
+
+            fHasLArTPCDetector = FindLArTPCVolume();
+
+            fHasGasTPCDetector = FindGasTPCVolume();
+            fHasECALDetector = FindECALVolume();
+
+            fHasTrackerScDetector = FindTrackerScVolume();
+
+            fHasMuonDetector = FindMuIDVolume();
+
+            SetDetectorOrigin(); //Set the origin!
+        }
+
+        //----------------------------------------------------------------------------
+        void GeometryCore::SetDetectorOrigin()
+        {
+            //Case ND-GAr full
+            if(fHasGasTPCDetector) {
+                fOriginX = TPCXCent();
+                fOriginY = TPCYCent();
+                fOriginZ = TPCZCent();
+            }
+
+            //Case ND-GAr Lite
+            if(fHasTrackerScDetector) {
+                fOriginX = GArLiteXCent();
+                fOriginY = GArLiteYCent();
+                fOriginZ = GArLiteZCent();
+            }
+
+        }
+
+        //----------------------------------------------------------------------------
+        void GeometryCore::StoreOtherParameters()
+        {
+            if(fHasLArTPCDetector) {
+                //For the LArTPC
+                FindActiveLArTPCVolume();
+            }
+        }
+
+        //----------------------------------------------------------------------------
+        void GeometryCore::StoreTPCParameters()
+        {
+            FindActiveTPCVolume();
+        }
+
+        //----------------------------------------------------------------------------
         void GeometryCore::StoreECALParameters()
         {
-            this->FindECALInnerBarrelRadius();
-            this->FindECALOuterBarrelRadius();
-            this->FindECALInnerEndcapRadius();
-            this->FindECALOuterEndcapRadius();
-            this->FindPVThickness();
-            this->FindECALInnerSymmetry();
-            this->FindECALEndcapStartX();
-            this->FindECALEndcapOuterX();
-            this->FindECALnLayers();
-            this->MakeECALLayeredCalorimeterData();
+            FindECALInnerBarrelRadius();
+            FindECALOuterBarrelRadius();
+            FindECALInnerEndcapRadius();
+            FindECALOuterEndcapRadius();
+            FindPVThickness();
+            FindECALInnerSymmetry();
+            FindECALEndcapStartX();
+            FindECALEndcapOuterX();
+            FindECALnLayers();
+            MakeECALLayeredCalorimeterData();
 
             StoreECALNodes(fECALNodePath);
             std::cout << "Stored " << fECALNodePath.size() << " ECAL nodes in memory" << std::endl;
-
             // std::raise(SIGINT);
+        }
+
+        //----------------------------------------------------------------------------
+        void GeometryCore::StoreMuIDParameters()
+        {
+            FindMuIDInnerBarrelRadius();
+            FindMuIDOuterBarrelRadius();
+            FindMuIDInnerSymmetry();
+            FindMuIDnLayers();
+            // std::raise(SIGINT);
+        }
+
+        //----------------------------------------------------------------------------
+        void GeometryCore::PrintGeometry() const
+        {
+            std::cout << "------------------------------" << std::endl;
+            std::cout << "ND-GAr detector origin set to " << GetOriginX() << " cm " << GetOriginY() << " cm " << GetOriginZ() << " cm" << std::endl;
+            std::cout << "------------------------------\n" << std::endl;
+
+            //Prints geometry parameters
+            std::cout << "------------------------------" << std::endl;
+            std::cout << "World Geometry" << std::endl;
+            std::cout << "World Origin (x, y, z) " << GetWorldX() << " cm " << GetWorldY() << " cm " << GetWorldZ() << " cm" << std::endl;
+            std::cout << "World Size (H, W, L) " << GetWorldHalfWidth() << " cm " << GetWorldHalfHeight() << " cm " << GetWorldLength() << " cm" << std::endl;
+            std::cout << "------------------------------\n" << std::endl;
+
+            if(this->HasRock()) {
+                std::cout << "Rock Geometry" << std::endl;
+                std::cout << "Rock Origin (x, y, z) " << GetRockX() << " cm " << GetRockY() << " cm " << GetRockZ() << " cm" << std::endl;
+                std::cout << "Rock Size (H, W, L) " << GetRockHalfWidth() << " cm " << GetRockHalfHeight() << " cm " << GetRockLength() << " cm" << std::endl;
+                std::cout << "------------------------------\n" << std::endl;
+            }
+
+            if(this->HasEnclosure()) {
+
+                std::cout << "Enclosure Geometry" << std::endl;
+                std::cout << "Enclosure Origin (x, y, z) " << GetEnclosureX() << " cm " << GetEnclosureY() << " cm " << GetEnclosureZ() << " cm" << std::endl;
+                std::cout << "Enclosure Size (H, W, L) " << GetEnclosureHalfWidth() << " cm " << GetEnclosureHalfHeight() << " cm " << GetEnclosureLength() << " cm" << std::endl;
+                std::cout << "------------------------------\n" << std::endl;
+            }
+
+            if(this->HasLArTPCDetector()) {
+                std::cout << "LArArgonCube Geometry" << std::endl;
+                std::cout << "LArTPC Origin (x, y, z) " << GetLArTPCX() << " cm " << GetLArTPCY() << " cm " << GetLArTPCZ() << " cm" << std::endl;
+                std::cout << "LArTPC Size (H, W, L) " << GetLArTPCHalfWidth() << " cm " << GetLArTPCHalfHeight() << " cm " << GetLArTPCLength() << " cm" << std::endl;
+                std::cout << "------------------------------\n" << std::endl;
+                std::cout << "LArActiveArgonCube Geometry" << std::endl;
+                std::cout << "LArTPCActive Origin (x, y, z) " << GetActiveLArTPCX() << " cm " << GetActiveLArTPCY() << " cm " << GetActiveLArTPCZ() << " cm" << std::endl;
+                std::cout << "LArTPCActive Size (H, W, L) " << GetActiveLArTPCHalfWidth() << " cm " << GetActiveLArTPCHalfHeight() << " cm " << GetActiveLArTPCLength() << " cm" << std::endl;
+                std::cout << "------------------------------\n" << std::endl;
+            }
+
+            std::cout << "MPD Geometry" << std::endl;
+            std::cout << "MPD Origin (x, y, z) " << GetMPDX() << " cm " << GetMPDY() << " cm " << GetMPDZ() << " cm" << std::endl;
+            std::cout << "MPD Size (H, W, L) " << GetMPDHalfWidth() << " cm " << GetMPDHalfHeight() << " cm " << GetMPDLength() << " cm" << std::endl;
+            std::cout << "------------------------------\n" << std::endl;
+
+            if(this->HasGasTPCDetector()) {
+                std::cout << "TPC Geometry" << std::endl;
+                std::cout << "TPC Origin (x, y, z) " << TPCXCent() << " cm " << TPCYCent() << " cm " << TPCZCent() << " cm" << std::endl;
+                std::cout << "TPC Active Volume Size (R, L) " << TPCRadius() << " cm " << TPCLength() << " cm" << std::endl;
+                std::cout << "------------------------------\n" << std::endl;
+            }
+
+            if(this->HasECALDetector()) {
+                std::cout << "ECAL Geometry" << std::endl;
+                std::cout << "ECAL Barrel inner radius: " << GetECALInnerBarrelRadius() << " cm" << std::endl;
+                std::cout << "ECAL Barrel outer radius: " << GetECALOuterBarrelRadius() << " cm" << std::endl;
+                std::cout << "ECAL Endcap inside PV: " << !fECALEndcapOutside << std::endl;
+                std::cout << "ECAL Endcap inner radius: " << GetECALInnerEndcapRadius() << " cm" << std::endl;
+                std::cout << "ECAL Endcap outer radius: " << GetECALOuterEndcapRadius() << " cm" << std::endl;
+                std::cout << "ECAL Barrel inner symmetry: " << GetECALInnerSymmetry() << std::endl;
+                std::cout << "ECAL Barrel polyhedra angle: " << GetECALInnerAngle()*180/M_PI << " deg" << std::endl;
+                std::cout << "ECAL Barrel polyhedra side length: " << GetECALBarrelSideLength() << " cm" << std::endl;
+                std::cout << "ECAL Barrel polyhedra apothem length: " << GetECALBarrelApothemLength() << " cm" << std::endl;
+                if(fECALEndcapOutside){
+                    std::cout << "ECAL Endcap polyhedra side length: " << GetECALEndcapSideLength() << " cm" << std::endl;
+                    std::cout << "ECAL Endcap polyhedra apothem length: " << GetECALEndcapApothemLength() << " cm" << std::endl;
+                }
+                std::cout << "ECAL Endcap Start X: " << GetECALEndcapStartX() << " cm" << std::endl;
+                std::cout << "ECAL Endcap Outer X: " << GetECALEndcapOuterX() << " cm" << std::endl;
+                std::cout << "Number of layers: " << GetNLayers("ECAL") << std::endl;
+                std::cout << "Pressure Vessel Thickness: " << GetPVThickness() << " cm" << std::endl;
+                std::cout << "------------------------------\n" << std::endl;
+            }
+
+            if(this->HasTrackerScDetector()) {
+
+                std::cout << "ND-GAr Lite Geometry" << std::endl;
+                std::cout << "ND-GAr Lite Origin (x, y, z) " << GArLiteXCent() << " cm " << GArLiteYCent() << " cm " << GArLiteZCent() << " cm" << std::endl;
+                std::cout << "ND-GAr Lite Active Volume Size (R, L) " << GArLiteRadius() << " cm " << GArLiteLength() << " cm" << std::endl;
+                std::cout << "------------------------------\n" << std::endl;
+            }
+
+            if(this->HasMuonDetector()) {
+                std::cout << "MuID Geometry" << std::endl;
+                std::cout << "MuID Barrel inner radius: " << GetMuIDInnerBarrelRadius() << " cm" << std::endl;
+                std::cout << "MuID Barrel outer radius: " << GetMuIDOuterBarrelRadius() << " cm" << std::endl;
+                std::cout << "MuID Barrel inner symmetry: " << GetECALInnerSymmetry() << std::endl;
+                std::cout << "MuID Barrel polyhedra angle: " << GetMuIDInnerAngle()*180/M_PI << " deg" << std::endl;
+                std::cout << "MuID Barrel polyhedra side length: " << GetMuIDBarrelSideLength() << " cm" << std::endl;
+                std::cout << "MuID Barrel polyhedra apothem length: " << GetMuIDBarrelApothemLength() << " cm" << std::endl;
+                std::cout << "Number of layers: " << GetNLayers("MuID") << std::endl;
+                std::cout << "------------------------------\n" << std::endl;
+            }
+        }
+
+        //......................................................................
+        bool GeometryCore::FindWorldVolume()
+        {
+            std::vector<TGeoNode const*> path = this->FindVolumePath("volWorld");
+            if(path.size() == 0) return false;
+
+            const TGeoNode *world_node = path.at(path.size()-1);
+            if(world_node == nullptr) {
+                std::cout << "Cannot find node volWorld_0" << std::endl;
+                return false;
+            }
+
+            const double *origin = world_node->GetMatrix()->GetTranslation();
+
+            fWorldX = origin[0];
+            fWorldY = origin[1];
+            fWorldZ = origin[2];
+
+            fWorldHalfWidth = ((TGeoBBox*)world_node->GetVolume()->GetShape())->GetDZ();
+            fWorldHalfHeight = ((TGeoBBox*)world_node->GetVolume()->GetShape())->GetDY();
+            fWorldLength = 2.0 * ((TGeoBBox*)world_node->GetVolume()->GetShape())->GetDX();
+
+            return true;
+        }
+
+        //......................................................................
+        bool GeometryCore::FindRockVolume()
+        {
+            std::vector<TGeoNode const*> path = this->FindVolumePath("rockBox_lv");
+            if(path.size() == 0) return false;
+
+            const TGeoNode *rock_node = path.at(path.size()-1);
+            if(rock_node == nullptr) {
+                std::cout << "Cannot find node rockBox_lv_0" << std::endl;
+                return false;
+            }
+
+            const double *origin = rock_node->GetMatrix()->GetTranslation();
+
+            fRockX = origin[0];
+            fRockY = origin[1];
+            fRockZ = origin[2];
+
+            fRockHalfWidth = ((TGeoBBox*)rock_node->GetVolume()->GetShape())->GetDZ();
+            fRockHalfHeight = ((TGeoBBox*)rock_node->GetVolume()->GetShape())->GetDY();
+            fRockLength = 2.0 * ((TGeoBBox*)rock_node->GetVolume()->GetShape())->GetDX();
+
+            return true;
+        }
+
+        //......................................................................
+        bool GeometryCore::FindEnclosureVolume()
+        {
+            std::vector<TGeoNode const*> path = this->FindVolumePath("volDetEnclosure");
+            if(path.size() == 0) return false;
+
+            const TGeoNode *enc_node = path.at(path.size()-1);
+            if(enc_node == nullptr) {
+                std::cout << "Cannot find node volDetEnclosure_0" << std::endl;
+                return false;
+            }
+
+            const double *origin = enc_node->GetMatrix()->GetTranslation();
+
+            fEnclosureX = origin[0];
+            fEnclosureY = origin[1];
+            fEnclosureZ = origin[2];
+
+            fEnclosureHalfWidth = ((TGeoBBox*)enc_node->GetVolume()->GetShape())->GetDZ();
+            fEnclosureHalfHeight = ((TGeoBBox*)enc_node->GetVolume()->GetShape())->GetDY();
+            fEnclosureLength = 2.0 * ((TGeoBBox*)enc_node->GetVolume()->GetShape())->GetDX();
+
+            return true;
+        }
+
+        //......................................................................
+        bool GeometryCore::FindLArTPCVolume()
+        {
+            std::vector<TGeoNode const*> path = this->FindVolumePath("volArgonCubeDetector");
+            if(path.size() == 0)
+            return false;
+
+            const TGeoNode *lar_node = path.at(path.size()-1);
+            if(lar_node == nullptr) {
+                std::cout << "Cannot find node volArgonCubeDetector_0" << std::endl;
+                return false;
+            }
+
+            const double *origin = lar_node->GetMatrix()->GetTranslation();
+
+            fLArTPCX = origin[0];
+            fLArTPCY = origin[1];
+            fLArTPCZ = origin[2];
+
+            fLArTPCHalfWidth = ((TGeoBBox*)lar_node->GetVolume()->GetShape())->GetDZ();
+            fLArTPCHalfHeight = ((TGeoBBox*)lar_node->GetVolume()->GetShape())->GetDY();
+            fLArTPCLength = 2.0 * ((TGeoBBox*)lar_node->GetVolume()->GetShape())->GetDX();
+
+            return true;
+        }
+
+        //......................................................................
+        bool GeometryCore::FindMPDVolume()
+        {
+            std::vector<TGeoNode const*> path = this->FindVolumePath("volMPD");
+            if(path.size() == 0)
+            return false;
+
+            const TGeoNode *mpd_node = path.at(path.size()-1);
+            if(mpd_node == nullptr) {
+                std::cout << "Cannot find node volMPD_0" << std::endl;
+                return false;
+            }
+
+            const double *origin = mpd_node->GetMatrix()->GetTranslation();
+
+            fMPDX = origin[0];
+            fMPDY = origin[1];
+            fMPDZ = origin[2];
+
+            fMPDHalfWidth = ((TGeoBBox*)mpd_node->GetVolume()->GetShape())->GetDZ();
+            fMPDHalfHeight = ((TGeoBBox*)mpd_node->GetVolume()->GetShape())->GetDY();
+            fMPDLength = 2.0 * ((TGeoBBox*)mpd_node->GetVolume()->GetShape())->GetDX();
+
+            return true;
+        }
+
+
+        //......................................................................
+        bool GeometryCore::FindActiveLArTPCVolume()
+        {
+            // check if the current level of the detector is the active TPC volume, if
+            // not, then dig a bit deeper
+            std::vector<TGeoNode const*> path = this->FindVolumePath("volArgonCubeActive");
+            if(path.size() == 0)
+            return false;
+
+            const TGeoNode *LArTPC_node = path.at(path.size()-1);
+            if(LArTPC_node == nullptr) {
+                std::cout << "Cannot find node volArgonCubeActive_0" << std::endl;
+                return false;
+            }
+
+            TGeoMatrix *mat = LArTPC_node->GetMatrix();
+            const double *origin = mat->GetTranslation();
+
+            //Get the origin correctly
+            fLArTPCXCent =  fWorldX + fRockX + fEnclosureX + fLArTPCX + origin[0];
+            fLArTPCYCent =  fWorldY + fRockY + fEnclosureY + fLArTPCY + origin[1];
+            fLArTPCZCent =  fWorldZ + fRockZ + fEnclosureZ + fLArTPCZ + origin[2];
+
+            //Get the dimension of the active volume
+            fLArTPCActiveHalfWidth = ((TGeoBBox*)LArTPC_node->GetVolume()->GetShape())->GetDZ();
+            fLArTPCActiveHalfHeight = ((TGeoBBox*)LArTPC_node->GetVolume()->GetShape())->GetDY();
+            fLArTPCActiveLength = 2.0 * ((TGeoBBox*)LArTPC_node->GetVolume()->GetShape())->GetDX();
+
+            return true;
+        }
+
+        //......................................................................
+        bool GeometryCore::FindActiveTPCVolume()
+        {
+            // check if the current level of the detector is the active TPC volume, if
+            // not, then dig a bit deeper
+            std::vector<TGeoNode const*> path = this->FindVolumePath("TPCGas_vol");
+            if(path.size() == 0)
+            path = this->FindVolumePath("volTPCGas");
+            if(path.size() == 0)
+            return false;
+
+            const TGeoNode *GArTPC_node = path.at(path.size()-1);
+            if(GArTPC_node == nullptr) {
+                std::cout << "Cannot find node TPCGas_vol_0/TPCGas_vol_0" << std::endl;
+                return false;
+            }
+
+            TGeoMatrix *mat = GArTPC_node->GetMatrix();
+            const double *origin = mat->GetTranslation();
+
+            //Get the origin correctly
+            fTPCXCent =  fWorldX + fRockX + fEnclosureX + fMPDX + origin[0];
+            fTPCYCent =  fWorldY + fRockY + fEnclosureY + fMPDY + origin[1];
+            fTPCZCent =  fWorldZ + fRockZ + fEnclosureZ + fMPDZ + origin[2];
+
+            //Get the dimension of the active volume
+            TGeoVolume *activeVol = GArTPC_node->GetVolume();
+            float rOuter = ((TGeoTube*)activeVol->GetShape())->GetRmax();
+
+            fTPCRadius = rOuter;
+            fTPCLength = 2.0 * ((TGeoTube*)activeVol->GetShape())->GetDZ();
+
+            return true;
+        }
+
+        //----------------------------------------------------------------------------
+        bool GeometryCore::FindGasTPCVolume()
+        {
+            TGeoVolume *vol = gGeoManager->FindVolumeFast("volGArTPC");
+            if(!vol)
+            return false;
+
+            return true;
+        }
+
+        //----------------------------------------------------------------------------
+        bool GeometryCore::FindECALVolume()
+        {
+            TGeoVolume *vol = gGeoManager->FindVolumeFast("BarrelECal_vol");
+            if(!vol)
+            vol = gGeoManager->FindVolumeFast("volBarrelECal");
+            if(!vol)
+            return false;
+
+            return true;
+        }
+
+        //----------------------------------------------------------------------------
+        bool GeometryCore::FindMuIDVolume()
+        {
+            TGeoVolume *vol = gGeoManager->FindVolumeFast("volYokeBarrel");
+            if(!vol)
+            return false;
+
+            return true;
         }
 
         //----------------------------------------------------------------------------
@@ -1343,16 +1760,6 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        void GeometryCore::StoreMuIDParameters()
-        {
-            this->FindMuIDInnerBarrelRadius();
-            this->FindMuIDOuterBarrelRadius();
-            this->FindMuIDInnerSymmetry();
-            this->FindMuIDnLayers();
-            // std::raise(SIGINT);
-        }
-
-        //----------------------------------------------------------------------------
         bool GeometryCore::FindMuIDInnerBarrelRadius()
         {
             TGeoVolume *vol = gGeoManager->FindVolumeFast("YokeBarrel_vol");
@@ -1404,302 +1811,34 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        gar::raw::CellID_t GeometryCore::GetCellID(const TGeoNode *node, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
+        bool GeometryCore::FindTrackerScVolume()
         {
-            std::string node_name = node->GetName();
-            gar::raw::CellID_t cellID = 0.;
+            std::vector<TGeoNode const*> path = this->FindVolumePath("volTracker");
+            if(path.size() == 0)
+            return false;
 
-            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
-
-                const std::array<double, 3> shape = this->FindShapeSize(node);
-                fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-                cellID = fECALSegmentationAlg->GetCellID(*this, det_id, stave, module, layer, slice, localPosition);
-
-            } else if(node_name.find("TrackerSc") != std::string::npos || node_name.find("trackersc") != std::string::npos) {
-
-                const std::array<double, 3> shape = this->FindShapeSize(node);
-                fMinervaSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-                cellID = fMinervaSegmentationAlg->GetCellID(*this, det_id, 0, 0, layer, slice, localPosition);
-
-            } else if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
-
-                const std::array<double, 3> shape = this->FindShapeSize(node);
-                fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-                cellID = fMuIDSegmentationAlg->GetCellID(*this, det_id, stave, module, layer, slice, localPosition);
-
-            } else {
-                MF_LOG_WARNING("GeometryCore::GetCellID")
-                << "Detector id " << det_id << " unknown!"
-                << " Node name " << node_name;
+            const TGeoNode *Tracker_node = path.at(path.size()-1);
+            if(Tracker_node == nullptr) {
+                std::cout << "Cannot find node volTracker_0" << std::endl;
+                return false;
             }
 
-            return cellID;
-        }
+            TGeoMatrix *mat = Tracker_node->GetMatrix();
+            const double *origin = mat->GetTranslation();
 
-        //----------------------------------------------------------------------------
-        std::string GeometryCore::GetECALCellIDEncoding() const
-        {
-            if(fECALSegmentationAlg)
-            return fECALSegmentationAlg->cellEncoding();
-            else
-            return "";
-        }
+            //Get the origin correctly
+            fGArLiteXCent =  fWorldX + fRockX + fEnclosureX + fMPDX + origin[0];
+            fGArLiteYCent =  fWorldY + fRockY + fEnclosureY + fMPDY + origin[1];
+            fGArLiteZCent =  fWorldZ + fRockZ + fEnclosureZ + fMPDZ + origin[2];
 
-        //----------------------------------------------------------------------------
-        std::string GeometryCore::GetMinervaCellIDEncoding() const
-        {
-            if(fMinervaSegmentationAlg)
-            return fMinervaSegmentationAlg->cellEncoding();
-            else
-            return "";
-        }
+            //Get the dimension of the active volume
+            TGeoVolume *activeVol = Tracker_node->GetVolume();
+            float rOuter = ((TGeoTube*)activeVol->GetShape())->GetRmax();
 
-        //----------------------------------------------------------------------------
-        std::string GeometryCore::GetMuIDCellIDEncoding() const
-        {
-            if(fMuIDSegmentationAlg)
-            return fMuIDSegmentationAlg->cellEncoding();
-            else
-            return "";
-        }
+            fGArLiteRadius = rOuter;
+            fGArLiteLength = 2.0 * ((TGeoTube*)activeVol->GetShape())->GetDZ();
 
-        //----------------------------------------------------------------------------
-        std::array<double, 3> GeometryCore::GetPosition(const TGeoNode *node, const gar::raw::CellID_t &cID) const
-        {
-            std::string node_name = node->GetName();
-            std::array<double, 3> pos;
-
-            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
-                const std::array<double, 3> shape = this->FindShapeSize(node);
-                fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-                fECALSegmentationAlg->setVariables(GetECALInnerAngle(), GetECALEndcapSideLength());
-                pos = fECALSegmentationAlg->GetPosition(*this, cID);
-            }
-
-            if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
-                const std::array<double, 3> shape = this->FindShapeSize(node);
-                fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-                pos = fMuIDSegmentationAlg->GetPosition(*this, cID);
-            }
-
-            return pos;
-        }
-
-        //----------------------------------------------------------------------------
-        bool GeometryCore::isTile(const std::array<double, 3>& point, const gar::raw::CellID_t& cID) const
-        {
-            bool isTile = false;
-            std::string node_name = this->FindNode(point)->GetName();
-
-            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
-                isTile = fECALSegmentationAlg->isTile(cID);
-            }
-
-            if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
-                isTile = fMuIDSegmentationAlg->isTile(cID);
-            }
-
-            return isTile;
-        }
-
-        //----------------------------------------------------------------------------
-        double GeometryCore::getStripWidth(const std::array<double, 3>& point) const
-        {
-            double strip_width = 0.;
-            std::string node_name = this->FindNode(point)->GetName();
-
-            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
-                strip_width = fECALSegmentationAlg->stripSizeX();
-            }
-
-            if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
-                strip_width = fMuIDSegmentationAlg->stripSizeX();
-            }
-
-            return strip_width;
-        }
-
-        //----------------------------------------------------------------------------
-        double GeometryCore::getTileSize(const std::array<double, 3>& point) const
-        {
-            double tilesize = 0.;
-            std::string node_name = this->FindNode(point)->GetName();
-
-            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
-                tilesize = fECALSegmentationAlg->gridSizeX();
-            }
-
-            return tilesize;
-        }
-
-        //----------------------------------------------------------------------------
-        double GeometryCore::getStripLength(const std::array<double, 3>& point, const gar::raw::CellID_t &cID) const
-        {
-            double strip_length = 0.;
-            const TGeoNode *node = this->FindNode(point);
-            std::string node_name = node->GetName();
-            
-            std::array<double, 3> localtemp;
-            gar::geo::LocalTransformation<TGeoHMatrix> trans;
-            this->WorldToLocal(point, localtemp, trans);
-            const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
-
-            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
-                fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-                strip_length = fECALSegmentationAlg->getStripLength(*this, localtemp, cID);
-            }
-
-            if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
-                fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-                strip_length = fMuIDSegmentationAlg->getStripLength(*this, localtemp, cID);
-            }
-
-            return strip_length;
-        }
-
-        //----------------------------------------------------------------------------
-        std::pair<TVector3, TVector3> GeometryCore::GetStripEnds(const std::array<double, 3>& point, const gar::raw::CellID_t &cID) const
-        {
-            std::string node_name = this->FindNode(point)->GetName();
-            std::pair<TVector3, TVector3> localStripEnds;
-
-            //Get the matrix to make the transformation from Local to World
-            std::array<double, 3> localtemp;
-            gar::geo::LocalTransformation<TGeoHMatrix> trans;
-            this->WorldToLocal(point, localtemp, trans);
-            const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
-
-            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
-                fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-                localStripEnds = fECALSegmentationAlg->getStripEnds(*this, localtemp, cID);
-            }
-
-            if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
-                fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-                localStripEnds = fMuIDSegmentationAlg->getStripEnds(*this, localtemp, cID);
-            }
-
-            //Get the world coordinates from both local coordinates of the strip ends
-            std::array<double, 3> stripEnd1local = { localStripEnds.first.X(), localStripEnds.first.Y(), localStripEnds.first.Z() };
-            std::array<double, 3> stripEnd2local = { localStripEnds.second.X(), localStripEnds.second.Y(), localStripEnds.second.Z() };
-            std::array<double, 3> stripEnd1;
-            std::array<double, 3> stripEnd2;
-            this->LocalToWorld(stripEnd1local, stripEnd1, trans);
-            this->LocalToWorld(stripEnd2local, stripEnd2, trans);
-
-            return std::make_pair( TVector3(stripEnd1[0], stripEnd1[1], stripEnd1[2]), TVector3(stripEnd2[0], stripEnd2[1], stripEnd2[2]) );
-        }
-
-        //----------------------------------------------------------------------------
-        std::pair<float, float> GeometryCore::CalculateLightPropagation(const std::array<double, 3>& point, const std::array<double, 3> &local, const gar::raw::CellID_t &cID) const
-        {
-            std::pair<float, float> light_prop;
-            std::string node_name = this->FindNode(point)->GetName();
-            const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
-
-            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
-                fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-                light_prop = fECALSegmentationAlg->CalculateLightPropagation(*this, local, cID);
-            }
-
-            if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
-                fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-                light_prop = fMuIDSegmentationAlg->CalculateLightPropagation(*this, local, cID);
-            }
-
-            return light_prop;
-        }
-
-        //----------------------------------------------------------------------------
-        std::array<double, 3> GeometryCore::ReconstructStripHitPosition(const std::array<double, 3>& point, const std::array<double, 3> &local, const float &xlocal, const gar::raw::CellID_t &cID) const
-        {
-            std::array<double, 3> pos;
-            std::string node_name = this->FindNode(point)->GetName();
-            const std::array<double, 3> shape = this->FindShapeSize(this->FindNode(point));
-
-            if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
-                fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-                pos = fECALSegmentationAlg->ReconstructStripHitPosition(*this, local, xlocal, cID);
-            }
-
-            if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
-                fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
-                pos = fMuIDSegmentationAlg->ReconstructStripHitPosition(*this, local, xlocal, cID);
-            }
-
-            return pos;
-        }
-
-        //----------------------------------------------------------------------------
-        void GeometryCore::PrintGeometry() const
-        {
-            //Prints geometry parameters
-            std::cout << "------------------------------" << std::endl;
-            std::cout << "World Geometry" << std::endl;
-            std::cout << "World Origin (x, y, z) " << GetWorldX() << " cm " << GetWorldY() << " cm " << GetWorldZ() << " cm" << std::endl;
-            std::cout << "World Size (H, W, L) " << GetWorldHalfWidth() << " cm " << GetWorldHalfHeight() << " cm " << GetWorldLength() << " cm" << std::endl;
-            std::cout << "------------------------------" << std::endl;
-            std::cout << "Rock Geometry" << std::endl;
-            std::cout << "Rock Origin (x, y, z) " << GetRockX() << " cm " << GetRockY() << " cm " << GetRockZ() << " cm" << std::endl;
-            std::cout << "Rock Size (H, W, L) " << GetRockHalfWidth() << " cm " << GetRockHalfHeight() << " cm " << GetRockLength() << " cm" << std::endl;
-            std::cout << "------------------------------" << std::endl;
-            std::cout << "Enclosure Geometry" << std::endl;
-            std::cout << "Enclosure Origin (x, y, z) " << GetEnclosureX() << " cm " << GetEnclosureY() << " cm " << GetEnclosureZ() << " cm" << std::endl;
-            std::cout << "Enclosure Size (H, W, L) " << GetEnclosureHalfWidth() << " cm " << GetEnclosureHalfHeight() << " cm " << GetEnclosureLength() << " cm" << std::endl;
-            std::cout << "------------------------------" << std::endl;
-
-            if(GetLArTPCX() != 0 && GetLArTPCY() != 0 && GetLArTPCZ() != 0) {
-                std::cout << "LArArgonCube Geometry" << std::endl;
-                std::cout << "LArTPC Origin (x, y, z) " << GetLArTPCX() << " cm " << GetLArTPCY() << " cm " << GetLArTPCZ() << " cm" << std::endl;
-                std::cout << "LArTPC Size (H, W, L) " << GetLArTPCHalfWidth() << " cm " << GetLArTPCHalfHeight() << " cm " << GetLArTPCLength() << " cm" << std::endl;
-                std::cout << "------------------------------" << std::endl;
-                std::cout << "LArActiveArgonCube Geometry" << std::endl;
-                std::cout << "LArTPCActive Origin (x, y, z) " << GetActiveLArTPCX() << " cm " << GetActiveLArTPCY() << " cm " << GetActiveLArTPCZ() << " cm" << std::endl;
-                std::cout << "LArTPCActive Size (H, W, L) " << GetActiveLArTPCHalfWidth() << " cm " << GetActiveLArTPCHalfHeight() << " cm " << GetActiveLArTPCLength() << " cm" << std::endl;
-                std::cout << "------------------------------" << std::endl;
-            }
-
-            std::cout << "MPD Geometry" << std::endl;
-            std::cout << "MPD Origin (x, y, z) " << GetMPDX() << " cm " << GetMPDY() << " cm " << GetMPDZ() << " cm" << std::endl;
-            std::cout << "MPD Size (H, W, L) " << GetMPDHalfWidth() << " cm " << GetMPDHalfHeight() << " cm " << GetMPDLength() << " cm" << std::endl;
-
-            std::cout << "------------------------------" << std::endl;
-            std::cout << "TPC Geometry" << std::endl;
-            std::cout << "TPC Origin (x, y, z) " << TPCXCent() << " cm " << TPCYCent() << " cm " << TPCZCent() << " cm" << std::endl;
-            std::cout << "TPC Active Volume Size (R, L) " << TPCRadius() << " cm " << TPCLength() << " cm" << std::endl;
-            std::cout << "------------------------------\n" << std::endl;
-
-            std::cout << "ECAL Geometry" << std::endl;
-            std::cout << "ECAL Barrel inner radius: " << GetECALInnerBarrelRadius() << " cm" << std::endl;
-            std::cout << "ECAL Barrel outer radius: " << GetECALOuterBarrelRadius() << " cm" << std::endl;
-            std::cout << "ECAL Endcap inside PV: " << !fECALEndcapOutside << std::endl;
-            std::cout << "ECAL Endcap inner radius: " << GetECALInnerEndcapRadius() << " cm" << std::endl;
-            std::cout << "ECAL Endcap outer radius: " << GetECALOuterEndcapRadius() << " cm" << std::endl;
-            std::cout << "ECAL Barrel inner symmetry: " << GetECALInnerSymmetry() << std::endl;
-            std::cout << "ECAL Barrel polyhedra angle: " << GetECALInnerAngle()*180/M_PI << " deg" << std::endl;
-            std::cout << "ECAL Barrel polyhedra side length: " << GetECALBarrelSideLength() << " cm" << std::endl;
-            std::cout << "ECAL Barrel polyhedra apothem length: " << GetECALBarrelApothemLength() << " cm" << std::endl;
-            if(fECALEndcapOutside){
-                std::cout << "ECAL Endcap polyhedra side length: " << GetECALEndcapSideLength() << " cm" << std::endl;
-                std::cout << "ECAL Endcap polyhedra apothem length: " << GetECALEndcapApothemLength() << " cm" << std::endl;
-            }
-            std::cout << "ECAL Endcap Start X: " << GetECALEndcapStartX() << " cm" << std::endl;
-            std::cout << "ECAL Endcap Outer X: " << GetECALEndcapOuterX() << " cm" << std::endl;
-            std::cout << "Number of layers: " << GetNLayers("ECAL") << std::endl;
-            std::cout << "Pressure Vessel Thickness: " << GetPVThickness() << " cm" << std::endl;
-            std::cout << "------------------------------\n" << std::endl;
-            if(this->HasMuonDetector())
-            {
-                std::cout << "MuID Geometry" << std::endl;
-                std::cout << "MuID Barrel inner radius: " << GetMuIDInnerBarrelRadius() << " cm" << std::endl;
-                std::cout << "MuID Barrel outer radius: " << GetMuIDOuterBarrelRadius() << " cm" << std::endl;
-                std::cout << "MuID Barrel inner symmetry: " << GetECALInnerSymmetry() << std::endl;
-                std::cout << "MuID Barrel polyhedra angle: " << GetMuIDInnerAngle()*180/M_PI << " deg" << std::endl;
-                std::cout << "MuID Barrel polyhedra side length: " << GetMuIDBarrelSideLength() << " cm" << std::endl;
-                std::cout << "MuID Barrel polyhedra apothem length: " << GetMuIDBarrelApothemLength() << " cm" << std::endl;
-                std::cout << "Number of layers: " << GetNLayers("MuID") << std::endl;
-                std::cout << "------------------------------\n" << std::endl;
-            }
+            return true;
         }
 
         //----------------------------------------------------------------------------
@@ -1753,10 +1892,24 @@ namespace gar {
             fECALEndcapStartX = 0.;
             fECALNodePath.clear();
 
+            fHasRock = false;
+            fHasEnclosure = false;
+            fHasLArTPCDetector = false;
+            fHasGasTPCDetector = false;
+            fHasECALDetector = false;
+            fHasTrackerScDetector = false;
             fHasMuonDetector = false;
+
             fMuIDRinner = 0.;
             fMuIDRouter = 0.;
             fMuIDSymmetry = -1;
+
+            fGArLiteXCent = 0.;
+            fGArLiteYCent = 0.;
+            fGArLiteZCent = 0.;
+
+            fGArLiteRadius = 9999.;
+            fGArLiteLength = 9999.;
         }
 
         //--------------------------------------------------------------------

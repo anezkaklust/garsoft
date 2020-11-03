@@ -27,7 +27,9 @@ namespace gar {
             public:
                 Settings();
 
-                std::string     m_CaloHitCollection;               ///< The calorimeter hit collection
+                std::string     m_CaloHitCollection;                ///< The calorimeter hit collection
+
+                std::string     m_CaloHitInstanceName;              ///< The calorimeter hit instance name
 
                 float           m_eCalToMip;                        ///< The calibration from deposited ECal energy to mip
                 float           m_eCalMipThreshold;                 ///< Threshold for creating calo hits in the ECal, units mip
@@ -70,7 +72,7 @@ namespace gar {
             int GetNLayersFromEdge(const  gar::rec::CaloHit *const pCaloHit) const;
             float GetMaximumRadius(const  gar::rec::CaloHit *const pCaloHit, const unsigned int symmetryOrder, const float phi0) const;
 
-            pandora::StatusCode CollectECALCaloHits(const art::Event &pEvent, const std::string &label, CalorimeterHitVector &ecalCaloHitVector);
+            pandora::StatusCode CollectECALCaloHits(const art::Event &pEvent, const std::string &label, const std::string &instanceName, CalorimeterHitVector &ecalCaloHitVector);
 
             const Settings                      m_settings;                         ///< The calo hit creator settings
             const pandora::Pandora &            m_pandora;                          ///< Reference to the pandora object to create calo hits

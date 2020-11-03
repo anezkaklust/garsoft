@@ -32,9 +32,9 @@ namespace gar {
 
                 //std::string driftvolname = geo.GetGArTPCVolumeName();
 
-                fTPCCenter.x = geo.TPCXCent();
-                fTPCCenter.y = geo.TPCYCent();
-                fTPCCenter.z = geo.TPCZCent();
+                fTPCCenter.x = geo.GetOriginX();
+                fTPCCenter.y = geo.GetOriginY();
+                fTPCCenter.z = geo.GetOriginZ();
 
                 //std::cout << "initializing TPC channel standard map alg: " << fTPCCenter.x << " " << fTPCCenter.y << " " << fTPCCenter.z << std::endl;
 
@@ -560,7 +560,7 @@ namespace gar {
                 }
                 return;
             }
-            
+
         }
     } // namespace
 } // namespace gar

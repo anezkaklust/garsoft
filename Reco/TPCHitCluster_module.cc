@@ -69,7 +69,7 @@ namespace gar {
 //==============================================================================
 //==============================================================================
 //==============================================================================
-    TPCHitCluster::TPCHitCluster(fhicl::ParameterSet const& p) 
+    TPCHitCluster::TPCHitCluster(fhicl::ParameterSet const& p)
       : EDProducer{p}
     {
       fHitLabel         = p.get<std::string>("HitLabel","hit");
@@ -98,9 +98,9 @@ namespace gar {
     void TPCHitCluster::produce(art::Event& e)
     {
       art::ServiceHandle<geo::Geometry> euclid;
-      float xtpccent = euclid->TPCXCent();
-      float ytpccent = euclid->TPCYCent();
-      float ztpccent = euclid->TPCZCent(); 
+      float xtpccent = euclid->GetOriginX();
+      float ytpccent = euclid->GetOriginY();
+      float ztpccent = euclid->GetOriginZ();
 
       // input: hits
 
@@ -147,7 +147,7 @@ namespace gar {
           auto hitchan = hits.at(ihit).Channel();
           float chanpos[3] = {0,0,0};
           euclid->ChannelToPosition(hitchan, chanpos);
-          if (chanpos[0] > xtpccent) 
+          if (chanpos[0] > xtpccent)
             {
               side = 1;
             }
@@ -156,7 +156,7 @@ namespace gar {
               side = -1;
             }
 
-          // Clusters can be displaced in time.  We may want to save which end of the 
+          // Clusters can be displaced in time.  We may want to save which end of the
           // chamber the data came from however and not cluster together charge
           // that comes from different sides.
 
@@ -181,7 +181,7 @@ namespace gar {
               auto hitchantest = hits.at(ihc).Channel();
               float chanpostest[3] = {0,0,0};
               euclid->ChannelToPosition(hitchantest, chanpostest);
-              if (chanpostest[0] > xtpccent) 
+              if (chanpostest[0] > xtpccent)
                 {
                   sidetest = 1;
                 }
@@ -234,7 +234,7 @@ namespace gar {
                 {
                   std::cout << "Added hit with pos: " << xyz2[0] << " " << xyz2[1] << " " << xyz2[2] << std::endl;
                 }
-              
+
             }
 
           // calculate cluster charge, centroid, min and max times, and covariance
@@ -246,7 +246,7 @@ namespace gar {
           double crms = 0;           // cluster RMS in X
           double ctime = 0;          // cluster time centroid
           double cov[3][3] = { {0,0,0}, {0,0,0}, {0,0,0} };
-          
+
           for (size_t ix = 0; ix < hitsinclus.size(); ++ix)
             {
               size_t ihx = hitsinclus.at(ix);
@@ -291,7 +291,7 @@ namespace gar {
                         }
                     }
                   cov[0][0] += cfrac*TMath::Sq(hits.at(ihx).RMS());
-                } 
+                }
             }
           crms = TMath::Sqrt(cov[0][0]);  // to mean what it meant before -- RMS along the drift direction
 
@@ -300,7 +300,7 @@ namespace gar {
             {
               fcpos[i] = cpos[i];
             }
-          float fccov[6] = {(float) cov[0][0], (float) cov[1][0], (float) cov[2][0], 
+          float fccov[6] = {(float) cov[0][0], (float) cov[1][0], (float) cov[2][0],
                             (float) cov[1][1], (float) cov[1][2], (float) cov[2][2]};
 
           TPCClusterCol->emplace_back(csig,

@@ -148,7 +148,7 @@ gar::anatest::anatest(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
 
     consumes<std::vector<rec::Hit> >(fHitLabel);
     consumes<std::vector<rec::TPCCluster> >(fTPCClusterLabel);
-    consumes<std::vector<rec::Track> >(fTrackLabel);    
+    consumes<std::vector<rec::Track> >(fTrackLabel);
     consumes<art::Assns<rec::Track, rec::TPCCluster> >(fTPCClusterLabel);
     consumes<std::vector<rec::Vertex> >(fVertexLabel);
     consumes<art::Assns<rec::Track, rec::Vertex> >(fVertexLabel);
@@ -158,7 +158,7 @@ gar::anatest::anatest(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
     consumes<std::vector<rec::CaloHit> >(fCaloHitLabel);
     consumes<std::vector<rec::Cluster> >(fClusterLabel);
     consumes<art::Assns<rec::Cluster, rec::Track>>(fECALAssnLabel);
-    
+
     return;
 } // end constructor
 
@@ -170,9 +170,9 @@ gar::anatest::anatest(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
 void gar::anatest::beginJob() {
 
     art::ServiceHandle<geo::Geometry> euclid;
-    ItsInTulsa[0] = euclid->TPCXCent();
-    ItsInTulsa[1] = euclid->TPCYCent();
-    ItsInTulsa[2] = euclid->TPCZCent();
+    ItsInTulsa[0] = euclid->GetOriginX();
+    ItsInTulsa[1] = euclid->GetOriginY();
+    ItsInTulsa[2] = euclid->GetOriginZ();
 
 
 
@@ -383,9 +383,9 @@ void gar::anatest::FillVectors(art::Event const & e) {
 		if ( mcp.Mother() > 0 ) continue;
 	    if ( abs(mcp.PdgCode()) == 13 ) bt->ParticleToHits(&mcp,allhits);
 	}
- 
- 
- 
+
+
+
 
 
 /*  for ( rec::Cluster cluster : *RecoClusterHandle ) {

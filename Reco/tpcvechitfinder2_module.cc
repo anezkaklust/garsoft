@@ -117,9 +117,9 @@ namespace gar {
       auto const TPCClusterPtrMaker = art::PtrMaker<gar::rec::TPCCluster>(e, TPCClusterHandle.id());
 
       art::ServiceHandle<geo::Geometry> geo;
-      double xtpccent = geo->TPCXCent();
-      double ytpccent = geo->TPCYCent();
-      double ztpccent = geo->TPCZCent();
+      double xtpccent = geo->GetOriginX();
+      double ytpccent = geo->GetOriginY();
+      double ztpccent = geo->GetOriginZ();
       TVector3 tpccent(xtpccent,ytpccent,ztpccent);
       TVector3 xhat(1,0,0);
 
@@ -150,7 +150,7 @@ namespace gar {
               // skip TPCClusters if they are too far away from center as the
 	      // last few pad rows may have distorted TPCClusters
 
-	      if ( rclus > fTPCClusterRCut.at(ipass) ) continue;  
+	      if ( rclus > fTPCClusterRCut.at(ipass) ) continue;
 
 	      // logic to see if a hit is close to a gap and skip if it is
 	      if ( rclus > geo->GetIROCInnerRadius())
@@ -205,7 +205,7 @@ namespace gar {
 
 	  // prepare for the next pass -- find vector hits with poor chisquareds and remove them from the list.  Remove short VH's too.  Make a new
 	  // list instead of constantly removing from the existing list.  Repurpose hsi to contain the list of TPCClusters we want to reassign
-	  // on the next pass.  
+	  // on the next pass.
 
 	  if (fNPasses > 1 && ipass < fNPasses-1)
 	    {
@@ -515,7 +515,7 @@ namespace gar {
       double dirv[3] = {0,0,0};
       for (size_t i=0; i<3; ++i)
 	{
-	  dirv[i]=eigenvectors[i][0]; 
+	  dirv[i]=eigenvectors[i][0];
 	}
       dir.SetXYZ(dirv[0],dirv[1],dirv[2]);
       chi2ndf = 0;
