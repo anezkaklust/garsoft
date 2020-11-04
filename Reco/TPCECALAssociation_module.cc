@@ -89,7 +89,7 @@ namespace gar {
             fTrackEndXCut  = p.get<float>("TrackEndXCut",     215.0);
             fTrackEndRCut  = p.get<float>("TrackEndRCut",     230.0);
             fPerpRCut      = p.get<float>("fPerpRCut",         10.0);
-            fBarrelXCut    = p.get<float>("fBarrelXCut",       20.0);
+            fBarrelXCut    = p.get<float>("fBarrelXCut",       35.0);
             fEndcapRphiCut = p.get<float>("fEndXCut",          32.0);
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fClocks  = gar::providerFrom<detinfo::DetectorClocksService>();
@@ -111,7 +111,7 @@ namespace gar {
                 radClusTrack = tfs->make<TH1F>("radClusTrack",
                     "(z,y) distance from cluster to track", 100, 0.0,60.0);
                 xClusTrack   = tfs->make<TH2F>("xClusTrack",
-                    "x distance from cluster to track vs x position of track end in barrel",
+                    "x distReco/TPCECALAssociationance from cluster to track vs x position of track end in barrel",
                     100,-250.0,+250.0, 100,-200.0,+200.0);
                 phiClusTrack = tfs->make<TH1F>("phiClusTrack",
                     "angular distance from cluster to track in endcap", 90,-M_PI,+M_PI);
@@ -220,7 +220,7 @@ namespace gar {
                                 if (trackEnd[0]<-25) expected_mean = +maxXdisplacement/2.0;
                                 if (trackEnd[0]>+25) expected_mean = -maxXdisplacement/2.0;
                                 float cutQuantity = extrapXerr -expected_mean;
-                                if ( abs(cutQuantity) > maxXdisplacement+fBarrelXCut ) {
+                                if ( abs(cutQuantity) > maxXdisplacement/2.0+fBarrelXCut ) {
                                     continue;
                                 }
                             } else {
@@ -229,7 +229,7 @@ namespace gar {
                                                       / tan(trackPar[4]);
                                 if ( abs(radiansInDrift) >= 2.0*M_PI ) {
                                     // Drat!  No distinguishing power here.
-                                    continue;
+                                    break;
                                 }
                                 int errcode = util::TrackPropagator::PropagateToX(
                                     trackPar,trackEnd, xClus, retXYZ);
