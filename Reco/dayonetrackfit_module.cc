@@ -143,10 +143,10 @@ namespace gar {
       G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 
       art::ServiceHandle<geo::Geometry> geo;
-      double xtpccent = geo->GetOriginX();
-      double ytpccent = geo->GetOriginY();
-      double ztpccent = geo->GetOriginZ();
-      TVector3 tpccent(xtpccent,ytpccent,ztpccent);
+      //double xtpccent = geo->GetOriginX();
+      //double ytpccent = geo->GetOriginY();
+      //double ztpccent = geo->GetOriginZ();
+      //TVector3 tpccent(xtpccent,ytpccent,ztpccent);
       TVector3 xhat(1,0,0);
 
       const art::FindManyP<gar::rec::TPCCluster> TPCClustersFromPatRecTracks(patrecTrackHandle,e,fPatRecLabel);

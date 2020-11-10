@@ -187,9 +187,9 @@ namespace gar {
       G4ThreeVector zerovec(0,0,0);
       G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 
-      double xtpccent = euclid->GetOriginX();
-      double ytpccent = euclid->GetOriginY();
-      double ztpccent = euclid->GetOriginZ();
+      double xtpccent = euclid->TPCXCent();
+      double ytpccent = euclid->TPCYCent();
+      double ztpccent = euclid->TPCZCent();
       TVector3 tpccent(xtpccent,ytpccent,ztpccent);
       TVector3 xhat(1,0,0);
 

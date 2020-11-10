@@ -98,9 +98,9 @@ namespace gar {
     void TPCHitCluster::produce(art::Event& e)
     {
       art::ServiceHandle<geo::Geometry> euclid;
-      float xtpccent = euclid->GetOriginX();
-      float ytpccent = euclid->GetOriginY();
-      float ztpccent = euclid->GetOriginZ();
+      float xtpccent = euclid->TPCXCent();
+      float ytpccent = euclid->TPCYCent();
+      float ztpccent = euclid->TPCZCent();
 
       // input: hits
 

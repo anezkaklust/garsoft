@@ -159,7 +159,7 @@ namespace gar {
       } trkiend_t;
 
       art::ServiceHandle<geo::Geometry> geo;
-      float xtpccent = geo->GetOriginX();
+      float xtpccent = geo->TPCXCent();
 
       // get the distance corresponding to one ADC tick so we can report the time in ticks
 
@@ -650,7 +650,7 @@ namespace gar {
       // G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 
       art::ServiceHandle<geo::Geometry> geo;
-      double xtpccent = geo->GetOriginX();
+      double xtpccent = geo->TPCXCent();
       TVector3 xhat(1,0,0);
       TVector3 xcentv = xhat*xtpccent;
 

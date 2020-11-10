@@ -117,9 +117,9 @@ namespace gar {
       auto const TPCClusterPtrMaker = art::PtrMaker<gar::rec::TPCCluster>(e, TPCClusterHandle.id());
 
       art::ServiceHandle<geo::Geometry> geo;
-      double xtpccent = geo->GetOriginX();
-      double ytpccent = geo->GetOriginY();
-      double ztpccent = geo->GetOriginZ();
+      double xtpccent = geo->TPCXCent();
+      double ytpccent = geo->TPCYCent();
+      double ztpccent = geo->TPCZCent();
       TVector3 tpccent(xtpccent,ytpccent,ztpccent);
       TVector3 xhat(1,0,0);
 
