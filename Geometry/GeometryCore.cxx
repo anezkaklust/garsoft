@@ -1011,10 +1011,13 @@ namespace gar {
         //----------------------------------------------------------------------------
         void GeometryCore::GetGeometryParameters()
         {
-            GetDetectorsPresent();
 
-            if(fHasGasTPCDetector)
-            StoreTPCParameters();
+	    // move this ahead of the segmentation call in the service
+            //GetDetectorsPresent();
+
+            //if(fHasGasTPCDetector)
+            //StoreTPCParameters();
+
             if(fHasECALDetector)
             StoreECALParameters();
             if(fHasMuonDetector)
@@ -1075,6 +1078,7 @@ namespace gar {
         //----------------------------------------------------------------------------
         void GeometryCore::StoreTPCParameters()
         {
+	  if(!fHasGasTPCDetector) return;
             FindActiveTPCVolume();
         }
 

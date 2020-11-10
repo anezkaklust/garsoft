@@ -32,11 +32,11 @@ namespace gar {
 
                 //std::string driftvolname = geo.GetGArTPCVolumeName();
 
-                fTPCCenter.x = geo.GetOriginX();
-                fTPCCenter.y = geo.GetOriginY();
-                fTPCCenter.z = geo.GetOriginZ();
+                fTPCCenter.x = geo.TPCXCent();
+                fTPCCenter.y = geo.TPCYCent();
+                fTPCCenter.z = geo.TPCZCent();
 
-                //std::cout << "initializing TPC channel standard map alg: " << fTPCCenter.x << " " << fTPCCenter.y << " " << fTPCCenter.z << std::endl;
+                std::cout << "initializing TPC channel standard map alg with TPC Center:  " << fTPCCenter.x << " " << fTPCCenter.y << " " << fTPCCenter.z << std::endl;
 
                 // get these from the geometry?
                 // all dimensions are in cm

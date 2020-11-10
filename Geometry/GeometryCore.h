@@ -1062,6 +1062,9 @@ namespace gar {
         //Prints information on the detector geometry
         void PrintGeometry() const;
 
+        void StoreTPCParameters();
+        void GetDetectorsPresent();
+
     private:
 
         void InitVariables();
@@ -1069,8 +1072,6 @@ namespace gar {
         /// Deletes the detector geometry structures
         void ClearGeometry();
 
-        void GetDetectorsPresent();
-        void StoreTPCParameters();
         void StoreECALParameters();
         //Muon ID detector
         void StoreMuIDParameters();

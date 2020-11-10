@@ -186,6 +186,10 @@ namespace gar {
             // initialize the geometry with the files we have found
             LoadGeometryFile(GDMLfile, ROOTfile, bForceReload);
 
+	    GetDetectorsPresent();
+
+	    StoreTPCParameters();
+
             // now init the detector Segmentations (Channel Map, ECAL etc...)
             InitializeSegmentations();
 
