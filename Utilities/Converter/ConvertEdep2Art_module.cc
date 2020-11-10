@@ -825,7 +825,7 @@ namespace util {
 
                     int trackID = hit->GetPrimaryId();
                     double edep = hit->GetEnergyDeposit() * CLHEP::MeV / CLHEP::GeV;
-                    double time = (hit->GetStart().T() + hit->GetStop().T())/2 / CLHEP::s;
+                    double time = (hit->GetStart().T() + hit->GetStop().T())/2 / CLHEP::ns;
                     double x = (hit->GetStart().X() + hit->GetStop().X())/2 /CLHEP::cm;
                     double y = (hit->GetStart().Y() + hit->GetStop().Y())/2 /CLHEP::cm;
                     double z = (hit->GetStart().Z() + hit->GetStop().Z())/2 /CLHEP::cm;
