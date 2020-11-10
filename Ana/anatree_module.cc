@@ -571,9 +571,9 @@ fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "See
 //==============================================================================
 void gar::anatree::beginJob() {
 
-    ItsInTulsa[0] = fGeo->GetOriginX();
-    ItsInTulsa[1] = fGeo->GetOriginY();
-    ItsInTulsa[2] = fGeo->GetOriginZ();
+    ItsInTulsa[0] = fGeo->TPCXCent();
+    ItsInTulsa[1] = fGeo->TPCYCent();
+    ItsInTulsa[2] = fGeo->TPCZCent();
 
     xTPC = fGeo->TPCLength() / 2.;
     rTPC = fGeo->TPCRadius();
