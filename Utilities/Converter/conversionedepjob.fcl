@@ -4,7 +4,7 @@
 #include "DetectorProperties.fcl"
 #include "GArProperties.fcl"
 #include "ECALProperties.fcl"
-#include "Geometry.fcl"
+#include "Geometry_CDR.fcl"
 
 process_name: ConvertEdep2ArtProc
 
