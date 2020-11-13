@@ -26,9 +26,9 @@
 #include "TVector3.h"
 
 #include "Geant4/G4ThreeVector.hh"
-#include "nug4/MagneticField/MagneticField.h"
 
 // GArSoft Includes
+#include "DetectorInfo/MPDMagneticField.h"
 #include "ReconstructionDataProducts/TPCCluster.h"
 #include "ReconstructionDataProducts/VecHit.h"
 #include "ReconstructionDataProducts/Track.h"
@@ -131,7 +131,7 @@ namespace gar {
 
       const art::FindManyP<gar::rec::TPCCluster> TPCClustersFromVecHits(vechitHandle,e,fVecHitLabel);
 
-      art::ServiceHandle<mag::MagneticField> magFieldService;
+      art::ServiceHandle<mag::MPDMagneticField> magFieldService;
       G4ThreeVector zerovec(0,0,0);
       G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 

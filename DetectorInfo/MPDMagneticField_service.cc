@@ -67,7 +67,7 @@ void MPDMagneticField::reconfigure(fhicl::ParameterSet const& pset)
             continue;
 
         fieldDescription.fScaleFactor = itr.get<float>("ScaleFactor", 1.0);
-        fieldDescription.fVolume = itr.get<std::string>("MagnetizedVolume");
+        fieldDescription.fVolume      = itr.get<std::string>("MagnetizedVolume");
         fieldDescription.fGeoVol = gGeoManager->FindVolumeFast(fieldDescription.fVolume.c_str());
 
         // check that we have a good volume
@@ -111,8 +111,8 @@ void MPDMagneticField::reconfigure(fhicl::ParameterSet const& pset)
             std::vector<double> CoordOffset = itr.get<std::vector<double>>("CoordOffset");
             rzmap.CoordOffset.SetXYZ(CoordOffset[0], CoordOffset[1], CoordOffset[2]);
 
-            std::cout << "MPDMagneticField: Finished reading RZ map, now setting it: " << rzmap.dr << " "
-                      << rzmap.dz << std::endl;
+            std::cout << "MPDMagneticField: Finished reading RZ map, now setting it: " << rzmap.dr
+                      << " " << rzmap.dz << std::endl;
             std::cout << "Array sizes (R, Z): " << rzmap.br.size() << " " << rzmap.br[0].size()
                       << std::endl;
             fieldDescription.fRZFieldMap = rzmap;
@@ -140,7 +140,8 @@ void MPDMagneticField::reconfigure(fhicl::ParameterSet const& pset)
 
             auto end = std::chrono::steady_clock::now();
 
-            std::vector<double> ZAxis = itr.get<std::vector<double>>("ZAxis", std::vector<double>{0.0, 0.0, 1.0});
+            std::vector<double> ZAxis
+                = itr.get<std::vector<double>>("ZAxis", std::vector<double>{0.0, 0.0, 1.0});
             xyzmap.ZAxis.SetXYZ(ZAxis[0], ZAxis[1], ZAxis[2]);
 
             xyzmap.CoordOffset.SetXYZ(xyzmap.xo, xyzmap.yo, xyzmap.zo);
@@ -149,7 +150,8 @@ void MPDMagneticField::reconfigure(fhicl::ParameterSet const& pset)
                       << "s." << std::endl;
 
             xyzmap.UseSymmetry = itr.get<bool>("UseSymmetry", false);
-            std::cout << "MPDMagneticField: Is map symmetric - " << std::boolalpha << xyzmap.UseSymmetry << std::endl;
+            std::cout << "MPDMagneticField: Is map symmetric - " << std::boolalpha
+                      << xyzmap.UseSymmetry << std::endl;
             fieldDescription.fXYZFieldMap = xyzmap;
         }
 
@@ -176,8 +178,10 @@ void MPDMagneticField::reconfigure(fhicl::ParameterSet const& pset)
     auto start = std::chrono::steady_clock::now();
     MakeCheckPlots();
     auto end = std::chrono::steady_clock::now();
+
     std::chrono::duration<double> elapsed_seconds = end - start;
-    std::cout << "MPDMagneticField: B-Field map plots made in: " << elapsed_seconds.count() << "s.\n";
+    std::cout << "MPDMagneticField: B-Field map plots made in: " << elapsed_seconds.count()
+              << "s.\n";
 
     return;
 }
@@ -420,16 +424,15 @@ void MPDMagneticField::MakeCheckPlots()
 
 void MPDMagneticField::ReadRZFile(const std::string& filename, RZFieldMap& rzmap)
 {
-    std::cout << "MPDMagneticField: Opening magnetic field RZ map in: " << filename
-        << std::endl;
+    std::cout << "MPDMagneticField: Opening magnetic field RZ map in: " << filename << std::endl;
     std::ifstream inFile(filename, std::ios::in);
     std::string line;
 
     int rcounter = -1;
-    float rcur = 0;
-    float zcur = 0;
-    rzmap.dr   = 0;
-    rzmap.dz   = 0;
+    float rcur   = 0;
+    float zcur   = 0;
+    rzmap.dr     = 0;
+    rzmap.dz     = 0;
 
     while(std::getline(inFile, line))
     {
@@ -473,8 +476,7 @@ void MPDMagneticField::ReadRZFile(const std::string& filename, RZFieldMap& rzmap
 
 void MPDMagneticField::ReadXYZFile(const std::string& filename, XYZFieldMap& xyzmap)
 {
-    std::cout << "MPDMagneticField: Opening magnetic field XYZ map in: " << filename
-        << std::endl;
+    std::cout << "MPDMagneticField: Opening magnetic field XYZ map in: " << filename << std::endl;
     std::fstream fin(filename, std::fstream::in);
     std::string line;
 
@@ -488,10 +490,9 @@ void MPDMagneticField::ReadXYZFile(const std::string& filename, XYZFieldMap& xyz
         if(ss.str().front() == '#')
             continue;
 
-        ss >> xyzmap.xo >> xyzmap.yo >> xyzmap.zo
-           >> xyzmap.dx >> xyzmap.dy >> xyzmap.dz;
+        ss >> xyzmap.xo >> xyzmap.yo >> xyzmap.zo >> xyzmap.dx >> xyzmap.dy >> xyzmap.dz;
 
-        //Position coordinates need to be in cm
+        // Position coordinates need to be in cm
         xyzmap.xo *= 100.0;
         xyzmap.yo *= 100.0;
         xyzmap.zo *= 100.0;
@@ -512,7 +513,7 @@ void MPDMagneticField::ReadXYZFile(const std::string& filename, XYZFieldMap& xyz
 
         ss >> x >> y >> z >> fx >> fy >> fz >> f;
 
-        //Position coordinates need to be in cm
+        // Position coordinates need to be in cm
         x *= 100.0;
         y *= 100.0;
         z *= 100.0;
@@ -554,13 +555,11 @@ G4ThreeVector MPDMagneticField::CalcRZField(G4ThreeVector const& p, RZFieldMap c
     // check for validity
     if(rzm.dr <= 0)
     {
-        throw cet::exception("MPDMagneticFieldService: RZ map bad R spacing:")
-            << rzm.dr;
+        throw cet::exception("MPDMagneticFieldService: RZ map bad R spacing:") << rzm.dr;
     }
     if(rzm.dz <= 0)
     {
-        throw cet::exception("MPDMagneticFieldService: RZ map bad Z spacing:")
-            << rzm.dz;
+        throw cet::exception("MPDMagneticFieldService: RZ map bad Z spacing:") << rzm.dz;
     }
 
     TVector3 pv(p.x(), p.y(), p.z());
@@ -586,14 +585,14 @@ G4ThreeVector MPDMagneticField::CalcRZField(G4ThreeVector const& p, RZFieldMap c
 
         if(ibinz == 0)
         {
-            float dbz = ((rzm.bz.at(ibinr).at(ibinz + 1) - bzcomponent) / rzm.dz)
-                * (azloc - (int)azloc);
+            float dbz
+                = ((rzm.bz.at(ibinr).at(ibinz + 1) - bzcomponent) / rzm.dz) * (azloc - (int)azloc);
             bzcomponent += dbz;
         }
         else
         {
             float dbz = (bzcomponent - (rzm.bz.at(ibinr).at(ibinz - 1)) / rzm.dz)
-                * (azloc - rzm.dz * ((int)azloc / rzm.dz));
+                        * (azloc - rzm.dz * ((int)azloc / rzm.dz));
             bzcomponent += dbz;
         }
         fv = bzcomponent * rzm.ZAxis; // z component of field.
@@ -602,13 +601,13 @@ G4ThreeVector MPDMagneticField::CalcRZField(G4ThreeVector const& p, RZFieldMap c
         if(ibinr == 0)
         {
             float dbr = ((rzm.br.at(ibinr + 1).at(ibinz) - bradial) / rzm.dr)
-                * (rloc - rzm.dr * ((int)rloc / rzm.dr));
+                        * (rloc - rzm.dr * ((int)rloc / rzm.dr));
             bradial += dbr;
         }
         else
         {
             float dbr = (bradial - (rzm.br.at(ibinr - 1).at(ibinz)) / rzm.dr)
-                * (rloc - rzm.dr * ((int)rloc / rzm.dr));
+                        * (rloc - rzm.dr * ((int)rloc / rzm.dr));
             bradial += dbr;
         }
 
@@ -649,18 +648,19 @@ G4ThreeVector MPDMagneticField::CalcXYZField(G4ThreeVector const& p, XYZFieldMap
     return G4ThreeVector(bx, by, bz);
 }
 
-Interpolator::Interpolator()
+Interpolator::Interpolator() {}
+
+float Interpolator::interpolate(const float* point,
+                                const std::vector<std::vector<std::vector<float>>>& g,
+                                const float* delta, const float* offset) const
 {
+    return interpolate(point[0], point[1], point[2], g, delta[0], delta[1], delta[2], offset[0],
+                       offset[1], offset[2]);
 }
 
-float Interpolator::interpolate(const float* point, const std::vector<std::vector<std::vector<float>>>& g,
-                   const float* delta, const float* offset) const
-{
-    return interpolate(point[0], point[1], point[2], g, delta[0], delta[1], delta[2], offset[0], offset[1], offset[2]);
-}
-
-float Interpolator::interpolate(float x, float y, float z, const std::vector<std::vector<std::vector<float>>>& g,
-                                     float hx, float hy, float hz, float xo, float yo, float zo) const
+float Interpolator::interpolate(float x, float y, float z,
+                                const std::vector<std::vector<std::vector<float>>>& g, float hx,
+                                float hy, float hz, float xo, float yo, float zo) const
 {
     float v = 0;
 
@@ -717,5 +717,5 @@ float Interpolator::conv_kernel(float s) const
 
 namespace mag
 {
-    DEFINE_ART_SERVICE(mag::MPDMagneticField)
+DEFINE_ART_SERVICE(mag::MPDMagneticField)
 } // namespace mag

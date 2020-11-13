@@ -34,7 +34,7 @@ typedef enum MPDMagneticFieldMode
     kNoBFieldMode        = 0, // no field
     kConstantBFieldMode  = 1, // constant field
     kFieldRZMapMode      = 2, // read a map as a function of r and z
-    kFieldXYZMapMode     = 3  // read a map as a function of x,y,z
+    kFieldXYZMapMode     = 3 // read a map as a function of x,y,z
 } MagFieldMode_t;
 
 // assumes a square grid of R, Z samples for speed in lookup, starting at an origin 0,0
@@ -72,7 +72,6 @@ struct XYZFieldMap
     Field3D fy;
     Field3D fz;
 };
-
 
 struct MPDMagneticFieldDescription
 {
@@ -145,21 +144,17 @@ private:
 
 class Interpolator
 {
-    public:
-        Interpolator();
+public:
+    Interpolator();
 
-        float interpolate(
-            const float* point,
-            const std::vector<std::vector<std::vector<float>>>& g,
-            const float* delta, const float* offset) const;
-        float interpolate(
-            float x, float y, float z,
-            const std::vector<std::vector<std::vector<float>>>& g,
-            float hx, float hy, float hz, float xo, float yo, float zo)
-            const;
+    float interpolate(const float* point, const std::vector<std::vector<std::vector<float>>>& g,
+                      const float* delta, const float* offset) const;
+    float interpolate(float x, float y, float z,
+                      const std::vector<std::vector<std::vector<float>>>& g, float hx, float hy,
+                      float hz, float xo, float yo, float zo) const;
 
-    private:
-        float conv_kernel(float s) const;
+private:
+    float conv_kernel(float s) const;
 };
 
 } // namespace mag

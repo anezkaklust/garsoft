@@ -5,6 +5,7 @@ include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
 art_make(BASENAME_ONLY
         LIBRARY_NAME   GArReco
 	      LIB_LIBRARIES  nusimdata_SimulationBase
+                       DetectorInfo
                        Geometry
                        GArG4
                        GArRecoAlg
@@ -28,6 +29,7 @@ art_make(BASENAME_ONLY
                        ${CLHEP}
                        ${Boost_SYSTEM_LIBRARY}
                        MCCheater_BackTracker_service
+                       DetectorInfo_MPDMagneticField_service
       MODULE_LIBRARIES Geometry
                        GArG4
                        GArReco
@@ -37,6 +39,7 @@ art_make(BASENAME_ONLY
                        RawDataProducts
 		                   ReconstructionDataProducts
                        MCCheater_BackTracker_service
+                       DetectorInfo_MPDMagneticField_service
                        nusimdata_SimulationBase
                        nurandom_RandomUtils_NuRandomService_service
 		                   nug4_MagneticField_MagneticField_service
