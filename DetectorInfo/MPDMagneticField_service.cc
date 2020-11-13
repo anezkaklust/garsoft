@@ -89,10 +89,9 @@ void MPDMagneticField::reconfigure(fhicl::ParameterSet const& pset)
 
         if(fieldDescription.fMode == mag::kFieldRZMapMode)
         {
-            fieldDescription.fRZFieldMapFilename = itr.get<std::string>("RZFieldMapFilename");
+            fieldDescription.fFieldMapFilename = itr.get<std::string>("FieldMapFilename");
             cet::search_path sp("FW_SEARCH_PATH");
-            std::string fn2 = "MPD/FieldMap/";
-            fn2 += fieldDescription.fRZFieldMapFilename;
+            std::string fn2 = "MPD/FieldMap/" + fieldDescription.fFieldMapFilename;
             std::string fullname;
             sp.find_file(fn2, fullname);
 
@@ -100,83 +99,30 @@ void MPDMagneticField::reconfigure(fhicl::ParameterSet const& pset)
             if(fullname.empty() || stat(fullname.c_str(), &sb) != 0)
             {
                 throw cet::exception("RadioGen")
-                    << "Input spectrum file " << fn2 << " not found in FW_SEARCH_PATH!\n";
+                    << "Input magnetic field file " << fn2 << " not found in FW_SEARCH_PATH!\n";
             }
 
             struct RZFieldMap rzmap;
             ReadRZFile(fullname, rzmap);
 
-            /*
-            std::cout << "magnetciField: Opening magnetic field RZ map in: " << fullname
-                      << std::endl;
-            std::ifstream inFile(fullname, std::ios::in);
-            std::string line;
-
-            int rcounter = -1;
-            struct RZFieldMap rzmap;
-            float rcur = 0;
-            float zcur = 0;
-            rzmap.dr   = 0;
-            rzmap.dz   = 0;
-
-            while(std::getline(inFile, line))
-            {
-                float x  = 0;
-                float y  = 0;
-                float z  = 0;
-                float bx = 0;
-                float by = 0;
-                float bz = 0;
-                float b  = 0;
-                std::stringstream linestream(line);
-                linestream >> x >> y >> z >> bx >> by >> bz >> b;
-                // we get this in meters.  convert to cm
-                x *= 100.0;
-                y *= 100.0;
-                z *= 100.0;
-                float r  = TMath::Sqrt(x * x + y * y);
-                float br = bx; // Vladimir's map defines it this way.
-
-                std::vector<float> emptyvec;
-                if(TMath::Abs(r - rcur) > 0.001 || rcounter < 0)
-                {
-                    rzmap.br.push_back(emptyvec);
-                    rzmap.bz.push_back(emptyvec);
-                    rcounter++;
-                    if(r > rcur + 0.001)
-                    {
-                        rzmap.dr = r - rcur;
-                    }
-                    rcur = r;
-                }
-                rzmap.br[rcounter].push_back(br);
-                rzmap.bz[rcounter].push_back(bz);
-                if(z - zcur > 0.001)
-                {
-                    rzmap.dz = z - zcur;
-                }
-                zcur = z;
-            }
-            */
-
             std::vector<double> ZAxis = itr.get<std::vector<double>>("ZAxis");
             rzmap.ZAxis.SetXYZ(ZAxis[0], ZAxis[1], ZAxis[2]);
+
             std::vector<double> CoordOffset = itr.get<std::vector<double>>("CoordOffset");
             rzmap.CoordOffset.SetXYZ(CoordOffset[0], CoordOffset[1], CoordOffset[2]);
 
-            std::cout << "MPDMagneticField: Read in RZ map, now setting it: " << rzmap.dr << " "
+            std::cout << "MPDMagneticField: Finished reading RZ map, now setting it: " << rzmap.dr << " "
                       << rzmap.dz << std::endl;
-            std::cout << "array sizes: " << rzmap.br.size() << " " << rzmap.br[0].size()
+            std::cout << "Array sizes (R, Z): " << rzmap.br.size() << " " << rzmap.br[0].size()
                       << std::endl;
             fieldDescription.fRZFieldMap = rzmap;
         }
 
         if(fieldDescription.fMode == mag::kFieldXYZMapMode)
         {
-            fieldDescription.fXYZFieldMapFilename = itr.get<std::string>("XYZFieldMapFilename");
+            fieldDescription.fFieldMapFilename = itr.get<std::string>("FieldMapFilename");
             cet::search_path sp("FW_SEARCH_PATH");
-            std::string fn2 = "MPD/FieldMap/";
-            fn2 += fieldDescription.fXYZFieldMapFilename;
+            std::string fn2 = "MPD/FieldMap/" + fieldDescription.fFieldMapFilename;
             std::string fullname;
             sp.find_file(fn2, fullname);
 
@@ -184,9 +130,8 @@ void MPDMagneticField::reconfigure(fhicl::ParameterSet const& pset)
             if(fullname.empty() || stat(fullname.c_str(), &sb) != 0)
             {
                 throw cet::exception("RadioGen")
-                    << "Input spectrum file " << fn2 << " not found in FW_SEARCH_PATH!\n";
+                    << "Input magnetic field file " << fn2 << " not found in FW_SEARCH_PATH!\n";
             }
-
 
             auto start = std::chrono::steady_clock::now();
 
@@ -194,10 +139,17 @@ void MPDMagneticField::reconfigure(fhicl::ParameterSet const& pset)
             ReadXYZFile(fullname, xyzmap);
 
             auto end = std::chrono::steady_clock::now();
-            std::chrono::duration<double> elapsed_seconds = end - start;
-            std::cout << "Elapsed time: " << elapsed_seconds.count() << "s\n";
 
-            std::cout << "MPDMagneticField: Finished reading XYZ map." << std::endl;
+            std::vector<double> ZAxis = itr.get<std::vector<double>>("ZAxis", std::vector<double>{0.0, 0.0, 1.0});
+            xyzmap.ZAxis.SetXYZ(ZAxis[0], ZAxis[1], ZAxis[2]);
+
+            xyzmap.CoordOffset.SetXYZ(xyzmap.xo, xyzmap.yo, xyzmap.zo);
+            std::chrono::duration<double> elapsed_seconds = end - start;
+            std::cout << "MPDMagneticField: Finished reading XYZ map in " << elapsed_seconds.count()
+                      << "s." << std::endl;
+
+            xyzmap.UseSymmetry = itr.get<bool>("UseSymmetry", false);
+            std::cout << "MPDMagneticField: Is map symmetric - " << std::boolalpha << xyzmap.UseSymmetry << std::endl;
             fieldDescription.fXYZFieldMap = xyzmap;
         }
 
@@ -225,7 +177,7 @@ void MPDMagneticField::reconfigure(fhicl::ParameterSet const& pset)
     MakeCheckPlots();
     auto end = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
-    std::cout << "Elapsed time: " << elapsed_seconds.count() << "s\n";
+    std::cout << "MPDMagneticField: B-Field map plots made in: " << elapsed_seconds.count() << "s.\n";
 
     return;
 }
@@ -237,7 +189,6 @@ G4ThreeVector const MPDMagneticField::FieldAtPoint(G4ThreeVector const& p) const
     // Use the gGeoManager to determine what node the point
     // is in
     double point[3] = {p.x(), p.y(), p.z()};
-    TVector3 pv(p.x(), p.y(), p.z());
     G4ThreeVector zerofield(0, 0, 0);
     G4ThreeVector calculatedfield = zerofield;
 
@@ -261,93 +212,6 @@ G4ThreeVector const MPDMagneticField::FieldAtPoint(G4ThreeVector const& p) const
             else if(fd.fMode == mag::kFieldRZMapMode)
             {
                 calculatedfield = CalcRZField(p, fd.fRZFieldMap);
-
-                /*
-                // a handy name
-                auto& rzm = fd.fRZFieldMap;
-                // check for validity
-
-                if(rzm.dr <= 0)
-                {
-                    throw cet::exception("MPDMagneticFieldService: RZ map bad R spacing:")
-                        << rzm.dr;
-                }
-                if(rzm.dz <= 0)
-                {
-                    throw cet::exception("MPDMagneticFieldService: RZ map bad Z spacing:")
-                        << rzm.dz;
-                }
-
-                TVector3 ploc = pv - rzm.CoordOffset;
-                float zloc    = ploc.Dot(rzm.ZAxis);
-                float rloc    = (ploc.Cross(rzm.ZAxis)).Mag();
-                float azloc   = TMath::Abs(zloc);
-                if(azloc > rzm.dz * rzm.nz() || rloc > rzm.dr * rzm.nr())
-                {
-                    calculatedfield = zerofield; // outside the field map region
-                }
-                else
-                {
-                    TVector3 fv(0, 0, 0);
-                    size_t ibinr      = rloc / rzm.dr;
-                    size_t ibinz      = azloc / rzm.dz;
-                    float bzcomponent = rzm.bz.at(ibinr).at(ibinz); // closest grid point
-
-                    // cheesy interpolation in just one direction at a time.  A better interpolation
-                    // would be to stretch a surface around four points.
-                    // also this interpolation naively only interpolates Bz as a function of Z and
-                    // br as a function of r.  the four-point surface would be more symmetrical
-
-                    if(ibinz == 0)
-                    {
-                        float dbz = ((rzm.bz.at(ibinr).at(ibinz + 1) - bzcomponent) / rzm.dz)
-                                    * (azloc - (int)azloc);
-                        bzcomponent += dbz;
-                    }
-                    else
-                    {
-                        float dbz = (bzcomponent - (rzm.bz.at(ibinr).at(ibinz - 1)) / rzm.dz)
-                                    * (azloc - rzm.dz * ((int)azloc / rzm.dz));
-                        bzcomponent += dbz;
-                    }
-                    fv = bzcomponent * rzm.ZAxis; // z component of field.
-
-                    float bradial = rzm.br.at(ibinr).at(ibinz);
-                    if(ibinr == 0)
-                    {
-                        float dbr = ((rzm.br.at(ibinr + 1).at(ibinz) - bradial) / rzm.dr)
-                                    * (rloc - rzm.dr * ((int)rloc / rzm.dr));
-                        bradial += dbr;
-                    }
-                    else
-                    {
-                        float dbr = (bradial - (rzm.br.at(ibinr - 1).at(ibinz)) / rzm.dr)
-                                    * (rloc - rzm.dr * ((int)rloc / rzm.dr));
-                        bradial += dbr;
-                    }
-
-                    // calculate radial direction of the field
-
-                    TVector3 rperp = ploc - zloc * rzm.ZAxis;
-                    float mrp      = rperp.Mag();
-
-                    // we only can have a radial component of the field if we are at r>0
-                    if(mrp != 0)
-                    {
-                        rperp *= (1.0 / mrp);
-                        if(zloc > 0) // swap the radial field direction based on the sign of z.
-                        {
-                            fv += rperp * bradial;
-                        }
-                        else
-                        {
-                            fv -= rperp * bradial;
-                        }
-                    }
-                    G4ThreeVector fvg(fv.X(), fv.Y(), fv.Z());
-                    calculatedfield = fvg;
-                }
-                */
             }
             else if(fd.fMode == mag::kFieldXYZMapMode)
             {
@@ -365,7 +229,6 @@ G4ThreeVector const MPDMagneticField::FieldAtPoint(G4ThreeVector const& p) const
     calculatedfield *= fGlobalScaleFactor;
 
     // std::cout << "field at point: " << p << " field: " << calculatedfield << std::endl;
-    // if we get here, we can't find a field
     return calculatedfield;
 }
 
@@ -524,7 +387,6 @@ void MPDMagneticField::MakeCheckPlots()
                 axishigh.at(2)));
             TH1* bzhist = fCheckPlots.back();
 
-            /* std::fstream fout("./bfield.txt", std::fstream::out); */
             for(int j = 0; j < axisnbins.at(0); ++j)
             {
                 float axispos0
@@ -549,20 +411,16 @@ void MPDMagneticField::MakeCheckPlots()
                         bxhist->SetBinContent(j + 1, k + 1, m + 1, bfield.x());
                         byhist->SetBinContent(j + 1, k + 1, m + 1, bfield.y());
                         bzhist->SetBinContent(j + 1, k + 1, m + 1, bfield.z());
-
-                        /* fout << point.x() << " " << point.y() << " " << point.z() << " " */
-                             /* << bfield.x() << " " << bfield.y() << " " << bfield.z() << " " << bfield.mag() << "\n"; */
                     }
                 }
             }
-            /* fout.close(); */
         }
     }
 }
 
 void MPDMagneticField::ReadRZFile(const std::string& filename, RZFieldMap& rzmap)
 {
-    std::cout << "magnetciField: Opening magnetic field RZ map in: " << filename
+    std::cout << "MPDMagneticField: Opening magnetic field RZ map in: " << filename
         << std::endl;
     std::ifstream inFile(filename, std::ios::in);
     std::string line;
@@ -611,21 +469,12 @@ void MPDMagneticField::ReadRZFile(const std::string& filename, RZFieldMap& rzmap
         }
         zcur = z;
     }
-
-    //std::vector<double> ZAxis = itr.get<std::vector<double>>("ZAxis");
-    //rzmap.ZAxis.SetXYZ(ZAxis[0], ZAxis[1], ZAxis[2]);
-    //std::vector<double> CoordOffset = itr.get<std::vector<double>>("CoordOffset");
-    //rzmap.CoordOffset.SetXYZ(CoordOffset[0], CoordOffset[1], CoordOffset[2]);
-
-    //std::cout << "MPDMagneticField: Read in RZ map, now setting it: " << rzmap.dr << " "
-    //    << rzmap.dz << std::endl;
-    //std::cout << "array sizes: " << rzmap.br.size() << " " << rzmap.br[0].size()
-    //    << std::endl;
-    //fieldDescription.fRZFieldMap = rzmap;
 }
 
 void MPDMagneticField::ReadXYZFile(const std::string& filename, XYZFieldMap& xyzmap)
 {
+    std::cout << "MPDMagneticField: Opening magnetic field XYZ map in: " << filename
+        << std::endl;
     std::fstream fin(filename, std::fstream::in);
     std::string line;
 
@@ -642,7 +491,7 @@ void MPDMagneticField::ReadXYZFile(const std::string& filename, XYZFieldMap& xyz
         ss >> xyzmap.xo >> xyzmap.yo >> xyzmap.zo
            >> xyzmap.dx >> xyzmap.dy >> xyzmap.dz;
 
-        //mm to cm conversion for position coordinates
+        //Position coordinates need to be in cm
         xyzmap.xo *= 100.0;
         xyzmap.yo *= 100.0;
         xyzmap.zo *= 100.0;
@@ -653,24 +502,20 @@ void MPDMagneticField::ReadXYZFile(const std::string& filename, XYZFieldMap& xyz
         break;
     }
 
-    xyzmap.CoordOffset.SetXYZ(xyzmap.xo, xyzmap.yo, xyzmap.zo);
-    xyzmap.ZAxis.SetXYZ(0.0, 0.0, 1.0);
-
-    //while(std::getline(fin >> std::ws, line))
-    while(std::getline(fin, line))
+    while(std::getline(fin >> std::ws, line))
     {
         float x{0}, y{0}, z{0}, fx{0}, fy{0}, fz{0}, f{0};
         std::stringstream ss(line);
 
-        //if(ss.str().front() == '#')
-        //    continue;
+        if(ss.str().front() == '#')
+            continue;
 
         ss >> x >> y >> z >> fx >> fy >> fz >> f;
 
-        //mm to cm conversion for position coordinates
-        x /= 10.0;
-        y /= 10.0;
-        z /= 10.0;
+        //Position coordinates need to be in cm
+        x *= 100.0;
+        y *= 100.0;
+        z *= 100.0;
 
         if(std::abs(x - xcurr) > 0.0 || xcount < 0)
         {
@@ -680,10 +525,6 @@ void MPDMagneticField::ReadXYZFile(const std::string& filename, XYZFieldMap& xyz
             xyzmap.fx.emplace_back(std::vector<std::vector<float>>{});
             xyzmap.fy.emplace_back(std::vector<std::vector<float>>{});
             xyzmap.fz.emplace_back(std::vector<std::vector<float>>{});
-
-            xyzmap.fx.reserve(201);
-            xyzmap.fy.reserve(201);
-            xyzmap.fz.reserve(201);
         }
 
         if(std::abs(y - ycurr) > 0.0 || ycount < 0)
@@ -694,19 +535,11 @@ void MPDMagneticField::ReadXYZFile(const std::string& filename, XYZFieldMap& xyz
             xyzmap.fx[xcount].emplace_back(std::vector<float>{});
             xyzmap.fy[xcount].emplace_back(std::vector<float>{});
             xyzmap.fz[xcount].emplace_back(std::vector<float>{});
-
-            xyzmap.fx[xcount].reserve(201);
-            xyzmap.fy[xcount].reserve(201);
-            xyzmap.fz[xcount].reserve(201);
         }
 
         xyzmap.fx[xcount][ycount].push_back(fx);
         xyzmap.fy[xcount][ycount].push_back(fy);
         xyzmap.fz[xcount][ycount].push_back(fz);
-
-        xyzmap.fx[xcount][ycount].reserve(201);
-        xyzmap.fy[xcount][ycount].reserve(201);
-        xyzmap.fz[xcount][ycount].reserve(201);
 
         if(std::abs(z - zcurr) > 0.0 || zcount < 0)
         {
@@ -718,10 +551,7 @@ void MPDMagneticField::ReadXYZFile(const std::string& filename, XYZFieldMap& xyz
 
 G4ThreeVector MPDMagneticField::CalcRZField(G4ThreeVector const& p, RZFieldMap const& rzm) const
 {
-    // a handy name
-    // auto& rzm = fd.fRZFieldMap;
     // check for validity
-
     if(rzm.dr <= 0)
     {
         throw cet::exception("MPDMagneticFieldService: RZ map bad R spacing:")
@@ -740,7 +570,6 @@ G4ThreeVector MPDMagneticField::CalcRZField(G4ThreeVector const& p, RZFieldMap c
     float azloc   = TMath::Abs(zloc);
     if(azloc > rzm.dz * rzm.nz() || rloc > rzm.dr * rzm.nr())
     {
-        //calculatedfield = zerofield; // outside the field map region
         return G4ThreeVector(0, 0, 0);
     }
     else
@@ -802,19 +631,15 @@ G4ThreeVector MPDMagneticField::CalcRZField(G4ThreeVector const& p, RZFieldMap c
             }
         }
         G4ThreeVector fvg(fv.X(), fv.Y(), fv.Z());
-        //calculatedfield = fvg;
         return fvg;
     }
 }
 
 G4ThreeVector MPDMagneticField::CalcXYZField(G4ThreeVector const& p, XYZFieldMap const& fd) const
 {
-    //const float x = p.x();
-    //const float y = p.y();
-    //const float z = p.z();
-    const float x = std::abs(p.x());
-    const float y = std::abs(p.y());
-    const float z = std::abs(p.z());
+    const float x = fd.UseSymmetry ? std::abs(p.x()) : p.x();
+    const float y = fd.UseSymmetry ? std::abs(p.y()) : p.y();
+    const float z = fd.UseSymmetry ? std::abs(p.z()) : p.z();
 
     Interpolator interp;
     const float bx = interp.interpolate(x, y, z, fd.fx, fd.dx, fd.dy, fd.dz, fd.xo, fd.yo, fd.zo);

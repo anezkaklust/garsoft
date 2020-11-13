@@ -34,11 +34,10 @@ typedef enum MPDMagneticFieldMode
     kNoBFieldMode        = 0, // no field
     kConstantBFieldMode  = 1, // constant field
     kFieldRZMapMode      = 2, // read a map as a function of r and z
-    kFieldXYZMapMode     = 3
+    kFieldXYZMapMode     = 3  // read a map as a function of x,y,z
 } MagFieldMode_t;
 
 // assumes a square grid of R, Z samples for speed in lookup, starting at an origin 0,0
-
 struct RZFieldMap
 {
     TVector3 CoordOffset;
@@ -66,6 +65,7 @@ struct XYZFieldMap
 {
     TVector3 CoordOffset;
     TVector3 ZAxis;
+    bool UseSymmetry;
     float xo, yo, zo;
     float dx, dy, dz;
     Field3D fx;
@@ -80,8 +80,7 @@ struct MPDMagneticFieldDescription
     G4ThreeVector fField; ///< description of the field (uniform only)
     G4String fVolume; ///< G4 volume containing the field
     TGeoVolume* fGeoVol; ///< pointer to TGeoVolume with the field
-    std::string fRZFieldMapFilename; ///< file name for reading in the RZ field map
-    std::string fXYZFieldMapFilename; ///< file name for reading in the XYZ field map
+    std::string fFieldMapFilename; ///< file name for reading in the field map
     RZFieldMap fRZFieldMap; ///< RZ field map if needed
     XYZFieldMap fXYZFieldMap; ///< XYZ field map if needed
     float fScaleFactor; ///< Used to scale the magnetic field.
