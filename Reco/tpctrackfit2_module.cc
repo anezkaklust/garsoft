@@ -30,7 +30,7 @@
 #include "TVector3.h"
 
 // GArSoft Includes
-#include "DetectorInfo/MPDMagneticField.h"
+//#include "DetectorInfo/MPDMagneticField.h"
 #include "ReconstructionDataProducts/TPCCluster.h"
 #include "ReconstructionDataProducts/VecHit.h"
 #include "ReconstructionDataProducts/Track.h"
@@ -40,6 +40,7 @@
 #include "Reco/tracker2algs.h"
 #include "Geometry/Geometry.h"
 
+#include "nug4/MagneticField/MagneticField.h"
 #include "Geant4/G4ThreeVector.hh"
 
 namespace gar {
@@ -182,7 +183,8 @@ namespace gar {
       auto const trajPtrMaker  = art::PtrMaker<rec::TrackTrajectory>(e);
       //auto const TPCClusterPtrMaker = art::PtrMaker<gar::rec::TPCCluster>(e, TPCClusterHandle.id());
 
-      art::ServiceHandle<mag::MPDMagneticField> magFieldService;
+      //art::ServiceHandle<mag::MPDMagneticField> magFieldService;
+      art::ServiceHandle<mag::MagneticField> magFieldService;
       G4ThreeVector zerovec(0,0,0);
       G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 
