@@ -1,0 +1,25 @@
+BEGIN_PROLOG
+
+standard_hnlanalysis:
+{
+ module_type:              HNLAnalysis
+
+ GEANTLabel:               "edepconvert"
+ GEANTInstanceCalo:        "ECAL"
+ GEANTInstanceMuID:        "MuID"
+
+ TrackLabel:               "track"
+ ClusterLabel:             "calocluster"
+ ECALAssnLabel:            "trkecalassn"
+
+ # dE/dx algorithms are still here in the analysis code; hence the IonizeTruncate parameter.
+ IonizTruncate:             1.00
+
+ # The origin of an MCParticle might be a short distance from the MCTrue interaction
+ # vertex - maybe it is a pi0, tau or charm produced in the interaction and decayed
+ # by GEANT.  Count the MCParticle as from the vertex if it is less than this distance:
+ MatchMCPtoVertDist:        0.001
+
+}
+
+END_PROLOG
