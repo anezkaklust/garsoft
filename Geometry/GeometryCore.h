@@ -1059,6 +1059,7 @@ namespace gar {
         void SetDetectorName(std::string new_name) { fDetectorName = new_name; }
 
         void GetGeometryParameters();
+        void FinalizeGeometryParameters();
         //Prints information on the detector geometry
         void PrintGeometry() const;
 

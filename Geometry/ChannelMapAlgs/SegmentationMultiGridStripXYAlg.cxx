@@ -276,6 +276,7 @@ namespace gar {
                 std::cout << "identifier_layer: " << _layerId << std::endl;
                 std::cout << "identifier_slice: " << _sliceId << std::endl;
                 std::cout << "active slice: " << _active_slice << std::endl;
+                std::cout << "nlayers: " << _nLayers << std::endl;
 
                 std::cout << "grid_barrel_layers: ";
                 for(unsigned int i = 0; i < _gridBarrelLayers.size(); i++)
