@@ -78,6 +78,7 @@ namespace gar {
             const pandora::Pandora &            m_pandora;                          ///< Reference to the pandora object to create calo hits
             const geo::GeometryCore*            fGeo; //Geometry Manager
             gar::geo::BitFieldCoder const*      m_fieldDecoder;
+            float                               m_origin[3] = {0, 0, 0};
 
             const RotationTransformation &m_rotation;
 

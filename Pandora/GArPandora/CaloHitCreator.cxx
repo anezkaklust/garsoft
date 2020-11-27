@@ -22,6 +22,9 @@ namespace gar {
             fGeo = gar::providerFrom<geo::Geometry>();
             std::string fEncoding = fGeo->GetECALCellIDEncoding();
             m_fieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
+            m_origin[0] = fGeo->GetOriginX();
+            m_origin[1] = fGeo->GetOriginY();
+            m_origin[2] = fGeo->GetOriginZ();
 
             const std::vector<gar::geo::LayeredCalorimeterStruct::Layer> &barrelLayers = (fGeo->GetECALLayeredCalorimeterData()[gar::geo::LayeredCalorimeterData::BarrelLayout].get())->layers;
 
@@ -80,7 +83,7 @@ namespace gar {
                     float absorberCorrection(1.);
 
                     //Need to use X instead of Z
-                    if (std::fabs(pCaloHit->Position()[0] * CLHEP::cm) < m_settings.m_eCalBarrelOuterZ)
+                    if (std::fabs( (pCaloHit->Position()[0] - m_origin[0]) * CLHEP::cm) < m_settings.m_eCalBarrelOuterZ)
                     {
                         this->GetBarrelCaloHitProperties(pCaloHit, barrelLayers, m_settings.m_eCalBarrelInnerSymmetry, caloHitParameters, m_settings.m_eCalBarrelNormalVector, absorberCorrection);
                         caloHitParameters.m_hadronicEnergy = m_settings.m_eCalToHadGeVBarrel * pCaloHit->Energy();
@@ -99,10 +102,10 @@ namespace gar {
                     caloHitParameters.m_electromagneticEnergy = m_settings.m_eCalToEMGeV * pCaloHit->Energy();
 
                     //Check if the hit is inside the calo... could be SSA reco problems....
-                    const float rCoordinate( std::sqrt( pCaloHit->Position()[1] * pCaloHit->Position()[1] + pCaloHit->Position()[2] * pCaloHit->Position()[2]) * CLHEP::cm );
+                    const float rCoordinate( std::sqrt( (pCaloHit->Position()[1] - m_origin[1]) * (pCaloHit->Position()[1] - m_origin[1]) + (pCaloHit->Position()[2] - m_origin[2]) * (pCaloHit->Position()[2] - m_origin[2]) ) * CLHEP::cm );
                     if( rCoordinate > m_settings.m_eCalBarrelOuterR )
                     {
-                        MF_LOG_DEBUG("CaloHitCreator::CreateECalCaloHits")
+                        MF_LOG_WARNING("CaloHitCreator::CreateECalCaloHits")
                         << " Position x: " << pCaloHit->Position()[0] * CLHEP::cm
                         << " y: " << pCaloHit->Position()[1] * CLHEP::cm
                         << " z: " << pCaloHit->Position()[2] * CLHEP::cm
@@ -149,7 +152,7 @@ namespace gar {
         {
             const float *pCaloHitPosition(pCaloHit->Position());
             //Inverse X and Z for pandora to cope with the change in beam axis
-            const pandora::CartesianVector positionVector(pCaloHitPosition[0] * CLHEP::cm, pCaloHitPosition[1] * CLHEP::cm, pCaloHitPosition[2] * CLHEP::cm);
+            const pandora::CartesianVector positionVector( (pCaloHitPosition[0] - m_origin[0]) * CLHEP::cm, (pCaloHitPosition[1] - m_origin[1]) * CLHEP::cm, (pCaloHitPosition[2] - m_origin[2]) * CLHEP::cm);
             const pandora::CartesianVector newPositionVector = m_rotation.MakeRotation(positionVector);
 
             caloHitParameters.m_cellGeometry = pandora::RECTANGULAR;
