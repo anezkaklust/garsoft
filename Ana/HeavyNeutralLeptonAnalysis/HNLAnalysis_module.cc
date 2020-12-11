@@ -187,7 +187,7 @@ namespace gar {
     // MC particle enters the ECal
     std::vector<Int_t>                          fMCPInECal;
     // Matched vertex id
-    std::vector<Int_t>                          fMCPFromVertexID;
+    //std::vector<Int_t>                          fMCPFromVertexID;
 
     // ECal variables
     std::vector<Int_t>                          fNECalClustersForTrack;
@@ -206,6 +206,24 @@ namespace gar {
     std::vector<Float_t>                        fClusterMainAxisY;
     std::vector<Float_t>                        fClusterMainAxisZ;
 
+    // Neutrino truth
+    std::vector<Int_t>                          f_NeutrinoType;
+    std::vector<Int_t>                          f_CCNC;
+    std::vector<Int_t>                          f_Mode;
+    std::vector<Int_t>                          f_InteractionType;
+    std::vector<Float_t>                        f_Q2;
+    std::vector<Float_t>                        f_W;
+    std::vector<Float_t>                        f_X;
+    std::vector<Float_t>                        f_Y;
+    std::vector<Float_t>                        f_Theta;
+    std::vector<Float_t>                        f_T;
+    std::vector<Float_t>                        f_MCVertexX;
+    std::vector<Float_t>                        f_MCVertexY;
+    std::vector<Float_t>                        f_MCVertexZ;
+    std::vector<Float_t>                        f_MCnuE;
+    std::vector<Int_t>                          f_TgtPDG;
+    std::vector<Int_t>                          f_MCVertexInGasTPC;
+
     // MC truth
     std::vector<Int_t>                          fNeutrinoType;
     std::vector<Int_t>                          fCCNC;
@@ -223,9 +241,10 @@ namespace gar {
     std::vector<Float_t>                        fMCnuPx;
     std::vector<Float_t>                        fMCnuPy;
     std::vector<Float_t>                        fMCnuPz;
+    std::vector<Float_t>                        fMCnuE;
     std::vector<Int_t>                          fTgtPDG;
     std::vector<Int_t>                          fMCVertexInGasTPC;
-    std::vector<Int_t>                          fMCVertexID;
+    //std::vector<Int_t>                          fMCVertexID;
 
     // MC HNL truth decay products
     std::vector<Int_t>                          fMCP_TrackID;
@@ -239,7 +258,7 @@ namespace gar {
     std::vector<Float_t>                        fMCP_PZ;
     std::vector<Float_t>                        fMCP_E;
     std::vector<Int_t>                          fMCP_InGasTPC;
-    std::vector<Int_t>                          fMCP_VertexID;
+    //std::vector<Int_t>                          fMCP_VertexID;
 
   };
 
@@ -384,7 +403,24 @@ void gar::HNLAnalysis::beginJob() {
   fTree->Branch("MCPEndProc",                           &fMCPEndProc);
   fTree->Branch("MCPTime",                              &fMCPTime);
   fTree->Branch("MCPInECal",                            &fMCPInECal);
-  fTree->Branch("MCPFromVertexID",                      &fMCPFromVertexID);
+  //fTree->Branch("MCPFromVertexID",                      &fMCPFromVertexID);
+
+  // Neutrino truth
+  fTree->Branch("Nu_Type",                              &f_NeutrinoType);
+  fTree->Branch("Nu_CCNC",                              &f_CCNC);
+  fTree->Branch("Nu_Mode",                              &f_Mode);
+  fTree->Branch("Nu_InterT",                            &f_InteractionType);
+  fTree->Branch("Nu_Q2",                                &f_Q2);
+  fTree->Branch("Nu_W",                                 &f_W);
+  fTree->Branch("Nu_X",                                 &f_X);
+  fTree->Branch("Nu_Y",                                 &f_Y);
+  fTree->Branch("Nu_nuTheta",                           &f_Theta);
+  fTree->Branch("Nu_nuVertX",                           &f_MCVertexX);
+  fTree->Branch("Nu_nuVertY",                           &f_MCVertexY);
+  fTree->Branch("Nu_nuVertZ",                           &f_MCVertexZ);
+  fTree->Branch("Nu_E",                                 &f_MCnuE);
+  fTree->Branch("Nu_TgtPDG",                            &f_TgtPDG);
+  fTree->Branch("Nu_VertexInGasTPC",                    &f_MCVertexInGasTPC);
 
   // Truth tree
   fTruthTree = tfs->make<TTree>("GArTruthTree","GArTruthTree");
@@ -393,24 +429,25 @@ void gar::HNLAnalysis::beginJob() {
   fTruthTree->Branch("Event",                           &fEvent,                        "Event/I");
   fTruthTree->Branch("Weight",                          &fWeight,                       "Weight/F");
 
-  fTruthTree->Branch("NType",                           &fNeutrinoType);
-  fTruthTree->Branch("CCNC",                            &fCCNC);
-  fTruthTree->Branch("Mode",                            &fMode);
-  fTruthTree->Branch("InterT",                          &fInteractionType);
-  fTruthTree->Branch("MC_Q2",                           &fQ2);
-  fTruthTree->Branch("MC_W",                            &fW);
-  fTruthTree->Branch("MC_X",                            &fX);
-  fTruthTree->Branch("MC_Y",                            &fY);
-  fTruthTree->Branch("MC_Theta",                        &fTheta);
-  fTruthTree->Branch("MCVertX",                         &fMCVertexX);
-  fTruthTree->Branch("MCVertY",                         &fMCVertexY);
-  fTruthTree->Branch("MCVertZ",                         &fMCVertexZ);
-  fTruthTree->Branch("MCNuPx",                          &fMCnuPx);
-  fTruthTree->Branch("MCNuPy",                          &fMCnuPy);
-  fTruthTree->Branch("MCNuPz",                          &fMCnuPz);
-  fTruthTree->Branch("TgtPDG",                          &fTgtPDG);
-  fTruthTree->Branch("MCVertexInGasTPC",                &fMCVertexInGasTPC);
-  fTruthTree->Branch("MCVertexID",                      &fMCVertexID);
+  fTruthTree->Branch("Nu_Type",                         &fNeutrinoType);
+  fTruthTree->Branch("Nu_CCNC",                         &fCCNC);
+  fTruthTree->Branch("Nu_Mode",                         &fMode);
+  fTruthTree->Branch("Nu_InterT",                       &fInteractionType);
+  fTruthTree->Branch("Nu_Q2",                           &fQ2);
+  fTruthTree->Branch("Nu_W",                            &fW);
+  fTruthTree->Branch("Nu_X",                            &fX);
+  fTruthTree->Branch("Nu_Y",                            &fY);
+  fTruthTree->Branch("Nu_Theta",                        &fTheta);
+  fTruthTree->Branch("Nu_VertX",                        &fMCVertexX);
+  fTruthTree->Branch("Nu_VertY",                        &fMCVertexY);
+  fTruthTree->Branch("Nu_VertZ",                        &fMCVertexZ);
+  fTruthTree->Branch("Nu_Px",                           &fMCnuPx);
+  fTruthTree->Branch("Nu_Py",                           &fMCnuPy);
+  fTruthTree->Branch("Nu_Pz",                           &fMCnuPz);
+  fTruthTree->Branch("Nu_E",                            &fMCnuE);
+  fTruthTree->Branch("Nu_TgtPDG",                       &fTgtPDG);
+  fTruthTree->Branch("Nu_VertexInGasTPC",               &fMCVertexInGasTPC);
+  //fTruthTree->Branch("MCVertexID",                      &fMCVertexID);
 
   fTruthTree->Branch("MCP_TrackID",                     &fMCP_TrackID);
   fTruthTree->Branch("MCP_PDG",                         &fMCP_PDG);
@@ -423,7 +460,7 @@ void gar::HNLAnalysis::beginJob() {
   fTruthTree->Branch("MCP_PZ",                          &fMCP_PZ);
   fTruthTree->Branch("MCP_E",                           &fMCP_E);
   fTruthTree->Branch("MCP_InGasTPC",                    &fMCP_InGasTPC);
-  fTruthTree->Branch("MCP_VertexID",                    &fMCP_VertexID);
+  //fTruthTree->Branch("MCP_VertexID",                    &fMCP_VertexID);
 
   // Get histograms for TPC PID parameterization
   std::string filename = "${DUNE_PARDATA_DIR}/MPD/dedxPID/dedxpidmatrices8kevcm.root";
@@ -523,7 +560,23 @@ void gar::HNLAnalysis::ClearVectors() {
   fMCPEndProc.clear();
   fMCPTime.clear();
   fMCPInECal.clear();
-  fMCPFromVertexID.clear();
+  //fMCPFromVertexID.clear();
+
+  f_NeutrinoType.clear();
+  f_CCNC.clear();
+  f_Mode.clear();
+  f_InteractionType.clear();
+  f_Q2.clear();
+  f_W.clear();
+  f_X.clear();
+  f_Y.clear();
+  f_Theta.clear();
+  f_MCVertexX.clear();
+  f_MCVertexY.clear();
+  f_MCVertexZ.clear();
+  f_MCnuE.clear();
+  f_TgtPDG.clear();
+  f_MCVertexInGasTPC.clear();
 
   fNeutrinoType.clear();
   fCCNC.clear();
@@ -540,9 +593,10 @@ void gar::HNLAnalysis::ClearVectors() {
   fMCnuPx.clear();
   fMCnuPy.clear();
   fMCnuPz.clear();
+  fMCnuE.clear();
   fTgtPDG.clear();
   fMCVertexInGasTPC.clear();
-  fMCVertexID.clear();
+  //fMCVertexID.clear();
 
   fMCP_TrackID.clear();
   fMCP_PDG.clear();
@@ -555,7 +609,7 @@ void gar::HNLAnalysis::ClearVectors() {
   fMCP_PZ.clear();
   fMCP_E.clear();
   fMCP_InGasTPC.clear();
-  fMCP_VertexID.clear();
+  //fMCP_VertexID.clear();
   
   return;
 
@@ -610,7 +664,7 @@ void gar::HNLAnalysis::FillVectors(art::Event const& event) {
   fWeight = 1.0;
 
   // Save all neutrino vertices
-  int nuvertexid = 0;
+  //int nuvertexid = 0;
   for (size_t imchl = 0; imchl < mctruthHandles.size(); ++imchl) {
     for ( auto const& mct : (*mctruthHandles.at(imchl)) ) {
       if(mct.NeutrinoSet()){ // Standard neutrino
@@ -630,10 +684,11 @@ void gar::HNLAnalysis::FillVectors(art::Event const& event) {
 	fMCnuPx.push_back(nuw.Nu().Px());
 	fMCnuPy.push_back(nuw.Nu().Py());
 	fMCnuPz.push_back(nuw.Nu().Pz());
+	fMCnuE.push_back( sqrt(nuw.Nu().Px()*nuw.Nu().Px() + nuw.Nu().Py()*nuw.Nu().Py() + nuw.Nu().Pz()*nuw.Nu().Pz()) );
 	fTgtPDG.push_back(nuw.Target());
 	TVector3 nupos(nuw.Nu().EndX(), nuw.Nu().EndY(), nuw.Nu().EndZ());
 	fMCVertexInGasTPC.push_back(fGeo->PointInGArTPC(nupos));
-	fMCVertexID.push_back(nuvertexid++);
+	//fMCVertexID.push_back(nuvertexid++);
       }
       else{
 	fNeutrinoType.push_back(2000020000);
@@ -651,9 +706,10 @@ void gar::HNLAnalysis::FillVectors(art::Event const& event) {
         fMCnuPx.push_back(0);
         fMCnuPy.push_back(0);
         fMCnuPz.push_back(0);
+	fMCnuE.push_back(0);
         fTgtPDG.push_back(0);
         fMCVertexInGasTPC.push_back(1);
-        fMCVertexID.push_back(nuvertexid++);
+        //fMCVertexID.push_back(nuvertexid++);
       }
 
       int nparticles = mct.NParticles();
@@ -677,7 +733,7 @@ void gar::HNLAnalysis::FillVectors(art::Event const& event) {
 	fMCP_E.push_back(mcpart.E());
 	TVector3 nupos(position.X(), position.Y(), position.Z());
 	fMCP_InGasTPC.push_back(fGeo->PointInGArTPC(nupos));
-	fMCP_VertexID.push_back(nuvertexid);	
+	//fMCP_VertexID.push_back(nuvertexid);	
       }
     }
   }
@@ -938,6 +994,62 @@ void gar::HNLAnalysis::FillVectors(art::Event const& event) {
     fMCPTrackID.push_back(theMCPart.TrackId());
 
     // Find the vertex that this MCParticle is coming from
+    bool vfound = false;
+    for (size_t imchl = 0; imchl < mctruthHandles.size(); ++imchl) {
+      for ( auto const& mct : (*mctruthHandles.at(imchl)) ) {
+        if (mct.NeutrinoSet()) {
+	  simb::MCNeutrino nuw = mct.GetNeutrino();
+	  Float_t vertX = nuw.Nu().EndX();
+          Float_t vertY = nuw.Nu().EndY();
+          Float_t vertZ = nuw.Nu().EndZ();
+          Float_t dist  = std::hypot(position.X()-vertX,position.Y()-vertY,position.Z()-vertZ);
+
+	  if ( dist <= fMatchMCPtoVertDist ) { // First neutrino found
+	    f_NeutrinoType.push_back(nuw.Nu().PdgCode());
+	    f_CCNC.push_back(nuw.CCNC());
+	    f_Mode.push_back(nuw.Mode());
+	    f_InteractionType.push_back(nuw.InteractionType());
+	    f_Q2.push_back(nuw.QSqr());
+	    f_W.push_back(nuw.W());
+	    f_X.push_back(nuw.X());
+	    f_Y.push_back(nuw.Y());
+	    f_Theta.push_back(nuw.Theta());
+	    f_MCVertexX.push_back(nuw.Nu().EndX());
+	    f_MCVertexY.push_back(nuw.Nu().EndY());
+	    f_MCVertexZ.push_back(nuw.Nu().EndZ());
+	    f_MCnuE.push_back( sqrt(nuw.Nu().Px()*nuw.Nu().Px() + nuw.Nu().Py()*nuw.Nu().Py() + nuw.Nu().Pz()*nuw.Nu().Pz()) );
+	    f_TgtPDG.push_back(nuw.Target());
+	    TVector3 nupos(nuw.Nu().EndX(), nuw.Nu().EndY(), nuw.Nu().EndZ());
+	    f_MCVertexInGasTPC.push_back(fGeo->PointInGArTPC(nupos));
+	    vfound = true;
+
+	    break;
+	  }
+	}
+      }
+    }
+    
+    // Fill something if no neutrino is found 
+    if(!vfound){
+      f_NeutrinoType.push_back(0);
+      f_CCNC.push_back(0);
+      f_Mode.push_back(-1);
+      f_InteractionType.push_back(-1);
+      f_Q2.push_back(0);
+      f_W.push_back(0);
+      f_X.push_back(0);
+      f_Y.push_back(0);
+      f_Theta.push_back(0);
+      f_MCVertexX.push_back(0);
+      f_MCVertexY.push_back(0);
+      f_MCVertexZ.push_back(0);
+      f_MCnuE.push_back(0);
+      f_TgtPDG.push_back(0);
+      f_MCVertexInGasTPC.push_back(0);
+    }
+
+    /*
+    // Find the vertex that this MCParticle is coming from
     nuvertexid = 0; int hnlvertexid = 0; int count = -1;
     for (size_t imchl = 0; imchl < mctruthHandles.size(); ++imchl) {
       for ( auto const& mct : (*mctruthHandles.at(imchl)) ) {
@@ -971,7 +1083,7 @@ void gar::HNLAnalysis::FillVectors(art::Event const& event) {
     }
 
     fMCPFromVertexID.push_back(count);
-
+    */
   } // end loop over TrackHandle
 
   fNTPCTracks = (Int_t)iTrack;
