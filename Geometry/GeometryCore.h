@@ -1169,6 +1169,9 @@ namespace gar {
         float          fTPCLength = 0.;      ///< length of the TPC
 
 	int            fTPCNumDriftVols = 2; ///< 2 if standard ALICE detector, 1 if single drift vol
+	// we may need to add here a flag saying which side of the TPC the ROCs
+	// are on if we are to support both of them.  And provide initialization
+	// and a getter
 
         float          fTPCXCent = 0.;       ///< center of TPC: X
         float          fTPCYCent = 0.;       ///< center of TPC: Y
