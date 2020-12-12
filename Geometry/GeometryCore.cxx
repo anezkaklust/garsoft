@@ -1162,6 +1162,7 @@ namespace gar {
                 std::cout << "TPC Geometry" << std::endl;
                 std::cout << "TPC Origin (x, y, z) " << TPCXCent() << " cm " << TPCYCent() << " cm " << TPCZCent() << " cm" << std::endl;
                 std::cout << "TPC Active Volume Size (R, L) " << TPCRadius() << " cm " << TPCLength() << " cm" << std::endl;
+		std::cout << "TPC Number of Drift Volumes " << TPCNumDriftVols() << std::endl;
             }
 
             if(this->HasECALDetector()) {
@@ -1397,6 +1398,9 @@ namespace gar {
 
             fTPCRadius = rOuter;
             fTPCLength = 2.0 * ((TGeoTube*)activeVol->GetShape())->GetDZ();
+
+	    // suggest -- figure out how many TPC drift volumes there are and set fTPCNumDriftVols here.
+	    fTPCNumDriftVols = 2;
 
             return true;
         }
@@ -1852,6 +1856,8 @@ namespace gar {
             fEnclosureX = 0.;
             fEnclosureY = 0.;
             fEnclosureZ = 0.;
+
+	    fTPCNumDriftVols = 2;  // default to ALICE-style TPC with cathode in the middle
 
             fTPCXCent = 0.;
             fTPCYCent = 0.;

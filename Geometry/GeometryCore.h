@@ -766,6 +766,13 @@ namespace gar {
 
         //@{
         /**
+        * @brief Returns number of TPC drift volumes
+        */
+        int TPCNumDriftVols() const { return fTPCNumDriftVols; }
+        //@}
+
+        //@{
+        /**
         * @brief Returns the X location of the center of the TPC in cm
         */
         float TPCXCent() const { return fTPCXCent; }
@@ -1160,6 +1167,8 @@ namespace gar {
 
         float          fTPCRadius = 0.;      ///< Radius of the TPC
         float          fTPCLength = 0.;      ///< length of the TPC
+
+	int            fTPCNumDriftVols = 2; ///< 2 if standard ALICE detector, 1 if single drift vol
 
         float          fTPCXCent = 0.;       ///< center of TPC: X
         float          fTPCYCent = 0.;       ///< center of TPC: Y

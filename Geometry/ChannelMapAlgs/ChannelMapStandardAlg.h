@@ -15,6 +15,8 @@
 #include "Geometry/ChannelMapAlgs/ChannelMapAlg.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "Geometry/ChannelMapAlgs/AliTPCROC.h"
+#include "Geometry/Geometry.h"
+#include "CoreUtils/ServiceUtil.h"
 
 namespace gar{
     namespace geo{
@@ -58,6 +60,8 @@ namespace gar{
                 float GetOROCPadHeightChangeRadius() const override {return fOROCPadHeightChangeRadius;};
 
             private:
+
+                const gar::geo::GeometryCore* fGeo;
 
                 void NearestChannelWithROCType(float const *xyz, gar::geo::ROCType &roctype, unsigned int &nearestchannel) const;
 

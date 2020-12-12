@@ -7,9 +7,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 #include "Geometry/ChannelMapAlgs/ChannelMapStandardAlg.h"
-
 #include "TMath.h"
-
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 namespace gar {
@@ -27,6 +25,8 @@ namespace gar {
             {
                 // start over:
                 Uninitialize();
+
+		fGeo = &geo;
 
                 fROC = AliTPCROC::Instance();
 
@@ -186,7 +186,11 @@ namespace gar {
 
                 for (UInt_t ichan = 0; ichan < numchans; ++ichan)
                 {
+
                     ChannelToPosition(ichan, xyz);
+		    // if we are in just one drift volume, check only the postiive X channels
+                    if (xyz[0] < fGeo->TPCXCent() && fGeo->TPCNumDriftVols() == 1) continue; 
+
                     UInt_t chancheck = NearestChannel(xyz);
                     if (chancheck != ichan)
                     {
@@ -386,7 +390,12 @@ namespace gar {
 
                 }
 
-                if (xyz[0] > 0) ichan += fNumSectors*fNumChansPerSector + fNumChansCenter;  // the opposite side of the TPC.
+		// assume positive side X for the lone readout plane if we are using just one
+
+                if (xyz[0] > fGeo->TPCXCent() || fGeo->TPCNumDriftVols() == 1) 
+		  {
+		    ichan += fNumSectors*fNumChansPerSector + fNumChansCenter;  // the opposite side of the TPC.
+		  }
 
                 nearestchannel = TMath::Max(TMath::Min(ichan, (UInt_t) fPixelCenters.size() - 1), (UInt_t) 0);
                 return;
