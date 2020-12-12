@@ -63,7 +63,8 @@ namespace gar {
 
       //std::cout << "energy deposition: " << dep.X() << " " << dep.Y() << " " << dep.Z() << std::endl;
 
-      // The geometry has x = 0 at the cathode plane. Compute the drift time appropriately
+      // The geometry has x = TPCXCent() at the cathode plane. Compute the drift time for a two-drift-volume
+      // TPC.  If we only have one drift volume, need to get that information here.
 
       double driftD       = std::abs(std::abs(xyz[0] - fGeo->TPCXCent()) - fGeo->TPCLength()/2.0);  // assume cathode is at x=0
       double driftT       = driftD * fInverseVelocity;  // in cm
