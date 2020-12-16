@@ -1030,9 +1030,11 @@ namespace gar {
         //----------------------------------------------------------------------------
         void GeometryCore::FinalizeGeometryParameters() 
         {
-            FindECALnLayers();
-            MakeECALLayeredCalorimeterData();
-            StoreECALNodes(fECALNodePath);
+            if(fHasECALDetector) {
+                FindECALnLayers();
+                MakeECALLayeredCalorimeterData();
+                StoreECALNodes(fECALNodePath);
+            }
         }
 
         //----------------------------------------------------------------------------
