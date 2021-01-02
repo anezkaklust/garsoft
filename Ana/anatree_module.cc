@@ -5,7 +5,7 @@
 //
 // Generated at Mon Aug 27 16:41:13 2018 by Thomas Junk using cetskelgen
 // from cetlib version v3_03_01.
-// Additions from Leo Bellantoni, 2019
+// Additions from Leo Bellantoni, 2019-20
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -169,9 +169,12 @@ namespace gar {
         const geo::GeometryCore* fGeo; ///< pointer to the geometry
 
         // global event info
-        Int_t fEvent;        ///< number of the event being processed
-        Int_t fRun;          ///< number of the run being processed
-        Int_t fSubRun;       ///< number of the sub-run being processed
+        Int_t   fEvent;      ///< number of the event being processed
+        Int_t   fRun;        ///< number of the run being processed
+        Int_t   fSubRun;     ///< number of the sub-run being processed
+        Float_t fTPC_X;      ///< center of TPC stored as per-event & compressed by root
+        Float_t fTPC_Y;
+        Float_t fTPC_Z;
 
         // MCTruth data.
         // GENIE kinematics computed ignoring Fermi momentum and the off-shellness
@@ -571,9 +574,9 @@ fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "See
 //==============================================================================
 void gar::anatree::beginJob() {
 
-    ItsInTulsa[0] = fGeo->TPCXCent();
-    ItsInTulsa[1] = fGeo->TPCYCent();
-    ItsInTulsa[2] = fGeo->TPCZCent();
+    fTPC_X = ItsInTulsa[0] = fGeo->TPCXCent();
+    fTPC_Y = ItsInTulsa[1] = fGeo->TPCYCent();
+    fTPC_Z = ItsInTulsa[2] = fGeo->TPCZCent();
 
     xTPC = fGeo->TPCLength() / 2.;
     rTPC = fGeo->TPCRadius();
@@ -584,6 +587,9 @@ void gar::anatree::beginJob() {
     fTree->Branch("Run",           &fRun,         "Run/I");
     fTree->Branch("SubRun",        &fSubRun,      "SubRun/I");
     fTree->Branch("Event",         &fEvent,       "Event/I");
+    fTree->Branch("TPC_X",         &fTPC_X,       "TPC_X/F");
+    fTree->Branch("TPC_Y",         &fTPC_Y,       "TPC_Y/F");
+    fTree->Branch("TPC_Z",         &fTPC_Z,       "TPC_Z/F");
 
     if (fWriteMCinfo) {
         fTree->Branch("NType",       &fNeutrinoType);
@@ -1417,718 +1423,717 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
                     ++vertexIndex;
                 }
             }
-        }
+    }
 
-        // Now the secondaries.  As they are after the primaries, do not re-init iMCParticle
-        for (; iMCParticle<nMCParticles; ++iMCParticle) {
-            int momIndex = fMCMotherIndex[iMCParticle];
-            int lastMCParticle = iMCParticle;
-            while (momIndex != -1) {
-                lastMCParticle = momIndex;
-                momIndex       = fMCMotherIndex[momIndex];
-            }
-            fMCPVertIndex[iMCParticle] = fMCPVertIndex[lastMCParticle];
+    // Now the secondaries.  As they are after the primaries, do not re-init iMCParticle
+    for (; iMCParticle<nMCParticles; ++iMCParticle) {
+        int momIndex = fMCMotherIndex[iMCParticle];
+        int lastMCParticle = iMCParticle;
+        while (momIndex != -1) {
+            lastMCParticle = momIndex;
+            momIndex       = fMCMotherIndex[momIndex];
         }
+        fMCPVertIndex[iMCParticle] = fMCPVertIndex[lastMCParticle];
+    }
 
         if (fWriteMCPTrajectory) {
-            // It's in the MCParticle table
-            Int_t mcpIndex = 0;
-            for ( auto const& mcp : (*MCPHandle) ) {
-                const TDatabasePDG* databasePDG = TDatabasePDG::Instance();
-                const TParticlePDG* definition = databasePDG->GetParticle( mcp.PdgCode() );
-                //No charge don't store the trajectory
-                if (definition==nullptr || definition->Charge() == 0) continue;
-                //TrackID of the mcp to keep track to which mcp this trajectory is
-                int trackId = mcp.TrackId();
-                for(uint iTraj=0; iTraj < mcp.Trajectory().size(); iTraj++) {
-                    float xTraj = mcp.Trajectory().X(iTraj);
-                    float yTraj = mcp.Trajectory().Y(iTraj);
-                    float zTraj = mcp.Trajectory().Z(iTraj);
-                    float rTraj = std::hypot( yTraj - ItsInTulsa[1], zTraj - ItsInTulsa[2]);
+        // It's in the MCParticle table
+        Int_t mcpIndex = 0;
+        for ( auto const& mcp : (*MCPHandle) ) {
+            const TDatabasePDG* databasePDG = TDatabasePDG::Instance();
+            const TParticlePDG* definition = databasePDG->GetParticle( mcp.PdgCode() );
+            //No charge don't store the trajectory
+            if (definition==nullptr || definition->Charge() == 0) continue;
+            //TrackID of the mcp to keep track to which mcp this trajectory is
+            int trackId = mcp.TrackId();
+            for(uint iTraj=0; iTraj < mcp.Trajectory().size(); iTraj++) {
+                float xTraj = mcp.Trajectory().X(iTraj);
+                float yTraj = mcp.Trajectory().Y(iTraj);
+                float zTraj = mcp.Trajectory().Z(iTraj);
+                float rTraj = std::hypot( yTraj - ItsInTulsa[1], zTraj - ItsInTulsa[2]);
 
-                    if (abs(xTraj - ItsInTulsa[0]) > xTPC) continue;
-                    if (rTraj > rTPC) continue;
+                if (abs(xTraj - ItsInTulsa[0]) > xTPC) continue;
+                if (rTraj > rTPC) continue;
 
-                    fTrajMCPX.push_back(xTraj);
-                    fTrajMCPY.push_back(yTraj);
-                    fTrajMCPZ.push_back(zTraj);
-                    fTrajMCPT.push_back(mcp.Trajectory().T(iTraj));
-                    if (fWriteMCPTrajMomenta) {
-                        fTrajMCPPX.push_back(mcp.Trajectory().Px(iTraj));
-                        fTrajMCPPY.push_back(mcp.Trajectory().Py(iTraj));
-                        fTrajMCPPZ.push_back(mcp.Trajectory().Pz(iTraj));
-                    }
-                    fTrajMCPE.push_back(mcp.Trajectory().E(iTraj));
-                    fTrajMCPIndex.push_back(mcpIndex);
-                    fTrajMCPTrackID.push_back(trackId);
+                fTrajMCPX.push_back(xTraj);
+                fTrajMCPY.push_back(yTraj);
+                fTrajMCPZ.push_back(zTraj);
+                fTrajMCPT.push_back(mcp.Trajectory().T(iTraj));
+                if (fWriteMCPTrajMomenta) {
+                    fTrajMCPPX.push_back(mcp.Trajectory().Px(iTraj));
+                    fTrajMCPPY.push_back(mcp.Trajectory().Py(iTraj));
+                    fTrajMCPPZ.push_back(mcp.Trajectory().Pz(iTraj));
                 }
-                mcpIndex++;
+                fTrajMCPE.push_back(mcp.Trajectory().E(iTraj));
+                fTrajMCPIndex.push_back(mcpIndex);
+                fTrajMCPTrackID.push_back(trackId);
             }
-        }
-
-        // Get handles for MCCaloInfo
-        art::Handle< std::vector<gar::sdp::CaloDeposit> > SimHitHandle;//ecal
-        art::Handle< std::vector<gar::sdp::CaloDeposit> > MuIDSimHitHandle;//ecal
-        art::InputTag ecalgeanttag(fGeantLabel, fGeantInstanceCalo);
-        art::InputTag muidgeanttag(fGeantLabel, fGeantInstanceMuID);
-        if (fWriteMCCaloInfo) {
-            if (!e.getByLabel(ecalgeanttag, SimHitHandle)) {
-                throw cet::exception("anatree") << " No gar::sdp::CaloDeposit branch."
-                << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-            }
-            if (fGeo->HasMuonDetector() && !e.getByLabel(muidgeanttag, MuIDSimHitHandle)) {
-                throw cet::exception("anatree") << " No gar::sdp::CaloDeposit branch."
-                << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-            }
-
-            // Save simulation ecal hit info
-            for ( auto const& SimHit : (*SimHitHandle) ) {
-                fSimnHits++;
-                fSimHitX.push_back(SimHit.X());
-                fSimHitY.push_back(SimHit.Y());
-                fSimHitZ.push_back(SimHit.Z());
-                fSimHitTime.push_back(SimHit.Time());
-                fSimHitEnergy.push_back(SimHit.Energy());
-                fSimHitTrackID.push_back(SimHit.TrackID());
-                fSimHitCellID.push_back(SimHit.CellID());
-                fSimEnergySum += SimHit.Energy();
-            }
-
-            // Save simulation muon system hit info
-            if(fGeo->HasMuonDetector()) {
-                for ( auto const& SimHit : (*MuIDSimHitHandle) ) {
-                    fSimnHits_MuID++;
-                    fSimHitX_MuID.push_back(SimHit.X());
-                    fSimHitY_MuID.push_back(SimHit.Y());
-                    fSimHitZ_MuID.push_back(SimHit.Z());
-                    fSimHitTime_MuID.push_back(SimHit.Time());
-                    fSimHitEnergy_MuID.push_back(SimHit.Energy());
-                    fSimHitTrackID_MuID.push_back(SimHit.TrackID());
-                    fSimHitCellID_MuID.push_back(SimHit.CellID());
-                    fSimEnergySum_MuID += SimHit.Energy();
-                }
-            }
+            mcpIndex++;
         }
     }
 
-    //==============================================================================
-
-    void gar::anatree::FillRawInfo(art::Event const & e) {
-
-        // Get handle for CaloDigits
-        art::InputTag ecalrawtag(fRawCaloHitLabel, fRawCaloHitInstanceCalo);
-        art::InputTag muidrawtag(fRawCaloHitLabel, fRawCaloHitInstanceMuID);
-        art::Handle< std::vector<gar::raw::CaloRawDigit> > RawHitHandle;
-        art::Handle< std::vector<gar::raw::CaloRawDigit> > MuIDRawHitHandle;
-
-        if (!e.getByLabel(ecalrawtag, RawHitHandle)) {
-            throw cet::exception("anatree") << " No :raw::CaloRawDigit branch."
+    // Get handles for MCCaloInfo
+    art::Handle< std::vector<gar::sdp::CaloDeposit> > SimHitHandle;//ecal
+    art::Handle< std::vector<gar::sdp::CaloDeposit> > MuIDSimHitHandle;//ecal
+    art::InputTag ecalgeanttag(fGeantLabel, fGeantInstanceCalo);
+    art::InputTag muidgeanttag(fGeantLabel, fGeantInstanceMuID);
+    if (fWriteMCCaloInfo) {
+        if (!e.getByLabel(ecalgeanttag, SimHitHandle)) {
+            throw cet::exception("anatree") << " No gar::sdp::CaloDeposit branch."
+            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+        }
+        if (fGeo->HasMuonDetector() && !e.getByLabel(muidgeanttag, MuIDSimHitHandle)) {
+            throw cet::exception("anatree") << " No gar::sdp::CaloDeposit branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
 
-        if (fGeo->HasMuonDetector() && !e.getByLabel(muidrawtag, MuIDRawHitHandle)) {
-            throw cet::exception("anatree") << " No :raw::CaloRawDigit branch."
-            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+        // Save simulation ecal hit info
+        for ( auto const& SimHit : (*SimHitHandle) ) {
+            fSimnHits++;
+            fSimHitX.push_back(SimHit.X());
+            fSimHitY.push_back(SimHit.Y());
+            fSimHitZ.push_back(SimHit.Z());
+            fSimHitTime.push_back(SimHit.Time());
+            fSimHitEnergy.push_back(SimHit.Energy());
+            fSimHitTrackID.push_back(SimHit.TrackID());
+            fSimHitCellID.push_back(SimHit.CellID());
+            fSimEnergySum += SimHit.Energy();
         }
 
-        // save ecal raw digits info
-        for ( auto const& DigiHit : (*RawHitHandle) ) {
-            fDiginHits++;
-            fDigiHitX.push_back(DigiHit.X());
-            fDigiHitY.push_back(DigiHit.Y());
-            fDigiHitZ.push_back(DigiHit.Z());
-            fDigiHitTime.push_back( (DigiHit.Time().first + DigiHit.Time().second) / 2.0 );
-            fDigiHitADC.push_back(DigiHit.ADC().first);
-            fDigiHitCellID.push_back(DigiHit.CellID());
-        }
-
-        // save muon system raw digits info
+        // Save simulation muon system hit info
         if(fGeo->HasMuonDetector()) {
-            for ( auto const& DigiHit : (*MuIDRawHitHandle) ) {
-                fDiginHits_MuID++;
-                fDigiHitX_MuID.push_back(DigiHit.X());
-                fDigiHitY_MuID.push_back(DigiHit.Y());
-                fDigiHitZ_MuID.push_back(DigiHit.Z());
-                fDigiHitTime_MuID.push_back( (DigiHit.Time().first + DigiHit.Time().second) / 2.0 );
-                fDigiHitADC_MuID.push_back(DigiHit.ADC().first);
-                fDigiHitCellID_MuID.push_back(DigiHit.CellID());
+            for ( auto const& SimHit : (*MuIDSimHitHandle) ) {
+                fSimnHits_MuID++;
+                fSimHitX_MuID.push_back(SimHit.X());
+                fSimHitY_MuID.push_back(SimHit.Y());
+                fSimHitZ_MuID.push_back(SimHit.Z());
+                fSimHitTime_MuID.push_back(SimHit.Time());
+                fSimHitEnergy_MuID.push_back(SimHit.Energy());
+                fSimHitTrackID_MuID.push_back(SimHit.TrackID());
+                fSimHitCellID_MuID.push_back(SimHit.CellID());
+                fSimEnergySum_MuID += SimHit.Energy();
             }
         }
     }
+}
 
-    //==============================================================================
+//==============================================================================
 
-    void gar::anatree::FillRecoInfo(art::Event const & e) {
+void gar::anatree::FillRawInfo(art::Event const & e) {
 
-        // Get handle for TPC hit data
-        art::Handle< std::vector<rec::Hit> > HitHandle;
-        if (fWriteHits) {
-            if (!e.getByLabel(fHitLabel, HitHandle)) {
-                throw cet::exception("anatree") << " No rec::Hit branch."
-                << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-            }
+    // Get handle for CaloDigits
+    art::InputTag ecalrawtag(fRawCaloHitLabel, fRawCaloHitInstanceCalo);
+    art::InputTag muidrawtag(fRawCaloHitLabel, fRawCaloHitInstanceMuID);
+    art::Handle< std::vector<gar::raw::CaloRawDigit> > RawHitHandle;
+    art::Handle< std::vector<gar::raw::CaloRawDigit> > MuIDRawHitHandle;
 
-            // save hits in the TPC
-            for ( auto const& Hit : (*HitHandle) ) {
-                fHitX.push_back(Hit.Position()[0]);
-                fHitY.push_back(Hit.Position()[1]);
-                fHitZ.push_back(Hit.Position()[2]);
-                fHitSig.push_back(Hit.Signal());
-                fHitRMS.push_back(Hit.RMS());
-                fHitChan.push_back(Hit.Channel());
-            }
+    if (!e.getByLabel(ecalrawtag, RawHitHandle)) {
+        throw cet::exception("anatree") << " No :raw::CaloRawDigit branch."
+        << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+    }
+
+    if (fGeo->HasMuonDetector() && !e.getByLabel(muidrawtag, MuIDRawHitHandle)) {
+        throw cet::exception("anatree") << " No :raw::CaloRawDigit branch."
+        << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+    }
+
+    // save ecal raw digits info
+    for ( auto const& DigiHit : (*RawHitHandle) ) {
+        fDiginHits++;
+        fDigiHitX.push_back(DigiHit.X());
+        fDigiHitY.push_back(DigiHit.Y());
+        fDigiHitZ.push_back(DigiHit.Z());
+        fDigiHitTime.push_back( (DigiHit.Time().first + DigiHit.Time().second) / 2.0 );
+        fDigiHitADC.push_back(DigiHit.ADC().first);
+        fDigiHitCellID.push_back(DigiHit.CellID());
+    }
+
+    // save muon system raw digits info
+    if(fGeo->HasMuonDetector()) {
+        for ( auto const& DigiHit : (*MuIDRawHitHandle) ) {
+            fDiginHits_MuID++;
+            fDigiHitX_MuID.push_back(DigiHit.X());
+            fDigiHitY_MuID.push_back(DigiHit.Y());
+            fDigiHitZ_MuID.push_back(DigiHit.Z());
+            fDigiHitTime_MuID.push_back( (DigiHit.Time().first + DigiHit.Time().second) / 2.0 );
+            fDigiHitADC_MuID.push_back(DigiHit.ADC().first);
+            fDigiHitCellID_MuID.push_back(DigiHit.CellID());
+        }
+    }
+}
+
+//==============================================================================
+
+void gar::anatree::FillRecoInfo(art::Event const & e) {
+
+    // Get handle for TPC hit data
+    art::Handle< std::vector<rec::Hit> > HitHandle;
+    if (fWriteHits) {
+        if (!e.getByLabel(fHitLabel, HitHandle)) {
+            throw cet::exception("anatree") << " No rec::Hit branch."
+            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
 
-        // Get handle for CaloHits
-        art::InputTag ecalrecotag(fCaloHitLabel, fCaloHitInstanceCalo);
-        art::InputTag muirecotag(fMuIDHitLabel, fCaloHitInstanceMuID);
-        art::Handle< std::vector<rec::CaloHit> > RecoHitHandle;
-        art::Handle< std::vector<rec::CaloHit> > MuIDRecoHitHandle;
-
-        if (fWriteCaloHits) {
-
-            if (!e.getByLabel(ecalrecotag, RecoHitHandle)) {
-                throw cet::exception("anatree") << " No rec::CaloHit branch."
-                << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-            }
-            if (fGeo->HasMuonDetector() && !e.getByLabel(muirecotag, MuIDRecoHitHandle)) {
-                throw cet::exception("anatree") << " No rec::CaloHit branch."
-                << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-            }
-
-            // save reco'd Calorimetry hits
-            for ( auto const& Hit : (*RecoHitHandle) ) {
-                fReconHits++;
-                fReconHitIDNumber.push_back(Hit.getIDNumber());
-                fRecoHitX.push_back(Hit.Position()[0]);
-                fRecoHitY.push_back(Hit.Position()[1]);
-                fRecoHitZ.push_back(Hit.Position()[2]);
-                fRecoHitTime.push_back(Hit.Time().first);
-                fRecoHitEnergy.push_back(Hit.Energy());
-                fRecoHitCellID.push_back(Hit.CellID());
-                fRecoEnergySum += Hit.Energy();
-            }
-
-            if(fGeo->HasMuonDetector()) {
-                for ( auto const& Hit : (*MuIDRecoHitHandle) ) {
-                    fReconHits_MuID++;
-                    fReconHitIDNumber_MuID.push_back(Hit.getIDNumber());
-                    fRecoHitX_MuID.push_back(Hit.Position()[0]);
-                    fRecoHitY_MuID.push_back(Hit.Position()[1]);
-                    fRecoHitZ_MuID.push_back(Hit.Position()[2]);
-                    fRecoHitTime_MuID.push_back(Hit.Time().first);
-                    fRecoHitEnergy_MuID.push_back(Hit.Energy());
-                    fRecoHitCellID_MuID.push_back(Hit.CellID());
-                    fRecoEnergySum_MuID += Hit.Energy();
-                }
-            }
+        // save hits in the TPC
+        for ( auto const& Hit : (*HitHandle) ) {
+            fHitX.push_back(Hit.Position()[0]);
+            fHitY.push_back(Hit.Position()[1]);
+            fHitZ.push_back(Hit.Position()[2]);
+            fHitSig.push_back(Hit.Signal());
+            fHitRMS.push_back(Hit.RMS());
+            fHitChan.push_back(Hit.Channel());
         }
     }
 
-    //==============================================================================
+    // Get handle for CaloHits
+    art::InputTag ecalrecotag(fCaloHitLabel, fCaloHitInstanceCalo);
+    art::InputTag muirecotag(fMuIDHitLabel, fCaloHitInstanceMuID);
+    art::Handle< std::vector<rec::CaloHit> > RecoHitHandle;
+    art::Handle< std::vector<rec::CaloHit> > MuIDRecoHitHandle;
 
-    void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
+    if (fWriteCaloHits) {
 
-        // Get handle for TPCClusters
-        art::Handle< std::vector<rec::TPCCluster> > TPCClusterHandle;
-        if (fWriteTPCClusters) {
-            if (!e.getByLabel(fTPCClusterLabel, TPCClusterHandle)) {
-                throw cet::exception("anatree") << " No rec::TPCCluster branch."
-                << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-            }
+        if (!e.getByLabel(ecalrecotag, RecoHitHandle)) {
+            throw cet::exception("anatree") << " No rec::CaloHit branch."
+            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+        }
+        if (fGeo->HasMuonDetector() && !e.getByLabel(muirecotag, MuIDRecoHitHandle)) {
+            throw cet::exception("anatree") << " No rec::CaloHit branch."
+            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
 
-        // Get handles for Tracks and their ionizations; also Assn's to TPCClusters, TrackIoniz
-        art::Handle< std::vector<rec::Track> > TrackHandle;
-        art::Handle< std::vector<rec::TrackIoniz> > TrackIonHandle;
-        art::FindManyP<rec::TPCCluster>* findManyTPCClusters = NULL;
-        art::FindOneP<rec::TrackIoniz>*  findIonization = NULL;
-        if(fWriteTracks) {
-            if (!e.getByLabel(fTrackLabel, TrackHandle)) {
-                throw cet::exception("anatree") << " No rec::Track branch."
-                << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-            }
-            if (!e.getByLabel(fTrackLabel, TrackIonHandle)) {
-                throw cet::exception("anatree") << " No rec::TrackIoniz branch."
-                << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-            }
-            findManyTPCClusters = new art::FindManyP<rec::TPCCluster>(TrackHandle,e,fTrackLabel);
-            findIonization      = new art::FindOneP<rec::TrackIoniz>(TrackHandle,e,fTrackLabel);
+        // save reco'd Calorimetry hits
+        for ( auto const& Hit : (*RecoHitHandle) ) {
+            fReconHits++;
+            fReconHitIDNumber.push_back(Hit.getIDNumber());
+            fRecoHitX.push_back(Hit.Position()[0]);
+            fRecoHitY.push_back(Hit.Position()[1]);
+            fRecoHitZ.push_back(Hit.Position()[2]);
+            fRecoHitTime.push_back(Hit.Time().first);
+            fRecoHitEnergy.push_back(Hit.Energy());
+            fRecoHitCellID.push_back(Hit.CellID());
+            fRecoEnergySum += Hit.Energy();
         }
 
-        // Get handle for Vertices; also Assn's to Tracks
-        art::Handle< std::vector<rec::Vertex> > VertexHandle;
-        art::FindManyP<rec::Track, rec::TrackEnd>* findManyTrackEnd = NULL;
-        if (fWriteVertices) {
-            if (!e.getByLabel(fVertexLabel, VertexHandle)) {
-                throw cet::exception("anatree") << " No rec::Vertex branch."
-                << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-            }
-            findManyTrackEnd = new art::FindManyP<rec::Track, rec::TrackEnd>(VertexHandle,e,fVertexLabel);
-        }
-
-        // Get handle for Vees; also Assn's to Tracks
-        art::Handle< std::vector<rec::Vee> > VeeHandle;
-        art::FindManyP<rec::Track, rec::TrackEnd>* findManyVeeTrackEnd = NULL;
-        if (fWriteVees) {
-            if (!e.getByLabel(fVeeLabel, VeeHandle)) {
-                throw cet::exception("anatree") << " No rec::Vee branch."
-                << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-            }
-            findManyVeeTrackEnd = new art::FindManyP<rec::Track, rec::TrackEnd>(VeeHandle,e,fVeeLabel);
-        }
-
-        // Get handle for CaloClusters; also Assn for matching tracks
-        art::Handle< std::vector<rec::Cluster> > RecoClusterHandle;
-        art::FindManyP<rec::Track, rec::TrackEnd>* findManyCALTrackEnd = NULL;
-        if (fWriteCaloClusters) {
-            if (!e.getByLabel(fClusterLabel, RecoClusterHandle)) {
-                throw cet::exception("anatree") << " No rec::Cluster branch."
-                << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-            }
-            if (fWriteTracks) {
-                findManyCALTrackEnd = new art::FindManyP<rec::Track, rec::TrackEnd>
-                (RecoClusterHandle,e,fECALAssnLabel);
+        if(fGeo->HasMuonDetector()) {
+            for ( auto const& Hit : (*MuIDRecoHitHandle) ) {
+                fReconHits_MuID++;
+                fReconHitIDNumber_MuID.push_back(Hit.getIDNumber());
+                fRecoHitX_MuID.push_back(Hit.Position()[0]);
+                fRecoHitY_MuID.push_back(Hit.Position()[1]);
+                fRecoHitZ_MuID.push_back(Hit.Position()[2]);
+                fRecoHitTime_MuID.push_back(Hit.Time().first);
+                fRecoHitEnergy_MuID.push_back(Hit.Energy());
+                fRecoHitCellID_MuID.push_back(Hit.CellID());
+                fRecoEnergySum_MuID += Hit.Energy();
             }
         }
+    }
+}
 
-        // save clusters in the TPC. For some reason, can't get FindOneP<rec::Track> or
-        // FindManyP<rec::Track> to work; seems the underlying Assn isn't found.  Have
-        // to FindManyP<TPCCluster> instead and  iterate if (fWriteTracks).  :(
-        if (fWriteTPCClusters) {
-            for ( auto const& TPCCluster : (*TPCClusterHandle) ) {
-                fTPCClusterX.push_back(TPCCluster.Position()[0]);
-                fTPCClusterY.push_back(TPCCluster.Position()[1]);
-                fTPCClusterZ.push_back(TPCCluster.Position()[2]);
-                fTPCClusterSig.push_back(TPCCluster.Signal());
-                fTPCClusterRMS.push_back(TPCCluster.RMS());
-                const float* cov;
-                cov = TPCCluster.CovMatPacked();
-                fTPCClusterCovXX.push_back(cov[0]);
-                fTPCClusterCovXY.push_back(cov[1]);
-                fTPCClusterCovXZ.push_back(cov[2]);
-                fTPCClusterCovYY.push_back(cov[3]);
-                fTPCClusterCovYZ.push_back(cov[4]);
-                fTPCClusterCovZZ.push_back(cov[5]);
+//==============================================================================
+void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
 
-                Int_t trackForThisTPCluster = -1;
-                if (fWriteTracks) {
-                    size_t iTrack = 0;
-                    for ( auto const& track : (*TrackHandle) ) {
-                        for (size_t iCluster=0; iCluster<track.NHits(); iCluster++) {
-                            auto const& trackedCluster =
-                            *(findManyTPCClusters->at(iTrack).at(iCluster));
-                            if (TPCCluster==trackedCluster) {
-                                trackForThisTPCluster = track.getIDNumber();
-                                // No cluster is in 2 tracks (don't mess up dE/dx!)
-                                goto pushit;   // break 2 loops
-                            }
-                        }
-                        iTrack++;
-                    }
-                }
-                pushit:
-                    fTPCClusterTrkIDNumber.push_back(trackForThisTPCluster);
-                }
-            }
+    // Get handle for TPCClusters
+    art::Handle< std::vector<rec::TPCCluster> > TPCClusterHandle;
+    if (fWriteTPCClusters) {
+        if (!e.getByLabel(fTPCClusterLabel, TPCClusterHandle)) {
+            throw cet::exception("anatree") << " No rec::TPCCluster branch."
+            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+        }
+    }
 
-            // save per-track info
+    // Get handles for Tracks and their ionizations; also Assn's to TPCClusters, TrackIoniz
+    art::Handle< std::vector<rec::Track> > TrackHandle;
+    art::Handle< std::vector<rec::TrackIoniz> > TrackIonHandle;
+    art::FindManyP<rec::TPCCluster>* findManyTPCClusters = NULL;
+    art::FindOneP<rec::TrackIoniz>*  findIonization = NULL;
+    if(fWriteTracks) {
+        if (!e.getByLabel(fTrackLabel, TrackHandle)) {
+            throw cet::exception("anatree") << " No rec::Track branch."
+            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+        }
+        if (!e.getByLabel(fTrackLabel, TrackIonHandle)) {
+            throw cet::exception("anatree") << " No rec::TrackIoniz branch."
+            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+        }
+        findManyTPCClusters = new art::FindManyP<rec::TPCCluster>(TrackHandle,e,fTrackLabel);
+        findIonization      = new art::FindOneP<rec::TrackIoniz>(TrackHandle,e,fTrackLabel);
+    }
+
+    // Get handle for Vertices; also Assn's to Tracks
+    art::Handle< std::vector<rec::Vertex> > VertexHandle;
+    art::FindManyP<rec::Track, rec::TrackEnd>* findManyTrackEnd = NULL;
+    if (fWriteVertices) {
+        if (!e.getByLabel(fVertexLabel, VertexHandle)) {
+            throw cet::exception("anatree") << " No rec::Vertex branch."
+            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+        }
+        findManyTrackEnd = new art::FindManyP<rec::Track, rec::TrackEnd>(VertexHandle,e,fVertexLabel);
+    }
+
+    // Get handle for Vees; also Assn's to Tracks
+    art::Handle< std::vector<rec::Vee> > VeeHandle;
+    art::FindManyP<rec::Track, rec::TrackEnd>* findManyVeeTrackEnd = NULL;
+    if (fWriteVees) {
+        if (!e.getByLabel(fVeeLabel, VeeHandle)) {
+            throw cet::exception("anatree") << " No rec::Vee branch."
+            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+        }
+        findManyVeeTrackEnd = new art::FindManyP<rec::Track, rec::TrackEnd>(VeeHandle,e,fVeeLabel);
+    }
+
+    // Get handle for CaloClusters; also Assn for matching tracks
+    art::Handle< std::vector<rec::Cluster> > RecoClusterHandle;
+    art::FindManyP<rec::Track, rec::TrackEnd>* findManyCALTrackEnd = NULL;
+    if (fWriteCaloClusters) {
+        if (!e.getByLabel(fClusterLabel, RecoClusterHandle)) {
+            throw cet::exception("anatree") << " No rec::Cluster branch."
+            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+        }
+        if (fWriteTracks) {
+            findManyCALTrackEnd = new art::FindManyP<rec::Track, rec::TrackEnd>
+            (RecoClusterHandle,e,fECALAssnLabel);
+        }
+    }
+
+    // save clusters in the TPC. For some reason, can't get FindOneP<rec::Track> or
+    // FindManyP<rec::Track> to work; seems the underlying Assn isn't found.  Have
+    // to FindManyP<TPCCluster> instead and  iterate if (fWriteTracks).  :(
+    if (fWriteTPCClusters) {
+        for ( auto const& TPCCluster : (*TPCClusterHandle) ) {
+            fTPCClusterX.push_back(TPCCluster.Position()[0]);
+            fTPCClusterY.push_back(TPCCluster.Position()[1]);
+            fTPCClusterZ.push_back(TPCCluster.Position()[2]);
+            fTPCClusterSig.push_back(TPCCluster.Signal());
+            fTPCClusterRMS.push_back(TPCCluster.RMS());
+            const float* cov;
+            cov = TPCCluster.CovMatPacked();
+            fTPCClusterCovXX.push_back(cov[0]);
+            fTPCClusterCovXY.push_back(cov[1]);
+            fTPCClusterCovXZ.push_back(cov[2]);
+            fTPCClusterCovYY.push_back(cov[3]);
+            fTPCClusterCovYZ.push_back(cov[4]);
+            fTPCClusterCovZZ.push_back(cov[5]);
+
+            Int_t trackForThisTPCluster = -1;
             if (fWriteTracks) {
                 size_t iTrack = 0;
                 for ( auto const& track : (*TrackHandle) ) {
-                    // track is a rec::Track, not a rec::TrackPar
-                    fTrackIDNumber.push_back(track.getIDNumber());
-
-                    fTrackStartX.push_back(track.Vertex()[0]);
-                    fTrackStartY.push_back(track.Vertex()[1]);
-                    fTrackStartZ.push_back(track.Vertex()[2]);
-                    fTrackStartPX.push_back(track.Momentum_beg()*track.VtxDir()[0]);
-                    fTrackStartPY.push_back(track.Momentum_beg()*track.VtxDir()[1]);
-                    fTrackStartPZ.push_back(track.Momentum_beg()*track.VtxDir()[2]);
-                    fTrackStartQ.push_back(track.ChargeBeg());
-
-                    fTrackEndX.push_back(track.End()[0]);
-                    fTrackEndY.push_back(track.End()[1]);
-                    fTrackEndZ.push_back(track.End()[2]);
-                    fTrackEndPX.push_back(track.Momentum_end()*track.EndDir()[0]);
-                    fTrackEndPY.push_back(track.Momentum_end()*track.EndDir()[1]);
-                    fTrackEndPZ.push_back(track.Momentum_end()*track.EndDir()[2]);
-                    fTrackEndQ.push_back(track.ChargeEnd());
-
-                    fTrackLenF.push_back(track.LengthForward());
-                    fTrackLenB.push_back(track.LengthBackward());
-                    fTrackChi2F.push_back(track.ChisqForward());
-                    fTrackChi2B.push_back(track.ChisqBackward());
-                    fNTPCClustersOnTrack.push_back(track.NHits());
-
-                    //Add the PID information based on Tom's parametrization
-                    TVector3 momF(track.Momentum_beg()*track.VtxDir()[0], track.Momentum_beg()*track.VtxDir()[1], track.Momentum_beg()*track.VtxDir()[2]);
-                    TVector3 momB(track.Momentum_end()*track.EndDir()[0], track.Momentum_end()*track.EndDir()[1], track.Momentum_end()*track.EndDir()[2]);
-
-                    //Reconstructed momentum forward and backward
-                    float pF = momF.Mag();
-                    float pB = momB.Mag();
-                    std::vector< std::pair<int, float> > pidF = processPIDInfo( pF );
-                    std::vector< std::pair<int, float> > pidB = processPIDInfo( pB );
-
-                    //Fill the pid and its probability
-                    for(size_t ipid = 0; ipid < pidF.size(); ipid++) {
-                        fTrackPIDF.push_back( pidF.at(ipid).first );
-                        fTrackPIDProbF.push_back( pidF.at(ipid).second );
-                    }
-                    for(size_t ipid = 0; ipid < pidB.size(); ipid++) {
-                        fTrackPIDB.push_back( pidB.at(ipid).first );
-                        fTrackPIDProbB.push_back( pidB.at(ipid).second );
-                    }
-
-                    if (findIonization->isValid()) {
-                        // No calibration for now.  Someday this should all be in reco
-                        rec::TrackIoniz ionization = *(findIonization->at(iTrack));
-                        float avgIonF, avgIonB;
-                        processIonizationInfo(ionization, fIonizTruncate, avgIonF, avgIonB);
-                        fTrackAvgIonF.push_back( avgIonF );
-                        fTrackAvgIonB.push_back( avgIonB );
-                    } else {
-                        // must push_back something so that fTrackAvgIonF,B are of correct size.
-                        fTrackAvgIonF.push_back( 0.0 );
-                        fTrackAvgIonB.push_back( 0.0 );
+                    for (size_t iCluster=0; iCluster<track.NHits(); iCluster++) {
+                        auto const& trackedCluster =
+                        *(findManyTPCClusters->at(iTrack).at(iCluster));
+                        if (TPCCluster==trackedCluster) {
+                            trackForThisTPCluster = track.getIDNumber();
+                            // No cluster is in 2 tracks (don't mess up dE/dx!)
+                            goto pushit;   // break 2 loops
+                        }
                     }
                     iTrack++;
-                } // end loop over TrackHandle
-            }
-
-            // save Vertex and Track-Vertex association info
-            if (fWriteVertices) {
-                size_t iVertex = 0;
-                for ( auto const& vertex : (*VertexHandle) ) {
-                    fVertexIDNumber.push_back(vertex.getIDNumber());
-                    fVertexX.push_back(vertex.Position()[0]);
-                    fVertexY.push_back(vertex.Position()[1]);
-                    fVertexZ.push_back(vertex.Position()[2]);
-                    fVertexT.push_back(vertex.Time());
-
-                    int nVertexedTracks = 0;
-                    if ( findManyTrackEnd->isValid() ) {
-                        nVertexedTracks = findManyTrackEnd->at(iVertex).size();
-                    }
-                    fVertexN.push_back(nVertexedTracks);
-
-                    int vertexCharge = 0;
-                    for (int iVertexedTrack=0; iVertexedTrack<nVertexedTracks; ++iVertexedTrack) {
-                        fVTAssn_VertIDNumber.push_back(vertex.getIDNumber());
-
-                        // Get this vertexed track.
-                        rec::Track track = *(findManyTrackEnd->at(iVertex).at(iVertexedTrack));
-                        fVTAssn_TrackIDNumber.push_back(track.getIDNumber());
-
-                        // Get the end of the track in the vertex.  It isn't that odd for the end
-                        // of the track not used in the vertex to be closer to the vertex than the
-                        // one actually used; you might have a very short stub track in a 3 track
-                        // vertex with small opening angles and the other 2 tracks might pull the
-                        // vertex some distance towards the far end of the stub track
-                        rec::TrackEnd fee = *(findManyTrackEnd->data(iVertex).at(iVertexedTrack));
-                        // TrackEnd is defined in Track.h; 1 means use Beg values, 0 means use End
-                        fVTAssn_TrackEnd.push_back(fee);
-
-                        if (fee==rec::TrackEndBeg) {
-                            vertexCharge += track.ChargeBeg();
-                        } else {
-                            vertexCharge += track.ChargeEnd();
-                        }
-                    }
-                    fVertexQ.push_back(vertexCharge);
-                    ++iVertex;
-                } // end loop over VertexHandle
-            }
-
-            // save Vee and Track-Vee association info
-            if (fWriteVees) {
-                size_t iVee = 0;
-                for ( auto const& vee : (*VeeHandle) ) {
-                    fVeeIDNumber.push_back(vee.getIDNumber());
-                    fVeeX.push_back(vee.Position()[0]);
-                    fVeeY.push_back(vee.Position()[1]);
-                    fVeeZ.push_back(vee.Position()[2]);
-                    fVeeT.push_back(vee.Time());
-                    fVeePXKpipi.push_back(vee.FourMomentum(0).X());
-                    fVeePYKpipi.push_back(vee.FourMomentum(0).Y());
-                    fVeePZKpipi.push_back(vee.FourMomentum(0).Z());
-                    fVeeEKpipi.push_back(vee.FourMomentum(0).E());
-                    fVeeMKpipi.push_back(vee.FourMomentum(0).M());
-                    fVeePXLppi.push_back(vee.FourMomentum(1).X());
-                    fVeePYLppi.push_back(vee.FourMomentum(1).Y());
-                    fVeePZLppi.push_back(vee.FourMomentum(1).Z());
-                    fVeeELppi.push_back(vee.FourMomentum(1).E());
-                    fVeeMLppi.push_back(vee.FourMomentum(1).M());
-                    fVeePXLpip.push_back(vee.FourMomentum(2).X());
-                    fVeePYLpip.push_back(vee.FourMomentum(2).Y());
-                    fVeePZLpip.push_back(vee.FourMomentum(2).Z());
-                    fVeeELpip.push_back(vee.FourMomentum(2).E());
-                    fVeeMLpip.push_back(vee.FourMomentum(2).M());
-
-                    int nVeeTracks = 0;
-                    if ( findManyVeeTrackEnd->isValid() ) {
-                        nVeeTracks = findManyVeeTrackEnd->at(iVee).size();
-                    }
-
-                    for (int iVeeTrack=0; iVeeTrack<nVeeTracks; ++iVeeTrack) {
-                        fVeeTAssn_VeeIDNumber.push_back(vee.getIDNumber());
-
-                        // Get this vertexed track.
-                        rec::Track track = *(findManyVeeTrackEnd->at(iVee).at(iVeeTrack));
-                        fVeeTAssn_TrackIDNumber.push_back(track.getIDNumber());
-
-                        rec::TrackEnd fee = *(findManyVeeTrackEnd->data(iVee).at(iVeeTrack));
-                        // TrackEnd is defined in Track.h; 1 means use Beg values, 0 means use End
-                        fVeeTAssn_TrackEnd.push_back(fee);
-                    }
-                    ++iVee;
-                } // end loop over VeeHandle
-            }
-
-            // save Cluster info
-            if (fWriteCaloClusters) {
-                for ( auto const& cluster : (*RecoClusterHandle) ) {
-                    fnCluster++;
-                    fClusterIDNumber.push_back(cluster.getIDNumber());
-                    fClusterNhits.push_back(cluster.CalorimeterHits().size());
-                    fClusterEnergy.push_back(cluster.Energy());
-                    fClusterTime.push_back(cluster.Time());
-                    fClusterTimeDiffFirstLast.push_back(cluster.TimeDiffFirstLast());
-                    fClusterX.push_back(cluster.Position()[0]);
-                    fClusterY.push_back(cluster.Position()[1]);
-                    fClusterZ.push_back(cluster.Position()[2]);
-                    fClusterTheta.push_back(cluster.ITheta());
-                    fClusterPhi.push_back(cluster.IPhi());
-                    fClusterPID.push_back(cluster.ParticleID());
-                    // fClusterShape.push_back(cluster.Shape());
-                    fClusterMainAxisX.push_back(cluster.EigenVectors()[0]);
-                    fClusterMainAxisY.push_back(cluster.EigenVectors()[1]);
-                    fClusterMainAxisZ.push_back(cluster.EigenVectors()[2]);
                 }
             }
+            pushit:
+                fTPCClusterTrkIDNumber.push_back(trackForThisTPCluster);
+        }
+    }
 
-            // Write info for ECAL-matched tracks
-            if (fWriteMatchedTracks) {
-                size_t iCluster = 0;
-                for ( auto const& cluster : (*RecoClusterHandle) ) {
-                    int nCALedTracks(0);
-                    if ( findManyCALTrackEnd->isValid() ) {
-                        nCALedTracks = findManyCALTrackEnd->at(iCluster).size();
-                    }
-                    for (int iCALedTrack=0; iCALedTrack<nCALedTracks; ++iCALedTrack) {
-                        fCALAssn_ClusIDNumber.push_back(cluster.getIDNumber());
-                        rec::Track track  = *(findManyCALTrackEnd->at(iCluster).at(iCALedTrack));
-                        fCALAssn_TrackIDNumber.push_back( track.getIDNumber() );
+    // save per-track info
+    if (fWriteTracks) {
+        size_t iTrack = 0;
+        for ( auto const& track : (*TrackHandle) ) {
+            // track is a rec::Track, not a rec::TrackPar
+            fTrackIDNumber.push_back(track.getIDNumber());
 
-                        rec::TrackEnd fee = *(findManyCALTrackEnd->data(iCluster).at(iCALedTrack));
-                        fCALAssn_TrackEnd.push_back(fee);    // The rec::TrackEnd (see Track.h) that extrapolated to cluster
-                    }
-                    iCluster++;
+            fTrackStartX.push_back(track.Vertex()[0]);
+            fTrackStartY.push_back(track.Vertex()[1]);
+            fTrackStartZ.push_back(track.Vertex()[2]);
+            fTrackStartPX.push_back(track.Momentum_beg()*track.VtxDir()[0]);
+            fTrackStartPY.push_back(track.Momentum_beg()*track.VtxDir()[1]);
+            fTrackStartPZ.push_back(track.Momentum_beg()*track.VtxDir()[2]);
+            fTrackStartQ.push_back(track.ChargeBeg());
+
+            fTrackEndX.push_back(track.End()[0]);
+            fTrackEndY.push_back(track.End()[1]);
+            fTrackEndZ.push_back(track.End()[2]);
+            fTrackEndPX.push_back(track.Momentum_end()*track.EndDir()[0]);
+            fTrackEndPY.push_back(track.Momentum_end()*track.EndDir()[1]);
+            fTrackEndPZ.push_back(track.Momentum_end()*track.EndDir()[2]);
+            fTrackEndQ.push_back(track.ChargeEnd());
+
+            fTrackLenF.push_back(track.LengthForward());
+            fTrackLenB.push_back(track.LengthBackward());
+            fTrackChi2F.push_back(track.ChisqForward());
+            fTrackChi2B.push_back(track.ChisqBackward());
+            fNTPCClustersOnTrack.push_back(track.NHits());
+
+            //Add the PID information based on Tom's parametrization
+            TVector3 momF(track.Momentum_beg()*track.VtxDir()[0], track.Momentum_beg()*track.VtxDir()[1], track.Momentum_beg()*track.VtxDir()[2]);
+            TVector3 momB(track.Momentum_end()*track.EndDir()[0], track.Momentum_end()*track.EndDir()[1], track.Momentum_end()*track.EndDir()[2]);
+
+            //Reconstructed momentum forward and backward
+            float pF = momF.Mag();
+            float pB = momB.Mag();
+            std::vector< std::pair<int, float> > pidF = processPIDInfo( pF );
+            std::vector< std::pair<int, float> > pidB = processPIDInfo( pB );
+
+            //Fill the pid and its probability
+            for(size_t ipid = 0; ipid < pidF.size(); ipid++) {
+                fTrackPIDF.push_back( pidF.at(ipid).first );
+                fTrackPIDProbF.push_back( pidF.at(ipid).second );
+            }
+            for(size_t ipid = 0; ipid < pidB.size(); ipid++) {
+                fTrackPIDB.push_back( pidB.at(ipid).first );
+                fTrackPIDProbB.push_back( pidB.at(ipid).second );
+            }
+
+            if (findIonization->isValid()) {
+                // No calibration for now.  Someday this should all be in reco
+                rec::TrackIoniz ionization = *(findIonization->at(iTrack));
+                float avgIonF, avgIonB;
+                processIonizationInfo(ionization, fIonizTruncate, avgIonF, avgIonB);
+                fTrackAvgIonF.push_back( avgIonF );
+                fTrackAvgIonB.push_back( avgIonB );
+            } else {
+                // must push_back something so that fTrackAvgIonF,B are of correct size.
+                fTrackAvgIonF.push_back( 0.0 );
+                fTrackAvgIonB.push_back( 0.0 );
+            }
+            iTrack++;
+        } // end loop over TrackHandle
+    }
+
+    // save Vertex and Track-Vertex association info
+    if (fWriteVertices) {
+        size_t iVertex = 0;
+        for ( auto const& vertex : (*VertexHandle) ) {
+            fVertexIDNumber.push_back(vertex.getIDNumber());
+            fVertexX.push_back(vertex.Position()[0]);
+            fVertexY.push_back(vertex.Position()[1]);
+            fVertexZ.push_back(vertex.Position()[2]);
+            fVertexT.push_back(vertex.Time());
+
+            int nVertexedTracks = 0;
+            if ( findManyTrackEnd->isValid() ) {
+                nVertexedTracks = findManyTrackEnd->at(iVertex).size();
+            }
+            fVertexN.push_back(nVertexedTracks);
+
+            int vertexCharge = 0;
+            for (int iVertexedTrack=0; iVertexedTrack<nVertexedTracks; ++iVertexedTrack) {
+                fVTAssn_VertIDNumber.push_back(vertex.getIDNumber());
+
+                // Get this vertexed track.
+                rec::Track track = *(findManyTrackEnd->at(iVertex).at(iVertexedTrack));
+                fVTAssn_TrackIDNumber.push_back(track.getIDNumber());
+
+                // Get the end of the track in the vertex.  It isn't that odd for the end
+                // of the track not used in the vertex to be closer to the vertex than the
+                // one actually used; you might have a very short stub track in a 3 track
+                // vertex with small opening angles and the other 2 tracks might pull the
+                // vertex some distance towards the far end of the stub track
+                rec::TrackEnd fee = *(findManyTrackEnd->data(iVertex).at(iVertexedTrack));
+                // TrackEnd is defined in Track.h; 1 means use Beg values, 0 means use End
+                fVTAssn_TrackEnd.push_back(fee);
+
+                if (fee==rec::TrackEndBeg) {
+                    vertexCharge += track.ChargeBeg();
+                } else {
+                    vertexCharge += track.ChargeEnd();
                 }
-            } // end branch on fWriteCaloInfo
+            }
+            fVertexQ.push_back(vertexCharge);
+            ++iVertex;
+        } // end loop over VertexHandle
+    }
 
-            return;
-        } // end :anatree::FillVectors
+    // save Vee and Track-Vee association info
+    if (fWriteVees) {
+        size_t iVee = 0;
+        for ( auto const& vee : (*VeeHandle) ) {
+            fVeeIDNumber.push_back(vee.getIDNumber());
+            fVeeX.push_back(vee.Position()[0]);
+            fVeeY.push_back(vee.Position()[1]);
+            fVeeZ.push_back(vee.Position()[2]);
+            fVeeT.push_back(vee.Time());
+            fVeePXKpipi.push_back(vee.FourMomentum(0).X());
+            fVeePYKpipi.push_back(vee.FourMomentum(0).Y());
+            fVeePZKpipi.push_back(vee.FourMomentum(0).Z());
+            fVeeEKpipi.push_back(vee.FourMomentum(0).E());
+            fVeeMKpipi.push_back(vee.FourMomentum(0).M());
+            fVeePXLppi.push_back(vee.FourMomentum(1).X());
+            fVeePYLppi.push_back(vee.FourMomentum(1).Y());
+            fVeePZLppi.push_back(vee.FourMomentum(1).Z());
+            fVeeELppi.push_back(vee.FourMomentum(1).E());
+            fVeeMLppi.push_back(vee.FourMomentum(1).M());
+            fVeePXLpip.push_back(vee.FourMomentum(2).X());
+            fVeePYLpip.push_back(vee.FourMomentum(2).Y());
+            fVeePZLpip.push_back(vee.FourMomentum(2).Z());
+            fVeeELpip.push_back(vee.FourMomentum(2).E());
+            fVeeMLpip.push_back(vee.FourMomentum(2).M());
+
+            int nVeeTracks = 0;
+            if ( findManyVeeTrackEnd->isValid() ) {
+                nVeeTracks = findManyVeeTrackEnd->at(iVee).size();
+            }
+
+            for (int iVeeTrack=0; iVeeTrack<nVeeTracks; ++iVeeTrack) {
+                fVeeTAssn_VeeIDNumber.push_back(vee.getIDNumber());
+
+                // Get this vertexed track.
+                rec::Track track = *(findManyVeeTrackEnd->at(iVee).at(iVeeTrack));
+                fVeeTAssn_TrackIDNumber.push_back(track.getIDNumber());
+
+                rec::TrackEnd fee = *(findManyVeeTrackEnd->data(iVee).at(iVeeTrack));
+                // TrackEnd is defined in Track.h; 1 means use Beg values, 0 means use End
+                fVeeTAssn_TrackEnd.push_back(fee);
+            }
+            ++iVee;
+        } // end loop over VeeHandle
+    }
+
+    // save Cluster info
+    if (fWriteCaloClusters) {
+        for ( auto const& cluster : (*RecoClusterHandle) ) {
+            fnCluster++;
+            fClusterIDNumber.push_back(cluster.getIDNumber());
+            fClusterNhits.push_back(cluster.CalorimeterHits().size());
+            fClusterEnergy.push_back(cluster.Energy());
+            fClusterTime.push_back(cluster.Time());
+            fClusterTimeDiffFirstLast.push_back(cluster.TimeDiffFirstLast());
+            fClusterX.push_back(cluster.Position()[0]);
+            fClusterY.push_back(cluster.Position()[1]);
+            fClusterZ.push_back(cluster.Position()[2]);
+            fClusterTheta.push_back(cluster.ITheta());
+            fClusterPhi.push_back(cluster.IPhi());
+            fClusterPID.push_back(cluster.ParticleID());
+            // fClusterShape.push_back(cluster.Shape());
+            fClusterMainAxisX.push_back(cluster.EigenVectors()[0]);
+            fClusterMainAxisY.push_back(cluster.EigenVectors()[1]);
+            fClusterMainAxisZ.push_back(cluster.EigenVectors()[2]);
+        }
+    }
+
+    // Write info for ECAL-matched tracks
+    if (fWriteMatchedTracks) {
+        size_t iCluster = 0;
+        for ( auto const& cluster : (*RecoClusterHandle) ) {
+            int nCALedTracks(0);
+            if ( findManyCALTrackEnd->isValid() ) {
+                nCALedTracks = findManyCALTrackEnd->at(iCluster).size();
+            }
+            for (int iCALedTrack=0; iCALedTrack<nCALedTracks; ++iCALedTrack) {
+                fCALAssn_ClusIDNumber.push_back(cluster.getIDNumber());
+                rec::Track track  = *(findManyCALTrackEnd->at(iCluster).at(iCALedTrack));
+                fCALAssn_TrackIDNumber.push_back( track.getIDNumber() );
+
+                rec::TrackEnd fee = *(findManyCALTrackEnd->data(iCluster).at(iCALedTrack));
+                fCALAssn_TrackEnd.push_back(fee);    // The rec::TrackEnd (see Track.h) that extrapolated to cluster
+            }
+            iCluster++;
+        }
+    } // end branch on fWriteCaloInfo
+
+    return;
+} // end :anatree::FillVectors
 
 
 
-        //==============================================================================
-        //==============================================================================
-        //==============================================================================
-        // Process ionization.  Eventually this moves into the reco code.
-        void gar::anatree::processIonizationInfo(rec::TrackIoniz& ion, float ionizeTruncate,
-        float& forwardIonVal, float& backwardIonVal) {
+//==============================================================================
+//==============================================================================
+//==============================================================================
+// Process ionization.  Eventually this moves into the reco code.
+void gar::anatree::processIonizationInfo(rec::TrackIoniz& ion, float ionizeTruncate,
+float& forwardIonVal, float& backwardIonVal) {
 
-            // NO CALIBRATION SERVICE FOR NOW
+    // NO CALIBRATION SERVICE FOR NOW
 
-            std::vector<std::pair<float,float>> SigData = ion.getFWD_dSigdXs();
-            forwardIonVal = processOneDirection(SigData, ionizeTruncate);
+    std::vector<std::pair<float,float>> SigData = ion.getFWD_dSigdXs();
+    forwardIonVal = processOneDirection(SigData, ionizeTruncate);
 
-            SigData = ion.getBAK_dSigdXs();
-            backwardIonVal = processOneDirection(SigData, ionizeTruncate);
+    SigData = ion.getBAK_dSigdXs();
+    backwardIonVal = processOneDirection(SigData, ionizeTruncate);
 
-            return;
+    return;
+}
+
+
+
+float gar::anatree::processOneDirection(std::vector<std::pair<float,float>> SigData, float ionizeTruncate) {
+
+    std::vector<std::pair<float,float>> dEvsX;    // Ionization vs distance along track
+
+    // The first hit on the track never had its ionization info stored.  Not a problem
+    // really.  Each pair is a hit and the step along the track that ends at the hit
+    // For the last hit, just take the step from the n-1 hit; don't guess some distance
+    // to (nonexistant!) n+1 hit.  Using pointer arithmetic because you are a real K&R
+    // C nerd!  Except that C++ doesn't know you are such a nerd and if
+    //  SigData.size()==0, then SigData.end()-1 is 0xFFFFFFFFFFFFFFF8.
+    if (SigData.size()==0) return 0.0;
+    float distAlongTrack = 0;
+    std::vector<std::pair<float,float>>::iterator littlebit = SigData.begin();
+    for (; littlebit<(SigData.end()-1); ++littlebit) {
+        float dE =   std::get<0>(*littlebit);
+        // tpctrackfit2_module.cc fills the TrackIoniz data product so that
+        // this quantity is really dL > 0 not dX, a coordinate on the drift axis
+        float dX  = std::get<1>(*littlebit);
+        distAlongTrack += dX;    // But count full step to get hit position on track
+        // Take dX to be 1/2 the previous + last segment
+        dX += std::get<1>(*(littlebit+1));
+        float dEdX = dE/(0.5*dX);
+
+        std::pair pushme = std::make_pair(dEdX,distAlongTrack);
+        dEvsX.push_back( pushme );
+    }
+
+    // Get the truncated mean; first sort then take mean
+    std::sort(dEvsX.begin(),dEvsX.end(), lessThan_byE);
+
+    // Get the dEdX vs length data, truncated.
+    int goUpTo = ionizeTruncate * dEvsX.size() +0.5;
+    if (goUpTo > (int)dEvsX.size()) goUpTo = dEvsX.size();
+    int i = 1;        float returnvalue = 0;
+    littlebit = dEvsX.begin();
+    for (; littlebit<dEvsX.end(); ++littlebit) {
+        returnvalue += std::get<0>(*littlebit);
+        ++i;
+        if (i>goUpTo) break;
+    }
+    returnvalue /= goUpTo;
+    return returnvalue;
+}
+
+
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
+// Coherent pion analysis specific code
+float gar::anatree::computeT( simb::MCTruth theMCTruth ) {
+    // Warning.  You probably want the absolute value of t, not t.
+    int nPart = theMCTruth.NParticles();
+    enum { nu, mu, pi};
+    float E[3], Px[3], Py[3], Pz[3];
+    E[nu] = E[mu] = E[pi] = -1e42;
+
+    for (int i=0; i<3;++i) {
+        Px[i] = 0;
+        Py[i] = 0;
+        Pz[i] = 0;
+        E[i]  = 0;
+    }
+    // Find t from the MCParticles via the
+    for (int iPart=0; iPart<nPart; iPart++) {
+        simb::MCParticle Part = theMCTruth.GetParticle(iPart);
+        int code = Part.PdgCode();
+        int mom  = Part.Mother();
+
+        // get the neutrino
+        if ( abs(code) == 12 || abs(code) == 14 || abs(code) == 16 ) {
+            if (mom == -1) {
+                E[nu] = Part.E();   Px[nu] = Part.Px();   Py[nu] = Part.Py();   Pz[nu] = Part.Pz();
+            }
         }
 
-
-
-        float gar::anatree::processOneDirection(std::vector<std::pair<float,float>> SigData, float ionizeTruncate) {
-
-            std::vector<std::pair<float,float>> dEvsX;    // Ionization vs distance along track
-
-            // The first hit on the track never had its ionization info stored.  Not a problem
-            // really.  Each pair is a hit and the step along the track that ends at the hit
-            // For the last hit, just take the step from the n-1 hit; don't guess some distance
-            // to (nonexistant!) n+1 hit.  Using pointer arithmetic because you are a real K&R
-            // C nerd!  Except that C++ doesn't know you are such a nerd and if
-            //  SigData.size()==0, then SigData.end()-1 is 0xFFFFFFFFFFFFFFF8.
-            if (SigData.size()==0) return 0.0;
-            float distAlongTrack = 0;
-            std::vector<std::pair<float,float>>::iterator littlebit = SigData.begin();
-            for (; littlebit<(SigData.end()-1); ++littlebit) {
-                float dE =   std::get<0>(*littlebit);
-                // tpctrackfit2_module.cc fills the TrackIoniz data product so that
-                // this quantity is really dL > 0 not dX, a coordinate on the drift axis
-                float dX  = std::get<1>(*littlebit);
-                distAlongTrack += dX;    // But count full step to get hit position on track
-                // Take dX to be 1/2 the previous + last segment
-                dX += std::get<1>(*(littlebit+1));
-                float dEdX = dE/(0.5*dX);
-
-                std::pair pushme = std::make_pair(dEdX,distAlongTrack);
-                dEvsX.push_back( pushme );
+        // get the lepton
+        if ( abs(code) == 11 || abs(code) == 13 || abs(code) == 15 ) {
+            if (mom == 0) {
+                E[mu] = Part.E();   Px[mu] = Part.Px();   Py[mu] = Part.Py();   Pz[mu] = Part.Pz();
             }
-
-            // Get the truncated mean; first sort then take mean
-            std::sort(dEvsX.begin(),dEvsX.end(), lessThan_byE);
-
-            // Get the dEdX vs length data, truncated.
-            int goUpTo = ionizeTruncate * dEvsX.size() +0.5;
-            if (goUpTo > (int)dEvsX.size()) goUpTo = dEvsX.size();
-            int i = 1;        float returnvalue = 0;
-            littlebit = dEvsX.begin();
-            for (; littlebit<dEvsX.end(); ++littlebit) {
-                returnvalue += std::get<0>(*littlebit);
-                ++i;
-                if (i>goUpTo) break;
-            }
-            returnvalue /= goUpTo;
-            return returnvalue;
         }
 
-
-
-        //==============================================================================
-        //==============================================================================
-        //==============================================================================
-        // Coherent pion analysis specific code
-        float gar::anatree::computeT( simb::MCTruth theMCTruth ) {
-            // Warning.  You probably want the absolute value of t, not t.
-            int nPart = theMCTruth.NParticles();
-            enum { nu, mu, pi};
-            float E[3], Px[3], Py[3], Pz[3];
-            E[nu] = E[mu] = E[pi] = -1e42;
-
-            for (int i=0; i<3;++i) {
-                Px[i] = 0;
-                Py[i] = 0;
-                Pz[i] = 0;
-                E[i]  = 0;
+        // get the pion
+        if ( code==111 || abs(code)==211 ) {
+            if (mom == 1) {
+                E[pi] = Part.E();   Px[pi] = Part.Px();   Py[pi] = Part.Py();   Pz[pi] = Part.Pz();
             }
-            // Find t from the MCParticles via the
-            for (int iPart=0; iPart<nPart; iPart++) {
-                simb::MCParticle Part = theMCTruth.GetParticle(iPart);
-                int code = Part.PdgCode();
-                int mom  = Part.Mother();
-
-                // get the neutrino
-                if ( abs(code) == 12 || abs(code) == 14 || abs(code) == 16 ) {
-                    if (mom == -1) {
-                        E[nu] = Part.E();   Px[nu] = Part.Px();   Py[nu] = Part.Py();   Pz[nu] = Part.Pz();
-                    }
-                }
-
-                // get the lepton
-                if ( abs(code) == 11 || abs(code) == 13 || abs(code) == 15 ) {
-                    if (mom == 0) {
-                        E[mu] = Part.E();   Px[mu] = Part.Px();   Py[mu] = Part.Py();   Pz[mu] = Part.Pz();
-                    }
-                }
-
-                // get the pion
-                if ( code==111 || abs(code)==211 ) {
-                    if (mom == 1) {
-                        E[pi] = Part.E();   Px[pi] = Part.Px();   Py[pi] = Part.Py();   Pz[pi] = Part.Pz();
-                    }
-                }
-
-                // get outa here
-                if ( E[nu]!=0 && E[mu]!=0 && E[pi]!=0) break;
-
-            }
-
-            // Compute t; reuse nu 4-vector to get first q, then t.
-            E[nu] -= E[mu];   Px[nu] -= Px[mu];   Py[nu] -= Py[mu];   Pz[nu] -= Pz[mu];
-            E[nu] -= E[pi];   Px[nu] -= Px[pi];   Py[nu] -= Py[pi];   Pz[nu] -= Pz[pi];
-            float t = E[nu]*E[nu] -Px[nu]*Px[nu] -Py[nu]*Py[nu] -Pz[nu]*Pz[nu];
-            return t;
         }
 
-        //==============================================================================
-        //==============================================================================
-        //==============================================================================
-        std::vector< std::pair<int, float> > gar::anatree::processPIDInfo( float p )
+        // get outa here
+        if ( E[nu]!=0 && E[mu]!=0 && E[pi]!=0) break;
+
+    }
+
+    // Compute t; reuse nu 4-vector to get first q, then t.
+    E[nu] -= E[mu];   Px[nu] -= Px[mu];   Py[nu] -= Py[mu];   Pz[nu] -= Pz[mu];
+    E[nu] -= E[pi];   Px[nu] -= Px[pi];   Py[nu] -= Py[pi];   Pz[nu] -= Pz[pi];
+    float t = E[nu]*E[nu] -Px[nu]*Px[nu] -Py[nu]*Py[nu] -Pz[nu]*Pz[nu];
+    return t;
+}
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
+std::vector< std::pair<int, float> > gar::anatree::processPIDInfo( float p )
+{
+    std::vector<std::string> recopnamelist = {"#pi", "#mu", "p", "K", "d", "e"};
+    std::vector<int> pdg_charged = {211, 13, 2212, 321, 1000010020, 11};
+    std::vector< std::pair<int, float> > pid;
+    pid.resize(6);
+
+    int qclosest = 0;
+    float dist = 100000000.;
+    CLHEP::RandFlat FlatRand(fEngine);
+
+    for (int q = 0; q < 501; ++q)
+    {
+        //Check the title and the reco momentum take only the one that fits
+        std::string fulltitle = m_pidinterp[q]->GetTitle();
+        unsigned first = fulltitle.find("=");
+        unsigned last = fulltitle.find("GeV");
+        std::string substr = fulltitle.substr(first+1, last - first-1);
+        float pidinterp_mom = std::atof(substr.c_str());
+        //calculate the distance between the bin and mom, store the q the closest
+        float disttemp = std::abs(pidinterp_mom - p);
+
+        if( disttemp < dist ){
+            dist = disttemp;
+            qclosest = q;
+        }
+    } // closes the "pidmatrix" loop
+
+    //Compute all the probabities for each type of true to reco
+    //loop over the columns (true pid)
+    for (int pidm = 0; pidm < 6; ++pidm)
+    {
+        //loop over the columns (true pid)
+        std::vector< std::pair<float, std::string> > v_prob;
+
+        //loop over the rows (reco pid)
+        for (int pidr = 0; pidr < 6; ++pidr)
         {
-            std::vector<std::string> recopnamelist = {"#pi", "#mu", "p", "K", "d", "e"};
-            std::vector<int> pdg_charged = {211, 13, 2212, 321, 1000010020, 11};
-            std::vector< std::pair<int, float> > pid;
-            pid.resize(6);
-
-            int qclosest = 0;
-            float dist = 100000000.;
-            CLHEP::RandFlat FlatRand(fEngine);
-
-            for (int q = 0; q < 501; ++q)
-            {
-                //Check the title and the reco momentum take only the one that fits
-                std::string fulltitle = m_pidinterp[q]->GetTitle();
-                unsigned first = fulltitle.find("=");
-                unsigned last = fulltitle.find("GeV");
-                std::string substr = fulltitle.substr(first+1, last - first-1);
-                float pidinterp_mom = std::atof(substr.c_str());
-                //calculate the distance between the bin and mom, store the q the closest
-                float disttemp = std::abs(pidinterp_mom - p);
-
-                if( disttemp < dist ){
-                    dist = disttemp;
-                    qclosest = q;
-                }
-            } // closes the "pidmatrix" loop
-
-            //Compute all the probabities for each type of true to reco
-            //loop over the columns (true pid)
-            for (int pidm = 0; pidm < 6; ++pidm)
-            {
-                //loop over the columns (true pid)
-                std::vector< std::pair<float, std::string> > v_prob;
-
-                //loop over the rows (reco pid)
-                for (int pidr = 0; pidr < 6; ++pidr)
-                {
-                    std::string recoparticlename = m_pidinterp[qclosest]->GetYaxis()->GetBinLabel(pidr+1);
-                    float prob = m_pidinterp[qclosest]->GetBinContent(pidm+1, pidr+1);
-                    //Need to check random number value and prob value then associate the recopdg to the reco prob
-                    v_prob.push_back( std::make_pair(prob, recoparticlename) );
-                }
-
-                //Compute the pid from it
-                if(v_prob.size() > 1)
-                {
-                    //Order the vector of prob
-                    std::sort(v_prob.begin(), v_prob.end());
-                    //Throw a random number between 0 and 1
-                    float random_number = FlatRand.fire();
-                    //Make cumulative sum to get the range
-                    std::partial_sum(v_prob.begin(), v_prob.end(), v_prob.begin(), [](const P& _x, const P& _y){return P(_x.first + _y.first, _y.second);});
-
-                    for(size_t ivec = 0; ivec < v_prob.size()-1; ivec++)
-                    {
-                        if( random_number < v_prob.at(ivec+1).first && random_number >= v_prob.at(ivec).first )
-                        {
-                            pid.push_back( std::make_pair(pdg_charged.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(ivec+1).second) ) ), v_prob.at(ivec+1).first) );
-                        }
-                    }
-                }
-                else
-                {
-                    pid.push_back( std::make_pair(pdg_charged.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(0).second) ) ), v_prob.at(0).first) );
-                }
-            }
-
-            //return a vector of pid and prob
-            return pid;
+            std::string recoparticlename = m_pidinterp[qclosest]->GetYaxis()->GetBinLabel(pidr+1);
+            float prob = m_pidinterp[qclosest]->GetBinContent(pidm+1, pidr+1);
+            //Need to check random number value and prob value then associate the recopdg to the reco prob
+            v_prob.push_back( std::make_pair(prob, recoparticlename) );
         }
 
+        //Compute the pid from it
+        if(v_prob.size() > 1)
+        {
+            //Order the vector of prob
+            std::sort(v_prob.begin(), v_prob.end());
+            //Throw a random number between 0 and 1
+            float random_number = FlatRand.fire();
+            //Make cumulative sum to get the range
+            std::partial_sum(v_prob.begin(), v_prob.end(), v_prob.begin(), [](const P& _x, const P& _y){return P(_x.first + _y.first, _y.second);});
 
-        DEFINE_ART_MODULE(gar::anatree)
+            for(size_t ivec = 0; ivec < v_prob.size()-1; ivec++)
+            {
+                if( random_number < v_prob.at(ivec+1).first && random_number >= v_prob.at(ivec).first )
+                {
+                    pid.push_back( std::make_pair(pdg_charged.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(ivec+1).second) ) ), v_prob.at(ivec+1).first) );
+                }
+            }
+        }
+        else
+        {
+            pid.push_back( std::make_pair(pdg_charged.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(0).second) ) ), v_prob.at(0).first) );
+        }
+    }
+
+    //return a vector of pid and prob
+    return pid;
+}
+
+
+DEFINE_ART_MODULE(gar::anatree)

@@ -136,7 +136,7 @@ namespace gar {
           if (used[ihit]) continue;
 
           const float *xyz_fromhit = hits.at(ihit).Position();
-	  float xyz[3] = {xyz_fromhit[0] - xtpccent, xyz_fromhit[1] - ytpccent, xyz_fromhit[2] - ztpccent};
+	      float xyz[3] = {xyz_fromhit[0] -xtpccent, xyz_fromhit[1] -ytpccent, xyz_fromhit[2] -ztpccent};
 
           // start a cluster with just this hit
           std::vector<size_t> hitsinclus;  // keep track of hit indices in this cluster so we can make associations
@@ -192,7 +192,7 @@ namespace gar {
               if (sidetest != side) continue;  // don't cluster hits that were detected on opposite TPC endplates.
 
               const float *xyz2_fromhit = hits.at(ihc).Position();
-	      float xyz2[3] = {xyz2_fromhit[0] - xtpccent, xyz2_fromhit[1] - ytpccent, xyz2_fromhit[2] - ztpccent};
+	          float xyz2[3] = {xyz2_fromhit[0] -xtpccent, xyz2_fromhit[1] -ytpccent, xyz2_fromhit[2] -ztpccent};
 
               if (fPrintLevel > 1)
                 {
