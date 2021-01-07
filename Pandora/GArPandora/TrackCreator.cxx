@@ -281,10 +281,10 @@ namespace gar {
         void TrackCreator::CalculateTrackStateAtCalo(const gar::rec::Track *const pTrack, pandora::CartesianVector &posAtCalo) const
         {
             pandora::CartesianVector bestECalProjection(0., 0., 0);
-            float fbestECalProjection[3] = {0., 0., 0.};
+            float fbestECalProjection[3] = {0., 0., 0.};    float otherECALProjection[3];
             //Use our TrackPropagator
-            //First propagate to the barrel
-            int result = util::TrackPropagator::PropagateToCylinder(pTrack->TrackParEnd(), pTrack->End(), m_settings.m_eCalBarrelInnerR / CLHEP::cm, m_settings.m_GArCenterY / CLHEP::cm, m_settings.m_GArCenterZ / CLHEP::cm, fbestECalProjection, m_settings.m_eCalEndCapInnerZ / CLHEP::cm );
+            //First propagate to the barrel; 2nd extrapolation isn't used here.  Guess it could be.
+            int result = util::TrackPropagator::PropagateToCylinder(pTrack->TrackParEnd(), pTrack->End(), m_settings.m_eCalBarrelInnerR / CLHEP::cm, m_settings.m_GArCenterY / CLHEP::cm, m_settings.m_GArCenterZ / CLHEP::cm, fbestECalProjection,otherECALProjection, m_settings.m_eCalEndCapInnerZ / CLHEP::cm );
             bestECalProjection.SetValues(fbestECalProjection[0] * CLHEP::cm, fbestECalProjection[1] * CLHEP::cm, fbestECalProjection[2] * CLHEP::cm);
 
             if( result != 0 ) {

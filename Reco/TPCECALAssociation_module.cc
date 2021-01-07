@@ -111,7 +111,7 @@ namespace gar {
                 radClusTrack = tfs->make<TH1F>("radClusTrack",
                     "(z,y) distance from cluster to track", 100, 0.0,60.0);
                 xClusTrack   = tfs->make<TH2F>("xClusTrack",
-                    "x distReco/TPCECALAssociationance from cluster to track vs x position of track end in barrel",
+                    "x distance from cluster to track vs x position of track end in barrel",
                     100,-250.0,+250.0, 100,-200.0,+200.0);
                 phiClusTrack = tfs->make<TH1F>("phiClusTrack",
                     "angular distance from cluster to track in endcap", 90,-M_PI,+M_PI);
@@ -202,17 +202,24 @@ namespace gar {
                             }
 
                             // Require plausible extrapolation in x as well
-                            float retXYZ[3];
+                            float retXYZ1[3];    float retXYZ2[3];
                             if (inECALBarrel) {
                                 // Extrapolate track to that radius.  Using MPD center coords.
                                 int errcode = util::TrackPropagator::PropagateToCylinder(
-                                    trackPar,trackEnd,rClus, 0.0, 0.0, retXYZ);
+                                    trackPar,trackEnd,rClus, 0.0, 0.0, retXYZ1,retXYZ2);
                                 if ( errcode!=0 ) {
                                     // This track-cluster match fails.  Error code 1, there is
                                     // no intersection at all, is possible
                                     continue;
                                 }
-                                float extrapXerr = retXYZ[0] -clusterCenter.X();
+                                float extrapXerr;
+                                float transDist1 = std::hypot(retXYZ1[2]-zClus,retXYZ1[1]-yClus);
+                                float transDist2 = std::hypot(retXYZ2[2]-zClus,retXYZ2[1]-yClus);
+                                if (transDist1<transDist2) {
+                                    extrapXerr = retXYZ1[0] -clusterCenter.X();
+                                } else {
+                                    extrapXerr = retXYZ2[0] -clusterCenter.X();
+                                }
                                 xClusTrack->Fill(trackEnd[0], extrapXerr);
                                 // extrapXerr is roughly maxXdisplacement/2 for trackend at
                                 // x < -25cm and -maxXdisplacement/2 for trackend at x > 25cm.
@@ -232,7 +239,7 @@ namespace gar {
                                     break;
                                 }
                                 int errcode = util::TrackPropagator::PropagateToX(
-                                    trackPar,trackEnd, xClus, retXYZ);
+                                    trackPar,trackEnd, xClus, retXYZ1);
                                 if ( errcode!=0 ) {
                                     // This track-cluster match fails.
                                     continue;
@@ -241,12 +248,11 @@ namespace gar {
                                 // track is from the cluster along the helix, projected onto
                                 // to the perpendicular plane.  (bound to -pi,+pi range)
                                 float angClus  = std::atan2(clusterCenter.Y()-yCent,clusterCenter.Z()-zCent);
-                                float angXtrap = std::atan2(       retXYZ[1] -yCent,       retXYZ[2] -zCent);
-                                float extrapPhiErr = angXtrap -angClus;
-                                if (extrapPhiErr > +M_PI) extrapPhiErr -= 2.0*M_PI;
-                                if (extrapPhiErr < -M_PI) extrapPhiErr += 2.0*M_PI;
-                                phiClusTrack->Fill(extrapPhiErr);
-                                float extrapRphiErr = abs(radius)*extrapPhiErr;
+                                float angXtrap = std::atan2(retXYZ1[1] -yCent,retXYZ1[2] -zCent) -angClus;
+                                if (angXtrap > +M_PI) angXtrap -= 2.0*M_PI;
+                                if (angXtrap < -M_PI) angXtrap += 2.0*M_PI;
+                                phiClusTrack->Fill(angXtrap);
+                                float extrapRphiErr = abs(radius)*angXtrap;
                                 rPhiClusTrack->Fill( extrapRphiErr );
                                 if (abs(extrapRphiErr) > fEndcapRphiCut) {
                                     continue;
