@@ -56,6 +56,7 @@
 #include "TParticlePDG.h"
 #include "TH2.h"
 #include "TFile.h"
+#include "TVector3.h"
 
 #include "CLHEP/Random/RandFlat.h"
 
@@ -337,9 +338,16 @@ namespace gar {
         std::vector<Int_t>              fTrackPIDB;
         std::vector<Float_t>            fTrackPIDProbB;
 
-        //TrackTrajectory (dirty for now store directly the vector of points)
-        std::vector<std::vector<TVector3>>            fTrackTrajectoryFWD; //forward
-        std::vector<std::vector<TVector3>>            fTrackTrajectoryBWD; //backward
+        //TrackTrajectory
+        std::vector<Float_t>            fTrackTrajectoryFWDX; //forward
+        std::vector<Float_t>            fTrackTrajectoryFWDY; //forward
+        std::vector<Float_t>            fTrackTrajectoryFWDZ; //forward
+        std::vector<Int_t>              fTrackTrajectoryFWDID;
+
+        std::vector<Float_t>            fTrackTrajectoryBWDX; //backward
+        std::vector<Float_t>            fTrackTrajectoryBWDY; //backward
+        std::vector<Float_t>            fTrackTrajectoryBWDZ; //backward
+        std::vector<Int_t>              fTrackTrajectoryBWDID;
 
         // vertex branches
         std::vector<ULong64_t>          fVertexIDNumber;
@@ -778,8 +786,15 @@ void gar::anatree::beginJob() {
 
         //Track Trajectories
         if(fWriteTrackTrajectories) {
-            fTree->Branch("TrackTrajectoryFWD",   &fTrackTrajectoryFWD);
-            fTree->Branch("TrackTrajectoryBWD",   &fTrackTrajectoryBWD);
+            fTree->Branch("TrackTrajectoryFWDX",   &fTrackTrajectoryFWDX);
+            fTree->Branch("TrackTrajectoryFWDY",   &fTrackTrajectoryFWDY);
+            fTree->Branch("TrackTrajectoryFWDZ",   &fTrackTrajectoryFWDZ);
+            fTree->Branch("TrackTrajectoryFWDID",   &fTrackTrajectoryFWDID);
+
+            fTree->Branch("TrackTrajectoryBWDX",   &fTrackTrajectoryBWDX);
+            fTree->Branch("TrackTrajectoryBWDY",   &fTrackTrajectoryBWDY);
+            fTree->Branch("TrackTrajectoryBWDZ",   &fTrackTrajectoryBWDZ);
+            fTree->Branch("TrackTrajectoryBWDID",   &fTrackTrajectoryBWDID);
         }
     }
 
@@ -1123,8 +1138,15 @@ void gar::anatree::ClearVectors() {
         fNTPCClustersOnTrack.clear();
 
         if(fWriteTrackTrajectories) {
-            fTrackTrajectoryFWD.clear();
-            fTrackTrajectoryBWD.clear();
+            fTrackTrajectoryFWDX.clear();
+            fTrackTrajectoryFWDY.clear();
+            fTrackTrajectoryFWDZ.clear();
+            fTrackTrajectoryFWDID.clear();
+
+            fTrackTrajectoryBWDX.clear();
+            fTrackTrajectoryBWDY.clear();
+            fTrackTrajectoryBWDZ.clear();
+            fTrackTrajectoryBWDID.clear();
         }
     }
 
@@ -1836,8 +1858,22 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
     if(fWriteTrackTrajectories) {
         size_t iTrackTraj = 0;
         for ( auto const& tracktraj : (*TrackTrajHandle) ) {
-            fTrackTrajectoryFWD.push_back(tracktraj.getFWDTrajectory());
-            fTrackTrajectoryBWD.push_back(tracktraj.getBAKTrajectory());
+            
+            std::vector<TVector3> temp = tracktraj.getFWDTrajectory();
+            for(size_t i = 0; i < temp.size(); i++) {
+                fTrackTrajectoryFWDX.push_back(temp.at(i).X());
+                fTrackTrajectoryFWDY.push_back(temp.at(i).Y());
+                fTrackTrajectoryFWDZ.push_back(temp.at(i).Z());
+                fTrackTrajectoryFWDID.push_back(iTrackTraj);
+            }
+
+            temp = tracktraj.getBAKTrajectory();
+            for(size_t i = 0; i < temp.size(); i++) {
+                fTrackTrajectoryBWDX.push_back(temp.at(i).X());
+                fTrackTrajectoryBWDY.push_back(temp.at(i).Y());
+                fTrackTrajectoryBWDZ.push_back(temp.at(i).Z());
+                fTrackTrajectoryBWDID.push_back(iTrackTraj);
+            }
             iTrackTraj++;
         }
     }

@@ -60,6 +60,7 @@ standard_anatree:
  WriteHits:                 false
  WriteTPCClusters:          true
  WriteTracks:               true
+ WriteTrackTrajectories:    false
  WriteVertices:             true
  WriteVees:                 true
 
@@ -138,6 +139,7 @@ standard_anatree_spyv2:
  WriteHits:                 false
  WriteTPCClusters:          true
  WriteTracks:               true
+ WriteTrackTrajectories:    false
  WriteVertices:             true
  WriteVees:                 true
 
