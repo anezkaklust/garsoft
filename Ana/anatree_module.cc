@@ -36,6 +36,7 @@
 #include "ReconstructionDataProducts/TPCCluster.h"
 #include "ReconstructionDataProducts/Hit.h"
 #include "ReconstructionDataProducts/Track.h"
+#include "ReconstructionDataProducts/TrackTrajectory.h"
 #include "ReconstructionDataProducts/TrackIoniz.h"
 #include "ReconstructionDataProducts/Vertex.h"
 #include "ReconstructionDataProducts/Vee.h"
@@ -124,6 +125,7 @@ namespace gar {
         std::string fHitLabel; ///< module label for reco TPC hits rec::Hit
         std::string fTPCClusterLabel; ///< module label for TPC Clusters rec::TPCCluster
         std::string fTrackLabel; ///< module label for TPC Tracks rec:Track
+        std::string fTrackTrajectoryLabel; ///< module label for TPC Track Trajectories rec:TrackTrajectory
         std::string fVertexLabel; ///< module label for vertexes rec:Vertex
         std::string fVeeLabel; ///< module label for conversion/decay vertexes rec:Vee
 
@@ -150,6 +152,7 @@ namespace gar {
         bool  fWriteHits;          ///< Write info about TPC Hits     Default=false
         bool  fWriteTPCClusters;   ///< Write TPCClusters info        Default=true
         bool  fWriteTracks;        ///< Start/end X, P for tracks     Default=true
+        bool  fWriteTrackTrajectories;        ///< Point traj of reco tracks     Default=false
         bool  fWriteVertices;      ///< Reco vertexes & their tracks  Default=true
         bool  fWriteVees;          ///< Reco vees & their tracks      Default=true
 
@@ -334,6 +337,10 @@ namespace gar {
         std::vector<Int_t>              fTrackPIDB;
         std::vector<Float_t>            fTrackPIDProbB;
 
+        //TrackTrajectory (dirty for now store directly the vector of points)
+        std::vector<std::vector<TVector3>>            fTrackTrajectoryFWD; //forward
+        std::vector<std::vector<TVector3>>            fTrackTrajectoryBWD; //backward
+
         // vertex branches
         std::vector<ULong64_t>          fVertexIDNumber;
         std::vector<Float_t>            fVertexX;
@@ -469,6 +476,7 @@ fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "See
     fHitLabel         = p.get<std::string>("HitLabel","hit");
     fTPCClusterLabel  = p.get<std::string>("TPCClusterLabel","tpccluster");
     fTrackLabel       = p.get<std::string>("TrackLabel","track");
+    fTrackTrajectoryLabel  = p.get<std::string>("TrackTrajectoryLabel","track");
     fVertexLabel      = p.get<std::string>("VertexLabel","vertex");
     fVeeLabel         = p.get<std::string>("VeeLabel","veefinder1");
 
@@ -497,6 +505,7 @@ fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "See
     fWriteHits                = p.get<bool>("WriteHits",         false);
     fWriteTPCClusters         = p.get<bool>("WriteTPCClusters",  true);
     fWriteTracks              = p.get<bool>("WriteTracks",       true);
+    fWriteTrackTrajectories   = p.get<bool>("WriteTrackTrajectories", false);
     fWriteVertices            = p.get<bool>("WriteVertices",     true);
     fWriteVees                = p.get<bool>("WriteVees",         true);
 
@@ -534,6 +543,7 @@ fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "See
     consumes<art::Assns<rec::Track, rec::TPCCluster> >(fTPCClusterLabel);
     consumes<std::vector<rec::Hit> >(fHitLabel);
     consumes<std::vector<rec::Track> >(fTrackLabel);
+    consumes<std::vector<rec::TrackTrajectory> >(fTrackTrajectoryLabel);
     consumes<std::vector<rec::Vertex> >(fVertexLabel);
     consumes<art::Assns<rec::Track, rec::Vertex> >(fVertexLabel);
     consumes<std::vector<rec::Vee> >(fVeeLabel);
@@ -765,6 +775,12 @@ void gar::anatree::beginJob() {
         fTree->Branch("TrackPIDProbF",   &fTrackPIDProbF);
         fTree->Branch("TrackPIDB",       &fTrackPIDB);
         fTree->Branch("TrackPIDProbB",   &fTrackPIDProbB);
+
+        //Track Trajectories
+        if(fWriteTrackTrajectories) {
+            fTree->Branch("TrackTrajectoryFWD",   &fTrackTrajectoryFWD);
+            fTree->Branch("TrackTrajectoryBWD",   &fTrackTrajectoryBWD);
+        }
     }
 
     // Reco'd verts & their track-ends
@@ -1105,6 +1121,11 @@ void gar::anatree::ClearVectors() {
         fTrackPIDB.clear();
         fTrackPIDProbF.clear();
         fNTPCClustersOnTrack.clear();
+
+        if(fWriteTrackTrajectories) {
+            fTrackTrajectoryFWD.clear();
+            fTrackTrajectoryBWD.clear();
+        }
     }
 
     if (fWriteVertices) {
@@ -1646,6 +1667,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
     // Get handles for Tracks and their ionizations; also Assn's to TPCClusters, TrackIoniz
     art::Handle< std::vector<rec::Track> > TrackHandle;
     art::Handle< std::vector<rec::TrackIoniz> > TrackIonHandle;
+    art::Handle< std::vector<rec::TrackTrajectory> > TrackTrajHandle;
     art::FindManyP<rec::TPCCluster>* findManyTPCClusters = NULL;
     art::FindOneP<rec::TrackIoniz>*  findIonization = NULL;
     if(fWriteTracks) {
@@ -1657,8 +1679,16 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
             throw cet::exception("anatree") << " No rec::TrackIoniz branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
+
         findManyTPCClusters = new art::FindManyP<rec::TPCCluster>(TrackHandle,e,fTrackLabel);
         findIonization      = new art::FindOneP<rec::TrackIoniz>(TrackHandle,e,fTrackLabel);
+
+        if(fWriteTrackTrajectories) {
+             if (!e.getByLabel(fTrackTrajectoryLabel, TrackTrajHandle)) {
+                throw cet::exception("anatree") << " No rec::TrackTrajectory branch."
+                << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+            }
+        }
     }
 
     // Get handle for Vertices; also Assn's to Tracks
@@ -1800,6 +1830,16 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
             }
             iTrack++;
         } // end loop over TrackHandle
+    }
+
+    //TrackTrajectories
+    if(fWriteTrackTrajectories) {
+        size_t iTrackTraj = 0;
+        for ( auto const& tracktraj : (*TrackTrajHandle) ) {
+            fTrackTrajectoryFWD.push_back(tracktraj.getFWDTrajectory());
+            fTrackTrajectoryBWD.push_back(tracktraj.getBAKTrajectory());
+            iTrackTraj++;
+        }
     }
 
     // save Vertex and Track-Vertex association info
