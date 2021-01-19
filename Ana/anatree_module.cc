@@ -1479,7 +1479,7 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
         fMCPVertIndex[iMCParticle] = fMCPVertIndex[lastMCParticle];
     }
 
-        if (fWriteMCPTrajectory) {
+    if (fWriteMCPTrajectory) {
         // It's in the MCParticle table
         Int_t mcpIndex = 0;
         for ( auto const& mcp : (*MCPHandle) ) {
@@ -2213,3 +2213,4 @@ std::vector< std::pair<int, float> > gar::anatree::processPIDInfo( float p )
 
 
 DEFINE_ART_MODULE(gar::anatree)
+
