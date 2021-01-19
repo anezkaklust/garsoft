@@ -111,7 +111,7 @@ namespace gar {
                 radClusTrack = tfs->make<TH1F>("radClusTrack",
                     "(z,y) distance from cluster to track", 100, 0.0,60.0);
                 xClusTrack   = tfs->make<TH2F>("xClusTrack",
-                    "x distance from cluster to track vs x position of track end in barrel",
+                    "x of track minus x of cluster vs x position of track end in barrel",
                     100,-250.0,+250.0, 100,-200.0,+200.0);
                 phiClusTrack = tfs->make<TH1F>("phiClusTrack",
                     "angular distance from cluster to track in endcap", 90,-M_PI,+M_PI);
