@@ -26,9 +26,10 @@
 #include "TVector3.h"
 
 #include "Geant4/G4ThreeVector.hh"
-#include "nug4/MagneticField/MagneticField.h"
+//#include "nug4/MagneticField/MagneticField.h"
 
 // GArSoft Includes
+#include "DetectorInfo/MPDMagneticField.h"
 #include "ReconstructionDataProducts/TPCCluster.h"
 #include "ReconstructionDataProducts/VecHit.h"
 #include "ReconstructionDataProducts/Track.h"

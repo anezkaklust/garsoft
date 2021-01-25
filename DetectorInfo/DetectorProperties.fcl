@@ -30,6 +30,8 @@ FieldDescriptions: [ { UseField:         1  # 0--off 1--Constant field
                        #MagnetizedVolume: "volNDHPgTPC"
                        MagnetizedVolume: "volMPD"
                        ScaleFactor: 1.0 } ]
+
+service_type: "MPDMagneticField"
 }
 
 five_coil_rz_mag_garsoft:

@@ -41,6 +41,7 @@
 // GArSoft Includes
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "DetectorInfo/DetectorClocksService.h"
+#include "DetectorInfo/MPDMagneticField.h"
 #include "ReconstructionDataProducts/TPCCluster.h"
 #include "ReconstructionDataProducts/Hit.h"
 #include "ReconstructionDataProducts/Track.h"
@@ -52,7 +53,7 @@
 
 #include "Geant4/G4ThreeVector.hh"
 
-#include "nug4/MagneticField/MagneticField.h"
+//#include "nug4/MagneticField/MagneticField.h"
 
 namespace gar {
   namespace rec {
@@ -645,7 +646,7 @@ namespace gar {
       bool matchable = false;
 
       // may not need this yet -- but magnetic field will be a function of position someday
-      // art::ServiceHandle<mag::MagneticField> magFieldService;
+      // art::ServiceHandle<mag::MPDMagneticField> magFieldService;
       // G4ThreeVector zerovec(0,0,0);
       // G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 

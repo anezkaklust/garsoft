@@ -1,7 +1,6 @@
 #include "ParamSim.fcl"
 
 #NuTools Services
-#include "magfield.fcl"
 #include "seedservice.fcl"
 
 #GArSoft Services
@@ -27,7 +26,7 @@ services:
  DetectorProperties:     @local::standard_detproperties
  GArProperties:          @local::standard_garproperties
  NuRandomService:        @local::standard_NuRandomService
- MagneticField:          @local::standard_mag_garsoft
+ MPDMagneticField:       @local::standard_mag_garsoft
  BackTracker:            @local::standard_backtracker
  ECALProperties:         @local::standard_ecalproperties
 }

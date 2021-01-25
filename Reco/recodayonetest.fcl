@@ -1,5 +1,4 @@
 #NuTools Services
-#include "magfield.fcl"
 #include "seedservice.fcl"
 
 #GArSoft Services
@@ -31,7 +30,7 @@ services:
  GArProperties:          @local::standard_garproperties
  ECALProperties:         @local::standard_ecalproperties
  NuRandomService:        @local::standard_NuRandomService
- MagneticField:          @local::standard_mag_garsoft
+ MPDMagneticField:       @local::standard_mag_garsoft
  BackTracker:            @local::standard_backtracker
 #RunHistory:             @local::standard_runhistory
 }

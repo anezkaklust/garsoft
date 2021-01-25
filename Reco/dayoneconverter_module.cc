@@ -26,12 +26,13 @@
 #include "TF1.h"
 
 #include "Geant4/G4ThreeVector.hh"
-#include "nug4/MagneticField/MagneticField.h"
+//#include "nug4/MagneticField/MagneticField.h"
 #include "nurandom/RandomUtils/NuRandomService.h"
 #include "CLHEP/Random/RandGauss.h"
 
 // GArSoft Includes
 
+#include "DetectorInfo/MPDMagneticField.h"
 #include "SimulationDataProducts/CaloDeposit.h"
 #include "ReconstructionDataProducts/TPCCluster.h"
 #include "ReconstructionDataProducts/Track.h"
@@ -149,7 +150,8 @@ namespace gar {
             auto const trackPtrMaker = art::PtrMaker<gar::rec::Track>(e);
             auto const tpcclusPtrMaker = art::PtrMaker<gar::rec::TPCCluster>(e);
 
-            art::ServiceHandle<mag::MagneticField> magFieldService;
+            art::ServiceHandle<mag::MPDMagneticField> magFieldService;
+            //art::ServiceHandle<mag::MagneticField> magFieldService;
             G4ThreeVector zerovec(0,0,0);
             G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 
