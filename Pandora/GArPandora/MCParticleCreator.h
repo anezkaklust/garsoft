@@ -6,6 +6,8 @@
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 
+#include "Geometry/Geometry.h"
+
 #include "Api/PandoraApi.h"
 #include "Objects/Helix.h"
 
@@ -82,6 +84,9 @@ namespace gar {
             const pandora::Pandora &m_pandora;         ///< Reference to the pandora object to create the mc particles
             float                   m_bField;          ///< The bfield
             const RotationTransformation &m_rotation;
+            const geo::GeometryCore*            fGeo; //Geometry Manager
+
+            float                               m_origin[3] = {0, 0, 0};
 
             MCParticleVector artMCParticleVector;
             RawMCParticleVector generatorArtMCParticleVector;

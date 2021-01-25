@@ -276,6 +276,7 @@ namespace gar {
                 std::cout << "identifier_layer: " << _layerId << std::endl;
                 std::cout << "identifier_slice: " << _sliceId << std::endl;
                 std::cout << "active slice: " << _active_slice << std::endl;
+                std::cout << "nlayers: " << _nLayers << std::endl;
 
                 std::cout << "grid_barrel_layers: ";
                 for(unsigned int i = 0; i < _gridBarrelLayers.size(); i++)
@@ -314,6 +315,10 @@ namespace gar {
                     std::string value = grid.at(i);
                     std::for_each( value.begin(), value.end(), t ) ;
 
+                    // std::cout << descriptors.size() << std::endl;
+                    // for(unsigned int ii = 0; ii < descriptors.size(); ii++)
+                    // std::cout << descriptors.at(ii) << std::endl;
+
                     _gridFirst.push_back(std::atoi(descriptors.at(0).c_str()));
                     _gridLast.push_back(std::atoi(descriptors.at(1).c_str()));
                 }
@@ -342,6 +347,7 @@ namespace gar {
                 {
                     if( layer >= _list.at(0).at(i) && layer <= _list.at(1).at(i) )
                     {
+                        // std::cout << layer << " " << _list.at(0).at(i) << " " << _list.at(1).at(i) << std::endl;
                         isTile = true;
                         break;
                     }

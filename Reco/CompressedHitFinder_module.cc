@@ -240,7 +240,7 @@ namespace gar {
                       //std::cout << " hit RMS calc: " << hitSumSq << " " << hitSig << " " << hitTime << " " << hitRMS << std::endl;
 
                       double driftdistance = fDetProp->DriftVelocity() * fTime->TPCTick2Time(hitTime);
-                      if (chanposx < 0)
+                      if (chanposx < fGeo->TPCXCent())
                         {
                           pos[0] = chanposx + driftdistance;
                         }

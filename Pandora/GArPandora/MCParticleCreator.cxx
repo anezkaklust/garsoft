@@ -4,6 +4,8 @@
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "canvas/Persistency/Common/FindOneP.h"
 
+#include "CoreUtils/ServiceUtil.h"
+
 #include "CaloHitCreator.h"
 #include "MCParticleCreator.h"
 #include "TrackCreator.h"
@@ -23,10 +25,14 @@ namespace gar {
         m_pandora(*pPandora),
         m_rotation(*pRotation)
         {
+            fGeo = gar::providerFrom<geo::Geometry>();
             art::ServiceHandle<mag::MagneticField> magFieldService;
             G4ThreeVector zerovec(0, 0, 0);
             G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
             m_bField = magfield[0]; //x component at (0, 0, 0)
+            m_origin[0] = fGeo->GetOriginX();
+            m_origin[1] = fGeo->GetOriginY();
+            m_origin[2] = fGeo->GetOriginZ();
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
@@ -69,8 +75,8 @@ namespace gar {
                     ++neutrinoCounter;
 
                     const pandora::CartesianVector momentum(neutrino.Nu().Px(), neutrino.Nu().Py(), neutrino.Nu().Pz());
-                    const pandora::CartesianVector vertex(neutrino.Nu().Vx() * CLHEP::cm, neutrino.Nu().Vy() * CLHEP::cm, neutrino.Nu().Vz() * CLHEP::cm);
-                    const pandora::CartesianVector endpoint(neutrino.Nu().EndX() * CLHEP::cm, neutrino.Nu().EndY() * CLHEP::cm, neutrino.Nu().EndZ() * CLHEP::cm);
+                    const pandora::CartesianVector vertex( (neutrino.Nu().Vx() - m_origin[0]) * CLHEP::cm, (neutrino.Nu().Vy()  - m_origin[1]) * CLHEP::cm, (neutrino.Nu().Vz()  - m_origin[2]) * CLHEP::cm);
+                    const pandora::CartesianVector endpoint( (neutrino.Nu().EndX() - m_origin[0]) * CLHEP::cm, (neutrino.Nu().EndY() - m_origin[1]) * CLHEP::cm, (neutrino.Nu().EndZ() - m_origin[2]) * CLHEP::cm);
 
                     const pandora::CartesianVector newmomentum = m_rotation.MakeRotation(momentum);
                     const pandora::CartesianVector newvertex = m_rotation.MakeRotation(vertex);
@@ -117,8 +123,8 @@ namespace gar {
 
                 // Lookup position and kinematics at start and end points
                 const pandora::CartesianVector momentum(pMcParticle->Px(), pMcParticle->Py(), pMcParticle->Pz());
-                const pandora::CartesianVector vertex(pMcParticle->Vx() * CLHEP::cm, pMcParticle->Vy() * CLHEP::cm, pMcParticle->Vz() * CLHEP::cm);
-                const pandora::CartesianVector endpoint(pMcParticle->EndX() * CLHEP::cm, pMcParticle->EndY() * CLHEP::cm, pMcParticle->EndZ() * CLHEP::cm);
+                const pandora::CartesianVector vertex( (pMcParticle->Vx() - m_origin[0]) * CLHEP::cm, (pMcParticle->Vy() - m_origin[1]) * CLHEP::cm, (pMcParticle->Vz() - m_origin[2]) * CLHEP::cm);
+                const pandora::CartesianVector endpoint( (pMcParticle->EndX() - m_origin[0]) * CLHEP::cm, (pMcParticle->EndY() - m_origin[1]) * CLHEP::cm, (pMcParticle->EndZ() - m_origin[2]) * CLHEP::cm);
 
                 const pandora::CartesianVector newmomentum = m_rotation.MakeRotation(momentum);
                 const pandora::CartesianVector newvertex = m_rotation.MakeRotation(vertex);

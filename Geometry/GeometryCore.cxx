@@ -1012,18 +1012,29 @@ namespace gar {
         void GeometryCore::GetGeometryParameters()
         {
 
-	    // move this ahead of the segmentation call in the service
-            //GetDetectorsPresent();
+	        // move this ahead of the segmentation call in the service
+            GetDetectorsPresent();
 
-            //if(fHasGasTPCDetector)
-            //StoreTPCParameters();
-
+            if(fHasGasTPCDetector)
+            StoreTPCParameters();
             if(fHasECALDetector)
             StoreECALParameters();
             if(fHasMuonDetector)
             StoreMuIDParameters();
 
             StoreOtherParameters();
+
+            SetDetectorOrigin(); //Set the origin!
+        }
+
+        //----------------------------------------------------------------------------
+        void GeometryCore::FinalizeGeometryParameters() 
+        {
+            if(fHasECALDetector) {
+                FindECALnLayers();
+                MakeECALLayeredCalorimeterData();
+                StoreECALNodes(fECALNodePath);
+            }
         }
 
         //----------------------------------------------------------------------------
@@ -1043,8 +1054,6 @@ namespace gar {
             fHasTrackerScDetector = FindTrackerScVolume();
 
             fHasMuonDetector = FindMuIDVolume();
-
-            SetDetectorOrigin(); //Set the origin!
         }
 
         //----------------------------------------------------------------------------
@@ -1078,7 +1087,7 @@ namespace gar {
         //----------------------------------------------------------------------------
         void GeometryCore::StoreTPCParameters()
         {
-	  if(!fHasGasTPCDetector) return;
+	        if(!fHasGasTPCDetector) return;
             FindActiveTPCVolume();
         }
 
@@ -1093,11 +1102,6 @@ namespace gar {
             FindECALInnerSymmetry();
             FindECALEndcapStartX();
             FindECALEndcapOuterX();
-            FindECALnLayers();
-            MakeECALLayeredCalorimeterData();
-
-            StoreECALNodes(fECALNodePath);
-            std::cout << "Stored " << fECALNodePath.size() << " ECAL nodes in memory" << std::endl;
             // std::raise(SIGINT);
         }
 
@@ -1114,56 +1118,57 @@ namespace gar {
         //----------------------------------------------------------------------------
         void GeometryCore::PrintGeometry() const
         {
+            std::cout << "Geometry loaded with \n" << std::endl;
             std::cout << "------------------------------" << std::endl;
             std::cout << "ND-GAr detector origin set to " << GetOriginX() << " cm " << GetOriginY() << " cm " << GetOriginZ() << " cm" << std::endl;
-            std::cout << "------------------------------\n" << std::endl;
-
+        
             //Prints geometry parameters
             std::cout << "------------------------------" << std::endl;
             std::cout << "World Geometry" << std::endl;
             std::cout << "World Origin (x, y, z) " << GetWorldX() << " cm " << GetWorldY() << " cm " << GetWorldZ() << " cm" << std::endl;
             std::cout << "World Size (H, W, L) " << GetWorldHalfWidth() << " cm " << GetWorldHalfHeight() << " cm " << GetWorldLength() << " cm" << std::endl;
-            std::cout << "------------------------------\n" << std::endl;
 
             if(this->HasRock()) {
+                std::cout << "------------------------------" << std::endl;
                 std::cout << "Rock Geometry" << std::endl;
                 std::cout << "Rock Origin (x, y, z) " << GetRockX() << " cm " << GetRockY() << " cm " << GetRockZ() << " cm" << std::endl;
                 std::cout << "Rock Size (H, W, L) " << GetRockHalfWidth() << " cm " << GetRockHalfHeight() << " cm " << GetRockLength() << " cm" << std::endl;
-                std::cout << "------------------------------\n" << std::endl;
             }
 
             if(this->HasEnclosure()) {
-
+                std::cout << "------------------------------" << std::endl;
                 std::cout << "Enclosure Geometry" << std::endl;
                 std::cout << "Enclosure Origin (x, y, z) " << GetEnclosureX() << " cm " << GetEnclosureY() << " cm " << GetEnclosureZ() << " cm" << std::endl;
                 std::cout << "Enclosure Size (H, W, L) " << GetEnclosureHalfWidth() << " cm " << GetEnclosureHalfHeight() << " cm " << GetEnclosureLength() << " cm" << std::endl;
-                std::cout << "------------------------------\n" << std::endl;
             }
 
             if(this->HasLArTPCDetector()) {
+                std::cout << "------------------------------" << std::endl;
                 std::cout << "LArArgonCube Geometry" << std::endl;
                 std::cout << "LArTPC Origin (x, y, z) " << GetLArTPCX() << " cm " << GetLArTPCY() << " cm " << GetLArTPCZ() << " cm" << std::endl;
                 std::cout << "LArTPC Size (H, W, L) " << GetLArTPCHalfWidth() << " cm " << GetLArTPCHalfHeight() << " cm " << GetLArTPCLength() << " cm" << std::endl;
-                std::cout << "------------------------------\n" << std::endl;
+                std::cout << "------------------------------" << std::endl;
                 std::cout << "LArActiveArgonCube Geometry" << std::endl;
                 std::cout << "LArTPCActive Origin (x, y, z) " << GetActiveLArTPCX() << " cm " << GetActiveLArTPCY() << " cm " << GetActiveLArTPCZ() << " cm" << std::endl;
                 std::cout << "LArTPCActive Size (H, W, L) " << GetActiveLArTPCHalfWidth() << " cm " << GetActiveLArTPCHalfHeight() << " cm " << GetActiveLArTPCLength() << " cm" << std::endl;
-                std::cout << "------------------------------\n" << std::endl;
+
             }
 
-            std::cout << "MPD Geometry" << std::endl;
-            std::cout << "MPD Origin (x, y, z) " << GetMPDX() << " cm " << GetMPDY() << " cm " << GetMPDZ() << " cm" << std::endl;
-            std::cout << "MPD Size (H, W, L) " << GetMPDHalfWidth() << " cm " << GetMPDHalfHeight() << " cm " << GetMPDLength() << " cm" << std::endl;
-            std::cout << "------------------------------\n" << std::endl;
+            std::cout << "------------------------------" << std::endl;
+            std::cout << "ND-GAr Geometry" << std::endl;
+            std::cout << "ND-GAr Origin (x, y, z) " << GetMPDX() << " cm " << GetMPDY() << " cm " << GetMPDZ() << " cm" << std::endl;
+            std::cout << "ND-GAr Size (H, W, L) " << GetMPDHalfWidth() << " cm " << GetMPDHalfHeight() << " cm " << GetMPDLength() << " cm" << std::endl;
 
             if(this->HasGasTPCDetector()) {
+                std::cout << "------------------------------" << std::endl;
                 std::cout << "TPC Geometry" << std::endl;
                 std::cout << "TPC Origin (x, y, z) " << TPCXCent() << " cm " << TPCYCent() << " cm " << TPCZCent() << " cm" << std::endl;
                 std::cout << "TPC Active Volume Size (R, L) " << TPCRadius() << " cm " << TPCLength() << " cm" << std::endl;
-                std::cout << "------------------------------\n" << std::endl;
+		std::cout << "TPC Number of Drift Volumes " << TPCNumDriftVols() << std::endl;
             }
 
             if(this->HasECALDetector()) {
+                std::cout << "------------------------------" << std::endl;
                 std::cout << "ECAL Geometry" << std::endl;
                 std::cout << "ECAL Barrel inner radius: " << GetECALInnerBarrelRadius() << " cm" << std::endl;
                 std::cout << "ECAL Barrel outer radius: " << GetECALOuterBarrelRadius() << " cm" << std::endl;
@@ -1182,18 +1187,17 @@ namespace gar {
                 std::cout << "ECAL Endcap Outer X: " << GetECALEndcapOuterX() << " cm" << std::endl;
                 std::cout << "Number of layers: " << GetNLayers("ECAL") << std::endl;
                 std::cout << "Pressure Vessel Thickness: " << GetPVThickness() << " cm" << std::endl;
-                std::cout << "------------------------------\n" << std::endl;
             }
 
             if(this->HasTrackerScDetector()) {
-
+                std::cout << "------------------------------" << std::endl;
                 std::cout << "ND-GAr Lite Geometry" << std::endl;
                 std::cout << "ND-GAr Lite Origin (x, y, z) " << GArLiteXCent() << " cm " << GArLiteYCent() << " cm " << GArLiteZCent() << " cm" << std::endl;
                 std::cout << "ND-GAr Lite Active Volume Size (R, L) " << GArLiteRadius() << " cm " << GArLiteLength() << " cm" << std::endl;
-                std::cout << "------------------------------\n" << std::endl;
             }
 
             if(this->HasMuonDetector()) {
+                std::cout << "------------------------------" << std::endl;
                 std::cout << "MuID Geometry" << std::endl;
                 std::cout << "MuID Barrel inner radius: " << GetMuIDInnerBarrelRadius() << " cm" << std::endl;
                 std::cout << "MuID Barrel outer radius: " << GetMuIDOuterBarrelRadius() << " cm" << std::endl;
@@ -1202,8 +1206,8 @@ namespace gar {
                 std::cout << "MuID Barrel polyhedra side length: " << GetMuIDBarrelSideLength() << " cm" << std::endl;
                 std::cout << "MuID Barrel polyhedra apothem length: " << GetMuIDBarrelApothemLength() << " cm" << std::endl;
                 std::cout << "Number of layers: " << GetNLayers("MuID") << std::endl;
-                std::cout << "------------------------------\n" << std::endl;
             }
+            std::cout << "------------------------------\n" << std::endl;
         }
 
         //......................................................................
@@ -1396,6 +1400,9 @@ namespace gar {
 
             fTPCRadius = rOuter;
             fTPCLength = 2.0 * ((TGeoTube*)activeVol->GetShape())->GetDZ();
+
+	    // suggest -- figure out how many TPC drift volumes there are and set fTPCNumDriftVols here.
+	    fTPCNumDriftVols = 2;
 
             return true;
         }
@@ -1612,7 +1619,7 @@ namespace gar {
                 float layer_thickness = 0.;
                 float abs_thickness = 0.;
 
-                gar::geo::LayeredCalorimeterData::Layer caloLayer ;
+                gar::geo::LayeredCalorimeterData::Layer caloLayer;
                 // caloLayer.cellSize0 = fECALSegmentationAlg->gridSizeX();
                 // caloLayer.cellSize1 = fECALSegmentationAlg->gridSizeX();
                 caloLayer.cellSize0 = fECALSegmentationAlg->stripSizeX();
@@ -1697,7 +1704,7 @@ namespace gar {
                 float layer_thickness = 0.;
                 float abs_thickness = 0.;
 
-                gar::geo::LayeredCalorimeterData::Layer caloLayer ;
+                gar::geo::LayeredCalorimeterData::Layer caloLayer;
                 // caloLayer.cellSize0 = fECALSegmentationAlg->gridSizeX();
                 // caloLayer.cellSize1 = fECALSegmentationAlg->gridSizeX();
                 caloLayer.cellSize0 = fECALSegmentationAlg->stripSizeX();
@@ -1851,6 +1858,8 @@ namespace gar {
             fEnclosureX = 0.;
             fEnclosureY = 0.;
             fEnclosureZ = 0.;
+
+	    fTPCNumDriftVols = 2;  // default to ALICE-style TPC with cathode in the middle
 
             fTPCXCent = 0.;
             fTPCYCent = 0.;

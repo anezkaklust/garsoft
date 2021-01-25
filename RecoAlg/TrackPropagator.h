@@ -53,12 +53,13 @@ namespace util {
         */
 
 
-        /** Finds an intersections of a helix with an infinite cylinder of radius
+        /** Finds two intersections of a helix with an infinite cylinder of radius
         rCyl, centered at yCyl, zCyl and parallel to the x axis, storing the
-        "closest" intersection in retXYZ, meaning that the value of phi at the
-        intersection is closest to what it is at Xpoint.  Status codes: 0 is success;
-        1,2, 3 and 4 are no-intersection conditions.  If the helix cylinder and given
-        cylinder are disjoint, returns 1; if one is entirely inside the other,
+        "closest" intersection in retXYZ1, meaning that the value of phi at the
+        intersection is closest to what it is at Xpoint.  The other intersection is
+        returned in retXYZ2.  Status codes: 0 is success; 1,2, 3 and 4 are
+        rno-intersection conditions.  If the helix cylinder and given cylinder
+        are disjoint, returns 1; if one is entirely inside the other,
         status is 2; if the cylinders have a common axes, status is 3.  Status
         code 4 results when the track has zero curvature and the line does not
         intersect the cylinder.  If the intersections are found, and Xmax > 0, this
@@ -68,8 +69,8 @@ namespace util {
         trackpar and Xpoint are as in PropagateToX and DistXYZ. */
 
         static int PropagateToCylinder(const float* trackpar, const float* Xpoint,
-            const float rCyl, const float yCyl, const float zCyl, float* retXYZ,
-            const float Xmax=0.0, const float epsilon = 2.0e-5);
+            const float rCyl, const float yCyl, const float zCyl, float* retXYZ1,
+            float* retXYZ2, const float Xmax=0.0, const float epsilon = 2.0e-5);
 
 
 

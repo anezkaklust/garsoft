@@ -766,6 +766,13 @@ namespace gar {
 
         //@{
         /**
+        * @brief Returns number of TPC drift volumes
+        */
+        int TPCNumDriftVols() const { return fTPCNumDriftVols; }
+        //@}
+
+        //@{
+        /**
         * @brief Returns the X location of the center of the TPC in cm
         */
         float TPCXCent() const { return fTPCXCent; }
@@ -1059,6 +1066,7 @@ namespace gar {
         void SetDetectorName(std::string new_name) { fDetectorName = new_name; }
 
         void GetGeometryParameters();
+        void FinalizeGeometryParameters();
         //Prints information on the detector geometry
         void PrintGeometry() const;
 
@@ -1159,6 +1167,11 @@ namespace gar {
 
         float          fTPCRadius = 0.;      ///< Radius of the TPC
         float          fTPCLength = 0.;      ///< length of the TPC
+
+	int            fTPCNumDriftVols = 2; ///< 2 if standard ALICE detector, 1 if single drift vol
+	// we may need to add here a flag saying which side of the TPC the ROCs
+	// are on if we are to support both of them.  And provide initialization
+	// and a getter
 
         float          fTPCXCent = 0.;       ///< center of TPC: X
         float          fTPCYCent = 0.;       ///< center of TPC: Y

@@ -562,6 +562,7 @@ namespace util {
             for (std::vector<TG4PrimaryVertex>::const_iterator t = fEvent->Primaries.begin(); t != fEvent->Primaries.end(); ++t)
             {
                 TLorentzVector pos(t->Position.X() / CLHEP::cm, t->Position.Y() / CLHEP::cm, t->Position.Z() / CLHEP::cm, t->Position.T());
+		double evWeight = t->Weight;
 
                 for (std::vector<TG4PrimaryParticle>::const_iterator p = t->Particles.begin(); p != t->Particles.end(); ++p) {
                     int trackid = p->GetTrackId();
@@ -571,6 +572,7 @@ namespace util {
 
                     simb::MCParticle part(trackid, p->GetPDGCode(), primary);
                     part.AddTrajectoryPoint(pos, pvec);
+		    part.SetWeight(evWeight);
 
                     MF_LOG_DEBUG("ConvertEdep2Art") << "Adding primary particle with "
                     << " momentum " << part.P()
