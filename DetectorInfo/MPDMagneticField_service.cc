@@ -636,14 +636,14 @@ G4ThreeVector MPDMagneticField::CalcRZField(G4ThreeVector const& p, RZFieldMap c
 
 G4ThreeVector MPDMagneticField::CalcXYZField(G4ThreeVector const& p, XYZFieldMap const& fd) const
 {
-    const float x = fd.UseSymmetry ? std::abs(p.x()) : p.x();
-    const float y = fd.UseSymmetry ? std::abs(p.y()) : p.y();
-    const float z = fd.UseSymmetry ? std::abs(p.z()) : p.z();
+    const float x = fd.UseSymmetry ? std::abs(p.x() - fd.xo) : p.x() - fd.xo;
+    const float y = fd.UseSymmetry ? std::abs(p.y() - fd.yo) : p.y() - fd.yo;
+    const float z = fd.UseSymmetry ? std::abs(p.z() - fd.zo) : p.z() - fd.zo;
 
     Interpolator interp;
-    const float bx = interp.interpolate(x, y, z, fd.fx, fd.dx, fd.dy, fd.dz, fd.xo, fd.yo, fd.zo);
-    const float by = interp.interpolate(x, y, z, fd.fy, fd.dx, fd.dy, fd.dz, fd.xo, fd.yo, fd.zo);
-    const float bz = interp.interpolate(x, y, z, fd.fz, fd.dx, fd.dy, fd.dz, fd.xo, fd.yo, fd.zo);
+    const float bx = interp.interpolate(x, y, z, fd.fx, fd.dx, fd.dy, fd.dz, 0.0, 0.0, 0.0);
+    const float by = interp.interpolate(x, y, z, fd.fy, fd.dx, fd.dy, fd.dz, 0.0, 0.0, 0.0);
+    const float bz = interp.interpolate(x, y, z, fd.fz, fd.dx, fd.dy, fd.dz, 0.0, 0.0, 0.0);
 
     return G4ThreeVector(bx, by, bz);
 }

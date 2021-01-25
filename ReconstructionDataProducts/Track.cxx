@@ -8,8 +8,9 @@
 //  Modifications and additions by Tom Junk, 2018; Leo Bellantoni, 2019; etc.
 //
 
+#include "DetectorInfo/MPDMagneticField.h"
 #include "ReconstructionDataProducts/Track.h"
-#include "nug4/MagneticField/MagneticField.h"
+//#include "nug4/MagneticField/MagneticField.h"
 #include "TMath.h"
 
 namespace gar {
@@ -65,7 +66,8 @@ namespace gar {
             IDNumberGen::create(FirstNumber);
             fIDnumero = IDNumberGen::create()->getNewOne();
 
-            art::ServiceHandle<mag::MagneticField> magFieldService;
+            art::ServiceHandle<mag::MPDMagneticField> magFieldService;
+            //art::ServiceHandle<mag::MagneticField> magFieldService;
             G4ThreeVector zerovec(0,0,0);
             G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 
@@ -163,7 +165,8 @@ namespace gar {
           IDNumberGen::create(FirstNumber);
           fIDnumero = IDNumberGen::create()->getNewOne();
 
-          art::ServiceHandle<mag::MagneticField> magFieldService;
+          art::ServiceHandle<mag::MPDMagneticField> magFieldService;
+          //art::ServiceHandle<mag::MagneticField> magFieldService;
           G4ThreeVector zerovec(0,0,0);
           G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 

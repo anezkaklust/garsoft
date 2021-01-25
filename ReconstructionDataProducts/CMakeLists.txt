@@ -29,6 +29,7 @@ cet_make( LIBRARIES
                        ${CLHEP}
                        ${Boost_SYSTEM_LIBRARY}
 		                   ${GSLLIBS}
+                       DetectorInfo_MPDMagneticField_service
                        NO_DICTIONARY )
 
 # Simulation base is included in making the dictionary for associations
@@ -36,6 +37,7 @@ cet_make( LIBRARIES
 
 art_dictionary( DICTIONARY_LIBRARIES ReconstructionDataProducts
                                      RawDataProducts
+                                     DetectorInfo_MPDMagneticField_service
                                      nusimdata_SimulationBase)
 
 install_headers()
