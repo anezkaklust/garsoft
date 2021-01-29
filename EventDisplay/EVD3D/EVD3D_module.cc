@@ -1478,7 +1478,7 @@ namespace gar{
 
                 try
                 {
-                    event.getView(fRecoECALHitLabels.at(0), tempCalo);
+                    event.getView(fRecoECALHitLabels.at(0), "ECAL", tempCalo);
                     for(size_t t = 0; t < tempCalo.size(); ++t)
                     recoCalo.push_back(tempCalo[t]);
                 }
