@@ -29,7 +29,7 @@ standard_anatree:
  HitLabel:                 "hit"
 
  CaloHitLabel:             "sscalohit"
- CaloHitInstanceCalo:      ""
+ CaloHitInstanceCalo:      "ECAL"
  MuIDHitLabel:             "sipmhit"
  CaloHitInstanceMuID:      "MuID"
 
@@ -108,7 +108,7 @@ standard_anatree_spyv2:
  HitLabel:                 "hit"
 
  CaloHitLabel:             "sscalohit"
- CaloHitInstanceCalo:      ""
+ CaloHitInstanceCalo:      "ECAL"
  MuIDHitLabel:             "sipmhit"
  CaloHitInstanceMuID:      "MuID"
 

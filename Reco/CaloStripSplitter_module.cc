@@ -96,7 +96,7 @@ namespace gar {
 
             art::InputTag ecaltag(fCaloHitLabel, fECALInstanceName);
             consumes< std::vector<gar::rec::CaloHit> >(ecaltag);
-            produces< std::vector<gar::rec::CaloHit> >();
+            produces< std::vector<gar::rec::CaloHit> >(fECALInstanceName);
         }
 
         //----------------------------------------------------------------------------
@@ -189,7 +189,7 @@ namespace gar {
                 HitCol->emplace_back(*it);
             }
 
-            e.put(std::move(HitCol));
+            e.put(std::move(HitCol), fECALInstanceName);
 
             return;
         }
