@@ -101,8 +101,8 @@ namespace gar {
       fPatRecLabel       = p.get<std::string>("PatRecLabel","patrec");
       fPrintLevel        = p.get<int>("PrintLevel",0);
       fDumpTracks        = p.get<int>("DumpTracks",0);
-      fTPCClusterResolXY        = p.get<float>("TPCClusterResolXY",1.0); // TODO -- think about what this value is
-      fTPCClusterResolZ         = p.get<float>("TPCClusterResolZ",0.5);  // this is probably much better
+      fTPCClusterResolXY        = p.get<float>("TPCClusterResolXY",0.3); // TODO -- think about what this value is
+      fTPCClusterResolZ         = p.get<float>("TPCClusterResolZ",0.3);  // this is probably much better
 
       art::InputTag patrecTag(fPatRecLabel);
       consumes< std::vector<gar::rec::Track> >(patrecTag);

@@ -37,8 +37,8 @@ dayone_tpctrackfit2:
  module_type:               dayonetrackfit
  PatRecLabel:               "dayone"    # module label producing patrec tracks and TPCCluster assoications
 
- TPCClusterResolXY:          1.0        # resolution in XY
- TPCClusterResolZ:           0.5        # resolution in Z
+ TPCClusterResolXY:          0.3        # resolution in XY
+ TPCClusterResolZ:           0.3        # resolution in Z
  DumpTracks:                 0          # separate track dump printout
  RoadYZinFit:                1000.0     # how far in cm to keep a TPCCluster in the fit step
  MinNumTPCClusters:               3    # minimum number of TPCClusters on a track

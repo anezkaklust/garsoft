@@ -480,7 +480,7 @@ namespace gar {
 	        int retcode = util::TrackPropagator::DistXYZ(tparbeg.data(),tvpos,pos,dist);
 		if (retcode == 0)
 		  {
-		    chisqforwards += dist*dist;   // no TPC cluster errors at the moment.
+		    chisqforwards += dist*dist/(fSmearX*fSmearX);   // crude parameterization of errors
 		  }
 	      }
 
@@ -499,7 +499,7 @@ namespace gar {
 	        int retcode = util::TrackPropagator::DistXYZ(tparend.data(),tepos,pos,dist);
 		if (retcode == 0)
 		  {
-		    chisqbackwards += dist*dist;   // no TPC cluster errors at the moment.
+		    chisqbackwards += dist*dist/(fSmearX*fSmearX);   // crude parameterization of errors
 		  }
 	      }
 
