@@ -471,6 +471,18 @@ namespace gar {
             {
                 return 1;
             }
+	    float chisqforwards = 0;
+	    float tvpos[3] = {tparbeg[5],tparbeg[0],tparbeg[1]};
+	    for (size_t i=0; i<trackTPCClusters.size(); ++i)
+	      {
+  	        float dist = 0;
+	        const float *pos = trackTPCClusters.at(i).Position();
+	        int retcode = util::TrackPropagator::DistXYZ(tparbeg.data(),tvpos,pos,dist);
+		if (retcode == 0)
+		  {
+		    chisqforwards += dist*dist;   // no TPC cluster errors at the moment.
+		  }
+	      }
 
             std::vector<float> tparend(6,0);
             if ( gar::rec::initial_trackpar_estimate(trackTPCClusters, hlb, tparend[2], tparend[4],
@@ -478,8 +490,21 @@ namespace gar {
             {
                 return 1;
             }
+	    float chisqbackwards = 0;
+	    float tepos[3] = {tparend[5],tparend[0],tparend[1]};
+	    for (size_t i=0; i<trackTPCClusters.size(); ++i)
+	      {
+  	        float dist = 0;
+	        const float *pos = trackTPCClusters.at(i).Position();
+	        int retcode = util::TrackPropagator::DistXYZ(tparend.data(),tepos,pos,dist);
+		if (retcode == 0)
+		  {
+		    chisqbackwards += dist*dist;   // no TPC cluster errors at the moment.
+		  }
+	      }
 
-            // no chisquare or covariance in patrec tracks
+
+            // no covariance matrix in patrec tracks
             float covmatbeg[25];
             float covmatend[25];
             for (size_t i=0; i<25; ++i) // no covmat in patrec tracks
@@ -490,8 +515,8 @@ namespace gar {
 
             trackpar.setNTPCClusters(trackTPCClusters.size());
             trackpar.setTime(0);
-            trackpar.setChisqForwards(0);
-            trackpar.setChisqBackwards(0);
+            trackpar.setChisqForwards(chisqforwards);
+            trackpar.setChisqBackwards(chisqbackwards);
             trackpar.setLengthForwards(lengthforwards);
             trackpar.setLengthBackwards(lengthbackwards);
             trackpar.setCovMatBeg(covmatbeg);
