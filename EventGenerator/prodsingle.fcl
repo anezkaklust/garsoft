@@ -30,7 +30,7 @@ services:
   GArProperties:          @local::standard_garproperties
   ECALProperties:         @local::standard_ecalproperties
   NuRandomService:        @local::standard_NuRandomService
-  MagneticField:          @local::standard_mag_garsoft
+  MPDMagneticField:       @local::standard_mag_garsoft
 #RunHistory:             @local::standard_runhistory
 }
 

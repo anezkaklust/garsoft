@@ -25,13 +25,13 @@ standard_mag_garsoft:
 GlobalScaleFactor:   1.0   # to scale all of the individual field descriptions
 
 FieldDescriptions: [ { UseField:         1  # 0--off 1--Constant field
-                                            # 2--RZ Field map
+                                            # 2--RZ Map 3--XYZ Map
                        ConstantField:    [ 0.5, 0.0, 0.0 ] # in Tesla
                        #MagnetizedVolume: "volNDHPgTPC"
                        MagnetizedVolume: "volMPD"
                        ScaleFactor: 1.0 } ]
 
-service_type: "MPDMagneticField"
+service_provider: MagneticFieldServiceGAr
 
 NBinsXCheckPlots: [ 50, 50, 0 ]
 NBinsYCheckPlots: [ 50, 0, 50 ]
@@ -65,7 +65,7 @@ FieldDescriptions: [ { UseField:         2  # 0--off 1--Constant field
                        ScaleFactor: 1.0    # used to multiply the field by a scalar
                        } ]
 
-service_type: "MPDMagneticField"
+service_provider: MagneticFieldServiceGAr
 
 # three 2D plots.  These are vectors of nbins -- if nbins is zero, don't loop over that axis
 
@@ -99,7 +99,7 @@ FieldDescriptions: [ { UseField:         3  # 0--off 1--Constant field
                        ScaleFactor: 1.0    # used to multiply the field by a scalar
                        } ]
 
-service_type: "MPDMagneticField"
+service_provider: MagneticFieldServiceGAr
 
 # three 2D plots.  These are vectors of nbins -- if nbins is zero, don't loop over that axis
 

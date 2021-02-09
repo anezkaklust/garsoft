@@ -11,7 +11,7 @@ Date 15.05.2020
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "art/Persistency/Common/PtrMaker.h"
-#include "nug4/MagneticField/MagneticField.h"
+#include "nug4/MagneticFieldServices/MagneticFieldService.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "fhiclcpp/ParameterSet.h"
 
@@ -225,9 +225,8 @@ namespace gar {
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::RegisterParticleIdPlugin(*m_pPandora, "LCMuonId" , new lc_content::LCParticleIdPlugins::LCMuonId));
 
             //Custom Plugins
-            art::ServiceHandle<mag::MagneticField> magFieldService;
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetBFieldPlugin(*m_pPandora,
-            new BFieldPlugin(magFieldService)));
+            new BFieldPlugin()));
             PANDORA_THROW_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, PandoraApi::SetPseudoLayerPlugin(*m_pPandora, new PseudoLayerPlugin));
 
             PANDORA_RETURN_RESULT_IF(pandora::STATUS_CODE_SUCCESS, !=, LCContent::RegisterNonLinearityEnergyCorrection(*m_pPandora,
@@ -284,7 +283,7 @@ namespace gar {
         //-----------------------------------------------------------------------------------
         void PandoraInterface::FinaliseSteeringParameters()
         {
-            art::ServiceHandle<mag::MagneticField> magFieldService;
+            auto const *magFieldService = gar::providerFrom<mag::MagneticFieldService>();
             G4ThreeVector zerovec(0,0,0);
             G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
             m_settings.m_innerBField = magfield[0]; //x component at (0, 0, 0)

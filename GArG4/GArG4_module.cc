@@ -328,7 +328,7 @@ namespace gar {
 
             fG4Help = new g4b::G4Helper(fG4MacroPath, fG4PhysListName);
             if(fCheckOverlaps) fG4Help->SetOverlapCheck(true);
-            fG4Help->ConstructDetector(geo->GDMLFile());
+            fG4Help->ConstructDetector(geo->GDMLFile()); //TO DO!!! This create a problem when we want to use a custom magnetic field!!! (it calls under the service mag::Magnetic field)
 
             G4LogicalVolumeStore *store = G4LogicalVolumeStore::GetInstance();
             if(store == nullptr) {
@@ -374,6 +374,8 @@ namespace gar {
 
             // UserActionManager is now configured so continue G4 initialization
             fG4Help->SetUserAction();
+
+            MF_LOG_INFO("GArG4") << "BeginJob() -- end ";
 
             return;
         }

@@ -2,14 +2,28 @@ include_directories($ENV{GEANT4_FQ_DIR}/include)
 
 art_make( NO_PLUGINS
           LIB_LIBRARIES Geometry
-                                        CoreUtils
+                        CoreUtils
                         ${MF_MESSAGELOGGER}
-
                         ${CETLIB}
                         ${CETLIB_EXCEPT}
-                                        ${FHICLCPP}
+                        ${FHICLCPP}
                         ${ROOT_BASIC_LIB_LIST}
-                                        ${Boost_SYSTEM_LIBRARY}
+                        ${Boost_SYSTEM_LIBRARY}
+                        art_Utilities canvas
+                        nug4_MagneticFieldServices_MagneticFieldServiceStandard_service
+                        ${ART_FRAMEWORK_SERVICES_REGISTRY}
+                        ${MF_MESSAGELOGGER}
+                        ${CETLIB_EXCEPT}
+                        ${ROOT_BASIC_LIB_LIST}
+                        ${ROOT_GEOM}
+                        ${ROOT_CORE}
+                        ${G4GEOMETRY}
+                        ${G4GLOBAL}
+                        ${ART_FRAMEWORK_SERVICES_BASIC}
+                        ${ART_FRAMEWORK_SERVICES_OPTIONAL}
+                        ${ART_ROOT_IO_TFILESERVICE_SERVICE}
+                        ${ART_ROOT_IO_TFILE_SUPPORT}
+                        ${CLHEP}
         )
 
 
@@ -70,7 +84,7 @@ simple_plugin(ECALPropertiesServiceStandard "service"
              ${CETLIB_EXCEPT}
              )
 
-simple_plugin(MPDMagneticField "service"
+simple_plugin(MagneticFieldServiceGAr "service"
               DetectorInfo
               art_Utilities canvas
               ${ART_FRAMEWORK_SERVICES_REGISTRY}

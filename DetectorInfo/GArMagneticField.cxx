@@ -19,16 +19,18 @@
 //////////////////////////////////////////////////////////////////////////
 
 // Framework includes
+#include "fhiclcpp/ParameterSet.h"
 #include "art_root_io/TFileService.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "art/Framework/Services/Registry/ServiceHandle.h"
 
 // nutools includes
-#include "MPDMagneticField.h"
+#include "DetectorInfo/GArMagneticField.h"
 
 #include "TGeoManager.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TH3F.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TH3.h"
 #include "TMath.h"
 #include "TVector3.h"
 
@@ -43,17 +45,17 @@
 namespace mag
 {
 
-MPDMagneticField::MPDMagneticField(fhicl::ParameterSet const& pset, art::ActivityRegistry& reg)
+GArMagneticField::GArMagneticField(fhicl::ParameterSet const& pset)
 {
     this->reconfigure(pset);
 }
 
 //------------------------------------------------------------
-void MPDMagneticField::reconfigure(fhicl::ParameterSet const& pset)
+void GArMagneticField::reconfigure(fhicl::ParameterSet const& pset)
 {
     auto fieldDescriptions = pset.get<std::vector<fhicl::ParameterSet>>("FieldDescriptions");
 
-    MPDMagneticFieldDescription fieldDescription;
+    MagneticFieldDescription fieldDescription;
     for(auto itr : fieldDescriptions)
     {
         fieldDescription.fMode = (mag::MagFieldMode_t)(itr.get<int>("UseField"));
@@ -73,7 +75,7 @@ void MPDMagneticField::reconfigure(fhicl::ParameterSet const& pset)
         // check that we have a good volume
         if(fieldDescription.fGeoVol == nullptr)
         {
-            throw cet::exception("MPDMagneticField")
+            throw cet::exception("GArMagneticField")
                 << "cannot locate volume " << fieldDescription.fVolume << " in gGeoManager, bail";
         }
 
@@ -111,7 +113,7 @@ void MPDMagneticField::reconfigure(fhicl::ParameterSet const& pset)
             std::vector<double> CoordOffset = itr.get<std::vector<double>>("CoordOffset");
             rzmap.CoordOffset.SetXYZ(CoordOffset[0], CoordOffset[1], CoordOffset[2]);
 
-            std::cout << "MPDMagneticField: Finished reading RZ map, now setting it: " << rzmap.dr
+            std::cout << "GArMagneticField: Finished reading RZ map, now setting it: " << rzmap.dr
                       << " " << rzmap.dz << std::endl;
             std::cout << "Array sizes (R, Z): " << rzmap.br.size() << " " << rzmap.br[0].size()
                       << std::endl;
@@ -146,11 +148,11 @@ void MPDMagneticField::reconfigure(fhicl::ParameterSet const& pset)
 
             xyzmap.CoordOffset.SetXYZ(xyzmap.xo, xyzmap.yo, xyzmap.zo);
             std::chrono::duration<double> elapsed_seconds = end - start;
-            std::cout << "MPDMagneticField: Finished reading XYZ map in " << elapsed_seconds.count()
+            std::cout << "GArMagneticField: Finished reading XYZ map in " << elapsed_seconds.count()
                       << "s." << std::endl;
 
             xyzmap.UseSymmetry = itr.get<bool>("UseSymmetry", false);
-            std::cout << "MPDMagneticField: Is map symmetric - " << std::boolalpha
+            std::cout << "GArMagneticField: Is map symmetric - " << std::boolalpha
                       << xyzmap.UseSymmetry << std::endl;
             fieldDescription.fXYZFieldMap = xyzmap;
         }
@@ -180,14 +182,14 @@ void MPDMagneticField::reconfigure(fhicl::ParameterSet const& pset)
     auto end = std::chrono::steady_clock::now();
 
     std::chrono::duration<double> elapsed_seconds = end - start;
-    std::cout << "MPDMagneticField: B-Field map plots made in: " << elapsed_seconds.count()
+    std::cout << "GArMagneticField: B-Field map plots made in: " << elapsed_seconds.count()
               << "s.\n";
 
     return;
 }
 
 //------------------------------------------------------------
-G4ThreeVector const MPDMagneticField::FieldAtPoint(G4ThreeVector const& p) const
+G4ThreeVector const GArMagneticField::FieldAtPoint(G4ThreeVector const& p) const
 {
     // check that the input point is in the magnetized volume
     // Use the gGeoManager to determine what node the point
@@ -237,7 +239,7 @@ G4ThreeVector const MPDMagneticField::FieldAtPoint(G4ThreeVector const& p) const
 }
 
 //------------------------------------------------------------
-G4ThreeVector const MPDMagneticField::UniformFieldInVolume(std::string const& volName) const
+G4ThreeVector const GArMagneticField::UniformFieldInVolume(std::string const& volName) const
 {
     // if the input volume name is the same as the magnetized volume
     // return the uniform field
@@ -254,7 +256,7 @@ G4ThreeVector const MPDMagneticField::UniformFieldInVolume(std::string const& vo
 
 // make 2D plots of bx, by, and bz
 
-void MPDMagneticField::MakeCheckPlots()
+void GArMagneticField::MakeCheckPlots()
 {
     art::ServiceHandle<::art::TFileService> tfs;
     std::vector<int> emtpyintvec;
@@ -422,9 +424,9 @@ void MPDMagneticField::MakeCheckPlots()
     }
 }
 
-void MPDMagneticField::ReadRZFile(const std::string& filename, RZFieldMap& rzmap)
+void GArMagneticField::ReadRZFile(const std::string& filename, RZFieldMap& rzmap)
 {
-    std::cout << "MPDMagneticField: Opening magnetic field RZ map in: " << filename << std::endl;
+    std::cout << "GArMagneticField: Opening magnetic field RZ map in: " << filename << std::endl;
     std::ifstream inFile(filename, std::ios::in);
     std::string line;
 
@@ -474,9 +476,9 @@ void MPDMagneticField::ReadRZFile(const std::string& filename, RZFieldMap& rzmap
     }
 }
 
-void MPDMagneticField::ReadXYZFile(const std::string& filename, XYZFieldMap& xyzmap)
+void GArMagneticField::ReadXYZFile(const std::string& filename, XYZFieldMap& xyzmap)
 {
-    std::cout << "MPDMagneticField: Opening magnetic field XYZ map in: " << filename << std::endl;
+    std::cout << "GArMagneticField: Opening magnetic field XYZ map in: " << filename << std::endl;
     std::fstream fin(filename, std::fstream::in);
     std::string line;
 
@@ -550,16 +552,16 @@ void MPDMagneticField::ReadXYZFile(const std::string& filename, XYZFieldMap& xyz
     }
 }
 
-G4ThreeVector MPDMagneticField::CalcRZField(G4ThreeVector const& p, RZFieldMap const& rzm) const
+G4ThreeVector GArMagneticField::CalcRZField(G4ThreeVector const& p, RZFieldMap const& rzm) const
 {
     // check for validity
     if(rzm.dr <= 0)
     {
-        throw cet::exception("MPDMagneticFieldService: RZ map bad R spacing:") << rzm.dr;
+        throw cet::exception("GArMagneticField: RZ map bad R spacing:") << rzm.dr;
     }
     if(rzm.dz <= 0)
     {
-        throw cet::exception("MPDMagneticFieldService: RZ map bad Z spacing:") << rzm.dz;
+        throw cet::exception("GArMagneticField: RZ map bad Z spacing:") << rzm.dz;
     }
 
     TVector3 pv(p.x(), p.y(), p.z());
@@ -634,7 +636,7 @@ G4ThreeVector MPDMagneticField::CalcRZField(G4ThreeVector const& p, RZFieldMap c
     }
 }
 
-G4ThreeVector MPDMagneticField::CalcXYZField(G4ThreeVector const& p, XYZFieldMap const& fd) const
+G4ThreeVector GArMagneticField::CalcXYZField(G4ThreeVector const& p, XYZFieldMap const& fd) const
 {
     const float x = fd.UseSymmetry ? std::abs(p.x() - fd.xo) : p.x() - fd.xo;
     const float y = fd.UseSymmetry ? std::abs(p.y() - fd.yo) : p.y() - fd.yo;
@@ -713,9 +715,4 @@ float Interpolator::conv_kernel(float s) const
     return v;
 }
 
-} // namespace mag
-
-namespace mag
-{
-DEFINE_ART_SERVICE(mag::MPDMagneticField)
 } // namespace mag

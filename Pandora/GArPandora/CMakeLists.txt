@@ -13,7 +13,7 @@ art_make(BASENAME_ONLY
           SimulationDataProducts
           RawDataProducts
           ReconstructionDataProducts
-          nug4_MagneticField_MagneticField_service
+          nug4_MagneticFieldServices_MagneticFieldServiceStandard_service
           GArRecoAlg
           ${ART_FRAMEWORK_PRINCIPAL}
           ${ART_FRAMEWORK_SERVICES_REGISTRY}
@@ -26,6 +26,7 @@ art_make(BASENAME_ONLY
           canvas
           ${MF_MESSAGELOGGER}
           ${FHICLCPP}
+          ${CETLIB}
           ${CETLIB_EXCEPT}
           MCCheater_BackTracker_service
           ${PANDORASDK}
@@ -42,20 +43,22 @@ art_make(BASENAME_ONLY
           ReconstructionDataProducts
           nusimdata_SimulationBase
           nurandom_RandomUtils_NuRandomService_service
-          nug4_MagneticField_MagneticField_service
+          nug4_MagneticFieldServices_MagneticFieldServiceStandard_service
           GArRecoAlg
           ${ART_FRAMEWORK_CORE}
           ${ART_FRAMEWORK_IO_SOURCES}
-          ${ART_FRAMEWORK_PRINCIPAL}
+          ${ART_FRAMEWORK_SERVICES_OPTIONAL_RANDOMNUMBERGENERATOR_SERVICE}
           art_Persistency_Common
           art_Persistency_Provenance
           art_Utilities
           canvas
+          ${ART_FRAMEWORK_PRINCIPAL}
           ${ART_FRAMEWORK_SERVICES_REGISTRY}
           ${ART_FRAMEWORK_SERVICES_OPTIONAL}
           ${ART_ROOT_IO_TFILESERVICE_SERVICE}
           ${MF_MESSAGELOGGER}
           ${FHICLCPP}
+          ${CETLIB}
           ${CETLIB_EXCEPT}
           GArPandora
           MCCheater_BackTracker_service
