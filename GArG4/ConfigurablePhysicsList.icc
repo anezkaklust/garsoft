@@ -28,7 +28,7 @@
 #include "Geant4/G4Material.hh"
 #include "Geant4/G4MaterialTable.hh"
 #include "Geant4/G4ios.hh"
-#include "Geant4/G4DataQuestionaire.hh"
+//#include "Geant4/G4DataQuestionaire.hh"
 
 #include "GArG4/CustomPhysicsTable.hh"
 #include "GArG4/MuNuclearSplittingProcess.h"
@@ -52,7 +52,7 @@ namespace garg4 {
 	
    this->SetVerboseLevel(ver);
 	
-   G4DataQuestionaire it(photon);
+   //G4DataQuestionaire it(photon);
 	
 	
    EnabledPhysics = gar::garg4::G4SimulationParameters::Instance()->EnabledPhysics();

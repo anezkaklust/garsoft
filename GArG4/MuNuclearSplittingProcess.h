@@ -23,7 +23,7 @@
 #include "Geant4/G4MaterialTable.hh"
 #include "Geant4/G4ios.hh"
 
-#include "Geant4/G4DataQuestionaire.hh"
+// #include "Geant4/G4DataQuestionaire.hh"
 
 namespace gar {
   namespace garg4 {
