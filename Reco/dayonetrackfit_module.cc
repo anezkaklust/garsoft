@@ -42,6 +42,7 @@
 #include "Reco/tracker2algs.h"
 #include "Geometry/Geometry.h"
 #include "CoreUtils/ServiceUtil.h"
+#include "RecoAlg/TrackPropagator.h"
 
 #include "Geant4/G4ThreeVector.hh"
 
@@ -71,8 +72,8 @@ namespace gar {
 
       std::string fPatRecLabel;            ///< input patrec tracks and associations
       int fPrintLevel;                     ///< debug printout:  0: none, 1: just track parameters and residuals, 2: all
-      float  fTPCClusterResolYZ;           ///< pad size in cm in YZ to determine step size
-      float  fTPCClusterResolX;            ///< drift direction contribution to determine step size (resolution of a TPCCluster)
+      float  fTPCClusterResolXY;           ///< pad size in cm in YZ to determine step size
+      float  fTPCClusterResolZ;            ///< drift direction contribution to determine step size (resolution of a TPCCluster)
       int fDumpTracks;                     ///< 0: do not print out tracks, 1: print out tracks
       //      float fRoadYZinFit;                  ///< cut in cm for dropping TPCClusters from tracks in fit
       //      float fMinIonizGapCut;               ///< Don't compute dEdx for this dx or larger
@@ -102,8 +103,8 @@ namespace gar {
       fPatRecLabel       = p.get<std::string>("PatRecLabel","patrec");
       fPrintLevel        = p.get<int>("PrintLevel",0);
       fDumpTracks        = p.get<int>("DumpTracks",0);
-      fTPCClusterResolYZ        = p.get<float>("TPCClusterResolYZ",1.0); // TODO -- think about what this value is
-      fTPCClusterResolX         = p.get<float>("TPCClusterResolX",0.5);  // this is probably much better
+      fTPCClusterResolXY        = p.get<float>("TPCClusterResolXY",0.3); // TODO -- think about what this value is
+      fTPCClusterResolZ         = p.get<float>("TPCClusterResolZ",0.3);  // this is probably much better
 
       art::InputTag patrecTag(fPatRecLabel);
       consumes< std::vector<gar::rec::Track> >(patrecTag);
@@ -297,13 +298,20 @@ namespace gar {
       chisquared = 0;
       length = 0;
 
-      // first try, do nothing
+      // first try, do nothing, but we should calculate a chisquared
 
       for (size_t i=0;i<nclus; ++i)
 	{
 	  const float *pos = TPCClusters.at(TPCClusterlist.at(i)).Position();
 	  TVector3 tvec(pos[0],pos[1],pos[2]);
 	  trajpts.push_back(tvec);
+	  float dist = 0;
+	  float tvpos[3] = {trackparbeg[5],trackparbeg[0],trackparbeg[1]};
+	  int retcode = util::TrackPropagator::DistXYZ(trackparbeg.data(),tvpos,pos,dist);
+	  if (retcode == 0) 
+	    { 
+	      chisquared += TMath::Sq(dist/fTPCClusterResolXY);  // todo -- break this up into X,Y vs. Z pieces.
+	    }
 	}
 
       return 0;
