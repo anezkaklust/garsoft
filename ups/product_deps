@@ -18,7 +18,7 @@ defaultqual	e19
 
 fcldir  product_dir  fcl
 gdmldir product_dir
-fwdir   product_dir  G4
+fwdir   product_dir  fw
 bindir  fq_dir       bin
 
 product         version
@@ -33,7 +33,7 @@ gallery         v1_16_02
 dune_pardata    v01_56_00
 duneutil        v09_16_00
 pandora         v03_16_00b
-edepsim         v3_0_0a
+edepsim         v3_0_1
 cetbuildtools	v7_17_01	-	only_for_build
 end_product_list
 
@@ -53,6 +53,7 @@ table_fragment_begin
 
 pathPrepend(FW_SEARCH_PATH, ${UPS_PROD_DIR}/gdml)
 pathPrepend(FW_SEARCH_PATH, ${UPS_PROD_DIR}/xml)
+pathPrepend(FW_SEARCH_PATH, ${UPS_PROD_DIR}/txt)
 pathPrepend(GXMLPATH, ${UPS_PROD_DIR}/xml)
 
 table_fragment_end

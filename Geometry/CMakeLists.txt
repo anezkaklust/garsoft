@@ -39,3 +39,4 @@ install_source()
 
 add_subdirectory(gdml)
 add_subdirectory(ChannelMapAlgs)
+add_subdirectory(FieldMaps)

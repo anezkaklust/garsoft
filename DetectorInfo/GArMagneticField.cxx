@@ -28,9 +28,6 @@
 #include "DetectorInfo/GArMagneticField.h"
 
 #include "TGeoManager.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TH3.h"
 #include "TMath.h"
 #include "TVector3.h"
 
@@ -53,6 +50,8 @@ GArMagneticField::GArMagneticField(fhicl::ParameterSet const& pset)
 //------------------------------------------------------------
 void GArMagneticField::reconfigure(fhicl::ParameterSet const& pset)
 {
+    fGlobalScaleFactor = pset.get<float>("GlobalScaleFactor", 1.0);
+    fUnitFactor = pset.get<float>("UnitFactor", 1.);
     auto fieldDescriptions = pset.get<std::vector<fhicl::ParameterSet>>("FieldDescriptions");
 
     MagneticFieldDescription fieldDescription;
@@ -93,38 +92,7 @@ void GArMagneticField::reconfigure(fhicl::ParameterSet const& pset)
         {
             fieldDescription.fFieldMapFilename = itr.get<std::string>("FieldMapFilename");
             cet::search_path sp("FW_SEARCH_PATH");
-            std::string fn2 = "MPD/FieldMap/" + fieldDescription.fFieldMapFilename;
-            std::string fullname;
-            sp.find_file(fn2, fullname);
-
-            struct stat sb;
-            if(fullname.empty() || stat(fullname.c_str(), &sb) != 0)
-            {
-                throw cet::exception("RadioGen")
-                    << "Input magnetic field file " << fn2 << " not found in FW_SEARCH_PATH!\n";
-            }
-
-            struct RZFieldMap rzmap;
-            ReadRZFile(fullname, rzmap);
-
-            std::vector<double> ZAxis = itr.get<std::vector<double>>("ZAxis");
-            rzmap.ZAxis.SetXYZ(ZAxis[0], ZAxis[1], ZAxis[2]);
-
-            std::vector<double> CoordOffset = itr.get<std::vector<double>>("CoordOffset");
-            rzmap.CoordOffset.SetXYZ(CoordOffset[0], CoordOffset[1], CoordOffset[2]);
-
-            std::cout << "GArMagneticField: Finished reading RZ map, now setting it: " << rzmap.dr
-                      << " " << rzmap.dz << std::endl;
-            std::cout << "Array sizes (R, Z): " << rzmap.br.size() << " " << rzmap.br[0].size()
-                      << std::endl;
-            fieldDescription.fRZFieldMap = rzmap;
-        }
-
-        if(fieldDescription.fMode == mag::kFieldXYZMapMode)
-        {
-            fieldDescription.fFieldMapFilename = itr.get<std::string>("FieldMapFilename");
-            cet::search_path sp("FW_SEARCH_PATH");
-            std::string fn2 = "MPD/FieldMap/" + fieldDescription.fFieldMapFilename;
+            std::string fn2 = fieldDescription.fFieldMapFilename;
             std::string fullname;
             sp.find_file(fn2, fullname);
 
@@ -136,10 +104,42 @@ void GArMagneticField::reconfigure(fhicl::ParameterSet const& pset)
             }
 
             auto start = std::chrono::steady_clock::now();
+            struct RZFieldMap rzmap;
+            ReadRZFile(fullname, rzmap);
+            auto end = std::chrono::steady_clock::now();
 
+            std::vector<double> ZAxis = itr.get<std::vector<double>>("ZAxis");
+            rzmap.ZAxis.SetXYZ(ZAxis[0], ZAxis[1], ZAxis[2]);
+
+            std::vector<double> CoordOffset = itr.get<std::vector<double>>("CoordOffset");
+            rzmap.CoordOffset.SetXYZ(CoordOffset[0], CoordOffset[1], CoordOffset[2]);
+            
+            std::chrono::duration<double> elapsed_seconds = end - start;
+            std::cout << "GArMagneticField: Finished reading RZ map in " << elapsed_seconds.count() << "s, now setting it: " << rzmap.dr
+                      << " " << rzmap.dz << std::endl;
+            std::cout << "Array sizes (R, Z): " << rzmap.br.size() << " " << rzmap.br[0].size()
+                      << std::endl;
+            fieldDescription.fRZFieldMap = rzmap;
+        }
+
+        if(fieldDescription.fMode == mag::kFieldXYZMapMode)
+        {
+            fieldDescription.fFieldMapFilename = itr.get<std::string>("FieldMapFilename");
+            cet::search_path sp("FW_SEARCH_PATH");
+            std::string fn2 = fieldDescription.fFieldMapFilename;
+            std::string fullname;
+            sp.find_file(fn2, fullname);
+
+            struct stat sb;
+            if(fullname.empty() || stat(fullname.c_str(), &sb) != 0)
+            {
+                throw cet::exception("RadioGen")
+                    << "Input magnetic field file " << fn2 << " not found in FW_SEARCH_PATH!\n";
+            }
+
+            auto start = std::chrono::steady_clock::now();
             struct XYZFieldMap xyzmap;
-            ReadXYZFile(fullname, xyzmap);
-
+            ReadXYZFile(fullname, xyzmap, fUnitFactor);
             auto end = std::chrono::steady_clock::now();
 
             std::vector<double> ZAxis
@@ -159,31 +159,6 @@ void GArMagneticField::reconfigure(fhicl::ParameterSet const& pset)
 
         fFieldDescriptions.push_back(fieldDescription);
     }
-
-    fGlobalScaleFactor = pset.get<float>("GlobalScaleFactor", 1.0);
-
-    fNBinsXCheckPlots = pset.get<std::vector<int>>("NBinsXCheckPlots");
-    fNBinsYCheckPlots = pset.get<std::vector<int>>("NBinsYCheckPlots");
-    fNBinsZCheckPlots = pset.get<std::vector<int>>("NBinsZCheckPlots");
-
-    fXLowCheckPlots  = pset.get<std::vector<float>>("XLowCheckPlots");
-    fXHighCheckPlots = pset.get<std::vector<float>>("XHighCheckPlots");
-    fYLowCheckPlots  = pset.get<std::vector<float>>("YLowCheckPlots");
-    fYHighCheckPlots = pset.get<std::vector<float>>("YHighCheckPlots");
-    fZLowCheckPlots  = pset.get<std::vector<float>>("ZLowCheckPlots");
-    fZHighCheckPlots = pset.get<std::vector<float>>("ZHighCheckPlots");
-
-    fXCentCheckPlots = pset.get<std::vector<float>>("XCentCheckPlots");
-    fYCentCheckPlots = pset.get<std::vector<float>>("YCentCheckPlots");
-    fZCentCheckPlots = pset.get<std::vector<float>>("ZCentCheckPlots");
-
-    auto start = std::chrono::steady_clock::now();
-    MakeCheckPlots();
-    auto end = std::chrono::steady_clock::now();
-
-    std::chrono::duration<double> elapsed_seconds = end - start;
-    std::cout << "GArMagneticField: B-Field map plots made in: " << elapsed_seconds.count()
-              << "s.\n";
 
     return;
 }
@@ -225,7 +200,7 @@ G4ThreeVector const GArMagneticField::FieldAtPoint(G4ThreeVector const& p) const
             }
             else
             {
-                throw cet::exception("MPDMagneticField_service: Ununderstood field mode: ")
+                throw cet::exception("GArMagneticField_service: Ununderstood field mode: ")
                     << fd.fMode;
             }
         }
@@ -254,176 +229,7 @@ G4ThreeVector const GArMagneticField::UniformFieldInVolume(std::string const& vo
     return G4ThreeVector(0);
 }
 
-// make 2D plots of bx, by, and bz
-
-void GArMagneticField::MakeCheckPlots()
-{
-    art::ServiceHandle<::art::TFileService> tfs;
-    std::vector<int> emtpyintvec;
-    std::vector<float> emtpyflotvec;
-    std::vector<TString> axisname = {"X", "Y", "Z"};
-    fCheckPlots.clear();
-
-    for(size_t i = 0; i < fNBinsXCheckPlots.size(); ++i)
-    {
-        int naxes = 0;
-        std::vector<float> axislow;
-        std::vector<float> axishigh;
-        std::vector<int> axisnumber;
-        std::vector<int> axisnbins;
-
-        if(fNBinsXCheckPlots.at(i) > 0)
-        {
-            naxes++;
-            axisnumber.push_back(0);
-            axislow.push_back(fXLowCheckPlots.at(i));
-            axishigh.push_back(fXHighCheckPlots.at(i));
-            axisnbins.push_back(fNBinsXCheckPlots.at(i));
-        }
-        if(fNBinsYCheckPlots.at(i) > 0)
-        {
-            naxes++;
-            axisnumber.push_back(1);
-            axislow.push_back(fYLowCheckPlots.at(i));
-            axishigh.push_back(fYHighCheckPlots.at(i));
-            axisnbins.push_back(fNBinsYCheckPlots.at(i));
-        }
-        if(fNBinsZCheckPlots.at(i) > 0)
-        {
-            naxes++;
-            axisnumber.push_back(2);
-            axislow.push_back(fZLowCheckPlots.at(i));
-            axishigh.push_back(fZHighCheckPlots.at(i));
-            axisnbins.push_back(fNBinsZCheckPlots.at(i));
-        }
-        TString mfcheckidx = "mfcheckx";
-        mfcheckidx += i;
-        TString mfcheckidy = "mfchecky";
-        mfcheckidy += i;
-        TString mfcheckidz = "mfcheckz";
-        mfcheckidz += i;
-        TString htitle = "Magnetic Field Check; ";
-        if(naxes == 1)
-        {
-            htitle += axisname.at(axisnumber.at(0));
-            htitle += " (cm);";
-            fCheckPlots.push_back((TH1*)tfs->make<TH1F>(mfcheckidx, "Bx " + htitle, axisnbins.at(0),
-                                                        axislow.at(0), axishigh.at(0)));
-            TH1* bxhist = fCheckPlots.back();
-            fCheckPlots.push_back((TH1*)tfs->make<TH1F>(mfcheckidy, "By " + htitle, axisnbins.at(0),
-                                                        axislow.at(0), axishigh.at(0)));
-            TH1* byhist = fCheckPlots.back();
-            fCheckPlots.push_back((TH1*)tfs->make<TH1F>(mfcheckidz, "Bz " + htitle, axisnbins.at(0),
-                                                        axislow.at(0), axishigh.at(0)));
-            TH1* bzhist = fCheckPlots.back();
-            for(int j = 0; j < axisnbins.at(0); ++j)
-            {
-                float axispos
-                    = axislow.at(0)
-                      + (((float)j) + 0.5) * (axishigh.at(0) - axislow.at(0)) / axisnbins.at(0);
-                G4ThreeVector point(fXCentCheckPlots.at(i), fYCentCheckPlots.at(i),
-                                    fZCentCheckPlots.at(i));
-                point[axisnumber.at(0)] += axispos;
-                G4ThreeVector bfield = FieldAtPoint(point);
-                bxhist->SetBinContent(j + 1, bfield.x());
-                byhist->SetBinContent(j + 1, bfield.y());
-                bzhist->SetBinContent(j + 1, bfield.z());
-            }
-        }
-        else if(naxes == 2)
-        {
-            htitle += axisname.at(axisnumber.at(0));
-            htitle += " (cm);";
-            htitle += axisname.at(axisnumber.at(1));
-            htitle += " (cm);";
-            fCheckPlots.push_back((TH1*)tfs->make<TH2F>(
-                mfcheckidx, "Bx " + htitle, axisnbins.at(0), axislow.at(0), axishigh.at(0),
-                axisnbins.at(1), axislow.at(1), axishigh.at(1)));
-            TH1* bxhist = fCheckPlots.back();
-            fCheckPlots.push_back((TH1*)tfs->make<TH2F>(
-                mfcheckidy, "By " + htitle, axisnbins.at(0), axislow.at(0), axishigh.at(0),
-                axisnbins.at(1), axislow.at(1), axishigh.at(1)));
-            TH1* byhist = fCheckPlots.back();
-            fCheckPlots.push_back((TH1*)tfs->make<TH2F>(
-                mfcheckidz, "Bz " + htitle, axisnbins.at(0), axislow.at(0), axishigh.at(0),
-                axisnbins.at(1), axislow.at(1), axishigh.at(1)));
-            TH1* bzhist = fCheckPlots.back();
-            for(int j = 0; j < axisnbins.at(0); ++j)
-            {
-                float axispos0
-                    = axislow.at(0)
-                      + (((float)j) + 0.5) * (axishigh.at(0) - axislow.at(0)) / axisnbins.at(0);
-                for(int k = 0; k < axisnbins.at(1); ++k)
-                {
-                    float axispos1
-                        = axislow.at(1)
-                          + (((float)k) + 0.5) * (axishigh.at(1) - axislow.at(1)) / axisnbins.at(1);
-                    G4ThreeVector point(fXCentCheckPlots.at(i), fYCentCheckPlots.at(i),
-                                        fZCentCheckPlots.at(i));
-                    point[axisnumber.at(0)] += axispos0;
-                    point[axisnumber.at(1)] += axispos1;
-                    G4ThreeVector bfield = FieldAtPoint(point);
-                    bxhist->SetBinContent(j + 1, k + 1, bfield.x());
-                    byhist->SetBinContent(j + 1, k + 1, bfield.y());
-                    bzhist->SetBinContent(j + 1, k + 1, bfield.z());
-                }
-            }
-        }
-        else if(naxes == 3)
-        {
-            htitle += axisname.at(axisnumber.at(0));
-            htitle += " (cm);";
-            htitle += axisname.at(axisnumber.at(1));
-            htitle += " (cm);";
-            htitle += axisname.at(axisnumber.at(2));
-            htitle += " (cm)";
-            fCheckPlots.push_back((TH1*)tfs->make<TH3F>(
-                mfcheckidx, "Bx " + htitle, axisnbins.at(0), axislow.at(0), axishigh.at(0),
-                axisnbins.at(1), axislow.at(1), axishigh.at(1), axisnbins.at(2), axislow.at(2),
-                axishigh.at(2)));
-            TH1* bxhist = fCheckPlots.back();
-            fCheckPlots.push_back((TH1*)tfs->make<TH3F>(
-                mfcheckidy, "By " + htitle, axisnbins.at(0), axislow.at(0), axishigh.at(0),
-                axisnbins.at(1), axislow.at(1), axishigh.at(1), axisnbins.at(2), axislow.at(2),
-                axishigh.at(2)));
-            TH1* byhist = fCheckPlots.back();
-            fCheckPlots.push_back((TH1*)tfs->make<TH3F>(
-                mfcheckidz, "Bz " + htitle, axisnbins.at(0), axislow.at(0), axishigh.at(0),
-                axisnbins.at(1), axislow.at(1), axishigh.at(1), axisnbins.at(2), axislow.at(2),
-                axishigh.at(2)));
-            TH1* bzhist = fCheckPlots.back();
-
-            for(int j = 0; j < axisnbins.at(0); ++j)
-            {
-                float axispos0
-                    = axislow.at(0)
-                      + (((float)j) + 0.5) * (axishigh.at(0) - axislow.at(0)) / axisnbins.at(0);
-                for(int k = 0; k < axisnbins.at(1); ++k)
-                {
-                    float axispos1
-                        = axislow.at(1)
-                          + (((float)k) + 0.5) * (axishigh.at(1) - axislow.at(1)) / axisnbins.at(1);
-                    for(int m = 0; m < axisnbins.at(2); ++m)
-                    {
-                        float axispos2 = axislow.at(2)
-                                         + (((float)m) + 0.5) * (axishigh.at(2) - axislow.at(2))
-                                               / axisnbins.at(2);
-                        G4ThreeVector point(fXCentCheckPlots.at(i), fYCentCheckPlots.at(i),
-                                            fZCentCheckPlots.at(i));
-                        point[axisnumber.at(0)] += axispos0;
-                        point[axisnumber.at(1)] += axispos1;
-                        point[axisnumber.at(2)] += axispos2;
-                        G4ThreeVector bfield = FieldAtPoint(point);
-                        bxhist->SetBinContent(j + 1, k + 1, m + 1, bfield.x());
-                        byhist->SetBinContent(j + 1, k + 1, m + 1, bfield.y());
-                        bzhist->SetBinContent(j + 1, k + 1, m + 1, bfield.z());
-                    }
-                }
-            }
-        }
-    }
-}
-
+//------------------------------------------------------------
 void GArMagneticField::ReadRZFile(const std::string& filename, RZFieldMap& rzmap)
 {
     std::cout << "GArMagneticField: Opening magnetic field RZ map in: " << filename << std::endl;
@@ -476,7 +282,8 @@ void GArMagneticField::ReadRZFile(const std::string& filename, RZFieldMap& rzmap
     }
 }
 
-void GArMagneticField::ReadXYZFile(const std::string& filename, XYZFieldMap& xyzmap)
+//------------------------------------------------------------
+void GArMagneticField::ReadXYZFile(const std::string& filename, XYZFieldMap& xyzmap, const float unitFactor)
 {
     std::cout << "GArMagneticField: Opening magnetic field XYZ map in: " << filename << std::endl;
     std::fstream fin(filename, std::fstream::in);
@@ -494,13 +301,13 @@ void GArMagneticField::ReadXYZFile(const std::string& filename, XYZFieldMap& xyz
 
         ss >> xyzmap.xo >> xyzmap.yo >> xyzmap.zo >> xyzmap.dx >> xyzmap.dy >> xyzmap.dz;
 
-        // Position coordinates need to be in cm
-        xyzmap.xo *= 100.0;
-        xyzmap.yo *= 100.0;
-        xyzmap.zo *= 100.0;
-        xyzmap.dx *= 100.0;
-        xyzmap.dy *= 100.0;
-        xyzmap.dz *= 100.0;
+        // Position coordinates need to be in mm
+        xyzmap.xo *= unitFactor;
+        xyzmap.yo *= unitFactor;
+        xyzmap.zo *= unitFactor;
+        xyzmap.dx *= unitFactor;
+        xyzmap.dy *= unitFactor;
+        xyzmap.dz *= unitFactor;
 
         break;
     }
@@ -515,10 +322,10 @@ void GArMagneticField::ReadXYZFile(const std::string& filename, XYZFieldMap& xyz
 
         ss >> x >> y >> z >> fx >> fy >> fz >> f;
 
-        // Position coordinates need to be in cm
-        x *= 100.0;
-        y *= 100.0;
-        z *= 100.0;
+        // Position coordinates need to be in mm
+        x *= unitFactor;
+        y *= unitFactor;
+        z *= unitFactor;
 
         if(std::abs(x - xcurr) > 0.0 || xcount < 0)
         {
@@ -552,6 +359,7 @@ void GArMagneticField::ReadXYZFile(const std::string& filename, XYZFieldMap& xyz
     }
 }
 
+//------------------------------------------------------------
 G4ThreeVector GArMagneticField::CalcRZField(G4ThreeVector const& p, RZFieldMap const& rzm) const
 {
     // check for validity
@@ -636,6 +444,7 @@ G4ThreeVector GArMagneticField::CalcRZField(G4ThreeVector const& p, RZFieldMap c
     }
 }
 
+//------------------------------------------------------------
 G4ThreeVector GArMagneticField::CalcXYZField(G4ThreeVector const& p, XYZFieldMap const& fd) const
 {
     const float x = fd.UseSymmetry ? std::abs(p.x() - fd.xo) : p.x() - fd.xo;
@@ -650,8 +459,10 @@ G4ThreeVector GArMagneticField::CalcXYZField(G4ThreeVector const& p, XYZFieldMap
     return G4ThreeVector(bx, by, bz);
 }
 
+//------------------------------------------------------------
 Interpolator::Interpolator() {}
 
+//------------------------------------------------------------
 float Interpolator::interpolate(const float* point,
                                 const std::vector<std::vector<std::vector<float>>>& g,
                                 const float* delta, const float* offset) const
@@ -660,6 +471,7 @@ float Interpolator::interpolate(const float* point,
                        offset[1], offset[2]);
 }
 
+//------------------------------------------------------------
 float Interpolator::interpolate(float x, float y, float z,
                                 const std::vector<std::vector<std::vector<float>>>& g, float hx,
                                 float hy, float hz, float xo, float yo, float zo) const
@@ -701,6 +513,7 @@ float Interpolator::interpolate(float x, float y, float z,
     return v;
 }
 
+//------------------------------------------------------------
 float Interpolator::conv_kernel(float s) const
 {
     float v = 0;

@@ -14,9 +14,6 @@
 // nug4 libraries
 #include "nug4/MagneticField/MagneticField.h"
 
-//ROOT includes
-#include "TH1.h"
-
 namespace fhicl { class ParameterSet; }
 namespace mag
 {
@@ -35,9 +32,16 @@ public:
 
     void reconfigure(fhicl::ParameterSet const& pset);
 
+    //Return std::vector<MagneticFieldDescription>
     std::vector<MagneticFieldDescription> const& Fields() const override { return fFieldDescriptions; }
+
+    //Return std::vector<MagneticFieldDescription> size
     size_t NumFields() const override { return fFieldDescriptions.size(); }
+
+    //Return the field mode
     MagFieldMode_t const& UseField(size_t f) const override { return fFieldDescriptions[f].fMode; }
+
+    //Return the magnetized volumes
     std::string const& MagnetizedVolume(size_t f) const override { return fFieldDescriptions[f].fVolume; }
 
     // return the field at a particular point
@@ -49,35 +53,15 @@ public:
     G4ThreeVector const UniformFieldInVolume(std::string const& volName) const override;
 
 private:
-    void MakeCheckPlots();
     void ReadRZFile(const std::string& filename, RZFieldMap& rzmap);
-    void ReadXYZFile(const std::string& filename, XYZFieldMap& xyzmap);
+    void ReadXYZFile(const std::string& filename, XYZFieldMap& xyzmap, const float unitFactor);
 
     G4ThreeVector CalcRZField(G4ThreeVector const& p, RZFieldMap const& rzmap) const;
     G4ThreeVector CalcXYZField(G4ThreeVector const& p, XYZFieldMap const& xyzmap) const;
 
-    // bool fEnableField;
-    // bool fUseUniformField;
-
     float fGlobalScaleFactor;
-
     std::vector<MagneticFieldDescription> fFieldDescriptions; ///< Descriptions of the fields
-
-    // parameters for check plots
-
-    std::vector<int> fNBinsXCheckPlots;
-    std::vector<int> fNBinsYCheckPlots;
-    std::vector<int> fNBinsZCheckPlots;
-    std::vector<float> fXLowCheckPlots;
-    std::vector<float> fXHighCheckPlots;
-    std::vector<float> fYLowCheckPlots;
-    std::vector<float> fYHighCheckPlots;
-    std::vector<float> fZLowCheckPlots;
-    std::vector<float> fZHighCheckPlots;
-    std::vector<float> fXCentCheckPlots;
-    std::vector<float> fYCentCheckPlots;
-    std::vector<float> fZCentCheckPlots;
-    std::vector<TH1*> fCheckPlots;
+    float fUnitFactor; //factor to convert from map position units to mm
 };
 
 class Interpolator
