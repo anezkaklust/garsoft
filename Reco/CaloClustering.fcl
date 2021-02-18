@@ -4,7 +4,7 @@ standard_CaloClustering:
 {
 module_type:        CaloClustering
 CaloHitLabel:       "sscalohit"
-ECALInstanceName:   ""
+ECALInstanceName:   "ECAL"
 TrackLabel:         "track"
 ClusterAlgPars:     @local::knnclusteralg
 }
