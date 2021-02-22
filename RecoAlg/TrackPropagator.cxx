@@ -7,7 +7,7 @@ namespace util {
 
     //----------------------------------------------------------------------
     int TrackPropagator::PropagateToCylinder(const float* trackpar, const float* Xpoint,
-        const float rCyl, const float yCyl, const float zCyl, float* retXYZ,
+        const float rCyl, const float yCyl, const float zCyl, float* retXYZ1, float* retXYZ2,
         const float Xmax, const float epsilon)
     {
         //track fitted parameters (y, z, curvature, phi, lambda)
@@ -41,13 +41,18 @@ namespace util {
             float yy1 = y0 +(zz1 -z0)*std::tan(phi0);
             float yy2 = y0 +(zz2 -z0)*std::tan(phi0);
             if ( std::hypot(zz1-z0,yy1-y0) < std::hypot(zz2-z0,yy2-y0) ) {
-                retXYZ[1] = yy1;
-                retXYZ[2] = zz1;
+                retXYZ1[1] = yy1;
+                retXYZ1[2] = zz1;
+                retXYZ2[1] = yy2;
+                retXYZ2[2] = zz2;
             } else {
-                retXYZ[1] = yy2;
-                retXYZ[2] = zz2;
+                retXYZ1[1] = yy2;
+                retXYZ1[2] = zz2;
+                retXYZ2[1] = yy1;
+                retXYZ2[2] = zz1;
             }
-            retXYZ[0] = ( retXYZ[2]-z0 ) / std::cos(phi0);
+            retXYZ1[0] = ( retXYZ1[2]-z0 ) / std::cos(phi0);
+            retXYZ2[0] = ( retXYZ2[2]-z0 ) / std::cos(phi0);
             return 0;
         }
 
@@ -94,36 +99,53 @@ namespace util {
         // Add pi/2 or 3pi/2 because of definition of where phi = 0
         float phi1  = atan2( yy1-ycc, zz1-zcc );
               phi1 += (curv>=0) ? M_PI/2.0 : 3.0*M_PI/2.0;
-        float dphi1 = phi1 -phi0;
         float zz2  = zCyl + rCyl * std::cos(phiCentre - phiStar);
         float yy2  = yCyl + rCyl * std::sin(phiCentre - phiStar);
         float phi2  = atan2( yy2-ycc, zz2-zcc );
               phi2 += (curv>=0) ? M_PI/2.0 : 3.0*M_PI/2.0;
-        float dphi2 = phi2 -phi0;
 
+        float dphi1 = phi1 -phi0;
+        float dphi2 = phi2 -phi0;
+        int  nturns = dphi1/(2.0*M_PI);
+        // bring dphi1 in the range 0-2pi, then into range -pi to +pi
+        if (dphi1 > +(2.0*M_PI)) dphi1 -= (2.0*M_PI)*nturns;
+        if (dphi1 < -(2.0*M_PI)) dphi1 += (2.0*M_PI)*nturns;
+        if (dphi1 > +M_PI) dphi1 -= 2.0*M_PI;
+        if (dphi1 < -M_PI) dphi1 += 2.0*M_PI;
+        // likewise dphi2
+        nturns = dphi2/(2.0*M_PI);
+        if (dphi2 > +(2.0*M_PI)) dphi2 -= (2.0*M_PI)*nturns;
+        if (dphi2 < -(2.0*M_PI)) dphi2 += (2.0*M_PI)*nturns;
+        if (dphi2 > +M_PI) dphi2 -= 2.0*M_PI;
+        if (dphi2 < -M_PI) dphi2 += 2.0*M_PI;
         if ( fabs(dphi1) < fabs(dphi2) ) {
-            int nturns = dphi1/(2.0*M_PI);
-            if (dphi1 > +(2.0*M_PI)) dphi1 -= (2.0*M_PI)*nturns;
-            if (dphi1 < -(2.0*M_PI)) dphi1 += (2.0*M_PI)*nturns;
-            retXYZ[1] = yy1;
-            retXYZ[2] = zz1;
-            retXYZ[0] = Xpoint[0] + radius * tanl * dphi1;
+            retXYZ1[1] = yy1;
+            retXYZ1[2] = zz1;
+            retXYZ1[0] = Xpoint[0] + radius * tanl * dphi1;
+            retXYZ2[1] = yy2;
+            retXYZ2[2] = zz2;
+            retXYZ2[0] = Xpoint[0] + radius * tanl * dphi2;
+			
         } else {
-            int nturns = dphi2/(2.0*M_PI);
-            if (dphi2 > +(2.0*M_PI)) dphi2 -= (2.0*M_PI)*nturns;
-            if (dphi2 < -(2.0*M_PI)) dphi2 += (2.0*M_PI)*nturns;
-            retXYZ[1] = yy2;
-            retXYZ[2] = zz2;
-            retXYZ[0] = Xpoint[0] + radius * tanl * dphi2;
+            retXYZ1[1] = yy2;
+            retXYZ1[2] = zz2;
+            retXYZ1[0] = Xpoint[0] + radius * tanl * dphi2;
+            retXYZ2[1] = yy1;
+            retXYZ2[2] = zz1;
+            retXYZ2[0] = Xpoint[0] + radius * tanl * dphi1;
         }
 
         // If Xmax > 0, check if found intersection has x beyond it - i.e.
         // it might be in the endcap
         if ( std::fabs(Xmax) > 0 ) {
-            if ( std::fabs(retXYZ[0]) > std::fabs(Xmax) ) {
+            if ( std::fabs(retXYZ1[0]) > std::fabs(Xmax) ) {
                 // std::cout << "5 - x > Xmax, might be in the endcap" << std::endl;
                 return 5;
             }
+            if ( std::fabs(retXYZ2[0]) > std::fabs(Xmax) ) {
+                return 5;
+            }
+
         }
 
         return 0;

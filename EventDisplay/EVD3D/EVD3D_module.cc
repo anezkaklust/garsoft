@@ -1268,10 +1268,11 @@ namespace gar{
                 int color  = evd::kColor[counter%evd::kNCOLS];
                 //Check the intersection with the ECAL Barrel
                 float xyz_intersection[3] = {0., 0., 0.};
+				float xyz_otherintersect[3];
 
-                //Forward case
+                //Forward case.  It is possible that one wants the 2nd intersection; that isn't coded up yet.
                 int result = util::TrackPropagator::PropagateToCylinder(trk->TrackParEnd(), trk->End(), fGeometry->GetECALInnerBarrelRadius(),
-                fGeometry->TPCYCent(),fGeometry->TPCZCent(), xyz_intersection,
+                fGeometry->TPCYCent(),fGeometry->TPCZCent(), xyz_intersection,xyz_otherintersect,
                 fGeometry->GetECALEndcapStartX() );
                 std::ostringstream label;
 
@@ -1313,7 +1314,7 @@ namespace gar{
 
                 //Backward case
                 result = util::TrackPropagator::PropagateToCylinder(trk->TrackParBeg(), trk->Vertex(), fGeometry->GetECALInnerBarrelRadius(),
-                fGeometry->TPCYCent(),fGeometry->TPCZCent(), xyz_intersection,
+                fGeometry->TPCYCent(),fGeometry->TPCZCent(), xyz_intersection,xyz_otherintersect,
                 fGeometry->GetECALEndcapStartX() );
 
                 if(result == 0)
@@ -1477,7 +1478,7 @@ namespace gar{
 
                 try
                 {
-                    event.getView(fRecoECALHitLabels.at(0), tempCalo);
+                    event.getView(fRecoECALHitLabels.at(0), "ECAL", tempCalo);
                     for(size_t t = 0; t < tempCalo.size(); ++t)
                     recoCalo.push_back(tempCalo[t]);
                 }
