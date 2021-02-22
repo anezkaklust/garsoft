@@ -1,0 +1,36 @@
+<!--                                                                                    -->
+<!--  Include ::art::Wrapper lines for objects that we would like to put into the event -->
+<!--  Include the non-wrapper lines for all objects on the ::art::Wrapper lines and     -->
+<!--  for all objects that are data members of those objects.                           -->
+
+
+<lcgdict>
+
+  <class name="gar::GarGTruth" />
+  <class name="std::vector<gar::GarGTruth>" />
+  <class name="art::Wrapper<gar::GarGTruth>" />
+  <class name="art::Wrapper<std::vector<gar::GarGTruth>>" />
+
+  <class name="gar::GarFSParticle" />
+  <class name="std::vector<gar::GarFSParticle>" />
+  <class name="std::vector<std::vector<gar::GarFSParticle>>" />
+  <class name="art::Wrapper<gar::GarFSParticle>" />
+  <class name="art::Wrapper<std::vector<gar::GarFSParticle>>" />
+  <class name="art::Wrapper<std::vector<std::vector<gar::GarFSParticle>>>" />
+
+  <class name="gar::GarG4Particle" />
+  <class name="std::vector<gar::GarG4Particle>" />
+  <class name="art::Wrapper<gar::GarG4Particle>" />
+  <class name="art::Wrapper<std::vector<gar::GarG4Particle>>" />
+
+  <class name="gar::adp::MCDisplayTrack" />
+  <class name="std::vector<gar::adp::MCDisplayTrack>" />
+  <class name="art::Wrapper<gar::adp::MCDisplayTrack>" />
+  <class name="art::Wrapper<std::vector<gar::adp::MCDisplayTrack>>" />
+
+  <class name="gar::adp::AnaTrack" />
+  <class name="std::vector<gar::adp::AnaTrack>" />
+  <class name="art::Wrapper<gar::adp::AnaTrack>" />
+  <class name="art::Wrapper<std::vector<gar::adp::AnaTrack>>" />
+
+</lcgdict>

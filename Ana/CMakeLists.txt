@@ -8,6 +8,7 @@ art_make(BASENAME_ONLY
                        SimulationDataProducts
                        RawDataProducts
                        ReconstructionDataProducts
+                       AnalysisDataProducts
                        MCCheater_BackTracker_service
                        nusimdata_SimulationBase
                        nurandom_RandomUtils_NuRandomService_service
@@ -28,6 +29,7 @@ art_make(BASENAME_ONLY
                        ${CETLIB_EXCEPT}
                        ${ROOT_BASIC_LIB_LIST}
                        ${ROOT_EG}
+                       GaranaProducts
          )
 
 install_headers()
