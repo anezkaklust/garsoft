@@ -28,7 +28,17 @@
 #include "Geant4/G4Material.hh"
 #include "Geant4/G4MaterialTable.hh"
 #include "Geant4/G4ios.hh"
-#include "Geant4/G4DataQuestionaire.hh"
+
+// FIX ME: G4VERSION_NUMBER does not appear to work
+//#if G4VERSION_NUMBER < 1060
+//#include "Geant4/G4DataQuestionaire.hh"
+//#else
+// The G4DataQuestionaire.hh interface was removed in the 10.6, as described in the release notes:
+// http://geant4-data.web.cern.ch/geant4-data/ReleaseNotes/ReleaseNotes4.10.6.html 8
+// The class was header-only and only used internally by packaged physics lists to check dataset
+// environment variables. These are checked anyway by processes that require them,
+// so it should be possible to remove it from your application without an issue.
+//#endif
 
 #include "GArG4/CustomPhysicsTable.hh"
 #include "GArG4/MuNuclearSplittingProcess.h"
@@ -51,9 +61,9 @@ namespace garg4 {
    this->defaultCutValue = 0.7*CLHEP::mm;  
 	
    this->SetVerboseLevel(ver);
-	
-   G4DataQuestionaire it(photon);
-	
+//#if G4VERSION_NUMBER < 1060	//FIX ME
+//   G4DataQuestionaire it(photon);
+//#endif
 	
    EnabledPhysics = gar::garg4::G4SimulationParameters::Instance()->EnabledPhysics();
 	
