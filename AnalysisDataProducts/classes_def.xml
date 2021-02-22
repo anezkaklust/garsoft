@@ -6,7 +6,7 @@
 
 <lcgdict>
 
-  <class name="gar::GarGTruth" />
+  <!-- <class name="gar::GarGTruth" />
   <class name="std::vector<gar::GarGTruth>" />
   <class name="art::Wrapper<gar::GarGTruth>" />
   <class name="art::Wrapper<std::vector<gar::GarGTruth>>" />
@@ -21,7 +21,7 @@
   <class name="gar::GarG4Particle" />
   <class name="std::vector<gar::GarG4Particle>" />
   <class name="art::Wrapper<gar::GarG4Particle>" />
-  <class name="art::Wrapper<std::vector<gar::GarG4Particle>>" />
+  <class name="art::Wrapper<std::vector<gar::GarG4Particle>>" /> -->
 
   <class name="gar::adp::MCDisplayTrack" />
   <class name="std::vector<gar::adp::MCDisplayTrack>" />
