@@ -1,4 +1,4 @@
-#include "Geometry_CDR.fcl"
+#include "Geometry.fcl"
 #include "evdservices_base.fcl"
 #include "DetectorProperties.fcl"
 #include "GArProperties.fcl"
@@ -11,7 +11,8 @@ services:
 {
   # Load the service that manages root files for histograms.
   message:      @local::evd_message
-  Geometry:                  @local::standard_geo             # from Geometry.fcl
+  #See Geometry.fcl for the list of geometries available
+  Geometry:               @local::nd_hall_mpd_only_SPYv2_geo 
   ExptGeoHelperInterface:    @local::standard_geometry_helper # from Geometry.fcl
   DetectorProperties:        @local::standard_detproperties   # from DetectorProperties.fcl
   GArProperties:             @local::standard_garproperties   # from GArProperties.fcl

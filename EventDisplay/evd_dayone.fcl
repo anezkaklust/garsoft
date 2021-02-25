@@ -6,6 +6,5 @@ services.RecoDrawingOptions.TrackModuleLabels: [ "trackpass1" ]
 services.RecoDrawingOptions.TPCClusterModuleLabels: [ "dayone" ]
 services.RecoDrawingOptions.TPCClusterMarker: 20
 services.RecoDrawingOptions.TPCClusterMarkerSize: 1
-services.Geometry.GDML: "MPD_Standalone/MPD_ECalOctagon_60l_SPY_noUpstreamECAL.gdml"
-services.Geometry.ROOT: "MPD_Standalone/MPD_ECalOctagon_60l_SPY_noUpstreamECAL.gdml"
+services.Geometry:  @local::dayone_geo 
 

@@ -2,6 +2,8 @@
 
 BEGIN_PROLOG
 
+## Old standalone ND-GAr for back compactibility
+
 standard_geo:
 {
  ForceUseFCLOnly:   false
@@ -37,6 +39,93 @@ standard_auxdet_geo:
 example_auxdetgeometry_helper:
 {
  service_provider: AuxDetGeometryHelperExample
+}
+
+## SPY v2 geometry only in the nd hall
+
+nd_hall_mpd_only_SPYv2_geo:
+{
+ ForceUseFCLOnly:   false
+ SortingParameters:
+ {
+  PixelActiveSize: 0.3      # cm
+  PixelPitch:      0.333333 # cm
+ }
+ SegmentationAlgPars: @local::standard_mpd_spyv2_segals
+ RelativePath:      ""
+ GDML:              "nd_hall_mpd_only/nd_hall_mpd_only_ECalOctagon_60l_SPY_v2_wMuID.gdml"
+ ROOT:              "nd_hall_mpd_only/nd_hall_mpd_only_ECalOctagon_60l_SPY_v2_wMuID.gdml"
+ SurfaceY:          0.          # cm
+ Name:              "Realistic"
+ PositionEpsilon:   1.e-4
+ PointInWarnings:   false
+ ECALEndcapOutsidePV: false
+}
+
+nd_hall_mpd_only_SPYv2_auxdet_geo:
+{
+ GDML:              "nd_hall_mpd_only/nd_hall_mpd_only_ECalOctagon_60l_SPY_v2_wMuID.gdml"
+ RelativePath:      ""
+ ForceUseFCLOnly:   false
+ SortingParameters: {}
+}
+
+## ND-GAr-Lite geometry standalone
+
+dayone_geo:
+{
+ ForceUseFCLOnly:   false
+ SortingParameters:
+ {
+  PixelActiveSize: 0.3      # cm
+  PixelPitch:      0.333333 # cm
+ }
+ SegmentationAlgPars: @local::standard_dayone
+ RelativePath:      ""
+ GDML:              "MPD_Standalone/DayOne_SPY_v2_wMuID.gdml"
+ ROOT:              "MPD_Standalone/DayOne_SPY_v2_wMuID.gdml"
+ SurfaceY:          0.          # cm
+ Name:              "Realistic"
+ PositionEpsilon:   1.e-4
+ PointInWarnings:   false
+ ECALEndcapOutsidePV: false
+}
+
+dayone_auxdet_geo:
+{
+ GDML:              "MPD_Standalone/DayOne_SPY_v2_wMuID.gdml"
+ RelativePath:      ""
+ ForceUseFCLOnly:   false
+ SortingParameters: {}
+}
+
+## Old ND-GAr geometry in the nd hall used for the ND CDR studies for backward compatibility
+
+nd_hall_mpd_only_cdr_geo:
+{
+ ForceUseFCLOnly:   false
+ SortingParameters:
+ {
+  PixelActiveSize: 0.3      # cm
+  PixelPitch:      0.333333 # cm
+ }
+ SegmentationAlgPars: @local::standard_mpd_segals
+ RelativePath:      ""
+ GDML:              "nd_hall_mpd_only/nd_hall_mpd_only_ECalOctagon_60l_UniformMagnet.gdml"
+ ROOT:              "nd_hall_mpd_only/nd_hall_mpd_only_ECalOctagon_60l_UniformMagnet.gdml"
+ SurfaceY:          0.          # cm
+ Name:              "Realistic"
+ PositionEpsilon:   1.e-4
+ PointInWarnings:   false
+ ECALEndcapOutsidePV: true
+}
+
+nd_hall_mpd_only_cdr_auxdet_geo:
+{
+ GDML:              "nd_hall_mpd_only/nd_hall_mpd_only_ECalOctagon_60l_UniformMagnet.gdml"
+ RelativePath:      ""
+ ForceUseFCLOnly:   false
+ SortingParameters: {}
 }
 
 END_PROLOG
