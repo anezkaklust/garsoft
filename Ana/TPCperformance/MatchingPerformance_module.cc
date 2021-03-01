@@ -493,7 +493,7 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
         fTrackIDNumber.push_back(track.getIDNumber());
         Float_t saveChi2;		
 		TParticlePDG* particle = pdgInstance->GetParticle(theMCPart.PdgCode());
-        float MCmass = particle->Charge();
+        float MCmass = particle->Mass();
         if ( endTowardECAL==rec::TrackEndBeg ) {
             fTrackX.push_back   ( track.Vertex()[0] -ItsInTulsa[0]);
             fTrackY.push_back   ( track.Vertex()[1] -ItsInTulsa[1]);
