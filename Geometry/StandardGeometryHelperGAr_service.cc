@@ -1,11 +1,11 @@
 ////////////////////////////////////////////////////////////////////////////////
-/// \file StandardGeometryHelper_service.cc
+/// \file StandardGeometryHelperGAr_service.cc
 ///
 /// \author  rs@fnal.gov
 ////////////////////////////////////////////////////////////////////////////////
 
 // class header
-#include "Geometry/StandardGeometryHelper.h"
+#include "Geometry/StandardGeometryHelperGAr.h"
 
 // GArSoft libraries
 #include "Geometry/ChannelMapAlgs/ChannelMapStandardAlg.h"
@@ -26,7 +26,7 @@ namespace gar
   {
 
     //----------------------------------------------------------------------------
-    StandardGeometryHelper::StandardGeometryHelper(fhicl::ParameterSet const& pset,
+    StandardGeometryHelperGAr::StandardGeometryHelperGAr(fhicl::ParameterSet const& pset,
                                                    ::art::ActivityRegistry    &)
     : fPset( pset )
     , fChannelMap()
@@ -36,7 +36,7 @@ namespace gar
     {}
 
     //----------------------------------------------------------------------------
-    void StandardGeometryHelper::doConfigureChannelMapAlg(fhicl::ParameterSet const& sortingParameters,
+    void StandardGeometryHelperGAr::doConfigureChannelMapAlg(fhicl::ParameterSet const& sortingParameters,
                                                           geo::GeometryCore        * geom)
     {
       fChannelMap.reset();
@@ -47,17 +47,17 @@ namespace gar
 
       return;
 
-    } // StandardGeometryHelper::doConfigureChannelMapAlg()
+    } // StandardGeometryHelperGAr::doConfigureChannelMapAlg()
 
 
     //----------------------------------------------------------------------------
-    StandardGeometryHelper::ChannelMapAlgPtr_t StandardGeometryHelper::doGetChannelMapAlg() const
+    StandardGeometryHelperGAr::ChannelMapAlgPtr_t StandardGeometryHelperGAr::doGetChannelMapAlg() const
     {
       return fChannelMap;
     }
 
     //----------------------------------------------------------------------------
-    void StandardGeometryHelper::doConfigureECALSegmentationAlg(fhicl::ParameterSet const& segParameters,
+    void StandardGeometryHelperGAr::doConfigureECALSegmentationAlg(fhicl::ParameterSet const& segParameters,
                                                           geo::GeometryCore        * geom)
     {
       fECALSegmentationAlg.reset();
@@ -68,7 +68,7 @@ namespace gar
       else if(SegmentationAlgName.compare("MultiGridStripXY") == 0)
       fECALSegmentationAlg = std::make_shared<gar::geo::seg::SegmentationMultiGridStripXYAlg>(segParameters);
       else{
-          throw cet::exception("StandardGeometryHelper::doConfigureECALSegmentationAlg")
+          throw cet::exception("StandardGeometryHelperGAr::doConfigureECALSegmentationAlg")
           << "Unable to determine which ECAL Segmentation algorithm to use, bail";
       }
 
@@ -76,10 +76,10 @@ namespace gar
 
       return;
 
-    } // StandardGeometryHelper::doConfigureECALSegmentationAlg()
+    } // StandardGeometryHelperGAr::doConfigureECALSegmentationAlg()
 
     //----------------------------------------------------------------------------
-    void StandardGeometryHelper::doConfigureMinervaSegmentationAlg(fhicl::ParameterSet const& segParameters,
+    void StandardGeometryHelperGAr::doConfigureMinervaSegmentationAlg(fhicl::ParameterSet const& segParameters,
                                                           geo::GeometryCore        * geom)
     {
       fMinervaSegmentationAlg.reset();
@@ -89,7 +89,7 @@ namespace gar
       if(SegmentationAlgName.compare("Minerva") == 0)
       fMinervaSegmentationAlg = std::make_shared<gar::geo::seg::MinervaSegmentationAlg>(segParameters);
       else{
-          throw cet::exception("StandardGeometryHelper::doConfigureMinervaSegmentationAlg")
+          throw cet::exception("StandardGeometryHelperGAr::doConfigureMinervaSegmentationAlg")
           << "Unable to determine which Tracker Sc Segmentation algorithm to use, bail";
       }
 
@@ -97,10 +97,10 @@ namespace gar
 
       return;
 
-    } // StandardGeometryHelper::doConfigureMinervaSegmentationAlg()
+    } // StandardGeometryHelperGAr::doConfigureMinervaSegmentationAlg()
 
     //----------------------------------------------------------------------------
-    void StandardGeometryHelper::doConfigureMuIDSegmentationAlg(fhicl::ParameterSet const& segParameters,
+    void StandardGeometryHelperGAr::doConfigureMuIDSegmentationAlg(fhicl::ParameterSet const& segParameters,
                                                           geo::GeometryCore        * geom)
     {
       fMuIDSegmentationAlg.reset();
@@ -114,7 +114,7 @@ namespace gar
       else if(SegmentationAlgName.compare("SegmentationMuIDAlg") == 0)
       fMuIDSegmentationAlg = std::make_shared<gar::geo::seg::SegmentationMuIDAlg>(segParameters);
       else{
-          throw cet::exception("StandardGeometryHelper::doConfigureMuIDSegmentationAlg")
+          throw cet::exception("StandardGeometryHelperGAr::doConfigureMuIDSegmentationAlg")
           << "Unable to determine which MuID Segmentation algorithm to use, bail";
       }
 
@@ -122,22 +122,22 @@ namespace gar
 
       return;
 
-    } // StandardGeometryHelper::doConfigureMuIDSegmentationAlg()
+    } // StandardGeometryHelperGAr::doConfigureMuIDSegmentationAlg()
 
     //----------------------------------------------------------------------------
-    StandardGeometryHelper::SegmentationAlgPtr_t StandardGeometryHelper::doGetECALSegmentationAlg() const
+    StandardGeometryHelperGAr::SegmentationAlgPtr_t StandardGeometryHelperGAr::doGetECALSegmentationAlg() const
     {
       return fECALSegmentationAlg;
     }
 
     //----------------------------------------------------------------------------
-    StandardGeometryHelper::SegmentationAlgPtr_t StandardGeometryHelper::doGetMinervaSegmentationAlg() const
+    StandardGeometryHelperGAr::SegmentationAlgPtr_t StandardGeometryHelperGAr::doGetMinervaSegmentationAlg() const
     {
       return fMinervaSegmentationAlg;
     }
 
     //----------------------------------------------------------------------------
-    StandardGeometryHelper::SegmentationAlgPtr_t StandardGeometryHelper::doGetMuIDSegmentationAlg() const
+    StandardGeometryHelperGAr::SegmentationAlgPtr_t StandardGeometryHelperGAr::doGetMuIDSegmentationAlg() const
     {
       return fMuIDSegmentationAlg;
     }
@@ -147,4 +147,4 @@ namespace gar
   } // namespace geo
 } // namespace gar
 
-DEFINE_ART_SERVICE_INTERFACE_IMPL(gar::geo::StandardGeometryHelper, gar::geo::ExptGeoHelperInterface)
+DEFINE_ART_SERVICE_INTERFACE_IMPL(gar::geo::StandardGeometryHelperGAr, gar::geo::ExptGeoHelperInterface)

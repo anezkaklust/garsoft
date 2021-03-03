@@ -1,5 +1,5 @@
 /**
- * @file   StandardGeometryHelper.h
+ * @file   StandardGeometryHelperGAr.h
  * @brief  Geometry helper service for detectors with strictly standard mapping
  * @author rs@fnal.gov
  *
@@ -8,8 +8,8 @@
  * provides strictly standard functionality
  */
 
-#ifndef GEO_StandardGeometryHelper_h
-#define GEO_StandardGeometryHelper_h
+#ifndef GEO_StandardGeometryHelperGAr_h
+#define GEO_StandardGeometryHelperGAr_h
 
 // GArSoft libraries
 #include "Geometry/ExptGeoHelperInterface.h"
@@ -29,12 +29,12 @@ namespace gar
      * This ExptGeoHelperInterface implementation serves a ChannelMapStandardAlg
      * for experiments that are known to work well with it.
      */
-    class StandardGeometryHelper : public ExptGeoHelperInterface
+    class StandardGeometryHelperGAr : public ExptGeoHelperInterface
     {
     public:
 
         /// Constructor; follows the standard art service signature
-      StandardGeometryHelper
+      StandardGeometryHelperGAr
       ( fhicl::ParameterSet const & pset, ::art::ActivityRegistry &reg );
 
       /*
@@ -83,6 +83,6 @@ namespace gar
   }
 } // end gar
 
-DECLARE_ART_SERVICE_INTERFACE_IMPL(gar::geo::StandardGeometryHelper, gar::geo::ExptGeoHelperInterface, LEGACY)
+DECLARE_ART_SERVICE_INTERFACE_IMPL(gar::geo::StandardGeometryHelperGAr, gar::geo::ExptGeoHelperInterface, LEGACY)
 
-#endif // GEO_StandardGeometryHelper_h
+#endif // GEO_StandardGeometryHelperGAr_h
