@@ -35,7 +35,7 @@
 #include "nurandom/RandomUtils/NuRandomService.h"
 
 // GArSoft Includes
-#include "DetectorInfo/DetectorClocksService.h"
+#include "DetectorInfo/DetectorClocksServiceGAr.h"
 #include "ReadoutSimulation/IonizationAndScintillation.h"
 #include "ReadoutSimulation/ElectronDriftStandardAlg.h"
 #include "ReadoutSimulation/TPCReadoutSimStandardAlg.h"
@@ -124,7 +124,7 @@ namespace gar {
     IonizationReadout::IonizationReadout(fhicl::ParameterSet const& pset) : art::EDProducer{pset},
       fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,pset,"Seed"))
     {
-      fTime  = gar::providerFrom<detinfo::DetectorClocksService>();
+      fTime  = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
 
       fNumTicks = gar::providerFrom<detinfo::DetectorPropertiesService>()->NumberTimeSamples();
 

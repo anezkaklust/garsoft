@@ -24,7 +24,7 @@
 #include "RawDataProducts/raw.h"
 #include "ReconstructionDataProducts/Hit.h"
 #include "Geometry/Geometry.h"
-#include "DetectorInfo/DetectorClocksService.h"
+#include "DetectorInfo/DetectorClocksServiceGAr.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 
 #include <memory>
@@ -85,7 +85,7 @@ namespace gar {
       fHitFracADCNewHit = p.get<float>("HitFracADCNewHit",0.5);
       fHitFracADCRise   = p.get<float>("HitFracADCRise",1.3);
 
-      fTime    = gar::providerFrom<detinfo::DetectorClocksService>();
+      fTime    = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
       fGeo     = gar::providerFrom<geo::Geometry>();
       fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
 

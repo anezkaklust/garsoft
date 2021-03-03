@@ -19,7 +19,6 @@
 
 #include "Geometry/Geometry.h"
 #include "MCCheater/BackTracker.h"
-#include "DetectorInfo/DetectorClocksService.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "nugen/EventGeneratorBase/GENIE/EVGBAssociationUtil.h"
 

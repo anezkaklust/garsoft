@@ -40,7 +40,7 @@
 
 // GArSoft Includes
 #include "DetectorInfo/DetectorPropertiesService.h"
-#include "DetectorInfo/DetectorClocksService.h"
+#include "DetectorInfo/DetectorClocksServiceGAr.h"
 #include "DetectorInfo/GArMagneticField.h"
 #include "ReconstructionDataProducts/TPCCluster.h"
 #include "ReconstructionDataProducts/Hit.h"
@@ -166,7 +166,7 @@ namespace gar {
 
       auto detProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
       double DriftVelocity = detProp->DriftVelocity(detProp->Efield(),detProp->Temperature());       // in cm per microsecond
-      //auto clockService = gar::providerFrom<detinfo::DetectorClocksService>();
+      //auto clockService = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
       //double distonetick = DriftVelocity * (clockService->TPCTick2Time(1) - clockService->TPCTick2Time(0)) ;
 
       // output collections

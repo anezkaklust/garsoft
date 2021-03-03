@@ -27,7 +27,7 @@ namespace gar {
 
       // get service providers
       fGeo   = gar::providerFrom<geo::Geometry>();
-      fTime  = gar::providerFrom<detinfo::DetectorClocksService>();
+      fTime  = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
       fClock = fTime->TPCClock();
       
     }

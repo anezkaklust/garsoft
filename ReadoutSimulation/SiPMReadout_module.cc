@@ -30,7 +30,6 @@
 #include "nurandom/RandomUtils/NuRandomService.h"
 
 // GArSoft Includes
-#include "DetectorInfo/DetectorClocksService.h"
 #include "Utilities/AssociationUtil.h"
 #include "SimulationDataProducts/CaloDeposit.h"
 #include "ReadoutSimulation/ECALReadoutSimStandardAlg.h"

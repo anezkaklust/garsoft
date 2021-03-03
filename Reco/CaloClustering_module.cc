@@ -22,7 +22,6 @@
 #include "ReconstructionDataProducts/Cluster.h"
 
 #include "Geometry/Geometry.h"
-#include "DetectorInfo/DetectorClocksService.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 
 #include "RecoAlg/KNNClusterAlg.h"

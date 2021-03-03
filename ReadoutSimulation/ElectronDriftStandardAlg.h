@@ -11,7 +11,7 @@
 #define ElectronDriftStandardAlg_h
 
 #include "DetectorInfo/DetectorPropertiesService.h"
-#include "DetectorInfo/DetectorClocksService.h"
+#include "DetectorInfo/DetectorClocksServiceGAr.h"
 #include "Geometry/Geometry.h"
 #include "ReadoutSimulation/ElectronDriftAlg.h"
 

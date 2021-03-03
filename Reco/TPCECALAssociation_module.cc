@@ -18,7 +18,7 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "Geometry/Geometry.h"
-#include "DetectorInfo/DetectorClocksService.h"
+#include "DetectorInfo/DetectorClocksServiceGAr.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 
 #include "ReconstructionDataProducts/Track.h"
@@ -92,7 +92,7 @@ namespace gar {
             fBarrelXCut    = p.get<float>("fBarrelXCut",       35.0);
             fEndcapRphiCut = p.get<float>("fEndXCut",          32.0);
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
-            fClocks  = gar::providerFrom<detinfo::DetectorClocksService>();
+            fClocks  = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
             fGeo     = gar::providerFrom<geo::Geometry>();
 
             produces< art::Assns<gar::rec::Cluster, gar::rec::Track, gar::rec::TrackEnd > >();

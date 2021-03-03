@@ -22,7 +22,6 @@
 #include "RawDataProducts/CaloRawDigit.h"
 #include "ReconstructionDataProducts/CaloHit.h"
 #include "Geometry/Geometry.h"
-#include "DetectorInfo/DetectorClocksService.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "Geometry/LocalTransformation.h"
 #include "Geometry/BitFieldCoder.h"
