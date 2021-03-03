@@ -9,7 +9,7 @@
 
 #include "ReadoutSimulation/ECALReadoutSimStandardAlg.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "Geometry/LocalTransformation.h"
 #include "CoreUtils/ServiceUtil.h"
 
@@ -29,7 +29,7 @@ namespace gar {
         ECALReadoutSimStandardAlg::ECALReadoutSimStandardAlg(CLHEP::HepRandomEngine& engine, fhicl::ParameterSet const& pset)
         : SiPMReadoutSimAlg(engine, pset)
         {
-            fGeo = gar::providerFrom<geo::Geometry>();
+            fGeo = gar::providerFrom<geo::GeometryGAr>();
             fGeoManager = fGeo->ROOTGeoManager();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
 

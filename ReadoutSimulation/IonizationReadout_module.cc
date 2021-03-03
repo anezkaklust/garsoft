@@ -42,7 +42,7 @@
 #include "Utilities/AssociationUtil.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "RawDataProducts/RawDigit.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "CoreUtils/ServiceUtil.h"
 
 // ROOT Includes
@@ -128,7 +128,7 @@ namespace gar {
 
       fNumTicks = gar::providerFrom<detinfo::DetectorPropertiesService>()->NumberTimeSamples();
 
-      fGeo = gar::providerFrom<geo::Geometry>();
+      fGeo = gar::providerFrom<geo::GeometryGAr>();
 
       this->reconfigure(pset);
 
@@ -338,7 +338,7 @@ namespace gar {
     void IonizationReadout::DriftElectronsToReadout(std::vector<sdp::EnergyDeposit> const& edepCol,
                                                     std::vector<edepIDE>                 & edepIDEs)
     {
-      auto geo = gar::providerFrom<geo::Geometry>();
+      auto geo = gar::providerFrom<geo::GeometryGAr>();
 
       float        xyz[3] = {0.};
       unsigned int chan   = 0;

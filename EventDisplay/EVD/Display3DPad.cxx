@@ -13,7 +13,7 @@
 #include "EventDisplay/EVD/Display3DPad.h"
 #include "nuevdb/EventDisplayBase/View3D.h"
 #include "nuevdb/EventDisplayBase/EventHolder.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "EventDisplay/EVD/HeaderDrawer.h"
 #include "EventDisplay/EVD/GeometryDrawer.h"
 #include "EventDisplay/EVD/RawDataDrawer.h"
@@ -63,7 +63,7 @@ namespace evd{
   {
     fView->Clear();
 
-    art::ServiceHandle<geo::Geometry> geo;
+    art::ServiceHandle<geo::GeometryGAr> geo;
 
     // grab the event from the singleton
     const art::Event *evt = evdb::EventHolder::Instance()->GetEvent();

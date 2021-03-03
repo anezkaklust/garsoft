@@ -29,7 +29,7 @@
 #include "EventDisplay/EVD/RawDrawingOptions.h"
 #include "RawDataProducts/RawDigit.h"
 #include "RawDataProducts/raw.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "DetectorInfo/GArPropertiesService.h"
 #include "DetectorInfo/ECALPropertiesService.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
@@ -102,7 +102,7 @@ namespace {
             // Check if we're supposed to draw raw hits at all
             art::ServiceHandle<evd::RawDrawingOptions>   rawopt;
             art::ServiceHandle<evd::ColorDrawingOptions> cdopt;
-            art::ServiceHandle<geo::Geometry>            geom;
+            art::ServiceHandle<geo::GeometryGAr>            geom;
             auto fTime = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
             auto detProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
 

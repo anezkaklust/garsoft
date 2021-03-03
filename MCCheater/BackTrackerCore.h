@@ -31,7 +31,7 @@
 #include "ReconstructionDataProducts/CaloHit.h"
 #include "RawDataProducts/CaloRawDigit.h"
 #include "ReconstructionDataProducts/Cluster.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 #include <unordered_map>
 

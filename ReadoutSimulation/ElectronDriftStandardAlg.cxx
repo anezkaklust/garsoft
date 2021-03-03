@@ -26,7 +26,7 @@ namespace gar {
       fMinClusters         = pset.get<size_t>("MinClusters");
 
       // get service providers
-      fGeo   = gar::providerFrom<geo::Geometry>();
+      fGeo   = gar::providerFrom<geo::GeometryGAr>();
       fTime  = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
       fClock = fTime->TPCClock();
       

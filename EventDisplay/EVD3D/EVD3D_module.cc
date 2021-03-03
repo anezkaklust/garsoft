@@ -16,7 +16,7 @@
 #include "art/Framework/Core/ModuleMacros.h"
 
 #include "nuevdb/EventDisplayBase/NavState.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "Geometry/BitFieldCoder.h"
 
 #include "EventDisplay3DUtils.h"
@@ -141,7 +141,7 @@ namespace gar{
             // Keep track of fhicl parameter set
             const fhicl::ParameterSet fParamSet;
 
-            const gar::geo::GeometryCore* fGeometry = gar::providerFrom<geo::Geometry>();
+            const gar::geo::GeometryCore* fGeometry = gar::providerFrom<geo::GeometryGAr>();
             const gar::detinfo::DetectorClocks* fTime = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
             const gar::detinfo::DetectorProperties* fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
 

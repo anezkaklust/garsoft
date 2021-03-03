@@ -43,7 +43,7 @@
 #include "Geometry/BitFieldCoder.h"
 #include "CoreUtils/ServiceUtil.h"
 #include "Geometry/GeometryCore.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 
 namespace gar {
@@ -124,7 +124,7 @@ namespace gar {
             produces<std::vector<gar::rec::TPCCluster> >();
             produces< art::Assns<gar::rec::TPCCluster, gar::rec::Track> >();
 
-            fGeo = gar::providerFrom<gar::geo::Geometry>();
+            fGeo = gar::providerFrom<gar::geo::GeometryGAr>();
             std::string fEncoding = fGeo->GetMinervaCellIDEncoding();
             fFieldDecoderTrk = new gar::geo::BitFieldCoder( fEncoding );
             std::string fEncodingMuID = fGeo->GetMuIDCellIDEncoding();

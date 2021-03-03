@@ -11,7 +11,7 @@
 
 // GArSoft includes
 #include "MCCheater/BackTracker.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 // Framework includes
 #include "messagefacility/MessageLogger/MessageLogger.h"
@@ -160,7 +160,7 @@ namespace gar {
       auto garProp = gar::providerFrom<detinfo::GArPropertiesService>();
       fLongDiffConst = std::sqrt(2.0 * garProp->LongitudinalDiffusion());
 
-      fGeo = gar::providerFrom<geo::Geometry>();
+      fGeo = gar::providerFrom<geo::GeometryGAr>();
 
       // Create the channel to energy deposit collection.  Start by
       // looking for the RawDigit collection from the event and create

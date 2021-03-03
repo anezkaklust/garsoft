@@ -17,7 +17,7 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "DetectorInfo/DetectorClocksServiceGAr.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 
@@ -93,7 +93,7 @@ namespace gar {
             fEndcapRphiCut = p.get<float>("fEndXCut",          32.0);
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fClocks  = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
-            fGeo     = gar::providerFrom<geo::Geometry>();
+            fGeo     = gar::providerFrom<geo::GeometryGAr>();
 
             produces< art::Assns<gar::rec::Cluster, gar::rec::Track, gar::rec::TrackEnd > >();
         }

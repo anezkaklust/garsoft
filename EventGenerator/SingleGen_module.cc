@@ -42,7 +42,7 @@
 #include "nurandom/RandomUtils/NuRandomService.h"
 
 // gar includes
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "SummaryDataProducts/RunData.h"
 #include "CoreUtils/ServiceUtil.h"
 
@@ -236,7 +236,7 @@ namespace gar{
     {
 
       // grab the geometry object to see what geometry we are using
-      auto geo = gar::providerFrom<geo::Geometry>();
+      auto geo = gar::providerFrom<geo::GeometryGAr>();
       std::string name(geo->DetectorName());
       std::unique_ptr<gar::sumdata::RunData> runcol(new gar::sumdata::RunData(name));
 

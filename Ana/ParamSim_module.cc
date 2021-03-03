@@ -27,7 +27,7 @@
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "CoreUtils/ServiceUtil.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 #include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandFlat.h"
@@ -360,7 +360,7 @@ namespace gar {
     : EDAnalyzer(p),
     fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "Seed"))
     {
-        fGeo     = gar::providerFrom<geo::Geometry>();
+        fGeo     = gar::providerFrom<geo::GeometryGAr>();
 
         fGeneratorLabel    = p.get<std::string>("GeneratorLabel","genie");
         fGeantLabel        = p.get<std::string>("GEANTLabel","geant");

@@ -17,7 +17,7 @@
 #include "ReconstructionDataProducts/CaloHit.h"
 #include "ReconstructionDataProducts/Cluster.h"
 
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "MCCheater/BackTracker.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "nugen/EventGeneratorBase/GENIE/EVGBAssociationUtil.h"
@@ -84,7 +84,7 @@ namespace gar {
                 fMinHits               = pset.get< unsigned int >("MinHits",            1          );
                 fIgnoreNeutrons        = pset.get< bool >("IgnoreNeutrons",             true      );
 
-                fGeo = gar::providerFrom<geo::Geometry>();
+                fGeo = gar::providerFrom<geo::GeometryGAr>();
 
                 art::InputTag ecaltag(fCaloHitModuleLabel, fECALInstanceName);
                 consumes< std::vector<gar::rec::CaloHit> >(ecaltag);

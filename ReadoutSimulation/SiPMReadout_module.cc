@@ -35,7 +35,7 @@
 #include "ReadoutSimulation/ECALReadoutSimStandardAlg.h"
 #include "ReadoutSimulation/MuIDReadoutSimStandardAlg.h"
 #include "RawDataProducts/CaloRawDigit.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "CoreUtils/ServiceUtil.h"
 
 // Forward declarations
@@ -100,7 +100,7 @@ namespace gar {
         : art::EDProducer{pset},
         fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,pset,"Seed"))
         {
-            fGeo = gar::providerFrom<geo::Geometry>();
+            fGeo = gar::providerFrom<geo::GeometryGAr>();
 
             this->reconfigure(pset);
 

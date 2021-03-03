@@ -7,7 +7,7 @@ art_make_library(SOURCE    ${src_files} ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE}Ci
                  LIBRARIES SimulationDataProducts
  			   RawDataProducts
 	                   DetectorInfo_DetectorPropertiesServiceStandardGAr_service
-                           Geometry_Geometry_service
+                           Geometry_GeometryGAr_service
 			   ReconstructionDataProducts
                            nusimdata_SimulationBase
                            nuevdb_EventDisplayBase

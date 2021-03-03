@@ -180,7 +180,7 @@ gar::MatchingPerformance::MatchingPerformance(fhicl::ParameterSet const & p) : E
 //==============================================================================
 void gar::MatchingPerformance::beginJob() {
 
-    fGeo = gar::providerFrom<geo::Geometry>();
+    fGeo = gar::providerFrom<geo::GeometryGAr>();
     ItsInTulsa[0] = fGeo->TPCXCent();        // 1 S Boston Ave
     ItsInTulsa[1] = fGeo->TPCYCent();
     ItsInTulsa[2] = fGeo->TPCZCent();

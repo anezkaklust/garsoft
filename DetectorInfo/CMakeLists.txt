@@ -49,7 +49,7 @@ simple_plugin(DetectorClocksServiceStandardGAr "service"
 
 simple_plugin(DetectorPropertiesServiceStandardGAr "service"
               DetectorInfo
-              Geometry_Geometry_service
+              Geometry_GeometryGAr_service
               Geometry
               ${ART_FRAMEWORK_PRINCIPAL}
               ${ART_FRAMEWORK_SERVICES_REGISTRY}

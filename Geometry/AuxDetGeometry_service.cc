@@ -2,7 +2,7 @@
  * @file   Geometry_service.cc
  * @brief  art framework interface to geometry description - implementation file
  * @author brebel@fnal.gov
- * @see    Geometry.h
+ * @see    GeometryGAr.h
  */
 
 // class header

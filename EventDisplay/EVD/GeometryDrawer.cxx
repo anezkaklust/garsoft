@@ -9,7 +9,7 @@
 #include "TText.h"
 #include "TMath.h"
 
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "nuevdb/EventDisplayBase/View2D.h"
 #include "nuevdb/EventDisplayBase/View3D.h"
 #include "EventDisplay/EVD/GeometryDrawer.h"
@@ -32,7 +32,7 @@ namespace gar {
     //......................................................................
     void GeometryDrawer::DetOutline3D(evdb::View3D*        view)
     {
-      art::ServiceHandle<geo::Geometry> geo;
+      art::ServiceHandle<geo::GeometryGAr> geo;
 
       // these are relative to the center of the TPC.  We will add the detector offsets
       // on each point

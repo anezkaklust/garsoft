@@ -21,7 +21,7 @@
 #include "ReconstructionDataProducts/CaloHit.h"
 #include "ReconstructionDataProducts/Cluster.h"
 
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 
 #include "RecoAlg/KNNClusterAlg.h"
@@ -75,7 +75,7 @@ namespace gar {
             fCaloHitLabel = p.get<std::string>("CaloHitLabel", "calohit");
             fECALInstanceName =  p.get<std::string >("ECALInstanceName", "");
 
-            fGeo     = gar::providerFrom<geo::Geometry>();
+            fGeo     = gar::providerFrom<geo::GeometryGAr>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
 
             //configure the cluster algorithm

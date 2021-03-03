@@ -23,7 +23,7 @@ Date 15.05.2020
 #include "BFieldPlugin.h"
 #include "PseudoLayerPlugin.h"
 
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "CoreUtils/ServiceUtil.h"
 #include "ReconstructionDataProducts/Cluster.h"
 
@@ -288,7 +288,7 @@ namespace gar {
             G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
             m_settings.m_innerBField = magfield[0]; //x component at (0, 0, 0)
 
-            fGeo = gar::providerFrom<geo::Geometry>();
+            fGeo = gar::providerFrom<geo::GeometryGAr>();
 
             const gar::geo::LayeredCalorimeterData * eCalBarrelExtension = fGeo->GetECALLayeredCalorimeterData()[gar::geo::LayeredCalorimeterData::BarrelLayout].get();
             const gar::geo::LayeredCalorimeterData * eCalEndcapExtension = fGeo->GetECALLayeredCalorimeterData()[gar::geo::LayeredCalorimeterData::EndcapLayout].get();

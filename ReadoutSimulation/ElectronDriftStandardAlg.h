@@ -12,7 +12,7 @@
 
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "DetectorInfo/DetectorClocksServiceGAr.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "ReadoutSimulation/ElectronDriftAlg.h"
 
 

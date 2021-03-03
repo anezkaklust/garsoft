@@ -25,7 +25,7 @@
 #include "TMath.h"
 #include "ReconstructionDataProducts/Hit.h"
 #include "ReconstructionDataProducts/TPCCluster.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 namespace gar {
 
@@ -97,7 +97,7 @@ namespace gar {
 //==============================================================================
     void TPCHitCluster::produce(art::Event& e)
     {
-      art::ServiceHandle<geo::Geometry> euclid;
+      art::ServiceHandle<geo::GeometryGAr> euclid;
       float xtpccent = euclid->TPCXCent();
       float ytpccent = euclid->TPCYCent();
       float ztpccent = euclid->TPCZCent();

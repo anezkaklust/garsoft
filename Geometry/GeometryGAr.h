@@ -1,5 +1,5 @@
 /**
- * @file   Geometry.h
+ * @file   GeometryGAr.h
  * @brief  art framework interface to geometry description
  * @author brebel@fnal.gov
  * @see    Geometry_service.cc
@@ -99,13 +99,13 @@ namespace gar {
      * ROOT for the internal geometry representation.
      *
      */
-    class Geometry: public GeometryCore
+    class GeometryGAr: public GeometryCore
     {
     public:
 
       using provider_type = GeometryCore; ///< type of service provider
 
-      Geometry(fhicl::ParameterSet const& pset, ::art::ActivityRegistry& reg);
+      GeometryGAr(fhicl::ParameterSet const& pset, ::art::ActivityRegistry& reg);
 
       /// Updates the geometry if needed at the beginning of each new run
       void preBeginRun(::art::Run const& run);
@@ -137,6 +137,6 @@ namespace gar {
   } // namespace geo
 } //namespace gar
 
-DECLARE_ART_SERVICE(gar::geo::Geometry, LEGACY)
+DECLARE_ART_SERVICE(gar::geo::GeometryGAr, LEGACY)
 
 #endif // GEO_GEOMETRY_H

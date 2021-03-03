@@ -7,7 +7,7 @@
 #include "nug4/G4Base/PrimaryParticleInformation.h"
 #include "GArG4/ParticleListAction.h"
 #include "SimulationDataProducts/sim.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Framework/Principal/Handle.h"
@@ -120,7 +120,7 @@ namespace gar {
       G4ParticleDefinition* particleDefinition = track->GetDefinition();
       G4int pdgCode = particleDefinition->GetPDGEncoding();
 
-      art::ServiceHandle<geo::Geometry const> geo;
+      art::ServiceHandle<geo::GeometryGAr const> geo;
       TGeoManager *geomanager = geo->ROOTGeoManager();
 
       // Get Geant4's ID number for this track.  This will be the same

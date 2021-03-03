@@ -2,7 +2,7 @@
 include_directories ( $ENV{CRYHOME}/src )
 
 art_make(MODULE_LIBRARIES Geometry
-                          Geometry_Geometry_service
+                          Geometry_GeometryGAr_service
                           SummaryDataProducts
                           nutools_EventGeneratorBase_CRY
                           ${CRY}

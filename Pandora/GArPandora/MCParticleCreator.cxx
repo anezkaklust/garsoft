@@ -25,7 +25,7 @@ namespace gar {
         m_pandora(*pPandora),
         m_rotation(*pRotation)
         {
-            fGeo = gar::providerFrom<geo::Geometry>();
+            fGeo = gar::providerFrom<geo::GeometryGAr>();
             auto const *magFieldService = gar::providerFrom<mag::MagneticFieldService>();
             G4ThreeVector zerovec(0, 0, 0);
             G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);

@@ -16,7 +16,7 @@ art_make_library(SOURCE    ${src_files} ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE}Ci
  			                     SimulationDataProducts
  			                     RawDataProducts
 	                         DetectorInfo_DetectorPropertiesServiceStandardGAr_service
-                           Geometry_Geometry_service
+                           Geometry_GeometryGAr_service
 			                     ReconstructionDataProducts
                            nusimdata_SimulationBase
                            nuevdb_EventDisplayBase
@@ -53,7 +53,7 @@ simple_plugin (EVD module
      )
 
 simple_plugin (AnalysisDrawingOptions service
-			         Geometry_Geometry_service
+			         Geometry_GeometryGAr_service
 			         Geometry
 			         ReconstructionDataProducts
                nuevdb_EventDisplayBase

@@ -6,7 +6,7 @@
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 #include "Api/PandoraApi.h"
 #include "Objects/Helix.h"

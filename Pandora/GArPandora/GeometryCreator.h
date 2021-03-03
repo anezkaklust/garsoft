@@ -3,7 +3,7 @@
 
 #include "Api/PandoraApi.h"
 
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 namespace gar {
     namespace gar_pandora {

@@ -16,7 +16,7 @@
 #include "SimulationDataProducts/sim.h"
 #include "CoreUtils/ServiceUtil.h"
 #include "MCCheater/BackTrackerCore.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 #include "TMath.h"
 
@@ -30,7 +30,7 @@ namespace gar{
           : fClocks(nullptr), fGeo(nullptr) {
 
             fClocks = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
-            fGeo    = gar::providerFrom<geo::Geometry>();
+            fGeo    = gar::providerFrom<geo::GeometryGAr>();
 
             fDisableRebuild       = pset.get<bool       >("DisableRebuild",           false);
 

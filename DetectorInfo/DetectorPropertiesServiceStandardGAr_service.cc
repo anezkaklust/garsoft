@@ -9,7 +9,7 @@
 #include "DetectorInfo/DetectorPropertiesServiceStandardGAr.h"
 #include "DetectorInfo/ECALProperties.h"
 #include "DetectorInfo/GArProperties.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "DetectorInfo/ServicePack.h" // gar::extractProviders()
 #include "DetectorInfo/GArPropertiesService.h"
 #include "DetectorInfo/ECALPropertiesService.h"
@@ -33,7 +33,7 @@ namespace gar {
       reg.sPostOpenFile.watch    (this, &DetectorPropertiesServiceStandardGAr::postOpenFile);
       reg.sPreProcessEvent.watch (this, &DetectorPropertiesServiceStandardGAr::preProcessEvent);
       fProp = std::make_unique<detinfo::DetectorPropertiesStandard>(pset,
-                                                                    gar::extractProviders<geo::Geometry,
+                                                                    gar::extractProviders<geo::GeometryGAr,
                                                                                           detinfo::GArPropertiesService,
                                                                                           detinfo::ECALPropertiesService,
                                                                                           detinfo::DetectorClocksServiceGAr>(),

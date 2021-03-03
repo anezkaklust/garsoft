@@ -14,7 +14,7 @@
 #include "nug4/G4Base/UserAction.h"
 
 // GArSoft includes
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
 
 //ART includes

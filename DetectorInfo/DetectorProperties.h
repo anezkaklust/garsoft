@@ -10,7 +10,7 @@
 #define DETINFO_IDETECTORPROPERTIES_H
 
 #include "fhiclcpp/ParameterSet.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 ///General GArSoft Utilities
 namespace gar {

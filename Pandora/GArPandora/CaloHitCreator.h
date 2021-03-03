@@ -3,7 +3,7 @@
 
 #include "art/Framework/Principal/Event.h"
 
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "Geometry/BitFieldCoder.h"
 #include "ReconstructionDataProducts/CaloHit.h"
 

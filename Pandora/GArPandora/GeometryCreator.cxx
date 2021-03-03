@@ -12,7 +12,7 @@ namespace gar {
         : m_settings(settings),
         m_pPandora(*pPandora)
         {
-            fGeo = gar::providerFrom<geo::Geometry>();
+            fGeo = gar::providerFrom<geo::GeometryGAr>();
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------

@@ -32,7 +32,7 @@
 #include "GArG4/ParticleListAction.h"
 
 #include "Geometry/GeometryCore.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "CoreUtils/ServiceUtil.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "cetlib_except/exception.h"
@@ -47,7 +47,7 @@ namespace gar {
         AuxDetAction::AuxDetAction(CLHEP::HepRandomEngine*    engine,
         fhicl::ParameterSet const& pset)
         {
-            fGeo = gar::providerFrom<geo::Geometry>();
+            fGeo = gar::providerFrom<geo::GeometryGAr>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
 
             this->reconfigure(pset);

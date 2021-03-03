@@ -27,7 +27,7 @@
 // GArSoft Includes
 #include "MCCheater/BackTracker.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "CoreUtils/ServiceUtil.h"
 
 // ROOT includes

@@ -49,7 +49,7 @@
 #include "Reco/TrackPar.h"
 #include "Reco/tracker2algs.h"
 #include "ReconstructionDataProducts/Vertex.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 #include "Geant4/G4ThreeVector.hh"
 
@@ -159,7 +159,7 @@ namespace gar {
 	float dx;
       } trkiend_t;
 
-      art::ServiceHandle<geo::Geometry> geo;
+      art::ServiceHandle<geo::GeometryGAr> geo;
       float xtpccent = geo->TPCXCent();
 
       // get the distance corresponding to one ADC tick so we can report the time in ticks
@@ -650,7 +650,7 @@ namespace gar {
       // G4ThreeVector zerovec(0,0,0);
       // G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 
-      art::ServiceHandle<geo::Geometry> geo;
+      art::ServiceHandle<geo::GeometryGAr> geo;
       double xtpccent = geo->TPCXCent();
       TVector3 xhat(1,0,0);
       TVector3 xcentv = xhat*xtpccent;
