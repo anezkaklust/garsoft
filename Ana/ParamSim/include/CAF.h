@@ -68,6 +68,7 @@ private:
     //Generator values
     std::vector<int> mode, ccnc, ntype, gint, weight, tgtpdg, gt_t, intert, detected;
     std::vector<int> nGPart, GPartPdg, GPartStatus, GPartFirstMom, GPartLastMom, GPartFirstDaugh, GPartLastDaugh;
+    std::vector<float> GPartPx, GPartPy, GPartPz, GPartE, GPartMass;
     std::vector<std::string> GPartName;
     std::vector<double> q2, w, y, x, theta, t, mctime, mcnupx, mcnupy, mcnupz, vertx, verty, vertz;
     //MC Particle Values, with motherid added
@@ -82,6 +83,8 @@ private:
     std::vector<unsigned int> isFidStart, isTPCStart, isCaloStart, isInBetweenStart, isThroughCaloStart;
     std::vector<unsigned int> isFidEnd, isTPCEnd, isCaloEnd, isInBetweenEnd, isThroughCaloEnd;
     std::vector<unsigned int> isBarrelStart, isEndcapStart, isBarrelEnd, isEndcapEnd;
+
+    float calcGluck(double sigmaX, double B, double X0, float nHits, double mom, double length, double& ratio);
 };
 
 #endif
