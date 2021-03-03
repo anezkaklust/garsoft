@@ -2,7 +2,7 @@ BEGIN_PROLOG
 
 standard_detproperties:
 {
- service_provider:     "DetectorPropertiesServiceStandard"
+ service_provider:     "DetectorPropertiesServiceStandardGAr"
 
  # Drift properties
  Temperature:           294.26          # Kelvin  (70F)

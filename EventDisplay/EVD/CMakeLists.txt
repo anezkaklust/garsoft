@@ -15,7 +15,7 @@ art_make_library(SOURCE    ${src_files} ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE}Ci
 			                     EventDisplay_EVD_SimulationDrawingOptions_service
  			                     SimulationDataProducts
  			                     RawDataProducts
-	                         DetectorInfo_DetectorPropertiesServiceStandard_service
+	                         DetectorInfo_DetectorPropertiesServiceStandardGAr_service
                            Geometry_Geometry_service
 			                     ReconstructionDataProducts
                            nusimdata_SimulationBase

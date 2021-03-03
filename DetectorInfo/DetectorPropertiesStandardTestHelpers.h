@@ -69,7 +69,7 @@ namespace testing {
           if (iSlash != std::string::npos)
             ServiceProviderName.erase(0, iSlash + 1);
           
-          if (ServiceProviderName == "DetectorPropertiesServiceStandard") {
+          if (ServiceProviderName == "DetectorPropertiesServiceStandardGAr") {
             LOG_TRACE("ProviderSetup") << "Verified service implementation for "
               "DetectorPropertiesService"
               ": '" << ServiceProviderPath << "'";

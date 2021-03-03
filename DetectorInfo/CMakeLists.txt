@@ -47,7 +47,7 @@ simple_plugin(DetectorClocksServiceStandardGAr "service"
               ${ROOT_BASIC_LIB_LIST}
              )
 
-simple_plugin(DetectorPropertiesServiceStandard "service"
+simple_plugin(DetectorPropertiesServiceStandardGAr "service"
               DetectorInfo
               Geometry_Geometry_service
               Geometry
@@ -68,7 +68,7 @@ simple_plugin(DetectorPropertiesServiceStandard "service"
 
 simple_plugin(GArPropertiesServiceStandard "service"
               DetectorInfo
-              DetectorInfo_DetectorPropertiesServiceStandard_service
+              DetectorInfo_DetectorPropertiesServiceStandardGAr_service
               art_Utilities canvas
               ${ART_FRAMEWORK_SERVICES_REGISTRY}
               ${MF_MESSAGELOGGER}
@@ -77,7 +77,7 @@ simple_plugin(GArPropertiesServiceStandard "service"
 
 simple_plugin(ECALPropertiesServiceStandard "service"
              DetectorInfo
-             DetectorInfo_DetectorPropertiesServiceStandard_service
+             DetectorInfo_DetectorPropertiesServiceStandardGAr_service
              art_Utilities canvas
              ${ART_FRAMEWORK_SERVICES_REGISTRY}
              ${MF_MESSAGELOGGER}

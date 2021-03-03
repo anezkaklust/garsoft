@@ -6,7 +6,7 @@ cet_rootcint( ${PACKAGE} )
 art_make_library(SOURCE    ${src_files} ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE}Cint.cc
                  LIBRARIES SimulationDataProducts
  			   RawDataProducts
-	                   DetectorInfo_DetectorPropertiesServiceStandard_service
+	                   DetectorInfo_DetectorPropertiesServiceStandardGAr_service
                            Geometry_Geometry_service
 			   ReconstructionDataProducts
                            nusimdata_SimulationBase
