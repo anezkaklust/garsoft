@@ -25,7 +25,7 @@
 
 #include "CoreUtils/ServiceUtil.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
-#include "DetectorInfo/DetectorClocksService.h"
+#include "DetectorInfo/DetectorClocksServiceGAr.h"
 #include "DetectorInfo/GArPropertiesService.h"
 #include "DetectorInfo/ECALPropertiesService.h"
 
@@ -142,7 +142,7 @@ namespace gar{
             const fhicl::ParameterSet fParamSet;
 
             const gar::geo::GeometryCore* fGeometry = gar::providerFrom<geo::Geometry>();
-            const gar::detinfo::DetectorClocks* fTime = gar::providerFrom<detinfo::DetectorClocksService>();
+            const gar::detinfo::DetectorClocks* fTime = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
             const gar::detinfo::DetectorProperties* fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
 
             //Event display 3D pointer

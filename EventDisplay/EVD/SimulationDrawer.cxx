@@ -28,7 +28,6 @@
 #include "EventDisplay/EVD/RawDrawingOptions.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "DetectorInfo/DetectorProperties.h"
-#include "DetectorInfo/DetectorClocksService.h"
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Principal/View.h"

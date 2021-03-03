@@ -29,7 +29,7 @@ namespace gar{
         BackTrackerCore::BackTrackerCore(fhicl::ParameterSet const& pset)
           : fClocks(nullptr), fGeo(nullptr) {
 
-            fClocks = gar::providerFrom<detinfo::DetectorClocksService>();
+            fClocks = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
             fGeo    = gar::providerFrom<geo::Geometry>();
 
             fDisableRebuild       = pset.get<bool       >("DisableRebuild",           false);

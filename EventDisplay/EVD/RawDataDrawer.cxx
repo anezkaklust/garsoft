@@ -33,7 +33,7 @@
 #include "DetectorInfo/GArPropertiesService.h"
 #include "DetectorInfo/ECALPropertiesService.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
-#include "DetectorInfo/DetectorClocksService.h"
+#include "DetectorInfo/DetectorClocksServiceGAr.h"
 
 #include "canvas/Utilities/InputTag.h"
 #include "canvas/Utilities/Exception.h"
@@ -103,7 +103,7 @@ namespace {
             art::ServiceHandle<evd::RawDrawingOptions>   rawopt;
             art::ServiceHandle<evd::ColorDrawingOptions> cdopt;
             art::ServiceHandle<geo::Geometry>            geom;
-            auto fTime = gar::providerFrom<detinfo::DetectorClocksService>();
+            auto fTime = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
             auto detProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
 
             double driftVelocity = detProp->DriftVelocity(detProp->Efield(),

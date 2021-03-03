@@ -1,11 +1,11 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "DetectorInfo/DetectorClocksStandard.h"
+#include "DetectorInfo/DetectorClocksStandardGAr.h"
 
 namespace gar {
   
   //-------------------------------------------------------------------------
-  detinfo::DetectorClocksStandard::DetectorClocksStandard()
+  detinfo::DetectorClocksStandardGAr::DetectorClocksStandardGAr()
   : fConfigName      (detinfo::kInheritConfigTypeMax, "")
   , fConfigValue     (detinfo::kInheritConfigTypeMax, 0)
   , fTrigModuleName  ("")
@@ -33,26 +33,26 @@ namespace gar {
   }
   
   //-------------------------------------------------------------------------
-  detinfo::DetectorClocksStandard::DetectorClocksStandard(fhicl::ParameterSet const& pset)
-  : DetectorClocksStandard()
+  detinfo::DetectorClocksStandardGAr::DetectorClocksStandardGAr(fhicl::ParameterSet const& pset)
+  : DetectorClocksStandardGAr()
   {
     // In a constructor, the version of virtual method that is called
     // is always the one specific of the class being constructed
     // (the one mentioned in the name of the constructor itself).
     // For clarity, we explicitly show that:
-    DetectorClocksStandard::Configure(pset);
+    DetectorClocksStandardGAr::Configure(pset);
     
   }
   
   
   //------------------------------------------------------------------
-  bool detinfo::DetectorClocksStandard::Update(uint64_t ts)
+  bool detinfo::DetectorClocksStandardGAr::Update(uint64_t ts)
   {
     return true;
   }
   
   //------------------------------------------------------------------
-  bool detinfo::DetectorClocksStandard::Configure(fhicl::ParameterSet const& pset)
+  bool detinfo::DetectorClocksStandardGAr::Configure(fhicl::ParameterSet const& pset)
   {
     
     // Read fcl parameters
@@ -77,7 +77,7 @@ namespace gar {
   }
   
   //-----------------------------------
-  void detinfo::DetectorClocksStandard::ApplyParams()
+  void detinfo::DetectorClocksStandardGAr::ApplyParams()
   //-----------------------------------
   {
     
@@ -91,7 +91,7 @@ namespace gar {
   }
   
   //------------------------------------------------------------------------
-  bool detinfo::DetectorClocksStandard::IsRightConfig(const fhicl::ParameterSet& ps) const
+  bool detinfo::DetectorClocksStandardGAr::IsRightConfig(const fhicl::ParameterSet& ps) const
   //------------------------------------------------------------------------
   {
     std::string s;
@@ -106,20 +106,20 @@ namespace gar {
   }
   
   //-----------------------------------------
-  void detinfo::DetectorClocksStandard::debugReport() const
+  void detinfo::DetectorClocksStandardGAr::debugReport() const
   //-----------------------------------------
   {
-    MF_LOG_VERBATIM("DetectorClocksStandard")
+    MF_LOG_VERBATIM("DetectorClocksStandardGAr")
     << "fConfigValues contents: ";
     
     for(size_t i = 0; i < kInheritConfigTypeMax; ++i)
-      MF_LOG_VERBATIM("DetectorClocksStandard")
+      MF_LOG_VERBATIM("DetectorClocksStandardGAr")
       << "    "
       << fConfigName.at(i).c_str()
       << " ... "
       << fConfigValue.at(i);
     
-    MF_LOG_VERBATIM("DetectorClocksStandard")
+    MF_LOG_VERBATIM("DetectorClocksStandardGAr")
     << "Trigger  time @ "                      << fTriggerTime              
     << "\nBeamGate time @ "                    << fBeamGateTime
     << "\nTrigOffsetTPC @ "                    << TriggerOffsetTPC()

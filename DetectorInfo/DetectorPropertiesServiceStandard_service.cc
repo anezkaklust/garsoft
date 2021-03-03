@@ -13,7 +13,7 @@
 #include "DetectorInfo/ServicePack.h" // gar::extractProviders()
 #include "DetectorInfo/GArPropertiesService.h"
 #include "DetectorInfo/ECALPropertiesService.h"
-#include "DetectorInfo/DetectorClocksService.h"
+#include "DetectorInfo/DetectorClocksServiceGAr.h"
 
 // Art includes
 #include "art_root_io/RootDB/SQLite3Wrapper.h"
@@ -36,7 +36,7 @@ namespace gar {
                                                                     gar::extractProviders<geo::Geometry,
                                                                                           detinfo::GArPropertiesService,
                                                                                           detinfo::ECALPropertiesService,
-                                                                                          detinfo::DetectorClocksService>(),
+                                                                                          detinfo::DetectorClocksServiceGAr>(),
                                                                     std::set<std::string>({ "InheritNumberTimeSamples" })
                                                                     );
 
@@ -63,7 +63,7 @@ namespace gar {
     void DetectorPropertiesServiceStandard::preProcessEvent(const ::art::Event& evt, art::ScheduleContext)
     {
       // Make sure TPC Clock is updated with TimeService (though in principle it shouldn't change
-      fProp->UpdateClocks(gar::providerFrom<detinfo::DetectorClocksService>());
+      fProp->UpdateClocks(gar::providerFrom<detinfo::DetectorClocksServiceGAr>());
     }
 
 

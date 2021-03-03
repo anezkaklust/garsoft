@@ -21,7 +21,7 @@
 #include "nug4/ParticleNavigation/EveIdCalculator.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
 
-#include "DetectorInfo/DetectorClocksService.h"
+#include "DetectorInfo/DetectorClocksServiceGAr.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "RawDataProducts/RawDigit.h"
 #include "ReconstructionDataProducts/Hit.h"

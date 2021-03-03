@@ -1,4 +1,5 @@
-#include "DetectorInfo/DetectorClocksServiceStandard.h"
+#include "DetectorInfo/DetectorClocksServiceStandardGAr.h"
+
 #include "TFile.h"
 #include "art_root_io/RootDB/SQLite3Wrapper.h"
 #include "art/Framework/Principal/Event.h"
@@ -6,19 +7,19 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 //-----------------------------------------------------------------------------------------
-gar::detinfo::DetectorClocksServiceStandard::DetectorClocksServiceStandard(fhicl::ParameterSet   const& pset,
+gar::detinfo::DetectorClocksServiceStandardGAr::DetectorClocksServiceStandardGAr(fhicl::ParameterSet   const& pset,
                                                                            ::art::ActivityRegistry      &reg)
-: fClocks(std::make_unique<detinfo::DetectorClocksStandard>(pset))
+: fClocks(std::make_unique<detinfo::DetectorClocksStandardGAr>(pset))
 {
   
-  reg.sPreProcessEvent.watch (this, &DetectorClocksServiceStandard::preProcessEvent);
-  reg.sPostOpenFile.watch    (this, &DetectorClocksServiceStandard::postOpenFile);
-  reg.sPreBeginRun.watch     (this, &DetectorClocksServiceStandard::preBeginRun);
+  reg.sPreProcessEvent.watch (this, &DetectorClocksServiceStandardGAr::preProcessEvent);
+  reg.sPostOpenFile.watch    (this, &DetectorClocksServiceStandardGAr::postOpenFile);
+  reg.sPreBeginRun.watch     (this, &DetectorClocksServiceStandardGAr::preBeginRun);
   
 }
 
 //------------------------------------------------------------------
-void gar::detinfo::DetectorClocksServiceStandard::reconfigure(fhicl::ParameterSet const& pset)
+void gar::detinfo::DetectorClocksServiceStandardGAr::reconfigure(fhicl::ParameterSet const& pset)
 //------------------------------------------------------------------
 {
   fClocks->Configure(pset);
@@ -26,7 +27,7 @@ void gar::detinfo::DetectorClocksServiceStandard::reconfigure(fhicl::ParameterSe
 }
 
 //------------------------------------------------------------
-void gar::detinfo::DetectorClocksServiceStandard::preProcessEvent(::art::Event const& evt, art::ScheduleContext)
+void gar::detinfo::DetectorClocksServiceStandardGAr::preProcessEvent(::art::Event const& evt, art::ScheduleContext)
 //------------------------------------------------------------
 {
   ::art::Handle<std::vector<raw::Trigger> > trig_handle;
@@ -46,7 +47,7 @@ void gar::detinfo::DetectorClocksServiceStandard::preProcessEvent(::art::Event c
   
   if(trig_handle->size()>1)
     
-    throw cet::exception("DetectorClocksServiceStandard::preProcessEvent")
+    throw cet::exception("DetectorClocksServiceStandardGAr::preProcessEvent")
     << "Found "
     << trig_handle->size()
     << " triggers (only 1 trigger/event supported)\n";
@@ -60,7 +61,7 @@ void gar::detinfo::DetectorClocksServiceStandard::preProcessEvent(::art::Event c
 }
 
 //------------------------------------------------------
-void gar::detinfo::DetectorClocksServiceStandard::preBeginRun(::art::Run const& run)
+void gar::detinfo::DetectorClocksServiceStandardGAr::preBeginRun(::art::Run const& run)
 //------------------------------------------------------
 {
   // run number is unsigned so clang says this statement cannot happen
@@ -71,7 +72,7 @@ void gar::detinfo::DetectorClocksServiceStandard::preBeginRun(::art::Run const& 
 
 
 //---------------------------------------------------------------
-void gar::detinfo::DetectorClocksServiceStandard::postOpenFile(std::string const& filename)
+void gar::detinfo::DetectorClocksServiceStandardGAr::postOpenFile(std::string const& filename)
 //---------------------------------------------------------------
 {
   
@@ -137,7 +138,7 @@ void gar::detinfo::DetectorClocksServiceStandard::postOpenFile(std::string const
         
         if(config_count.at(i) && cfgValue.at(i) != config_value.at(i)) {
           
-          MF_LOG_INFO("DetectorClocksServiceStandard")
+          MF_LOG_INFO("DetectorClocksServiceStandardGAr")
           << Form("\033[93mOverriding configuration parameter %s ... %g (fcl) => %g (data file)\033[00m",
                   cfgName.at(i).c_str(),
                   cfgValue.at(i),
@@ -161,5 +162,5 @@ void gar::detinfo::DetectorClocksServiceStandard::postOpenFile(std::string const
   
 }
 
-DEFINE_ART_SERVICE_INTERFACE_IMPL(gar::detinfo::DetectorClocksServiceStandard, gar::detinfo::DetectorClocksService)
+DEFINE_ART_SERVICE_INTERFACE_IMPL(gar::detinfo::DetectorClocksServiceStandardGAr, gar::detinfo::DetectorClocksServiceGAr)
 

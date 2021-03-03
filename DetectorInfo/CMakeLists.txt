@@ -27,8 +27,7 @@ art_make( NO_PLUGINS
         )
 
 
-simple_plugin(DetectorClocksServiceStandard "service"
-              DetectorInfo
+simple_plugin(DetectorClocksServiceStandardGAr "service"
               RawDataProducts
               ${ART_FRAMEWORK_CORE}
               ${ART_FRAMEWORK_PRINCIPAL}

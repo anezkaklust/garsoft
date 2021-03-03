@@ -21,13 +21,13 @@
 namespace gar {
   namespace detinfo{
     
-    class DetectorClocksStandard : public DetectorClocks {
+    class DetectorClocksStandardGAr : public DetectorClocks {
       
     public:
-      DetectorClocksStandard();
-      DetectorClocksStandard(fhicl::ParameterSet const& pset);
-      DetectorClocksStandard(DetectorClocksStandard const&) = delete;
-      virtual ~DetectorClocksStandard() {};
+      DetectorClocksStandardGAr();
+      DetectorClocksStandardGAr(fhicl::ParameterSet const& pset);
+      DetectorClocksStandardGAr(DetectorClocksStandardGAr const&) = delete;
+      virtual ~DetectorClocksStandardGAr() {};
       
       bool Configure(fhicl::ParameterSet const& pset);
       bool Update(uint64_t ts=0);
@@ -229,7 +229,7 @@ namespace gar {
       /// Duration of beam spill, ns.
       double fSpillLength;
 
-    }; // class DetectorClocksStandard
+    }; // class DetectorClocksStandardGAr
     
   } //namespace detinfo
 }
