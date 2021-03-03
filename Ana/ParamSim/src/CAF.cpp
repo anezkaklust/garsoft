@@ -101,6 +101,11 @@ bool CAF::BookTFile()
         cafMVA->Branch("GPartLastMom", &GPartLastMom);
         cafMVA->Branch("GPartFirstDaugh", &GPartFirstDaugh);
         cafMVA->Branch("GPartLastDaugh", &GPartLastDaugh);
+        cafMVA->Branch("GPartPx", &GPartPx);
+        cafMVA->Branch("GPartPy", &GPartPy);
+        cafMVA->Branch("GPartPz", &GPartPz);
+        cafMVA->Branch("GPartE", &GPartE);
+        cafMVA->Branch("GPartMass", &GPartMass);
 
         //Number of final state particle (primaries)
         cafMVA->Branch("nFSP", &_nFSP);
@@ -217,6 +222,11 @@ void CAF::ClearVectors()
     GPartLastMom.clear();
     GPartFirstDaugh.clear();
     GPartLastDaugh.clear();
+    GPartPx.clear();
+    GPartPy.clear();
+    GPartPz.clear();
+    GPartE.clear();
+    GPartMass.clear();
 
     //MC Particle values
     _nFSP.clear();
@@ -324,6 +334,16 @@ bool CAF::CheckVectorSize()
     return isOK;
 }
 
+float CAF::calcGluck(double sigmaX, double B, double X0, float nHits, double mom, double length, double& ratio)
+{
+  double sig_meas = sqrt(720./(nHits+4))*( (0.01*sigmaX*mom)/(0.0001*0.3*B*length*length) );
+  double sig_mcs = (0.052/B)*sqrt( 1.43/(0.0001*X0*length) );
+  double sigma = sqrt(sig_meas*sig_meas + sig_mcs*sig_mcs);
+  ratio = sig_meas/sig_mcs;
+ 
+  return sigma;
+}
+
 // main loop function
 void CAF::loop()
 {
@@ -331,7 +351,7 @@ void CAF::loop()
     const float gastpc_len = 2.; // new track length cut in cm based on Thomas' study of low energy protons
     // dont care about electrons -- check momentum and see if hit ECAL
     const float gastpc_B = 0.5; // B field strength in Tesla
-    const float gastpc_padPitch = 0.1; // 1 mm. Actual pad pitch varies, which is going to be impossible to implement
+    const float gastpc_padPitch = 1.0; // 1 mm. Actual pad pitch varies, which is going to be impossible to implement
     const float gastpc_X0 = 1300.; // cm = 13m radiation length
     //Resolution for short tracks //TODO check this numbers!
     const float sigmaP_short = 0.1; //in GeV
@@ -450,6 +470,16 @@ void CAF::loop()
     TBranch            *b_GPartFirstDaugh = 0;
     std::vector<int> *_GPartLastDaugh = 0;
     TBranch            *b_GPartLastDaugh = 0;
+    std::vector<float> *_GPartPx = 0;
+    TBranch            *b_GPartPx = 0;
+    std::vector<float> *_GPartPy = 0;
+    TBranch            *b_GPartPy = 0;
+    std::vector<float> *_GPartPz = 0;
+    TBranch            *b_GPartPz = 0;
+    std::vector<float> *_GPartE = 0;
+    TBranch            *b_GPartE = 0;
+    std::vector<float> *_GPartMass = 0;
+    TBranch            *b_GPartMass = 0;
 
     std::vector<int>     *PDG = 0;
     TBranch              *b_PDG = 0;
@@ -525,6 +555,11 @@ void CAF::loop()
     _inttree->SetBranchAddress("GPartLastMom", &_GPartLastMom, &b_GPartLastMom);
     _inttree->SetBranchAddress("GPartFirstDaugh", &_GPartFirstDaugh, &b_GPartFirstDaugh);
     _inttree->SetBranchAddress("GPartLastDaugh", &_GPartLastDaugh, &b_GPartLastDaugh);
+    _inttree->SetBranchAddress("GPartPx", &_GPartPx, &b_GPartPx);
+    _inttree->SetBranchAddress("GPartPy", &_GPartPy, &b_GPartPy);
+    _inttree->SetBranchAddress("GPartPz", &_GPartPz, &b_GPartPz);
+    _inttree->SetBranchAddress("GPartE", &_GPartE, &b_GPartE);
+    _inttree->SetBranchAddress("GPartMass", &_GPartMass, &b_GPartMass);
 
     //MC info
     _inttree->SetBranchAddress("PDG", &PDG, &b_PDG);
@@ -614,6 +649,11 @@ void CAF::loop()
                 GPartLastMom.push_back(_GPartLastMom->at(j));
                 GPartFirstDaugh.push_back(_GPartFirstDaugh->at(j));
                 GPartLastDaugh.push_back(_GPartLastDaugh->at(j));
+                GPartPx.push_back(_GPartPx->at(j));
+                GPartPy.push_back(_GPartPy->at(j));
+                GPartPz.push_back(_GPartPz->at(j));
+                GPartE.push_back(_GPartE->at(j));
+                GPartMass.push_back(_GPartMass->at(j));
             }
         }
 
@@ -639,6 +679,7 @@ void CAF::loop()
 
             TVector3 mcp(MCPStartPX->at(i), MCPStartPY->at(i), MCPStartPZ->at(i));
             float ptrue = (mcp).Mag();
+            float pypz = std::sqrt( MCPStartPY->at(i)*MCPStartPY->at(i) + MCPStartPZ->at(i)*MCPStartPZ->at(i));
 
             //need to ignore neutrals for this - put the value to 0
             auto result = std::find(pdg_neutral.begin(), pdg_neutral.end(), abs(pdg));
@@ -802,13 +843,25 @@ void CAF::loop()
                         {
                             //Case where the endpoint is not in the TPC, should be able to use the Gluckstern formula
                             // calculate number of trackpoints
-                            float nHits = round (trkLen.at(nFSP) / gastpc_padPitch);
-                            // measurement term in Gluckstern formula
-                            float fracSig_meas = sqrt(720./(nHits+4)) * ((0.01*gastpc_padPitch*ptrue) / (0.3 * gastpc_B * 0.0001 *trkLenPerp.at(nFSP)*trkLenPerp.at(nFSP)));
-                            // multiple Coulomb scattering term in Gluckstern formula
-                            float fracSig_MCS = (0.052*sqrt(1.43)) / (gastpc_B * sqrt(gastpc_X0*trkLenPerp.at(nFSP)*0.0001));
-                            // momentum resoltion from the two terms above
-                            float sigmaP = ptrue * sqrt( fracSig_meas*fracSig_meas + fracSig_MCS*fracSig_MCS );
+                            // float nHits = round (trkLen.at(nFSP) / gastpc_padPitch);
+                            // // measurement term in Gluckstern formula
+                            // float fracSig_meas = sqrt(720./(nHits+4)) * ((0.01*gastpc_padPitch*ptrue) / (0.3 * gastpc_B * 0.0001 *trkLenPerp.at(nFSP)*trkLenPerp.at(nFSP)));
+                            // // multiple Coulomb scattering term in Gluckstern formula
+                            // float fracSig_MCS = (0.052*sqrt(1.43)) / (gastpc_B * sqrt(gastpc_X0*trkLenPerp.at(nFSP)*0.0001));
+                            // // momentum resoltion from the two terms above
+                            // float sigmaP = ptrue * sqrt( fracSig_meas*fracSig_meas + fracSig_MCS*fracSig_MCS );
+                            // // now Gaussian smear the true momentum using the momentum resolution
+                            // preco = _util->GaussianSmearing( ptrue, sigmaP );
+
+                            //Vivek Gluckstern
+                            int nHits = round (trkLen.at(nFSP) / gastpc_padPitch);
+                            double ratio = 0.;
+                            float sigmaPt  = pypz*calcGluck(sigma_x, gastpc_B, gastpc_X0, nHits, pypz, trkLenPerp.at(nFSP), ratio);
+                            float tan_lambda = MCPStartPX->at(i)/pypz;
+                            float lambda = atan2(MCPStartPX->at(i), pypz); // between -pi and +pi
+                            float del_lambda = 0.0062;
+                            float temp = pypz*tan_lambda*del_lambda;
+                            float sigmaP = (1./cos(lambda))*sqrt(sigmaPt*sigmaPt + temp*temp);
                             // now Gaussian smear the true momentum using the momentum resolution
                             preco = _util->GaussianSmearing( ptrue, sigmaP );
 
@@ -841,7 +894,7 @@ void CAF::loop()
                                     //deuteron
                                     if( pdg == 1000010020 ) {
                                         float mass = 1.8756;//in GeV mass deuteron
-                                        float etrue = std::sqrt(ptrue*ptrue + mass*mass) - mass;
+                                        float etrue = std::sqrt(ptrue*ptrue + mass*mass) - mass;//needs to be KE here
                                         float ECAL_resolution = fRes->Eval(etrue)*etrue;
                                         float ereco = _util->GaussianSmearing(etrue, ECAL_resolution);
                                         erecon.push_back(ereco);
@@ -866,7 +919,7 @@ void CAF::loop()
                                     //separation with p and mu/pi/e ?? high energy -> confusion with mu/pi, low energy confusion with e
                                     //using E/p to ID?
                                     float mass = part->Mass();//in GeV
-                                    float etrue = std::sqrt(ptrue*ptrue + mass*mass) - mass;
+                                    float etrue = std::sqrt(ptrue*ptrue + mass*mass);//Just energy here is fine
                                     float ECAL_resolution = fRes->Eval(etrue)*etrue;
                                     float ereco = _util->GaussianSmearing(etrue, ECAL_resolution);
                                     erecon.push_back((ereco > 0) ? ereco : 0.);
@@ -1164,7 +1217,7 @@ void CAF::loop()
                         //check if it can be detected by the ECAL
                         //Assumes 40% efficiency to detect
                         float random_number = _util->GetRamdomNumber();
-                        float true_KE = std::sqrt(ptrue*ptrue + neutron_mass*neutron_mass) - neutron_mass;
+                        float true_KE = std::sqrt(ptrue*ptrue + neutron_mass*neutron_mass) - neutron_mass;//KE here
                         // float true_KE = ptrue*ptrue / (2*neutron_mass); // in GeV
                         int index = (true_KE >= 0.05) ? 1 : 0;
 
@@ -1178,7 +1231,8 @@ void CAF::loop()
                             recopid.push_back(-1); //reco pid set to 0?
                             detected.push_back(1);
                             float eres = sigmaNeutronECAL_first * true_KE;
-                            float ereco = _util->GaussianSmearing( true_KE, eres );
+                            float ereco_KE = _util->GaussianSmearing( true_KE, eres );
+                            float ereco = ereco_KE + neutron_mass;
                             erecon.push_back(ereco > 0 ? ereco : 0.);
                             // // std::cout << "true part n true energy " << std::sqrt(ptrue*ptrue + neutron_mass*neutron_mass) << " ereco " << erecon[i] << std::endl;
                             truepdg.push_back(pdg);
@@ -1631,7 +1685,7 @@ void CAF::loop()
                         if(nullptr != part)
                         mass = part->Mass();//in GeV
 
-                        float etrue = std::sqrt(ptrue*ptrue + mass*mass) - mass;
+                        float etrue = std::sqrt(ptrue*ptrue + mass*mass);
                         float ECAL_resolution = fRes->Eval(etrue)*etrue;
                         float ereco = _util->GaussianSmearing(etrue, ECAL_resolution);
                         erecon.push_back((ereco > 0) ? ereco : 0.);
