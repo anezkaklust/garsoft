@@ -89,16 +89,14 @@ standard_colors:
 {
   BlackOnWhite: {val:0               gui:"rb:white on black,black on white" doc:"basic palette"}
   ColorScales:  {val:["RawQ","RawT"] gui:"te" doc:"List of color scales"}
-  RawQ_Palette:            {val:"BlueToRedII"  gui:"lbs:Rainbow,InvRainbow,LinGray,ColdToHot,BlueToRed,BlueToRedII,HeatedObject,Reds,Greens,Blues,Geographic,BlueToGreen,BlueToOrange,GreenToMag\
-    enta,Sequential,Focus,Custom" doc:"Which color scale to use"}
+  RawQ_Palette:            {val:"BlueToRedII"  gui:"lbs:Rainbow,InvRainbow,LinGray,ColdToHot,BlueToRed,BlueToRedII,HeatedObject,Reds,Greens,Blues,Geographic,BlueToGreen,BlueToOrange,GreenToMagenta,Sequential,Focus,Custom" doc:"Which color scale to use"}
   RawQ_N:                  {val:64        gui:"te"                   doc:"How many colors in scale?"}
   RawQ_Range:              {val:[32,4096] gui:"te"                   doc:"Lower and upper limits of scale"}
   RawQ_Scale:              {val:"log"     gui:"lbs:linear,log,sqrt"  doc:"How to distribute colors throughout scale"}
   RawQ_Reverse:            {val:0         gui:"rb:unflipped,flipped" doc:"Should we reverse the order of the colors?"}
   RawQ_UnderOverflowColors:{val:[-1,-1]   gui:"te"                   doc:"Colors to use for underflows and overflows"}
   RawQ_HVPairs:            {val:[60,-120,0.25,0.75] gui:"te"         doc:"(h1,h2),(v1,v2) pairs that define custom color scales"}
-  RawT_Palette:            {val:"BlueToRedII" gui:"lbs:Rainbow,InvRainbow,LinGray,ColdToHot,BlueToRed,BlueToRedII,HeatedObject,Reds,Greens,Blues,Geographic,BlueToGreen,BlueToOrange,GreenToMage\
-    nta,Sequential,Focus,Custom" doc:"Which color scale to use"}
+  RawT_Palette:            {val:"BlueToRedII" gui:"lbs:Rainbow,InvRainbow,LinGray,ColdToHot,BlueToRed,BlueToRedII,HeatedObject,Reds,Greens,Blues,Geographic,BlueToGreen,BlueToOrange,GreenToMagenta,Sequential,Focus,Custom" doc:"Which color scale to use"}
   RawT_N:                  {val:60        gui:"te"                   doc:"How many colors in scale?"}
   RawT_Range:              {val:[-50,550] gui:"te"                   doc:"Lower and upper limits of scale"}
   RawT_Scale:              {val:"linear"  gui:"lbs:linear,log,sqrt"  doc:"How to distribute colors throughout scale"}
