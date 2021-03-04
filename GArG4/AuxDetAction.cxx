@@ -71,9 +71,9 @@ namespace gar {
             fMuIDMaterial = pset.get<std::string>("MuIDMaterial", "Scintillator");
             fApplyBirksLaw = pset.get<bool>("ApplyBirksLaw", true);
 
-            std::cout << "AuxDetAction: Name of the Volumes to track for the LArTPC" << std::endl;
-            for(unsigned int i = 0; i < fLArVolumeName.size(); i++) std::cout << fLArVolumeName.at(i) << " ";
-            std::cout << std::endl;
+            // std::cout << "AuxDetAction: Name of the Volumes to track for the LArTPC" << std::endl;
+            // for(unsigned int i = 0; i < fLArVolumeName.size(); i++) std::cout << fLArVolumeName.at(i) << " ";
+            // std::cout << std::endl;
 
             return;
         }

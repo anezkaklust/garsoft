@@ -11,8 +11,8 @@ art_make(BASENAME_ONLY
                        GArRecoAlg
                        SimulationDataProducts
                        RawDataProducts
-		                   ReconstructionDataProducts
-		                   nug4_MagneticField_MagneticField_service
+                        ReconstructionDataProducts
+                        nug4_MagneticFieldServices_MagneticFieldServiceStandard_service
                        ${ART_FRAMEWORK_PRINCIPAL}
                        ${ART_FRAMEWORK_SERVICES_REGISTRY}
                        ${ART_FRAMEWORK_SERVICES_OPTIONAL}
@@ -29,20 +29,18 @@ art_make(BASENAME_ONLY
                        ${CLHEP}
                        ${Boost_SYSTEM_LIBRARY}
                        MCCheater_BackTracker_service
-                       DetectorInfo_MPDMagneticField_service
       MODULE_LIBRARIES Geometry
                        GArG4
                        GArReco
-		                   GArRecoAlg
+                        GArRecoAlg
                        ReadoutSimulation
                        SimulationDataProducts
                        RawDataProducts
-		                   ReconstructionDataProducts
+                        ReconstructionDataProducts
                        MCCheater_BackTracker_service
-                       DetectorInfo_MPDMagneticField_service
                        nusimdata_SimulationBase
                        nurandom_RandomUtils_NuRandomService_service
-		                   nug4_MagneticField_MagneticField_service
+                       nug4_MagneticFieldServices_MagneticFieldServiceStandard_service
                        ${ART_FRAMEWORK_CORE}
                        ${ART_FRAMEWORK_IO_SOURCES}
                        ${ART_FRAMEWORK_PRINCIPAL}

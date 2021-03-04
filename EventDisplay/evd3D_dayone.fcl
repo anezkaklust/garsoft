@@ -1,4 +1,4 @@
-#include "Geometry_DayOne_SPY.fcl"
+#include "Geometry.fcl"
 #include "evdservices_base.fcl"
 #include "DetectorProperties.fcl"
 #include "GArProperties.fcl"
@@ -11,7 +11,8 @@ services:
 {
   # Load the service that manages root files for histograms.
   message:      @local::evd_message
-  Geometry:                  @local::standard_dayone             # from Geometry.fcl
+  #See Geometry.fcl for the list of geometries available
+ Geometry:               @local::dayone_geo 
   ExptGeoHelperInterface:    @local::standard_geometry_helper # from Geometry.fcl
   DetectorProperties:        @local::standard_detproperties   # from DetectorProperties.fcl
   GArProperties:             @local::standard_garproperties   # from GArProperties.fcl
@@ -45,7 +46,7 @@ physics:
 
  analyzers:
  {
-  evdisp: @local::standard_evd3D_dayone
+  evdisp: @local::evd3D_dayone
  }
 
  #list the modules for this path, order matters, filters reject all following items

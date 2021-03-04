@@ -23,19 +23,23 @@ standard_detproperties:
 standard_mag_garsoft:
 {
 GlobalScaleFactor:   1.0   # to scale all of the individual field descriptions
-
+UnitFactor: 1.0 # to convert the map units to mm
 FieldDescriptions: [ { UseField:         1  # 0--off 1--Constant field
-                                            # 2--RZ Field map
+                                            # 2--RZ Map 3--XYZ Map
                        ConstantField:    [ 0.5, 0.0, 0.0 ] # in Tesla
                        #MagnetizedVolume: "volNDHPgTPC"
                        MagnetizedVolume: "volMPD"
-                       ScaleFactor: 1.0 } ]
+                       ScaleFactor: 1.0
+                       } ]
+
+service_provider: MagneticFieldServiceGAr
+
 }
 
 five_coil_rz_mag_garsoft:
 {
 GlobalScaleFactor:   1.0  # to scale all of the individual field descriptions
-
+UnitFactor: 1.0 # to convert the map units to mm
 FieldDescriptions: [ { UseField:         2  # 0--off 1--Constant field
                                             # 2--RZ Map 3--XYZ Map
                        ConstantField:    [ 0.0, 0.0, 0.0 ] # in Tesla
@@ -47,58 +51,25 @@ FieldDescriptions: [ { UseField:         2  # 0--off 1--Constant field
                        ScaleFactor: 1.0    # used to multiply the field by a scalar
                        } ]
 
-service_type: "MPDMagneticField"
-
-# three 2D plots.  These are vectors of nbins -- if nbins is zero, don't loop over that axis
-
-NBinsXCheckPlots: [ 50, 50, 0 ]
-NBinsYCheckPlots: [ 50, 0, 50 ]
-NBinsZCheckPlots: [ 0, 50, 50 ]
-
-XLowCheckPlots:  [ -800, -800, 0 ]
-XHighCheckPlots: [  800,  800, 0 ]
-YLowCheckPlots:  [ -800, 0, -800 ]
-YHighCheckPlots: [  800, 0,  800 ]
-ZLowCheckPlots:  [ 0, -800, -800 ]
-ZHighCheckPlots: [ 0,  800,  800 ]
-
-XCentCheckPlots: [ 0, 0, 0 ]
-YCentCheckPlots: [ 0, 0, 0 ]
-ZCentCheckPlots: [ 0, 0, 0 ]
+service_provider: MagneticFieldServiceGAr
 
 }
 
-spy_mag_garsoft:
+spy_mag_nd_hall:
 {
 GlobalScaleFactor:   1.0  # to scale all of the individual field descriptions
+UnitFactor: 1000.0 # to convert the map units to mm
 FieldDescriptions: [ { UseField:         3  # 0--off 1--Constant field
                                             # 2--RZ Map 3--XYZ Map
                        MagnetizedVolume: "volWorld"
-                       FieldMapFilename: "spy_bfield_map.txt"
+                       FieldMapFilename: "spy_bfield_ndhall.txt"
                        ZAxis: [ 0.0, 0.0, 1.0 ] #XYZ map aligns properly with Z in GArSoft
                        CoordOffset: [ 0.0, 0.0, 0.0 ] #Offset provided by field map file
                        UseSymmetry: true   #Field map only contains the upper octant, use symmetry for the others
                        ScaleFactor: 1.0    # used to multiply the field by a scalar
                        } ]
 
-service_type: "MPDMagneticField"
-
-# three 2D plots.  These are vectors of nbins -- if nbins is zero, don't loop over that axis
-
-NBinsXCheckPlots: [ 50, 50, 0 ]
-NBinsYCheckPlots: [ 50, 0, 50 ]
-NBinsZCheckPlots: [ 0, 50, 50 ]
-
-XLowCheckPlots:  [ -800, -800, 0 ]
-XHighCheckPlots: [  800,  800, 0 ]
-YLowCheckPlots:  [ -800, 0, -800 ]
-YHighCheckPlots: [  800, 0,  800 ]
-ZLowCheckPlots:  [ 0, -800, -800 ]
-ZHighCheckPlots: [ 0,  800,  800 ]
-
-XCentCheckPlots: [ 0, 0, 0 ]
-YCentCheckPlots: [ 0, 0, 0 ]
-ZCentCheckPlots: [ 0, 0, 0 ]
+service_provider: MagneticFieldServiceGAr
 
 }
 

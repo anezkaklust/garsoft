@@ -26,7 +26,6 @@
 #include "TVector3.h"
 
 #include "Geant4/G4ThreeVector.hh"
-#include "nug4/MagneticField/MagneticField.h"
 
 // GArSoft Includes
 #include "ReconstructionDataProducts/TPCCluster.h"
