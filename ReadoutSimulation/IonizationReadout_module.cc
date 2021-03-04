@@ -175,7 +175,7 @@ namespace gar {
       fISCalcPars  = pset.get<fhicl::ParameterSet>("ISCalcPars"                 );
       fG4Label     = pset.get<std::string        >("G4ModuleLabel",      "geant");
       fCheckChan   = pset.get<bool               >("CheckChannelMapping", false );
-      fPRFFileName = pset.get<std::string        >("PRFFileNmae",        "MPD/TPCPRF/mpdtpcprf_v1.root");
+      fPRFFileName = pset.get<std::string        >("PRFFileName",        "MPD/TPCPRF/mpdtpcprf_v1.root");
       fUsePRF      = pset.get<bool               >("UsePRF"             , true  );
 
       auto driftAlgPars = pset.get<fhicl::ParameterSet>("ElectronDriftAlgPars");

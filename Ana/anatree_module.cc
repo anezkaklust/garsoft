@@ -27,7 +27,7 @@
 #include "nusimdata/SimulationBase/GTruth.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
-
+#include "MCCheater/BackTracker.h"
 #include "SimulationDataProducts/GenieParticle.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "SimulationDataProducts/SimChannel.h"
@@ -91,6 +91,7 @@ namespace gar {
         void ClearVectors();
 
         //Working Horse
+        cheat::BackTrackerCore* BackTrack;
         void FillGeneratorMonteCarloInfo(art::Event const & e);
         void FillRawInfo(art::Event const & e);
         void FillRecoInfo(art::Event const & e);
@@ -162,7 +163,7 @@ namespace gar {
         bool  fWriteCaloClusters;  ///< Write ECAL clusters.          Default=true
         bool  fWriteMatchedTracks; ///< Write ECAL-track Assns        Default=true
 
-        // Truncation parameter for dE/dx (average this fraction lowest readings)
+        // Truncation parameter for dE/dx (average this fraction of the lowest readings)
         float fIonizTruncate;      ///<                               Default=1.00;
         bool  fWriteCohInfo;       ///< MC level t for coherent pi+.  Default=false
 
@@ -171,6 +172,10 @@ namespace gar {
 
         //Geometry
         const geo::GeometryCore* fGeo; ///< pointer to the geometry
+
+        typedef int TrkId;
+        std::unordered_map<TrkId, Int_t> TrackIdToIndex;
+
 
         // global event info
         Int_t   fEvent;      ///< number of the event being processed
@@ -337,6 +342,8 @@ namespace gar {
         std::vector<Float_t>            fTrackPIDProbF;
         std::vector<Int_t>              fTrackPIDB;
         std::vector<Float_t>            fTrackPIDProbB;
+        std::vector<Int_t>              fTrackMCindex;      // Branch index (NOT the GEANT track ID) of MCPartice
+        std::vector<Float_t>            fTrackMCfrac;       // that best matchs & fraction of ionization therefrom
 
         //TrackTrajectory
         std::vector<Float_t>            fTrackTrajectoryFWDX; //forward
@@ -383,7 +390,7 @@ namespace gar {
         std::vector<Float_t>            fVeePZLpip;
         std::vector<Float_t>            fVeeELpip;
         std::vector<Float_t>            fVeeMLpip;
-        std::vector<ULong64_t>          fVeeTAssn_VeeIDNumber;     // Being the Vee which this Assn belongs to
+        std::vector<ULong64_t>          fVeeTAssn_VeeIDNumber;    // Being the Vee which this Assn belongs to
         std::vector<ULong64_t>          fVeeTAssn_TrackIDNumber;
         std::vector<gar::rec::TrackEnd> fVeeTAssn_TrackEnd;
 
@@ -393,7 +400,7 @@ namespace gar {
         std::vector<Float_t>            fDigiHitY;
         std::vector<Float_t>            fDigiHitZ;
         std::vector<Float_t>            fDigiHitTime;
-        std::vector<UInt_t>             fDigiHitADC;        // UInt_t is unsigned 32 bit integer
+        std::vector<UInt_t>             fDigiHitADC;              // UInt_t is unsigned 32 bit integer
         std::vector<ULong64_t>          fDigiHitCellID;
 
         //Muon system raw hits
@@ -402,7 +409,7 @@ namespace gar {
         std::vector<Float_t>            fDigiHitY_MuID;
         std::vector<Float_t>            fDigiHitZ_MuID;
         std::vector<Float_t>            fDigiHitTime_MuID;
-        std::vector<UInt_t>             fDigiHitADC_MuID;        // UInt_t is unsigned 32 bit integer
+        std::vector<UInt_t>             fDigiHitADC_MuID;         // UInt_t is unsigned 32 bit integer
         std::vector<ULong64_t>          fDigiHitCellID_MuID;
 
         // reco calo hit data
@@ -444,6 +451,8 @@ namespace gar {
         std::vector<Float_t>            fClusterMainAxisX;
         std::vector<Float_t>            fClusterMainAxisY;
         std::vector<Float_t>            fClusterMainAxisZ;
+        std::vector<Int_t>              fClusterMCindex;          // Branch index (NOT the GEANT track ID) of MCPartice
+        std::vector<Float_t>            fClusterMCfrac;           // that best matches & fraction of ionization therefrom
 
         // ECAL cluster to track association info
         std::vector<ULong64_t>          fCALAssn_ClusIDNumber;   // Being the cluster which this Assn belongs to
@@ -464,8 +473,7 @@ namespace gar {
 // constructor
 gar::anatree::anatree(fhicl::ParameterSet const & p)
 : EDAnalyzer(p),
-fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "Seed"))
-{
+fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "Seed")) {
     fGeo     = gar::providerFrom<geo::Geometry>();
 
     bool usegenlabels =
@@ -586,6 +594,8 @@ fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "See
 
     return;
 } // end constructor
+
+
 
 //==============================================================================
 //==============================================================================
@@ -779,28 +789,29 @@ void gar::anatree::beginJob() {
         fTree->Branch("TrackAvgIonF",       &fTrackAvgIonF);
         fTree->Branch("TrackAvgIonB",       &fTrackAvgIonB);
 
-        fTree->Branch("TrackPIDF",       &fTrackPIDF);
-        fTree->Branch("TrackPIDProbF",   &fTrackPIDProbF);
-        fTree->Branch("TrackPIDB",       &fTrackPIDB);
-        fTree->Branch("TrackPIDProbB",   &fTrackPIDProbB);
+        fTree->Branch("TrackPIDF",          &fTrackPIDF);
+        fTree->Branch("TrackPIDProbF",      &fTrackPIDProbF);
+        fTree->Branch("TrackPIDB",          &fTrackPIDB);
+        fTree->Branch("TrackPIDProbB",      &fTrackPIDProbB);
+        fTree->Branch("TrackMCindex",       &fTrackMCindex);
+        fTree->Branch("TrackMCfrac",        &fTrackMCfrac);
 
         //Track Trajectories
         if(fWriteTrackTrajectories) {
-            fTree->Branch("TrackTrajectoryFWDX",   &fTrackTrajectoryFWDX);
-            fTree->Branch("TrackTrajectoryFWDY",   &fTrackTrajectoryFWDY);
-            fTree->Branch("TrackTrajectoryFWDZ",   &fTrackTrajectoryFWDZ);
+            fTree->Branch("TrackTrajectoryFWDX",    &fTrackTrajectoryFWDX);
+            fTree->Branch("TrackTrajectoryFWDY",    &fTrackTrajectoryFWDY);
+            fTree->Branch("TrackTrajectoryFWDZ",    &fTrackTrajectoryFWDZ);
             fTree->Branch("TrackTrajectoryFWDID",   &fTrackTrajectoryFWDID);
 
-            fTree->Branch("TrackTrajectoryBWDX",   &fTrackTrajectoryBWDX);
-            fTree->Branch("TrackTrajectoryBWDY",   &fTrackTrajectoryBWDY);
-            fTree->Branch("TrackTrajectoryBWDZ",   &fTrackTrajectoryBWDZ);
-            fTree->Branch("TrackTrajectoryBWDID",   &fTrackTrajectoryBWDID);
+            fTree->Branch("TrackTrajectoryBWDX",    &fTrackTrajectoryBWDX);
+            fTree->Branch("TrackTrajectoryBWDY",    &fTrackTrajectoryBWDY);
+            fTree->Branch("TrackTrajectoryBWDZ",    &fTrackTrajectoryBWDZ);
+            fTree->Branch("TrackTrajectoryBWDID",	&fTrackTrajectoryBWDID);
         }
     }
 
     // Reco'd verts & their track-ends
-    if (fWriteVertices)
-    {
+    if (fWriteVertices) {
         if (!fWriteTracks) {
             throw cet::exception("anatree")
             << " fWriteVertices, but !fWriteTracks."
@@ -887,36 +898,38 @@ void gar::anatree::beginJob() {
         fTree->Branch("RecoEnergySum",    &fRecoEnergySum);
 
         if(fGeo->HasMuonDetector()) {
-            fTree->Branch("ReconHits_MuID",        &fReconHits_MuID);
-            fTree->Branch("ReconHitIDNumber_MuID", &fReconHitIDNumber_MuID);
-            fTree->Branch("RecoHitX_MuID",         &fRecoHitX_MuID);
-            fTree->Branch("RecoHitY_MuID",         &fRecoHitY_MuID);
-            fTree->Branch("RecoHitZ_MuID",         &fRecoHitZ_MuID);
-            fTree->Branch("RecoHitTime_MuID",      &fRecoHitTime_MuID);
-            fTree->Branch("RecoHitEnergy_MuID",    &fRecoHitEnergy_MuID);
-            fTree->Branch("RecoHitCellID_MuID",    &fRecoHitCellID_MuID);
-            fTree->Branch("RecoEnergySum_MuID",    &fRecoEnergySum_MuID);
+            fTree->Branch("ReconHits_MuID",         &fReconHits_MuID);
+            fTree->Branch("ReconHitIDNumber_MuID",	&fReconHitIDNumber_MuID);
+            fTree->Branch("RecoHitX_MuID",          &fRecoHitX_MuID);
+            fTree->Branch("RecoHitY_MuID",          &fRecoHitY_MuID);
+            fTree->Branch("RecoHitZ_MuID",          &fRecoHitZ_MuID);
+            fTree->Branch("RecoHitTime_MuID",       &fRecoHitTime_MuID);
+            fTree->Branch("RecoHitEnergy_MuID",     &fRecoHitEnergy_MuID);
+            fTree->Branch("RecoHitCellID_MuID",     &fRecoHitCellID_MuID);
+            fTree->Branch("RecoEnergySum_MuID",     &fRecoEnergySum_MuID);
         }
     }
 
     // Write calorimetry clusters
     if (fWriteCaloClusters) {
-        fTree->Branch("nCluster",         &fnCluster);
-        fTree->Branch("ClusterIDNumber",  &fClusterIDNumber);
-        fTree->Branch("ClusterNhits",     &fClusterNhits);
-        fTree->Branch("ClusterEnergy",    &fClusterEnergy);
-        fTree->Branch("ClusterTime",      &fClusterTime);
-        fTree->Branch("ClusterTimeDiffFirstLast",      &fClusterTimeDiffFirstLast);
-        fTree->Branch("ClusterX",         &fClusterX);
-        fTree->Branch("ClusterY",         &fClusterY);
-        fTree->Branch("ClusterZ",         &fClusterZ);
-        fTree->Branch("ClusterTheta",     &fClusterTheta);
-        fTree->Branch("ClusterPhi",       &fClusterPhi);
-        fTree->Branch("ClusterPID",       &fClusterPID);
-        // fTree->Branch("ClusterShape",  &fClusterShape);
-        fTree->Branch("ClusterMainAxisX", &fClusterMainAxisX);
-        fTree->Branch("ClusterMainAxisY", &fClusterMainAxisY);
-        fTree->Branch("ClusterMainAxisZ", &fClusterMainAxisZ);
+        fTree->Branch("nCluster",                   &fnCluster);
+        fTree->Branch("ClusterIDNumber",            &fClusterIDNumber);
+        fTree->Branch("ClusterNhits",               &fClusterNhits);
+        fTree->Branch("ClusterEnergy",              &fClusterEnergy);
+        fTree->Branch("ClusterTime",                &fClusterTime);
+        fTree->Branch("ClusterTimeDiffFirstLast",   &fClusterTimeDiffFirstLast);
+        fTree->Branch("ClusterX",                   &fClusterX);
+        fTree->Branch("ClusterY",                   &fClusterY);
+        fTree->Branch("ClusterZ",                   &fClusterZ);
+        fTree->Branch("ClusterTheta",               &fClusterTheta);
+        fTree->Branch("ClusterPhi",                 &fClusterPhi);
+        fTree->Branch("ClusterPID",                 &fClusterPID);
+        // fTree->Branch("ClusterShape",            &fClusterShape);
+        fTree->Branch("ClusterMainAxisX",           &fClusterMainAxisX);
+        fTree->Branch("ClusterMainAxisY",           &fClusterMainAxisY);
+        fTree->Branch("ClusterMainAxisZ",           &fClusterMainAxisZ);
+        fTree->Branch("ClusterMCindex",             &fClusterMCindex);
+        fTree->Branch("ClusterMCfrac",              &fClusterMCfrac);
     }
 
     if (fWriteMatchedTracks) {
@@ -925,9 +938,9 @@ void gar::anatree::beginJob() {
             << " fWriteMatchedTracks, but (!fWriteTracks || !fWriteCaloClusters)."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         } else {
-            fTree->Branch("ECALAssn_ClusIDNumber",   &fCALAssn_ClusIDNumber);
-            fTree->Branch("ECALAssn_TrackIDNumber",  &fCALAssn_TrackIDNumber);
-            fTree->Branch("ECALAssn_TrackEnd",       &fCALAssn_TrackEnd);
+            fTree->Branch("ECALAssn_ClusIDNumber",  &fCALAssn_ClusIDNumber);
+            fTree->Branch("ECALAssn_TrackIDNumber", &fCALAssn_TrackIDNumber);
+            fTree->Branch("ECALAssn_TrackEnd",      &fCALAssn_TrackEnd);
         }
     }
 
@@ -936,8 +949,7 @@ void gar::anatree::beginJob() {
 
     m_pidinterp.clear();
     char str[11];
-    for (int q = 0; q < 501; ++q)
-    {
+    for (int q = 0; q < 501; ++q) {
         sprintf(str, "%d", q);
         std::string s = "pidmatrix";
         s.append(str);
@@ -948,6 +960,8 @@ void gar::anatree::beginJob() {
 
     return;
 }  // End of :anatree::beginJob
+
+
 
 //==============================================================================
 //==============================================================================
@@ -960,13 +974,15 @@ void gar::anatree::analyze(art::Event const & e) {
     fSubRun = e.subRun();
     fEvent  = e.id().event();
 
+    // Need a non-constant backtracker instance, for now, in anayze ot beginJob
+    cheat::BackTrackerCore const* const_bt = gar::providerFrom<cheat::BackTracker>();
+    BackTrack = const_cast<cheat::BackTrackerCore*>(const_bt);
+
     //Fill generator and MC Information
-    if(fWriteMCinfo)
-    FillGeneratorMonteCarloInfo(e);
+    if (fWriteMCinfo) FillGeneratorMonteCarloInfo(e);
 
     //Fill Raw Information
-    if (fWriteCaloDigits)
-    FillRawInfo(e);
+    if (fWriteCaloDigits) FillRawInfo(e);
 
     //Fill Reco Information
     FillRecoInfo(e);
@@ -977,6 +993,8 @@ void gar::anatree::analyze(art::Event const & e) {
     fTree->Fill();
     return;
 }
+
+
 
 //==============================================================================
 //==============================================================================
@@ -1129,13 +1147,15 @@ void gar::anatree::ClearVectors() {
         fTrackLenB.clear();
         fTrackChi2F.clear();
         fTrackChi2B.clear();
+        fNTPCClustersOnTrack.clear();
         fTrackAvgIonF.clear();
         fTrackAvgIonB.clear();
         fTrackPIDF.clear();
         fTrackPIDProbF.clear();
         fTrackPIDB.clear();
         fTrackPIDProbF.clear();
-        fNTPCClustersOnTrack.clear();
+        fTrackMCindex.clear();
+        fTrackMCfrac.clear();
 
         if(fWriteTrackTrajectories) {
             fTrackTrajectoryFWDX.clear();
@@ -1251,6 +1271,8 @@ void gar::anatree::ClearVectors() {
         fClusterMainAxisX.clear();
         fClusterMainAxisY.clear();
         fClusterMainAxisZ.clear();
+        fClusterMCindex.clear();
+        fClusterMCfrac.clear();
     }
 
     if (fWriteMatchedTracks) {
@@ -1262,6 +1284,10 @@ void gar::anatree::ClearVectors() {
     return;
 } // end :anatree::ClearVectors
 
+
+
+//==============================================================================
+//==============================================================================
 //==============================================================================
 void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
 
@@ -1372,8 +1398,8 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
     // appear in MCPHandle, although I think the missing ones are all from
     // the GEANT rather than the GENIE stage of GENIEGen.  (*MCPHandle).size()
     // is the same as eg fMCPStartX.size() by the time this entry is written.
-    typedef int TrkId;
-    std::unordered_map<TrkId, Int_t> TrackIdToIndex;
+    // TracIdToIndex isa class variable for accessibility by per-Track and
+    // per-Cluster code
     Int_t index = 0;
     for ( auto const& mcp : (*MCPHandle) ) {
         int TrackId = mcp.TrackId();
@@ -1560,8 +1586,11 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
     }
 }
 
-//==============================================================================
 
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
 void gar::anatree::FillRawInfo(art::Event const & e) {
 
     // Get handle for CaloDigits
@@ -1605,8 +1634,11 @@ void gar::anatree::FillRawInfo(art::Event const & e) {
     }
 }
 
-//==============================================================================
 
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
 void gar::anatree::FillRecoInfo(art::Event const & e) {
 
     // Get handle for TPC hit data
@@ -1674,6 +1706,10 @@ void gar::anatree::FillRecoInfo(art::Event const & e) {
     }
 }
 
+
+
+//==============================================================================
+//==============================================================================
 //==============================================================================
 void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
 
@@ -1838,6 +1874,20 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
                 fTrackPIDProbB.push_back( pidB.at(ipid).second );
             }
 
+            // Matching MCParticle info
+            std::vector<std::pair<simb::MCParticle*,float>> trakt;
+            trakt = BackTrack->TrackToMCParticles( const_cast<rec::Track*>(&track) );
+            int eileen = -1;
+            if (trakt.size()>0 && TrackIdToIndex.size()!=0) {
+                eileen = TrackIdToIndex[trakt[0].first->TrackId()];
+            }
+            fTrackMCindex.push_back(eileen);
+            if (eileen > -1) {
+            	fTrackMCfrac.push_back(trakt[0].second);
+            } else {
+            	fTrackMCfrac.push_back(0.0);
+            }
+
             if (findIonization->isValid()) {
                 // No calibration for now.  Someday this should all be in reco
                 rec::TrackIoniz ionization = *(findIonization->at(iTrack));
@@ -1986,6 +2036,20 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
             fClusterMainAxisX.push_back(cluster.EigenVectors()[0]);
             fClusterMainAxisY.push_back(cluster.EigenVectors()[1]);
             fClusterMainAxisZ.push_back(cluster.EigenVectors()[2]);
+
+            // Matching MCParticle info
+            std::vector<std::pair<simb::MCParticle*,float>> trakt;
+            trakt = BackTrack->ClusterToMCParticles( const_cast<rec::Cluster*>(&cluster) );
+            int eileen = -1;
+            if (trakt.size()>0 && TrackIdToIndex.size()!=0) {
+                eileen = TrackIdToIndex[trakt[0].first->TrackId()];
+            }
+            fClusterMCindex.push_back(eileen);
+            if (eileen > -1) {
+            	fClusterMCfrac.push_back(trakt[0].second);
+            } else {
+            	fClusterMCfrac.push_back(0.0);
+            }
         }
     }
 
@@ -2136,11 +2200,13 @@ float gar::anatree::computeT( simb::MCTruth theMCTruth ) {
     return t;
 }
 
+
+
 //==============================================================================
 //==============================================================================
 //==============================================================================
-std::vector< std::pair<int, float> > gar::anatree::processPIDInfo( float p )
-{
+std::vector< std::pair<int, float> > gar::anatree::processPIDInfo( float p ) {
+
     std::vector<std::string> recopnamelist = {"#pi", "#mu", "p", "K", "d", "e"};
     std::vector<int> pdg_charged = {211, 13, 2212, 321, 1000010020, 11};
     std::vector< std::pair<int, float> > pid;
@@ -2150,8 +2216,7 @@ std::vector< std::pair<int, float> > gar::anatree::processPIDInfo( float p )
     float dist = 100000000.;
     CLHEP::RandFlat FlatRand(fEngine);
 
-    for (int q = 0; q < 501; ++q)
-    {
+    for (int q = 0; q < 501; ++q) {
         //Check the title and the reco momentum take only the one that fits
         std::string fulltitle = m_pidinterp[q]->GetTitle();
         unsigned first = fulltitle.find("=");
@@ -2161,7 +2226,7 @@ std::vector< std::pair<int, float> > gar::anatree::processPIDInfo( float p )
         //calculate the distance between the bin and mom, store the q the closest
         float disttemp = std::abs(pidinterp_mom - p);
 
-        if( disttemp < dist ){
+        if( disttemp < dist ) {
             dist = disttemp;
             qclosest = q;
         }
@@ -2169,14 +2234,13 @@ std::vector< std::pair<int, float> > gar::anatree::processPIDInfo( float p )
 
     //Compute all the probabities for each type of true to reco
     //loop over the columns (true pid)
-    for (int pidm = 0; pidm < 6; ++pidm)
-    {
+    for (int pidm = 0; pidm < 6; ++pidm) {
+
         //loop over the columns (true pid)
         std::vector< std::pair<float, std::string> > v_prob;
 
         //loop over the rows (reco pid)
-        for (int pidr = 0; pidr < 6; ++pidr)
-        {
+        for (int pidr = 0; pidr < 6; ++pidr) {
             std::string recoparticlename = m_pidinterp[qclosest]->GetYaxis()->GetBinLabel(pidr+1);
             float prob = m_pidinterp[qclosest]->GetBinContent(pidm+1, pidr+1);
             //Need to check random number value and prob value then associate the recopdg to the reco prob
@@ -2184,8 +2248,7 @@ std::vector< std::pair<int, float> > gar::anatree::processPIDInfo( float p )
         }
 
         //Compute the pid from it
-        if(v_prob.size() > 1)
-        {
+        if (v_prob.size() > 1) {
             //Order the vector of prob
             std::sort(v_prob.begin(), v_prob.end());
             //Throw a random number between 0 and 1
@@ -2193,16 +2256,12 @@ std::vector< std::pair<int, float> > gar::anatree::processPIDInfo( float p )
             //Make cumulative sum to get the range
             std::partial_sum(v_prob.begin(), v_prob.end(), v_prob.begin(), [](const P& _x, const P& _y){return P(_x.first + _y.first, _y.second);});
 
-            for(size_t ivec = 0; ivec < v_prob.size()-1; ivec++)
-            {
-                if( random_number < v_prob.at(ivec+1).first && random_number >= v_prob.at(ivec).first )
-                {
+            for(size_t ivec = 0; ivec < v_prob.size()-1; ivec++) {
+                if( random_number < v_prob.at(ivec+1).first && random_number >= v_prob.at(ivec).first ) {
                     pid.push_back( std::make_pair(pdg_charged.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(ivec+1).second) ) ), v_prob.at(ivec+1).first) );
                 }
             }
-        }
-        else
-        {
+        } else {
             pid.push_back( std::make_pair(pdg_charged.at( std::distance( recopnamelist.begin(), std::find(recopnamelist.begin(), recopnamelist.end(), v_prob.at(0).second) ) ), v_prob.at(0).first) );
         }
     }
@@ -2210,6 +2269,7 @@ std::vector< std::pair<int, float> > gar::anatree::processPIDInfo( float p )
     //return a vector of pid and prob
     return pid;
 }
+
 
 
 DEFINE_ART_MODULE(gar::anatree)
