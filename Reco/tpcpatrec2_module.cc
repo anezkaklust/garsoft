@@ -69,11 +69,13 @@ namespace gar {
       unsigned int fInitialTPNTPCClusters; ///< number of hits to use for initial trackpar estimate, if present
       size_t fMinNumTPCClusters;           ///< minimum number of hits for a patrec track
 
-      int   fSortAlg;                      ///< which hit sorting alg to use.  1: old, 2: greedy distance sort
-      float fSortDistCut;                  ///< distance cut to pass to hit sorting algorithm #2
-      float  fSortTransWeight;      ///< for use in hit sorting algorithm #1 -- transverse distance weight factor
-      float  fSortDistBack;         ///< for use in hit sorting algorithm #1 -- how far to go back before raising the distance figure of merit
-      float  fCloseEtaUnmatch;      ///< distance to look for vector hits that don't match in eta. 
+      int   fSortAlg;              ///< which hit sorting alg to use.  1: old, 2: greedy distance sort
+      float fSortDistCut;          ///< distance cut to pass to hit sorting algorithm #2
+      float fSortTransWeight;      ///< for use in hit sorting algorithm #1 -- transverse distance weight factor
+      float fSortDistBack;         ///< for use in hit sorting algorithm #1 -- how far to go back before raising the distance figure of merit
+      float fCloseEtaUnmatch;      ///< distance to look for vector hits that don't match in eta.
+
+      float fConvAngleCut;         ///< cut on angle diff for the conversion finder to split a cluster of VH's into two tracks
 
       // criteria for associating vector hits together to form clusters
       bool vhclusmatch(const std::vector<gar::rec::VecHit> &vechits, std::vector<size_t> &cluster, size_t vh);
@@ -110,6 +112,7 @@ namespace gar {
         fSortTransWeight   = p.get<float>("SortTransWeight",0.1);
         fSortDistBack      = p.get<float>("SortDistBack",2.0);
         fCloseEtaUnmatch   = p.get<float>("CloseEtaUnmatch",20.0);
+	fConvAngleCut      = p.get<float>("ConvAngleCut",1.0);
 
         art::InputTag vechitTag(fVecHitLabel);
         consumes< std::vector<gar::rec::VecHit> >(vechitTag);
@@ -628,7 +631,7 @@ namespace gar {
             {
               TVector3 testpdir = nextpos - lastpos;
               //std::cout << "Angle check for a conversion: " << testpdir.Angle(lastpdir) << std::endl;
-              if (testpdir.Angle(lastpdir) > 1)
+              if (testpdir.Angle(lastpdir) > fConvAngleCut)
                 {
                   // we turned around -- found a conversion.
                   splitclus1 = already;
