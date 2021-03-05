@@ -209,6 +209,7 @@ namespace gar {
 
       for (size_t iclus=0; iclus<vhclusters.size(); ++iclus)
         {
+          //std::cout << "testing for a conversion: " << iclus << " " << vhclusters.size() << std::endl;
           std::vector<size_t> scc1;
           std::vector<size_t> scc2;
           if (conversion_test_split(vechits, vhclusters.at(iclus), scc1, scc2))
@@ -223,6 +224,13 @@ namespace gar {
 
       for (size_t icc=0; icc<identified_conversions.size(); ++icc)
         {
+          //std::cout << "convrep: " << icc << " " << identified_conversions.at(icc) << " " << vhclusters.size() << std::endl;
+          //std::cout
+          // << "tpcpatrec2: replacing a cluster of size: "
+          // <<  vhclusters.at(identified_conversions.at(icc)).size()
+          // << " with one of size: " << splitclus1.at(icc).size()
+          // << " and one of size: " <<  splitclus2.at(icc).size()
+          // << std::endl;
           vhclusters.at(identified_conversions.at(icc)) = splitclus1.at(icc);
           vhclusters.push_back(splitclus2.at(icc));
         }
@@ -429,17 +437,17 @@ namespace gar {
       std::vector<int> hlb;
 
       if (fSortAlg == 1)
-	{
+        {
           gar::rec::sort_TPCClusters_along_track(trackTPCClusters,hlf,hlb,fPrintLevel,lengthforwards,lengthbackwards,fSortTransWeight,fSortDistBack);
-	}
+        }
       else if (fSortAlg == 2)
-	{
+        {
           gar::rec::sort_TPCClusters_along_track2(trackTPCClusters,hlf,hlb,fPrintLevel,lengthforwards,lengthbackwards,fSortDistCut);
-	}
+        }
       else
-	{
-	  throw cet::exception("tpcpatrec2_module") << "Sort Algorithm swithc not understood: " << fSortAlg; 
-	}
+        {
+          throw cet::exception("tpcpatrec2_module") << "Sort Algorithm switch not understood: " << fSortAlg;
+        }
 
 
 
@@ -531,6 +539,7 @@ namespace gar {
                                            std::vector<size_t> &splitclus2)
     {
 
+      //std::cout << "in conversion_test_split " << vechits.size() << " " << cluster.size() << std::endl;
       splitclus1.clear();
       splitclus2.clear();
 
@@ -618,7 +627,8 @@ namespace gar {
           if (lastpdir.Mag() > 1E-3)
             {
               TVector3 testpdir = nextpos - lastpos;
-              if (testpdir.Angle(lastpdir) > 3)
+              //std::cout << "Angle check for a conversion: " << testpdir.Angle(lastpdir) << std::endl;
+              if (testpdir.Angle(lastpdir) > 1)
                 {
                   // we turned around -- found a conversion.
                   splitclus1 = already;
