@@ -99,6 +99,35 @@ nd_hall_mpd_only_SPYv2_auxdet_geo:
  SortingParameters: {}
 }
 
+## SPY v3 geometry only in the nd hall
+
+nd_hall_mpd_only_SPYv3_geo:
+{
+ ForceUseFCLOnly:   false
+ SortingParameters:
+ {
+  PixelActiveSize: 0.3      # cm
+  PixelPitch:      0.333333 # cm
+ }
+ SegmentationAlgPars: @local::standard_mpd_spyv3_segals
+ RelativePath:      ""
+ GDML:              "nd_hall_mpd_only/nd_hall_mpd_only_ECal12sides_42l_SPY_v3_wMuID.gdml"
+ ROOT:              "nd_hall_mpd_only/nd_hall_mpd_only_ECal12sides_42l_SPY_v3_wMuID.gdml"
+ SurfaceY:          0.          # cm
+ Name:              "Realistic"
+ PositionEpsilon:   1.e-4
+ PointInWarnings:   false
+ ECALEndcapOutsidePV: false
+}
+
+nd_hall_mpd_only_SPYv3_auxdet_geo:
+{
+ GDML:              "nd_hall_mpd_only/nd_hall_mpd_only_ECal12sides_42l_SPY_v3_wMuID.gdml"
+ RelativePath:      ""
+ ForceUseFCLOnly:   false
+ SortingParameters: {}
+}
+
 ## ND-GAr-Lite geometry standalone
 
 dayone_geo:
