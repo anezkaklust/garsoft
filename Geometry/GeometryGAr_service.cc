@@ -1,12 +1,12 @@
 /**
-* @file   Geometry_service.cc
+* @file   GeometryGAr_service.cc
 * @brief  art framework interface to geometry description - implementation file
 * @author brebel@fnal.gov
-* @see    Geometry.h
+* @see    GeometryGAr.h
 */
 
 // class header
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 // gar includes
 #include "SummaryDataProducts/RunData.h"
@@ -27,7 +27,7 @@ namespace gar {
 
         //......................................................................
         // Constructor.
-        Geometry::Geometry(fhicl::ParameterSet   const& pset,
+        GeometryGAr::GeometryGAr(fhicl::ParameterSet   const& pset,
         ::art::ActivityRegistry      & reg)
         : GeometryCore(pset)
         , fRelPath          (pset.get< std::string       >("RelativePath",     ""   ))
@@ -39,7 +39,7 @@ namespace gar {
             if (!fRelPath.empty() && (fRelPath.back() != '/')) fRelPath += '/';
 
             // register a callback to be executed when a new run starts
-            reg.sPreBeginRun.watch(this, &Geometry::preBeginRun);
+            reg.sPreBeginRun.watch(this, &GeometryGAr::preBeginRun);
 
             //......................................................................
             // 5.15.12 BJR: use the gdml file for both the fGDMLFile and fROOTFile
@@ -53,11 +53,11 @@ namespace gar {
             // load the geometry
             LoadNewGeometry(GDMLFileName, ROOTFileName);
 
-        } // Geometry::Geometry()
+        } // GeometryGAr::Geometry()
 
 
         //------------------------------------------------------------------------
-        void Geometry::preBeginRun(::art::Run const& run)
+        void GeometryGAr::preBeginRun(::art::Run const& run)
         {
             // if we are requested to stick to the configured geometry, do nothing
             if (fForceUseFCLOnly) return;
@@ -89,10 +89,10 @@ namespace gar {
             }
 
             LoadNewGeometry(DetectorName() + ".gdml", DetectorName() + ".gdml", true);
-        } // Geometry::preBeginRun()
+        } // GeometryGAr::preBeginRun()
 
         //......................................................................
-        void Geometry::InitializeSegmentations()
+        void GeometryGAr::InitializeSegmentations()
         {
             // the channel map is responsible of calling the channel map configuration
             // of the TPC geometry
@@ -139,10 +139,10 @@ namespace gar {
                 }
             }
 
-        } // Geometry::InitializeSegmentation()
+        } // GeometryGAr::InitializeSegmentation()
 
         //......................................................................
-        void Geometry::LoadNewGeometry(std::string const& gdmlfile,
+        void GeometryGAr::LoadNewGeometry(std::string const& gdmlfile,
         std::string const& /* rootfile */,
         bool               bForceReload /* = false */)
         {
@@ -197,8 +197,8 @@ namespace gar {
 
             //Print the geometry parameters
             PrintGeometry();
-        } // Geometry::LoadNewGeometry()
+        } // GeometryGAr::LoadNewGeometry()
 
-        DEFINE_ART_SERVICE(Geometry)
+        DEFINE_ART_SERVICE(GeometryGAr)
     } // namespace geo
 } // namespace gar

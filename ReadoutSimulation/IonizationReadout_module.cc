@@ -35,14 +35,14 @@
 #include "nurandom/RandomUtils/NuRandomService.h"
 
 // GArSoft Includes
-#include "DetectorInfo/DetectorClocksService.h"
+#include "DetectorInfo/DetectorClocksServiceGAr.h"
 #include "ReadoutSimulation/IonizationAndScintillation.h"
 #include "ReadoutSimulation/ElectronDriftStandardAlg.h"
 #include "ReadoutSimulation/TPCReadoutSimStandardAlg.h"
 #include "Utilities/AssociationUtil.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "RawDataProducts/RawDigit.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "CoreUtils/ServiceUtil.h"
 
 // ROOT Includes
@@ -124,11 +124,11 @@ namespace gar {
     IonizationReadout::IonizationReadout(fhicl::ParameterSet const& pset) : art::EDProducer{pset},
       fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,pset,"Seed"))
     {
-      fTime  = gar::providerFrom<detinfo::DetectorClocksService>();
+      fTime  = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
 
       fNumTicks = gar::providerFrom<detinfo::DetectorPropertiesService>()->NumberTimeSamples();
 
-      fGeo = gar::providerFrom<geo::Geometry>();
+      fGeo = gar::providerFrom<geo::GeometryGAr>();
 
       this->reconfigure(pset);
 
@@ -338,7 +338,7 @@ namespace gar {
     void IonizationReadout::DriftElectronsToReadout(std::vector<sdp::EnergyDeposit> const& edepCol,
                                                     std::vector<edepIDE>                 & edepIDEs)
     {
-      auto geo = gar::providerFrom<geo::Geometry>();
+      auto geo = gar::providerFrom<geo::GeometryGAr>();
 
       float        xyz[3] = {0.};
       unsigned int chan   = 0;

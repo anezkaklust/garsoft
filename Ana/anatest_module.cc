@@ -169,7 +169,7 @@ gar::anatest::anatest(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
 //==============================================================================
 void gar::anatest::beginJob() {
 
-    art::ServiceHandle<geo::Geometry> euclid;
+    art::ServiceHandle<geo::GeometryGAr> euclid;
     ItsInTulsa[0] = euclid->TPCXCent();
     ItsInTulsa[1] = euclid->TPCYCent();
     ItsInTulsa[2] = euclid->TPCZCent();

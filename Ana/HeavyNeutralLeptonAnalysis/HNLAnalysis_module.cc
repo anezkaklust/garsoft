@@ -34,7 +34,7 @@
 #include "ReconstructionDataProducts/TrackIoniz.h"
 
 #include "CoreUtils/ServiceUtil.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 // nutools extensions
 #include "nurandom/RandomUtils/NuRandomService.h"
@@ -310,7 +310,7 @@ void gar::HNLAnalysis::beginJob() {
   fBack = const_cast<cheat::BackTrackerCore*>(const_bt);
 
   // Geometry
-  fGeo = gar::providerFrom<geo::Geometry>();
+  fGeo = gar::providerFrom<geo::GeometryGAr>();
   ftpccentre[0]          = fGeo->TPCXCent();
   ftpccentre[1]          = fGeo->TPCYCent();
   ftpccentre[2]          = fGeo->TPCZCent();

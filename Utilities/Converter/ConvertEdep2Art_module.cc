@@ -50,7 +50,7 @@
 #include "SimulationDataProducts/GenieParticle.h"
 #include "RawDataProducts/CaloRawDigit.h"
 #include "Geometry/GeometryCore.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "Geometry/LocalTransformation.h"
 #include "Geometry/BitFieldCoder.h"
 #include "CoreUtils/ServiceUtil.h"
@@ -206,7 +206,7 @@ namespace util {
         nEntries = fTreeChain->GetEntries();
         fTreeChain->SetBranchAddress("Event", &fEvent);
 
-        fGeo = gar::providerFrom<gar::geo::Geometry>();
+        fGeo = gar::providerFrom<gar::geo::GeometryGAr>();
         fEcalProp = gar::providerFrom<gar::detinfo::ECALPropertiesService>();
         fBirksCoeff = fEcalProp->ScintBirksConstant(); //CLHEP::mm/CLHEP::MeV;
 

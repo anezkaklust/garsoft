@@ -122,13 +122,13 @@ namespace gar {
         const unsigned int CaloHit::GetCellLengthScale() const
         {
             std::array<double, 3> point = {this->Position()[0], this->Position()[1], this->Position()[2]};
-            if(gar::providerFrom<geo::Geometry>()->isTile(point, this->CellID()))
+            if(gar::providerFrom<geo::GeometryGAr>()->isTile(point, this->CellID()))
             {
-                return std::sqrt( gar::providerFrom<geo::Geometry>()->getTileSize(point) * gar::providerFrom<geo::Geometry>()->getTileSize(point) );
+                return std::sqrt( gar::providerFrom<geo::GeometryGAr>()->getTileSize(point) * gar::providerFrom<geo::GeometryGAr>()->getTileSize(point) );
             }
             else
             {
-                return std::sqrt( gar::providerFrom<geo::Geometry>()->getStripWidth(point) * gar::providerFrom<geo::Geometry>()->getStripLength(point, this->CellID()) );
+                return std::sqrt( gar::providerFrom<geo::GeometryGAr>()->getStripWidth(point) * gar::providerFrom<geo::GeometryGAr>()->getStripLength(point, this->CellID()) );
             }
         }
 

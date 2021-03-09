@@ -38,7 +38,7 @@
 #include "ReconstructionDataProducts/TrackTrajectory.h"
 #include "Reco/TrackPar.h"
 #include "Reco/tracker2algs.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "CoreUtils/ServiceUtil.h"
 
 #include "nug4/MagneticFieldServices/MagneticFieldService.h"
@@ -108,7 +108,7 @@ namespace gar {
       int KalmanFitBothWays(std::vector<gar::rec::TPCCluster> &TPCClusters,
                             TrackPar &trackpar,  TrackIoniz &trackions, TrackTrajectory &tracktraj);
 
-      art::ServiceHandle<geo::Geometry> euclid;
+      art::ServiceHandle<geo::GeometryGAr> euclid;
 
     };
 

@@ -15,7 +15,7 @@
 #include "Geometry/ChannelMapAlgs/ChannelMapAlg.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "Geometry/ChannelMapAlgs/AliTPCROC.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "CoreUtils/ServiceUtil.h"
 
 namespace gar{

@@ -5,7 +5,7 @@
 #include "Reco/TrackPar.h"
 #include "TMath.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 namespace gar
 {

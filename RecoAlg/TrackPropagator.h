@@ -49,7 +49,7 @@ namespace util {
 
         where fGeo is an
 
-        const gar::geo::GeometryCore* fGeo = gar::providerFrom<geo::Geometry>();
+        const gar::geo::GeometryCore* fGeo = gar::providerFrom<geo::GeometryGAr>();
         */
 
 

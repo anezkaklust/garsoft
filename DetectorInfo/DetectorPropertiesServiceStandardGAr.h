@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////
-// DetectorPropertiesServiceStandard.h
+// DetectorPropertiesServiceStandardGAr.h
 //
 // Service interface for DetectorProperties functions
 //
@@ -56,7 +56,7 @@ namespace gar {
      *
      */
     
-    class DetectorPropertiesServiceStandard : public DetectorPropertiesService {
+    class DetectorPropertiesServiceStandardGAr : public DetectorPropertiesService {
       
     public:
       
@@ -80,7 +80,7 @@ namespace gar {
       // this enables art to print the configuration help:
       using Parameters = ::art::ServiceTable<ServiceConfiguration_t>;
       
-      DetectorPropertiesServiceStandard(fhicl::ParameterSet const& pset,
+      DetectorPropertiesServiceStandardGAr(fhicl::ParameterSet const& pset,
                                         ::art::ActivityRegistry& reg);
       
       virtual void   reconfigure(fhicl::ParameterSet const& pset) override;
@@ -96,13 +96,13 @@ namespace gar {
       
       bool fInheritNumberTimeSamples; ///< Flag saying whether to inherit NumberTimeSamples
       
-      bool isDetectorPropertiesServiceStandard(const fhicl::ParameterSet& ps) const;
+      bool isDetectorPropertiesServiceStandardGAr(const fhicl::ParameterSet& ps) const;
 
     }; // class DetectorPropertiesService
   } //namespace detinfo
 }
 
-DECLARE_ART_SERVICE_INTERFACE_IMPL(gar::detinfo::DetectorPropertiesServiceStandard,
+DECLARE_ART_SERVICE_INTERFACE_IMPL(gar::detinfo::DetectorPropertiesServiceStandardGAr,
                                    gar::detinfo::DetectorPropertiesService,
                                    LEGACY)
 

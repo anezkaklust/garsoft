@@ -1,6 +1,6 @@
 
 art_make(MODULE_LIBRARIES Geometry
-                           Geometry_Geometry_service
+                           Geometry_GeometryGAr_service
                            SummaryDataProducts
                            nusimdata_SimulationBase
                            nurandom_RandomUtils_NuRandomService_service

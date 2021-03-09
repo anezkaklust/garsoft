@@ -52,7 +52,7 @@
 #include "nurandom/RandomUtils/NuRandomService.h"
 
 // GArSoft includes
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "SummaryDataProducts/RunData.h"
 #include "SummaryDataProducts/POTSummary.h"
 #include "SimulationDataProducts/GenieParticle.h"
@@ -182,7 +182,7 @@ namespace gar {
             else if(beam_type_name == "booster") fBeamType = gar::sdp::kBNB;
             else                                 fBeamType = gar::sdp::kUnknown;
 
-            auto geo = gar::providerFrom<geo::Geometry>();
+            auto geo = gar::providerFrom<geo::GeometryGAr>();
 
             fhicl::ParameterSet GENIEconfig(pset);
             if (!GENIEconfig.has_key("RandomSeed")) {
@@ -260,7 +260,7 @@ namespace gar {
             fDeltaE = tfs->make<TH1F>("fDeltaE", ";#Delta E_{#nu} (GeV);", 200, -1., 1.);
             fECons  = tfs->make<TH1F>("fECons", ";#Delta E(#nu,lepton);", 500, -5., 5.);
 
-            auto   geo  = gar::providerFrom<geo::Geometry>();
+            auto   geo  = gar::providerFrom<geo::GeometryGAr>();
             double x    = 2.1 * geo->TPCRadius();
             double y    = 2.1 * geo->TPCRadius();
             double z    = 2.  * geo->TPCLength();
@@ -283,7 +283,7 @@ namespace gar {
         {
 
             // grab the geometry object to see what geometry we are using
-            auto geo = gar::providerFrom<geo::Geometry>();
+            auto geo = gar::providerFrom<geo::GeometryGAr>();
             std::unique_ptr<sumdata::RunData> runcol(new sumdata::RunData(geo->DetectorName()));
 
             run.put(std::move(runcol));

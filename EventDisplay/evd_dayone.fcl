@@ -6,5 +6,5 @@ services.RecoDrawingOptions.TrackModuleLabels: [ "trackpass1" ]
 services.RecoDrawingOptions.TPCClusterModuleLabels: [ "dayone" ]
 services.RecoDrawingOptions.TPCClusterMarker: 20
 services.RecoDrawingOptions.TPCClusterMarkerSize: 1
-services.Geometry:  @local::dayone_geo 
+services.GeometryGAr:  @local::dayone_geo
 

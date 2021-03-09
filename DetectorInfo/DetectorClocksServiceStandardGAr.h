@@ -17,16 +17,16 @@
 #include "art/Framework/Principal/Event.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
 
-#include "DetectorInfo/DetectorClocksStandard.h"
-#include "DetectorInfo/DetectorClocksService.h"
+#include "DetectorInfo/DetectorClocksStandardGAr.h"
+#include "DetectorInfo/DetectorClocksServiceGAr.h"
 
 ///General GArSoft Utilities
 namespace gar {
   namespace detinfo{
-    class DetectorClocksServiceStandard : public DetectorClocksService {
+    class DetectorClocksServiceStandardGAr : public DetectorClocksServiceGAr {
     public:
-      DetectorClocksServiceStandard(fhicl::ParameterSet   const& pset,
-                                    ::art::ActivityRegistry      & reg);
+      DetectorClocksServiceStandardGAr(fhicl::ParameterSet   const& pset,
+                                       ::art::ActivityRegistry      & reg);
       
       virtual void  reconfigure(fhicl::ParameterSet const& pset) override;
       void          preBeginRun(::art::Run const& run);
@@ -37,14 +37,14 @@ namespace gar {
       
     private:
       
-      std::unique_ptr<detinfo::DetectorClocksStandard> fClocks;
+      std::unique_ptr<detinfo::DetectorClocksStandardGAr> fClocks;
       
     };
   } //namespace detinfo
 } // gar
 
-DECLARE_ART_SERVICE_INTERFACE_IMPL(gar::detinfo::DetectorClocksServiceStandard,
-                                   gar::detinfo::DetectorClocksService,
+DECLARE_ART_SERVICE_INTERFACE_IMPL(gar::detinfo::DetectorClocksServiceStandardGAr,
+                                   gar::detinfo::DetectorClocksServiceGAr,
                                    LEGACY)
 
 #endif // DETECTORCLOCKSSERVICESTANDARD_H

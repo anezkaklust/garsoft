@@ -154,7 +154,7 @@ namespace gar {
        * Example:
        *
        *     gar::DetectorPropertiesStandard::providers_type providers;
-       *     providers.set(gar::providerFrom<geo::Geometry>());
+       *     providers.set(gar::providerFrom<geo::GeometryGAr>());
        *     providers.set(gar::providerFrom<detinfo::GArPropertiesService>());
        *     providers.set(gar::providerFrom<detinfo::DetectorClocksService>());
        *     detprop->Setup(providers);

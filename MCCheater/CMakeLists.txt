@@ -6,7 +6,7 @@ art_make_library( LIBRARY_NAME MCCheater
                   LIBRARIES    ReconstructionDataProducts
                                SimulationDataProducts
                                Geometry
-                               Geometry_Geometry_service
+                               Geometry_GeometryGAr_service
                                nusimdata_SimulationBase
                                nug4_ParticleNavigation
                                ${ART_FRAMEWORK_SERVICES_REGISTRY}
@@ -23,7 +23,7 @@ art_make_library( LIBRARY_NAME MCCheater
 simple_plugin(BackTracker "service"
               MCCheater
 	          Geometry
-	          Geometry_Geometry_service
+	          Geometry_GeometryGAr_service
               ReconstructionDataProducts
               RawDataProducts
               SimulationDataProducts

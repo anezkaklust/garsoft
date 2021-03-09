@@ -19,8 +19,7 @@
 
 #include "ReconstructionDataProducts/CaloHit.h"
 
-#include "Geometry/Geometry.h"
-#include "DetectorInfo/DetectorClocksService.h"
+#include "Geometry/GeometryGAr.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 
 #include "RecoAlg/StripSplitterAlg.h"
@@ -78,7 +77,7 @@ namespace gar {
             fCaloHitLabel = p.get<std::string>("CaloHitLabel", "calohit");
             fECALInstanceName =  p.get<std::string >("ECALInstanceName", "");
 
-            fGeo     = gar::providerFrom<geo::Geometry>();
+            fGeo     = gar::providerFrom<geo::GeometryGAr>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fSaveStripEndsOnly = p.get<bool>("SaveStripEndsOnly", false);
             fSaveUnsplitHits   = p.get<bool>("SaveUnsplitHits", true);

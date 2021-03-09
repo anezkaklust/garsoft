@@ -25,7 +25,7 @@ standard_geo:
 
 standard_geometry_helper:
 {
- service_provider: StandardGeometryHelper
+ service_provider: StandardGeometryHelperGAr
 }
 
 standard_auxdet_geo:

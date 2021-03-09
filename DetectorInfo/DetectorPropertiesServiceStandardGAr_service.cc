@@ -6,14 +6,14 @@
 // Framework includes
 
 // GArSoft includes
-#include "DetectorInfo/DetectorPropertiesServiceStandard.h"
+#include "DetectorInfo/DetectorPropertiesServiceStandardGAr.h"
 #include "DetectorInfo/ECALProperties.h"
 #include "DetectorInfo/GArProperties.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "DetectorInfo/ServicePack.h" // gar::extractProviders()
 #include "DetectorInfo/GArPropertiesService.h"
 #include "DetectorInfo/ECALPropertiesService.h"
-#include "DetectorInfo/DetectorClocksService.h"
+#include "DetectorInfo/DetectorClocksServiceGAr.h"
 
 // Art includes
 #include "art_root_io/RootDB/SQLite3Wrapper.h"
@@ -24,19 +24,19 @@ namespace gar {
   namespace detinfo{
 
     //--------------------------------------------------------------------
-    DetectorPropertiesServiceStandard::DetectorPropertiesServiceStandard(fhicl::ParameterSet const& pset,
+    DetectorPropertiesServiceStandardGAr::DetectorPropertiesServiceStandardGAr(fhicl::ParameterSet const& pset,
                                                                          ::art::ActivityRegistry    &reg)
     : fInheritNumberTimeSamples(pset.get<bool>("InheritNumberTimeSamples", false))
     {
       // Register for callbacks.
 
-      reg.sPostOpenFile.watch    (this, &DetectorPropertiesServiceStandard::postOpenFile);
-      reg.sPreProcessEvent.watch (this, &DetectorPropertiesServiceStandard::preProcessEvent);
+      reg.sPostOpenFile.watch    (this, &DetectorPropertiesServiceStandardGAr::postOpenFile);
+      reg.sPreProcessEvent.watch (this, &DetectorPropertiesServiceStandardGAr::preProcessEvent);
       fProp = std::make_unique<detinfo::DetectorPropertiesStandard>(pset,
-                                                                    gar::extractProviders<geo::Geometry,
+                                                                    gar::extractProviders<geo::GeometryGAr,
                                                                                           detinfo::GArPropertiesService,
                                                                                           detinfo::ECALPropertiesService,
-                                                                                          detinfo::DetectorClocksService>(),
+                                                                                          detinfo::DetectorClocksServiceGAr>(),
                                                                     std::set<std::string>({ "InheritNumberTimeSamples" })
                                                                     );
 
@@ -49,7 +49,7 @@ namespace gar {
     }
 
     //--------------------------------------------------------------------
-    void DetectorPropertiesServiceStandard::reconfigure(fhicl::ParameterSet const& p)
+    void DetectorPropertiesServiceStandardGAr::reconfigure(fhicl::ParameterSet const& p)
     {
       fProp->ValidateAndConfigure(p, { "InheritNumberTimeSamples" });
 
@@ -60,16 +60,16 @@ namespace gar {
     }
 
     //-------------------------------------------------------------
-    void DetectorPropertiesServiceStandard::preProcessEvent(const ::art::Event& evt, art::ScheduleContext)
+    void DetectorPropertiesServiceStandardGAr::preProcessEvent(const ::art::Event& evt, art::ScheduleContext)
     {
       // Make sure TPC Clock is updated with TimeService (though in principle it shouldn't change
-      fProp->UpdateClocks(gar::providerFrom<detinfo::DetectorClocksService>());
+      fProp->UpdateClocks(gar::providerFrom<detinfo::DetectorClocksServiceGAr>());
     }
 
 
     //--------------------------------------------------------------------
     //  Callback called after input file is opened.
-    void DetectorPropertiesServiceStandard::postOpenFile(const std::string& filename)
+    void DetectorPropertiesServiceStandardGAr::postOpenFile(const std::string& filename)
     {
       // Use this method to figure out whether to inherit configuration
       // parameters from previous jobs.
@@ -121,7 +121,7 @@ namespace gar {
             fhicl::make_ParameterSet(reinterpret_cast<char const *>(sqlite3_column_text(stmt, 0)), ps);
             // Is this a DetectorPropertiesService parameter set?
 
-            bool psok = isDetectorPropertiesServiceStandard(ps);
+            bool psok = isDetectorPropertiesServiceStandardGAr(ps);
             if(psok) {
 
               // Check NumberTimeSamples
@@ -151,7 +151,7 @@ namespace gar {
           if(// fInheritNumberTimeSamples &&
              nNumberTimeSamples != 0 &&
              iNumberTimeSamples != fProp->NumberTimeSamples()) {
-            MF_LOG_INFO("DetectorPropertiesServiceStandard")
+            MF_LOG_INFO("DetectorPropertiesServiceStandardGAr")
             << "Overriding configuration parameter NumberTimeSamples using historical value.\n"
             << "  Configured value:        " << fProp->NumberTimeSamples() << "\n"
             << "  Historical (used) value: " << iNumberTimeSamples;
@@ -173,7 +173,7 @@ namespace gar {
     //--------------------------------------------------------------------
     //  Determine whether a parameter set is a DetectorPropertiesService configuration.
 
-    bool DetectorPropertiesServiceStandard::isDetectorPropertiesServiceStandard(const fhicl::ParameterSet& ps) const
+    bool DetectorPropertiesServiceStandardGAr::isDetectorPropertiesServiceStandardGAr(const fhicl::ParameterSet& ps) const
     {
       // This method uses heuristics to determine whether the parameter
       // set passed as argument is a DetectorPropertiesService configuration
@@ -181,7 +181,7 @@ namespace gar {
 
       return
       (ps.get<std::string>("service_type", "") == "DetectorPropertiesService")
-      && (ps.get<std::string>("service_provider", "") == "DetectorPropertiesServiceStandard")
+      && (ps.get<std::string>("service_provider", "") == "DetectorPropertiesServiceStandardGAr")
       ;
 #if 0
       // old heuristics here:
@@ -203,5 +203,5 @@ namespace gar {
 
 } // gar
 
-DEFINE_ART_SERVICE_INTERFACE_IMPL(gar::detinfo::DetectorPropertiesServiceStandard,
+DEFINE_ART_SERVICE_INTERFACE_IMPL(gar::detinfo::DetectorPropertiesServiceStandardGAr,
                                   gar::detinfo::DetectorPropertiesService)

@@ -26,7 +26,7 @@
 #include "MCCheater/BackTracker.h"
 #include "nug4/ParticleNavigation/ParticleList.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "RawDataProducts/RawDigit.h"
 #include "CoreUtils/ServiceUtil.h"
 
@@ -171,7 +171,7 @@ namespace gar {
         return;
       }
 
-      auto geo = gar::providerFrom<geo::Geometry>();
+      auto geo = gar::providerFrom<geo::GeometryGAr>();
 
       float        xyz[3]     = {0.};
       float        xyzChan[3] = {0.};

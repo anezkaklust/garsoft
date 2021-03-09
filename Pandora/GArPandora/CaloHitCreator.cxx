@@ -19,7 +19,7 @@ namespace gar {
         m_eCalEndCapLayerThickness(0.f),
         artCalorimeterHitVector(0)
         {
-            fGeo = gar::providerFrom<geo::Geometry>();
+            fGeo = gar::providerFrom<geo::GeometryGAr>();
             std::string fEncoding = fGeo->GetECALCellIDEncoding();
             m_fieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
             m_origin[0] = fGeo->GetOriginX();

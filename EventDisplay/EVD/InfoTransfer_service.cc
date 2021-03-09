@@ -36,7 +36,7 @@ namespace evd {
     fRun=-1;
     fSubRun=-1;
     reg.sPreProcessEvent.watch(this, &InfoTransfer::Rebuild);
-    art::ServiceHandle<geo::Geometry>  geo;
+    art::ServiceHandle<geo::GeometryGAr>  geo;
     unsigned int nplanes = geo->Nplanes();
 
     fSelectedHitlist.resize(nplanes);
@@ -65,7 +65,7 @@ namespace evd {
   //......................................................................
   void InfoTransfer::reconfigure(fhicl::ParameterSet const& pset)
   {
-    art::ServiceHandle<geo::Geometry>  geo;
+    art::ServiceHandle<geo::GeometryGAr>  geo;
     unsigned int nplanes = geo->Nplanes();
     //clear everything
     fRefinedHitlist.resize(nplanes);
@@ -82,7 +82,7 @@ namespace evd {
   //......................................................................
   void InfoTransfer::Rebuild(const art::Event& evt)
   {
-    art::ServiceHandle<geo::Geometry>  geo;
+    art::ServiceHandle<geo::GeometryGAr>  geo;
     unsigned int nplanes = geo->Nplanes();
     unsigned int which_call=evdb::NavState::Which();
     if(which_call!=2){
@@ -209,7 +209,7 @@ namespace evd {
   void InfoTransfer::FillStartEndHitCoords(unsigned int plane)
   {
 
-    art::ServiceHandle<geo::Geometry>  geo;
+    art::ServiceHandle<geo::GeometryGAr>  geo;
     // std::vector <double> sthitout(2);
     if(fRefStartHit[plane]){
       starthitout[plane][1] = fRefStartHit[plane]->PeakTime() ;

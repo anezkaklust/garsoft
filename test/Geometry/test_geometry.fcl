@@ -10,7 +10,7 @@ process_name: testGeo
 
 services: {
   
-  Geometry:               @local::standard_geo
+  GeometryGAr:            @local::standard_geo
   ExptGeoHelperInterface: @local::standard_geometry_helper
   
   message: {

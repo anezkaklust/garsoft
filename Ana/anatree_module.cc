@@ -49,7 +49,7 @@
 #include "nurandom/RandomUtils/NuRandomService.h"
 
 #include "CoreUtils/ServiceUtil.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 #include "TTree.h"
 #include "TDatabasePDG.h"
@@ -474,7 +474,7 @@ namespace gar {
 gar::anatree::anatree(fhicl::ParameterSet const & p)
 : EDAnalyzer(p),
 fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "Seed")) {
-    fGeo     = gar::providerFrom<geo::Geometry>();
+    fGeo     = gar::providerFrom<geo::GeometryGAr>();
 
     bool usegenlabels =
     p.get_if_present<std::vector<std::string> >("GeneratorLabels",fGeneratorLabels);

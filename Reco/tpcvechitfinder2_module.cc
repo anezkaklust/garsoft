@@ -25,7 +25,7 @@
 #include "ReconstructionDataProducts/TPCCluster.h"
 #include "ReconstructionDataProducts/VecHit.h"
 
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "TMath.h"
 #include "TVector3.h"
 #include "TVectorD.h"
@@ -116,7 +116,7 @@ namespace gar {
       auto const vhPtrMaker = art::PtrMaker<gar::rec::VecHit>(e);
       auto const TPCClusterPtrMaker = art::PtrMaker<gar::rec::TPCCluster>(e, TPCClusterHandle.id());
 
-      art::ServiceHandle<geo::Geometry> geo;
+      art::ServiceHandle<geo::GeometryGAr> geo;
       double xtpccent = geo->TPCXCent();
       double ytpccent = geo->TPCYCent();
       double ztpccent = geo->TPCZCent();

@@ -9,7 +9,7 @@
 #include "RecoAlg/KNNClusterAlg.h"
 #include "RecoAlg/NNClusters.h"
 
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "CoreUtils/ServiceUtil.h"
 #include <algorithm>
 
@@ -20,7 +20,7 @@ namespace gar {
             //----------------------------------------------------------------------------
             KNNClusterAlg::KNNClusterAlg(fhicl::ParameterSet const& pset)
             {
-                fGeo = gar::providerFrom<geo::Geometry>();
+                fGeo = gar::providerFrom<geo::GeometryGAr>();
                 this->reconfigure(pset);
                 ClearLists();
                 return;

@@ -97,7 +97,7 @@ namespace gar {
       if(!fAddNoise) return;
       
       // we'll need the geometry
-      auto geo = gar::providerFrom<geo::Geometry>();
+      auto geo = gar::providerFrom<geo::GeometryGAr>();
       
       // figure out which channels we need to make pure noise
       std::set<unsigned int> channels;
