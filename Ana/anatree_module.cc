@@ -408,13 +408,13 @@ void gar::anatree::analyze(art::Event const & e) {
     caf::StandardRecord* prec = &rec;
     fTree->SetBranchAddress("rec", &prec);
 
-    rec.run    = e.run();
-    rec.subrun = e.subRun();
-    rec.event  = e.id().event();
+    rec.hdr.run    = e.run();
+    rec.hdr.subrun = e.subRun();
+    rec.hdr.event  = e.id().event();
 
-    rec.TPC_X = fTPC_X;
-    rec.TPC_Y = fTPC_Y;
-    rec.TPC_Z = fTPC_Z;
+    rec.hdr.TPC_X = fTPC_X;
+    rec.hdr.TPC_Y = fTPC_Y;
+    rec.hdr.TPC_Z = fTPC_Z;
 
 
     // Need a non-constant backtracker instance, for now, in anayze ot beginJob
@@ -479,24 +479,24 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
         for ( auto const& mct : (*mcthandlelist.at(imchl)) ) {
             if (mct.NeutrinoSet()) {
                 simb::MCNeutrino nuw = mct.GetNeutrino();
-                rec.neutrinoType.push_back(nuw.Nu().PdgCode());
-                rec.ccnc.push_back(nuw.CCNC());
-                rec.mode.push_back(nuw.Mode());
-                rec.interactionType.push_back(nuw.InteractionType());
-                rec.Q2.push_back(nuw.QSqr());
-                rec.W.push_back(nuw.W());
-                rec.X.push_back(nuw.X());
-                rec.Y.push_back(nuw.Y());
-                rec.theta.push_back(nuw.Theta());
+                rec.mc.neutrinoType.push_back(nuw.Nu().PdgCode());
+                rec.mc.ccnc.push_back(nuw.CCNC());
+                rec.mc.mode.push_back(nuw.Mode());
+                rec.mc.interactionType.push_back(nuw.InteractionType());
+                rec.mc.Q2.push_back(nuw.QSqr());
+                rec.mc.W.push_back(nuw.W());
+                rec.mc.X.push_back(nuw.X());
+                rec.mc.Y.push_back(nuw.Y());
+                rec.mc.theta.push_back(nuw.Theta());
                 if (fWriteCohInfo) {
-                  rec.T.push_back(computeT(mct));
+                  rec.mc.T.push_back(computeT(mct));
                 }
-                rec.MCVertexX.push_back(nuw.Nu().EndX());
-                rec.MCVertexY.push_back(nuw.Nu().EndY());
-                rec.MCVertexZ.push_back(nuw.Nu().EndZ());
-                rec.MCnuPx.push_back(nuw.Nu().Px());
-                rec.MCnuPy.push_back(nuw.Nu().Py());
-                rec.MCnuPz.push_back(nuw.Nu().Pz());
+                rec.mc.MCVertexX.push_back(nuw.Nu().EndX());
+                rec.mc.MCVertexY.push_back(nuw.Nu().EndY());
+                rec.mc.MCVertexZ.push_back(nuw.Nu().EndZ());
+                rec.mc.MCnuPx.push_back(nuw.Nu().Px());
+                rec.mc.MCnuPy.push_back(nuw.Nu().Py());
+                rec.mc.MCnuPz.push_back(nuw.Nu().Pz());
             }  // end MC info from MCTruth
         }
     }
@@ -504,10 +504,10 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
     // save GTruth info
     for (size_t igthl = 0; igthl < gthandlelist.size(); ++igthl) {
         for ( auto const& gt : (*gthandlelist.at(igthl)) ) {
-            rec.gint.push_back(gt.fGint);
-            rec.tgtPDG.push_back(gt.ftgtPDG);
-            rec.weight.push_back(gt.fweight);
-            rec.gT.push_back(gt.fgT);
+            rec.mc.gint.push_back(gt.fGint);
+            rec.mc.tgtPDG.push_back(gt.ftgtPDG);
+            rec.mc.weight.push_back(gt.fweight);
+            rec.mc.gT.push_back(gt.fgT);
         }
     }
 
@@ -518,23 +518,23 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
     for (size_t igphl = 0; igphl < gparthandlelist.size(); ++igphl) {
         unsigned int nGPart = 0;
         for ( auto const& gpart : (*gparthandlelist.at(igphl)) ) {
-            rec.GPartIntIdx.push_back(gpart.InteractionIndex());
-            rec.GPartIdx.push_back(gpart.Index());
-            rec.GPartPdg.push_back(gpart.Pdg());
-            rec.GPartStatus.push_back(gpart.Status());
-            rec.GPartName.push_back(gpart.Name());
-            rec.GPartFirstMom.push_back(gpart.FirstMother());
-            rec.GPartLastMom.push_back(gpart.LastMother());
-            rec.GPartFirstDaugh.push_back(gpart.FirstDaughter());
-            rec.GPartLastDaugh.push_back(gpart.LastDaughter());
-            rec.GPartPx.push_back(gpart.Px());
-            rec.GPartPy.push_back(gpart.Py());
-            rec.GPartPz.push_back(gpart.Pz());
-            rec.GPartE.push_back(gpart.E());
-            rec.GPartMass.push_back(gpart.Mass());
+            rec.mc.GPartIntIdx.push_back(gpart.InteractionIndex());
+            rec.mc.GPartIdx.push_back(gpart.Index());
+            rec.mc.GPartPdg.push_back(gpart.Pdg());
+            rec.mc.GPartStatus.push_back(gpart.Status());
+            rec.mc.GPartName.push_back(gpart.Name());
+            rec.mc.GPartFirstMom.push_back(gpart.FirstMother());
+            rec.mc.GPartLastMom.push_back(gpart.LastMother());
+            rec.mc.GPartFirstDaugh.push_back(gpart.FirstDaughter());
+            rec.mc.GPartLastDaugh.push_back(gpart.LastDaughter());
+            rec.mc.GPartPx.push_back(gpart.Px());
+            rec.mc.GPartPy.push_back(gpart.Py());
+            rec.mc.GPartPz.push_back(gpart.Pz());
+            rec.mc.GPartE.push_back(gpart.E());
+            rec.mc.GPartMass.push_back(gpart.Mass());
             nGPart++;
         }
-        rec.nGPart.push_back(nGPart);
+        rec.mc.nGPart.push_back(nGPart);
     }
 
     art::Handle< std::vector<simb::MCParticle> > MCPHandle;
@@ -558,8 +558,8 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
     }
 
     for ( auto const& mcp : (*MCPHandle) ) {
-        rec.MCTrkID.push_back(mcp.TrackId());
-        rec.MCPDG.push_back(mcp.PdgCode());
+        rec.mc.MCTrkID.push_back(mcp.TrackId());
+        rec.mc.MCPDG.push_back(mcp.PdgCode());
 
         // If mcp.Mother() == 0, particle is from initial vertex;
         // Set MCMotherIndex to -1 in that case.
@@ -581,30 +581,30 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
             }
         }
 
-        rec.MCMotherIndex.push_back(momIndex);
-        rec.MCMotherTrkID.push_back(mcp.Mother());//directly trackid not index
-        rec.MCPDGMother.push_back(momPDG);
+        rec.mc.MCMotherIndex.push_back(momIndex);
+        rec.mc.MCMotherTrkID.push_back(mcp.Mother());//directly trackid not index
+        rec.mc.MCPDGMother.push_back(momPDG);
 
         const TLorentzVector& position = mcp.Position(0);
         const TLorentzVector& momentum = mcp.Momentum(0);
-        rec.MCPStartX.push_back(position.X());
-        rec.MCPStartY.push_back(position.Y());
-        rec.MCPStartZ.push_back(position.Z());
-        rec.MCPTime.push_back(mcp.T());
-        rec.MCPStartPX.push_back(momentum.Px());
-        rec.MCPStartPY.push_back(momentum.Py());
-        rec.MCPStartPZ.push_back(momentum.Pz());
+        rec.mc.MCPStartX.push_back(position.X());
+        rec.mc.MCPStartY.push_back(position.Y());
+        rec.mc.MCPStartZ.push_back(position.Z());
+        rec.mc.MCPTime.push_back(mcp.T());
+        rec.mc.MCPStartPX.push_back(momentum.Px());
+        rec.mc.MCPStartPY.push_back(momentum.Py());
+        rec.mc.MCPStartPZ.push_back(momentum.Pz());
 
         const TLorentzVector& positionEnd = mcp.EndPosition();
         const TLorentzVector& momentumEnd = mcp.EndMomentum();
-        rec.MCPEndX.push_back(positionEnd.X());
-        rec.MCPEndY.push_back(positionEnd.Y());
-        rec.MCPEndZ.push_back(positionEnd.Z());
-        rec.MCPEndPX.push_back(momentumEnd.Px());
-        rec.MCPEndPY.push_back(momentumEnd.Py());
-        rec.MCPEndPZ.push_back(momentumEnd.Pz());
-        rec.MCPProc.push_back(mcp.Process());
-        rec.MCPEndProc.push_back(mcp.EndProcess());
+        rec.mc.MCPEndX.push_back(positionEnd.X());
+        rec.mc.MCPEndY.push_back(positionEnd.Y());
+        rec.mc.MCPEndZ.push_back(positionEnd.Z());
+        rec.mc.MCPEndPX.push_back(momentumEnd.Px());
+        rec.mc.MCPEndPY.push_back(momentumEnd.Py());
+        rec.mc.MCPEndPZ.push_back(momentumEnd.Pz());
+        rec.mc.MCPProc.push_back(mcp.Process());
+        rec.mc.MCPEndProc.push_back(mcp.EndProcess());
     }
 
     // Get vertex for each MCParticle.  In principle, the mct.GetParticle()
@@ -616,16 +616,16 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
     // not in (*MCPHandle).  So we use the following primitive earth technology.
     size_t nMCParticles = (*MCPHandle).size();
     size_t iMCParticle  = 0;
-    rec.MCPVertIndex.resize(nMCParticles);
+    rec.mc.MCPVertIndex.resize(nMCParticles);
     for (; iMCParticle<nMCParticles; ++iMCParticle) {
         foundMCvert:
             // Assign noprimary to start with
-            rec.MCPVertIndex[iMCParticle] = -1;
+            rec.mc.MCPVertIndex[iMCParticle] = -1;
             // Do the primaries first
-            if (rec.MCMotherIndex[iMCParticle]!=-1) break;
-            Float_t trackX = rec.MCPStartX[iMCParticle];
-            Float_t trackY = rec.MCPStartY[iMCParticle];
-            Float_t trackZ = rec.MCPStartZ[iMCParticle];
+            if (rec.mc.MCMotherIndex[iMCParticle]!=-1) break;
+            Float_t trackX = rec.mc.MCPStartX[iMCParticle];
+            Float_t trackY = rec.mc.MCPStartY[iMCParticle];
+            Float_t trackZ = rec.mc.MCPStartZ[iMCParticle];
             int vertexIndex = 0;
             for (size_t imchl = 0; imchl < mcthandlelist.size(); ++imchl) {
                 for ( auto const& mct : (*mcthandlelist.at(imchl)) ) {
@@ -636,7 +636,7 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
                         Float_t vertZ = nuw.Nu().EndZ();
                         Float_t dist = std::hypot(trackX-vertX,trackY-vertY,trackZ-vertZ);
                         if ( dist <= fMatchMCPtoVertDist ) {
-                            rec.MCPVertIndex[iMCParticle] = vertexIndex;
+                            rec.mc.MCPVertIndex[iMCParticle] = vertexIndex;
                             ++iMCParticle; goto foundMCvert;
                         }
                     }
@@ -647,13 +647,13 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
 
     // Now the secondaries.  As they are after the primaries, do not re-init iMCParticle
     for (; iMCParticle<nMCParticles; ++iMCParticle) {
-        int momIndex = rec.MCMotherIndex[iMCParticle];
+        int momIndex = rec.mc.MCMotherIndex[iMCParticle];
         int lastMCParticle = iMCParticle;
         while (momIndex != -1) {
             lastMCParticle = momIndex;
-            momIndex       = rec.MCMotherIndex[momIndex];
+            momIndex       = rec.mc.MCMotherIndex[momIndex];
         }
-        rec.MCPVertIndex[iMCParticle] = rec.MCPVertIndex[lastMCParticle];
+        rec.mc.MCPVertIndex[iMCParticle] = rec.mc.MCPVertIndex[lastMCParticle];
     }
 
     if (fWriteMCPTrajectory) {
@@ -675,18 +675,18 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
                 if (abs(xTraj - ItsInTulsa[0]) > xTPC) continue;
                 if (rTraj > rTPC) continue;
 
-                rec.TrajMCPX.push_back(xTraj);
-                rec.TrajMCPY.push_back(yTraj);
-                rec.TrajMCPZ.push_back(zTraj);
-                rec.TrajMCPT.push_back(mcp.Trajectory().T(iTraj));
+                rec.mc.TrajMCPX.push_back(xTraj);
+                rec.mc.TrajMCPY.push_back(yTraj);
+                rec.mc.TrajMCPZ.push_back(zTraj);
+                rec.mc.TrajMCPT.push_back(mcp.Trajectory().T(iTraj));
                 if (fWriteMCPTrajMomenta) {
-                    rec.TrajMCPPX.push_back(mcp.Trajectory().Px(iTraj));
-                    rec.TrajMCPPY.push_back(mcp.Trajectory().Py(iTraj));
-                    rec.TrajMCPPZ.push_back(mcp.Trajectory().Pz(iTraj));
+                    rec.mc.TrajMCPPX.push_back(mcp.Trajectory().Px(iTraj));
+                    rec.mc.TrajMCPPY.push_back(mcp.Trajectory().Py(iTraj));
+                    rec.mc.TrajMCPPZ.push_back(mcp.Trajectory().Pz(iTraj));
                 }
-                rec.TrajMCPE.push_back(mcp.Trajectory().E(iTraj));
-                rec.TrajMCPIndex.push_back(mcpIndex);
-                rec.TrajMCPTrackID.push_back(trackId);
+                rec.mc.TrajMCPE.push_back(mcp.Trajectory().E(iTraj));
+                rec.mc.TrajMCPIndex.push_back(mcpIndex);
+                rec.mc.TrajMCPTrackID.push_back(trackId);
             }
             mcpIndex++;
         }
@@ -709,29 +709,29 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
 
         // Save simulation ecal hit info
         for ( auto const& SimHit : (*SimHitHandle) ) {
-            rec.SimnHits++;
-            rec.SimHitX.push_back(SimHit.X());
-            rec.SimHitY.push_back(SimHit.Y());
-            rec.SimHitZ.push_back(SimHit.Z());
-            rec.SimHitTime.push_back(SimHit.Time());
-            rec.SimHitEnergy.push_back(SimHit.Energy());
-            rec.SimHitTrackID.push_back(SimHit.TrackID());
-            rec.SimHitCellID.push_back(SimHit.CellID());
-            rec.SimEnergySum += SimHit.Energy();
+            rec.mc.SimnHits++;
+            rec.mc.SimHitX.push_back(SimHit.X());
+            rec.mc.SimHitY.push_back(SimHit.Y());
+            rec.mc.SimHitZ.push_back(SimHit.Z());
+            rec.mc.SimHitTime.push_back(SimHit.Time());
+            rec.mc.SimHitEnergy.push_back(SimHit.Energy());
+            rec.mc.SimHitTrackID.push_back(SimHit.TrackID());
+            rec.mc.SimHitCellID.push_back(SimHit.CellID());
+            rec.mc.SimEnergySum += SimHit.Energy();
         }
 
         // Save simulation muon system hit info
         if(fGeo->HasMuonDetector()) {
             for ( auto const& SimHit : (*MuIDSimHitHandle) ) {
-                rec.SimnHits_MuID++;
-                rec.SimHitX_MuID.push_back(SimHit.X());
-                rec.SimHitY_MuID.push_back(SimHit.Y());
-                rec.SimHitZ_MuID.push_back(SimHit.Z());
-                rec.SimHitTime_MuID.push_back(SimHit.Time());
-                rec.SimHitEnergy_MuID.push_back(SimHit.Energy());
-                rec.SimHitTrackID_MuID.push_back(SimHit.TrackID());
-                rec.SimHitCellID_MuID.push_back(SimHit.CellID());
-                rec.SimEnergySum_MuID += SimHit.Energy();
+                rec.mc.SimnHits_MuID++;
+                rec.mc.SimHitX_MuID.push_back(SimHit.X());
+                rec.mc.SimHitY_MuID.push_back(SimHit.Y());
+                rec.mc.SimHitZ_MuID.push_back(SimHit.Z());
+                rec.mc.SimHitTime_MuID.push_back(SimHit.Time());
+                rec.mc.SimHitEnergy_MuID.push_back(SimHit.Energy());
+                rec.mc.SimHitTrackID_MuID.push_back(SimHit.TrackID());
+                rec.mc.SimHitCellID_MuID.push_back(SimHit.CellID());
+                rec.mc.SimEnergySum_MuID += SimHit.Energy();
             }
         }
     }
@@ -762,25 +762,25 @@ void gar::anatree::FillRawInfo(art::Event const & e, caf::StandardRecord& rec) {
 
     // save ecal raw digits info
     for ( auto const& DigiHit : (*RawHitHandle) ) {
-        rec.DiginHits++;
-        rec.DigiHitX.push_back(DigiHit.X());
-        rec.DigiHitY.push_back(DigiHit.Y());
-        rec.DigiHitZ.push_back(DigiHit.Z());
-        rec.DigiHitTime.push_back( (DigiHit.Time().first + DigiHit.Time().second) / 2.0 );
-        rec.DigiHitADC.push_back(DigiHit.ADC().first);
-        rec.DigiHitCellID.push_back(DigiHit.CellID());
+        rec.dig.ecal.nhits++;
+        rec.dig.ecal.x.push_back(DigiHit.X());
+        rec.dig.ecal.y.push_back(DigiHit.Y());
+        rec.dig.ecal.z.push_back(DigiHit.Z());
+        rec.dig.ecal.t.push_back( (DigiHit.Time().first + DigiHit.Time().second) / 2.0 );
+        rec.dig.ecal.adc.push_back(DigiHit.ADC().first);
+        rec.dig.ecal.cellid.push_back(DigiHit.CellID());
     }
 
     // save muon system raw digits info
     if(fGeo->HasMuonDetector()) {
         for ( auto const& DigiHit : (*MuIDRawHitHandle) ) {
-            rec.DiginHits_MuID++;
-            rec.DigiHitX_MuID.push_back(DigiHit.X());
-            rec.DigiHitY_MuID.push_back(DigiHit.Y());
-            rec.DigiHitZ_MuID.push_back(DigiHit.Z());
-            rec.DigiHitTime_MuID.push_back( (DigiHit.Time().first + DigiHit.Time().second) / 2.0 );
-            rec.DigiHitADC_MuID.push_back(DigiHit.ADC().first);
-            rec.DigiHitCellID_MuID.push_back(DigiHit.CellID());
+            rec.dig.muid.nhits++;
+            rec.dig.muid.x.push_back(DigiHit.X());
+            rec.dig.muid.y.push_back(DigiHit.Y());
+            rec.dig.muid.z.push_back(DigiHit.Z());
+            rec.dig.muid.t.push_back( (DigiHit.Time().first + DigiHit.Time().second) / 2.0 );
+            rec.dig.muid.adc.push_back(DigiHit.ADC().first);
+            rec.dig.muid.cellid.push_back(DigiHit.CellID());
         }
     }
 }
@@ -802,12 +802,12 @@ void gar::anatree::FillRecoInfo(art::Event const & e, caf::StandardRecord& rec) 
 
         // save hits in the TPC
         for ( auto const& Hit : (*HitHandle) ) {
-            rec.HitX.push_back(Hit.Position()[0]);
-            rec.HitY.push_back(Hit.Position()[1]);
-            rec.HitZ.push_back(Hit.Position()[2]);
-            rec.HitSig.push_back(Hit.Signal());
-            rec.HitRMS.push_back(Hit.RMS());
-            rec.HitChan.push_back(Hit.Channel());
+            rec.hit.tpc.x.push_back(Hit.Position()[0]);
+            rec.hit.tpc.y.push_back(Hit.Position()[1]);
+            rec.hit.tpc.z.push_back(Hit.Position()[2]);
+            rec.hit.tpc.sig.push_back(Hit.Signal());
+            rec.hit.tpc.rms.push_back(Hit.RMS());
+            rec.hit.tpc.chan.push_back(Hit.Channel());
         }
     }
 
@@ -830,28 +830,28 @@ void gar::anatree::FillRecoInfo(art::Event const & e, caf::StandardRecord& rec) 
 
         // save reco'd Calorimetry hits
         for ( auto const& Hit : (*RecoHitHandle) ) {
-            rec.ReconHits++;
-            rec.ReconHitIDNumber.push_back(Hit.getIDNumber());
-            rec.RecoHitX.push_back(Hit.Position()[0]);
-            rec.RecoHitY.push_back(Hit.Position()[1]);
-            rec.RecoHitZ.push_back(Hit.Position()[2]);
-            rec.RecoHitTime.push_back(Hit.Time().first);
-            rec.RecoHitEnergy.push_back(Hit.Energy());
-            rec.RecoHitCellID.push_back(Hit.CellID());
-            rec.RecoEnergySum += Hit.Energy();
+            rec.hit.ecal.nhits++;
+            rec.hit.ecal.id.push_back(Hit.getIDNumber());
+            rec.hit.ecal.x.push_back(Hit.Position()[0]);
+            rec.hit.ecal.y.push_back(Hit.Position()[1]);
+            rec.hit.ecal.z.push_back(Hit.Position()[2]);
+            rec.hit.ecal.t.push_back(Hit.Time().first);
+            rec.hit.ecal.E.push_back(Hit.Energy());
+            rec.hit.ecal.cellid.push_back(Hit.CellID());
+            rec.hit.ecal.totE += Hit.Energy();
         }
 
         if(fGeo->HasMuonDetector()) {
             for ( auto const& Hit : (*MuIDRecoHitHandle) ) {
-                rec.ReconHits_MuID++;
-                rec.ReconHitIDNumber_MuID.push_back(Hit.getIDNumber());
-                rec.RecoHitX_MuID.push_back(Hit.Position()[0]);
-                rec.RecoHitY_MuID.push_back(Hit.Position()[1]);
-                rec.RecoHitZ_MuID.push_back(Hit.Position()[2]);
-                rec.RecoHitTime_MuID.push_back(Hit.Time().first);
-                rec.RecoHitEnergy_MuID.push_back(Hit.Energy());
-                rec.RecoHitCellID_MuID.push_back(Hit.CellID());
-                rec.RecoEnergySum_MuID += Hit.Energy();
+                rec.hit.muid.nhits++;
+                rec.hit.muid.id.push_back(Hit.getIDNumber());
+                rec.hit.muid.x.push_back(Hit.Position()[0]);
+                rec.hit.muid.y.push_back(Hit.Position()[1]);
+                rec.hit.muid.z.push_back(Hit.Position()[2]);
+                rec.hit.muid.t.push_back(Hit.Time().first);
+                rec.hit.muid.E.push_back(Hit.Energy());
+                rec.hit.muid.cellid.push_back(Hit.CellID());
+                rec.hit.muid.totE += Hit.Energy();
             }
         }
     }
@@ -941,19 +941,21 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
     // to FindManyP<TPCCluster> instead and  iterate if (fWriteTracks).  :(
     if (fWriteTPCClusters) {
         for ( auto const& TPCCluster : (*TPCClusterHandle) ) {
-            rec.TPCClusterX.push_back(TPCCluster.Position()[0]);
-            rec.TPCClusterY.push_back(TPCCluster.Position()[1]);
-            rec.TPCClusterZ.push_back(TPCCluster.Position()[2]);
-            rec.TPCClusterSig.push_back(TPCCluster.Signal());
-            rec.TPCClusterRMS.push_back(TPCCluster.RMS());
+            rec.clust.tpc.x.push_back(TPCCluster.Position()[0]);
+            rec.clust.tpc.y.push_back(TPCCluster.Position()[1]);
+            rec.clust.tpc.z.push_back(TPCCluster.Position()[2]);
+            rec.clust.tpc.sig.push_back(TPCCluster.Signal());
+            rec.clust.tpc.rms.push_back(TPCCluster.RMS());
             const float* cov;
             cov = TPCCluster.CovMatPacked();
-            rec.TPCClusterCovXX.push_back(cov[0]);
-            rec.TPCClusterCovXY.push_back(cov[1]);
-            rec.TPCClusterCovXZ.push_back(cov[2]);
-            rec.TPCClusterCovYY.push_back(cov[3]);
-            rec.TPCClusterCovYZ.push_back(cov[4]);
-            rec.TPCClusterCovZZ.push_back(cov[5]);
+            caf::SRCovMx srcov;
+            srcov.xx = cov[0];
+            srcov.xy = cov[1];
+            srcov.xz = cov[2];
+            srcov.yy = cov[3];
+            srcov.yz = cov[4];
+            srcov.zz = cov[5];
+            rec.clust.tpc.cov.push_back(srcov);
 
             Int_t trackForThisTPCluster = -1;
             if (fWriteTracks) {
@@ -972,7 +974,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
                 }
             }
             pushit:
-                rec.TPCClusterTrkIDNumber.push_back(trackForThisTPCluster);
+                rec.clust.tpc.trkid.push_back(trackForThisTPCluster);
         }
     }
 
@@ -981,29 +983,29 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
         size_t iTrack = 0;
         for ( auto const& track : (*TrackHandle) ) {
             // track is a rec::Track, not a rec::TrackPar
-            rec.TrackIDNumber.push_back(track.getIDNumber());
+            rec.trk.id.push_back(track.getIDNumber());
 
-            rec.TrackStartX.push_back(track.Vertex()[0]);
-            rec.TrackStartY.push_back(track.Vertex()[1]);
-            rec.TrackStartZ.push_back(track.Vertex()[2]);
-            rec.TrackStartPX.push_back(track.Momentum_beg()*track.VtxDir()[0]);
-            rec.TrackStartPY.push_back(track.Momentum_beg()*track.VtxDir()[1]);
-            rec.TrackStartPZ.push_back(track.Momentum_beg()*track.VtxDir()[2]);
-            rec.TrackStartQ.push_back(track.ChargeBeg());
+            rec.trk.StartX.push_back(track.Vertex()[0]);
+            rec.trk.StartY.push_back(track.Vertex()[1]);
+            rec.trk.StartZ.push_back(track.Vertex()[2]);
+            rec.trk.StartPX.push_back(track.Momentum_beg()*track.VtxDir()[0]);
+            rec.trk.StartPY.push_back(track.Momentum_beg()*track.VtxDir()[1]);
+            rec.trk.StartPZ.push_back(track.Momentum_beg()*track.VtxDir()[2]);
+            rec.trk.StartQ.push_back(track.ChargeBeg());
 
-            rec.TrackEndX.push_back(track.End()[0]);
-            rec.TrackEndY.push_back(track.End()[1]);
-            rec.TrackEndZ.push_back(track.End()[2]);
-            rec.TrackEndPX.push_back(track.Momentum_end()*track.EndDir()[0]);
-            rec.TrackEndPY.push_back(track.Momentum_end()*track.EndDir()[1]);
-            rec.TrackEndPZ.push_back(track.Momentum_end()*track.EndDir()[2]);
-            rec.TrackEndQ.push_back(track.ChargeEnd());
+            rec.trk.EndX.push_back(track.End()[0]);
+            rec.trk.EndY.push_back(track.End()[1]);
+            rec.trk.EndZ.push_back(track.End()[2]);
+            rec.trk.EndPX.push_back(track.Momentum_end()*track.EndDir()[0]);
+            rec.trk.EndPY.push_back(track.Momentum_end()*track.EndDir()[1]);
+            rec.trk.EndPZ.push_back(track.Momentum_end()*track.EndDir()[2]);
+            rec.trk.EndQ.push_back(track.ChargeEnd());
 
-            rec.TrackLenF.push_back(track.LengthForward());
-            rec.TrackLenB.push_back(track.LengthBackward());
-            rec.TrackChi2F.push_back(track.ChisqForward());
-            rec.TrackChi2B.push_back(track.ChisqBackward());
-            rec.NTPCClustersOnTrack.push_back(track.NHits());
+            rec.trk.LenF.push_back(track.LengthForward());
+            rec.trk.LenB.push_back(track.LengthBackward());
+            rec.trk.Chi2F.push_back(track.ChisqForward());
+            rec.trk.Chi2B.push_back(track.ChisqBackward());
+            rec.trk.NTPCClustersOnTrack.push_back(track.NHits());
 
             //Add the PID information based on Tom's parametrization
             TVector3 momF(track.Momentum_beg()*track.VtxDir()[0], track.Momentum_beg()*track.VtxDir()[1], track.Momentum_beg()*track.VtxDir()[2]);
@@ -1017,12 +1019,12 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
 
             //Fill the pid and its probability
             for(size_t ipid = 0; ipid < pidF.size(); ipid++) {
-                rec.TrackPIDF.push_back( pidF.at(ipid).first );
-                rec.TrackPIDProbF.push_back( pidF.at(ipid).second );
+                rec.trk.PIDF.push_back( pidF.at(ipid).first );
+                rec.trk.PIDProbF.push_back( pidF.at(ipid).second );
             }
             for(size_t ipid = 0; ipid < pidB.size(); ipid++) {
-                rec.TrackPIDB.push_back( pidB.at(ipid).first );
-                rec.TrackPIDProbB.push_back( pidB.at(ipid).second );
+                rec.trk.PIDB.push_back( pidB.at(ipid).first );
+                rec.trk.PIDProbB.push_back( pidB.at(ipid).second );
             }
 
             // Matching MCParticle info
@@ -1032,11 +1034,11 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
             if (trakt.size()>0 && TrackIdToIndex.size()!=0) {
                 eileen = TrackIdToIndex[trakt[0].first->TrackId()];
             }
-            rec.TrackMCindex.push_back(eileen);
+            rec.trk.MCindex.push_back(eileen);
             if (eileen > -1) {
-            	rec.TrackMCfrac.push_back(trakt[0].second);
+            	rec.trk.MCfrac.push_back(trakt[0].second);
             } else {
-            	rec.TrackMCfrac.push_back(0.0);
+            	rec.trk.MCfrac.push_back(0.0);
             }
 
             if (findIonization->isValid()) {
@@ -1044,12 +1046,12 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
                 rec::TrackIoniz ionization = *(findIonization->at(iTrack));
                 float avgIonF, avgIonB;
                 processIonizationInfo(ionization, fIonizTruncate, avgIonF, avgIonB);
-                rec.TrackAvgIonF.push_back( avgIonF );
-                rec.TrackAvgIonB.push_back( avgIonB );
+                rec.trk.AvgIonF.push_back( avgIonF );
+                rec.trk.AvgIonB.push_back( avgIonB );
             } else {
-                // must push_back something so that rec.TrackAvgIonF,B are of correct size.
-                rec.TrackAvgIonF.push_back( 0.0 );
-                rec.TrackAvgIonB.push_back( 0.0 );
+                // must push_back something so that rec.trk.AvgIonF,B are of correct size.
+                rec.trk.AvgIonF.push_back( 0.0 );
+                rec.trk.AvgIonB.push_back( 0.0 );
             }
             iTrack++;
         } // end loop over TrackHandle
@@ -1062,18 +1064,18 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
             
             std::vector<TVector3> temp = tracktraj.getFWDTrajectory();
             for(size_t i = 0; i < temp.size(); i++) {
-                rec.TrackTrajectoryFWDX.push_back(temp.at(i).X());
-                rec.TrackTrajectoryFWDY.push_back(temp.at(i).Y());
-                rec.TrackTrajectoryFWDZ.push_back(temp.at(i).Z());
-                rec.TrackTrajectoryFWDID.push_back(iTrackTraj);
+                rec.trk.TrajectoryFWDX.push_back(temp.at(i).X());
+                rec.trk.TrajectoryFWDY.push_back(temp.at(i).Y());
+                rec.trk.TrajectoryFWDZ.push_back(temp.at(i).Z());
+                rec.trk.TrajectoryFWDID.push_back(iTrackTraj);
             }
 
             temp = tracktraj.getBAKTrajectory();
             for(size_t i = 0; i < temp.size(); i++) {
-                rec.TrackTrajectoryBWDX.push_back(temp.at(i).X());
-                rec.TrackTrajectoryBWDY.push_back(temp.at(i).Y());
-                rec.TrackTrajectoryBWDZ.push_back(temp.at(i).Z());
-                rec.TrackTrajectoryBWDID.push_back(iTrackTraj);
+                rec.trk.TrajectoryBWDX.push_back(temp.at(i).X());
+                rec.trk.TrajectoryBWDY.push_back(temp.at(i).Y());
+                rec.trk.TrajectoryBWDZ.push_back(temp.at(i).Z());
+                rec.trk.TrajectoryBWDID.push_back(iTrackTraj);
             }
             iTrackTraj++;
         }
@@ -1083,25 +1085,26 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
     if (fWriteVertices) {
         size_t iVertex = 0;
         for ( auto const& vertex : (*VertexHandle) ) {
-            rec.VertexIDNumber.push_back(vertex.getIDNumber());
-            rec.VertexX.push_back(vertex.Position()[0]);
-            rec.VertexY.push_back(vertex.Position()[1]);
-            rec.VertexZ.push_back(vertex.Position()[2]);
-            rec.VertexT.push_back(vertex.Time());
+            rec.vtx.id.push_back(vertex.getIDNumber());
+            rec.vtx.x.push_back(vertex.Position()[0]);
+            rec.vtx.y.push_back(vertex.Position()[1]);
+            rec.vtx.z.push_back(vertex.Position()[2]);
+            rec.vtx.t.push_back(vertex.Time());
 
             int nVertexedTracks = 0;
             if ( findManyTrackEnd->isValid() ) {
                 nVertexedTracks = findManyTrackEnd->at(iVertex).size();
             }
-            rec.VertexN.push_back(nVertexedTracks);
+            rec.vtx.ntrks.push_back(nVertexedTracks);
 
             int vertexCharge = 0;
             for (int iVertexedTrack=0; iVertexedTrack<nVertexedTracks; ++iVertexedTrack) {
-                rec.VTAssn_VertIDNumber.push_back(vertex.getIDNumber());
+              // TODO can we just make a vertex of tracks belonging to this vtx?
+                rec.vtx.assn_vtxid.push_back(vertex.getIDNumber());
 
                 // Get this vertexed track.
                 rec::Track track = *(findManyTrackEnd->at(iVertex).at(iVertexedTrack));
-                rec.VTAssn_TrackIDNumber.push_back(track.getIDNumber());
+                rec.vtx.assn_trkid.push_back(track.getIDNumber());
 
                 // Get the end of the track in the vertex.  It isn't that odd for the end
                 // of the track not used in the vertex to be closer to the vertex than the
@@ -1110,7 +1113,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
                 // vertex some distance towards the far end of the stub track
                 rec::TrackEnd fee = *(findManyTrackEnd->data(iVertex).at(iVertexedTrack));
                 // TrackEnd is defined in Track.h; 1 means use Beg values, 0 means use End
-                rec.VTAssn_TrackEnd.push_back(fee);
+                rec.vtx.assn_trkend.push_back(fee);
 
                 if (fee==rec::TrackEndBeg) {
                     vertexCharge += track.ChargeBeg();
@@ -1118,7 +1121,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
                     vertexCharge += track.ChargeEnd();
                 }
             }
-            rec.VertexQ.push_back(vertexCharge);
+            rec.vtx.Q.push_back(vertexCharge);
             ++iVertex;
         } // end loop over VertexHandle
     }
@@ -1127,26 +1130,26 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
     if (fWriteVees) {
         size_t iVee = 0;
         for ( auto const& vee : (*VeeHandle) ) {
-            rec.VeeIDNumber.push_back(vee.getIDNumber());
-            rec.VeeX.push_back(vee.Position()[0]);
-            rec.VeeY.push_back(vee.Position()[1]);
-            rec.VeeZ.push_back(vee.Position()[2]);
-            rec.VeeT.push_back(vee.Time());
-            rec.VeePXKpipi.push_back(vee.FourMomentum(0).X());
-            rec.VeePYKpipi.push_back(vee.FourMomentum(0).Y());
-            rec.VeePZKpipi.push_back(vee.FourMomentum(0).Z());
-            rec.VeeEKpipi.push_back(vee.FourMomentum(0).E());
-            rec.VeeMKpipi.push_back(vee.FourMomentum(0).M());
-            rec.VeePXLppi.push_back(vee.FourMomentum(1).X());
-            rec.VeePYLppi.push_back(vee.FourMomentum(1).Y());
-            rec.VeePZLppi.push_back(vee.FourMomentum(1).Z());
-            rec.VeeELppi.push_back(vee.FourMomentum(1).E());
-            rec.VeeMLppi.push_back(vee.FourMomentum(1).M());
-            rec.VeePXLpip.push_back(vee.FourMomentum(2).X());
-            rec.VeePYLpip.push_back(vee.FourMomentum(2).Y());
-            rec.VeePZLpip.push_back(vee.FourMomentum(2).Z());
-            rec.VeeELpip.push_back(vee.FourMomentum(2).E());
-            rec.VeeMLpip.push_back(vee.FourMomentum(2).M());
+            rec.vee.id.push_back(vee.getIDNumber());
+            rec.vee.x.push_back(vee.Position()[0]);
+            rec.vee.y.push_back(vee.Position()[1]);
+            rec.vee.z.push_back(vee.Position()[2]);
+            rec.vee.t.push_back(vee.Time());
+            rec.vee.PXKpipi.push_back(vee.FourMomentum(0).X());
+            rec.vee.PYKpipi.push_back(vee.FourMomentum(0).Y());
+            rec.vee.PZKpipi.push_back(vee.FourMomentum(0).Z());
+            rec.vee.EKpipi.push_back(vee.FourMomentum(0).E());
+            rec.vee.MKpipi.push_back(vee.FourMomentum(0).M());
+            rec.vee.PXLppi.push_back(vee.FourMomentum(1).X());
+            rec.vee.PYLppi.push_back(vee.FourMomentum(1).Y());
+            rec.vee.PZLppi.push_back(vee.FourMomentum(1).Z());
+            rec.vee.ELppi.push_back(vee.FourMomentum(1).E());
+            rec.vee.MLppi.push_back(vee.FourMomentum(1).M());
+            rec.vee.PXLpip.push_back(vee.FourMomentum(2).X());
+            rec.vee.PYLpip.push_back(vee.FourMomentum(2).Y());
+            rec.vee.PZLpip.push_back(vee.FourMomentum(2).Z());
+            rec.vee.ELpip.push_back(vee.FourMomentum(2).E());
+            rec.vee.MLpip.push_back(vee.FourMomentum(2).M());
 
             int nVeeTracks = 0;
             if ( findManyVeeTrackEnd->isValid() ) {
@@ -1154,15 +1157,15 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
             }
 
             for (int iVeeTrack=0; iVeeTrack<nVeeTracks; ++iVeeTrack) {
-                rec.VeeTAssn_VeeIDNumber.push_back(vee.getIDNumber());
+                rec.vee.assn_veeid.push_back(vee.getIDNumber());
 
                 // Get this vertexed track.
                 rec::Track track = *(findManyVeeTrackEnd->at(iVee).at(iVeeTrack));
-                rec.VeeTAssn_TrackIDNumber.push_back(track.getIDNumber());
+                rec.vee.assn_trkid.push_back(track.getIDNumber());
 
                 rec::TrackEnd fee = *(findManyVeeTrackEnd->data(iVee).at(iVeeTrack));
                 // TrackEnd is defined in Track.h; 1 means use Beg values, 0 means use End
-                rec.VeeTAssn_TrackEnd.push_back(fee);
+                rec.vee.assn_trkend.push_back(fee);
             }
             ++iVee;
         } // end loop over VeeHandle
@@ -1171,22 +1174,24 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
     // save Cluster info
     if (fWriteCaloClusters) {
         for ( auto const& cluster : (*RecoClusterHandle) ) {
-            rec.nCluster++;
-            rec.ClusterIDNumber.push_back(cluster.getIDNumber());
-            rec.ClusterNhits.push_back(cluster.CalorimeterHits().size());
-            rec.ClusterEnergy.push_back(cluster.Energy());
-            rec.ClusterTime.push_back(cluster.Time());
-            rec.ClusterTimeDiffFirstLast.push_back(cluster.TimeDiffFirstLast());
-            rec.ClusterX.push_back(cluster.Position()[0]);
-            rec.ClusterY.push_back(cluster.Position()[1]);
-            rec.ClusterZ.push_back(cluster.Position()[2]);
-            rec.ClusterTheta.push_back(cluster.ITheta());
-            rec.ClusterPhi.push_back(cluster.IPhi());
-            rec.ClusterPID.push_back(cluster.ParticleID());
-            // rec.ClusterShape.push_back(cluster.Shape());
-            rec.ClusterMainAxisX.push_back(cluster.EigenVectors()[0]);
-            rec.ClusterMainAxisY.push_back(cluster.EigenVectors()[1]);
-            rec.ClusterMainAxisZ.push_back(cluster.EigenVectors()[2]);
+            rec.clust.ecal.nCluster++;
+            rec.clust.ecal.id.push_back(cluster.getIDNumber());
+            rec.clust.ecal.nhits.push_back(cluster.CalorimeterHits().size());
+            rec.clust.ecal.E.push_back(cluster.Energy());
+            rec.clust.ecal.t.push_back(cluster.Time());
+            rec.clust.ecal.TimeDiffFirstLast.push_back(cluster.TimeDiffFirstLast());
+            rec.clust.ecal.x.push_back(cluster.Position()[0]);
+            rec.clust.ecal.y.push_back(cluster.Position()[1]);
+            rec.clust.ecal.z.push_back(cluster.Position()[2]);
+            rec.clust.ecal.theta.push_back(cluster.ITheta());
+            rec.clust.ecal.phi.push_back(cluster.IPhi());
+            rec.clust.ecal.pid.push_back(cluster.ParticleID());
+            // rec.clust.ecal.Shape.push_back(cluster.Shape());
+            caf::SRVector3D axis;
+            axis.x = cluster.EigenVectors()[0];
+            axis.y = cluster.EigenVectors()[1];
+            axis.z = cluster.EigenVectors()[2];
+            rec.clust.ecal.mainAxis.push_back(axis);
 
             // Matching MCParticle info
             std::vector<std::pair<simb::MCParticle*,float>> trakt;
@@ -1195,11 +1200,11 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
             if (trakt.size()>0 && TrackIdToIndex.size()!=0) {
                 eileen = TrackIdToIndex[trakt[0].first->TrackId()];
             }
-            rec.ClusterMCindex.push_back(eileen);
+            rec.clust.ecal.MCindex.push_back(eileen);
             if (eileen > -1) {
-            	rec.ClusterMCfrac.push_back(trakt[0].second);
+            	rec.clust.ecal.MCfrac.push_back(trakt[0].second);
             } else {
-            	rec.ClusterMCfrac.push_back(0.0);
+            	rec.clust.ecal.MCfrac.push_back(0.0);
             }
         }
     }
@@ -1213,12 +1218,12 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
                 nCALedTracks = findManyCALTrackEnd->at(iCluster).size();
             }
             for (int iCALedTrack=0; iCALedTrack<nCALedTracks; ++iCALedTrack) {
-                rec.CALAssn_ClusIDNumber.push_back(cluster.getIDNumber());
+                rec.clust.ecal.assn_clustid.push_back(cluster.getIDNumber());
                 rec::Track track  = *(findManyCALTrackEnd->at(iCluster).at(iCALedTrack));
-                rec.CALAssn_TrackIDNumber.push_back( track.getIDNumber() );
+                rec.clust.ecal.assn_trkid.push_back( track.getIDNumber() );
 
                 rec::TrackEnd fee = *(findManyCALTrackEnd->data(iCluster).at(iCALedTrack));
-                rec.CALAssn_TrackEnd.push_back(fee);    // The rec::TrackEnd (see Track.h) that extrapolated to cluster
+                rec.clust.ecal.assn_trkend.push_back(fee);    // The rec::TrackEnd (see Track.h) that extrapolated to cluster
             }
             iCluster++;
         }
