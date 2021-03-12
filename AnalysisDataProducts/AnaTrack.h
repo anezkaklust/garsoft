@@ -2,11 +2,11 @@
 #define GAR_ANATRACK_H
 
 #include "ReconstructionDataProducts/Track.h"
+#include "garana/DataProducts/Track.h"
 #include <vector>
 
 using std::pair;
 using std::vector;
-using gar::rec::Track;
 
 namespace gar {
   namespace adp {
@@ -33,7 +33,8 @@ namespace gar {
           {}
 
         // getters
-        const Track* GetTrack() const { return &fTrk;      }
+        const gar::rec::Track* GetTrack() const { return &fTrk;      }
+        void FillGaranaTrack(garana::Track& track);
         const gar::rec::IDNumber TrackID() const { return fTrk.getIDNumber(); }
         const vector<pair<int,float>>*  PidF() const { return &fPidF;  }
         const vector<pair<int,float>>*  PidB() const { return &fPidB;  }
