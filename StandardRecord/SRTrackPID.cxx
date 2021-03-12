@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRTrack.h"
+#include "garsoft/StandardRecord/SRTrackPID.h"
 
 #include <limits>
 
@@ -8,8 +8,8 @@ const float kNaN = std::numeric_limits<float>::signaling_NaN();
 
 namespace caf
 {
-  SRTrack::SRTrack() :
-    id(-1), startq(0), endq(0), NTPCClustersOnTrack(0), mcidx(-1), mcfrac(kNaN)
+  SRTrackPID::SRTrackPID() :
+    id(-1), prob(kNaN)
   {
   }
 }

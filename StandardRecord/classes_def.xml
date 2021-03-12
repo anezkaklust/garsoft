@@ -3,6 +3,8 @@
   <class name="caf::SRHeader"/>
   <class name="caf::SRTruth"/>
   <class name="caf::SRTrack"/>
+  <class name="caf::SRTrackTrajectory"/>
+  <class name="caf::SRTrackPID"/>
   <class name="caf::SRVertex"/>
   <class name="caf::SRVee"/>
   <class name="caf::SRDigitBranch"/>
@@ -21,6 +23,9 @@
   <class name="std::vector<caf::SRRecoHit>"/>
   <class name="std::vector<caf::SRTPCCluster>"/>
   <class name="std::vector<caf::SRDigit>"/>
+  <class name="std::vector<caf::SRTrack>"/>
+  <class name="std::vector<caf::SRTrackTrajectory>"/>
+  <class name="std::vector<caf::SRTrackPID>"/>
 
   <class name="std::vector<caf::SRVector3D>"/>
   <class name="std::vector<caf::SRCovMx>"/>

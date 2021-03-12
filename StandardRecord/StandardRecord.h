@@ -24,7 +24,8 @@ namespace caf
 
     SRTruth mc;
 
-    SRTrack trk;
+    unsigned int ntrk;
+    std::vector<SRTrack> trk;
 
     SRVertex vtx;
 

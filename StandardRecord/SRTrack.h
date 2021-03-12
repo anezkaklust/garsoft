@@ -1,7 +1,7 @@
 #ifndef CAFSRTRACK_H
 #define CAFSRTRACK_H
 
-#include <vector>
+#include "StandardRecord/SRTrackTrajectory.h"
 
 namespace caf
 {
@@ -11,48 +11,21 @@ namespace caf
     SRTrack();
 
     // track data
-    std::vector<size_t>           id;
-    std::vector<float>            StartX;
-    std::vector<float>            StartY;
-    std::vector<float>            StartZ;
-    std::vector<float>            StartPX;
-    std::vector<float>            StartPY;
-    std::vector<float>            StartPZ;
-    std::vector<int>              StartQ;
+    size_t id;
+    SRVector3D start;
+    SRVector3D startp;
+    int startq;
 
-    std::vector<float>            EndX;
-    std::vector<float>            EndY;
-    std::vector<float>            EndZ;
-    std::vector<float>            EndPX;
-    std::vector<float>            EndPY;
-    std::vector<float>            EndPZ;
-    std::vector<int>              EndQ;
+    SRVector3D end;
+    SRVector3D endp;
+    int endq;
 
-    std::vector<float>            LenF;         // from foward fit, from the Beg end to the End end
-    std::vector<float>            LenB;
-    std::vector<float>            Chi2F;        // from foward fit, from the Beg end to the End end
-    std::vector<float>            Chi2B;
-    std::vector<int>              NTPCClustersOnTrack;
-    std::vector<float>            AvgIonF;      // from foward fit, from the Beg end to the End end
-    std::vector<float>            AvgIonB;
+    int NTPCClustersOnTrack;
 
-    std::vector<int>              PIDF;
-    std::vector<float>            PIDProbF;
-    std::vector<int>              PIDB;
-    std::vector<float>            PIDProbB;
-    std::vector<int>              MCindex;      // Branch index (NOT the GEANT track ID) of MCPartice
-    std::vector<float>            MCfrac;       // that best matchs & fraction of ionization therefrom
+    SRTrackTrajectory fwd, bak;
 
-    //Trajectory
-    std::vector<float>            TrajectoryFWDX; //forward
-    std::vector<float>            TrajectoryFWDY; //forward
-    std::vector<float>            TrajectoryFWDZ; //forward
-    std::vector<int>              TrajectoryFWDID;
-
-    std::vector<float>            TrajectoryBWDX; //backward
-    std::vector<float>            TrajectoryBWDY; //backward
-    std::vector<float>            TrajectoryBWDZ; //backward
-    std::vector<int>              TrajectoryBWDID;
+    int   mcidx;  // Branch index (NOT the GEANT track ID) of MCParticle
+    float mcfrac; // that best matches & fraction of ionization therefrom
   };
 }
 

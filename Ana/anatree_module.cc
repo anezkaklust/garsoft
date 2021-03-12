@@ -996,30 +996,32 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
     if (fWriteTracks) {
         size_t iTrack = 0;
         for ( auto const& track : (*TrackHandle) ) {
+            caf::SRTrack srtrk;
+
             // track is a rec::Track, not a rec::TrackPar
-            rec.trk.id.push_back(track.getIDNumber());
+            srtrk.id = track.getIDNumber();
 
-            rec.trk.StartX.push_back(track.Vertex()[0]);
-            rec.trk.StartY.push_back(track.Vertex()[1]);
-            rec.trk.StartZ.push_back(track.Vertex()[2]);
-            rec.trk.StartPX.push_back(track.Momentum_beg()*track.VtxDir()[0]);
-            rec.trk.StartPY.push_back(track.Momentum_beg()*track.VtxDir()[1]);
-            rec.trk.StartPZ.push_back(track.Momentum_beg()*track.VtxDir()[2]);
-            rec.trk.StartQ.push_back(track.ChargeBeg());
+            srtrk.start = caf::SRVector3D(track.Vertex()[0],
+                                          track.Vertex()[1],
+                                          track.Vertex()[2]);
+            srtrk.startp = caf::SRVector3D(track.Momentum_beg()*track.VtxDir()[0],
+                                           track.Momentum_beg()*track.VtxDir()[1],
+                                           track.Momentum_beg()*track.VtxDir()[2]);
+            srtrk.startq = track.ChargeBeg();
 
-            rec.trk.EndX.push_back(track.End()[0]);
-            rec.trk.EndY.push_back(track.End()[1]);
-            rec.trk.EndZ.push_back(track.End()[2]);
-            rec.trk.EndPX.push_back(track.Momentum_end()*track.EndDir()[0]);
-            rec.trk.EndPY.push_back(track.Momentum_end()*track.EndDir()[1]);
-            rec.trk.EndPZ.push_back(track.Momentum_end()*track.EndDir()[2]);
-            rec.trk.EndQ.push_back(track.ChargeEnd());
+            srtrk.end = caf::SRVector3D(track.End()[0],
+                                        track.End()[1],
+                                        track.End()[2]);
+            srtrk.endp = caf::SRVector3D(track.Momentum_end()*track.EndDir()[0],
+                                         track.Momentum_end()*track.EndDir()[1],
+                                         track.Momentum_end()*track.EndDir()[2]);
+            srtrk.endq = track.ChargeEnd();
 
-            rec.trk.LenF.push_back(track.LengthForward());
-            rec.trk.LenB.push_back(track.LengthBackward());
-            rec.trk.Chi2F.push_back(track.ChisqForward());
-            rec.trk.Chi2B.push_back(track.ChisqBackward());
-            rec.trk.NTPCClustersOnTrack.push_back(track.NHits());
+            srtrk.fwd.len = track.LengthForward();
+            srtrk.bak.len = track.LengthBackward();
+            srtrk.fwd.chi2 = track.ChisqForward();
+            srtrk.bak.chi2 = track.ChisqBackward();
+            srtrk.NTPCClustersOnTrack = track.NHits();
 
             //Add the PID information based on Tom's parametrization
             TVector3 momF(track.Momentum_beg()*track.VtxDir()[0], track.Momentum_beg()*track.VtxDir()[1], track.Momentum_beg()*track.VtxDir()[2]);
@@ -1033,26 +1035,30 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
 
             //Fill the pid and its probability
             for(size_t ipid = 0; ipid < pidF.size(); ipid++) {
-                rec.trk.PIDF.push_back( pidF.at(ipid).first );
-                rec.trk.PIDProbF.push_back( pidF.at(ipid).second );
+                caf::SRTrackPID srpid;
+                srpid.id = pidF.at(ipid).first;
+                srpid.prob = pidF.at(ipid).second;
+                srtrk.fwd.pid.push_back(srpid);
             }
             for(size_t ipid = 0; ipid < pidB.size(); ipid++) {
-                rec.trk.PIDB.push_back( pidB.at(ipid).first );
-                rec.trk.PIDProbB.push_back( pidB.at(ipid).second );
+                caf::SRTrackPID srpid;
+                srpid.id = pidB.at(ipid).first;
+                srpid.prob = pidB.at(ipid).second;
+                srtrk.bak.pid.push_back(srpid);
             }
 
             // Matching MCParticle info
             std::vector<std::pair<simb::MCParticle*,float>> trakt;
             trakt = BackTrack->TrackToMCParticles( const_cast<rec::Track*>(&track) );
-            int eileen = -1;
+            srtrk.mcidx = -1;
             if (trakt.size()>0 && TrackIdToIndex.size()!=0) {
-                eileen = TrackIdToIndex[trakt[0].first->TrackId()];
+                srtrk.mcidx = TrackIdToIndex[trakt[0].first->TrackId()];
             }
-            rec.trk.MCindex.push_back(eileen);
-            if (eileen > -1) {
-            	rec.trk.MCfrac.push_back(trakt[0].second);
+
+            if (srtrk.mcidx > -1) {
+                srtrk.mcfrac = trakt[0].second;
             } else {
-            	rec.trk.MCfrac.push_back(0.0);
+                srtrk.mcfrac = 0;
             }
 
             if (findIonization->isValid()) {
@@ -1060,36 +1066,38 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
                 rec::TrackIoniz ionization = *(findIonization->at(iTrack));
                 float avgIonF, avgIonB;
                 processIonizationInfo(ionization, fIonizTruncate, avgIonF, avgIonB);
-                rec.trk.AvgIonF.push_back( avgIonF );
-                rec.trk.AvgIonB.push_back( avgIonB );
+                srtrk.fwd.avgion = avgIonF;
+                srtrk.bak.avgion = avgIonB;
             } else {
-                // must push_back something so that rec.trk.AvgIonF,B are of correct size.
-                rec.trk.AvgIonF.push_back( 0.0 );
-                rec.trk.AvgIonB.push_back( 0.0 );
+                srtrk.fwd.avgion = 0;
+                srtrk.bak.avgion = 0;
             }
             iTrack++;
+
+            rec.trk.push_back(srtrk);
         } // end loop over TrackHandle
-    }
+    }       
+
+    rec.ntrk = rec.trk.size();
 
     //TrackTrajectories
     if(fWriteTrackTrajectories) {
         size_t iTrackTraj = 0;
         for ( auto const& tracktraj : (*TrackTrajHandle) ) {
-            
+            caf::SRTrack& srtrk = rec.trk[iTrackTraj];
+
             std::vector<TVector3> temp = tracktraj.getFWDTrajectory();
             for(size_t i = 0; i < temp.size(); i++) {
-                rec.trk.TrajectoryFWDX.push_back(temp.at(i).X());
-                rec.trk.TrajectoryFWDY.push_back(temp.at(i).Y());
-                rec.trk.TrajectoryFWDZ.push_back(temp.at(i).Z());
-                rec.trk.TrajectoryFWDID.push_back(iTrackTraj);
+                srtrk.fwd.traj.emplace_back(temp.at(i).X(),
+                                            temp.at(i).Y(),
+                                            temp.at(i).Z());
             }
 
             temp = tracktraj.getBAKTrajectory();
             for(size_t i = 0; i < temp.size(); i++) {
-                rec.trk.TrajectoryBWDX.push_back(temp.at(i).X());
-                rec.trk.TrajectoryBWDY.push_back(temp.at(i).Y());
-                rec.trk.TrajectoryBWDZ.push_back(temp.at(i).Z());
-                rec.trk.TrajectoryBWDID.push_back(iTrackTraj);
+                srtrk.bak.traj.emplace_back(temp.at(i).X(),
+                                            temp.at(i).Y(),
+                                            temp.at(i).Z());
             }
             iTrackTraj++;
         }

@@ -7,6 +7,7 @@ namespace caf
   {
   public:
     SRVector3D();
+    SRVector3D(float x, float y, float z);
 
     float x, y, z;
   };
