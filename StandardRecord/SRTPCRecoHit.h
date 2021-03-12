@@ -10,12 +10,10 @@ namespace caf
   public:
     SRTPCRecoHit();
 
-    std::vector<float>            x;
-    std::vector<float>            y;
-    std::vector<float>            z;
-    std::vector<float>            sig;
-    std::vector<float>            rms;
-    std::vector<unsigned int>     chan;
+    float x, y, z;
+    float sig;
+    float rms;
+    unsigned int chan;
   };
 }
 

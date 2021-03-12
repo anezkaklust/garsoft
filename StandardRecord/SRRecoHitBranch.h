@@ -13,9 +13,16 @@ namespace caf
   public:
     SRRecoHitBranch();
 
-    SRTPCRecoHit tpc;
-    SRRecoHit ecal;
-    SRRecoHit muid;
+    unsigned int ntpc;
+    std::vector<SRTPCRecoHit> tpc;
+
+    unsigned int necal;
+    float ecaltotE;
+    std::vector<SRRecoHit> ecal;
+
+    unsigned int nmuid;
+    float muidtotE;
+    std::vector<SRRecoHit> muid;
   };
 }
 

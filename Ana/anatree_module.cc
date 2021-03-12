@@ -802,13 +802,16 @@ void gar::anatree::FillRecoInfo(art::Event const & e, caf::StandardRecord& rec) 
 
         // save hits in the TPC
         for ( auto const& Hit : (*HitHandle) ) {
-            rec.hit.tpc.x.push_back(Hit.Position()[0]);
-            rec.hit.tpc.y.push_back(Hit.Position()[1]);
-            rec.hit.tpc.z.push_back(Hit.Position()[2]);
-            rec.hit.tpc.sig.push_back(Hit.Signal());
-            rec.hit.tpc.rms.push_back(Hit.RMS());
-            rec.hit.tpc.chan.push_back(Hit.Channel());
+            caf::SRTPCRecoHit srhit;
+            srhit.x = Hit.Position()[0];
+            srhit.y = Hit.Position()[1];
+            srhit.z = Hit.Position()[2];
+            srhit.sig = Hit.Signal();
+            srhit.rms = Hit.RMS();
+            srhit.chan = Hit.Channel();
+            rec.hit.tpc.push_back(srhit);
         }
+        rec.hit.ntpc = rec.hit.tpc.size();
     }
 
     // Get handle for CaloHits
@@ -830,29 +833,35 @@ void gar::anatree::FillRecoInfo(art::Event const & e, caf::StandardRecord& rec) 
 
         // save reco'd Calorimetry hits
         for ( auto const& Hit : (*RecoHitHandle) ) {
-            rec.hit.ecal.nhits++;
-            rec.hit.ecal.id.push_back(Hit.getIDNumber());
-            rec.hit.ecal.x.push_back(Hit.Position()[0]);
-            rec.hit.ecal.y.push_back(Hit.Position()[1]);
-            rec.hit.ecal.z.push_back(Hit.Position()[2]);
-            rec.hit.ecal.t.push_back(Hit.Time().first);
-            rec.hit.ecal.E.push_back(Hit.Energy());
-            rec.hit.ecal.cellid.push_back(Hit.CellID());
-            rec.hit.ecal.totE += Hit.Energy();
+          caf::SRRecoHit srhit;
+          srhit.id = Hit.getIDNumber();
+          srhit.x = Hit.Position()[0];
+          srhit.y = Hit.Position()[1];
+          srhit.z = Hit.Position()[2];
+          srhit.t = Hit.Time().first;
+          srhit.E = Hit.Energy();
+          srhit.cellid = Hit.CellID();
+          rec.hit.ecal.push_back(srhit);
+
+          rec.hit.ecaltotE += srhit.E;
         }
+        rec.hit.necal = rec.hit.ecal.size();
 
         if(fGeo->HasMuonDetector()) {
             for ( auto const& Hit : (*MuIDRecoHitHandle) ) {
-                rec.hit.muid.nhits++;
-                rec.hit.muid.id.push_back(Hit.getIDNumber());
-                rec.hit.muid.x.push_back(Hit.Position()[0]);
-                rec.hit.muid.y.push_back(Hit.Position()[1]);
-                rec.hit.muid.z.push_back(Hit.Position()[2]);
-                rec.hit.muid.t.push_back(Hit.Time().first);
-                rec.hit.muid.E.push_back(Hit.Energy());
-                rec.hit.muid.cellid.push_back(Hit.CellID());
-                rec.hit.muid.totE += Hit.Energy();
+                caf::SRRecoHit srhit;
+                srhit.id = Hit.getIDNumber();
+                srhit.x = Hit.Position()[0];
+                srhit.y = Hit.Position()[1];
+                srhit.z = Hit.Position()[2];
+                srhit.t = Hit.Time().first;
+                srhit.E = Hit.Energy();
+                srhit.cellid = Hit.CellID();
+                rec.hit.muid.push_back(srhit);
+
+                rec.hit.muidtotE += srhit.E;
             }
+            rec.hit.nmuid = rec.hit.muid.size();
         }
     }
 }

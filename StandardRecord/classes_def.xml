@@ -16,6 +16,9 @@
   <class name="caf::SRVector3D"/>
   <class name="caf::SRCovMx"/>
 
+  <class name="std::vector<caf::SRTPCRecoHit>"/>
+  <class name="std::vector<caf::SRRecoHit>"/>
+
   <class name="std::vector<caf::SRVector3D>"/>
   <class name="std::vector<caf::SRCovMx>"/>
 </lcgdict>
