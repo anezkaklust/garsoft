@@ -3,6 +3,8 @@
 
 #include "garsoft/StandardRecord/SRDigit.h"
 
+#include <vector>
+
 namespace caf
 {
   class SRDigitBranch
@@ -10,8 +12,11 @@ namespace caf
   public:
     SRDigitBranch();
 
-    SRDigit ecal;
-    SRDigit muid;
+    unsigned int necal;
+    std::vector<SRDigit> ecal;
+
+    unsigned int nmuid;
+    std::vector<SRDigit> muid;
   };
 }
 

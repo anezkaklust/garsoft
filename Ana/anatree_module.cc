@@ -762,26 +762,30 @@ void gar::anatree::FillRawInfo(art::Event const & e, caf::StandardRecord& rec) {
 
     // save ecal raw digits info
     for ( auto const& DigiHit : (*RawHitHandle) ) {
-        rec.dig.ecal.nhits++;
-        rec.dig.ecal.x.push_back(DigiHit.X());
-        rec.dig.ecal.y.push_back(DigiHit.Y());
-        rec.dig.ecal.z.push_back(DigiHit.Z());
-        rec.dig.ecal.t.push_back( (DigiHit.Time().first + DigiHit.Time().second) / 2.0 );
-        rec.dig.ecal.adc.push_back(DigiHit.ADC().first);
-        rec.dig.ecal.cellid.push_back(DigiHit.CellID());
+        caf::SRDigit srdig;
+        srdig.x = DigiHit.X();
+        srdig.y = DigiHit.Y();
+        srdig.z = DigiHit.Z();
+        srdig.t = (DigiHit.Time().first + DigiHit.Time().second) / 2.0 ;
+        srdig.adc = DigiHit.ADC().first;
+        srdig.cellid = DigiHit.CellID();
+
+        rec.dig.ecal.push_back(srdig);
     }
+    rec.dig.necal = rec.dig.ecal.size();
 
     // save muon system raw digits info
     if(fGeo->HasMuonDetector()) {
         for ( auto const& DigiHit : (*MuIDRawHitHandle) ) {
-            rec.dig.muid.nhits++;
-            rec.dig.muid.x.push_back(DigiHit.X());
-            rec.dig.muid.y.push_back(DigiHit.Y());
-            rec.dig.muid.z.push_back(DigiHit.Z());
-            rec.dig.muid.t.push_back( (DigiHit.Time().first + DigiHit.Time().second) / 2.0 );
-            rec.dig.muid.adc.push_back(DigiHit.ADC().first);
-            rec.dig.muid.cellid.push_back(DigiHit.CellID());
+            caf::SRDigit srdig;
+            srdig.x = DigiHit.X();
+            srdig.y = DigiHit.Y();
+            srdig.z = DigiHit.Z();
+            srdig.t = (DigiHit.Time().first + DigiHit.Time().second) / 2.0 ;
+            srdig.adc = DigiHit.ADC().first;
+            srdig.cellid = DigiHit.CellID();
         }
+        rec.dig.nmuid = rec.dig.muid.size();
     }
 }
 

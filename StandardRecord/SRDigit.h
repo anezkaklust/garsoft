@@ -1,7 +1,7 @@
 #ifndef CAFSRDIGIT_H
 #define CAFSRDIGIT_H
 
-#include <vector>
+#include <cstddef>
 
 namespace caf
 {
@@ -10,13 +10,10 @@ namespace caf
   public:
     SRDigit();
 
-    unsigned int                  nhits;
-    std::vector<float>            x;
-    std::vector<float>            y;
-    std::vector<float>            z;
-    std::vector<float>            t;
-    std::vector<unsigned int>     adc;
-    std::vector<size_t>           cellid;
+    float x, y, z;
+    float t;
+    unsigned int adc;
+    size_t cellid;
   };
 }
 
