@@ -3,6 +3,7 @@
 namespace caf
 {
   SRClusterBranch::SRClusterBranch()
+    : ntpc(0)
   {
   }
 }

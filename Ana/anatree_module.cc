@@ -950,21 +950,19 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
     // to FindManyP<TPCCluster> instead and  iterate if (fWriteTracks).  :(
     if (fWriteTPCClusters) {
         for ( auto const& TPCCluster : (*TPCClusterHandle) ) {
-            rec.clust.tpc.x.push_back(TPCCluster.Position()[0]);
-            rec.clust.tpc.y.push_back(TPCCluster.Position()[1]);
-            rec.clust.tpc.z.push_back(TPCCluster.Position()[2]);
-            rec.clust.tpc.sig.push_back(TPCCluster.Signal());
-            rec.clust.tpc.rms.push_back(TPCCluster.RMS());
-            const float* cov;
-            cov = TPCCluster.CovMatPacked();
-            caf::SRCovMx srcov;
-            srcov.xx = cov[0];
-            srcov.xy = cov[1];
-            srcov.xz = cov[2];
-            srcov.yy = cov[3];
-            srcov.yz = cov[4];
-            srcov.zz = cov[5];
-            rec.clust.tpc.cov.push_back(srcov);
+            caf::SRTPCCluster srclust;
+            srclust.x = TPCCluster.Position()[0];
+            srclust.y = TPCCluster.Position()[1];
+            srclust.z = TPCCluster.Position()[2];
+            srclust.sig = TPCCluster.Signal();
+            srclust.rms = TPCCluster.RMS();
+            const float* cov = TPCCluster.CovMatPacked();
+            srclust.cov.xx = cov[0];
+            srclust.cov.xy = cov[1];
+            srclust.cov.xz = cov[2];
+            srclust.cov.yy = cov[3];
+            srclust.cov.yz = cov[4];
+            srclust.cov.zz = cov[5];
 
             Int_t trackForThisTPCluster = -1;
             if (fWriteTracks) {
@@ -983,8 +981,11 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
                 }
             }
             pushit:
-                rec.clust.tpc.trkid.push_back(trackForThisTPCluster);
+                srclust.trkid = trackForThisTPCluster;
+
+            rec.clust.tpc.push_back(srclust);
         }
+        rec.clust.ntpc = rec.clust.tpc.size();
     }
 
     // save per-track info

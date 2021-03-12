@@ -3,7 +3,7 @@
 
 #include "garsoft/StandardRecord/SRCovMx.h"
 
-#include <vector>
+#include <cstddef>
 
 namespace caf
 {
@@ -12,13 +12,11 @@ namespace caf
   public:
     SRTPCCluster();
 
-    std::vector<float>            x;
-    std::vector<float>            y;
-    std::vector<float>            z;
-    std::vector<float>            sig;
-    std::vector<float>            rms;
-    std::vector<size_t>           trkid;
-    std::vector<SRCovMx>          cov;
+    float   x, y, z;
+    float   sig;
+    float   rms;
+    size_t  trkid;
+    SRCovMx cov;
   };
 }
 

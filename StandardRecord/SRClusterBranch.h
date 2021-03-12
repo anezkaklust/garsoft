@@ -13,7 +13,9 @@ namespace caf
   public:
     SRClusterBranch();
 
-    SRTPCCluster tpc;
+    unsigned int ntpc;
+    std::vector<SRTPCCluster> tpc;
+
     SRECalCluster ecal;
   };
 }
