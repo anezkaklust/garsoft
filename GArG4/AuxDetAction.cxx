@@ -32,7 +32,7 @@
 #include "GArG4/ParticleListAction.h"
 
 #include "Geometry/GeometryCore.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "CoreUtils/ServiceUtil.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "cetlib_except/exception.h"
@@ -47,7 +47,7 @@ namespace gar {
         AuxDetAction::AuxDetAction(CLHEP::HepRandomEngine*    engine,
         fhicl::ParameterSet const& pset)
         {
-            fGeo = gar::providerFrom<geo::Geometry>();
+            fGeo = gar::providerFrom<geo::GeometryGAr>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
 
             this->reconfigure(pset);
@@ -71,9 +71,9 @@ namespace gar {
             fMuIDMaterial = pset.get<std::string>("MuIDMaterial", "Scintillator");
             fApplyBirksLaw = pset.get<bool>("ApplyBirksLaw", true);
 
-            std::cout << "AuxDetAction: Name of the Volumes to track for the LArTPC" << std::endl;
-            for(unsigned int i = 0; i < fLArVolumeName.size(); i++) std::cout << fLArVolumeName.at(i) << " ";
-            std::cout << std::endl;
+            // std::cout << "AuxDetAction: Name of the Volumes to track for the LArTPC" << std::endl;
+            // for(unsigned int i = 0; i < fLArVolumeName.size(); i++) std::cout << fLArVolumeName.at(i) << " ";
+            // std::cout << std::endl;
 
             return;
         }

@@ -790,6 +790,61 @@
     <upstreamz> -400.0 </upstreamz>
   </param_set>
 
+  <!--
+  ****************************************************************************
+  **   DUNE section
+  ****************************************************************************
+  -->
+
+  <param_set name="DUNE_ND_HALL">
+    <!-- setting user units should be first -->
+    <units> m </units>
+
+    <!-- beamdir must come before beam zero position -->
+    <!-- rotation matrix created by sequence of rotations -->
+    <beamdir type="series">
+       <rotation axis="x" units="rad"> -0.101 </rotation>
+    </beamdir>
+
+
+    <!-- position in ( user coords ) = ( beam coords ) -->
+    <!-- XML config must have already set the rotation matrix -->
+    <beampos> ( 0.0, 0.0, 0.0 ) = ( 0, 0, 574.00 ) </beampos>
+
+    <!-- define flux window in detector coords -->
+    <!-- need 3 positions to define a rectoid -->
+    <!-- first point is the base, 2nd & 3rd should be orthogonal points
+         (ie 2nd 3rd point should not be kitty-corner from 1st) -->
+    <!-- not yet support beam coords,
+         but if/when must have already specified transform -->
+    <!-- this window is square to the beam but at angle in user coords -->
+    <window>
+      <point coord="det"> 6.0, -6.0, 2.5 </point>
+      <point coord="det"> 6.0,  5.7, 2.5 </point>
+      <point coord="det"> -6.0, -6.0, 2.5 </point>
+    </window>
+
+    <enumax> 120. 1.05 1.05 2500000 </enumax>
+
+    <!-- allow entry to be reused 50 times according to R. Hatcher -->
+    <reuse> 50 </reuse>
+
+    <!-- put neutrino on the flux window -->
+    <minmaxwgt> 0.95 </minmaxwgt>
+    <maxwgtfail> frozen </maxwgtfail>
+
+   </param_set>
+
+  <param_set name="DUNE_ND_NEAR_ROCK">
+    <using_param_set> DUNE_ND_HALL </using_param_set>
+    <window>
+      <point coord="det"> 10.0, -11.6, -5.5 </point>
+      <point coord="det"> 10.0,  22.0, -5.5 </point>
+      <point coord="det"> -15.0, -11.6, -5.5 </point>
+    </window>
+    <upstreamz> 1.0e31 </upstreamz>
+  </param_set>
+
 <!--
   ****************************************************************************
   **   Other detectors

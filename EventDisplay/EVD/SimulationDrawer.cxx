@@ -20,7 +20,7 @@
 #include "nuevdb/EventDisplayBase/View2D.h"
 #include "nuevdb/EventDisplayBase/View3D.h"
 #include "CoreUtils/ServiceUtil.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "EventDisplay/EVD/Style.h"
@@ -28,7 +28,6 @@
 #include "EventDisplay/EVD/RawDrawingOptions.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "DetectorInfo/DetectorProperties.h"
-#include "DetectorInfo/DetectorClocksService.h"
 
 #include "art/Framework/Services/Registry/ServiceHandle.h"
 #include "art/Framework/Principal/View.h"
@@ -51,7 +50,7 @@ namespace gar {
 
     SimulationDrawer::SimulationDrawer()
     {
-      art::ServiceHandle<geo::Geometry> geom;
+      art::ServiceHandle<geo::GeometryGAr> geom;
       minx =  1e9;
       maxx = -1e9;
       miny =  1e9;
@@ -182,7 +181,7 @@ namespace gar {
 
       art::ServiceHandle<evd::SimulationDrawingOptions> drawopt;
 
-      art::ServiceHandle<geo::Geometry> geo;
+      art::ServiceHandle<geo::GeometryGAr> geo;
       double xcent = geo->TPCXCent();
       double ycent = geo->TPCYCent();
       double zcent = geo->TPCZCent();

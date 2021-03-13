@@ -16,7 +16,7 @@
 #include "SimulationDataProducts/sim.h"
 #include "CoreUtils/ServiceUtil.h"
 #include "MCCheater/BackTrackerCore.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 #include "TMath.h"
 
@@ -29,8 +29,8 @@ namespace gar{
         BackTrackerCore::BackTrackerCore(fhicl::ParameterSet const& pset)
           : fClocks(nullptr), fGeo(nullptr) {
 
-            fClocks = gar::providerFrom<detinfo::DetectorClocksService>();
-            fGeo    = gar::providerFrom<geo::Geometry>();
+            fClocks = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
+            fGeo    = gar::providerFrom<geo::GeometryGAr>();
 
             fDisableRebuild       = pset.get<bool       >("DisableRebuild",           false);
 

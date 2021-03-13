@@ -1,5 +1,5 @@
 #include "art/Framework/Principal/Handle.h"
-#include "nug4/MagneticField/MagneticField.h"
+#include "nug4/MagneticFieldServices/MagneticFieldService.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 #include "canvas/Persistency/Common/FindOneP.h"
@@ -25,8 +25,8 @@ namespace gar {
         m_pandora(*pPandora),
         m_rotation(*pRotation)
         {
-            fGeo = gar::providerFrom<geo::Geometry>();
-            art::ServiceHandle<mag::MagneticField> magFieldService;
+            fGeo = gar::providerFrom<geo::GeometryGAr>();
+            auto const *magFieldService = gar::providerFrom<mag::MagneticFieldService>();
             G4ThreeVector zerovec(0, 0, 0);
             G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
             m_bField = magfield[0]; //x component at (0, 0, 0)

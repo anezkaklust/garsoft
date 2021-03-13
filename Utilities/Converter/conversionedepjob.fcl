@@ -4,7 +4,7 @@
 #include "DetectorProperties.fcl"
 #include "GArProperties.fcl"
 #include "ECALProperties.fcl"
-#include "Geometry_CDR.fcl"
+#include "Geometry.fcl"
 
 process_name: ConvertEdep2ArtProc
 
@@ -13,7 +13,8 @@ services:
 # Load the service that manages root files for histograms.
 TFileService:           { fileName: "convert_hist.root" }
 TimeTracker:            {}
-Geometry:               @local::standard_geo
+ #See Geometry.fcl for the list of geometries available
+ GeometryGAr:           @local::nd_hall_mpd_only_SPYv2_geo
 ExptGeoHelperInterface: @local::standard_geometry_helper
 DetectorClocks:         @local::standard_clocks
 DetectorProperties:     @local::standard_detproperties

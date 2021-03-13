@@ -14,7 +14,7 @@
 #include "DetectorInfo/DetectorPropertiesStandard.h"
 #include "CoreUtils/ProviderUtil.h" // gar::IgnorableProviderConfigKeys()
 #include "CoreUtils/DebugUtils.h"   // gar::IgnorableProviderConfigKeys()
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

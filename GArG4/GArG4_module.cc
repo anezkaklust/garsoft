@@ -67,7 +67,7 @@
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "SimulationDataProducts/CaloDeposit.h"
 #include "SimulationDataProducts/LArDeposit.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "CoreUtils/ServiceUtil.h"
 
 // G4 Includes
@@ -323,12 +323,12 @@ namespace gar {
         //----------------------------------------------------------------------
         void GArG4::beginJob()
         {
-            auto geo = gar::providerFrom<geo::Geometry>();
+            auto geo = gar::providerFrom<geo::GeometryGAr>();
             //auto* rng = &*(::art::ServiceHandle<::art::RandomNumberGenerator>());
 
             fG4Help = new g4b::G4Helper(fG4MacroPath, fG4PhysListName);
             if(fCheckOverlaps) fG4Help->SetOverlapCheck(true);
-            fG4Help->ConstructDetector(geo->GDMLFile());
+            fG4Help->ConstructDetector(geo->GDMLFile()); //TO DO!!! This create a problem when we want to use a custom magnetic field!!! (it calls under the service mag::Magnetic field)
 
             G4LogicalVolumeStore *store = G4LogicalVolumeStore::GetInstance();
             if(store == nullptr) {
@@ -375,6 +375,8 @@ namespace gar {
             // UserActionManager is now configured so continue G4 initialization
             fG4Help->SetUserAction();
 
+            MF_LOG_INFO("GArG4") << "BeginJob() -- end ";
+
             return;
         }
 
@@ -396,7 +398,7 @@ namespace gar {
             // if we don't have favourite volumes, don't even bother creating a filter
             if (vol_names.empty()) return {};
 
-            auto geom = providerFrom<geo::Geometry>();
+            auto geom = providerFrom<geo::GeometryGAr>();
 
             std::vector<std::vector<TGeoNode const*>> node_paths = geom->FindAllVolumePaths(vol_names);
 

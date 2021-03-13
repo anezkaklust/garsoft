@@ -36,7 +36,7 @@
 #include "ReconstructionDataProducts/Shower.h"
 #include "ReconstructionDataProducts/Cluster.h"
 #include "ReconstructionDataProducts/CaloHit.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "Utilities/AssociationUtil.h"
 
@@ -203,7 +203,7 @@ namespace gar {
 				      int marker,
 				      int size )
     {
-      art::ServiceHandle<geo::Geometry> geo;
+      art::ServiceHandle<geo::GeometryGAr> geo;
       double xcent = geo->TPCXCent();
       double ycent = geo->TPCYCent();
       double zcent = geo->TPCZCent();
@@ -222,7 +222,7 @@ namespace gar {
 				     int color,
 				     int width)
     {
-      art::ServiceHandle<geo::Geometry> geo;
+      art::ServiceHandle<geo::GeometryGAr> geo;
       double xcent = geo->TPCXCent();
       double ycent = geo->TPCYCent();
       double zcent = geo->TPCZCent();
@@ -268,7 +268,7 @@ namespace gar {
 				     int                 color,
 				     float lengthscale)
     {
-      art::ServiceHandle<geo::Geometry> geo;
+      art::ServiceHandle<geo::GeometryGAr> geo;
       double xcent = geo->TPCXCent();
       double ycent = geo->TPCYCent();
       double zcent = geo->TPCZCent();
@@ -327,7 +327,7 @@ namespace gar {
     {
       //auto const* detp = gar::providerFrom<detinfo::DetectorPropertiesService>();
 
-      art::ServiceHandle<geo::Geometry> geo;
+      art::ServiceHandle<geo::GeometryGAr> geo;
       double xcent = geo->TPCXCent();
       double ycent = geo->TPCYCent();
       double zcent = geo->TPCZCent();
@@ -368,7 +368,7 @@ namespace gar {
     {
       //auto const* detp = gar::providerFrom<detinfo::DetectorPropertiesService>();
 
-      art::ServiceHandle<geo::Geometry> geo;
+      art::ServiceHandle<geo::GeometryGAr> geo;
       double xcent = geo->TPCXCent();
       double ycent = geo->TPCYCent();
       double zcent = geo->TPCZCent();
@@ -409,7 +409,7 @@ namespace gar {
     {
       //auto const* detp = gar::providerFrom<detinfo::DetectorPropertiesService>();
 
-      art::ServiceHandle<geo::Geometry> geo;
+      art::ServiceHandle<geo::GeometryGAr> geo;
       double xcent = geo->TPCXCent();
       double ycent = geo->TPCYCent();
       double zcent = geo->TPCZCent();
@@ -439,7 +439,7 @@ namespace gar {
     {
       //auto const* detp = gar::providerFrom<detinfo::DetectorPropertiesService>();
 
-      art::ServiceHandle<geo::Geometry> geo;
+      art::ServiceHandle<geo::GeometryGAr> geo;
       double xcent = geo->TPCXCent();
       double ycent = geo->TPCYCent();
       double zcent = geo->TPCZCent();
@@ -511,7 +511,7 @@ namespace gar {
 				       kYellow+2, kYellow+1, kYellow,
 				       kWhite };
 
-      art::ServiceHandle<geo::Geometry> geo;
+      art::ServiceHandle<geo::GeometryGAr> geo;
       double xcent = geo->TPCXCent();
       double ycent = geo->TPCYCent();
       double zcent = geo->TPCZCent();

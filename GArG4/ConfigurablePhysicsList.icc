@@ -65,6 +65,7 @@ namespace garg4 {
 //   G4DataQuestionaire it(photon);
 //#endif
 	
+	
    EnabledPhysics = gar::garg4::G4SimulationParameters::Instance()->EnabledPhysics();
 	
    if(EnabledPhysics.size() > 0){		

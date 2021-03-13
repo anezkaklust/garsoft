@@ -15,7 +15,7 @@
 
 
 # use cmake 2.8 or later
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.12...3.18 FATAL_ERROR)
 
 project(garsoft)
 
@@ -25,24 +25,24 @@ IF (NOT CETBUILDTOOLS_VERSION)
     MESSAGE (FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules")
 ENDIF()
 
-set(CMAKE_MODULE_PATH $ENV{CANVAS_DIR}/Modules
-                      $ENV{ART_DIR}/Modules
-		                  $ENV{CETBUILDTOOLS_DIR}/Modules
-		                  ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH $ENV{CANVAS_ROOT_IO_DIR}/Modules
+		      $ENV{CETBUILDTOOLS_DIR}/Modules
+		      ${CMAKE_MODULE_PATH})
 
 include(CetCMakeEnv)
 cet_cmake_env()
 
 # -D_GLIBCXX_USE_NANOSLEEP is needed to make std::this_thread::sleep_for available.
-cet_set_compiler_flags(DIAGS CAUTIOUS WERROR
+cet_set_compiler_flags(DIAGS CAUTIOUS 
+                       WERROR
                        NO_UNDEFINED
-                       EXTRA_FLAGS -pedantic
-                       EXTRA_CXX_FLAGS -D_GLIBCXX_USE_NANOSLEEP ${ARTDFLAG}
-                                       -Wno-unused-local-typedefs -Wno-variadic-macros)
+                       EXTRA_FLAGS -pedantic -Wno-unused-local-typedefs
+                       EXTRA_CXX_FLAGS -D_GLIBCXX_USE_NANOSLEEP ${ARTDFLAG} -Wno-variadic-macros)
 cet_report_compiler_flags()
 
 # these are minimum required versions, not the actual product versions
 find_ups_product( art            )
+find_ups_product( art_root_io    )
 find_ups_product( canvas         )
 find_ups_product( messagefacility)
 find_ups_product( genie          )

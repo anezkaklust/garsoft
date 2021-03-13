@@ -4,7 +4,7 @@
 # Version: 1.0
 #
 
-#include "Geometry_CDR.fcl"
+#include "Geometry.fcl"
 #include "DetectorProperties.fcl"
 #include "GArProperties.fcl"
 #include "ECALProperties.fcl"
@@ -34,7 +34,8 @@ custom_evd:                @local::standard_evd
 
 custom_disp:
 {
-  Geometry:                  @local::standard_geo             # from Geometry.fcl
+  #See Geometry.fcl for the list of geometries available
+  GeometryGAr:               @local::nd_hall_mpd_only_SPYv2_geo
   ExptGeoHelperInterface:    @local::standard_geometry_helper # from Geometry.fcl
   DetectorPropertiesService: @local::standard_detproperties   # from DetectorProperties.fcl
   GArProperties:             @local::standard_garproperties   # from GArProperties.fcl

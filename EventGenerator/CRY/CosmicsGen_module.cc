@@ -35,7 +35,7 @@
 #include "nurandom/RandomUtils/NuRandomService.h"
 
 // garsoft includes
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "SummaryDataProducts/RunData.h"
 #include "CoreUtils/ServiceUtil.h"
 
@@ -127,7 +127,7 @@ namespace gar{
 
       CLHEP::HepRandomEngine &engine = art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,p,"Seed");
 
-      auto geo = gar::providerFrom<gar::geo::Geometry>();
+      auto geo = gar::providerFrom<gar::geo::GeometryGAr>();
 
       fCRYHelp = new evgb::CRYHelper(p, engine, geo->GetWorldVolumeName());
 
@@ -172,7 +172,7 @@ namespace gar{
     void CosmicsGen::beginRun(::art::Run& run)
     {
       // grab the geometry object to see what geometry we are using
-      auto geo = gar::providerFrom<geo::Geometry>();
+      auto geo = gar::providerFrom<geo::GeometryGAr>();
 
       std::unique_ptr<gar::sumdata::RunData> runcol(new gar::sumdata::RunData(geo->DetectorName()));
 
@@ -187,7 +187,7 @@ namespace gar{
       std::unique_ptr< std::vector<simb::MCTruth> > truthcol(new std::vector<simb::MCTruth>);
 
       // fill some histograms about this event
-      auto geom = gar::providerFrom<geo::Geometry>();
+      auto geom = gar::providerFrom<geo::GeometryGAr>();
 
       // int nCrossCryostat = 0;   // no cryostat here.
 

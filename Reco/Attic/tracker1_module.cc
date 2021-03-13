@@ -39,7 +39,7 @@
 #include "ReconstructionDataProducts/Hit.h"
 #include "ReconstructionDataProducts/Track.h"
 #include "Reco/TrackPar.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 namespace gar {
   namespace rec {
@@ -223,7 +223,7 @@ namespace gar {
       G4ThreeVector zerovec(0,0,0);
       G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 
-      art::ServiceHandle<geo::Geometry> geo;
+      art::ServiceHandle<geo::GeometryGAr> geo;
       double xtpccent = geo->TPCXCent();
       double ytpccent = geo->TPCYCent();
       double ztpccent = geo->TPCZCent();

@@ -2,19 +2,21 @@
 
 #include "Helpers/XmlHelper.h"
 
+#include "CoreUtils/ServiceUtil.h"
+
 namespace gar {
     namespace gar_pandora {
 
-        BFieldPlugin::BFieldPlugin(art::ServiceHandle<mag::MagneticField> &magFieldService) :
-        fieldService(magFieldService)
+        BFieldPlugin::BFieldPlugin()
         {
-            /* nop */
+            /* no op */
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
         float BFieldPlugin::GetBField(const pandora::CartesianVector &positionVector) const
         {
+            auto const *fieldService = gar::providerFrom<mag::MagneticFieldService>();
             G4ThreeVector PosVec(positionVector.GetX(), positionVector.GetY(), positionVector.GetZ());
             G4ThreeVector magfield = fieldService->FieldAtPoint(PosVec);
             return magfield[0];

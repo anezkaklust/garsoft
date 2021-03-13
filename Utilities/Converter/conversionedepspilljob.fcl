@@ -13,7 +13,8 @@ services:
 # Load the service that manages root files for histograms.
 TFileService:           { fileName: "convert_hist.root" }
 TimeTracker:            {}
-Geometry:               @local::standard_geo
+ #See Geometry.fcl for the list of geometries available
+ GeometryGAr:           @local::nd_hall_mpd_only_SPYv2_geo
 ExptGeoHelperInterface: @local::standard_geometry_helper
 DetectorClocks:         @local::standard_clocks
 DetectorProperties:     @local::standard_detproperties
@@ -62,5 +63,4 @@ SelectEvents: [ simulate ]
 
 physics.producers.edepconvert.EDepSimFile: ""
 physics.producers.edepconvert.GhepFile: ""
-
-services.Geometry.GDML: "nd_hall_mpd_only/nd_hall_mpd_only_ECalOctagon_60l_UniformMagnet.gdml"
+physics.producers.edepconvert.OverlayFile: true

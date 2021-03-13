@@ -20,15 +20,15 @@ cet_make( LIBRARIES
                        art_Persistency_Common
                        art_Persistency_Provenance
                        art_Utilities
-	                     canvas
-	                     nug4_MagneticField_MagneticField_service
+	                    canvas
                        ${MF_MESSAGELOGGER}
                        ${FHICLCPP}
                        ${CETLIB_EXCEPT}
                        ${ROOT_BASIC_LIB_LIST}
                        ${CLHEP}
                        ${Boost_SYSTEM_LIBRARY}
-		                   ${GSLLIBS}
+		                ${GSLLIBS}
+                        nug4_MagneticFieldServices_MagneticFieldServiceStandard_service
                        NO_DICTIONARY )
 
 # Simulation base is included in making the dictionary for associations
@@ -36,6 +36,7 @@ cet_make( LIBRARIES
 
 art_dictionary( DICTIONARY_LIBRARIES ReconstructionDataProducts
                                      RawDataProducts
+                                     nug4_MagneticFieldServices_MagneticFieldServiceStandard_service
                                      nusimdata_SimulationBase)
 
 install_headers()

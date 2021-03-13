@@ -11,7 +11,7 @@ art_make(BASENAME_ONLY
                        MCCheater_BackTracker_service
                        nusimdata_SimulationBase
                        nurandom_RandomUtils_NuRandomService_service
-                       nug4_MagneticField_MagneticField_service
+                       nug4_MagneticFieldServices_MagneticFieldServiceStandard_service
                        ${ART_FRAMEWORK_CORE}
                        ${ART_FRAMEWORK_IO_SOURCES}
                        ${ART_FRAMEWORK_PRINCIPAL}

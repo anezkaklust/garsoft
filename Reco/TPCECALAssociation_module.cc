@@ -17,8 +17,8 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "Geometry/Geometry.h"
-#include "DetectorInfo/DetectorClocksService.h"
+#include "Geometry/GeometryGAr.h"
+#include "DetectorInfo/DetectorClocksServiceGAr.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 
 #include "ReconstructionDataProducts/Track.h"
@@ -88,12 +88,12 @@ namespace gar {
             // otherwise of course the fcl file value appears
             fTrackEndXCut  = p.get<float>("TrackEndXCut",     215.0);
             fTrackEndRCut  = p.get<float>("TrackEndRCut",     230.0);
-            fPerpRCut      = p.get<float>("fPerpRCut",         10.0);
-            fBarrelXCut    = p.get<float>("fBarrelXCut",       35.0);
-            fEndcapRphiCut = p.get<float>("fEndXCut",          32.0);
+            fPerpRCut      = p.get<float>("PerpRCut",         10.0);
+            fBarrelXCut    = p.get<float>("BarrelXCut",       35.0);
+            fEndcapRphiCut = p.get<float>("EndXCut",          32.0);
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
-            fClocks  = gar::providerFrom<detinfo::DetectorClocksService>();
-            fGeo     = gar::providerFrom<geo::Geometry>();
+            fClocks  = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
+            fGeo     = gar::providerFrom<geo::GeometryGAr>();
 
             produces< art::Assns<gar::rec::Cluster, gar::rec::Track, gar::rec::TrackEnd > >();
         }

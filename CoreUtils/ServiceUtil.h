@@ -51,10 +51,10 @@ namespace gar {
    * 
    * Example of usage:
    *     
-   *     auto const* geom = gar::providerFrom<geo::Geometry>();
+   *     auto const* geom = gar::providerFrom<geo::GeometryGAr>();
    *     
    * retrieves the service provider for GArSoft geometry.
-   * This requires the inclusion of "Geometry/Geometry.h" header, where the
+   * This requires the inclusion of "Geometry/GeometryGAr.h" header, where the
    * service is declared. Typically, both ServiceUtil.h and the header of the
    * provider class are included in the service header.
    * 

@@ -181,7 +181,7 @@ gar::MomentumPerformance::MomentumPerformance(fhicl::ParameterSet const & p) : E
 //==============================================================================
 void gar::MomentumPerformance::beginJob() {
 
-    art::ServiceHandle<geo::Geometry> euclid;
+    art::ServiceHandle<geo::GeometryGAr> euclid;
     ItsInTulsa[0] = euclid->GetOriginX();
     ItsInTulsa[1] = euclid->GetOriginY();
     ItsInTulsa[2] = euclid->GetOriginZ();

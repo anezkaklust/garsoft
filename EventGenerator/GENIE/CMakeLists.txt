@@ -8,7 +8,7 @@ art_make( MODULE_LIBRARIES SimulationDataProducts
                            nusimdata_SimulationBase
                            SummaryDataProducts
                            Geometry
-                           Geometry_Geometry_service
+                           Geometry_GeometryGAr_service
                            nugen_EventGeneratorBase_GENIE
                            nurandom_RandomUtils_NuRandomService_service
                            ${ART_FRAMEWORK_CORE}

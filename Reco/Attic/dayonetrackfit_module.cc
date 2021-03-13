@@ -37,7 +37,7 @@
 #include "ReconstructionDataProducts/TrackTrajectory.h"
 #include "Reco/TrackPar.h"
 #include "Reco/tracker2algs.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 #include "Geant4/G4ThreeVector.hh"
 
@@ -163,7 +163,7 @@ namespace gar {
       G4ThreeVector zerovec(0,0,0);
       G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 
-      art::ServiceHandle<geo::Geometry> geo;
+      art::ServiceHandle<geo::GeometryGAr> geo;
       double xtpccent = geo->TPCXCent();
       double ytpccent = geo->TPCYCent();
       double ztpccent = geo->TPCZCent();

@@ -10,7 +10,7 @@
 
 #include "RecoAlg/StripSplitterAlg.h"
 
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "CoreUtils/ServiceUtil.h"
 #include "Geometry/LocalTransformation.h"
 
@@ -28,7 +28,7 @@ namespace gar {
             {
                 ClearLists();
 
-                fGeo = gar::providerFrom<geo::Geometry>();
+                fGeo = gar::providerFrom<geo::GeometryGAr>();
                 fInnerSymmetry = fGeo->GetECALInnerSymmetry();
                 fStripWidth = -1;//cm
                 fStripLength = -1;//cm

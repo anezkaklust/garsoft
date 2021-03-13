@@ -5,7 +5,7 @@ standard_edep2art:
 module_type: ConvertEdep2Art
 EDepSimFile: ""
 GhepFile: ""
-OverlayFile: true
+OverlayFile: false
 
 ECALMaterial: "Scintillator"
 TPCMaterial: "HP_ArCH4"

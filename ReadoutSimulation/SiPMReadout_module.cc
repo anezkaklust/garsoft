@@ -30,13 +30,12 @@
 #include "nurandom/RandomUtils/NuRandomService.h"
 
 // GArSoft Includes
-#include "DetectorInfo/DetectorClocksService.h"
 #include "Utilities/AssociationUtil.h"
 #include "SimulationDataProducts/CaloDeposit.h"
 #include "ReadoutSimulation/ECALReadoutSimStandardAlg.h"
 #include "ReadoutSimulation/MuIDReadoutSimStandardAlg.h"
 #include "RawDataProducts/CaloRawDigit.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "CoreUtils/ServiceUtil.h"
 
 // Forward declarations
@@ -101,7 +100,7 @@ namespace gar {
         : art::EDProducer{pset},
         fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,pset,"Seed"))
         {
-            fGeo = gar::providerFrom<geo::Geometry>();
+            fGeo = gar::providerFrom<geo::GeometryGAr>();
 
             this->reconfigure(pset);
 

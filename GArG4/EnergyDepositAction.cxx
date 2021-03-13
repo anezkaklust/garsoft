@@ -23,7 +23,7 @@
 #include "Geant4/G4StepPoint.hh"
 #include "Geant4/G4VProcess.hh"
 
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 #include "GArG4/EnergyDepositAction.h"
 #include "GArG4/ParticleListAction.h"
 
@@ -54,9 +54,9 @@ namespace gar {
         fVolumeName = pset.get< std::vector<std::string> >("GArVolumeName");
         fMaterialMatchString = pset.get< std::string >("GArMaterialMatchString");
 
-        std::cout << "EnergyDepositAction: Name of the Volumes to track for the GArTPC" << std::endl;
-        for(unsigned int i = 0; i < fVolumeName.size(); i++) std::cout << fVolumeName.at(i) << " ";
-        std::cout << std::endl;
+        // std::cout << "EnergyDepositAction: Name of the Volumes to track for the GArTPC" << std::endl;
+        // for(unsigned int i = 0; i < fVolumeName.size(); i++) std::cout << fVolumeName.at(i) << " ";
+        // std::cout << std::endl;
 
         return;
       }
@@ -85,7 +85,7 @@ namespace gar {
         MF_LOG_DEBUG("EnergyDepositAction")
         << "EnergyDepositAction::SteppingAction";
 
-        art::ServiceHandle<geo::Geometry> geo;
+        art::ServiceHandle<geo::GeometryGAr> geo;
         TGeoManager *geomanager = geo->ROOTGeoManager();
 
         // Get the pointer to the track

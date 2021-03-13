@@ -26,4 +26,17 @@ strip_size_y: 4.0 # cm
 nlayers: 1
 }
 
+standard_muidsegalgpars_v3:
+{
+SegmentationAlgName: "SegmentationMuIDAlg"
+cellEncoding: "system:3,module:3,stave:5,layer:6,slice:3,cellX:32:-16,cellY:-16"
+identifier_x: "cellX"
+identifier_y: "cellY"
+identifier_layer: "layer"
+identifier_slice: "slice"
+strip_size_x: 4.0 # cm
+strip_size_y: 4.0 # cm
+nlayers: 1
+}
+
 END_PROLOG

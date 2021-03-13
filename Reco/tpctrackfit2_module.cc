@@ -30,7 +30,7 @@
 #include "TVector3.h"
 
 // GArSoft Includes
-//#include "DetectorInfo/MPDMagneticField.h"
+#include "DetectorInfo/GArMagneticField.h"
 #include "ReconstructionDataProducts/TPCCluster.h"
 #include "ReconstructionDataProducts/VecHit.h"
 #include "ReconstructionDataProducts/Track.h"
@@ -38,9 +38,10 @@
 #include "ReconstructionDataProducts/TrackTrajectory.h"
 #include "Reco/TrackPar.h"
 #include "Reco/tracker2algs.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
+#include "CoreUtils/ServiceUtil.h"
 
-#include "nug4/MagneticField/MagneticField.h"
+#include "nug4/MagneticFieldServices/MagneticFieldService.h"
 #include "Geant4/G4ThreeVector.hh"
 
 namespace gar {
@@ -107,7 +108,7 @@ namespace gar {
       int KalmanFitBothWays(std::vector<gar::rec::TPCCluster> &TPCClusters,
                             TrackPar &trackpar,  TrackIoniz &trackions, TrackTrajectory &tracktraj);
 
-      art::ServiceHandle<geo::Geometry> euclid;
+      art::ServiceHandle<geo::GeometryGAr> euclid;
 
     };
 
@@ -183,8 +184,7 @@ namespace gar {
       auto const trajPtrMaker  = art::PtrMaker<rec::TrackTrajectory>(e);
       //auto const TPCClusterPtrMaker = art::PtrMaker<gar::rec::TPCCluster>(e, TPCClusterHandle.id());
 
-      //art::ServiceHandle<mag::MPDMagneticField> magFieldService;
-      art::ServiceHandle<mag::MagneticField> magFieldService;
+      auto const *magFieldService = gar::providerFrom<mag::MagneticFieldService>();
       G4ThreeVector zerovec(0,0,0);
       G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 

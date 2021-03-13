@@ -21,8 +21,7 @@
 
 #include "RawDataProducts/CaloRawDigit.h"
 #include "ReconstructionDataProducts/CaloHit.h"
-#include "Geometry/Geometry.h"
-#include "DetectorInfo/DetectorClocksService.h"
+#include "Geometry/GeometryGAr.h"
 #include "DetectorInfo/DetectorPropertiesService.h"
 #include "Geometry/LocalTransformation.h"
 #include "Geometry/BitFieldCoder.h"
@@ -93,7 +92,7 @@ namespace gar {
             fECALfactorSamplingGeV = p.get<float>("ECALSamplingFactorGeV", 1/0.24);
             fUseTimePositionReco = p.get<bool>("UseTimePositionReco", true);
 
-            fGeo     = gar::providerFrom<geo::Geometry>();
+            fGeo     = gar::providerFrom<geo::GeometryGAr>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fSiPMUtils = std::make_unique<util::SiPMUtils>(fDetProp->EffectivePixel());
 

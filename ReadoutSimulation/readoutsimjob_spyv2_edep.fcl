@@ -1,4 +1,4 @@
-#include "readoutsimjob_spyv2.fcl"
+#include "readoutsimjob.fcl"
 
 physics.producers.daq.G4ModuleLabel:        "edepconvert"
 physics.producers.daqsipm.G4ModuleLabel:    "edepconvert"

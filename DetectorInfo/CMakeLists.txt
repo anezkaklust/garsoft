@@ -2,18 +2,32 @@ include_directories($ENV{GEANT4_FQ_DIR}/include)
 
 art_make( NO_PLUGINS
           LIB_LIBRARIES Geometry
-                                        CoreUtils
+                        CoreUtils
                         ${MF_MESSAGELOGGER}
-
                         ${CETLIB}
                         ${CETLIB_EXCEPT}
-                                        ${FHICLCPP}
+                        ${FHICLCPP}
                         ${ROOT_BASIC_LIB_LIST}
-                                        ${Boost_SYSTEM_LIBRARY}
+                        ${Boost_SYSTEM_LIBRARY}
+                        art_Utilities canvas
+                        nug4_MagneticFieldServices_MagneticFieldServiceStandard_service
+                        ${ART_FRAMEWORK_SERVICES_REGISTRY}
+                        ${MF_MESSAGELOGGER}
+                        ${CETLIB_EXCEPT}
+                        ${ROOT_BASIC_LIB_LIST}
+                        ${ROOT_GEOM}
+                        ${ROOT_CORE}
+                        ${G4GEOMETRY}
+                        ${G4GLOBAL}
+                        ${ART_FRAMEWORK_SERVICES_BASIC}
+                        ${ART_FRAMEWORK_SERVICES_OPTIONAL}
+                        ${ART_ROOT_IO_TFILESERVICE_SERVICE}
+                        ${ART_ROOT_IO_TFILE_SUPPORT}
+                        ${CLHEP}
         )
 
 
-simple_plugin(DetectorClocksServiceStandard "service"
+simple_plugin(DetectorClocksServiceStandardGAr "service"
               DetectorInfo
               RawDataProducts
               ${ART_FRAMEWORK_CORE}
@@ -33,9 +47,9 @@ simple_plugin(DetectorClocksServiceStandard "service"
               ${ROOT_BASIC_LIB_LIST}
              )
 
-simple_plugin(DetectorPropertiesServiceStandard "service"
+simple_plugin(DetectorPropertiesServiceStandardGAr "service"
               DetectorInfo
-              Geometry_Geometry_service
+              Geometry_GeometryGAr_service
               Geometry
               ${ART_FRAMEWORK_PRINCIPAL}
               ${ART_FRAMEWORK_SERVICES_REGISTRY}
@@ -54,7 +68,7 @@ simple_plugin(DetectorPropertiesServiceStandard "service"
 
 simple_plugin(GArPropertiesServiceStandard "service"
               DetectorInfo
-              DetectorInfo_DetectorPropertiesServiceStandard_service
+              DetectorInfo_DetectorPropertiesServiceStandardGAr_service
               art_Utilities canvas
               ${ART_FRAMEWORK_SERVICES_REGISTRY}
               ${MF_MESSAGELOGGER}
@@ -63,14 +77,14 @@ simple_plugin(GArPropertiesServiceStandard "service"
 
 simple_plugin(ECALPropertiesServiceStandard "service"
              DetectorInfo
-             DetectorInfo_DetectorPropertiesServiceStandard_service
+             DetectorInfo_DetectorPropertiesServiceStandardGAr_service
              art_Utilities canvas
              ${ART_FRAMEWORK_SERVICES_REGISTRY}
              ${MF_MESSAGELOGGER}
              ${CETLIB_EXCEPT}
              )
 
-simple_plugin(MPDMagneticField "service"
+simple_plugin(MagneticFieldServiceGAr "service"
               DetectorInfo
               art_Utilities canvas
               ${ART_FRAMEWORK_SERVICES_REGISTRY}

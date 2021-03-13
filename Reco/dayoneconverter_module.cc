@@ -26,12 +26,13 @@
 #include "TF1.h"
 
 #include "Geant4/G4ThreeVector.hh"
-#include "nug4/MagneticField/MagneticField.h"
+#include "nug4/MagneticFieldServices/MagneticFieldService.h"
 #include "nurandom/RandomUtils/NuRandomService.h"
 #include "CLHEP/Random/RandGauss.h"
 
 // GArSoft Includes
 
+#include "DetectorInfo/GArMagneticField.h"
 #include "SimulationDataProducts/CaloDeposit.h"
 #include "ReconstructionDataProducts/TPCCluster.h"
 #include "ReconstructionDataProducts/Track.h"
@@ -42,7 +43,7 @@
 #include "Geometry/BitFieldCoder.h"
 #include "CoreUtils/ServiceUtil.h"
 #include "Geometry/GeometryCore.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 
 namespace gar {
@@ -123,7 +124,7 @@ namespace gar {
             produces<std::vector<gar::rec::TPCCluster> >();
             produces< art::Assns<gar::rec::TPCCluster, gar::rec::Track> >();
 
-            fGeo = gar::providerFrom<gar::geo::Geometry>();
+            fGeo = gar::providerFrom<gar::geo::GeometryGAr>();
             std::string fEncoding = fGeo->GetMinervaCellIDEncoding();
             fFieldDecoderTrk = new gar::geo::BitFieldCoder( fEncoding );
             std::string fEncodingMuID = fGeo->GetMuIDCellIDEncoding();
@@ -149,7 +150,7 @@ namespace gar {
             auto const trackPtrMaker = art::PtrMaker<gar::rec::Track>(e);
             auto const tpcclusPtrMaker = art::PtrMaker<gar::rec::TPCCluster>(e);
 
-            art::ServiceHandle<mag::MagneticField> magFieldService;
+            auto const *magFieldService = gar::providerFrom<mag::MagneticFieldService>();
             G4ThreeVector zerovec(0,0,0);
             G4ThreeVector magfield = magFieldService->FieldAtPoint(zerovec);
 

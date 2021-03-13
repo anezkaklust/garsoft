@@ -26,7 +26,6 @@
 #include "TVector3.h"
 
 #include "Geant4/G4ThreeVector.hh"
-#include "nug4/MagneticField/MagneticField.h"
 
 // GArSoft Includes
 #include "ReconstructionDataProducts/TPCCluster.h"
@@ -35,7 +34,7 @@
 #include "Reco/TrackPar.h"
 #include "Reco/tracker2algs.h"
 #include "MCCheater/BackTracker.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 namespace gar {
   namespace rec {
@@ -122,7 +121,7 @@ namespace gar {
       const art::FindManyP<gar::rec::Hit> HitsFromTPCClusters(TPCClusterHandle,e,fTPCClusterLabel);
 
       auto bt = gar::providerFrom<cheat::BackTracker>();
-      auto geo = gar::providerFrom<geo::Geometry>();
+      auto geo = gar::providerFrom<geo::GeometryGAr>();
       TVector3 xhat(1,0,0);
       TVector3 tpccent(geo->TPCXCent(),geo->TPCYCent(),geo->TPCZCent());
 
