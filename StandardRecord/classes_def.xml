@@ -1,5 +1,6 @@
 <lcgdict>
   <class name="caf::StandardRecord"/>
+
   <class name="caf::SRHeader"/>
   <class name="caf::SRTruth"/>
   <class name="caf::SRTrack"/>
@@ -15,6 +16,12 @@
   <class name="caf::SRClusterBranch"/>
   <class name="caf::SRTPCCluster"/>
   <class name="caf::SRECalCluster"/>
+  <class name="caf::SRNeutrino"/>
+  <class name="caf::SRGenieParticle"/>
+  <class name="caf::SRParticle"/>
+  <class name="caf::SRParticleTrajectoryPoint"/>
+  <class name="caf::SRSimHitBranch"/>
+  <class name="caf::SRSimHit"/>
 
   <class name="caf::SRVector3D"/>
   <class name="caf::SRCovMx"/>
@@ -26,6 +33,11 @@
   <class name="std::vector<caf::SRTrack>"/>
   <class name="std::vector<caf::SRTrackTrajectory>"/>
   <class name="std::vector<caf::SRTrackPID>"/>
+  <class name="std::vector<caf::SRNeutrino>"/>
+  <class name="std::vector<caf::SRGenieParticle>"/>
+  <class name="std::vector<caf::SRParticle>"/>
+  <class name="std::vector<caf::SRParticleTrajectoryPoint>"/>
+  <class name="std::vector<caf::SRSimHit>"/>
 
   <class name="std::vector<caf::SRVector3D>"/>
   <class name="std::vector<caf::SRCovMx>"/>

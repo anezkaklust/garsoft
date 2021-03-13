@@ -479,35 +479,43 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
         for ( auto const& mct : (*mcthandlelist.at(imchl)) ) {
             if (mct.NeutrinoSet()) {
                 simb::MCNeutrino nuw = mct.GetNeutrino();
-                rec.mc.neutrinoType.push_back(nuw.Nu().PdgCode());
-                rec.mc.ccnc.push_back(nuw.CCNC());
-                rec.mc.mode.push_back(nuw.Mode());
-                rec.mc.interactionType.push_back(nuw.InteractionType());
-                rec.mc.Q2.push_back(nuw.QSqr());
-                rec.mc.W.push_back(nuw.W());
-                rec.mc.X.push_back(nuw.X());
-                rec.mc.Y.push_back(nuw.Y());
-                rec.mc.theta.push_back(nuw.Theta());
+                caf::SRNeutrino srnu;
+                srnu.pdg = nuw.Nu().PdgCode();
+                srnu.ccnc = nuw.CCNC();
+                srnu.mode = nuw.Mode();
+                srnu.interactionType = nuw.InteractionType();
+                srnu.Q2 = nuw.QSqr();
+                srnu.W = nuw.W();
+                srnu.X = nuw.X();
+                srnu.Y = nuw.Y();
+                srnu.theta = nuw.Theta();
                 if (fWriteCohInfo) {
-                  rec.mc.T.push_back(computeT(mct));
+                  srnu.T = computeT(mct);
                 }
-                rec.mc.MCVertexX.push_back(nuw.Nu().EndX());
-                rec.mc.MCVertexY.push_back(nuw.Nu().EndY());
-                rec.mc.MCVertexZ.push_back(nuw.Nu().EndZ());
-                rec.mc.MCnuPx.push_back(nuw.Nu().Px());
-                rec.mc.MCnuPy.push_back(nuw.Nu().Py());
-                rec.mc.MCnuPz.push_back(nuw.Nu().Pz());
+                srnu.vtx = caf::SRVector3D(nuw.Nu().EndX(), nuw.Nu().EndY(), nuw.Nu().EndZ());
+                srnu.p = caf::SRVector3D(nuw.Nu().Px(), nuw.Nu().Py(), nuw.Nu().Pz());
+
+                rec.mc.nu.push_back(srnu);
             }  // end MC info from MCTruth
         }
     }
 
+    rec.mc.nnu = rec.mc.nu.size();
+
+    unsigned int nuidx = 0;
     // save GTruth info
     for (size_t igthl = 0; igthl < gthandlelist.size(); ++igthl) {
         for ( auto const& gt : (*gthandlelist.at(igthl)) ) {
-            rec.mc.gint.push_back(gt.fGint);
-            rec.mc.tgtPDG.push_back(gt.ftgtPDG);
-            rec.mc.weight.push_back(gt.fweight);
-            rec.mc.gT.push_back(gt.fgT);
+            if(nuidx >= rec.mc.nu.size()) abort();
+
+            // We're assuming we visit the gtruths in the same order (should
+            // use an Assn?)
+            rec.mc.nu[nuidx].gint = gt.fGint;
+            rec.mc.nu[nuidx].tgtPDG = gt.ftgtPDG;
+            rec.mc.nu[nuidx].weight = gt.fweight;
+            rec.mc.nu[nuidx].gT = gt.fgT;
+
+            ++nuidx;
         }
     }
 
@@ -516,26 +524,26 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
     e.getManyByType(gparthandlelist);
 
     for (size_t igphl = 0; igphl < gparthandlelist.size(); ++igphl) {
-        unsigned int nGPart = 0;
         for ( auto const& gpart : (*gparthandlelist.at(igphl)) ) {
-            rec.mc.GPartIntIdx.push_back(gpart.InteractionIndex());
-            rec.mc.GPartIdx.push_back(gpart.Index());
-            rec.mc.GPartPdg.push_back(gpart.Pdg());
-            rec.mc.GPartStatus.push_back(gpart.Status());
-            rec.mc.GPartName.push_back(gpart.Name());
-            rec.mc.GPartFirstMom.push_back(gpart.FirstMother());
-            rec.mc.GPartLastMom.push_back(gpart.LastMother());
-            rec.mc.GPartFirstDaugh.push_back(gpart.FirstDaughter());
-            rec.mc.GPartLastDaugh.push_back(gpart.LastDaughter());
-            rec.mc.GPartPx.push_back(gpart.Px());
-            rec.mc.GPartPy.push_back(gpart.Py());
-            rec.mc.GPartPz.push_back(gpart.Pz());
-            rec.mc.GPartE.push_back(gpart.E());
-            rec.mc.GPartMass.push_back(gpart.Mass());
-            nGPart++;
+            caf::SRGenieParticle srgpart;
+            srgpart.intidx = gpart.InteractionIndex();
+            srgpart.idx = gpart.Index();
+            srgpart.pdg = gpart.Pdg();
+            srgpart.status = gpart.Status();
+            srgpart.name = gpart.Name();
+            srgpart.firstmom = gpart.FirstMother();
+            srgpart.lastmom = gpart.LastMother();
+            srgpart.firstdaugh = gpart.FirstDaughter();
+            srgpart.lastdaugh = gpart.LastDaughter();
+            srgpart.p = caf::SRVector3D(gpart.Px(), gpart.Py(), gpart.Pz());
+            srgpart.E = gpart.E();
+            srgpart.mass = gpart.Mass();
+
+            rec.mc.gpart.push_back(srgpart);
         }
-        rec.mc.nGPart.push_back(nGPart);
     }
+
+    rec.mc.ngpart = rec.mc.gpart.size();
 
     art::Handle< std::vector<simb::MCParticle> > MCPHandle;
     if (!e.getByLabel(fGeantLabel, MCPHandle)) {
@@ -558,8 +566,9 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
     }
 
     for ( auto const& mcp : (*MCPHandle) ) {
-        rec.mc.MCTrkID.push_back(mcp.TrackId());
-        rec.mc.MCPDG.push_back(mcp.PdgCode());
+        caf::SRParticle srpart;
+        srpart.trkid = mcp.TrackId();
+        srpart.pdg = mcp.PdgCode();
 
         // If mcp.Mother() == 0, particle is from initial vertex;
         // Set MCMotherIndex to -1 in that case.
@@ -581,31 +590,35 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
             }
         }
 
-        rec.mc.MCMotherIndex.push_back(momIndex);
-        rec.mc.MCMotherTrkID.push_back(mcp.Mother());//directly trackid not index
-        rec.mc.MCPDGMother.push_back(momPDG);
+        srpart.momidx = momIndex;
+        srpart.momtrkid = mcp.Mother(); //directly trackid not index
+        srpart.mompdg = momPDG;
 
         const TLorentzVector& position = mcp.Position(0);
         const TLorentzVector& momentum = mcp.Momentum(0);
-        rec.mc.MCPStartX.push_back(position.X());
-        rec.mc.MCPStartY.push_back(position.Y());
-        rec.mc.MCPStartZ.push_back(position.Z());
-        rec.mc.MCPTime.push_back(mcp.T());
-        rec.mc.MCPStartPX.push_back(momentum.Px());
-        rec.mc.MCPStartPY.push_back(momentum.Py());
-        rec.mc.MCPStartPZ.push_back(momentum.Pz());
+        srpart.start.x = position.X();
+        srpart.start.y = position.Y();
+        srpart.start.z = position.Z();
+        srpart.time = mcp.T();
+        srpart.startp.x = momentum.Px();
+        srpart.startp.y = momentum.Py();
+        srpart.startp.z = momentum.Pz();
 
         const TLorentzVector& positionEnd = mcp.EndPosition();
         const TLorentzVector& momentumEnd = mcp.EndMomentum();
-        rec.mc.MCPEndX.push_back(positionEnd.X());
-        rec.mc.MCPEndY.push_back(positionEnd.Y());
-        rec.mc.MCPEndZ.push_back(positionEnd.Z());
-        rec.mc.MCPEndPX.push_back(momentumEnd.Px());
-        rec.mc.MCPEndPY.push_back(momentumEnd.Py());
-        rec.mc.MCPEndPZ.push_back(momentumEnd.Pz());
-        rec.mc.MCPProc.push_back(mcp.Process());
-        rec.mc.MCPEndProc.push_back(mcp.EndProcess());
+        srpart.end.x = positionEnd.X();
+        srpart.end.y = positionEnd.Y();
+        srpart.end.z = positionEnd.Z();
+        srpart.endp.x = momentumEnd.Px();
+        srpart.endp.y = momentumEnd.Py();
+        srpart.endp.z = momentumEnd.Pz();
+        srpart.proc = mcp.Process();
+        srpart.endproc = mcp.EndProcess();
+
+        rec.mc.part.push_back(srpart);
     }
+
+    rec.mc.npart = rec.mc.part.size();
 
     // Get vertex for each MCParticle.  In principle, the mct.GetParticle()
     // method should produce all of them; filter out the ones with a non-stable
@@ -616,16 +629,15 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
     // not in (*MCPHandle).  So we use the following primitive earth technology.
     size_t nMCParticles = (*MCPHandle).size();
     size_t iMCParticle  = 0;
-    rec.mc.MCPVertIndex.resize(nMCParticles);
     for (; iMCParticle<nMCParticles; ++iMCParticle) {
         foundMCvert:
             // Assign noprimary to start with
-            rec.mc.MCPVertIndex[iMCParticle] = -1;
+            rec.mc.part[iMCParticle].vtxidx = -1;
             // Do the primaries first
-            if (rec.mc.MCMotherIndex[iMCParticle]!=-1) break;
-            Float_t trackX = rec.mc.MCPStartX[iMCParticle];
-            Float_t trackY = rec.mc.MCPStartY[iMCParticle];
-            Float_t trackZ = rec.mc.MCPStartZ[iMCParticle];
+            if (rec.mc.part[iMCParticle].momidx!=-1) break;
+            Float_t trackX = rec.mc.part[iMCParticle].start.x;
+            Float_t trackY = rec.mc.part[iMCParticle].start.y;
+            Float_t trackZ = rec.mc.part[iMCParticle].start.z;
             int vertexIndex = 0;
             for (size_t imchl = 0; imchl < mcthandlelist.size(); ++imchl) {
                 for ( auto const& mct : (*mcthandlelist.at(imchl)) ) {
@@ -636,8 +648,9 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
                         Float_t vertZ = nuw.Nu().EndZ();
                         Float_t dist = std::hypot(trackX-vertX,trackY-vertY,trackZ-vertZ);
                         if ( dist <= fMatchMCPtoVertDist ) {
-                            rec.mc.MCPVertIndex[iMCParticle] = vertexIndex;
-                            ++iMCParticle; goto foundMCvert;
+                            rec.mc.part[iMCParticle].vtxidx = vertexIndex;
+                            ++iMCParticle;
+                            goto foundMCvert;
                         }
                     }
                     ++vertexIndex;
@@ -647,13 +660,13 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
 
     // Now the secondaries.  As they are after the primaries, do not re-init iMCParticle
     for (; iMCParticle<nMCParticles; ++iMCParticle) {
-        int momIndex = rec.mc.MCMotherIndex[iMCParticle];
+        int momIndex = rec.mc.part[iMCParticle].momidx;
         int lastMCParticle = iMCParticle;
         while (momIndex != -1) {
             lastMCParticle = momIndex;
-            momIndex       = rec.mc.MCMotherIndex[momIndex];
+            momIndex       = rec.mc.part[momIndex].momidx;
         }
-        rec.mc.MCPVertIndex[iMCParticle] = rec.mc.MCPVertIndex[lastMCParticle];
+        rec.mc.part[iMCParticle].vtxidx = rec.mc.part[lastMCParticle].vtxidx;
     }
 
     if (fWriteMCPTrajectory) {
@@ -675,19 +688,22 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
                 if (abs(xTraj - ItsInTulsa[0]) > xTPC) continue;
                 if (rTraj > rTPC) continue;
 
-                rec.mc.TrajMCPX.push_back(xTraj);
-                rec.mc.TrajMCPY.push_back(yTraj);
-                rec.mc.TrajMCPZ.push_back(zTraj);
-                rec.mc.TrajMCPT.push_back(mcp.Trajectory().T(iTraj));
+                caf::SRParticleTrajectoryPoint srtrajpt;
+                srtrajpt.x = xTraj;
+                srtrajpt.y = yTraj;
+                srtrajpt.z = zTraj;
+                srtrajpt.t = mcp.Trajectory().T(iTraj);
                 if (fWriteMCPTrajMomenta) {
-                    rec.mc.TrajMCPPX.push_back(mcp.Trajectory().Px(iTraj));
-                    rec.mc.TrajMCPPY.push_back(mcp.Trajectory().Py(iTraj));
-                    rec.mc.TrajMCPPZ.push_back(mcp.Trajectory().Pz(iTraj));
+                    srtrajpt.px = mcp.Trajectory().Px(iTraj);
+                    srtrajpt.py = mcp.Trajectory().Py(iTraj);
+                    srtrajpt.pz = mcp.Trajectory().Pz(iTraj);
                 }
-                rec.mc.TrajMCPE.push_back(mcp.Trajectory().E(iTraj));
-                rec.mc.TrajMCPIndex.push_back(mcpIndex);
-                rec.mc.TrajMCPTrackID.push_back(trackId);
+                srtrajpt.E = mcp.Trajectory().E(iTraj);
+
+                rec.mc.part[mcpIndex].traj.push_back(srtrajpt);
             }
+            rec.mc.part[mcpIndex].trkid = trackId;
+
             mcpIndex++;
         }
     }
@@ -709,31 +725,41 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
 
         // Save simulation ecal hit info
         for ( auto const& SimHit : (*SimHitHandle) ) {
-            rec.mc.SimnHits++;
-            rec.mc.SimHitX.push_back(SimHit.X());
-            rec.mc.SimHitY.push_back(SimHit.Y());
-            rec.mc.SimHitZ.push_back(SimHit.Z());
-            rec.mc.SimHitTime.push_back(SimHit.Time());
-            rec.mc.SimHitEnergy.push_back(SimHit.Energy());
-            rec.mc.SimHitTrackID.push_back(SimHit.TrackID());
-            rec.mc.SimHitCellID.push_back(SimHit.CellID());
-            rec.mc.SimEnergySum += SimHit.Energy();
+            caf::SRSimHit srsimhit;
+            srsimhit.x = SimHit.X();
+            srsimhit.y = SimHit.Y();
+            srsimhit.z = SimHit.Z();
+            srsimhit.t = SimHit.Time();
+            srsimhit.E = SimHit.Energy();
+            srsimhit.trkid = SimHit.TrackID();
+            srsimhit.cellid = SimHit.CellID();
+
+            rec.mc.simhit.ecal.push_back(srsimhit);
+
+            rec.mc.simhit.ecaltotE += SimHit.Energy();
         }
+
+        rec.mc.simhit.necal = rec.mc.simhit.ecal.size();
 
         // Save simulation muon system hit info
         if(fGeo->HasMuonDetector()) {
             for ( auto const& SimHit : (*MuIDSimHitHandle) ) {
-                rec.mc.SimnHits_MuID++;
-                rec.mc.SimHitX_MuID.push_back(SimHit.X());
-                rec.mc.SimHitY_MuID.push_back(SimHit.Y());
-                rec.mc.SimHitZ_MuID.push_back(SimHit.Z());
-                rec.mc.SimHitTime_MuID.push_back(SimHit.Time());
-                rec.mc.SimHitEnergy_MuID.push_back(SimHit.Energy());
-                rec.mc.SimHitTrackID_MuID.push_back(SimHit.TrackID());
-                rec.mc.SimHitCellID_MuID.push_back(SimHit.CellID());
-                rec.mc.SimEnergySum_MuID += SimHit.Energy();
+                caf::SRSimHit srsimhit;
+                srsimhit.x = SimHit.X();
+                srsimhit.y = SimHit.Y();
+                srsimhit.z = SimHit.Z();
+                srsimhit.t = SimHit.Time();
+                srsimhit.E = SimHit.Energy();
+                srsimhit.trkid = SimHit.TrackID();
+                srsimhit.cellid = SimHit.CellID();
+
+                rec.mc.simhit.muid.push_back(srsimhit);
+
+                rec.mc.simhit.muidtotE += SimHit.Energy();
             }
         }
+
+        rec.mc.simhit.nmuid = rec.mc.simhit.muid.size();
     }
 }
 
