@@ -9,6 +9,7 @@
 #include "garsoft/StandardRecord/SRDigitBranch.h"
 #include "garsoft/StandardRecord/SRRecoHitBranch.h"
 #include "garsoft/StandardRecord/SRClusterBranch.h"
+#include "garsoft/StandardRecord/SRAssnBranch.h"
 
 #include <string>
 #include <vector>
@@ -27,7 +28,8 @@ namespace caf
     unsigned int ntrk;
     std::vector<SRTrack> trk;
 
-    SRVertex vtx;
+    unsigned int nvtx;
+    std::vector<SRVertex> vtx;
 
     SRVee vee;
 
@@ -36,6 +38,8 @@ namespace caf
     SRRecoHitBranch hit;
 
     SRClusterBranch clust;
+
+    SRAssnBranch assn;
   };
 }
 

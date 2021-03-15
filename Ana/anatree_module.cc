@@ -1133,26 +1133,27 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
     if (fWriteVertices) {
         size_t iVertex = 0;
         for ( auto const& vertex : (*VertexHandle) ) {
-            rec.vtx.id.push_back(vertex.getIDNumber());
-            rec.vtx.x.push_back(vertex.Position()[0]);
-            rec.vtx.y.push_back(vertex.Position()[1]);
-            rec.vtx.z.push_back(vertex.Position()[2]);
-            rec.vtx.t.push_back(vertex.Time());
+            caf::SRVertex srvtx;
+            srvtx.id = vertex.getIDNumber();
+            srvtx.x = vertex.Position()[0];
+            srvtx.y = vertex.Position()[1];
+            srvtx.z = vertex.Position()[2];
+            srvtx.t = vertex.Time();
 
-            int nVertexedTracks = 0;
+            srvtx.ntrks = 0;
             if ( findManyTrackEnd->isValid() ) {
-                nVertexedTracks = findManyTrackEnd->at(iVertex).size();
+                srvtx.ntrks = findManyTrackEnd->at(iVertex).size();
             }
-            rec.vtx.ntrks.push_back(nVertexedTracks);
 
             int vertexCharge = 0;
-            for (int iVertexedTrack=0; iVertexedTrack<nVertexedTracks; ++iVertexedTrack) {
-              // TODO can we just make a vertex of tracks belonging to this vtx?
-                rec.vtx.assn_vtxid.push_back(vertex.getIDNumber());
+            for (int iVertexedTrack=0; iVertexedTrack < srvtx.ntrks; ++iVertexedTrack) {
+              // TODO can we just make a vector of tracks belonging to this vtx?
+                caf::SRVertexAssn srassn;
+                srassn.vtxid = vertex.getIDNumber();
 
                 // Get this vertexed track.
                 rec::Track track = *(findManyTrackEnd->at(iVertex).at(iVertexedTrack));
-                rec.vtx.assn_trkid.push_back(track.getIDNumber());
+                srassn.trkid = track.getIDNumber();
 
                 // Get the end of the track in the vertex.  It isn't that odd for the end
                 // of the track not used in the vertex to be closer to the vertex than the
@@ -1161,7 +1162,9 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
                 // vertex some distance towards the far end of the stub track
                 rec::TrackEnd fee = *(findManyTrackEnd->data(iVertex).at(iVertexedTrack));
                 // TrackEnd is defined in Track.h; 1 means use Beg values, 0 means use End
-                rec.vtx.assn_trkend.push_back(fee);
+                srassn.trkend = fee;
+
+                rec.assn.vtx.push_back(srassn);
 
                 if (fee==rec::TrackEndBeg) {
                     vertexCharge += track.ChargeBeg();
@@ -1169,10 +1172,15 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
                     vertexCharge += track.ChargeEnd();
                 }
             }
-            rec.vtx.Q.push_back(vertexCharge);
+            srvtx.Q = vertexCharge;
             ++iVertex;
+
+            rec.vtx.push_back(srvtx);
         } // end loop over VertexHandle
     }
+
+    rec.nvtx = rec.vtx.size();
+    rec.assn.nvtx = rec.assn.vtx.size();
 
     // save Vee and Track-Vee association info
     if (fWriteVees) {

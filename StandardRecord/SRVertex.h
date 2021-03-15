@@ -1,7 +1,7 @@
 #ifndef CAFSRVERTEX_H
 #define CAFSRVERTEX_H
 
-#include <vector>
+#include <cstddef>
 
 namespace caf
 {
@@ -11,17 +11,11 @@ namespace caf
     SRVertex();
 
     // vertex branches
-    std::vector<size_t>  id;
-    std::vector<float>   x;
-    std::vector<float>   y;
-    std::vector<float>   z;
-    std::vector<size_t>  t;
-    std::vector<int>     ntrks;
-    std::vector<int>     Q;
-
-    std::vector<size_t>   assn_vtxid;     // Being the vertex which this Assn belongs to
-    std::vector<size_t>   assn_trkid;
-    std::vector<int>      assn_trkend;
+    size_t  id;
+    float   x, y, z;
+    size_t  t;
+    int     ntrks;
+    int     Q;
   };
 }
 
