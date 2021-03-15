@@ -1186,26 +1186,29 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
     if (fWriteVees) {
         size_t iVee = 0;
         for ( auto const& vee : (*VeeHandle) ) {
-            rec.vee.id.push_back(vee.getIDNumber());
-            rec.vee.x.push_back(vee.Position()[0]);
-            rec.vee.y.push_back(vee.Position()[1]);
-            rec.vee.z.push_back(vee.Position()[2]);
-            rec.vee.t.push_back(vee.Time());
-            rec.vee.PXKpipi.push_back(vee.FourMomentum(0).X());
-            rec.vee.PYKpipi.push_back(vee.FourMomentum(0).Y());
-            rec.vee.PZKpipi.push_back(vee.FourMomentum(0).Z());
-            rec.vee.EKpipi.push_back(vee.FourMomentum(0).E());
-            rec.vee.MKpipi.push_back(vee.FourMomentum(0).M());
-            rec.vee.PXLppi.push_back(vee.FourMomentum(1).X());
-            rec.vee.PYLppi.push_back(vee.FourMomentum(1).Y());
-            rec.vee.PZLppi.push_back(vee.FourMomentum(1).Z());
-            rec.vee.ELppi.push_back(vee.FourMomentum(1).E());
-            rec.vee.MLppi.push_back(vee.FourMomentum(1).M());
-            rec.vee.PXLpip.push_back(vee.FourMomentum(2).X());
-            rec.vee.PYLpip.push_back(vee.FourMomentum(2).Y());
-            rec.vee.PZLpip.push_back(vee.FourMomentum(2).Z());
-            rec.vee.ELpip.push_back(vee.FourMomentum(2).E());
-            rec.vee.MLpip.push_back(vee.FourMomentum(2).M());
+            caf::SRVee srvee;
+            srvee.id = vee.getIDNumber();
+            srvee.x = vee.Position()[0];
+            srvee.y = vee.Position()[1];
+            srvee.z = vee.Position()[2];
+            srvee.t = vee.Time();
+            srvee.Kpipi.p.x = vee.FourMomentum(0).X();
+            srvee.Kpipi.p.y = vee.FourMomentum(0).Y();
+            srvee.Kpipi.p.z = vee.FourMomentum(0).Z();
+            srvee.Kpipi.E = vee.FourMomentum(0).E();
+            srvee.Kpipi.m = vee.FourMomentum(0).M();
+            srvee.Lppi.p.x = vee.FourMomentum(1).X();
+            srvee.Lppi.p.y = vee.FourMomentum(1).Y();
+            srvee.Lppi.p.z = vee.FourMomentum(1).Z();
+            srvee.Lppi.E = vee.FourMomentum(1).E();
+            srvee.Lppi.m = vee.FourMomentum(1).M();
+            srvee.Lpip.p.x = vee.FourMomentum(2).X();
+            srvee.Lpip.p.y = vee.FourMomentum(2).Y();
+            srvee.Lpip.p.z = vee.FourMomentum(2).Z();
+            srvee.Lpip.E = vee.FourMomentum(2).E();
+            srvee.Lpip.m = vee.FourMomentum(2).M();
+
+            rec.vee.push_back(srvee);
 
             int nVeeTracks = 0;
             if ( findManyVeeTrackEnd->isValid() ) {
@@ -1213,19 +1216,25 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
             }
 
             for (int iVeeTrack=0; iVeeTrack<nVeeTracks; ++iVeeTrack) {
-                rec.vee.assn_veeid.push_back(vee.getIDNumber());
+                caf::SRVeeAssn srassn;
+                srassn.veeid = vee.getIDNumber();
 
                 // Get this vertexed track.
                 rec::Track track = *(findManyVeeTrackEnd->at(iVee).at(iVeeTrack));
-                rec.vee.assn_trkid.push_back(track.getIDNumber());
+                srassn.trkid = track.getIDNumber();
 
                 rec::TrackEnd fee = *(findManyVeeTrackEnd->data(iVee).at(iVeeTrack));
                 // TrackEnd is defined in Track.h; 1 means use Beg values, 0 means use End
-                rec.vee.assn_trkend.push_back(fee);
+                srassn.trkend = fee;
+
+                rec.assn.vee.push_back(srassn);
             }
             ++iVee;
         } // end loop over VeeHandle
     }
+
+    rec.nvee = rec.vee.size();
+    rec.assn.nvee = rec.assn.vee.size();
 
     // save Cluster info
     if (fWriteCaloClusters) {

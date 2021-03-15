@@ -8,6 +8,7 @@
   <class name="caf::SRTrackPID"/>
   <class name="caf::SRVertex"/>
   <class name="caf::SRVee"/>
+  <class name="caf::SRVeeHypothesis"/>
   <class name="caf::SRDigitBranch"/>
   <class name="caf::SRDigit"/>
   <class name="caf::SRRecoHitBranch"/>
@@ -24,6 +25,7 @@
   <class name="caf::SRSimHit"/>
   <class name="caf::SRAssnBranch"/>
   <class name="caf::SRVertexAssn"/>
+  <class name="caf::SRVeeAssn"/>
 
   <class name="caf::SRVector3D"/>
   <class name="caf::SRCovMx"/>
@@ -36,12 +38,14 @@
   <class name="std::vector<caf::SRTrackTrajectory>"/>
   <class name="std::vector<caf::SRTrackPID>"/>
   <class name="std::vector<caf::SRVertex>"/>
+  <class name="std::vector<caf::SRVee>"/>
   <class name="std::vector<caf::SRNeutrino>"/>
   <class name="std::vector<caf::SRGenieParticle>"/>
   <class name="std::vector<caf::SRParticle>"/>
   <class name="std::vector<caf::SRParticleTrajectoryPoint>"/>
   <class name="std::vector<caf::SRSimHit>"/>
   <class name="std::vector<caf::SRVertexAssn>"/>
+  <class name="std::vector<caf::SRVeeAssn>"/>
 
   <class name="std::vector<caf::SRVector3D>"/>
   <class name="std::vector<caf::SRCovMx>"/>

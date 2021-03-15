@@ -31,7 +31,8 @@ namespace caf
     unsigned int nvtx;
     std::vector<SRVertex> vtx;
 
-    SRVee vee;
+    unsigned int nvee;
+    std::vector<SRVee> vee;
 
     SRDigitBranch dig;
 
