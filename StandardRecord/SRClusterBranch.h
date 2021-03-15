@@ -16,7 +16,8 @@ namespace caf
     unsigned int ntpc;
     std::vector<SRTPCCluster> tpc;
 
-    SRECalCluster ecal;
+    unsigned int necal;
+    std::vector<SRECalCluster> ecal;
   };
 }
 

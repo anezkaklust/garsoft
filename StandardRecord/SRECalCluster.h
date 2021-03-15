@@ -12,27 +12,17 @@ namespace caf
   public:
     SRECalCluster();
 
-    unsigned int                  nCluster;
-    std::vector<size_t>           id;
-    std::vector<unsigned int>     nhits;
-    std::vector<float>            E;
-    std::vector<float>            t;
-    std::vector<float>            TimeDiffFirstLast;
-    std::vector<float>            x;
-    std::vector<float>            y;
-    std::vector<float>            z;
-    std::vector<float>            theta;
-    std::vector<float>            phi;
-    std::vector<float>            pid;
-    // std::vector<float> shape;
-    std::vector<SRVector3D>       mainAxis;
-    std::vector<int>              MCindex;          // Branch index (NOT the GEANT track ID) of MCPartice
-    std::vector<float>            MCfrac;           // that best matches & fraction of ionization therefrom
-
-    // ECAL cluster to track association info
-    std::vector<size_t>           assn_clustid; // Being the cluster which this Assn belongs to
-    std::vector<size_t>           assn_trkid;  // The rec::TrackEnd (see Track.h) that extrapolated to cluster
-    std::vector<int>              assn_trkend;
+    size_t id;
+    unsigned int nhits;
+    float E;
+    float t;
+    float TimeDiffFirstLast;
+    float x, y, z;
+    float theta, phi;
+    float pid;
+    SRVector3D mainAxis;
+    int   mcidx;  // Branch index (NOT the GEANT track ID) of MCPartice
+    float mcfrac; // that best matches & fraction of ionization therefrom
   };
 }
 

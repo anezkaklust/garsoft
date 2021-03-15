@@ -1239,40 +1239,41 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
     // save Cluster info
     if (fWriteCaloClusters) {
         for ( auto const& cluster : (*RecoClusterHandle) ) {
-            rec.clust.ecal.nCluster++;
-            rec.clust.ecal.id.push_back(cluster.getIDNumber());
-            rec.clust.ecal.nhits.push_back(cluster.CalorimeterHits().size());
-            rec.clust.ecal.E.push_back(cluster.Energy());
-            rec.clust.ecal.t.push_back(cluster.Time());
-            rec.clust.ecal.TimeDiffFirstLast.push_back(cluster.TimeDiffFirstLast());
-            rec.clust.ecal.x.push_back(cluster.Position()[0]);
-            rec.clust.ecal.y.push_back(cluster.Position()[1]);
-            rec.clust.ecal.z.push_back(cluster.Position()[2]);
-            rec.clust.ecal.theta.push_back(cluster.ITheta());
-            rec.clust.ecal.phi.push_back(cluster.IPhi());
-            rec.clust.ecal.pid.push_back(cluster.ParticleID());
-            // rec.clust.ecal.Shape.push_back(cluster.Shape());
-            caf::SRVector3D axis;
-            axis.x = cluster.EigenVectors()[0];
-            axis.y = cluster.EigenVectors()[1];
-            axis.z = cluster.EigenVectors()[2];
-            rec.clust.ecal.mainAxis.push_back(axis);
+            caf::SRECalCluster srclust;
+            srclust.id = cluster.getIDNumber();
+            srclust.nhits = cluster.CalorimeterHits().size();
+            srclust.E = cluster.Energy();
+            srclust.t = cluster.Time();
+            srclust.TimeDiffFirstLast = cluster.TimeDiffFirstLast();
+            srclust.x = cluster.Position()[0];
+            srclust.y = cluster.Position()[1];
+            srclust.z = cluster.Position()[2];
+            srclust.theta = cluster.ITheta();
+            srclust.phi = cluster.IPhi();
+            srclust.pid = cluster.ParticleID();
+            // srclust.Shape = cluster.Shape();
+            srclust.mainAxis.x = cluster.EigenVectors()[0];
+            srclust.mainAxis.y = cluster.EigenVectors()[1];
+            srclust.mainAxis.z = cluster.EigenVectors()[2];
 
             // Matching MCParticle info
             std::vector<std::pair<simb::MCParticle*,float>> trakt;
             trakt = BackTrack->ClusterToMCParticles( const_cast<rec::Cluster*>(&cluster) );
-            int eileen = -1;
+            srclust.mcidx = -1;
             if (trakt.size()>0 && TrackIdToIndex.size()!=0) {
-                eileen = TrackIdToIndex[trakt[0].first->TrackId()];
+                srclust.mcidx = TrackIdToIndex[trakt[0].first->TrackId()];
             }
-            rec.clust.ecal.MCindex.push_back(eileen);
-            if (eileen > -1) {
-            	rec.clust.ecal.MCfrac.push_back(trakt[0].second);
+            if (srclust.mcidx > -1) {
+            	srclust.mcfrac = trakt[0].second;
             } else {
-            	rec.clust.ecal.MCfrac.push_back(0.0);
+                srclust.mcfrac = 0;
             }
+
+            rec.clust.ecal.push_back(srclust);
         }
     }
+
+    rec.clust.necal = rec.clust.ecal.size();
 
     // Write info for ECAL-matched tracks
     if (fWriteMatchedTracks) {
@@ -1283,16 +1284,20 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
                 nCALedTracks = findManyCALTrackEnd->at(iCluster).size();
             }
             for (int iCALedTrack=0; iCALedTrack<nCALedTracks; ++iCALedTrack) {
-                rec.clust.ecal.assn_clustid.push_back(cluster.getIDNumber());
+                caf::SRClusterAssn srassn;
+                srassn.clustid = cluster.getIDNumber();
                 rec::Track track  = *(findManyCALTrackEnd->at(iCluster).at(iCALedTrack));
-                rec.clust.ecal.assn_trkid.push_back( track.getIDNumber() );
+                srassn.trkid = track.getIDNumber();
 
                 rec::TrackEnd fee = *(findManyCALTrackEnd->data(iCluster).at(iCALedTrack));
-                rec.clust.ecal.assn_trkend.push_back(fee);    // The rec::TrackEnd (see Track.h) that extrapolated to cluster
+                srassn.trkend = fee;    // The rec::TrackEnd (see Track.h) that extrapolated to cluster
+                rec.assn.ecalclust.push_back(srassn);
             }
             iCluster++;
         }
     } // end branch on fWriteCaloInfo
+
+    rec.assn.necalclust = rec.assn.ecalclust.size();
 
     return;
 } // end :anatree::FillVectors

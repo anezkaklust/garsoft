@@ -26,6 +26,7 @@
   <class name="caf::SRAssnBranch"/>
   <class name="caf::SRVertexAssn"/>
   <class name="caf::SRVeeAssn"/>
+  <class name="caf::SRClusterAssn"/>
 
   <class name="caf::SRVector3D"/>
   <class name="caf::SRCovMx"/>
@@ -33,6 +34,7 @@
   <class name="std::vector<caf::SRTPCRecoHit>"/>
   <class name="std::vector<caf::SRRecoHit>"/>
   <class name="std::vector<caf::SRTPCCluster>"/>
+  <class name="std::vector<caf::SRECalCluster>"/>
   <class name="std::vector<caf::SRDigit>"/>
   <class name="std::vector<caf::SRTrack>"/>
   <class name="std::vector<caf::SRTrackTrajectory>"/>
@@ -46,6 +48,7 @@
   <class name="std::vector<caf::SRSimHit>"/>
   <class name="std::vector<caf::SRVertexAssn>"/>
   <class name="std::vector<caf::SRVeeAssn>"/>
+  <class name="std::vector<caf::SRClusterAssn>"/>
 
   <class name="std::vector<caf::SRVector3D>"/>
   <class name="std::vector<caf::SRCovMx>"/>
