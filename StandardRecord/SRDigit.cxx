@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRDigit.h"
+#include "StandardRecord/SRDigit.h"
 
 #include <limits>
 

@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRHeader.h"
+#include "StandardRecord/SRHeader.h"
 
 #include <limits>
 

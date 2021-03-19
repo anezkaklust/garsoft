@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRTruth.h"
+#include "StandardRecord/SRTruth.h"
 
 namespace caf
 {

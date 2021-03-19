@@ -1,7 +1,7 @@
 #ifndef CAFSRSIMHITBRANCH_H
 #define CAFSRSIMHITBRANCH_H
 
-#include "garsoft/StandardRecord/SRSimHit.h"
+#include "StandardRecord/SRSimHit.h"
 
 #include <vector>
 

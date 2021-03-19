@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRVeeAssn.h"
+#include "StandardRecord/SRVeeAssn.h"
 
 namespace caf
 {

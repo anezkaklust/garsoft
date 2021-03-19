@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRVector3D.h"
+#include "StandardRecord/SRVector3D.h"
 
 #include <limits>
 

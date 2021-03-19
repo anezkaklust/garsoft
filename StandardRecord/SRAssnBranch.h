@@ -1,9 +1,9 @@
 #ifndef CAFSRASSNS_H
 #define CAFSRASSNS_H
 
-#include "garsoft/StandardRecord/SRVertexAssn.h"
-#include "garsoft/StandardRecord/SRVeeAssn.h"
-#include "garsoft/StandardRecord/SRClusterAssn.h"
+#include "StandardRecord/SRVertexAssn.h"
+#include "StandardRecord/SRVeeAssn.h"
+#include "StandardRecord/SRClusterAssn.h"
 
 #include <vector>
 

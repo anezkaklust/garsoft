@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRVertex.h"
+#include "StandardRecord/SRVertex.h"
 
 #include <limits>
 

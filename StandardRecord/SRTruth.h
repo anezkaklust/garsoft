@@ -1,10 +1,10 @@
 #ifndef CAFSRTRUTH_H
 #define CAFSRTRUTH_H
 
-#include "garsoft/StandardRecord/SRNeutrino.h"
-#include "garsoft/StandardRecord/SRGenieParticle.h"
-#include "garsoft/StandardRecord/SRParticle.h"
-#include "garsoft/StandardRecord/SRSimHitBranch.h"
+#include "StandardRecord/SRNeutrino.h"
+#include "StandardRecord/SRGenieParticle.h"
+#include "StandardRecord/SRParticle.h"
+#include "StandardRecord/SRSimHitBranch.h"
 
 #include <vector>
 

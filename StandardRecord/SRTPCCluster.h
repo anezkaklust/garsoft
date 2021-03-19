@@ -1,7 +1,7 @@
 #ifndef CAFSRTPCCLUSTER_H
 #define CAFSRTPCCLUSTER_H
 
-#include "garsoft/StandardRecord/SRCovMx.h"
+#include "StandardRecord/SRCovMx.h"
 
 #include <cstddef>
 

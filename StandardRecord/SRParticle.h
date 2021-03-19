@@ -1,8 +1,8 @@
 #ifndef CAFSRPARTICLE_H
 #define CAFSRPARTICLE_H
 
-#include "garsoft/StandardRecord/SRVector3D.h"
-#include "garsoft/StandardRecord/SRParticleTrajectoryPoint.h"
+#include "StandardRecord/SRVector3D.h"
+#include "StandardRecord/SRParticleTrajectoryPoint.h"
 
 #include <string>
 #include <vector>

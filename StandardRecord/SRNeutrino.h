@@ -1,7 +1,7 @@
 #ifndef CAFSRNEUTRINO_H
 #define CAFSRNEUTRINO_H
 
-#include "garsoft/StandardRecord/SRVector3D.h"
+#include "StandardRecord/SRVector3D.h"
 
 namespace caf
 {

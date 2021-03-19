@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRClusterAssn.h"
+#include "StandardRecord/SRClusterAssn.h"
 
 namespace caf
 {

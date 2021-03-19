@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRVeeHypothesis.h"
+#include "StandardRecord/SRVeeHypothesis.h"
 
 #include <limits>
 

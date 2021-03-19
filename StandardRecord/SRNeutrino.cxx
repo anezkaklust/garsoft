@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRNeutrino.h"
+#include "StandardRecord/SRNeutrino.h"
 
 #include <limits>
 

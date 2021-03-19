@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRDigitBranch.h"
+#include "StandardRecord/SRDigitBranch.h"
 
 namespace caf
 {

@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRTrack.h"
+#include "StandardRecord/SRTrack.h"
 
 #include <limits>
 

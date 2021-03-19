@@ -1,8 +1,8 @@
 #ifndef CAFSRCLUSTERBRANCH_H
 #define CAFSRCLUSTERBRANCH_H
 
-#include "garsoft/StandardRecord/SRTPCCluster.h"
-#include "garsoft/StandardRecord/SRECalCluster.h"
+#include "StandardRecord/SRTPCCluster.h"
+#include "StandardRecord/SRECalCluster.h"
 
 #include <vector>
 

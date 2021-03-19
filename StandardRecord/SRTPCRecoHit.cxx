@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRTPCRecoHit.h"
+#include "StandardRecord/SRTPCRecoHit.h"
 
 #include <limits>
 

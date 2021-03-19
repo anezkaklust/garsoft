@@ -1,7 +1,7 @@
 #ifndef CAFSRTRACK_H
 #define CAFSRTRACK_H
 
-#include "garsoft/StandardRecord/SRTrackTrajectory.h"
+#include "StandardRecord/SRTrackTrajectory.h"
 
 namespace caf
 {

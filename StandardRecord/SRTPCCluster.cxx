@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRTPCCluster.h"
+#include "StandardRecord/SRTPCCluster.h"
 
 #include <limits>
 

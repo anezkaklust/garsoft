@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRParticle.h"
+#include "StandardRecord/SRParticle.h"
 
 #include <limits>
 

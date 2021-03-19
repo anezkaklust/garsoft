@@ -1,7 +1,7 @@
 #ifndef CAFSRVEEHYPOTHESIS_H
 #define CAFSRVEEHYPOTHESIS_H
 
-#include "garsoft/StandardRecord/SRVector3D.h"
+#include "StandardRecord/SRVector3D.h"
 
 namespace caf
 {

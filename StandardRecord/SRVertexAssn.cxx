@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRVertexAssn.h"
+#include "StandardRecord/SRVertexAssn.h"
 
 namespace caf
 {

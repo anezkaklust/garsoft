@@ -1,8 +1,8 @@
 #ifndef CAFSRTRACKTRAJECTORY_H
 #define CAFSRTRACKTRAJECTORY_H
 
-#include "garsoft/StandardRecord/SRTrackPID.h"
-#include "garsoft/StandardRecord/SRVector3D.h"
+#include "StandardRecord/SRTrackPID.h"
+#include "StandardRecord/SRVector3D.h"
 
 #include <vector>
 

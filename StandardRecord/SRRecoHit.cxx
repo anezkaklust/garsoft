@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRRecoHit.h"
+#include "StandardRecord/SRRecoHit.h"
 
 #include <limits>
 

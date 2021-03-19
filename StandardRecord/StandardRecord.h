@@ -1,15 +1,15 @@
 #ifndef CAFSTANDARDRECORD_H
 #define CAFSTANDARDRECORD_H
 
-#include "garsoft/StandardRecord/SRHeader.h"
-#include "garsoft/StandardRecord/SRTruth.h"
-#include "garsoft/StandardRecord/SRTrack.h"
-#include "garsoft/StandardRecord/SRVertex.h"
-#include "garsoft/StandardRecord/SRVee.h"
-#include "garsoft/StandardRecord/SRDigitBranch.h"
-#include "garsoft/StandardRecord/SRRecoHitBranch.h"
-#include "garsoft/StandardRecord/SRClusterBranch.h"
-#include "garsoft/StandardRecord/SRAssnBranch.h"
+#include "StandardRecord/SRHeader.h"
+#include "StandardRecord/SRTruth.h"
+#include "StandardRecord/SRTrack.h"
+#include "StandardRecord/SRVertex.h"
+#include "StandardRecord/SRVee.h"
+#include "StandardRecord/SRDigitBranch.h"
+#include "StandardRecord/SRRecoHitBranch.h"
+#include "StandardRecord/SRClusterBranch.h"
+#include "StandardRecord/SRAssnBranch.h"
 
 #include <string>
 #include <vector>

@@ -1,7 +1,7 @@
 #ifndef CAFSRECALCLUSTER_H
 #define CAFSRECALCLUSTER_H
 
-#include "garsoft/StandardRecord/SRVector3D.h"
+#include "StandardRecord/SRVector3D.h"
 
 #include <vector>
 

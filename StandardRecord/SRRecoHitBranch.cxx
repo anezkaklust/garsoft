@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRRecoHitBranch.h"
+#include "StandardRecord/SRRecoHitBranch.h"
 
 namespace caf
 {

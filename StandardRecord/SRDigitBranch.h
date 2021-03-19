@@ -1,7 +1,7 @@
 #ifndef CAFSRDIGITBRANCH_H
 #define CAFSRDIGITBRANCH_H
 
-#include "garsoft/StandardRecord/SRDigit.h"
+#include "StandardRecord/SRDigit.h"
 
 #include <vector>
 

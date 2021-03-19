@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRParticleTrajectoryPoint.h"
+#include "StandardRecord/SRParticleTrajectoryPoint.h"
 
 #include <limits>
 

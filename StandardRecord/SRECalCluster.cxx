@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRECalCluster.h"
+#include "StandardRecord/SRECalCluster.h"
 
 #include <limits>
 

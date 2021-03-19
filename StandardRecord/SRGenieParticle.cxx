@@ -1,4 +1,4 @@
-#include "garsoft/StandardRecord/SRGenieParticle.h"
+#include "StandardRecord/SRGenieParticle.h"
 
 #include <limits>
 

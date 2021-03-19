@@ -1,7 +1,7 @@
 #ifndef CAFSRVEE_H
 #define CAFSRVEE_H
 
-#include "garsoft/StandardRecord/SRVeeHypothesis.h"
+#include "StandardRecord/SRVeeHypothesis.h"
 
 #include <cstddef>
 
