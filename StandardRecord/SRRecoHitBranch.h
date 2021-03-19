@@ -1,8 +1,8 @@
 #ifndef CAFSRRECOHITBRANCH_H
 #define CAFSRRECOHITBRANCH_H
 
-#include "StandardRecord/SRTPCRecoHit.h"
-#include "StandardRecord/SRRecoHit.h"
+#include "garsoft/StandardRecord/SRTPCRecoHit.h"
+#include "garsoft/StandardRecord/SRRecoHit.h"
 
 #include <vector>
 
