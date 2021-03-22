@@ -18,6 +18,7 @@
 
 // GArSoft libraries
 #include "Geometry/GeometryCore.h"
+#include "SummaryDataProducts/GeometryConfigurationInfo.h"
 
 // the following are included for convenience only
 #include "Geometry/ChannelMapAlgs/ChannelMapAlg.h"
@@ -113,6 +114,8 @@ namespace gar {
       /// Returns a pointer to the geometry service provider
       provider_type const* provider() const { return static_cast<provider_type const*>(this); }
 
+      gar::sumdata::GeometryConfigurationInfo const& configurationInfo() const { return fConfInfo; }
+
     private:
 
       /// Expands the provided paths and loads the geometry description(s)
@@ -122,16 +125,25 @@ namespace gar {
 
       void InitializeSegmentations();
 
+      void FillGeometryConfigurationInfo(fhicl::ParameterSet const& config);
+
+      bool CheckConfigurationInfo (gar::sumdata::GeometryConfigurationInfo const& other) const;
+
+      static gar::sumdata::GeometryConfigurationInfo const& ReadConfigurationInfo (art::Run const& run);
+
+      static bool CompareConfigurationInfo(gar::sumdata::GeometryConfigurationInfo const& A, gar::sumdata::GeometryConfigurationInfo const& B);
+
       std::string               fRelPath;          ///< Relative path added to FW_SEARCH_PATH to search for
                                                    ///< geometry file
-      bool                      fForceUseFCLOnly;  ///< Force Geometry to only use the geometry
-                                                   ///< files specified in the fcl file
+      bool                      fNonFatalConfCheck;                    
       fhicl::ParameterSet       fSortingParameters;///< Parameter set to define the channel map sorting
 
       fhicl::ParameterSet       fSegParameters;    ///< Parameter set to define the segmentation algorithms
       fhicl::ParameterSet       fECALSegParameters; ///< Parameters for the ECAL Segmentation
       fhicl::ParameterSet       fMinervaSegParameters; ///< Parameters for the Tracker Sc Segmentation
       fhicl::ParameterSet       fMuIDSegParameters; ///< Parameters for the MuID Segmentation
+
+      gar::sumdata::GeometryConfigurationInfo fConfInfo;
     };
 
   } // namespace geo

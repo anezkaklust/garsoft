@@ -10,16 +10,16 @@
 
 #include "SummaryDataProducts/POTSummary.h"
 
-namespace gar{
+namespace gar {
   namespace sumdata{
     
-      //----------------------------------------------------------------------------
-    POTSummary::POTSummary()
-    : totpot    (0.0)
-    , totgoodpot(0.0)
-    , totspills (0)
-    , goodspills(0)
-    {}
+    //----------------------------------------------------------------------------
+    void POTSummary::aggregate(POTSummary const& other) {
+        totpot     += other.totpot    ;
+        totgoodpot += other.totgoodpot;
+        totspills  += other.totspills ;
+        goodspills += other.goodspills;
+      } // POTSummary::aggregate()
     
       //----------------------------------------------------------------------------
     std::ostream& operator<< (std::ostream &o, POTSummary const& a)

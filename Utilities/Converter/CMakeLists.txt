@@ -5,6 +5,7 @@ include_directories( $ENV{EDEPSIM_INC}/EDepSim )
 execute_process(COMMAND genie-config --libs OUTPUT_VARIABLE GENIE_LIBS_DIR_WITH_LFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 art_make(LIB_LIBRARIES      SimulationDataProducts
+                            SummaryDataProducts
                             Geometry
                             ${ART_FRAMEWORK_PRINCIPAL}
                             ${ART_FRAMEWORK_SERVICES_REGISTRY}
@@ -31,6 +32,7 @@ art_make(LIB_LIBRARIES      SimulationDataProducts
                             ${Boost_SYSTEM_LIBRARY}
                             ${EDEPSIMIO}
        MODULE_LIBRARIES     SimulationDataProducts
+                            SummaryDataProducts
                             Geometry
                             MCCheater_BackTracker_service
                             nugen_EventGeneratorBase_GENIE

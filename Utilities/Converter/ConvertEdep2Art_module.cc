@@ -44,11 +44,14 @@
 
 // GArSoft Includes
 // #include "Utilities/AssociationUtil.h"
+#include "SummaryDataProducts/RunData.h"
+#include "SummaryDataProducts/POTSummary.h"
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "SimulationDataProducts/CaloDeposit.h"
 #include "SimulationDataProducts/LArDeposit.h"
 #include "SimulationDataProducts/GenieParticle.h"
 #include "RawDataProducts/CaloRawDigit.h"
+
 #include "Geometry/GeometryCore.h"
 #include "Geometry/GeometryGAr.h"
 #include "Geometry/LocalTransformation.h"
@@ -94,6 +97,7 @@ namespace util {
         void produce (::art::Event& evt);
         void beginJob();
         void beginRun(::art::Run& run);
+        void endSubRun(::art::SubRun& sr);
 
     private:
 
@@ -120,6 +124,11 @@ namespace util {
         std::string fTPCMaterial;
         double fEnergyCut;
         bool fApplyBirks;
+
+        double fTotPOT;      ///< Total POT 
+        double fTotGoodPOT;  ///< Total good POT
+        unsigned int fSpills; ///< Total of spills 
+        unsigned int fGoodSpills; ///< Total of good spills 
 
         TChain* fTreeChain;
         unsigned int nEntries;
@@ -221,6 +230,9 @@ namespace util {
         fFieldDecoderTrk = new gar::geo::BitFieldCoder( fEncoding );
         fMinervaSegAlg = (gar::geo::seg::MinervaSegmentationAlg*)fGeo->MinervaSegmentationAlg();
 
+        produces< gar::sumdata::RunData, ::art::InRun >();
+        produces< gar::sumdata::POTSummary, ::art::InSubRun >();
+
         produces< std::vector<simb::MCTruth> >();
         if(fHasGHEP) {
             produces< std::vector<gar::sdp::GenieParticle> >();
@@ -253,6 +265,11 @@ namespace util {
 
     //----------------------------------------------------------------------
     void ConvertEdep2Art::beginJob() {
+        fTotPOT = 0.;
+        fTotGoodPOT = 0.;
+        fSpills = 0;
+        fGoodSpills = 0;
+
         if(fOverlay && fHasGHEP){
             //need to get where is the end of the spill
             for(int ientry = 0; ientry < fGTreeChain->GetEntries(); ientry++)
@@ -283,6 +300,9 @@ namespace util {
             MF_LOG_INFO("ConvertEdep2Art::beginJob()")
             << "Number of spills in the ghep file "
             << fSpillCount;
+
+            fSpills = fSpillCount;
+            fGoodSpills = fSpillCount;
         }
 
         return;
@@ -290,6 +310,21 @@ namespace util {
 
     //--------------------------------------------------------------------------
     void ConvertEdep2Art::beginRun(::art::Run& run) {
+        std::unique_ptr<gar::sumdata::RunData> runcol(new gar::sumdata::RunData(fGeo->DetectorName()));
+        run.put(std::move(runcol));
+        return;
+    }
+
+    //--------------------------------------------------------------------------
+    void ConvertEdep2Art::endSubRun(::art::SubRun& sr) {
+
+        std::unique_ptr<gar::sumdata::POTSummary> p(new gar::sumdata::POTSummary());
+        p->totpot = fTotPOT;
+        p->totgoodpot = fTotGoodPOT;
+        p->totspills = fSpills;
+        p->goodspills = fGoodSpills;
+        sr.put(std::move(p));
+
         return;
     }
 
@@ -469,11 +504,62 @@ namespace util {
         fTreeChain->GetEntry(eventnumber-1);
 
         unsigned int_idx = 0;
+
         //--------------------------------------------------------------------------
-        if(fOverlay && fHasGHEP) {
-            for(int ientry = fStartSpill[eventnumber-1]; ientry < fStopSpill[eventnumber-1]; ientry++)
-            {
-                fGTreeChain->GetEntry(ientry);
+        if(fHasGHEP) 
+        {
+            fTotPOT = fGTreeChain->GetWeight();
+            fTotGoodPOT = fGTreeChain->GetWeight();
+            if(fOverlay) {
+                for(int ientry = fStartSpill[eventnumber-1]; ientry < fStopSpill[eventnumber-1]; ientry++)
+                {
+                    fGTreeChain->GetEntry(ientry);
+
+                    genie::NtpMCRecHeader rec_header = fMCRec->hdr;
+                    genie::EventRecord *event = fMCRec->event;
+                    // genie::Interaction *interaction = event->Summary();
+
+                    MF_LOG_DEBUG("ConvertEdep2Art") << rec_header;
+                    MF_LOG_DEBUG("ConvertEdep2Art") << *event;
+                    // MF_LOG_INFO("ConvertEdep2Art") << *interaction;
+
+                    genie::GHepParticle *neutrino = event->Probe();
+                    //avoid rootino events
+                    if(nullptr == neutrino) {
+                        int_idx = 0;
+                        continue;
+                    }
+
+                    //Store the list of GENIE particles
+                    genie::GHepParticle* p = nullptr;
+                    TObjArrayIter piter(event);
+                    unsigned int idx = 0;
+
+                    while( (p = (genie::GHepParticle*) piter.Next()) ) {
+                        geniepartcol->emplace_back(int_idx, idx, p->Pdg(), p->Status(), p->Name(), p->FirstMother(), p->LastMother(), p->FirstDaughter(), p->LastDaughter(), p->Px(), p->Py(), p->Pz(), p->E(), p->Mass(), p->RescatterCode());
+                        idx++;
+                    }
+
+                    simb::MCTruth mctruth;
+                    simb::GTruth  gtruth;
+
+                    evgb::FillMCTruth(event, 0., mctruth);
+                    evgb::FillGTruth(event, gtruth);
+
+                    mctruthcol->push_back(mctruth);
+                    gtruthcol->push_back(gtruth);
+
+                    //Make a vector of mctruth art ptr
+                    art::Ptr<simb::MCTruth> MCTruthPtr = makeMCTruthPtr(mctruthcol->size() - 1);
+                    mctPtrs.push_back(MCTruthPtr);
+
+                    evgb::util::CreateAssn(*this, evt, *mctruthcol, *gtruthcol, *tgassn, gtruthcol->size()-1, gtruthcol->size());
+                    int_idx++;
+                }
+            }
+            else {
+                //Starts at 0, evt starts at 1
+                fGTreeChain->GetEntry(eventnumber-1);
 
                 genie::NtpMCRecHeader rec_header = fMCRec->hdr;
                 genie::EventRecord *event = fMCRec->event;
@@ -482,13 +568,6 @@ namespace util {
                 MF_LOG_DEBUG("ConvertEdep2Art") << rec_header;
                 MF_LOG_DEBUG("ConvertEdep2Art") << *event;
                 // MF_LOG_INFO("ConvertEdep2Art") << *interaction;
-
-                genie::GHepParticle *neutrino = event->Probe();
-                //avoid rootino events
-                if(nullptr == neutrino) {
-                    int_idx = 0;
-                    continue;
-                }
 
                 //Store the list of GENIE particles
                 genie::GHepParticle* p = nullptr;
@@ -514,46 +593,9 @@ namespace util {
                 mctPtrs.push_back(MCTruthPtr);
 
                 evgb::util::CreateAssn(*this, evt, *mctruthcol, *gtruthcol, *tgassn, gtruthcol->size()-1, gtruthcol->size());
-                int_idx++;
             }
-        }
-        else if(not fOverlay && fHasGHEP){
-            //Starts at 0, evt starts at 1
-            fGTreeChain->GetEntry(eventnumber-1);
-
-            genie::NtpMCRecHeader rec_header = fMCRec->hdr;
-            genie::EventRecord *event = fMCRec->event;
-            // genie::Interaction *interaction = event->Summary();
-
-            MF_LOG_DEBUG("ConvertEdep2Art") << rec_header;
-            MF_LOG_DEBUG("ConvertEdep2Art") << *event;
-            // MF_LOG_INFO("ConvertEdep2Art") << *interaction;
-
-            //Store the list of GENIE particles
-            genie::GHepParticle* p = nullptr;
-            TObjArrayIter piter(event);
-            unsigned int idx = 0;
-
-            while( (p = (genie::GHepParticle*) piter.Next()) ) {
-                geniepartcol->emplace_back(int_idx, idx, p->Pdg(), p->Status(), p->Name(), p->FirstMother(), p->LastMother(), p->FirstDaughter(), p->LastDaughter(), p->Px(), p->Py(), p->Pz(), p->E(), p->Mass(), p->RescatterCode());
-                idx++;
-            }
-
-            simb::MCTruth mctruth;
-            simb::GTruth  gtruth;
-
-            evgb::FillMCTruth(event, 0., mctruth);
-            evgb::FillGTruth(event, gtruth);
-
-            mctruthcol->push_back(mctruth);
-            gtruthcol->push_back(gtruth);
-
-            //Make a vector of mctruth art ptr
-            art::Ptr<simb::MCTruth> MCTruthPtr = makeMCTruthPtr(mctruthcol->size() - 1);
-            mctPtrs.push_back(MCTruthPtr);
-
-            evgb::util::CreateAssn(*this, evt, *mctruthcol, *gtruthcol, *tgassn, gtruthcol->size()-1, gtruthcol->size());
-        } else {
+        } 
+        else {
 
             //Case where things are made from particle gun! no ghep file provided. Need to create MCTruth object / GTruth object
             simb::MCTruth truth;
@@ -562,7 +604,7 @@ namespace util {
             for (std::vector<TG4PrimaryVertex>::const_iterator t = fEvent->Primaries.begin(); t != fEvent->Primaries.end(); ++t)
             {
                 TLorentzVector pos(t->Position.X() / CLHEP::cm, t->Position.Y() / CLHEP::cm, t->Position.Z() / CLHEP::cm, t->Position.T());
-		double evWeight = t->Weight;
+		        double evWeight = t->Weight;
 
                 for (std::vector<TG4PrimaryParticle>::const_iterator p = t->Particles.begin(); p != t->Particles.end(); ++p) {
                     int trackid = p->GetTrackId();
@@ -572,7 +614,7 @@ namespace util {
 
                     simb::MCParticle part(trackid, p->GetPDGCode(), primary);
                     part.AddTrajectoryPoint(pos, pvec);
-		    part.SetWeight(evWeight);
+		            part.SetWeight(evWeight);
 
                     MF_LOG_DEBUG("ConvertEdep2Art") << "Adding primary particle with "
                     << " momentum " << part.P()

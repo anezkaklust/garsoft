@@ -20,6 +20,7 @@
 // C/C++ standard libraries
 #include <vector>
 #include <string>
+#include <algorithm> // std::min()
 
 namespace gar {
     namespace geo {
@@ -27,11 +28,10 @@ namespace gar {
 
         //......................................................................
         // Constructor.
-        GeometryGAr::GeometryGAr(fhicl::ParameterSet   const& pset,
-        ::art::ActivityRegistry      & reg)
+        GeometryGAr::GeometryGAr(fhicl::ParameterSet const& pset, ::art::ActivityRegistry &reg)
         : GeometryCore(pset)
         , fRelPath          (pset.get< std::string       >("RelativePath",     ""   ))
-        , fForceUseFCLOnly  (pset.get< bool              >("ForceUseFCLOnly" , false))
+        , fNonFatalConfCheck(pset.get< bool              >("SkipConfigurationCheck", false))
         , fSortingParameters(pset.get<fhicl::ParameterSet>("SortingParameters", fhicl::ParameterSet() ))
         , fSegParameters(pset.get<fhicl::ParameterSet>("SegmentationAlgPars", fhicl::ParameterSet() ))
         {
@@ -53,42 +53,34 @@ namespace gar {
             // load the geometry
             LoadNewGeometry(GDMLFileName, ROOTFileName);
 
+            FillGeometryConfigurationInfo(pset);
+
         } // GeometryGAr::Geometry()
 
 
         //------------------------------------------------------------------------
         void GeometryGAr::preBeginRun(::art::Run const& run)
         {
-            // if we are requested to stick to the configured geometry, do nothing
-            if (fForceUseFCLOnly) return;
-
-            // check here to see if we need to load a new geometry.
-            // get the detector id from the run object
-            std::vector< ::art::Handle<sumdata::RunData> > rdcol;
-            run.getManyByType(rdcol);
-            if (rdcol.empty()) {
-                mf::LogWarning("LoadNewGeometry") << "cannot find sumdata::RunData object to grab detector name\n"
-                << "this is expected if generating MC files\n"
-                << "using default geometry from configuration file\n";
-                return;
+            sumdata::GeometryConfigurationInfo const inputGeomInfo = ReadConfigurationInfo(run);
+            if (!CheckConfigurationInfo(inputGeomInfo)) {
+                if (fNonFatalConfCheck) {
+                    // disable the non-fatal option if you need the details
+                    MF_LOG_WARNING("Geometry") << "Geometry used for " << run.id()
+                    << " is incompatible with the one configured in the job.";
+                }
+                else 
+                {
+                    throw cet::exception("Geometry")
+                    << "Geometry used for run " << run.id()
+                    << " is incompatible with the one configured in the job!"
+                    << "\n=== job configuration " << std::string(50, '=')
+                    << "\n" << fConfInfo
+                    << "\n=== run configuration " << std::string(50, '=')
+                    << "\n" << inputGeomInfo
+                    << "\n======================" << std::string(50, '=')
+                    << "\n";
+                }
             }
-
-            // if the detector name is still the same, everything is fine
-            std::string newDetectorName = rdcol.front()->DetName();
-            if (DetectorName() == newDetectorName) return;
-
-            // check to see if the detector name in the RunData
-            // object has not been set.
-            std::string const nodetname("nodetectorname");
-            if (newDetectorName == nodetname) {
-                MF_LOG_WARNING("Geometry") << "Detector name not set: " << newDetectorName;
-            } // if no detector name stored
-            else {
-                // the detector name is specified in the RunData object
-                SetDetectorName(newDetectorName);
-            }
-
-            LoadNewGeometry(DetectorName() + ".gdml", DetectorName() + ".gdml", true);
         } // GeometryGAr::preBeginRun()
 
         //......................................................................
@@ -198,6 +190,74 @@ namespace gar {
             //Print the geometry parameters
             PrintGeometry();
         } // GeometryGAr::LoadNewGeometry()
+
+        //......................................................................
+       void GeometryGAr::FillGeometryConfigurationInfo(fhicl::ParameterSet const& config)
+       {
+       
+         gar::sumdata::GeometryConfigurationInfo confInfo;
+         confInfo.dataVersion = gar::sumdata::GeometryConfigurationInfo::DataVersion_t{2};
+
+         // version 1+:
+         confInfo.detectorName = DetectorName();
+
+         // version 2+:
+         confInfo.geometryServiceConfiguration = config.to_indented_string();
+         fConfInfo = std::move(confInfo);
+
+         MF_LOG_TRACE("Geometry") << "Geometry configuration information:\n" << fConfInfo;
+
+       } // Geometry::FillGeometryConfigurationInfo()
+    
+       //......................................................................
+       bool GeometryGAr::CheckConfigurationInfo(gar::sumdata::GeometryConfigurationInfo const& other) const
+       {
+         MF_LOG_DEBUG("Geometry") << "New geometry information:\n" << other;
+         return CompareConfigurationInfo(fConfInfo, other);
+       } // Geometry::CheckConfigurationInfo()
+    
+       //......................................................................
+       gar::sumdata::GeometryConfigurationInfo const& GeometryGAr::ReadConfigurationInfo(art::Run const& run)
+       {
+       
+         try {
+           return run.getByLabel<gar::sumdata::GeometryConfigurationInfo>(art::InputTag{"GeometryConfigurationWriter"});
+         }
+         catch (art::Exception const& e) {
+           throw art::Exception{
+                e.categoryCode(),
+                "Can't read geometry configuration information.\n"
+                "Is `GeometryConfigurationWriter` service configured?\n",
+                e
+             };
+         }
+
+       } // Geometry::ReadConfigurationInfo()
+    
+       //......................................................................
+       bool GeometryGAr::CompareConfigurationInfo(gar::sumdata::GeometryConfigurationInfo const& A, gar::sumdata::GeometryConfigurationInfo const& B)
+       {
+         /*
+          * Implemented criteria:
+          * 
+          * * both informations must be valid
+          * * the detector names must exactly match
+          * 
+          */
+
+         if (!A.isDataValid()) {
+           MF_LOG_WARNING("Geometry") << "Geometry::CompareConfigurationInfo(): "
+           "invalid version for configuration A:\n" << A;
+           return false;
+         }
+         if (!B.isDataValid()) {
+           MF_LOG_WARNING("Geometry") << "Geometry::CompareConfigurationInfo(): "
+           "invalid version for configuration B:\n" << B;
+           return false;
+         }
+
+         return true;
+       } // CompareConfigurationInfo()
 
         DEFINE_ART_SERVICE(GeometryGAr)
     } // namespace geo

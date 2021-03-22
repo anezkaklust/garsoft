@@ -16,6 +16,7 @@ art_make( LIB_LIBRARIES     ${MF_MESSAGELOGGER}
                             ${ROOT_EGPYTHIA6}
                             ${ROOT_GUI}
                             ${Boost_SYSTEM_LIBRARY}
+                            SummaryDataProducts
           SERVICE_LIBRARIES Geometry
                             GArChannelMapAlg
                             ${ART_FRAMEWORK_CORE}
