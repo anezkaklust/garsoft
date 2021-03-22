@@ -374,7 +374,7 @@ void CAF::loop()
     //ECAL energy resolution sigmaE/E
     const float ECAL_stock = 0.06; //in %
     const float ECAL_const = 0.02;
-    TF1 *fRes = new TF1("fRes", "TMath::Sqrt ( [0]*[0]/x + [1]*[1] )", 3);
+    TF1 *fRes = new TF1("fRes", "TMath::Sqrt ( [0]*[0]/x + [1]*[1] )");
     fRes->FixParameter(0, ECAL_stock);
     fRes->FixParameter(1, ECAL_const);
     //ECAL sampling fraction

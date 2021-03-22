@@ -924,6 +924,7 @@ namespace gar {
 
             if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
                 fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                fECALSegmentationAlg->setVariables(GetECALInnerAngle(), GetECALEndcapSideLength());
                 strip_length = fECALSegmentationAlg->getStripLength(*this, localtemp, cID);
             }
 
@@ -949,6 +950,7 @@ namespace gar {
 
             if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
                 fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                fECALSegmentationAlg->setVariables(GetECALInnerAngle(), GetECALEndcapSideLength());
                 localStripEnds = fECALSegmentationAlg->getStripEnds(*this, localtemp, cID);
             }
 
@@ -977,6 +979,7 @@ namespace gar {
 
             if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
                 fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                fECALSegmentationAlg->setVariables(GetECALInnerAngle(), GetECALEndcapSideLength());
                 light_prop = fECALSegmentationAlg->CalculateLightPropagation(*this, local, cID);
             }
 
@@ -997,6 +1000,7 @@ namespace gar {
 
             if(node_name.find("ECal") != std::string::npos || node_name.find("ECAL") != std::string::npos || node_name.find("ecal") != std::string::npos) {
                 fECALSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                fECALSegmentationAlg->setVariables(GetECALInnerAngle(), GetECALEndcapSideLength());
                 pos = fECALSegmentationAlg->ReconstructStripHitPosition(*this, local, xlocal, cID);
             }
 
