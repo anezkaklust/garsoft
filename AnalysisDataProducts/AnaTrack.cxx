@@ -1,11 +1,12 @@
 
 #include "AnalysisDataProducts/AnaTrack.h"
+#include <iostream>
 
-using namespace gar::adb;
+using namespace gar::adp;
 
-void AnaTrack::MakeGaranaTrack(garana::Track* &track) {
+garana::Track AnaTrack::GaranaTrack() {
 
-    float* tmp = fTrack.Vertex();
+    const float* tmp = fTrack.Vertex();
     TLorentzVector vtx(tmp[0], tmp[1], tmp[2], fTrack.Time());
 
     tmp = fTrack.End();
@@ -17,9 +18,15 @@ void AnaTrack::MakeGaranaTrack(garana::Track* &track) {
     tmp = fTrack.EndDir();
     TVector3 endDir(tmp[0], tmp[1], tmp[2]);
 
-    track = new garana::Track(fTrack.LengthForward(), fTrack.LengthBackward(), fTrack.Momentum_beg(), fTrack.Momentum_end(),
+    //const int chgbeg = fTrack.ChargeBeg();
+    //const int chgend = fTrack.ChargeEnd();
+
+    garana::Track trk(fTrack.LengthForward(), fTrack.LengthBackward(), fTrack.Momentum_beg(), fTrack.Momentum_end(),
 			vtx, end, vtxDir, endDir, fTrack.ChisqForward(), fTrack.ChisqBackward(), fTrack.NHits(),
-			fTrack.TrackParBeg(), fTrack.TrackParEnd(), fTrack.CovMatBegPacked(), fTrack.CovMatEndPacked,
-                        fTrack.ChargeBeg(), fTrack.ChargeEnd(), pidf, pidb, ionf, ionb );
+			fTrack.TrackParBeg(), fTrack.TrackParEnd(), fTrack.CovMatBegPacked(), fTrack.CovMatEndPacked(),
+                        /*fTrack.ChargeBeg(), fTrack.ChargeEnd(),*/ fChgF, fChgB, fPidF, fPidB, fIonF, fIonB );
+
+
+    return trk;
 
 }

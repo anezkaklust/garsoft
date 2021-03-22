@@ -59,6 +59,7 @@
 #include "AnalysisDataProducts/GarG4Particle.h"
 #include "AnalysisDataProducts/MCDisplayTrack.h"
 #include "AnalysisDataProducts/AnaTrack.h"
+#include "AnalysisDataProducts/AnaUtils.h"
 
 #include "MCCheater/BackTracker.h"
 
@@ -66,7 +67,7 @@
 #include "nurandom/RandomUtils/NuRandomService.h"
 
 #include "CoreUtils/ServiceUtil.h"
-#include "Geometry/Geometry.h"
+#include "Geometry/GeometryGAr.h"
 
 #include "TTree.h"
 #include "TDatabasePDG.h"
@@ -198,7 +199,8 @@ namespace gar {
 
         // g4Tree
         vector<garana::G4Particle>         fG4Particles;  ///< 'condensed' MCParticles from G4
-        vector<UInt_t>                     fG4TruthIndex; ///< index of fFSParticles matched to this MCParticle
+        vector<UInt_t>                     fG4TruthIndex; ///< index of GTruth objects matched to this particle
+        vector<UInt_t>                     fG4FSIndex;    ///< index of FSParticle objects matched to this particle
         vector<vector<sdp::EnergyDeposit>> fSimTPCHits;   ///< several "hits" per MCParticle
         vector<vector<sdp::CaloDeposit>>   fSimCalHits;  
         vector<vector<sdp::CaloDeposit>>   fSimMuHits;
@@ -221,22 +223,22 @@ namespace gar {
 
         //   Cluster data
         vector<rec::TPCCluster>    fTPCClusters;  ///< reco TPC clusters
-        vector<rec::Cluster>       fCalClusters;  ///< reco ECal clusters
-        vector<rec::Cluster>       fMuClusters;   ///< reco MuID clusters
+        vector<garana::CaloCluster>       fCalClusters;  ///< reco ECal clusters
+        vector<garana::CaloCluster>       fMuClusters;   ///< reco MuID clusters
         //TODO: add Assns Cluster->Hit
 
         //   Track data
-        vector<adp::AnaTrack>      fTracks;           ///< reco TPC tracks
+        vector<garana::Track>      fTracks;           ///< reco TPC tracks
         vector<vector<UInt_t>>     fTrackG4PIndices;  ///< index of fG4Particles associated with fTracks
         //TODO: add Assns Track->Cluster
 
         // Vertex data
-        vector<rec::Vertex>           fVertices;          ///< reco TPC vertices
+        vector<garana::Vertex>        fVertices;          ///< reco TPC vertices
         vector<vector<UInt_t>>        fVertTrackIndices;  ///< index of fTracks associated with fVertices
         vector<vector<Int_t>>         fVertTrackEnds;      ///< which fTrack end belongs to this vertex
 
         // Vee data
-        vector<rec::Vee>           fVees;             ///< reco Vees (reco 4-mom, 4-pos from decay vertex)
+        vector<garana::Vee>        fVees;             ///< reco Vees (reco 4-mom, 4-pos from decay vertex)
         vector<vector<UInt_t>>     fVeeTrackIndices;  ///< index of fTracks associated with fVees
         vector<vector<Int_t>>      fVeeTrackEnds;      ///< track end associated with fVees
 
@@ -267,7 +269,7 @@ gar::StructuredTree::StructuredTree(fhicl::ParameterSet const & p)
 : EDAnalyzer(p),
   fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "Seed"))
 {
-    fGeo     = providerFrom<geo::Geometry>();
+    fGeo     = providerFrom<geo::GeometryGAr>();
 
     //Sim Hits
     fGeantLabel        = p.get<string>("GEANTLabel","geant");
@@ -384,6 +386,7 @@ void gar::StructuredTree::beginJob() {
     fG4Tree      = tfs->make<TTree>("g4Tree",     "GEANT4 level info");
     fG4Tree->Branch("Event",        &fEvent,       "Event/I");
     fG4Tree->Branch("TruthIndex",   "vector<UInt_t>", &fG4TruthIndex);
+    fG4Tree->Branch("FSIndex",      "vector<UInt_t>", &fG4FSIndex);
     fG4Tree->Branch("G4Particles",  "vector<garana::G4Particle>",  &fG4Particles);
     if(fAnaMode == "reco" || fAnaMode == "readout"){
         fG4Tree->Branch("CalHits.", "vector<sdp::CaloDeposit>", &fSimCalHits);
@@ -421,10 +424,10 @@ void gar::StructuredTree::beginJob() {
     //recoTree
     fRecoTree    = tfs->make<TTree>("recoTree",   "reconstruction level info");
     fRecoTree->Branch("Event",            &fEvent,                      "Event/I");
-    fRecoTree->Branch("Tracks",           "vector<gar::adp::AnaTrack>", &fTracks);
-    fRecoTree->Branch("Vees",             "vector<gar::rec::Vee>",      &fVees);
-    fRecoTree->Branch("Vertices",         "vector<gar::rec::Vertex>",   &fVertices);
-    fRecoTree->Branch("CalClusters",      "vector<gar::rec::Cluster>",  &fCalClusters);
+    fRecoTree->Branch("Tracks",           "vector<garana::Track>",      &fTracks);
+    fRecoTree->Branch("Vees",             "vector<garana::Vee>",      &fVees);
+    fRecoTree->Branch("Vertices",         "vector<garana::Vertex>",   &fVertices);
+    fRecoTree->Branch("CalClusters",      "vector<garana::CaloCluster>",  &fCalClusters);
     fRecoTree->Branch("TrackG4Indices",   "vector<vector<UInt_t>>",     &fTrackG4PIndices);
     fRecoTree->Branch("VertTrackIndices", "vector<vector<UInt_t>>",     &fVertTrackIndices);
     fRecoTree->Branch("VertTrackEnds",    "vector<vector<Int_t>>",      &fVertTrackEnds);
@@ -433,7 +436,7 @@ void gar::StructuredTree::beginJob() {
     fRecoTree->Branch("CalTrackIndices",  "vector<vector<UInt_t>>",     &fCalTrackIndices);
     //fRecoTree->Branch("CalTrackEnds", "vector<vector<Int_t>>", &fCalTrackEnds);
     if(fGeo->HasMuonDetector()){
-            fRecoTree->Branch("MuIDClusters", "vector<gar::rec::Cluster>",   &fMuClusters);
+            fRecoTree->Branch("MuIDClusters", "vector<garana::CaloCluster>",   &fMuClusters);
     }
 
     //TODO: add Assns for reco r&d products
@@ -547,6 +550,7 @@ void gar::StructuredTree::ClearVectors() {
 
     // g4Tree
     fG4TruthIndex.clear();
+    fG4FSIndex.clear();
     fG4Particles.clear();
 
     // displayTree
@@ -686,8 +690,11 @@ void gar::StructuredTree::FillGenTree(art::Event const & e) {
                 if(mcp.StatusCode() == 1){ //GENIE specific???
 
                     mf::LogDebug("StructuredTree::FillGenTree") 
-                        << "FS particle with " << (int)mcp.NumberTrajectoryPoints() 
-                        << " trajectory points";
+                        << "FS particle with trackID " << (int)mcp.TrackId() << ", PDG "
+                        << mcp.PdgCode() << ", " << "4-position (" << mcp.Position(0).X() << ", "
+                        << mcp.Position(0).Y() << ", " << mcp.Position(0).Z() << ", "
+                        << mcp.Position(0).T() << "), and "
+                        << (int)mcp.NumberTrajectoryPoints() << " trajectory points";
 
                     GarFSParticle gfsp(mcp);
                     fFSParticles.back().push_back(gfsp.GetGaranaObj());
@@ -695,7 +702,7 @@ void gar::StructuredTree::FillGenTree(art::Event const & e) {
                 }//if FS particle
             }//for MCParticles
 
-            mf::LogInfo("StructuredTree::FillGenTree")
+            mf::LogDebug("StructuredTree::FillGenTree")
                 << "Processed MCTruth with " << mct.NParticles() << " particles of which "
                 << fFSParticles.back().size() << " are in the final state";
             
@@ -725,9 +732,33 @@ void gar::StructuredTree::FillG4Tree( Event const & e) {
             progenitorId = progenitor->TrackId();
             progenitorPdg = progenitor->PdgCode();
         }
+        else {
+            //std::cout 
+            mf::LogDebug("StructuredTree") << "G4 primary with trackID " << mcp.TrackId() << ", PDG " << mcp.PdgCode() 
+                      << ", initial 4-position (" << mcp.Position(0).X()
+                      << "," << mcp.Position(0).Y() << ","
+                      << mcp.Position(0).Z() << ", " << mcp.Position(0).T() << ")" ;
+                      //<< std::endl;
+        }
+       
 
         GarG4Particle g4p(mcp,parentPdg,progenitorPdg,progenitorId);
         fG4Particles.push_back(g4p.GetGaranaObj());
+
+        /*bool foundfs = false;
+        for(UInt_t index=0; index<fFSParticles.size(); index++) {
+            if(fFSParticles[index].TrackId() == progenitorId) {
+                fG4FSIndex.push_back(index);
+                foundfs = true;
+                break;
+            }
+        }
+        if(!foundfs) {
+           std::cout  <<
+           "WARNING in StructuredTree_module::FillG4Tree: FSParticle association not found!" 
+           << std::endl;
+           fG4FSIndex.push_back(UINT_MAX); //need to push back something or association ordering is broken
+        }*/
 
         //find associated MCTruth
         auto mcmatch = fBt->ParticleToMCTruth(&mcp);
@@ -736,6 +767,22 @@ void gar::StructuredTree::FillG4Tree( Event const & e) {
             if(fMCTruths[i]==mcmatch.get()) { //compare pointers to check MCTruth equality
                 found = true;
                 fG4TruthIndex.push_back(i);
+
+                bool foundfs = false;
+                for(UInt_t index=0; index<fFSParticles.size(); index++) {
+                    if(fFSParticles[i][index].TrackId() == progenitorId) {
+                        fG4FSIndex.push_back(index);
+                        foundfs = true;
+                        break;
+                    }
+                }
+                if(!foundfs) {
+                   //std::cout  <<
+                   //"WARNING in StructuredTree_module::FillG4Tree: FSParticle association not found!"
+                   //<< std::endl;
+                   fG4FSIndex.push_back(UINT_MAX); //need to push back something or association ordering is broken
+                }
+        
                 break;
             } 
         }
@@ -969,18 +1016,23 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
 
     // save per-track info
     size_t iTrack = 0;
+    vector<size_t> trackIDs;
     for ( auto /*const&*/ track : *TrackHandle ) { //backtracker takes ptr to non-const obj
 
         //get track -> G4Particle Assns
         vector<pair<MCParticle*,float>> trackmcps = fBt->TrackToMCParticles(&track); //MCParticle w/fraction energy contributed to track
+        std::cout << "size of track <-> G4p vec from BT: " << trackmcps.size() << std::endl;
         vector<UInt_t> indices;
         for(auto const& mcpe : trackmcps){
-            for(size_t i=0; i< fMCParticles.size(); i++) {
-                if( mcpe.first == fMCParticles[i]) //fMCParticles and fG4Particles have same mapping
+            std::cout << "looking for G4P match to associated match MCP with track ID, " << mcpe.first->TrackId() << std::endl;
+            for(size_t i=0; i< fG4Particles.size(); i++) {
+                std::cout << "  check G4Particle " << i << " with track ID, " << fG4Particles[i].TrackID() << std::endl;
+                if( mcpe.first->TrackId() == fG4Particles[i].TrackID()) //fMCParticles and fG4Particles have same mapping
                     indices.push_back(i);
             }
         }
 
+        std::cout << "found " << indices.size() << " track <-> G4P matches" << std::endl;
         fTrackG4PIndices.push_back(indices);
 
         //Reconstructed momentum forward and backward
@@ -996,7 +1048,8 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
         } 
 
         adp::AnaTrack anatrk(track, pidF, pidB, avgIonF, avgIonB);
-        fTracks.push_back(anatrk);
+        trackIDs.push_back(anatrk.TrackID());
+        fTracks.push_back(anatrk.GaranaTrack());
 
         iTrack++;
     } //for tracks
@@ -1005,7 +1058,7 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
     size_t iVertex = 0;
     for ( auto const& vertex : *VertexHandle ) {
 
-        fVertices.push_back(vertex);
+        fVertices.push_back(MakeAnaVtx(vertex));
         fVertTrackIndices.push_back({});
         fVertTrackEnds.push_back({});
 
@@ -1025,7 +1078,7 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
 
             // find its index in the track list
             for(size_t itrk=0; itrk<fTracks.size(); itrk++){
-                if(fTracks[itrk].TrackID() == track.getIDNumber()){
+                if(trackIDs[itrk] == track.getIDNumber()){
                     fVertTrackEnds.back().push_back(fee);
                     fVertTrackIndices.back().push_back(itrk);
                     break;
@@ -1048,7 +1101,7 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
     size_t iVee = 0;
     for ( auto const& vee : *VeeHandle ) {
 
-        fVees.push_back(vee);
+        fVees.push_back(MakeAnaVee(vee));
         fVeeTrackIndices.push_back({});
         fVeeTrackEnds.push_back({});
 
@@ -1065,7 +1118,7 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
 
             // find its index in the track list
             for(size_t itrk=0; itrk<fTracks.size(); itrk++){
-                if(fTracks[itrk].TrackID() == track.getIDNumber()){
+                if(trackIDs[itrk] == track.getIDNumber()){
                     fVeeTrackIndices.back().push_back(itrk);
                     fVeeTrackEnds.back().push_back(fee);
                     break;
@@ -1080,7 +1133,7 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
     size_t iCluster = 0;
     for ( auto const& cluster : (*CalClusterHandle) ) {
 
-        fCalClusters.push_back(cluster);
+        fCalClusters.push_back(MakeAnaCalCluster(cluster));
         fCalTrackIndices.push_back({});
             fCalTrackEnds.push_back({});
 
@@ -1094,7 +1147,7 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
             //rec::TrackEnd fee = *(findManyCalTrackEnd->data(iCluster).at(itrk));
 
             for(size_t imatch=0; imatch<fTracks.size(); imatch++){
-                if(fTracks[imatch].TrackID() == track.getIDNumber()){
+                if(trackIDs[imatch] == track.getIDNumber()){
                     fCalTrackIndices.back().push_back(imatch);
                     //fCalTrackEnds.back().push_back(fee);
                 }
