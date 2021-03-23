@@ -23,8 +23,8 @@ namespace gar{
     public:
       double totpot;
       double totgoodpot;
-      int totspills;
-      int goodspills;
+      unsigned int totspills;
+      unsigned int goodspills;
 
 #ifndef __GCCXML__
       
@@ -32,7 +32,7 @@ namespace gar{
 
       public:
         double const& TotalPOT() const;
-        int const& TotalSpills() const;
+        unsigned int const& TotalSpills() const;
 #endif
       
     };
@@ -43,7 +43,7 @@ namespace gar{
 #ifndef __GCCXML__
 
 inline double const& gar::sumdata::POTSummary::TotalPOT() const { return totpot; }
-inline int const& gar::sumdata::POTSummary::TotalSpills() const { return totspills; }
+inline unsigned int const& gar::sumdata::POTSummary::TotalSpills() const { return totspills; }
 
 #endif
 

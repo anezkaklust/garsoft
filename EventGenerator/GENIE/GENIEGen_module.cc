@@ -104,7 +104,7 @@ namespace gar {
             void produce(::art::Event& evt);
             void beginJob();
             void beginRun(::art::Run& run);
-            void endSubRun(::art::SubRun& sr);
+            void endRun(::art::Run& run);
 
         private:
 
@@ -172,7 +172,7 @@ namespace gar {
             produces< std::vector<simb::GTruth>  >();
             produces< std::vector<sdp::GenieParticle> >();
             produces< sumdata::RunData, ::art::InRun >();
-            produces< sumdata::POTSummary, ::art::InSubRun >();
+            produces< sumdata::POTSummary, ::art::InRun >();
             produces< ::art::Assns<simb::MCTruth, simb::MCFlux> >();
             produces< ::art::Assns<simb::MCTruth, simb::GTruth> >();
 
@@ -281,27 +281,20 @@ namespace gar {
         //____________________________________________________________________________
         void GENIEGen::beginRun(::art::Run& run)
         {
-
             // grab the geometry object to see what geometry we are using
             auto geo = gar::providerFrom<geo::GeometryGAr>();
             std::unique_ptr<sumdata::RunData> runcol(new sumdata::RunData(geo->DetectorName()));
-
             run.put(std::move(runcol));
-
             return;
         }
 
         //____________________________________________________________________________
-        void GENIEGen::endSubRun(::art::SubRun& sr)
+        void GENIEGen::endRun(::art::Run& run)
         {
-
             std::unique_ptr<sumdata::POTSummary> p(new sumdata::POTSummary());
-
             p->totpot     = fGENIEHelp->TotalExposure();
             p->totgoodpot = fGENIEHelp->TotalExposure();
-
-            sr.put(std::move(p));
-
+            run.put(std::move(p));
             return;
         }
 

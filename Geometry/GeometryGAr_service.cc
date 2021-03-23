@@ -205,15 +205,16 @@ namespace gar {
          confInfo.geometryServiceConfiguration = config.to_indented_string();
          fConfInfo = std::move(confInfo);
 
-         MF_LOG_TRACE("Geometry") << "Geometry configuration information:\n" << fConfInfo;
+         MF_LOG_DEBUG("Geometry") << "Geometry configuration information:\n" << fConfInfo;
 
        } // Geometry::FillGeometryConfigurationInfo()
     
        //......................................................................
        bool GeometryGAr::CheckConfigurationInfo(gar::sumdata::GeometryConfigurationInfo const& other) const
        {
-         MF_LOG_DEBUG("Geometry") << "New geometry information:\n" << other;
-         return CompareConfigurationInfo(fConfInfo, other);
+           MF_LOG_DEBUG("Geometry") << "New geometry information:\n"
+                                    << other;
+           return CompareConfigurationInfo(fConfInfo, other);
        } // Geometry::CheckConfigurationInfo()
     
        //......................................................................
@@ -221,15 +222,14 @@ namespace gar {
        {
        
          try {
-           return run.getByLabel<gar::sumdata::GeometryConfigurationInfo>(art::InputTag{"GeometryConfigurationWriter"});
+           return run.getByLabel<gar::sumdata::GeometryConfigurationInfo>(art::InputTag{"GeometryGArConfigurationWriter"});
          }
          catch (art::Exception const& e) {
-           throw art::Exception{
-                e.categoryCode(),
-                "Can't read geometry configuration information.\n"
-                "Is `GeometryConfigurationWriter` service configured?\n",
-                e
-             };
+             throw art::Exception{
+                 e.categoryCode(),
+                 "Can't read geometry configuration information.\n"
+                 "Is `GeometryGArConfigurationWriter` service configured?\n",
+                 e};
          }
 
        } // Geometry::ReadConfigurationInfo()

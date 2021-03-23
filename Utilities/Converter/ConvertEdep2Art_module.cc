@@ -97,7 +97,7 @@ namespace util {
         void produce (::art::Event& evt);
         void beginJob();
         void beginRun(::art::Run& run);
-        void endSubRun(::art::SubRun& sr);
+        void endRun(::art::Run& run);
 
     private:
 
@@ -231,7 +231,7 @@ namespace util {
         fMinervaSegAlg = (gar::geo::seg::MinervaSegmentationAlg*)fGeo->MinervaSegmentationAlg();
 
         produces< gar::sumdata::RunData, ::art::InRun >();
-        produces< gar::sumdata::POTSummary, ::art::InSubRun >();
+        produces< gar::sumdata::POTSummary, ::art::InRun >();
 
         produces< std::vector<simb::MCTruth> >();
         if(fHasGHEP) {
@@ -310,21 +310,32 @@ namespace util {
 
     //--------------------------------------------------------------------------
     void ConvertEdep2Art::beginRun(::art::Run& run) {
+        //Get RunData
         std::unique_ptr<gar::sumdata::RunData> runcol(new gar::sumdata::RunData(fGeo->DetectorName()));
         run.put(std::move(runcol));
-        return;
-    }
 
-    //--------------------------------------------------------------------------
-    void ConvertEdep2Art::endSubRun(::art::SubRun& sr) {
+        //Get POT
+        if(fHasGHEP) 
+        {
+            fTotPOT = fGTreeChain->GetWeight();
+            fTotGoodPOT = fTotPOT;
+        }
+
+        MF_LOG_INFO("ConvertEdep2Art") << "POT for this file is " << fTotPOT
+        << " The number of spills is " << fSpills;
 
         std::unique_ptr<gar::sumdata::POTSummary> p(new gar::sumdata::POTSummary());
         p->totpot = fTotPOT;
         p->totgoodpot = fTotGoodPOT;
         p->totspills = fSpills;
         p->goodspills = fGoodSpills;
-        sr.put(std::move(p));
+        run.put(std::move(p));
 
+        return;
+    }
+
+    //--------------------------------------------------------------------------
+    void ConvertEdep2Art::endRun(::art::Run& run) {
         return;
     }
 
@@ -508,8 +519,6 @@ namespace util {
         //--------------------------------------------------------------------------
         if(fHasGHEP) 
         {
-            fTotPOT = fGTreeChain->GetWeight();
-            fTotGoodPOT = fGTreeChain->GetWeight();
             if(fOverlay) {
                 for(int ientry = fStartSpill[eventnumber-1]; ientry < fStopSpill[eventnumber-1]; ientry++)
                 {

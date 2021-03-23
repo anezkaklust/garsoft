@@ -167,7 +167,7 @@ auto gar::geo::GeometryGArConfigurationWriter::loadInfo(art::Run& run) const -> 
    */
   InfoPtr_t info = readGeometryInformation(run);
   
-  return info? std::move(info): makeInfoFromRunData(run);
+  return info ? std::move(info) : makeInfoFromRunData(run);
   
 } // gar::geo::GeometryGArConfigurationWriter::loadInfo()
 
@@ -176,9 +176,10 @@ auto gar::geo::GeometryGArConfigurationWriter::loadInfo(art::Run& run) const -> 
 auto gar::geo::GeometryGArConfigurationWriter::extractInfoFromGeometry() -> InfoPtr_t {
   
   gar::sumdata::GeometryConfigurationInfo confInfo = art::ServiceHandle<gar::geo::GeometryGAr>()->configurationInfo();
-  
-  MF_LOG_DEBUG("GeometryGArConfigurationWriter") << "Geometry configuration information from service:\n" << confInfo;
-  
+
+  MF_LOG_DEBUG("GeometryGArConfigurationWriter") << "Geometry configuration information from service:\n"
+                                                 << confInfo;
+
   return makeInfoPtr(std::move(confInfo));
   
 } // gar::geo::GeometryGArConfigurationWriter::extractInfoFromGeometry()
@@ -222,10 +223,11 @@ auto gar::geo::GeometryGArConfigurationWriter::convertRunDataToGeometryInformati
   // we use the simplest version 1 data format (legacy format)
   confInfo.dataVersion = gar::sumdata::GeometryConfigurationInfo::DataVersion_t{1};
   confInfo.detectorName = data.DetName();
-  
-  MF_LOG_DEBUG("GeometryConfigurationInfo")
-   << "Built geometry configuration information from run data:\n" << confInfo;
-  
+
+  MF_LOG_DEBUG("GeometryGArConfigurationWriter")
+      << "Built geometry configuration information from run data:\n"
+      << confInfo;
+
   return makeInfoPtr(std::move(confInfo));
   
 } // gar::geo::GeometryGArConfigurationWriter::convertRunDataToGeometryInformation()

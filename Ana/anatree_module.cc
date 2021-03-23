@@ -85,7 +85,7 @@ namespace gar {
         anatree & operator = (anatree const &) = delete;
         anatree & operator = (anatree &&) = delete;
 
-        virtual void endSubRun(art::SubRun const& subRun) override;
+        virtual void endRun(art::Run const& run) override;
         virtual void beginJob() override;
 
         // Required functions.
@@ -976,22 +976,22 @@ void gar::anatree::beginJob() {
 //==============================================================================
 //==============================================================================
 //==============================================================================
-void gar::anatree::endSubRun(art::SubRun const& subRun) {
-    auto const& ID = subRun.id();
+void gar::anatree::endRun(art::Run const& run) {
+    auto const& ID = run.id();
 
     art::Handle<sumdata::POTSummary> summaryHandle;
-    if (!subRun.getByLabel(fPOTtag, summaryHandle)) {
-        MF_LOG_DEBUG("anatree") << " No sumdata::POTSummary branch for subrun " << ID 
+    if (!run.getByLabel(fPOTtag, summaryHandle)) {
+        MF_LOG_DEBUG("anatree") << " No sumdata::POTSummary branch for run " << ID 
         <<" Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         return;
     }
 
-    //
-    // accumulate the information by run
-    //
-    sumdata::POTSummary const& subRunPOT = *summaryHandle;
-    fTotalPOT = subRunPOT.TotalPOT();
-    fNSpills = subRunPOT.TotalSpills();
+    sumdata::POTSummary const& RunPOT = *summaryHandle;
+    fTotalPOT = RunPOT.TotalPOT();
+    fNSpills = RunPOT.TotalSpills();
+
+    MF_LOG_INFO("anatree") << "POT for this file is " << fTotalPOT
+    << " The number of spills is " << fNSpills;
 }
 
 //==============================================================================
