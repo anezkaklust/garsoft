@@ -7,7 +7,8 @@
   <class name="gar::sumdata::RunData"    ClassVersion="10">
    <version ClassVersion="10" checksum="3085891293"/>
   </class>
-  <class name="gar::sumdata::POTSummary" ClassVersion="10">
+  <class name="gar::sumdata::POTSummary" ClassVersion="11">
+   <version ClassVersion="11" checksum="2256615117"/>
    <version ClassVersion="10" checksum="3749078273"/>
   </class>
   <class name="gar::sumdata::GeometryConfigurationInfo" ClassVersion="11">
