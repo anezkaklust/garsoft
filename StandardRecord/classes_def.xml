@@ -1,0 +1,55 @@
+<lcgdict>
+  <class name="caf::StandardRecord"/>
+
+  <class name="caf::SRHeader"/>
+  <class name="caf::SRTruth"/>
+  <class name="caf::SRTrack"/>
+  <class name="caf::SRTrackTrajectory"/>
+  <class name="caf::SRTrackPID"/>
+  <class name="caf::SRVertex"/>
+  <class name="caf::SRVee"/>
+  <class name="caf::SRVeeHypothesis"/>
+  <class name="caf::SRDigitBranch"/>
+  <class name="caf::SRDigit"/>
+  <class name="caf::SRRecoHitBranch"/>
+  <class name="caf::SRTPCRecoHit"/>
+  <class name="caf::SRRecoHit"/>
+  <class name="caf::SRClusterBranch"/>
+  <class name="caf::SRTPCCluster"/>
+  <class name="caf::SRECalCluster"/>
+  <class name="caf::SRNeutrino"/>
+  <class name="caf::SRGenieParticle"/>
+  <class name="caf::SRParticle"/>
+  <class name="caf::SRParticleTrajectoryPoint"/>
+  <class name="caf::SRSimHitBranch"/>
+  <class name="caf::SRSimHit"/>
+  <class name="caf::SRAssnBranch"/>
+  <class name="caf::SRVertexAssn"/>
+  <class name="caf::SRVeeAssn"/>
+  <class name="caf::SRClusterAssn"/>
+
+  <class name="caf::SRVector3D"/>
+  <class name="caf::SRCovMx"/>
+
+  <class name="std::vector<caf::SRTPCRecoHit>"/>
+  <class name="std::vector<caf::SRRecoHit>"/>
+  <class name="std::vector<caf::SRTPCCluster>"/>
+  <class name="std::vector<caf::SRECalCluster>"/>
+  <class name="std::vector<caf::SRDigit>"/>
+  <class name="std::vector<caf::SRTrack>"/>
+  <class name="std::vector<caf::SRTrackTrajectory>"/>
+  <class name="std::vector<caf::SRTrackPID>"/>
+  <class name="std::vector<caf::SRVertex>"/>
+  <class name="std::vector<caf::SRVee>"/>
+  <class name="std::vector<caf::SRNeutrino>"/>
+  <class name="std::vector<caf::SRGenieParticle>"/>
+  <class name="std::vector<caf::SRParticle>"/>
+  <class name="std::vector<caf::SRParticleTrajectoryPoint>"/>
+  <class name="std::vector<caf::SRSimHit>"/>
+  <class name="std::vector<caf::SRVertexAssn>"/>
+  <class name="std::vector<caf::SRVeeAssn>"/>
+  <class name="std::vector<caf::SRClusterAssn>"/>
+
+  <class name="std::vector<caf::SRVector3D>"/>
+  <class name="std::vector<caf::SRCovMx>"/>
+</lcgdict>
