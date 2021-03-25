@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Class:       anatree
+// Class:       CAFMaker
 // Plugin Type: analyzer (art v2_11_02)
-// File:        anatree_module.cc
+// File:        CAFMaker_module.cc
 //
 // Generated at Mon Aug 27 16:41:13 2018 by Thomas Junk using cetskelgen
 // from cetlib version v3_03_01.
@@ -70,17 +70,17 @@ namespace gar {
 
     typedef std::pair<float, std::string> P;
 
-    class anatree : public art::EDAnalyzer {
+    class CAFMaker : public art::EDAnalyzer {
     public:
-        explicit anatree(fhicl::ParameterSet const & p);
+        explicit CAFMaker(fhicl::ParameterSet const & p);
         // The compiler-generated destructor is fine for non-base
         // classes without bare pointers or other resource use.
 
         // Plugins should not be copied or assigned.
-        anatree(anatree const &) = delete;
-        anatree(anatree &&) = delete;
-        anatree & operator = (anatree const &) = delete;
-        anatree & operator = (anatree &&) = delete;
+        CAFMaker(CAFMaker const &) = delete;
+        CAFMaker(CAFMaker &&) = delete;
+        CAFMaker & operator = (CAFMaker const &) = delete;
+        CAFMaker & operator = (CAFMaker &&) = delete;
 
         virtual void beginJob() override;
 
@@ -191,7 +191,7 @@ namespace gar {
 //==============================================================================
 //==============================================================================
 // constructor
-gar::anatree::anatree(fhicl::ParameterSet const & p)
+gar::CAFMaker::CAFMaker(fhicl::ParameterSet const & p)
 : EDAnalyzer(p),
 fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "Seed")) {
     fGeo     = gar::providerFrom<geo::GeometryGAr>();
@@ -320,7 +320,7 @@ fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "See
 //==============================================================================
 //==============================================================================
 //==============================================================================
-void gar::anatree::beginJob() {
+void gar::CAFMaker::beginJob() {
 
     fTPC_X = ItsInTulsa[0] = fGeo->TPCXCent();
     fTPC_Y = ItsInTulsa[1] = fGeo->TPCYCent();
@@ -330,7 +330,7 @@ void gar::anatree::beginJob() {
     rTPC = fGeo->TPCRadius();
 
     art::ServiceHandle<art::TFileService> tfs;
-    fTree = tfs->make<TTree>("GArAnaTree","GArAnaTree");
+    fTree = tfs->make<TTree>("recTree", "recTree");
 
     // Create the branch. We will update the address before we write the tree
     caf::StandardRecord* rec = 0;
@@ -338,9 +338,9 @@ void gar::anatree::beginJob() {
 
     if (fWriteMCPTrajectory) {
         // Checking for parameter file validity only once to simplify
-        // later code in anatree::process etc.
+        // later code in CAFMaker::process etc.
         if (!fWriteMCinfo) {
-            throw cet::exception("anatree")
+            throw cet::exception("CAFMaker")
             << " fWriteMCPTrajectory, but !fWriteMCinfo."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         } 
@@ -348,7 +348,7 @@ void gar::anatree::beginJob() {
 
     if (fWriteMCCaloInfo) {
         if (!fWriteMCinfo) {
-            throw cet::exception("anatree")
+            throw cet::exception("CAFMaker")
             << " fWriteMCCaloInfo, but !fWriteMCinfo."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
@@ -357,7 +357,7 @@ void gar::anatree::beginJob() {
     // Reco'd verts & their track-ends
     if (fWriteVertices) {
         if (!fWriteTracks) {
-            throw cet::exception("anatree")
+            throw cet::exception("CAFMaker")
             << " fWriteVertices, but !fWriteTracks."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
@@ -366,7 +366,7 @@ void gar::anatree::beginJob() {
     // Reco'd vees & their track-ends
     if (fWriteVees) {
         if (!fWriteTracks) {
-            throw cet::exception("anatree")
+            throw cet::exception("CAFMaker")
             << " fWriteVees, but !fWriteTracks."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
@@ -374,7 +374,7 @@ void gar::anatree::beginJob() {
 
     if (fWriteMatchedTracks) {
         if (!fWriteTracks || !fWriteCaloClusters) {
-            throw cet::exception("anatree")
+            throw cet::exception("CAFMaker")
             << " fWriteMatchedTracks, but (!fWriteTracks || !fWriteCaloClusters)."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
@@ -395,14 +395,14 @@ void gar::anatree::beginJob() {
     }
 
     return;
-}  // End of :anatree::beginJob
+}  // End of :CAFMaker::beginJob
 
 
 
 //==============================================================================
 //==============================================================================
 //==============================================================================
-void gar::anatree::analyze(art::Event const & e) {
+void gar::CAFMaker::analyze(art::Event const & e) {
 
     caf::StandardRecord rec;
     caf::StandardRecord* prec = &rec;
@@ -441,7 +441,7 @@ void gar::anatree::analyze(art::Event const & e) {
 //==============================================================================
 //==============================================================================
 //==============================================================================
-void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::StandardRecord& rec) {
+void gar::CAFMaker::FillGeneratorMonteCarloInfo(art::Event const & e, caf::StandardRecord& rec) {
 
     // =============  Get art handles ==========================================
     // Get handles for MCinfo, also good for MCPTrajectory
@@ -455,7 +455,7 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
         for (size_t i=0; i< fGeneratorLabels.size(); ++i) {
             // complain if we wanted a specific one but didn't find it
             if (!e.getByLabel(fGeneratorLabels.at(i),mcthandlelist.at(i))) {
-                throw cet::exception("anatree") << " No simb::MCTruth branch."
+                throw cet::exception("CAFMaker") << " No simb::MCTruth branch."
                 << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
             }
         }
@@ -468,7 +468,7 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
         for (size_t i=0; i< fGENIEGeneratorLabels.size(); ++i) {
             // complain if we wanted a specific one but didn't find it
             if (!e.getByLabel(fGENIEGeneratorLabels.at(i),gthandlelist.at(i))) {
-                throw cet::exception("anatree") << " No simb::GTruth branch."
+                throw cet::exception("CAFMaker") << " No simb::GTruth branch."
                 << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
             }
         }
@@ -547,7 +547,7 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
 
     art::Handle< std::vector<simb::MCParticle> > MCPHandle;
     if (!e.getByLabel(fGeantLabel, MCPHandle)) {
-        throw cet::exception("anatree") << " No simb::MCParticle branch."
+        throw cet::exception("CAFMaker") << " No simb::MCParticle branch."
         << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
     }
 
@@ -581,7 +581,7 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
                 momIndex = TrackIdToIndex[momTrkId];
                 momPDG   = (*MCPHandle).at(momIndex).PdgCode();
             } else {
-                MF_LOG_DEBUG("Anatree_module")
+                MF_LOG_DEBUG("CAFMaker_module")
                 << " mcp trkid " << mcp.TrackId()
                 << " pdg code " << mcp.PdgCode()
                 << " could not find mother trk id " << momTrkId
@@ -715,11 +715,11 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
     art::InputTag muidgeanttag(fGeantLabel, fGeantInstanceMuID);
     if (fWriteMCCaloInfo) {
         if (!e.getByLabel(ecalgeanttag, SimHitHandle)) {
-            throw cet::exception("anatree") << " No gar::sdp::CaloDeposit branch."
+            throw cet::exception("CAFMaker") << " No gar::sdp::CaloDeposit branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
         if (fGeo->HasMuonDetector() && !e.getByLabel(muidgeanttag, MuIDSimHitHandle)) {
-            throw cet::exception("anatree") << " No gar::sdp::CaloDeposit branch."
+            throw cet::exception("CAFMaker") << " No gar::sdp::CaloDeposit branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
 
@@ -768,7 +768,7 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Standa
 //==============================================================================
 //==============================================================================
 //==============================================================================
-void gar::anatree::FillRawInfo(art::Event const & e, caf::StandardRecord& rec) {
+void gar::CAFMaker::FillRawInfo(art::Event const & e, caf::StandardRecord& rec) {
 
     // Get handle for CaloDigits
     art::InputTag ecalrawtag(fRawCaloHitLabel, fRawCaloHitInstanceCalo);
@@ -777,12 +777,12 @@ void gar::anatree::FillRawInfo(art::Event const & e, caf::StandardRecord& rec) {
     art::Handle< std::vector<gar::raw::CaloRawDigit> > MuIDRawHitHandle;
 
     if (!e.getByLabel(ecalrawtag, RawHitHandle)) {
-        throw cet::exception("anatree") << " No :raw::CaloRawDigit branch."
+        throw cet::exception("CAFMaker") << " No :raw::CaloRawDigit branch."
         << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
     }
 
     if (fGeo->HasMuonDetector() && !e.getByLabel(muidrawtag, MuIDRawHitHandle)) {
-        throw cet::exception("anatree") << " No :raw::CaloRawDigit branch."
+        throw cet::exception("CAFMaker") << " No :raw::CaloRawDigit branch."
         << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
     }
 
@@ -820,13 +820,13 @@ void gar::anatree::FillRawInfo(art::Event const & e, caf::StandardRecord& rec) {
 //==============================================================================
 //==============================================================================
 //==============================================================================
-void gar::anatree::FillRecoInfo(art::Event const & e, caf::StandardRecord& rec) {
+void gar::CAFMaker::FillRecoInfo(art::Event const & e, caf::StandardRecord& rec) {
 
     // Get handle for TPC hit data
     art::Handle< std::vector<rec::Hit> > HitHandle;
     if (fWriteHits) {
         if (!e.getByLabel(fHitLabel, HitHandle)) {
-            throw cet::exception("anatree") << " No rec::Hit branch."
+            throw cet::exception("CAFMaker") << " No rec::Hit branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
 
@@ -853,11 +853,11 @@ void gar::anatree::FillRecoInfo(art::Event const & e, caf::StandardRecord& rec) 
     if (fWriteCaloHits) {
 
         if (!e.getByLabel(ecalrecotag, RecoHitHandle)) {
-            throw cet::exception("anatree") << " No rec::CaloHit branch."
+            throw cet::exception("CAFMaker") << " No rec::CaloHit branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
         if (fGeo->HasMuonDetector() && !e.getByLabel(muirecotag, MuIDRecoHitHandle)) {
-            throw cet::exception("anatree") << " No rec::CaloHit branch."
+            throw cet::exception("CAFMaker") << " No rec::CaloHit branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
 
@@ -901,13 +901,13 @@ void gar::anatree::FillRecoInfo(art::Event const & e, caf::StandardRecord& rec) 
 //==============================================================================
 //==============================================================================
 //==============================================================================
-void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardRecord& rec) {
+void gar::CAFMaker::FillHighLevelRecoInfo(art::Event const & e, caf::StandardRecord& rec) {
 
     // Get handle for TPCClusters
     art::Handle< std::vector<rec::TPCCluster> > TPCClusterHandle;
     if (fWriteTPCClusters) {
         if (!e.getByLabel(fTPCClusterLabel, TPCClusterHandle)) {
-            throw cet::exception("anatree") << " No rec::TPCCluster branch."
+            throw cet::exception("CAFMaker") << " No rec::TPCCluster branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
     }
@@ -920,11 +920,11 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
     art::FindOneP<rec::TrackIoniz>*  findIonization = NULL;
     if(fWriteTracks) {
         if (!e.getByLabel(fTrackLabel, TrackHandle)) {
-            throw cet::exception("anatree") << " No rec::Track branch."
+            throw cet::exception("CAFMaker") << " No rec::Track branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
         if (!e.getByLabel(fTrackLabel, TrackIonHandle)) {
-            throw cet::exception("anatree") << " No rec::TrackIoniz branch."
+            throw cet::exception("CAFMaker") << " No rec::TrackIoniz branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
 
@@ -933,7 +933,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
 
         if(fWriteTrackTrajectories) {
              if (!e.getByLabel(fTrackTrajectoryLabel, TrackTrajHandle)) {
-                throw cet::exception("anatree") << " No rec::TrackTrajectory branch."
+                throw cet::exception("CAFMaker") << " No rec::TrackTrajectory branch."
                 << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
             }
         }
@@ -944,7 +944,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
     art::FindManyP<rec::Track, rec::TrackEnd>* findManyTrackEnd = NULL;
     if (fWriteVertices) {
         if (!e.getByLabel(fVertexLabel, VertexHandle)) {
-            throw cet::exception("anatree") << " No rec::Vertex branch."
+            throw cet::exception("CAFMaker") << " No rec::Vertex branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
         findManyTrackEnd = new art::FindManyP<rec::Track, rec::TrackEnd>(VertexHandle,e,fVertexLabel);
@@ -955,7 +955,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
     art::FindManyP<rec::Track, rec::TrackEnd>* findManyVeeTrackEnd = NULL;
     if (fWriteVees) {
         if (!e.getByLabel(fVeeLabel, VeeHandle)) {
-            throw cet::exception("anatree") << " No rec::Vee branch."
+            throw cet::exception("CAFMaker") << " No rec::Vee branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
         findManyVeeTrackEnd = new art::FindManyP<rec::Track, rec::TrackEnd>(VeeHandle,e,fVeeLabel);
@@ -966,7 +966,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
     art::FindManyP<rec::Track, rec::TrackEnd>* findManyCALTrackEnd = NULL;
     if (fWriteCaloClusters) {
         if (!e.getByLabel(fClusterLabel, RecoClusterHandle)) {
-            throw cet::exception("anatree") << " No rec::Cluster branch."
+            throw cet::exception("CAFMaker") << " No rec::Cluster branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
         if (fWriteTracks) {
@@ -1300,7 +1300,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
     rec.assn.necalclust = rec.assn.ecalclust.size();
 
     return;
-} // end :anatree::FillVectors
+} // end :CAFMaker::FillVectors
 
 
 
@@ -1308,7 +1308,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e, caf::StandardReco
 //==============================================================================
 //==============================================================================
 // Process ionization.  Eventually this moves into the reco code.
-void gar::anatree::processIonizationInfo(rec::TrackIoniz& ion, float ionizeTruncate,
+void gar::CAFMaker::processIonizationInfo(rec::TrackIoniz& ion, float ionizeTruncate,
 float& forwardIonVal, float& backwardIonVal) {
 
     // NO CALIBRATION SERVICE FOR NOW
@@ -1324,7 +1324,7 @@ float& forwardIonVal, float& backwardIonVal) {
 
 
 
-float gar::anatree::processOneDirection(std::vector<std::pair<float,float>> SigData, float ionizeTruncate) {
+float gar::CAFMaker::processOneDirection(std::vector<std::pair<float,float>> SigData, float ionizeTruncate) {
 
     std::vector<std::pair<float,float>> dEvsX;    // Ionization vs distance along track
 
@@ -1374,7 +1374,7 @@ float gar::anatree::processOneDirection(std::vector<std::pair<float,float>> SigD
 //==============================================================================
 //==============================================================================
 // Coherent pion analysis specific code
-float gar::anatree::computeT( simb::MCTruth theMCTruth ) {
+float gar::CAFMaker::computeT( simb::MCTruth theMCTruth ) {
     // Warning.  You probably want the absolute value of t, not t.
     int nPart = theMCTruth.NParticles();
     enum { nu, mu, pi};
@@ -1431,7 +1431,7 @@ float gar::anatree::computeT( simb::MCTruth theMCTruth ) {
 //==============================================================================
 //==============================================================================
 //==============================================================================
-std::vector< std::pair<int, float> > gar::anatree::processPIDInfo( float p ) {
+std::vector< std::pair<int, float> > gar::CAFMaker::processPIDInfo( float p ) {
 
     std::vector<std::string> recopnamelist = {"#pi", "#mu", "p", "K", "d", "e"};
     std::vector<int> pdg_charged = {211, 13, 2212, 321, 1000010020, 11};
@@ -1498,5 +1498,5 @@ std::vector< std::pair<int, float> > gar::anatree::processPIDInfo( float p ) {
 
 
 
-DEFINE_ART_MODULE(gar::anatree)
+DEFINE_ART_MODULE(gar::CAFMaker)
 

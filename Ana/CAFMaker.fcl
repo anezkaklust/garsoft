@@ -1,11 +1,11 @@
 BEGIN_PROLOG
 
-standard_anatree_spyv2:
+standard_cafmaker_spyv2:
 {
- module_type:               anatree
+ module_type:               CAFMaker
 
 # GeneratorLabels is a list of module labels for extracting MCTruth data products.
-# If it is missing, then the anatree module will look for all MCTruth data products
+# If it is missing, then the CAFMaker module will look for all MCTruth data products
 # in the event
 
 # GeneratorLabels:           [ "generator" ]
@@ -13,7 +13,7 @@ standard_anatree_spyv2:
 # the GENIEGeneratorLabels variable is a list of module labels for extracting GTruth data
 # products, which are made only by GENIE.  Often a generator module label will have to
 # appear in GeneratorLabels and in GENIEGeneratorLabels if you want both kinds of
-# information stored in the analysis tree.  Omit this argument if you want anatree_module
+# information stored in the analysis tree.  Omit this argument if you want CAFMaker_module
 # to look for all GTruth data products in the event.
 
 # GENIEGeneratorLabels:      [ "generator" ]
@@ -80,12 +80,12 @@ standard_anatree_spyv2:
  WriteCohInfo:              false
 }
 
-standard_anatree_spyv2_edep:
+standard_cafmaker_spyv2_edep:
 {
- module_type:               anatree
+ module_type:               CAFMaker
 
 # GeneratorLabels is a list of module labels for extracting MCTruth data products.
-# If it is missing, then the anatree module will look for all MCTruth data products
+# If it is missing, then the CAFMaker module will look for all MCTruth data products
 # in the event
 
 # GeneratorLabels:           [ "generator" ]
@@ -93,7 +93,7 @@ standard_anatree_spyv2_edep:
 # the GENIEGeneratorLabels variable is a list of module labels for extracting GTruth data
 # products, which are made only by GENIE.  Often a generator module label will have to
 # appear in GeneratorLabels and in GENIEGeneratorLabels if you want both kinds of
-# information stored in the analysis tree.  Omit this argument if you want anatree_module
+# information stored in the analysis tree.  Omit this argument if you want CAFMaker_module
 # to look for all GTruth data products in the event.
 
 # GENIEGeneratorLabels:      [ "generator" ]
@@ -160,12 +160,12 @@ standard_anatree_spyv2_edep:
  WriteCohInfo:              false
 }
 
-standard_anatree_dayone:
+standard_cafmaker_dayone:
 {
- module_type:               anatree
+ module_type:               CAFMaker
 
 # GeneratorLabels is a list of module labels for extracting MCTruth data products.
-# If it is missing, then the anatree module will look for all MCTruth data products
+# If it is missing, then the CAFMaker module will look for all MCTruth data products
 # in the event
 
 # GeneratorLabels:           [ "generator" ]
@@ -173,7 +173,7 @@ standard_anatree_dayone:
 # the GENIEGeneratorLabels variable is a list of module labels for extracting GTruth data
 # products, which are made only by GENIE.  Often a generator module label will have to
 # appear in GeneratorLabels and in GENIEGeneratorLabels if you want both kinds of
-# information stored in the analysis tree.  Omit this argument if you want anatree_module
+# information stored in the analysis tree.  Omit this argument if you want CAFMaker_module
 # to look for all GTruth data products in the event.
 
 # GENIEGeneratorLabels:      [ "generator" ]
@@ -240,12 +240,12 @@ standard_anatree_dayone:
  WriteCohInfo:              false
 }
 
-standard_anatree_dayone_edep:
+standard_cafmaker_dayone_edep:
 {
- module_type:               anatree
+ module_type:               CAFMaker
 
 # GeneratorLabels is a list of module labels for extracting MCTruth data products.
-# If it is missing, then the anatree module will look for all MCTruth data products
+# If it is missing, then the CAFMaker module will look for all MCTruth data products
 # in the event
 
 # GeneratorLabels:           [ "generator" ]
@@ -253,7 +253,7 @@ standard_anatree_dayone_edep:
 # the GENIEGeneratorLabels variable is a list of module labels for extracting GTruth data
 # products, which are made only by GENIE.  Often a generator module label will have to
 # appear in GeneratorLabels and in GENIEGeneratorLabels if you want both kinds of
-# information stored in the analysis tree.  Omit this argument if you want anatree_module
+# information stored in the analysis tree.  Omit this argument if you want CAFMaker_module
 # to look for all GTruth data products in the event.
 
 # GENIEGeneratorLabels:      [ "generator" ]
