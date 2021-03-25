@@ -92,6 +92,7 @@ add_subdirectory (Reco)
 add_subdirectory (RecoAlg)
 add_subdirectory (Ana)
 add_subdirectory (Filters)
+add_subdirectory (StandardRecord)
 
 # Pandora
 option(BUILD_W_PANDORA "Build with Pandora" ON )
