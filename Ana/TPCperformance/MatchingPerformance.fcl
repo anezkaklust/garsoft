@@ -8,6 +8,8 @@ standard_matchingstudy:
  TrackLabel:               "track"
  ClusterLabel:             "calocluster"
  ECALAssnLabel:            "trkecalassn"
+
+ Verbosity:                 1
 }
 
 END_PROLOG
