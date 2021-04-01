@@ -209,10 +209,7 @@ namespace gar
       return fTime;
     }
 
-    //int TrackPar::getChargeBeg() const
-    // Not built yet.  Use Track::ChargeBeg() for now
-    //int TrackPar::getChargeEnd() const
-    // Not built yet.  Use Track::ChargeEnd() for now
+
 
     void TrackPar::setNTPCClusters(const size_t nTPCClusters)
     {

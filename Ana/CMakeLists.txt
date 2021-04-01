@@ -28,6 +28,7 @@ art_make(BASENAME_ONLY
                        ${CETLIB_EXCEPT}
                        ${ROOT_BASIC_LIB_LIST}
                        ${ROOT_EG}
+                       garsoft_StandardRecord
          )
 
 install_headers()

@@ -60,8 +60,6 @@ namespace gar
       float getChisqBackwards() const;
       float getXBeg() const;
       float getXEnd() const;
-      //int getChargeBeg() const;  // just returns +1 or -1 depending on the sign of the curvature at the track beginning point
-      //int getChargeEnd() const;  // just returns +1 or -1 depending on the sign of the curvature at the track ending point
       double getTime() const;
       TVector3 getXYZBeg() const;
       TVector3 getXYZEnd() const;

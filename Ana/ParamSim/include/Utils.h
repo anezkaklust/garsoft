@@ -60,19 +60,29 @@ public:
     double* GetOrigin() { return &_origin[0]; }
 
 private:
-    double _origin[3];                   ///< coordinates of the origin
+    double _origin[3];               ///< coordinates of the origin
     unsigned long int _seed;         ///< seed
     TRandom3 *_rando;                ///< random generator
 
     /* HARDCODED */
+    // double _TPCFidRadius = 222.5;
+    // double _TPCFidLength = 215.;
+    // double _TPCRadius = 273.;
+    // double _TPCLength = 259.;
+    // double _ECALInnerRadius = 278.;
+    // double _ECALOuterRadius = 321.;
+    // double _ECALStartX = 364.;
+    // double _ECALEndX = 406.;
+
+    //SPY v3 geometry with ECAL inside Magnet/SPY PV
     double _TPCFidRadius = 222.5;
     double _TPCFidLength = 215.;
     double _TPCRadius = 273.;
     double _TPCLength = 259.;
-    double _ECALInnerRadius = 278.;
-    double _ECALOuterRadius = 321.;
-    double _ECALStartX = 364.;
-    double _ECALEndX = 406.;
+    double _ECALInnerRadius = 278.02;
+    double _ECALOuterRadius = 322.25;
+    double _ECALEndX = 374.4;
+    double _ECALStartX = _ECALEndX - (_ECALOuterRadius - _ECALInnerRadius); //calculated from the cryostat beginning 
 };
 
 #endif
