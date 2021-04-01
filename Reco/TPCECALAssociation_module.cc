@@ -157,7 +157,7 @@ namespace gar {
                 float zClus = clusterCenter[2];
                 float rClus = std::hypot(zClus,yClus);  
                 float xClus = clusterCenter[0];
-
+				
                 for (size_t iTrack=0; iTrack<TrackHandle->size(); ++iTrack) {
                     gar::rec::Track track = (*TrackHandle)[iTrack];
 

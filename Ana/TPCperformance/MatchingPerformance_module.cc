@@ -556,7 +556,7 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
 
             Int_t nHits = track.NHits();
             fNTPCClustersOnTrack.push_back(nHits);
-            Float_t pVal = ROOT::Math::chisquared_cdf_c(saveChi2,nHits);
+            Float_t pVal = ROOT::Math::chisquared_cdf_c(saveChi2,nHits-5);
             fTrackPval.push_back(pVal);
             fTrackTime.push_back(track.Time());
 

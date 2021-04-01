@@ -451,7 +451,7 @@ namespace gar {
         std::vector<Float_t>            fClusterMainAxisX;
         std::vector<Float_t>            fClusterMainAxisY;
         std::vector<Float_t>            fClusterMainAxisZ;
-        std::vector<Int_t>              fClusterMCindex;          // Branch index (NOT the GEANT track ID) of MCPartice
+        std::vector<Int_t>              fClusterMCindex;          // Branch index (NOT the GEANT track ID) of MCParticle
         std::vector<Float_t>            fClusterMCfrac;           // that best matches & fraction of ionization therefrom
 
         // ECAL cluster to track association info
