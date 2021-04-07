@@ -10,6 +10,7 @@ standard_matchingstudy:
  ECALAssnLabel:            "trkecalassn"
 
  Verbosity:                 1
+ ClusterDirNhitCut:         5
 }
 
 END_PROLOG

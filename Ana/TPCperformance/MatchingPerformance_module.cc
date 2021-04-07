@@ -35,12 +35,19 @@
 #include "canvas/Persistency/Common/FindMany.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 
+#include "Geometry/GeometryGAr.h"
+#include "DetectorInfo/DetectorClocksServiceGAr.h"
+#include "DetectorInfo/DetectorPropertiesService.h"
+
+#
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "MCCheater/BackTracker.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "MCCheater/BackTracker.h"
 #include "ReconstructionDataProducts/Track.h"
 #include "ReconstructionDataProducts/Cluster.h"
+#include "RecoAlg/TrackPropagator.h"
+
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -102,11 +109,15 @@ namespace gar {
         cheat::BackTrackerCore* fBack;
         // PDG database from ROOT
         TDatabasePDG* pdgInstance;
+        // Detector properties
+        const detinfo::DetectorProperties* fDetProp;
+        const detinfo::DetectorClocks*     fClocks;
 
         // Keepin an eye on it all
         int fVerbosity;
-        TH1F* chargeFracAll;                   ///< Ionization frac before no-stub cut
-        TH1F* chargeFracStub;                  ///< Ionization frac after no-stub cut
+        float fClusterDirNhitCut;          ///< Do not plot cluster direction unless you have this many hits or more
+        TH1F* chargeFracAll;               ///< Ionization frac before no-stub cut
+        TH1F* chargeFracStub;              ///< Ionization frac after no-stub cut
 
 
 
@@ -146,7 +157,7 @@ namespace gar {
         std::vector<std::string>        fMCPEndProc;
         std::vector<Float_t>            fMCPTime;
 
-        // And here's the track - ECAL matching info
+        // Track - ECAL energy info
         std::vector<Float_t>            fEassocNoInTruth;
         std::vector<Int_t>              fNassocNoInTruth;
         std::vector<Float_t>            fEunassocInTruth;
@@ -154,6 +165,21 @@ namespace gar {
         std::vector<Float_t>            fEisassocInTruth;
         std::vector<Int_t>              fNisassocInTruth;
 
+        // The matching variables here; they will have one entry for each
+        // cluster, for each "nice" track end; all other vectors here will
+        // have just one entry for each track
+        std::vector<Float_t>            fRadClusTrackTru;
+        std::vector<Float_t>            fRadClusTrackFal;
+        std::vector<Float_t>            fXClusTrackOver25Tru;
+        std::vector<Float_t>            fXClusTrackOver25Fal;
+        std::vector<Float_t>            fXClusTrackUnder25Tru;
+        std::vector<Float_t>            fXClusTrackUnder25Fal;
+        std::vector<Float_t>            fRPhiClusTrackTru;
+        std::vector<Float_t>            fRPhiClusTrackFal;
+        std::vector<Float_t>            fDotClustTrackTru;
+        std::vector<Float_t>            fDotClustTrackFal;
+        std::vector<Float_t>            fDistClustTrackTru;
+        std::vector<Float_t>            fDistClustTrackFal;
     };
 }
 
@@ -166,11 +192,12 @@ namespace gar {
 //==============================================================================
 gar::MatchingPerformance::MatchingPerformance(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
 
-    fGeantLabel    = p.get<std::string>("GEANTLabel",   "geant");
-    fTrackLabel    = p.get<std::string>("TrackLabel",   "track");
-    fClusterLabel  = p.get<std::string>("ClusterLabel", "calocluster");
-    fECALAssnLabel = p.get<std::string>("ECALAssnLabel","trkecalassn");
-    fVerbosity     = p.get<int>("Verbosity", 0);
+    fGeantLabel        = p.get<std::string>("GEANTLabel",   "geant");
+    fTrackLabel        = p.get<std::string>("TrackLabel",   "track");
+    fClusterLabel      = p.get<std::string>("ClusterLabel", "calocluster");
+    fECALAssnLabel     = p.get<std::string>("ECALAssnLabel","trkecalassn");
+    fVerbosity         = p.get<int>        ("Verbosity", 0);
+    fClusterDirNhitCut = p.get<int>        ("ClusterDirNhitCut",    5);
 
     pdgInstance = TDatabasePDG::Instance();
 
@@ -197,6 +224,9 @@ void gar::MatchingPerformance::beginJob() {
     ItsInTulsa[1] = fGeo->TPCYCent();
     ItsInTulsa[2] = fGeo->TPCZCent();
 
+    fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
+    fClocks  = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
+
     art::ServiceHandle<art::TFileService> tfs;
     fTree = tfs->make<TTree>("GArAnaTree","GArAnaTree");
     if (fVerbosity>0) {
@@ -205,6 +235,7 @@ void gar::MatchingPerformance::beginJob() {
         chargeFracStub = tfs->make<TH1F>("chargeFracStub",
             "Frac track's ionization from non-stub MCParticle", 101, 0.0,1.01);
     }
+
 
 
     fTree->Branch("Run",                    &fRun,              "Run/I");
@@ -243,6 +274,18 @@ void gar::MatchingPerformance::beginJob() {
     fTree->Branch("EisassocInTruth",        &fEisassocInTruth);
     fTree->Branch("NisassocInTruth",        &fNisassocInTruth);
 
+    fTree->Branch("RadClusTrackTru",        &fRadClusTrackTru);
+    fTree->Branch("RadClusTrackFal",        &fRadClusTrackFal);
+    fTree->Branch("XClusTrackOver25Tru",    &fXClusTrackOver25Tru);
+    fTree->Branch("XClusTrackOver25Fal",    &fXClusTrackOver25Fal);
+    fTree->Branch("XClusTrackUnder25Tru",   &fXClusTrackUnder25Tru);
+    fTree->Branch("XClusTrackUnder25Fal",   &fXClusTrackUnder25Fal);
+    fTree->Branch("RPhiClusTrackTru",       &fRPhiClusTrackTru);
+    fTree->Branch("RPhiClusTrackFal",       &fRPhiClusTrackFal);
+    fTree->Branch("DotClustTrackTru",       &fDotClustTrackTru);
+    fTree->Branch("DotClustTrackFal",       &fDotClustTrackFal);
+    fTree->Branch("DistClustTrackTru",      &fDistClustTrackTru);
+    fTree->Branch("DistClustTrackFal",      &fDistClustTrackFal);
     return;
 }  // End of :MatchingPerformance::beginJob
 
@@ -312,6 +355,19 @@ void gar::MatchingPerformance::ClearVectors() {
     fNunassocInTruth.clear();
     fEisassocInTruth.clear();
     fNisassocInTruth.clear();
+
+    fRadClusTrackTru.clear();
+    fRadClusTrackFal.clear();
+    fXClusTrackOver25Tru.clear();
+    fXClusTrackOver25Fal.clear();
+    fXClusTrackUnder25Tru.clear();
+    fXClusTrackUnder25Fal.clear();
+    fRPhiClusTrackTru.clear();
+    fRPhiClusTrackFal.clear();
+    fDotClustTrackTru.clear();
+    fDotClustTrackFal.clear();
+    fDistClustTrackTru.clear();
+    fDistClustTrackFal.clear();
 
     return;
 } // end :MatchingPerformance::ClearVectors
@@ -504,10 +560,9 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
         float            fracMCPart = niceTracks[iNiceTrk].turd;
         if (fVerbosity>0) chargeFracStub->Fill(fracMCPart);
 
-        // Try to match clusters on both ends of the track unless the particle
+        // Examine matched clusters on both ends of the track unless the particle
         // was created in the gas.
         std::deque<rec::TrackEnd> endList = {rec::TrackEndBeg,rec::TrackEndEnd};
-        
         TVector3 positionMCP = theMCPart.Position(0).Vect();
         if (fGeo->PointInGArTPC(positionMCP)) {
             // Don't include the drift distance in matching
@@ -524,11 +579,15 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
 
         for (std::deque<rec::TrackEnd>::iterator iEnd = endList.begin();
                                                  iEnd < endList.end();  ++iEnd) {
-            // Record some info about the track at each end
+            // Record info about the track at correct end - need trackPar,End later
+            // later and they must be in MPD coordinates.
             fTrackIDNumber.push_back(track.getIDNumber());
-            Float_t saveChi2;        
+            Float_t saveChi2;
+            float trackPar[5];      float trackEnd[3];
 
             if ( (*iEnd)==rec::TrackEndBeg ) {
+                for (size_t i=0; i<5; ++i) trackPar[i] = track.TrackParBeg()[i];
+                for (size_t i=0; i<3; ++i) trackEnd[i] = track.Vertex()[i];
                 fTrackX.push_back   ( track.Vertex()[0] -ItsInTulsa[0] );
                 fTrackY.push_back   ( track.Vertex()[1] -ItsInTulsa[1] );
                 fTrackZ.push_back   ( track.Vertex()[2] -ItsInTulsa[2] );
@@ -541,6 +600,8 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
                 saveChi2 = track.ChisqBackward();
                 fTrackChi2.push_back( saveChi2 );
             } else {
+                for (size_t i=0; i<5; ++i) trackPar[i] = track.TrackParEnd()[i];
+                for (size_t i=0; i<3; ++i) trackEnd[i] = track.End()[i];
                 fTrackX.push_back   ( track.End()[0] -ItsInTulsa[0] );
                 fTrackY.push_back   ( track.End()[1] -ItsInTulsa[1] );
                 fTrackZ.push_back   ( track.End()[2] -ItsInTulsa[2] );
@@ -552,7 +613,10 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
                 fTrackLen.push_back ( track.LengthForward() );        
                 saveChi2 = track.ChisqForward();
                 fTrackChi2.push_back( saveChi2);
+
             }
+            trackPar[0] -=ItsInTulsa[1];        trackPar[1] -=ItsInTulsa[2];
+            for (int i=0; i<3; ++i) trackEnd[i] -= ItsInTulsa[i];
 
             Int_t nHits = track.NHits();
             fNTPCClustersOnTrack.push_back(nHits);
@@ -604,6 +668,109 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
 
             for ( auto const& cluster : (*ClusterHandle) ) {
 
+                // recompute the matching variables, similar to (if not exactly
+                // the same as) in Reco/TPCECALAssociation_module.cc  They will be:
+                // inECALBarrel, distRadially, Over25, cutQuantity, dotSee
+                float radius = 1.0/trackPar[2];
+                float zCent = trackPar[1] - radius*sin(trackPar[3]);
+                float yCent = trackPar[0] + radius*cos(trackPar[3]);
+                float xClus = cluster.Position()[0] -ItsInTulsa[0];
+                float yClus = cluster.Position()[1] -ItsInTulsa[1];
+                float zClus = cluster.Position()[2] -ItsInTulsa[2];
+                float rClus = std::hypot(zClus,yClus);
+                bool inECALBarrel  = fGeo->PointInECALBarrel(cluster.Position());
+
+                float distRadially = std::hypot(zClus-zCent,yClus-yCent) -abs(radius);
+                distRadially = abs(distRadially);
+
+                float retXYZ1[3];    float retXYZ2[3];    TVector3 trackXYZ;
+                float cutQuantity = -1.0;      bool over25 = false;
+                float maxXdisplacement =
+                     fDetProp->DriftVelocity(fDetProp->Efield(),fDetProp->Temperature())
+                    *fClocks->SpillLength();
+
+                if (inECALBarrel) {
+                    int errcode = util::TrackPropagator::PropagateToCylinder(
+                        trackPar,trackEnd,rClus, 0.0, 0.0, retXYZ1,retXYZ2);
+                    if ( errcode==0 ) {
+                        float extrapXerr;
+                        float transDist1 = std::hypot(retXYZ1[2]-zClus,retXYZ1[1]-yClus);
+                        float transDist2 = std::hypot(retXYZ2[2]-zClus,retXYZ2[1]-yClus);
+                        bool looneyExtrap;
+                        if (transDist1<transDist2) {
+                            trackXYZ.SetXYZ(retXYZ1[0],retXYZ1[1],retXYZ1[2]);
+                        } else {
+                            trackXYZ.SetXYZ(retXYZ2[0],retXYZ2[1],retXYZ2[2]);
+                        }
+                        trackXYZ += TVector3(ItsInTulsa);
+                        looneyExtrap =  !fGeo->PointInECALBarrel(trackXYZ)
+                                     && !fGeo->PointInECALEndcap(trackXYZ);
+                        trackXYZ -= TVector3(ItsInTulsa);
+                        if (!looneyExtrap) {
+                            extrapXerr = trackXYZ.X() -xClus;  // Check in the matching code too
+                            float expected_mean = 0;
+                            if (trackEnd[0]<-25) {
+                                expected_mean = +maxXdisplacement/2.0;
+                                over25 = true;
+                            }
+                            if (trackEnd[0]>+25) {
+                                expected_mean = -maxXdisplacement/2.0;
+                                over25 = true;
+                            }
+                            cutQuantity = abs(extrapXerr -expected_mean);
+                        }
+                    }
+                } else {
+                    // In an endcap.  How many radians in a maxXdisplacement?
+                    float radiansInDrift = trackPar[2]*maxXdisplacement
+                                         / tan(trackPar[4]);
+                    if ( abs(radiansInDrift) >= 2.0*M_PI ) goto angleCut;
+                    int errcode = util::TrackPropagator::PropagateToX(
+                        trackPar,trackEnd, xClus, retXYZ1);
+                    if ( errcode==0 ) {
+                        trackXYZ.SetXYZ(retXYZ1[0],retXYZ1[1],retXYZ1[2]);
+                        trackXYZ += TVector3(ItsInTulsa);
+                        bool looneyExtrap =  !fGeo->PointInECALBarrel(trackXYZ)
+                                          && !fGeo->PointInECALEndcap(trackXYZ);
+                        trackXYZ -= TVector3(ItsInTulsa);
+                        if (!looneyExtrap) {
+                                
+                            float angClus  = std::atan2(yClus-yCent,zClus-zCent);
+                            float angXtrap = std::atan2(retXYZ1[1] -yCent,retXYZ1[2] -zCent) -angClus;
+                            // angXtrap can indeed be outside of -PI to +PI
+                            if (angXtrap > +M_PI) angXtrap -= 2.0*M_PI;
+                            if (angXtrap < -M_PI) angXtrap += 2.0*M_PI;
+                            cutQuantity = abs(radius*angXtrap);
+                        }
+                    }
+                }
+
+                angleCut:
+                float trackDir[3];
+                float dotSee = -2.0;
+                int nCells = cluster.CalorimeterHits().size();
+                if (nCells >= fClusterDirNhitCut) {
+                    int errcode = util::TrackPropagator::DirectionX(
+                        trackPar,trackEnd, xClus,trackDir);
+                    if (errcode==0) {
+                        TVector3 clusterDir;
+                        clusterDir.SetXYZ(cluster.EigenVectors()[0],
+                            cluster.EigenVectors()[1],cluster.EigenVectors()[2]);
+                        dotSee = clusterDir.Dot(trackDir);
+                    }
+                }
+
+                // Look at distance from extrapolated track to cluster.  Well it 
+                // turns out to not be that great a discriminant.
+                float repakClusPos[3];            float dist3dXtrap = -1;
+                float shemp;
+                repakClusPos[0] = xClus;   repakClusPos[1] = yClus;   repakClusPos[2] = zClus;
+                int errcode = util::TrackPropagator::DistXYZ(
+                    trackPar,trackEnd,repakClusPos,shemp);
+                if (errcode==0) dist3dXtrap = shemp;
+
+
+
                 bool clusterOnTrack = false;
                 for (size_t iCALedClust=0; iCALedClust<nCALedClusts; ++iCALedClust) {
                     if (*trackEndsFromAssn[iCALedClust] != (*iEnd) ) continue;
@@ -621,15 +788,46 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
                     }
                 }
 
+
+
+ 
                 if ( clusterOnTrack &&!clusterOnMCP ) {
+                    fRadClusTrackFal.push_back(distRadially);
+                    if (inECALBarrel) {
+                        if (over25) {
+                            fXClusTrackOver25Fal.push_back(cutQuantity);
+                        } else {
+                            fXClusTrackUnder25Fal.push_back(cutQuantity);
+                        }
+                    } else {
+                        fRPhiClusTrackFal.push_back(cutQuantity);
+                    }
+                    fDotClustTrackFal.push_back(dotSee);
+                    fDistClustTrackFal.push_back(dist3dXtrap);
+
                     eAssocNoInTruth += cluster.Energy();
                     nAssocNoInTruth += cluster.CalorimeterHits().size();
                 }
+
                 if (!clusterOnTrack && clusterOnMCP ) {
                     eUnassocInTruth += cluster.Energy();
                     nUnassocInTruth += cluster.CalorimeterHits().size();
                 }
+
                 if ( clusterOnTrack && clusterOnMCP ) {
+                    fRadClusTrackTru.push_back(distRadially);
+                    if (inECALBarrel) {
+                        if (over25) {
+                            fXClusTrackOver25Tru.push_back(cutQuantity);
+                        } else {
+                            fXClusTrackUnder25Tru.push_back(cutQuantity);
+                        }
+                    } else {
+                        fRPhiClusTrackTru.push_back(cutQuantity);
+                    }
+                    fDotClustTrackTru.push_back(dotSee);
+                    fDistClustTrackTru.push_back(dist3dXtrap);
+
                     eIsassocInTruth += cluster.Energy();
                     nIsassocInTruth += cluster.CalorimeterHits().size();
                 }

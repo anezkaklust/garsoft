@@ -243,38 +243,31 @@ namespace gar {
 
 
         // recover symmetric covariance matrices.  Assume the caller owns the memory to a 5x5 array
-        void Track::CovMatBegSymmetric(float *cmb) const
-          {
+        void Track::CovMatBegSymmetric(float *cmb) const {
             size_t ic=0;
-            for (size_t i=0; i<5; ++i)
-              {
-                for (size_t j=i; j<5; ++j)
-                  {
+            for (size_t i=0; i<5; ++i) {
+                for (size_t j=i; j<5; ++j) {
                     cmb[i + 5*j] = fCovMatBeg[ic];
                     cmb[j + 5*i] = fCovMatBeg[ic];
                     ++ic;
-                  }
-              }
-          }
+                 }
+            }
+         }
 
-        void Track::CovMatEndSymmetric(float *cmb) const
-          {
+        void Track::CovMatEndSymmetric(float *cmb) const {
             size_t ic=0;
-            for (size_t i=0; i<5; ++i)
-              {
-                for (size_t j=i; j<5; ++j)
-                  {
+            for (size_t i=0; i<5; ++i) {
+                for (size_t j=i; j<5; ++j) {
                     cmb[i + 5*j] = fCovMatEnd[ic];
                     cmb[j + 5*i] = fCovMatEnd[ic];
                     ++ic;
-                  }
-              }
-          }
+                }
+             }
+         }
 
 
         void FindDirectionFromTrackParameters(const float *tparms,
-             const float thisXend, const float farXend, float *dir)
-          {
+            const float thisXend, const float farXend, float *dir) {
             // Direction is either +1 or -1 times d (position) / d(phi)
             // from the track fit equations; the sign is determined by the
             // x position of the far end.
@@ -290,7 +283,7 @@ namespace gar {
             dir[0] /= norm;
             dir[1] /= norm;
             dir[2] /= norm;
-          }
+        }
 
 
 
