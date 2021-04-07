@@ -158,6 +158,7 @@ namespace gar {
 
                 std::cout << "identifier_layer: " << _layerId << std::endl;
                 std::cout << "identifier_slice: " << _sliceId << std::endl;
+                std::cout << "nLayers: " << _nLayers << std::endl;
             }
 
             //----------------------------------------------------------------------------

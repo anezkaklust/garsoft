@@ -55,6 +55,7 @@ namespace gar {
                 _zId = pset.get<std::string>("identifier_z");
                 _layerId = pset.get<std::string>("identifier_layer");
                 _sliceId = pset.get<std::string>("identifier_slice");
+                _nPlanes = pset.get<unsigned int>("nplanes");
 
                 _frac = 1./3.;
 
@@ -472,6 +473,7 @@ namespace gar {
 
                 std::cout << "identifier_layer: " << _layerId << std::endl;
                 std::cout << "identifier_slice: " << _sliceId << std::endl;
+                std::cout << "nPlanes: " << _nPlanes << std::endl;
             }
 
         }//seg

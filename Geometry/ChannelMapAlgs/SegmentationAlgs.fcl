@@ -33,4 +33,10 @@ MinervaSegmentationAlgPars: @local::standard_minervasegalgpars
 MuIDSegmentationAlgPars: @local::standard_muidsegalgpars_v2
 }
 
+standard_dayone_spyv3_segals:
+{
+MinervaSegmentationAlgPars: @local::standard_minervasegalgpars
+MuIDSegmentationAlgPars: @local::standard_muidsegalgpars_v3
+}
+
 END_PROLOG
