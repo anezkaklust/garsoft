@@ -14,7 +14,10 @@
 #include "nug4/G4Base/UserAction.h"
 
 // GArSoft includes
+#include "Geometry/GeometryGAr.h"
 #include "Geometry/GeometryCore.h"
+#include "Geometry/ChannelMapAlgs/SegmentationAlg.h"
+#include "Geometry/ChannelMapAlgs/MinervaSegmentationAlg.h"
 
 #include "SimulationDataProducts/CaloDeposit.h"
 #include "SimulationDataProducts/LArDeposit.h"
@@ -38,8 +41,7 @@ namespace gar {
         public:
 
             // Standard constructors and destructors;
-            AuxDetAction(CLHEP::HepRandomEngine*        engine,
-            fhicl::ParameterSet     const& pset);
+            AuxDetAction(CLHEP::HepRandomEngine* engine, fhicl::ParameterSet const& pset);
             virtual ~AuxDetAction();
 
             void reconfigure(fhicl::ParameterSet const& pset);
@@ -57,15 +59,17 @@ namespace gar {
             //  Returns the CaloDeposit set accumulated during the current event.
             std::vector<gar::sdp::CaloDeposit> const& CaloDeposits() const { return fECALDeposits; }
             //  Returns the CaloDeposit set accumulated during the current event.
+            std::vector<gar::sdp::CaloDeposit> const& TrackerScDeposits() const { return fTrackerScDeposits; }
+            //  Returns the CaloDeposit set accumulated during the current event.
             std::vector<gar::sdp::CaloDeposit> const& MuIDDeposits() const { return fMuIDDeposits; }
 
         private:
 
             void LArSteppingAction(const G4Step* );
             void ECALSteppingAction(const G4Step* );
-            void AddECALHits();
+            void TrackerScSteppingAction(const G4Step* );
             void MuIDSteppingAction(const G4Step* );
-            void AddMuIDHits();
+            void AddHits(const std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_hits, std::vector<gar::sdp::CaloDeposit> &fDeposits);
 
             std::string GetVolumeName(const G4Track *track);
 
@@ -80,21 +84,28 @@ namespace gar {
             float GetStepEnergy(const G4Step* step, bool birks);
             float birksAttenuation(const G4Step* step);
 
-            double                             fLArEnergyCut;     ///< The minimum energy in GeV for a particle to be included in the list.
-            std::string fLArMaterial;                             ///< Material for the LArTPC
-            std::vector<std::string>           fLArVolumeName;    ///< volume we will record energy depositions in
-            std::string fECALMaterial;                             ///< Material for the ECAL
-            std::string fMuIDMaterial;                             ///< Material for the MuID
-            bool fApplyBirksLaw;
+            double                             fLArEnergyCut;                             ///< The minimum energy in GeV for a particle to be included in the list.
+            std::string                        fLArMaterial;                              ///< Material for the LArTPC
+            std::vector<std::string>           fLArVolumeName;                            ///< volume we will record energy depositions in
+            std::string                        fECALMaterial;                             ///< Material for the ECAL
+            std::string                        fTrackerScMaterial;                        ///< Material for the TrackerSc (GArLite)
+            std::string                        fMuIDMaterial;                             ///< Material for the MuID
+            bool                               fApplyBirksLaw;
 
             std::vector<gar::sdp::LArDeposit> fLArDeposits;          ///< energy fDeposits for the LArTPC
-            std::map< raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_ECALDeposits;
+            
+            std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_ECALDeposits;
             std::vector<gar::sdp::CaloDeposit> fECALDeposits;          ///< energy fDeposits for the ECAL
-            std::map< raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_MuIDDeposits;
+
+            std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_TrackerScDeposits;
+            std::vector<gar::sdp::CaloDeposit> fTrackerScDeposits;          ///< energy fDeposits for the TrackerSc
+
+            std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > m_MuIDDeposits;
             std::vector<gar::sdp::CaloDeposit> fMuIDDeposits;          ///< energy fDeposits for the MuID
 
             const gar::geo::GeometryCore*      fGeo;               ///< geometry information
             const detinfo::DetectorProperties*       fDetProp;  ///< detector properties
+            const gar::geo::seg::MinervaSegmentationAlg *fMinervaSegAlg;
         };
 
     } // garg4

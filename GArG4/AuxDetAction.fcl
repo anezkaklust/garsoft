@@ -7,6 +7,7 @@ LArVolumeName: ["volLArActive"]
 LArMaterial: "LAr"
 
 ECALMaterial: "Scintillator"
+TrackerScMaterial: "Scintillator"
 MuIDMaterial: "Scintillator"
 ApplyBirksLaw: true
 }

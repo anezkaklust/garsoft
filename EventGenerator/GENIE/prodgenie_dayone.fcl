@@ -1,6 +1,6 @@
 #include "prodgenie.fcl"
 
-services.GeometryGAr: @local::dayone_geo
+services.GeometryGAr: @local::nd_hall_mpd_only_dayone_geo
 physics.producers.geant: @local::standard_geant_dayone
 physics.producers.generator.FluxType: "histogram"
 physics.producers.generator.TopVolume: "volWorld"
