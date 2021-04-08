@@ -3,12 +3,18 @@ BEGIN_PROLOG
 standard_auxdetaction:
 {
 LArEnergyCut: 0.000001 # GeV
-LArVolumeName: ["volLArActive"]
+LArVolumeName: ["volLArActive"] #name of the volume
 LArMaterial: "LAr"
 
 ECALMaterial: "Scintillator"
+ECALVolumeName: ["BarrelECal", "EndcapECal"] #substrings of the active layers
+
 TrackerScMaterial: "Scintillator"
+TrackerScVolumeName: ["Tracker"] #substrings of the active layers
+
 MuIDMaterial: "Scintillator"
+MuIDVolumeName: ["Yoke"] #substrings of the active layers
+
 ApplyBirksLaw: true
 }
 

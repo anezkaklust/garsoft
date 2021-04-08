@@ -552,11 +552,15 @@ namespace gar {
             }
 
             // And finally the sdp::CaloDepositions
-            for(auto const& hit : fAuxDetAction->CaloDeposits())
+            std::vector<gar::sdp::CaloDeposit> deposits = fAuxDetAction->CaloDeposits();
+            if (geo->HasTrackerScDetector())
+                deposits = fAuxDetAction->TrackerScDeposits();
+
+            for (auto const &hit : deposits)
             {
                 MF_LOG_DEBUG("GArG4")
-                << "adding calo deposits for track id: "
-                << hit.TrackID();
+                    << "adding calo deposits for track id: "
+                    << hit.TrackID();
 
                 ECALCol->emplace_back(hit);
             }
@@ -583,10 +587,11 @@ namespace gar {
 
             evt.put(std::move(TPCCol));
 
+            std::string instanceName = "ECAL";
             if(geo->HasTrackerScDetector())
-            evt.put(std::move(ECALCol), "TrackerSc");
-            else
-            evt.put(std::move(ECALCol), "ECAL");
+            instanceName = "TrackerSc";
+
+            evt.put(std::move(ECALCol), instanceName);
 
             if(geo->HasMuonDetector())
             evt.put(std::move(MuIDCol), "MuID");

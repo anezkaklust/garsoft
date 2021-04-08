@@ -65,8 +65,14 @@ namespace gar {
             fLArMaterial = pset.get<std::string>("LArMaterial", "LAr");
 
             fECALMaterial = pset.get<std::string>("ECALMaterial", "Scintillator");
+            fECALVolumeName = pset.get<std::vector<std::string>>("ECALVolumeName");
+
             fTrackerScMaterial = pset.get<std::string>("TrackerScMaterial", "Scintillator");
+            fTrackerScVolumeName = pset.get<std::vector<std::string>>("TrackerScVolumeName");
+
             fMuIDMaterial = pset.get<std::string>("MuIDMaterial", "Scintillator");
+            fMuIDVolumeName = pset.get<std::vector<std::string>>("MuIDVolumeName");
+
             fApplyBirksLaw = pset.get<bool>("ApplyBirksLaw", true);
 
             // std::cout << "AuxDetAction: Name of the Volumes to track for the LArTPC" << std::endl;
@@ -84,10 +90,13 @@ namespace gar {
             // Clear any previous information.
             m_ECALDeposits.clear();
             fECALDeposits.clear();
+            
             m_TrackerScDeposits.clear();
             fTrackerScDeposits.clear();
+
             m_MuIDDeposits.clear();
             fMuIDDeposits.clear();
+            
             fLArDeposits.clear();
         }
 
@@ -109,6 +118,7 @@ namespace gar {
             MF_LOG_DEBUG("AuxDetAction")
             << "AuxDetAction::SteppingAction";
 
+            if(fGeo->HasLArTPCDetector())
             this->LArSteppingAction(step);
 
             if(fGeo->HasECALDetector())
@@ -125,7 +135,9 @@ namespace gar {
         void AuxDetAction::EndOfEventAction(const G4Event*)
         {
             //sort per time the hits
-            std::sort(fLArDeposits.begin(), fLArDeposits.end());
+            if (fGeo->HasLArTPCDetector()) {
+                std::sort(fLArDeposits.begin(), fLArDeposits.end());
+            }
 
             if(fGeo->HasECALDetector()) {
                 this->AddHits(m_ECALDeposits, fECALDeposits);
@@ -160,16 +172,15 @@ namespace gar {
             if(step->GetTotalEnergyDeposit() == 0) return;
 
             // check that we are in the correct material to record a hit
-            std::string VolumeName   = this->GetVolumeName(track);
-
-            if( std::find( fLArVolumeName.begin(), fLArVolumeName.end(), VolumeName ) == fLArVolumeName.end() )
+            const std::string VolumeName = this->GetVolumeName(track);
+            if( std::find_if( fLArVolumeName.begin(), fLArVolumeName.end(), [&VolumeName](std::string s) { return VolumeName.find(s) != std::string::npos; } ) == fLArVolumeName.end() )
             return;
 
             // check the material
             auto pos = 0.5 * (start + stop);
             TGeoNode *node = fGeo->FindNode(pos.x()/CLHEP::cm, pos.y()/CLHEP::cm, pos.z()/CLHEP::cm);//Node in cm...
 
-            if(!node){
+            if(nullptr == node){
                 MF_LOG_DEBUG("AuxDetAction::LArSteppingAction")
                 << "Node not found in "
                 << pos.x() << " mm "
@@ -234,15 +245,16 @@ namespace gar {
             if(step->GetTotalEnergyDeposit() == 0) return;
 
             // check that we are in the correct material to record a hit
-            std::string VolumeName   = this->GetVolumeName(track);
+            const std::string VolumeName = this->GetVolumeName(track);
 
-            if(VolumeName.find("ECal") == std::string::npos) return;
+            if (std::find_if(fECALVolumeName.begin(), fECALVolumeName.end(), [&VolumeName](std::string s) { return VolumeName.find(s) != std::string::npos; }) == fECALVolumeName.end())
+                return;
 
             // check the material
             auto pos = 0.5 * (start + stop);
             TGeoNode *node = fGeo->FindNode(pos.x()/CLHEP::cm, pos.y()/CLHEP::cm, pos.z()/CLHEP::cm);//Node in cm...
 
-            if(!node){
+            if(nullptr == node){
                 MF_LOG_DEBUG("AuxDetAction::ECALSteppingAction")
                 << "Node not found in "
                 << pos.x() << " mm "
@@ -339,16 +351,17 @@ namespace gar {
             if(step->GetTotalEnergyDeposit() == 0) return;
 
             // check that we are in the correct material to record a hit
-            std::string VolumeName = this->GetVolumeName(track);
-
-            if(VolumeName.find("Tracker_layer03_vol") == std::string::npos) return;
+            const std::string VolumeName = this->GetVolumeName(track);
+            if( std::find_if( fTrackerScVolumeName.begin(), fTrackerScVolumeName.end(), [&VolumeName](std::string s) { return VolumeName.find(s) != std::string::npos; } ) == fTrackerScVolumeName.end() )
+            return;
 
             // check the material
             auto pos = 0.5 * (start + stop);
             TGeoNode *node = fGeo->FindNode(pos.x()/CLHEP::cm, pos.y()/CLHEP::cm, pos.z()/CLHEP::cm);//Node in cm...
 
-            if( nullptr != node ) {
-                MF_LOG_WARNING("AuxDetAction::TrackerScSteppingAction")
+            if (nullptr == node)
+            {
+                MF_LOG_DEBUG("AuxDetAction::TrackerScSteppingAction")
                 << "Node not found in "
                 << pos.x()/CLHEP::cm << " cm "
                 << pos.y()/CLHEP::cm << " cm "
@@ -358,8 +371,6 @@ namespace gar {
             }
 
             std::string volmaterial = node->GetMedium()->GetMaterial()->GetName();
-            std::cout << "AuxDetAction::TrackerScSteppingAction - VolumeName " << VolumeName << 
-            " node name " << node->GetName() << " material " << volmaterial << std::endl;
             if ( ! std::regex_match(volmaterial, std::regex(fTrackerScMaterial)) ) return;
 
             // only worry about energy depositions larger than the minimum required
@@ -403,17 +414,16 @@ namespace gar {
             // get the track id for this step
             auto trackID = ParticleListAction::GetCurrentTrackID();
             float time = step->GetPreStepPoint()->GetGlobalTime();
-
             float edep = this->GetStepEnergy(step, true) * CLHEP::MeV / CLHEP::GeV;
 
             MF_LOG_DEBUG("AuxDetAction::TrackerScSteppingAction")
-            << "Energy deposited "
-            << step->GetTotalEnergyDeposit() * CLHEP::MeV / CLHEP::GeV
-            << " GeV in cellID "
-            << cellID
-            << " after Birks "
-            << edep
-            << " GeV";
+                << "Energy deposited "
+                << step->GetTotalEnergyDeposit() * CLHEP::MeV / CLHEP::GeV
+                << " GeV in cellID "
+                << cellID
+                << " after Birks "
+                << edep
+                << " GeV";
 
             //Create a map of cellID to SimHit
             gar::sdp::CaloDeposit hit( trackID, time, edep, G4Pos, cellID );
@@ -443,15 +453,17 @@ namespace gar {
             if(step->GetTotalEnergyDeposit() == 0) return;
 
             // check that we are in the correct material to record a hit
-            std::string VolumeName   = this->GetVolumeName(track);
+            const std::string VolumeName = this->GetVolumeName(track);
 
-            if(VolumeName.find("Yoke") == std::string::npos) return;
+            if (std::find_if(fMuIDVolumeName.begin(), fMuIDVolumeName.end(), [&VolumeName](std::string s) { return VolumeName.find(s) != std::string::npos; }) == fMuIDVolumeName.end())
+                return;
 
             // check the material
             auto pos = 0.5 * (start + stop);
             TGeoNode *node = fGeo->FindNode(pos.x()/CLHEP::cm, pos.y()/CLHEP::cm, pos.z()/CLHEP::cm);//Node in cm...
 
-            if(!node){
+            if (nullptr == node)
+            {
                 MF_LOG_DEBUG("AuxDetAction::MuIDSteppingAction")
                 << "Node not found in "
                 << pos.x() << " mm "

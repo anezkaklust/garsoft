@@ -87,9 +87,15 @@ namespace gar {
             double                             fLArEnergyCut;                             ///< The minimum energy in GeV for a particle to be included in the list.
             std::string                        fLArMaterial;                              ///< Material for the LArTPC
             std::vector<std::string>           fLArVolumeName;                            ///< volume we will record energy depositions in
+            
             std::string                        fECALMaterial;                             ///< Material for the ECAL
+            std::vector<std::string>           fECALVolumeName;                            ///< volume we will record energy depositions in
+            
             std::string                        fTrackerScMaterial;                        ///< Material for the TrackerSc (GArLite)
+            std::vector<std::string>           fTrackerScVolumeName;                            ///< volume we will record energy depositions in
+
             std::string                        fMuIDMaterial;                             ///< Material for the MuID
+            std::vector<std::string>           fMuIDVolumeName;                            ///< volume we will record energy depositions in
             bool                               fApplyBirksLaw;
 
             std::vector<gar::sdp::LArDeposit> fLArDeposits;          ///< energy fDeposits for the LArTPC
