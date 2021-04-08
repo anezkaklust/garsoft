@@ -34,6 +34,8 @@ namespace util {
 
 
 
+
+
         /** IMPORTANT: Make sure that you have a consistent set of coordinate
         systems in the arguments passed to all these methods.  As a rule,
         track parameters are expressed in the coordinate system implicitly
@@ -51,6 +53,9 @@ namespace util {
 
         const gar::geo::GeometryCore* fGeo = gar::providerFrom<geo::GeometryGAr>();
         */
+
+
+
 
 
         /** Finds two intersections of a helix with an infinite cylinder of radius
@@ -78,18 +83,22 @@ namespace util {
 
         TrackPropagator::PropagateToX(Track::TrackParBeg(),Track::Vertex(),float,float[3])
 
-        where the first float is the x input and the float[3] will be the computed (X,y,z)
+        where the first float is the x input and the float[3] will be the computed (x,y,z)
         point.  Or, you may call it like this:
 
-       TrackPropagator::PropagateToX(Track::TrackParEnd(),Track::End(),float,float[3],250.0)
+        TrackPropagator::PropagateToX(Track::TrackParEnd(),Track::End(),float,float[3],250.0)
 
-        but don't mix the ends!
+        but don't mix the ends!  Track::Vertex() is used to give the Xo for the parameters
+        of Track::TrackParBeg() and Track::End() specifies the Xo where the track
+        parameters of Track::TrackParEnd() are valid.
 
         Return values are 0 for good finish, 1 for straight track; if Rmax > 0 , returns
         2 if y^2 + z^2 > Rmax^2 -- means you might want to use PropagateToCylinder
         */
         static int PropagateToX(const float* trackpar, const float* Xpoint, const float x,
             float* retXYZ, const float Rmax=0.0 );
+
+
 
 
 
@@ -102,13 +111,45 @@ namespace util {
 
         util::TrackPropagator::DistXYZ( Track::TrackParEnd(), Track::End(), float[3], &float)
 
-        but don't mix the ends!
+        but don't mix the ends!  The 2nd argument is an initial guess for the iteration to 
+        the point of closest approach.
 
         Return values are 0 for good finish, 1 for straight track, or 2 for track
         parallel to the x axis; but the computed distance is OK for all return values.
         */
         static int DistXYZ(const float* trackpar, const float* Xpoint,
             const float* xyz, float& retDist);
+
+
+
+
+
+        /** Two methods for direction of track at an arbitrary x or phi.
+        Differs from Track::FindDirectionFromTrackParameters in that that method
+        only finds directions at the two ends of the track and has a different
+        sign convention.  One evaluates at a value of x  and the
+        other evaluates at a specific value of phi.  You may call them like so:
+
+        util::TrackPropagator::DirectionX  (Track::TrackParBeg(),Track::Vertex(), float&,float[3])
+        util::TrackPropagator::DirectionPar(Track::TrackParBeg(),Track::Vertex(), float&,float[3])
+
+        where Track::Vertex() would specify the Xo where the track parameters of
+        the first argument are valid.  The float& is either the x or phi value at
+        which the direction is wanted and the float[3] will be the returned unit
+        direction vector.
+
+        The return value is 0 for good return; DirectionX can return 1 for zero
+        curvature.
+        */
+        static int DirectionX  (const float* trackpar, const float* Xpoint,
+            float& xEval,   float* retXYZ);
+        static int DirectionPhi(const float* trackpar, const float* Xpoint,
+            float& phiEval, float* retXYZ);
+
+
+
+
+
     private:
         // Used by DistXYZ:
         static float d2(float xt,float yt,float zt, float x0,float yc,float zc,
