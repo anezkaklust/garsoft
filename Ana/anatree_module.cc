@@ -24,6 +24,9 @@
 #include "canvas/Persistency/Common/FindMany.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 
+#include "SummaryDataProducts/RunData.h"
+#include "SummaryDataProducts/POTSummary.h"
+
 #include "nusimdata/SimulationBase/GTruth.h"
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
@@ -82,6 +85,7 @@ namespace gar {
         anatree & operator = (anatree const &) = delete;
         anatree & operator = (anatree &&) = delete;
 
+        virtual void endRun(art::Run const& run) override;
         virtual void beginJob() override;
 
         // Required functions.
@@ -120,6 +124,8 @@ namespace gar {
         // Input data labels
         std::vector<std::string> fGeneratorLabels;
         std::vector<std::string> fGENIEGeneratorLabels;
+        std::string fPOTtag;
+        
         std::string fGeantLabel; ///< module label for geant4 simulated hits
         std::string fGeantInstanceCalo; ///< Instance name ECAL for sdp::CaloDeposit
         std::string fGeantInstanceMuID; ///< Instance name MuID for sdp::CaloDeposit
@@ -184,6 +190,8 @@ namespace gar {
         Float_t fTPC_X;      ///< center of TPC stored as per-event & compressed by root
         Float_t fTPC_Y;
         Float_t fTPC_Z;
+        Int_t   fTotalPOT;
+        Int_t   fNSpills;
 
         // MCTruth data.
         // GENIE kinematics computed ignoring Fermi momentum and the off-shellness
@@ -451,7 +459,7 @@ namespace gar {
         std::vector<Float_t>            fClusterMainAxisX;
         std::vector<Float_t>            fClusterMainAxisY;
         std::vector<Float_t>            fClusterMainAxisZ;
-        std::vector<Int_t>              fClusterMCindex;          // Branch index (NOT the GEANT track ID) of MCPartice
+        std::vector<Int_t>              fClusterMCindex;          // Branch index (NOT the GEANT track ID) of MCParticle
         std::vector<Float_t>            fClusterMCfrac;           // that best matches & fraction of ionization therefrom
 
         // ECAL cluster to track association info
@@ -483,6 +491,8 @@ fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "See
     bool usegeniegenlabels  =
     p.get_if_present<std::vector<std::string> >("GENIEGeneratorLabels",fGENIEGeneratorLabels);
     if (!usegeniegenlabels) fGENIEGeneratorLabels.clear();
+
+    fPOTtag            = p.get<std::string>("SummaryDataLabel","generator");
 
     //Sim Hits
     fGeantLabel        = p.get<std::string>("GEANTLabel","geant");
@@ -618,6 +628,8 @@ void gar::anatree::beginJob() {
     fTree->Branch("TPC_X",         &fTPC_X,       "TPC_X/F");
     fTree->Branch("TPC_Y",         &fTPC_Y,       "TPC_Y/F");
     fTree->Branch("TPC_Z",         &fTPC_Z,       "TPC_Z/F");
+    fTree->Branch("POT",           &fTotalPOT,    "POT/I");
+    fTree->Branch("NSpills",       &fNSpills,     "NSpills/I");
 
     if (fWriteMCinfo) {
         fTree->Branch("NType",       &fNeutrinoType);
@@ -961,7 +973,26 @@ void gar::anatree::beginJob() {
     return;
 }  // End of :anatree::beginJob
 
+//==============================================================================
+//==============================================================================
+//==============================================================================
+void gar::anatree::endRun(art::Run const& run) {
+    auto const& ID = run.id();
 
+    art::Handle<sumdata::POTSummary> summaryHandle;
+    if (!run.getByLabel(fPOTtag, summaryHandle)) {
+        MF_LOG_DEBUG("anatree") << " No sumdata::POTSummary branch for run " << ID 
+        <<" Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+        return;
+    }
+
+    sumdata::POTSummary const& RunPOT = *summaryHandle;
+    fTotalPOT = RunPOT.TotalPOT();
+    fNSpills = RunPOT.TotalSpills();
+
+    MF_LOG_INFO("anatree") << "POT for this file is " << fTotalPOT
+    << " The number of spills is " << fNSpills;
+}
 
 //==============================================================================
 //==============================================================================

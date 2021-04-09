@@ -356,9 +356,6 @@ namespace gar{
                 }
             }
 
-            // Why was this here?
-            //if (totalE < 1.0e-5) totalE = 1.0;
-
             /* DEB hits without edeps
             std::cout << "Channel " << channel << ", at (z,y) = (" << chanpos[2] << ", "
                 << chanpos[1] << ") has " << chanEDeps.size() << " edeps, and " <<
@@ -739,7 +736,7 @@ namespace gar{
             // A tree to accumulate the found energy for each GEANT/GENIE track
             std::map<int,float> lTrackIdToEnergy;
             for (auto hitIDE : hitIDECol) {
-               lTrackIdToEnergy[hitIDE.trackID] += hitIDE.energyFrac * hitIDE.energyTot;
+                lTrackIdToEnergy[hitIDE.trackID] += hitIDE.energyFrac * hitIDE.energyTot;
             }
 
             // There are still electrons in lTrackIdToEnergy that have parents in
@@ -756,7 +753,10 @@ namespace gar{
                 }
             }
 
-            // Next, sort the map by value.
+            // Next, sort the map by value.  If there are two entries with the exact same
+            // ionization, only one is found in resulting set!  But the digitization scale
+            // for edep is eVs (single molecular ionizations) i.e. 1e-5 or less so this should
+            // be negligible for tracks of interesting ionizations.
             // Declaring the type of the sorting predicate
             typedef std::function<bool(std::pair<int,float>, std::pair<int,float>)> Comparator;
             // Declaring a set that will store the pairs using above comparison logic
@@ -775,8 +775,7 @@ namespace gar{
             }
 
             std::pair<simb::MCParticle*,float> emptee(nullptr,0.0);
-            std::vector<std::pair<simb::MCParticle*,float>> retval(lTrackIdToEnergy.size(),emptee);
-
+            std::vector<std::pair<simb::MCParticle*,float>> retval(setOfTracks.size(),emptee);
             std::vector<std::pair<simb::MCParticle*,float>>::iterator iRetval = retval.begin();
             iTrackSet = setOfTracks.begin();
             for (; iTrackSet != setOfTracks.end(); ++iTrackSet,++iRetval) {
@@ -800,16 +799,16 @@ namespace gar{
             int desiredTrackId = p->TrackId();
 
             for (art::Ptr<rec::Track> iTrack : tracks) {
-               // de-ref the art::Ptr and create a bare pointer for
-               // TrackToMCParticles call, managing const-correctness as best we can
-               rec::Track* argument = const_cast<rec::Track*>( &(*iTrack) );
-               fromMatch = TrackToMCParticles( argument );
-               for (std::pair<simb::MCParticle*,float> matches : fromMatch) {
-                   if ( matches.first->TrackId() == desiredTrackId &&
-                        matches.second           >  fTrackFracMCP) {
-                       retval.push_back( iTrack );
-                   }
-               }
+                // de-ref the art::Ptr and create a bare pointer for
+                // TrackToMCParticles call, managing const-correctness as best we can
+                rec::Track* argument = const_cast<rec::Track*>( &(*iTrack) );
+                fromMatch = TrackToMCParticles( argument );
+                for (std::pair<simb::MCParticle*,float> matches : fromMatch) {
+                    if ( matches.first->TrackId() == desiredTrackId &&
+                          matches.second           >  fTrackFracMCP) {
+                        retval.push_back( iTrack );
+                    }
+                }
             }
             return retval;
         }

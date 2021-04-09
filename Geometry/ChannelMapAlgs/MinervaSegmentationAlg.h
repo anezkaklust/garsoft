@@ -53,6 +53,8 @@ namespace gar {
 
                 const std::string& fieldNameSlice() const { return _sliceId; }
 
+                const unsigned int& nPlanes() const override { return _nPlanes; }
+
                 void setStripSizeX(double stripSize) { _stripSizeX = stripSize; }
 
                 void setStripSizeY(double stripSize) { _stripSizeY = stripSize; }
@@ -99,6 +101,8 @@ namespace gar {
                 double _stripSizeY;
                 /// fraction of tiles to remove at the edge
                 double _frac;
+                /// number of planes
+                unsigned int _nPlanes;
                 /// layer dimension in X
                 mutable double _layer_dim_X;
                 /// layer dimension in Y

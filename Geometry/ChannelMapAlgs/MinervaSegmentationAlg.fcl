@@ -11,6 +11,7 @@ identifier_layer: "layer"
 identifier_slice: "slice"
 strip_size_x: 4.0 # cm
 strip_size_y: 4.0 # cm
+nplanes: 5
 }
 
 END_PROLOG

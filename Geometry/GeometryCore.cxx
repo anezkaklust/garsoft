@@ -1023,6 +1023,9 @@ namespace gar {
             StoreTPCParameters();
             if(fHasECALDetector)
             StoreECALParameters();
+            if(fHasTrackerScDetector) {
+                /* no op */
+            }
             if(fHasMuonDetector)
             StoreMuIDParameters();
 
@@ -1038,6 +1041,14 @@ namespace gar {
                 FindECALnLayers();
                 MakeECALLayeredCalorimeterData();
                 StoreECALNodes(fECALNodePath);
+            }
+
+            if(fHasMuonDetector) {
+                FindMuIDnLayers();
+            }
+            
+            if(fHasTrackerScDetector) {
+                FindTrackerScnPlanes();
             }
         }
 
@@ -1115,7 +1126,6 @@ namespace gar {
             FindMuIDInnerBarrelRadius();
             FindMuIDOuterBarrelRadius();
             FindMuIDInnerSymmetry();
-            FindMuIDnLayers();
             // std::raise(SIGINT);
         }
 
@@ -1198,6 +1208,7 @@ namespace gar {
                 std::cout << "ND-GAr Lite Geometry" << std::endl;
                 std::cout << "ND-GAr Lite Origin (x, y, z) " << GArLiteXCent() << " cm " << GArLiteYCent() << " cm " << GArLiteZCent() << " cm" << std::endl;
                 std::cout << "ND-GAr Lite Active Volume Size (R, L) " << GArLiteRadius() << " cm " << GArLiteLength() << " cm" << std::endl;
+                std::cout << "Number of planes (from Segmentation alg) " << GetNLayers("TrackerSc") << std::endl;
             }
 
             if(this->HasMuonDetector()) {
@@ -1592,6 +1603,9 @@ namespace gar {
             if(det.compare("ECAL") == 0)
             return fECALnLayers;
 
+            if(det.compare("TrackerSc") == 0)
+            return fTrackerScnPlanes;
+
             if(det.compare("MuID") == 0)
             return fMuIDnLayers;
 
@@ -1857,13 +1871,22 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
+        bool GeometryCore::FindTrackerScnPlanes()
+        {
+            if(fMinervaSegmentationAlg)
+            fTrackerScnPlanes = fMinervaSegmentationAlg->nPlanes();
+
+            return true;
+        }
+
+        //----------------------------------------------------------------------------
         void GeometryCore::InitVariables()
         {
             fEnclosureX = 0.;
             fEnclosureY = 0.;
             fEnclosureZ = 0.;
 
-	    fTPCNumDriftVols = 2;  // default to ALICE-style TPC with cathode in the middle
+	        fTPCNumDriftVols = 2;  // default to ALICE-style TPC with cathode in the middle
 
             fTPCXCent = 0.;
             fTPCYCent = 0.;
@@ -1907,6 +1930,7 @@ namespace gar {
             fPVThickness = 0.;
             fECALSymmetry = -1;
             fECALEndcapStartX = 0.;
+            fECALnLayers = 0;
             fECALNodePath.clear();
 
             fHasRock = false;
@@ -1920,10 +1944,12 @@ namespace gar {
             fMuIDRinner = 0.;
             fMuIDRouter = 0.;
             fMuIDSymmetry = -1;
+            fMuIDnLayers = 0;
 
             fGArLiteXCent = 0.;
             fGArLiteYCent = 0.;
             fGArLiteZCent = 0.;
+            fTrackerScnPlanes = 0;
 
             fGArLiteRadius = 9999.;
             fGArLiteLength = 9999.;

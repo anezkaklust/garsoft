@@ -60,6 +60,10 @@ namespace gar {
                     return _nLayers;
                 }
 
+                virtual const unsigned int& nPlanes() const {
+                    return _nPlanes;
+                }
+
                 virtual const std::string& cellEncoding() const {
                     return _encoding;
                 }
@@ -116,6 +120,8 @@ namespace gar {
                 double _stripSizeX;
 
                 unsigned int _nLayers;
+
+                unsigned int _nPlanes;
 
                 const BitFieldCoder* _decoder = 0;
 

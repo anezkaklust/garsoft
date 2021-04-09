@@ -125,7 +125,7 @@ namespace util {
             retXYZ2[1] = yy2;
             retXYZ2[2] = zz2;
             retXYZ2[0] = Xpoint[0] + radius * tanl * dphi2;
-			
+
         } else {
             retXYZ1[1] = yy2;
             retXYZ1[2] = zz2;
@@ -150,6 +150,8 @@ namespace util {
 
         return 0;
     }
+
+
 
     //----------------------------------------------------------------------
     int TrackPropagator::PropagateToX(const float* trackpar, const float* Xpoint,
@@ -200,6 +202,8 @@ namespace util {
         return retval;
     }
 
+
+
     //----------------------------------------------------------------------
     int TrackPropagator::DistXYZ(const float* trackpar, const float* Xpoint, 
         const float* xyz, float& retDist) {
@@ -219,12 +223,9 @@ namespace util {
         float phi0 = trackpar[3];
 
         float s  = std::tan(trackpar[4]);
-        if (s != 0)
-        {
+        if (s != 0) {
             s = 1.0/s;
-        }
-        else
-        {
+        } else {
             s = 1E9;
         }
 
@@ -233,8 +234,7 @@ namespace util {
         float zc = trackpar[1] - r * sinphi0;
         float yc = trackpar[0] + r * cosphi0;
 
-        if (curv == 0)
-        {
+        if (curv == 0) {
             // distance from a point to a line -- use the norm of the cross product of the
             // unit vector along the line and the displacement between the test point and
             // a point on the line
@@ -248,8 +248,7 @@ namespace util {
             return 1;
         }
 
-        if (s == 0)
-        {
+        if (s == 0) {
             // zero slope.  The track is another line, this time along the x axis
             retDist = std::sqrt( TMath::Sq(yt-y0) + TMath::Sq(zt-z0) );
             return 2;
@@ -282,8 +281,7 @@ namespace util {
 
         // solve for phi of the closest point using quadratic fit; 18 iters gives
         // phi to 1mrad accuracy
-        for (size_t iter=0; iter<17; ++iter)
-        {
+        for (size_t iter=0; iter<18; ++iter) {
             // 2 coefficients of the quadratic; requires (phihi -phicent) == (phicent -philow)
             float B  = (d2hi -d2low) / (2*span);
             float A  = (d2hi +d2low -2*d2cent) / ( 2*span*span );
@@ -300,10 +298,42 @@ namespace util {
         float xp = x0 + r*(phicent -phi0)/s;
         float yp = yc - r*TMath::Cos(phicent);
         float zp = zc + r*TMath::Sin(phicent);
-        retDist = std::sqrt( TMath::Sq(xt-xp) + TMath::Sq(yt-yp) + TMath::Sq(zt-zp) );
+        retDist = std::sqrt(TMath::Sq(xt-xp) +TMath::Sq(yt-yp) +TMath::Sq(zt-zp));
 
         return 0;
     }
+
+
+
+    //----------------------------------------------------------------------
+    int TrackPropagator::DirectionX  (const float* trackpar, const float* Xpoint,
+            float& xEval, float* retXYZ) {
+
+        if (trackpar[2]==0) return 1;
+        float r   = 1.0/trackpar[2];
+        float s   = std::tan(trackpar[4]);
+        float x0  = Xpoint[0];
+
+        float phi = (xEval -x0)/(r*s);
+        DirectionPhi(trackpar,Xpoint, phi, retXYZ);
+        return 0;
+    }
+
+
+
+    int TrackPropagator::DirectionPhi(const float* trackpar, const float* Xpoint,
+            float& phiEval, float* retXYZ) {
+
+        retXYZ[0] = std::tan(trackpar[4]);
+        retXYZ[1] = std::sin(phiEval);
+        retXYZ[2] = std::cos(phiEval);
+        float norm = std::hypot(retXYZ[0],retXYZ[1],retXYZ[2]);
+        for (int i=0; i<3; ++i) retXYZ[i] /= norm;
+
+        return 0;
+    }
+
+
 
     //----------------------------------------------------------------------
     float TrackPropagator::d2(float xt, float yt, float zt,

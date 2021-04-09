@@ -16,24 +16,37 @@ namespace gar{
     
     class POTSummary {
     public:
-      POTSummary();
-      
+
+      POTSummary() = default;
+      void aggregate(POTSummary const& other);
+
+    public:
       double totpot;
       double totgoodpot;
-      
-      int totspills;
-      int goodspills;
-      
+      unsigned int totspills;
+      unsigned int goodspills;
+
 #ifndef __GCCXML__
       
       friend std::ostream& operator<< (std::ostream& o, POTSummary const& a);
-      
+
+      public:
+        double const& TotalPOT() const;
+        unsigned int const& TotalSpills() const;
 #endif
       
     };
     
-  }
-} // gar
+  } // namespace sumdata
+} // namespace gar
+
+#ifndef __GCCXML__
+
+inline double const& gar::sumdata::POTSummary::TotalPOT() const { return totpot; }
+inline unsigned int const& gar::sumdata::POTSummary::TotalSpills() const { return totspills; }
+
+#endif
+
 #endif //POTSUM_H
      
 

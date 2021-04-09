@@ -19,6 +19,7 @@ namespace gar {
     public:
       
       RunData(); // Default constructor
+      void aggregate(RunData const& other);
       
     private:
       

@@ -187,6 +187,9 @@ namespace gar {
             std::unique_ptr<PositionInVolumeFilter> CreateParticleVolumeFilter
             (std::set<std::string> const& vol_names) const;
 
+            //Geometry
+            const geo::GeometryCore *geo;
+
             ///Set the user limits and production cuts per region
             void SetLimitsAndCuts();
             CLHEP::HepRandomEngine &fEngine;
@@ -217,6 +220,8 @@ namespace gar {
         , fKeepParticlesInVolumes(pset.get< std::vector< std::string > >("KeepParticlesInVolumes", {})    )
         , fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, pset, "GEANTSeed")     )
         {
+            geo = providerFrom<geo::GeometryGAr>();
+
             // initialize the GArSimulationParameters singleton
             G4SimulationParameters::CreateInstance(pset.get<fhicl::ParameterSet>("GArSimParsPSet"));
 
@@ -238,11 +243,17 @@ namespace gar {
             if(!useInputLabels) fInputLabels.resize(0);
 
             produces< std::vector<simb::MCParticle>                 >();
+            produces< ::art::Assns<simb::MCTruth, simb::MCParticle> >();
+
             produces< std::vector<sdp::LArDeposit>                 >();
             produces< std::vector<sdp::EnergyDeposit>               >();
+            
+            if(geo->HasECALDetector())
             produces< std::vector<sdp::CaloDeposit>                 >("ECAL");//ECAL
+            if(geo->HasTrackerScDetector())
+            produces< std::vector<sdp::CaloDeposit>                 >("TrackerSc");//TrackerSc
+            if(geo->HasMuonDetector())
             produces< std::vector<sdp::CaloDeposit>                 >("MuID");//MuID
-            produces< ::art::Assns<simb::MCTruth, simb::MCParticle> >();
 
             // constructor decides if initialized value is a path or an environment variable
             cet::search_path sp("FW_SEARCH_PATH");
@@ -323,7 +334,6 @@ namespace gar {
         //----------------------------------------------------------------------
         void GArG4::beginJob()
         {
-            auto geo = gar::providerFrom<geo::GeometryGAr>();
             //auto* rng = &*(::art::ServiceHandle<::art::RandomNumberGenerator>());
 
             fG4Help = new g4b::G4Helper(fG4MacroPath, fG4PhysListName);
@@ -397,10 +407,7 @@ namespace gar {
 
             // if we don't have favourite volumes, don't even bother creating a filter
             if (vol_names.empty()) return {};
-
-            auto geom = providerFrom<geo::GeometryGAr>();
-
-            std::vector<std::vector<TGeoNode const*>> node_paths = geom->FindAllVolumePaths(vol_names);
+            std::vector<std::vector<TGeoNode const*>> node_paths = geo->FindAllVolumePaths(vol_names);
 
             // collection of interesting volumes
             PositionInVolumeFilter::AllVolumeInfo_t GeoVolumePairs;
@@ -545,11 +552,15 @@ namespace gar {
             }
 
             // And finally the sdp::CaloDepositions
-            for(auto const& hit : fAuxDetAction->CaloDeposits())
+            std::vector<gar::sdp::CaloDeposit> deposits = fAuxDetAction->CaloDeposits();
+            if (geo->HasTrackerScDetector())
+                deposits = fAuxDetAction->TrackerScDeposits();
+
+            for (auto const &hit : deposits)
             {
                 MF_LOG_DEBUG("GArG4")
-                << "adding calo deposits for track id: "
-                << hit.TrackID();
+                    << "adding calo deposits for track id: "
+                    << hit.TrackID();
 
                 ECALCol->emplace_back(hit);
             }
@@ -575,9 +586,18 @@ namespace gar {
             }
 
             evt.put(std::move(TPCCol));
-            evt.put(std::move(ECALCol), "ECAL");
+
+            std::string instanceName = "ECAL";
+            if(geo->HasTrackerScDetector())
+            instanceName = "TrackerSc";
+
+            evt.put(std::move(ECALCol), instanceName);
+
+            if(geo->HasMuonDetector())
             evt.put(std::move(MuIDCol), "MuID");
+            
             evt.put(std::move(LArCol));
+
             evt.put(std::move(partCol));
             evt.put(std::move(tpassn));
 

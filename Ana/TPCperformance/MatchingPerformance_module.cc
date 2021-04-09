@@ -35,13 +35,22 @@
 #include "canvas/Persistency/Common/FindMany.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 
+#include "Geometry/GeometryGAr.h"
+#include "DetectorInfo/DetectorClocksServiceGAr.h"
+#include "DetectorInfo/DetectorPropertiesService.h"
+
+#
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "MCCheater/BackTracker.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 #include "MCCheater/BackTracker.h"
 #include "ReconstructionDataProducts/Track.h"
 #include "ReconstructionDataProducts/Cluster.h"
+#include "RecoAlg/TrackPropagator.h"
 
+
+#include "TH1D.h"
+#include "TH2D.h"
 #include "TTree.h"
 #include "TDatabasePDG.h"
 #include "TParticlePDG.h"
@@ -100,6 +109,15 @@ namespace gar {
         cheat::BackTrackerCore* fBack;
         // PDG database from ROOT
         TDatabasePDG* pdgInstance;
+        // Detector properties
+        const detinfo::DetectorProperties* fDetProp;
+        const detinfo::DetectorClocks*     fClocks;
+
+        // Keepin an eye on it all
+        int fVerbosity;
+        float fClusterDirNhitCut;          ///< Do not plot cluster direction unless you have this many hits or more
+        TH1F* chargeFracAll;               ///< Ionization frac before no-stub cut
+        TH1F* chargeFracStub;              ///< Ionization frac after no-stub cut
 
 
 
@@ -117,7 +135,7 @@ namespace gar {
         std::vector<Float_t>            fTrackPX;
         std::vector<Float_t>            fTrackPY;
         std::vector<Float_t>            fTrackPZ;
-        std::vector<Float_t>            fTrackEend;
+        std::vector<Float_t>            fTrackPmag;
         std::vector<Int_t>              fTrackQ;
         std::vector<Float_t>            fTrackLen;
         std::vector<Float_t>            fTrackChi2;
@@ -139,7 +157,7 @@ namespace gar {
         std::vector<std::string>        fMCPEndProc;
         std::vector<Float_t>            fMCPTime;
 
-        // And here's the track - ECAL matching info
+        // Track - ECAL energy info
         std::vector<Float_t>            fEassocNoInTruth;
         std::vector<Int_t>              fNassocNoInTruth;
         std::vector<Float_t>            fEunassocInTruth;
@@ -147,8 +165,25 @@ namespace gar {
         std::vector<Float_t>            fEisassocInTruth;
         std::vector<Int_t>              fNisassocInTruth;
 
+        // The matching variables here; they will have one entry for each
+        // cluster, for each "nice" track end; all other vectors here will
+        // have just one entry for each track
+        std::vector<Float_t>            fRadClusTrackTru;
+        std::vector<Float_t>            fRadClusTrackFal;
+        std::vector<Float_t>            fXClusTrackOver25Tru;
+        std::vector<Float_t>            fXClusTrackOver25Fal;
+        std::vector<Float_t>            fXClusTrackUnder25Tru;
+        std::vector<Float_t>            fXClusTrackUnder25Fal;
+        std::vector<Float_t>            fRPhiClusTrackTru;
+        std::vector<Float_t>            fRPhiClusTrackFal;
+        std::vector<Float_t>            fDotClustTrackTru;
+        std::vector<Float_t>            fDotClustTrackFal;
+        std::vector<Float_t>            fDistClustTrackTru;
+        std::vector<Float_t>            fDistClustTrackFal;
     };
 }
+
+
 
 
 
@@ -157,10 +192,12 @@ namespace gar {
 //==============================================================================
 gar::MatchingPerformance::MatchingPerformance(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
 
-    fGeantLabel    = p.get<std::string>("GEANTLabel",   "geant");
-    fTrackLabel    = p.get<std::string>("TrackLabel",   "track");
-    fClusterLabel  = p.get<std::string>("ClusterLabel", "calocluster");
-    fECALAssnLabel = p.get<std::string>("ECALAssnLabel","trkecalassn");
+    fGeantLabel        = p.get<std::string>("GEANTLabel",   "geant");
+    fTrackLabel        = p.get<std::string>("TrackLabel",   "track");
+    fClusterLabel      = p.get<std::string>("ClusterLabel", "calocluster");
+    fECALAssnLabel     = p.get<std::string>("ECALAssnLabel","trkecalassn");
+    fVerbosity         = p.get<int>        ("Verbosity", 0);
+    fClusterDirNhitCut = p.get<int>        ("ClusterDirNhitCut",    5);
 
     pdgInstance = TDatabasePDG::Instance();
 
@@ -175,6 +212,8 @@ gar::MatchingPerformance::MatchingPerformance(fhicl::ParameterSet const & p) : E
 
 
 
+
+
 //==============================================================================
 //==============================================================================
 //==============================================================================
@@ -185,8 +224,17 @@ void gar::MatchingPerformance::beginJob() {
     ItsInTulsa[1] = fGeo->TPCYCent();
     ItsInTulsa[2] = fGeo->TPCZCent();
 
+    fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
+    fClocks  = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
+
     art::ServiceHandle<art::TFileService> tfs;
     fTree = tfs->make<TTree>("GArAnaTree","GArAnaTree");
+    if (fVerbosity>0) {
+        chargeFracAll  = tfs->make<TH1F>("chargeFracAll",
+            "Frac track's ionization from selected MCParticle", 101, 0.0,1.01);
+        chargeFracStub = tfs->make<TH1F>("chargeFracStub",
+            "Frac track's ionization from non-stub MCParticle", 101, 0.0,1.01);
+    }
 
 
 
@@ -201,7 +249,7 @@ void gar::MatchingPerformance::beginJob() {
     fTree->Branch("TrackPX",                &fTrackPX);
     fTree->Branch("TrackPY",                &fTrackPY);
     fTree->Branch("TrackPZ",                &fTrackPZ);
-    fTree->Branch("TrackEend",              &fTrackEend);
+    fTree->Branch("TrackPmag",              &fTrackPmag);
     fTree->Branch("TrackQ",                 &fTrackQ);
     fTree->Branch("TrackLen",               &fTrackLen);
     fTree->Branch("TrackChi2",              &fTrackChi2);
@@ -217,9 +265,6 @@ void gar::MatchingPerformance::beginJob() {
     fTree->Branch("MCPStartPX",             &fMCPStartPX);
     fTree->Branch("MCPStartPY",             &fMCPStartPY);
     fTree->Branch("MCPStartPZ",             &fMCPStartPZ);
-    fTree->Branch("MCPStartE",              &fMCPStartE);
-    fTree->Branch("MCPProc",                &fMCPProc);
-    fTree->Branch("MCPEndProc",             &fMCPEndProc);
     fTree->Branch("MCPTime",                &fMCPTime);
 
     fTree->Branch("EassocNoInTruth",        &fEassocNoInTruth);
@@ -229,8 +274,22 @@ void gar::MatchingPerformance::beginJob() {
     fTree->Branch("EisassocInTruth",        &fEisassocInTruth);
     fTree->Branch("NisassocInTruth",        &fNisassocInTruth);
 
+    fTree->Branch("RadClusTrackTru",        &fRadClusTrackTru);
+    fTree->Branch("RadClusTrackFal",        &fRadClusTrackFal);
+    fTree->Branch("XClusTrackOver25Tru",    &fXClusTrackOver25Tru);
+    fTree->Branch("XClusTrackOver25Fal",    &fXClusTrackOver25Fal);
+    fTree->Branch("XClusTrackUnder25Tru",   &fXClusTrackUnder25Tru);
+    fTree->Branch("XClusTrackUnder25Fal",   &fXClusTrackUnder25Fal);
+    fTree->Branch("RPhiClusTrackTru",       &fRPhiClusTrackTru);
+    fTree->Branch("RPhiClusTrackFal",       &fRPhiClusTrackFal);
+    fTree->Branch("DotClustTrackTru",       &fDotClustTrackTru);
+    fTree->Branch("DotClustTrackFal",       &fDotClustTrackFal);
+    fTree->Branch("DistClustTrackTru",      &fDistClustTrackTru);
+    fTree->Branch("DistClustTrackFal",      &fDistClustTrackFal);
     return;
 }  // End of :MatchingPerformance::beginJob
+
+
 
 
 
@@ -257,6 +316,8 @@ void gar::MatchingPerformance::analyze(art::Event const & event) {
 
 
 
+
+
 //==============================================================================
 //==============================================================================
 //==============================================================================
@@ -270,7 +331,7 @@ void gar::MatchingPerformance::ClearVectors() {
     fTrackPX.clear();
     fTrackPY.clear();
     fTrackPZ.clear();
-    fTrackEend.clear();
+    fTrackPmag.clear();
     fTrackQ.clear();
     fTrackLen.clear();
     fTrackChi2.clear();
@@ -286,9 +347,6 @@ void gar::MatchingPerformance::ClearVectors() {
     fMCPStartPX.clear();
     fMCPStartPY.clear();
     fMCPStartPZ.clear();
-    fMCPStartE.clear();
-    fMCPProc.clear();
-    fMCPEndProc.clear();
     fMCPTime.clear();
 
     fEassocNoInTruth.clear();
@@ -298,8 +356,23 @@ void gar::MatchingPerformance::ClearVectors() {
     fEisassocInTruth.clear();
     fNisassocInTruth.clear();
 
+    fRadClusTrackTru.clear();
+    fRadClusTrackFal.clear();
+    fXClusTrackOver25Tru.clear();
+    fXClusTrackOver25Fal.clear();
+    fXClusTrackUnder25Tru.clear();
+    fXClusTrackUnder25Fal.clear();
+    fRPhiClusTrackTru.clear();
+    fRPhiClusTrackFal.clear();
+    fDotClustTrackTru.clear();
+    fDotClustTrackFal.clear();
+    fDistClustTrackTru.clear();
+    fDistClustTrackFal.clear();
+
     return;
 } // end :MatchingPerformance::ClearVectors
+
+
 
 
 
@@ -385,8 +458,9 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
 
 
 
-    // Try to kill stub or other undesirable tracks first
-    std::vector<std::pair<rec::Track,simb::MCParticle>> niceTracks;
+    // Try to kill undesirable tracks first
+    struct niceNice {rec::Track foist; simb::MCParticle zekond; float turd;};
+    std::vector<niceNice> niceTracks;
     for ( auto const& track : (*TrackHandle) ) {
 
         /// Want to be able to know what you've matched back to at MCTruth
@@ -396,11 +470,12 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
         int nMCsfromTrack = MCsfromTrack.size();
         if (nMCsfromTrack==0) continue;
 
-        simb::MCParticle theMCPart;
+        simb::MCParticle theMCPart;       float fracMCPart;
         bool broke = false;
         for (int iMCfromTrack =0; iMCfromTrack<nMCsfromTrack; ++iMCfromTrack) {
             // Plausible MCParticle to make this track?
-            theMCPart = *(MCsfromTrack[iMCfromTrack].first);
+            theMCPart  = *(MCsfromTrack[iMCfromTrack].first);
+            fracMCPart =   MCsfromTrack[iMCfromTrack].second;
             TParticlePDG* particle = pdgInstance->GetParticle(theMCPart.PdgCode());
             if (particle==NULL         ) continue;   // What causes this err? If anything.
             if (particle->Charge()==0.0) continue;
@@ -420,15 +495,21 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
                 whackThatECAL = true;
                 break;
             }
+            if ( fGeo->PointInECALEndcap(doink) ) {
+                whackThatECAL = true;
+                break;
+            }
         }
         if (!whackThatECAL) continue;
 
         // This track is nice so far; have to check for stubbiness
-        niceTracks.push_back(std::make_pair(track,theMCPart));
+        if (fVerbosity>0) chargeFracAll->Fill(fracMCPart);
+        niceNice tmp = {track, theMCPart, fracMCPart};
+        niceTracks.push_back(tmp);
     }
  
     for (size_t iNiceTrk=0; iNiceTrk<niceTracks.size(); ++iNiceTrk) {
-        simb::MCParticle theMCPart = niceTracks[iNiceTrk].second;
+        simb::MCParticle theMCPart = niceTracks[iNiceTrk].zekond;
 
         // Look at all the other tracks that have contributions from this MCParticle
         // & make sure this is the "biggest" one in terms of deposited charge; take the
@@ -459,10 +540,10 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
         // Keep the first one; the rest are stubs to remove.
         if (sortedTrkID_Epairs.size()>0) sortedTrkID_Epairs.erase(sortedTrkID_Epairs.begin());
         for ( auto& iTrkID_E : sortedTrkID_Epairs ) {
-            std::vector<std::pair<rec::Track,simb::MCParticle>>::iterator notNice;
+            std::vector<niceNice>::iterator notNice;
             notNice = niceTracks.begin();
             for (; notNice<niceTracks.end(); ++notNice) {
-                if ( notNice->first.getIDNumber() == iTrkID_E.first ) {
+                if ( notNice->foist.getIDNumber() == iTrkID_E.first ) {
                     // notNice points to a (Track,MCParticle) pair where the Track
                     // is a stub
                     notNice = niceTracks.erase(notNice);
@@ -474,143 +555,292 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
 
 
     for (size_t iNiceTrk=0; iNiceTrk<niceTracks.size(); ++iNiceTrk) {
-        rec::Track       track     = niceTracks[iNiceTrk].first;
-        simb::MCParticle theMCPart = niceTracks[iNiceTrk].second;
+        rec::Track       track      = niceTracks[iNiceTrk].foist;
+        simb::MCParticle theMCPart  = niceTracks[iNiceTrk].zekond;
+        float            fracMCPart = niceTracks[iNiceTrk].turd;
+        if (fVerbosity>0) chargeFracStub->Fill(fracMCPart);
 
-        // Which end of this track corresponds to the start of the reco track?
-        // This calc in the geometry's coordinates
-        const TLorentzVector& positionMCP = theMCPart.Position(0);
-        float distStart = std::hypot(track.Vertex()[1] -positionMCP[1],
-                                     track.Vertex()[2] -positionMCP[2]);
-        float distEnd   = std::hypot(track.End()[1]    -positionMCP[1],
-                                     track.End()[2]    -positionMCP[2]);
-        rec::TrackEnd endTowardECAL = (distStart>distEnd) ? rec::TrackEndBeg
-                                                          : rec::TrackEndEnd;
-
-
-
-        // Record some info about the track at the end near the ECAL
-        fTrackIDNumber.push_back(track.getIDNumber());
-        Float_t saveChi2;		
-		TParticlePDG* particle = pdgInstance->GetParticle(theMCPart.PdgCode());
-        float MCmass = particle->Mass();
-        if ( endTowardECAL==rec::TrackEndBeg ) {
-            fTrackX.push_back   ( track.Vertex()[0] -ItsInTulsa[0]);
-            fTrackY.push_back   ( track.Vertex()[1] -ItsInTulsa[1]);
-            fTrackZ.push_back   ( track.Vertex()[2] -ItsInTulsa[2]);
-            fTrackPX.push_back  (-track.Momentum_beg()*track.VtxDir()[0]);
-            fTrackPY.push_back  (-track.Momentum_beg()*track.VtxDir()[1]);
-            fTrackPZ.push_back  (-track.Momentum_beg()*track.VtxDir()[2]);
-            fTrackEend.push_back( std::hypot(track.Momentum_beg(),MCmass));
-            fTrackQ.push_back   ( track.ChargeEnd());
-            fTrackLen.push_back ( track.LengthBackward());
-            saveChi2 = track.ChisqBackward();
-            fTrackChi2.push_back( saveChi2);
-        } else {
-            fTrackX.push_back   ( track.End()[0] -ItsInTulsa[0]);
-            fTrackY.push_back   ( track.End()[1] -ItsInTulsa[1]);
-            fTrackZ.push_back   ( track.End()[2] -ItsInTulsa[2]);
-            fTrackPX.push_back  (-track.Momentum_end()*track.EndDir()[0]);
-            fTrackPY.push_back  (-track.Momentum_end()*track.EndDir()[1]);
-            fTrackPZ.push_back  (-track.Momentum_end()*track.EndDir()[2]);
-            fTrackEend.push_back( std::hypot(track.Momentum_end(),MCmass));
-            fTrackQ.push_back   ( track.ChargeBeg());
-            fTrackLen.push_back ( track.LengthForward());        
-            saveChi2 = track.ChisqForward();
-            fTrackChi2.push_back( saveChi2);
+        // Examine matched clusters on both ends of the track unless the particle
+        // was created in the gas.
+        std::deque<rec::TrackEnd> endList = {rec::TrackEndBeg,rec::TrackEndEnd};
+        TVector3 positionMCP = theMCPart.Position(0).Vect();
+        if (fGeo->PointInGArTPC(positionMCP)) {
+            // Don't include the drift distance in matching
+            float distStart = std::hypot(track.Vertex()[1] -positionMCP[1],
+                                         track.Vertex()[2] -positionMCP[2]);
+            float distEnd   = std::hypot(track.End()[1]    -positionMCP[1],
+                                         track.End()[2]    -positionMCP[2]);
+            if ( distStart < distEnd ) {
+                endList.pop_front();
+            } else {
+                endList.pop_back();
+            }
         }
-        Int_t nHits = track.NHits();
-        fNTPCClustersOnTrack.push_back(nHits);
-        Float_t pVal = ROOT::Math::chisquared_cdf_c(saveChi2,nHits);
-        fTrackPval.push_back(pVal);
-        fTrackTime.push_back(track.Time());
 
-        // Record some info about the matching MC
-        fMCPDG.push_back(theMCPart.PdgCode());
-        TrkId momTrkId = theMCPart.Mother();
-        int momPDG = 0;
-        if (momTrkId>0) {
-            int momIndex = TrackIdToIndex[momTrkId];
-            momPDG   = (*MCPHandle).at(momIndex).PdgCode();
-        }
-        fMCPDGMother.push_back(momPDG);
+        for (std::deque<rec::TrackEnd>::iterator iEnd = endList.begin();
+                                                 iEnd < endList.end();  ++iEnd) {
+            // Record info about the track at correct end - need trackPar,End later
+            // later and they must be in MPD coordinates.
+            fTrackIDNumber.push_back(track.getIDNumber());
+            Float_t saveChi2;
+            float trackPar[5];      float trackEnd[3];
 
-        fMCPStartX.push_back(positionMCP.X());
-        fMCPStartY.push_back(positionMCP.Y());
-        fMCPStartZ.push_back(positionMCP.Z());
-        const TLorentzVector& momentumMCP = theMCPart.Momentum(0);
-        fMCPStartPX.push_back(momentumMCP.Px());
-        fMCPStartPY.push_back(momentumMCP.Py());
-        fMCPStartPZ.push_back(momentumMCP.Pz());
-        fMCPStartE.push_back(theMCPart.E());
+            if ( (*iEnd)==rec::TrackEndBeg ) {
+                for (size_t i=0; i<5; ++i) trackPar[i] = track.TrackParBeg()[i];
+                for (size_t i=0; i<3; ++i) trackEnd[i] = track.Vertex()[i];
+                fTrackX.push_back   ( track.Vertex()[0] -ItsInTulsa[0] );
+                fTrackY.push_back   ( track.Vertex()[1] -ItsInTulsa[1] );
+                fTrackZ.push_back   ( track.Vertex()[2] -ItsInTulsa[2] );
+                fTrackPX.push_back  (-track.Momentum_beg()*track.VtxDir()[0] );
+                fTrackPY.push_back  (-track.Momentum_beg()*track.VtxDir()[1] );
+                fTrackPZ.push_back  (-track.Momentum_beg()*track.VtxDir()[2] );
+                fTrackPmag.push_back( track.Momentum_beg() );
+                fTrackQ.push_back   ( track.ChargeEnd() );
+                fTrackLen.push_back ( track.LengthBackward() );
+                saveChi2 = track.ChisqBackward();
+                fTrackChi2.push_back( saveChi2 );
+            } else {
+                for (size_t i=0; i<5; ++i) trackPar[i] = track.TrackParEnd()[i];
+                for (size_t i=0; i<3; ++i) trackEnd[i] = track.End()[i];
+                fTrackX.push_back   ( track.End()[0] -ItsInTulsa[0] );
+                fTrackY.push_back   ( track.End()[1] -ItsInTulsa[1] );
+                fTrackZ.push_back   ( track.End()[2] -ItsInTulsa[2] );
+                fTrackPX.push_back  (-track.Momentum_end()*track.EndDir()[0] );
+                fTrackPY.push_back  (-track.Momentum_end()*track.EndDir()[1] );
+                fTrackPZ.push_back  (-track.Momentum_end()*track.EndDir()[2] );
+                fTrackPmag.push_back( track.Momentum_end() );
+                fTrackQ.push_back   ( track.ChargeBeg() );
+                fTrackLen.push_back ( track.LengthForward() );        
+                saveChi2 = track.ChisqForward();
+                fTrackChi2.push_back( saveChi2);
 
-        fMCPProc.push_back(theMCPart.Process());
-        fMCPEndProc.push_back(theMCPart.EndProcess());
-        fMCPTime.push_back(theMCPart.T());    
+            }
+            trackPar[0] -=ItsInTulsa[1];        trackPar[1] -=ItsInTulsa[2];
+            for (int i=0; i<3; ++i) trackEnd[i] -= ItsInTulsa[i];
+
+            Int_t nHits = track.NHits();
+            fNTPCClustersOnTrack.push_back(nHits);
+            Float_t pVal = ROOT::Math::chisquared_cdf_c(saveChi2,nHits-5);
+            fTrackPval.push_back(pVal);
+            fTrackTime.push_back(track.Time());
+
+            // Record some info about the matching MC
+            fMCPDG.push_back(theMCPart.PdgCode());
+            TrkId momTrkId = theMCPart.Mother();
+            int momPDG = 0;
+            if (momTrkId>0) {
+                int momIndex = TrackIdToIndex[momTrkId];
+                momPDG   = (*MCPHandle).at(momIndex).PdgCode();
+            }
+            fMCPDGMother.push_back(momPDG);
+
+            fMCPStartX.push_back(positionMCP.X());
+            fMCPStartY.push_back(positionMCP.Y());
+            fMCPStartZ.push_back(positionMCP.Z());
+            const TLorentzVector& momentumMCP = theMCPart.Momentum(0);
+            fMCPStartPX.push_back(momentumMCP.Px());
+            fMCPStartPY.push_back(momentumMCP.Py());
+            fMCPStartPZ.push_back(momentumMCP.Pz());
+            fMCPTime.push_back(theMCPart.T());    
 
 
 
-        // Finally, look for the ECAL-track matching info
-        std::vector<art::Ptr<rec::Cluster>> clustersOnMCP;
-        clustersOnMCP = fBack->MCParticleToClusters(&theMCPart, ClusterGrabber);
+            // Now, look for the ECAL-track matching info
+            std::vector<art::Ptr<rec::Cluster>> clustersOnMCP;
+            clustersOnMCP = fBack->MCParticleToClusters(&theMCPart, ClusterGrabber);
 
-        float eAssocNoInTruth = 0.0;            int nAssocNoInTruth = 0;
-        float eUnassocInTruth = 0.0;            int nUnassocInTruth = 0;
-        float eIsassocInTruth = 0.0;            int nIsassocInTruth = 0;
-        size_t   nCALedClusts =   0;
-        std::vector<rec::Cluster  const*> clustersFromAssn;
-        std::vector<rec::TrackEnd const*> trackEndsFromAssn;
+            float eAssocNoInTruth = 0.0;            int nAssocNoInTruth = 0;
+            float eUnassocInTruth = 0.0;            int nUnassocInTruth = 0;
+            float eIsassocInTruth = 0.0;            int nIsassocInTruth = 0;
+            size_t   nCALedClusts =   0;
+            std::vector<rec::Cluster  const*> clustersFromAssn;
+            std::vector<rec::TrackEnd const*> trackEndsFromAssn;
 
-        // The art::FindMany object findManyTrackEndCAL is indexed over 
-        // all the tracks in *TrackHandle (which is bigger than niceTracks).
-        int iTrack = -1;
-        for (size_t iAllTrk=0; iAllTrk<TrackHandle->size(); ++iAllTrk) {
-            iTrack++;
-            if ( (*TrackHandle)[iAllTrk] == track ) break;
-        }
-        findManyTrackEndCAL->get(iTrack, clustersFromAssn,trackEndsFromAssn);
-        nCALedClusts = clustersFromAssn.size();
+            // The art::FindMany object findManyTrackEndCAL is indexed over 
+            // all the tracks in *TrackHandle (which is bigger than niceTracks).
+            size_t iTrack=0;
+            for (; iTrack<TrackHandle->size(); ++iTrack) {
+                if ( (*TrackHandle)[iTrack] == track ) break;
+            }
 
-        for ( auto const& cluster : (*ClusterHandle) ) {
+            findManyTrackEndCAL->get(iTrack, clustersFromAssn,trackEndsFromAssn);
+            nCALedClusts = clustersFromAssn.size();
 
-            bool clusterOnTrack = false;
-            for (size_t iCALedClust=0; iCALedClust<nCALedClusts; ++iCALedClust) {
-                if (*trackEndsFromAssn[iCALedClust] != endTowardECAL) continue;
-                if (*clustersFromAssn[iCALedClust] == cluster) {
-                    clusterOnTrack = true;
-                    break;
+            for ( auto const& cluster : (*ClusterHandle) ) {
+
+                // recompute the matching variables, similar to (if not exactly
+                // the same as) in Reco/TPCECALAssociation_module.cc  They will be:
+                // inECALBarrel, distRadially, Over25, cutQuantity, dotSee
+                float radius = 1.0/trackPar[2];
+                float zCent = trackPar[1] - radius*sin(trackPar[3]);
+                float yCent = trackPar[0] + radius*cos(trackPar[3]);
+                float xClus = cluster.Position()[0] -ItsInTulsa[0];
+                float yClus = cluster.Position()[1] -ItsInTulsa[1];
+                float zClus = cluster.Position()[2] -ItsInTulsa[2];
+                float rClus = std::hypot(zClus,yClus);
+                bool inECALBarrel  = fGeo->PointInECALBarrel(cluster.Position());
+
+                float distRadially = std::hypot(zClus-zCent,yClus-yCent) -abs(radius);
+                distRadially = abs(distRadially);
+
+                float retXYZ1[3];    float retXYZ2[3];    TVector3 trackXYZ;
+                float cutQuantity = -1.0;      bool over25 = false;
+                float maxXdisplacement =
+                     fDetProp->DriftVelocity(fDetProp->Efield(),fDetProp->Temperature())
+                    *fClocks->SpillLength();
+
+                if (inECALBarrel) {
+                    int errcode = util::TrackPropagator::PropagateToCylinder(
+                        trackPar,trackEnd,rClus, 0.0, 0.0, retXYZ1,retXYZ2);
+                    if ( errcode==0 ) {
+                        float extrapXerr;
+                        float transDist1 = std::hypot(retXYZ1[2]-zClus,retXYZ1[1]-yClus);
+                        float transDist2 = std::hypot(retXYZ2[2]-zClus,retXYZ2[1]-yClus);
+                        bool looneyExtrap;
+                        if (transDist1<transDist2) {
+                            trackXYZ.SetXYZ(retXYZ1[0],retXYZ1[1],retXYZ1[2]);
+                        } else {
+                            trackXYZ.SetXYZ(retXYZ2[0],retXYZ2[1],retXYZ2[2]);
+                        }
+                        trackXYZ += TVector3(ItsInTulsa);
+                        looneyExtrap =  !fGeo->PointInECALBarrel(trackXYZ)
+                                     && !fGeo->PointInECALEndcap(trackXYZ);
+                        trackXYZ -= TVector3(ItsInTulsa);
+                        if (!looneyExtrap) {
+                            extrapXerr = trackXYZ.X() -xClus;  // Check in the matching code too
+                            float expected_mean = 0;
+                            if (trackEnd[0]<-25) {
+                                expected_mean = +maxXdisplacement/2.0;
+                                over25 = true;
+                            }
+                            if (trackEnd[0]>+25) {
+                                expected_mean = -maxXdisplacement/2.0;
+                                over25 = true;
+                            }
+                            cutQuantity = abs(extrapXerr -expected_mean);
+                        }
+                    }
+                } else {
+                    // In an endcap.  How many radians in a maxXdisplacement?
+                    float radiansInDrift = trackPar[2]*maxXdisplacement
+                                         / tan(trackPar[4]);
+                    if ( abs(radiansInDrift) >= 2.0*M_PI ) goto angleCut;
+                    int errcode = util::TrackPropagator::PropagateToX(
+                        trackPar,trackEnd, xClus, retXYZ1);
+                    if ( errcode==0 ) {
+                        trackXYZ.SetXYZ(retXYZ1[0],retXYZ1[1],retXYZ1[2]);
+                        trackXYZ += TVector3(ItsInTulsa);
+                        bool looneyExtrap =  !fGeo->PointInECALBarrel(trackXYZ)
+                                          && !fGeo->PointInECALEndcap(trackXYZ);
+                        trackXYZ -= TVector3(ItsInTulsa);
+                        if (!looneyExtrap) {
+                                
+                            float angClus  = std::atan2(yClus-yCent,zClus-zCent);
+                            float angXtrap = std::atan2(retXYZ1[1] -yCent,retXYZ1[2] -zCent) -angClus;
+                            // angXtrap can indeed be outside of -PI to +PI
+                            if (angXtrap > +M_PI) angXtrap -= 2.0*M_PI;
+                            if (angXtrap < -M_PI) angXtrap += 2.0*M_PI;
+                            cutQuantity = abs(radius*angXtrap);
+                        }
+                    }
+                }
+
+                angleCut:
+                float trackDir[3];
+                float dotSee = -2.0;
+                int nCells = cluster.CalorimeterHits().size();
+                if (nCells >= fClusterDirNhitCut) {
+                    int errcode = util::TrackPropagator::DirectionX(
+                        trackPar,trackEnd, xClus,trackDir);
+                    if (errcode==0) {
+                        TVector3 clusterDir;
+                        clusterDir.SetXYZ(cluster.EigenVectors()[0],
+                            cluster.EigenVectors()[1],cluster.EigenVectors()[2]);
+                        dotSee = clusterDir.Dot(trackDir);
+                    }
+                }
+
+                // Look at distance from extrapolated track to cluster.  Well it 
+                // turns out to not be that great a discriminant.
+                float repakClusPos[3];            float dist3dXtrap = -1;
+                float shemp;
+                repakClusPos[0] = xClus;   repakClusPos[1] = yClus;   repakClusPos[2] = zClus;
+                int errcode = util::TrackPropagator::DistXYZ(
+                    trackPar,trackEnd,repakClusPos,shemp);
+                if (errcode==0) dist3dXtrap = shemp;
+
+
+
+                bool clusterOnTrack = false;
+                for (size_t iCALedClust=0; iCALedClust<nCALedClusts; ++iCALedClust) {
+                    if (*trackEndsFromAssn[iCALedClust] != (*iEnd) ) continue;
+                    if (*clustersFromAssn[iCALedClust] == cluster) {
+                        clusterOnTrack = true;
+                        break;
+                    }
+                }
+
+                bool clusterOnMCP = false;
+                for (size_t iClusOnMCP = 0; iClusOnMCP<clustersOnMCP.size(); ++iClusOnMCP) {
+                    if ( *(clustersOnMCP[iClusOnMCP]) == cluster ) {
+                        clusterOnMCP = true;
+                        break;
+                    }
+                }
+
+
+
+ 
+                if ( clusterOnTrack &&!clusterOnMCP ) {
+                    fRadClusTrackFal.push_back(distRadially);
+                    if (inECALBarrel) {
+                        if (over25) {
+                            fXClusTrackOver25Fal.push_back(cutQuantity);
+                        } else {
+                            fXClusTrackUnder25Fal.push_back(cutQuantity);
+                        }
+                    } else {
+                        fRPhiClusTrackFal.push_back(cutQuantity);
+                    }
+                    fDotClustTrackFal.push_back(dotSee);
+                    fDistClustTrackFal.push_back(dist3dXtrap);
+
+                    eAssocNoInTruth += cluster.Energy();
+                    nAssocNoInTruth += cluster.CalorimeterHits().size();
+                }
+
+                if (!clusterOnTrack && clusterOnMCP ) {
+                    eUnassocInTruth += cluster.Energy();
+                    nUnassocInTruth += cluster.CalorimeterHits().size();
+                }
+
+                if ( clusterOnTrack && clusterOnMCP ) {
+                    fRadClusTrackTru.push_back(distRadially);
+                    if (inECALBarrel) {
+                        if (over25) {
+                            fXClusTrackOver25Tru.push_back(cutQuantity);
+                        } else {
+                            fXClusTrackUnder25Tru.push_back(cutQuantity);
+                        }
+                    } else {
+                        fRPhiClusTrackTru.push_back(cutQuantity);
+                    }
+                    fDotClustTrackTru.push_back(dotSee);
+                    fDistClustTrackTru.push_back(dist3dXtrap);
+
+                    eIsassocInTruth += cluster.Energy();
+                    nIsassocInTruth += cluster.CalorimeterHits().size();
                 }
             }
 
-            bool clusterOnMCP = false;
-            for (size_t iClusOnMCP = 0; iClusOnMCP<clustersOnMCP.size(); ++iClusOnMCP) {
-                if ( *(clustersOnMCP[iClusOnMCP]) == cluster ) {
-                    clusterOnMCP = true;
-                    break;
-                }
-            }
+            fEassocNoInTruth.push_back(eAssocNoInTruth);
+            fNassocNoInTruth.push_back(nAssocNoInTruth);
+            fEunassocInTruth.push_back(eUnassocInTruth);
+            fNunassocInTruth.push_back(nUnassocInTruth);
+            fEisassocInTruth.push_back(eIsassocInTruth);
+            fNisassocInTruth.push_back(nIsassocInTruth);
 
-            if ( clusterOnTrack &&!clusterOnMCP ) {
-                eAssocNoInTruth += cluster.Energy();
-                nAssocNoInTruth += cluster.CalorimeterHits().size();
-            }
-            if (!clusterOnTrack && clusterOnMCP ) {
-                eUnassocInTruth += cluster.Energy();
-                nUnassocInTruth += cluster.CalorimeterHits().size();
-            }
-            if ( clusterOnTrack && clusterOnMCP ) {
-                eIsassocInTruth += cluster.Energy();
-                nIsassocInTruth += cluster.CalorimeterHits().size();
-            }
-        }
-
-        fEassocNoInTruth.push_back(eAssocNoInTruth);
-        fNassocNoInTruth.push_back(nAssocNoInTruth);
-        fEunassocInTruth.push_back(eUnassocInTruth);
-        fNunassocInTruth.push_back(nUnassocInTruth);
-        fEisassocInTruth.push_back(eIsassocInTruth);
-        fNisassocInTruth.push_back(nIsassocInTruth);
-    
+        } // end loop over not-in-gas track ends
     } // end loop over TrackHandle
 
 

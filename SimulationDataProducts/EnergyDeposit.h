@@ -20,7 +20,7 @@ namespace gar {
 
 #ifndef __GCCXML__
       EnergyDeposit(int    trackID,
-                    float t,
+                    float  t,
                     float  e,
                     float  xpos,
                     float  ypos,
@@ -53,7 +53,7 @@ namespace gar {
     private:
 
       int    fTrackID;   ///< g4 track ID of particle making the deposit
-      float fTime;      ///< time of the energy deposit
+      float  fTime;      ///< time of the energy deposit
       float  fEnergy;    ///< energy deposited
       float  fX;         ///< x position of the energy deposit
       float  fY;         ///< y position of the energy deposit

@@ -2,3 +2,4 @@
 
 #include "SummaryDataProducts/RunData.h"
 #include "SummaryDataProducts/POTSummary.h"
+#include "SummaryDataProducts/GeometryConfigurationInfo.h"

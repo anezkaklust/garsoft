@@ -64,8 +64,8 @@ find_ups_product( gsl )
 find_ups_product( edepsim )
 cet_find_library( EDEPSIMIO NAMES edepsim_io PATHS ENV EDEPSIM_LIB )
 
-message(STATUS "ROOTSYS is ${ROOTSYS}")
-message(STATUS "GSL_FQ_DIR is $ENV{GSL_FQ_DIR}")
+#message(STATUS "ROOTSYS is ${ROOTSYS}")
+#message(STATUS "GSL_FQ_DIR is $ENV{GSL_FQ_DIR}")
 
 # macros
 include(ArtMake)
@@ -93,6 +93,7 @@ add_subdirectory (Reco)
 add_subdirectory (RecoAlg)
 add_subdirectory (Ana)
 add_subdirectory (Filters)
+add_subdirectory (StandardRecord)
 
 # Pandora
 option(BUILD_W_PANDORA "Build with Pandora" ON )

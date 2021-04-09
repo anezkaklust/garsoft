@@ -56,12 +56,14 @@ namespace gar {
             // Declare member data here.
             std::string fTrackLabel;    ///< label to find the reco tracks
             std::string fClusterLabel;  ///< label to find the right reco caloclusters
-            int fVerbosity;
+            int   fVerbosity;
             float fTrackEndXCut;        ///< Extrapolate only track ends outside central drift
             float fTrackEndRCut;        ///< Extrapolate only track ends outside central region
             float fPerpRCut;            ///< Max dist cluster center to circle of track (z,y) only
             float fBarrelXCut;          ///< Max dist cluster center (drift time compensated) track in x
             float fEndcapRphiCut;       ///< Max dist cluster center (drift time compensated) track in r*phi
+            float fClusterDirNhitCut;   ///< Do not cut on cluster direction unless you have this many hits or more
+            float fClusterDirCut;       ///< Min cos angle between extrapolated track and cluster direction
 
             const detinfo::DetectorProperties*  fDetProp;    ///< detector properties
             const detinfo::DetectorClocks*      fClocks;     ///< detector clock information
@@ -75,22 +77,26 @@ namespace gar {
             TH2F* xClusTrack;                                ///< Cluster to track in barrel, x only, vs x of trackend
             TH1F* phiClusTrack;                              ///< Cluster to track in endcap
             TH1F* rPhiClusTrack;
+            TH2F* dotClustTrack;                             ///< cos(cluster axis to extrapolated track)
+            TH1F* nEntryVsCut;                               ///< Number passing each cut
         };
 
 
 
         TPCECALAssociation::TPCECALAssociation(fhicl::ParameterSet const & p) : EDProducer{p} {
 
-            fTrackLabel    = p.get<std::string>("TrackLabel", "track");
-            fClusterLabel  = p.get<std::string>("ClusterLabel","calocluster");
-            fVerbosity     = p.get<int>("Verbosity", 0);
+            fTrackLabel        = p.get<std::string>("TrackLabel", "track");
+            fClusterLabel      = p.get<std::string>("ClusterLabel","calocluster");
+            fVerbosity         = p.get<int>("Verbosity", 0);
             // Needs to be computed in produce; so will be 0.0 to do that 
             // otherwise of course the fcl file value appears
-            fTrackEndXCut  = p.get<float>("TrackEndXCut",     215.0);
-            fTrackEndRCut  = p.get<float>("TrackEndRCut",     230.0);
-            fPerpRCut      = p.get<float>("PerpRCut",         10.0);
-            fBarrelXCut    = p.get<float>("BarrelXCut",       35.0);
-            fEndcapRphiCut = p.get<float>("EndXCut",          32.0);
+            fTrackEndXCut      = p.get<float>("TrackEndXCut",     215.0);
+            fTrackEndRCut      = p.get<float>("TrackEndRCut",     230.0);
+            fPerpRCut          = p.get<float>("PerpRCut",          10.0);
+            fBarrelXCut        = p.get<float>("BarrelXCut",        35.0);
+            fEndcapRphiCut     = p.get<float>("EndXCut",           32.0);
+            fClusterDirNhitCut = p.get<int>  ("ClusterDirNhitCut",    5);
+            fClusterDirCut     = p.get<float>("ClusterDirCut",    0.000);
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fClocks  = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
             fGeo     = gar::providerFrom<geo::GeometryGAr>();
@@ -108,15 +114,20 @@ namespace gar {
 
             if (fVerbosity>0) {
                 art::ServiceHandle< art::TFileService > tfs;
-                radClusTrack = tfs->make<TH1F>("radClusTrack",
+                radClusTrack     = tfs->make<TH1F>("radClusTrack",
                     "(z,y) distance from cluster to track", 100, 0.0,60.0);
-                xClusTrack   = tfs->make<TH2F>("xClusTrack",
+                xClusTrack       = tfs->make<TH2F>("xClusTrack",
                     "x of track minus x of cluster vs x position of track end in barrel",
                     100,-250.0,+250.0, 100,-200.0,+200.0);
-                phiClusTrack = tfs->make<TH1F>("phiClusTrack",
+                phiClusTrack    = tfs->make<TH1F>("phiClusTrack",
                     "angular distance from cluster to track in endcap", 90,-M_PI,+M_PI);
-                rPhiClusTrack = tfs->make<TH1F>("rPhiClusTrack",
-                    "distance from cluster to track in endcap", 100,-200.0,+200.0);
+                rPhiClusTrack    = tfs->make<TH1F>("rPhiClusTrack",
+                    "distance from cluster to track in endcap", 100,-100.0,+100.0);
+                dotClustTrack    = tfs->make<TH2F>("dotClustTrack",
+                    "No hits in cluster vs dot product of cluster axis to extrapolated track direction",
+                    100,-1.0,+1.0, 100,0.5,100.5);
+                nEntryVsCut      = tfs->make<TH1F>("nEntryVsCut",
+                    "Number track end & cluster combos vs sequentially applied cut", 36, -0.5, 35.5);
             }
         }
 
@@ -137,11 +148,16 @@ namespace gar {
             maxXdisplacement = fDetProp->DriftVelocity(fDetProp->Efield(),fDetProp->Temperature())
                               *fClocks->SpillLength();
 
+            // Here are the associations
             std::unique_ptr<art::Assns<gar::rec::Cluster, gar::rec::Track, gar::rec::TrackEnd>>
                             ClusterTrackAssns(new art::Assns<gar::rec::Cluster,gar::rec::Track, gar::rec::TrackEnd>);
             auto const clusterPtrMaker = art::PtrMaker<rec::Cluster>(e, ClusterHandle.id());
             auto const   trackPtrMaker = art::PtrMaker<rec::Track>  (e, TrackHandle.id());
-
+            // Here are some intermediate info needed because both ends of a track might
+            // be associated to a cluster and that ain't rite!
+            std::vector<art::Ptr<gar::rec::Track>> candTrack;
+            std::vector<gar::rec::TrackEnd> candEnd;
+            std::vector<float> candDist;
 
 
             for (size_t iCluster=0; iCluster<ClusterHandle->size(); ++iCluster) {
@@ -160,22 +176,27 @@ namespace gar {
 
                     // Which if any ends of the track are near the outer edges of the TPC?
                     // These specific cuts could perhaps be increased
-                    bool outside[2]; outside[0] = outside[1] = false;
+                    bool outside[2];    outside[0] = outside[1] = false;
+                    candTrack.clear();  candEnd.clear();   candDist.clear();
 
                     if ( abs(track.Vertex()[0] -ItsInTulsa[0]) > fTrackEndXCut ||
                         std::hypot(track.Vertex()[1] -ItsInTulsa[1],
                                    track.Vertex()[2] -ItsInTulsa[2]) > fTrackEndRCut ) {
                         outside[TrackEndBeg] = true;
                     }
-                    if ( abs(track.End()[0]) > fTrackEndXCut ||
+                    if ( abs(track.End()[0] -ItsInTulsa[0])    > fTrackEndXCut ||
                         std::hypot(track.End()[1] -ItsInTulsa[1],
                                    track.End()[2] -ItsInTulsa[2])    > fTrackEndRCut ) {
                         outside[TrackEndEnd] = true;
                     }
 
                     // Plot and cut on the distance of cluster to helix in transverse plane.
-                    for (TrackEnd iEnd = TrackEndBeg; iEnd >= TrackEndEnd; --iEnd) {
+                    for (gar::rec::TrackEnd iEnd = TrackEndBeg; iEnd >= TrackEndEnd; --iEnd) {
+                        if (fVerbosity>0) nEntryVsCut->Fill(0);
+
                         if (outside[iEnd]) {
+                            if (fVerbosity>0) nEntryVsCut->Fill(1);
+
                             float trackPar[5];    float trackEnd[3];
                             if (iEnd==TrackEndBeg) {
                                 for (int i=0; i<5; ++i) trackPar[i] = track.TrackParBeg()[i];
@@ -187,23 +208,26 @@ namespace gar {
                             // Translate to the center-of-MPD coordinate system
                             trackPar[0] -=ItsInTulsa[1];        trackPar[1] -=ItsInTulsa[2];
                             for (int i=0; i<3; ++i) trackEnd[i] -= ItsInTulsa[i];
-                            
                             float radius = 1.0/trackPar[2];
-                            float zCent = trackPar[1] - radius*sin(trackPar[3]);						
+                            float zCent = trackPar[1] - radius*sin(trackPar[3]);
                             float yCent = trackPar[0] + radius*cos(trackPar[3]);
 
                             float distRadially = std::hypot(zClus-zCent,yClus-yCent) -abs(radius);
                             distRadially = abs(distRadially);
-                            radClusTrack->Fill( distRadially );
+                            if (fVerbosity>0) radClusTrack->Fill( distRadially );
                             
                             if ( distRadially > fPerpRCut ) {
                                 // This track-cluster match fails
                                 continue;
                             }
+                            if (fVerbosity>0) nEntryVsCut->Fill(2);
 
                             // Require plausible extrapolation in x as well
                             float retXYZ1[3];    float retXYZ2[3];
+                            TVector3 trackXYZ;
                             if (inECALBarrel) {
+                                if (fVerbosity>0) nEntryVsCut->Fill(10);
+
                                 // Extrapolate track to that radius.  Using MPD center coords.
                                 int errcode = util::TrackPropagator::PropagateToCylinder(
                                     trackPar,trackEnd,rClus, 0.0, 0.0, retXYZ1,retXYZ2);
@@ -212,15 +236,25 @@ namespace gar {
                                     // no intersection at all, is possible
                                     continue;
                                 }
+                                if (fVerbosity>0) nEntryVsCut->Fill(11);
                                 float extrapXerr;
                                 float transDist1 = std::hypot(retXYZ1[2]-zClus,retXYZ1[1]-yClus);
                                 float transDist2 = std::hypot(retXYZ2[2]-zClus,retXYZ2[1]-yClus);
+                                bool looneyExtrap;
                                 if (transDist1<transDist2) {
-                                    extrapXerr = retXYZ1[0] -clusterCenter.X();
+                                    trackXYZ.SetXYZ(retXYZ1[0],retXYZ1[1],retXYZ1[2]);
                                 } else {
-                                    extrapXerr = retXYZ2[0] -clusterCenter.X();
+                                    trackXYZ.SetXYZ(retXYZ2[0],retXYZ2[1],retXYZ2[2]);
                                 }
-                                xClusTrack->Fill(trackEnd[0], extrapXerr);
+                                trackXYZ += TVector3(ItsInTulsa);
+                                looneyExtrap =  !fGeo->PointInECALBarrel(trackXYZ)
+                                             && !fGeo->PointInECALEndcap(trackXYZ);
+                                if (looneyExtrap) continue;
+                                if (fVerbosity>0) nEntryVsCut->Fill(12);
+                                trackXYZ -= TVector3(ItsInTulsa);
+
+                                extrapXerr = trackXYZ.X() -xClus;
+                                if (fVerbosity>0) xClusTrack->Fill(trackEnd[0], extrapXerr);
                                 // extrapXerr is roughly maxXdisplacement/2 for trackend at
                                 // x < -25cm and -maxXdisplacement/2 for trackend at x > 25cm.
                                 float expected_mean = 0;
@@ -230,40 +264,95 @@ namespace gar {
                                 if ( abs(cutQuantity) > maxXdisplacement/2.0+fBarrelXCut ) {
                                     continue;
                                 }
+                                if (fVerbosity>0) nEntryVsCut->Fill(13);
+
                             } else {
+                                if (fVerbosity>0) nEntryVsCut->Fill(20);
+
                                 // In an endcap.  How many radians in a maxXdisplacement?
                                 float radiansInDrift = trackPar[2]*maxXdisplacement
                                                       / tan(trackPar[4]);
                                 if ( abs(radiansInDrift) >= 2.0*M_PI ) {
-                                    // Drat!  No distinguishing power here.
-                                    break;
+                                    // Drat!  No distinguishing power here.  So we
+                                    // count it as associated
+                                    goto angleCut;
                                 }
+                                if (fVerbosity>0) nEntryVsCut->Fill(21);
+
                                 int errcode = util::TrackPropagator::PropagateToX(
                                     trackPar,trackEnd, xClus, retXYZ1);
                                 if ( errcode!=0 ) {
                                     // This track-cluster match fails.
                                     continue;
                                 }
+                                if (fVerbosity>0) nEntryVsCut->Fill(22);
+                                trackXYZ.SetXYZ(retXYZ1[0],retXYZ1[1],retXYZ1[2]);
+                                trackXYZ += TVector3(ItsInTulsa);
+                                bool looneyExtrap =  !fGeo->PointInECALBarrel(trackXYZ)
+                                                  && !fGeo->PointInECALEndcap(trackXYZ);
+                                if (looneyExtrap) continue;
+                                if (fVerbosity>0) nEntryVsCut->Fill(23);
+                                trackXYZ -= TVector3(ItsInTulsa);
+
                                 // Find how many radians the closest point on the propagated
                                 // track is from the cluster along the helix, projected onto
                                 // to the perpendicular plane.  (bound to -pi,+pi range)
-                                float angClus  = std::atan2(clusterCenter.Y()-yCent,clusterCenter.Z()-zCent);
+                                float angClus  = std::atan2(yClus-yCent,zClus-zCent);
                                 float angXtrap = std::atan2(retXYZ1[1] -yCent,retXYZ1[2] -zCent) -angClus;
+                                // angXtrap can indeed be outside of -PI to +PI
                                 if (angXtrap > +M_PI) angXtrap -= 2.0*M_PI;
                                 if (angXtrap < -M_PI) angXtrap += 2.0*M_PI;
-                                phiClusTrack->Fill(angXtrap);
+                                if (fVerbosity>0) phiClusTrack->Fill(angXtrap);
                                 float extrapRphiErr = abs(radius)*angXtrap;
-                                rPhiClusTrack->Fill( extrapRphiErr );
+                                if (fVerbosity>0) rPhiClusTrack->Fill(extrapRphiErr);
                                 if (abs(extrapRphiErr) > fEndcapRphiCut) {
                                     continue;
                                 }
+                                if (fVerbosity>0) nEntryVsCut->Fill(24);
                             }
-                            // Make the cluster-track association
-                            art::Ptr<gar::rec::Cluster> const clusterPtr = clusterPtrMaker(iCluster);
-                            art::Ptr<gar::rec::Track>   const   trackPtr = trackPtrMaker(iTrack);
-                            ClusterTrackAssns->addSingle(clusterPtr,trackPtr,iEnd);
+ 
+                            angleCut:
+                            float trackDir[3];
+                            int errcode = util::TrackPropagator::DirectionX(
+                                trackPar,trackEnd, xClus,trackDir);
+                            if (fVerbosity>0) nEntryVsCut->Fill(30);
+                            if (errcode!=0) {
+                                // Unlikely but possible condition
+                                continue;
+                            }
+                            if (fVerbosity>0) nEntryVsCut->Fill(31);
+                            TVector3 clusterDir;
+                            clusterDir.SetXYZ(cluster.EigenVectors()[0],
+                                cluster.EigenVectors()[1],cluster.EigenVectors()[2]);
+                            float dotSee = clusterDir.Dot(trackDir);
+                            int nCells = cluster.CalorimeterHits().size();
+                            dotClustTrack->Fill(dotSee,nCells);
+                            if (nCells>=fClusterDirNhitCut && dotSee<fClusterDirCut) continue;
+                            if (fVerbosity>0) nEntryVsCut->Fill(32);
+
+
+
+                             // Save the cluster-track association candidate
+                            art::Ptr<gar::rec::Track> const trackPtr = trackPtrMaker(iTrack);
+                            candTrack.push_back(trackPtr);
+                            candEnd.push_back(iEnd);
+                            float howFar = std::hypot(trackEnd[0] -xClus, trackEnd[1] -yClus, trackEnd[2] -zClus);
+                            candDist.push_back(howFar);
                         }
                     } // end loop over 2 ends of track
+
+                    // Pick which, if either, end of the track to match
+                    if (candEnd.size()==0) continue;
+                    art::Ptr<gar::rec::Track> trackPtrBest = candTrack[0];
+                    gar::rec::TrackEnd        candEndBest  = candEnd[0];
+                    if (candEnd.size()==2) {
+                        if (candDist[0]>candDist[1]) {
+                            trackPtrBest = candTrack[1];
+                            candEndBest  = candEnd[1];
+                        }
+                    }
+                    art::Ptr<gar::rec::Cluster> const clusterPtr = clusterPtrMaker(iCluster);
+                    ClusterTrackAssns->addSingle(clusterPtr,trackPtrBest,candEndBest);
                 }
             } // end loop over clusters
 

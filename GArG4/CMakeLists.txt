@@ -40,6 +40,7 @@ art_make(LIB_LIBRARIES      nug4_ParticleNavigation
                             nug4_G4Base
                             nusimdata_SimulationBase
                             Geometry
+                            GArChannelMapAlg
                             SimulationDataProducts
                             ${ART_FRAMEWORK_PRINCIPAL}
                             ${ART_FRAMEWORK_SERVICES_REGISTRY}

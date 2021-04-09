@@ -1151,6 +1151,8 @@ namespace gar {
 
         bool FindTrackerScVolume();
 
+        bool FindTrackerScnPlanes();
+
         double         fSurfaceY;       ///< The point where air meets earth for this detector.
         std::string    fDetectorName;   ///< Name of the detector.
         std::string    fGDMLfile;       ///< path to geometry file used for Geant4 simulation
@@ -1168,10 +1170,10 @@ namespace gar {
         float          fTPCRadius = 0.;      ///< Radius of the TPC
         float          fTPCLength = 0.;      ///< length of the TPC
 
-	int            fTPCNumDriftVols = 2; ///< 2 if standard ALICE detector, 1 if single drift vol
-	// we may need to add here a flag saying which side of the TPC the ROCs
-	// are on if we are to support both of them.  And provide initialization
-	// and a getter
+	    int            fTPCNumDriftVols = 2; ///< 2 if standard ALICE detector, 1 if single drift vol
+        // we may need to add here a flag saying which side of the TPC the ROCs
+        // are on if we are to support both of them.  And provide initialization
+        // and a getter
 
         float          fTPCXCent = 0.;       ///< center of TPC: X
         float          fTPCYCent = 0.;       ///< center of TPC: Y
@@ -1251,6 +1253,9 @@ namespace gar {
         float fECALEndcapStartX;        ///< Position of the start xplane of the ECAL endcap
         float fECALEndcapOuterX;        ///< Position of the end xplane of the ECAL endcap
         unsigned int fECALnLayers;      ///< number of ECAL layers from the seg algorithm
+
+        //Related to GArLite
+        unsigned int fTrackerScnPlanes;
 
         //Related to the MuID
         bool fHasMuonDetector;
