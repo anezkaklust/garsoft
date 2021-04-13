@@ -21,7 +21,7 @@ services:
  TimeTracker:            {}
  RandomNumberGenerator:  {} #ART native random number generator
   #See Geometry.fcl for the list of geometries available
- GeometryGAr:            @local::nd_hall_mpd_only_SPYv2_geo
+ GeometryGAr:            @local::nd_hall_mpd_only_SPYv3_geo
  ExptGeoHelperInterface: @local::standard_geometry_helper
  DetectorClocks:         @local::standard_clocks
  DetectorProperties:     @local::standard_detproperties
@@ -47,10 +47,12 @@ physics:
  }
  analyzers:
  {
-   cafmaker: @local::standard_cafmaker_spyv2
+   cafmaker: @local::standard_cafmaker_spyv3
  }
 
  ana: [ cafmaker ]
  trigger_paths: [ ]
  end_paths: [ ana ]
 }
+
+physics.analyzers.cafmaker.GEANTLabel: "edepconvert"

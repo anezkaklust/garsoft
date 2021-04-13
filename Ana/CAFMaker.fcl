@@ -1,6 +1,6 @@
 BEGIN_PROLOG
 
-standard_cafmaker_spyv2:
+standard_cafmaker_spyv3:
 {
  module_type:               CAFMaker
 
@@ -80,7 +80,7 @@ standard_cafmaker_spyv2:
  WriteCohInfo:              false
 }
 
-standard_cafmaker_spyv2_edep:
+standard_cafmaker_spyv3_edep:
 {
  module_type:               CAFMaker
 
