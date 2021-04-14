@@ -45,6 +45,8 @@
 
 #include "RawDataProducts/CaloRawDigit.h"
 
+#include "SummaryDataProducts/POTSummary.h"
+
 // nutools extensions
 #include "nurandom/RandomUtils/NuRandomService.h"
 
@@ -86,6 +88,7 @@ namespace gar {
 
         // Required functions.
         void analyze(art::Event const & e) override;
+        void endRun(const art::Run& run) override;
 
     private:
         //Working Horse
@@ -142,6 +145,8 @@ namespace gar {
         std::string fPFLabel; ///< module label for reco particles rec::PFParticle
         std::string fECALAssnLabel; ///< module label for track-clusters associations
 
+        std::string fPOTSummaryLabel;
+
         // Optionally keep/drop parts of the analysis tree
         bool  fWriteMCinfo;        ///< Info from MCTruth, GTruth     Default=true
         bool  fWriteMCPTrajectory; ///< Write MCP Trajectory                Default=true
@@ -167,6 +172,7 @@ namespace gar {
 
         // the analysis tree
         TTree *fTree;
+        TH1* fPOTHist;
 
         Float_t fTPC_X;      ///< center of TPC stored as per-event & compressed by root
         Float_t fTPC_Y;
@@ -229,6 +235,8 @@ fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "See
     fClusterLabel     = p.get<std::string>("ClusterLabel","calocluster");
     fPFLabel          = p.get<std::string>("PFLabel","pandora");
     fECALAssnLabel    = p.get<std::string>("ECALAssnLabel","trkecalassn");
+
+    fPOTSummaryLabel  = p.get<std::string>("POTSummaryLabel");
 
     // What to write
     fWriteMCinfo              = p.get<bool>("WriteMCinfo",        true);
@@ -336,6 +344,8 @@ void gar::CAFMaker::beginJob() {
     caf::StandardRecord* rec = 0;
     fTree->Branch("rec", &rec);
 
+    fPOTHist = fPOTSummaryLabel.empty() ? 0 : tfs->make<TH1F>("TotalPOT", "", 1, 0, 1);
+
     if (fWriteMCPTrajectory) {
         // Checking for parameter file validity only once to simplify
         // later code in CAFMaker::process etc.
@@ -437,6 +447,15 @@ void gar::CAFMaker::analyze(art::Event const & e) {
     return;
 }
 
+//==============================================================================
+void gar::CAFMaker::endRun(const art::Run& run)
+{
+  if(fPOTHist){
+    art::Handle<gar::sumdata::POTSummary> potsum;
+    run.getByLabel(fPOTSummaryLabel, potsum);
+    fPOTHist->Fill(.5, potsum->totgoodpot);
+  }
+}
 
 //==============================================================================
 //==============================================================================

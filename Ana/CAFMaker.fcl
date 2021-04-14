@@ -1,6 +1,6 @@
 BEGIN_PROLOG
 
-standard_cafmaker_spyv2:
+standard_cafmaker_spyv3:
 {
  module_type:               CAFMaker
 
@@ -41,6 +41,8 @@ standard_cafmaker_spyv2:
  ECALAssnLabel:            "trkecalassn"
  VeeLabel:                 "veefinder1"
 
+ POTSummaryLabel:         "edepconvert" # leave blank to skip POTSummary
+
 # What to save? ==============================================
 # MC info is: (a) MCTruth, GTruth, MCParticle if WriteMCinfo; (b) MCPtrajectory if
 # (WriteMCPTrajectory && WriteMCinfo); and (c) MC info in calorimeter if
@@ -80,7 +82,7 @@ standard_cafmaker_spyv2:
  WriteCohInfo:              false
 }
 
-standard_cafmaker_spyv2_edep:
+standard_cafmaker_spyv3_edep:
 {
  module_type:               CAFMaker
 
@@ -201,6 +203,8 @@ standard_cafmaker_dayone:
  ECALAssnLabel:            "trkecalassn"
  VeeLabel:                 "veefinder1"
 
+ POTSummaryLabel:         "edepconvert" # leave blank to skip POTSummary
+
 # What to save? ==============================================
 # MC info is: (a) MCTruth, GTruth, MCParticle if WriteMCinfo; (b) MCPtrajectory if
 # (WriteMCPTrajectory && WriteMCinfo); and (c) MC info in calorimeter if
@@ -280,6 +284,8 @@ standard_cafmaker_dayone_edep:
  ClusterLabel:             "calocluster"
  ECALAssnLabel:            "trkecalassn"
  VeeLabel:                 "veefinder1"
+
+ POTSummaryLabel:         "edepconvert" # leave blank to skip POTSummary
 
 # What to save? ==============================================
 # MC info is: (a) MCTruth, GTruth, MCParticle if WriteMCinfo; (b) MCPtrajectory if
