@@ -126,6 +126,7 @@ namespace gar {
         void FillHighLevelRecoInfo( Event const & e ); ///< extracts high level reco products
 
         //Helpers
+        std::string PointToRegion(const TVector3& point);
         void processIonizationInfo(rec::TrackIoniz& ion, float ionizeTruncate,
         float& forwardIonVal, float& backwardIonVal);
         float processOneDirection(vector<pair<float,float>> SigData,
@@ -245,6 +246,7 @@ namespace gar {
         // ECal cluster data
         vector<vector<UInt_t>>    fCalTrackIndices; ///< index of fTracks associated with fCalClusters
         vector<vector<Int_t>>     fCalTrackEnds;   ///< Track end associated with the cluster
+        vector<vector<UInt_t>>    fCalG4PIndices; ///< index of fG4Particles associated with fCalClusters
 
         // displayTree
         vector<adp::MCDisplayTrack>     fMCDisplay;   ///< sparsified MCTrajectory
@@ -257,6 +259,8 @@ namespace gar {
         //data members used for associations bookkeeping between fill methods
         vector<const simb::MCTruth*> fMCTruths; //needed for G4Particle -> MCTruth (FS particles) matching
         vector<const simb::MCParticle*> fMCParticles; //needed for reco object -> MCParticle matching
+
+	std::map<std::string,int> fRegionNameToID;
 
     };//class
 }//namespace gar
@@ -434,7 +438,8 @@ void gar::StructuredTree::beginJob() {
     fRecoTree->Branch("VeeTrackIndices",  "vector<vector<UInt_t>>",     &fVeeTrackIndices);
     fRecoTree->Branch("VeeTrackEnds",     "vector<vector<Int_t>>",      &fVeeTrackEnds);
     fRecoTree->Branch("CalTrackIndices",  "vector<vector<UInt_t>>",     &fCalTrackIndices);
-    //fRecoTree->Branch("CalTrackEnds", "vector<vector<Int_t>>", &fCalTrackEnds);
+    //fRecoTree->Branch("CalTrackEnds",   "vector<vector<Int_t>>", &fCalTrackEnds);
+    fRecoTree->Branch("CalG4Indices",     "vector<vector<UInt_t>>",     &fCalG4PIndices);
     if(fGeo->HasMuonDetector()){
             fRecoTree->Branch("MuIDClusters", "vector<garana::CaloCluster>",   &fMuClusters);
     }
@@ -465,6 +470,23 @@ void gar::StructuredTree::beginJob() {
         // 6 by 6 matrix of probabilities for a given momentum value
         m_pidinterp.insert( std::make_pair(q, (TH2F*) infile.Get(s.c_str())->Clone("pidinterp")) );
     }
+
+    //map region names to id code for easy access from the trees
+    // TODO this is for the current (as of 3/25/2021) default geometry
+    //      -> add handling for arbitrary geometry
+    fRegionNameToID = { 
+                        {"Unknown",        -1 },
+                        {"TPC1",           0  },
+                        {"TPC2",           1  },
+                        {"GArInactive",    2  },
+                        {"BarrelECal",     3  },
+                        {"EndcapECal",     4  },
+                        {"Cryostat",       5  },
+                        {"CryostatEndcap", 6  },
+                        {"YokeBarrel",     7  }, 
+                        {"YokeEndcap",     8  },
+                        {"MPD",            9  }
+                      };
 
     return;
 
@@ -612,6 +634,7 @@ void gar::StructuredTree::ClearVectors() {
     // ECAL cluster to track association info
     fCalTrackIndices.clear(); // index of fTracks associated with fCalClusters
     fCalTrackEnds.clear();   // Track end associated with the cluster
+    fCalG4PIndices.clear();
 
     return;
 
@@ -637,7 +660,7 @@ void gar::StructuredTree::FillGenTree(art::Event const & e) {
         auto mcthandle = mcthandlelist.at(imcthl);
         string instance = mcthandle.provenance()->productInstanceName();
         if( std::find(genInstances.begin(),genInstances.end(),instance) == genInstances.end()) {
-            mf::LogInfo("StructuredTree::FillGenTree")
+            mf::LogDebug("StructuredTree::FillGenTree")
                 << "found new generator instance, '" << instance << "'";
             genInstances.push_back(instance);
         }
@@ -645,7 +668,7 @@ void gar::StructuredTree::FillGenTree(art::Event const & e) {
             mf::LogWarning("StructuredTree::FillGenTree")
                 << "found repeated generator instance, '" << instance << "'";
 
-        mf::LogInfo("StructuredTree::FillGenTree")
+        mf::LogDebug("StructuredTree::FillGenTree")
             << "processing " << mcthandle->size() << " MCTruths";
 
         //loop over MCTruths
@@ -722,10 +745,16 @@ void gar::StructuredTree::FillG4Tree( Event const & e) {
     for ( auto mcp : *MCPHandle ) {
 
         fMCParticles.push_back(&mcp);
+	//std::cout << "MCParticle created in " << fGeo->VolumeName(mcp.Position(0).Vect()) << std::endl;
 
         int parentPdg = INT_MAX;
         int progenitorId = INT_MAX;
         int progenitorPdg = INT_MAX;
+        vector<pair<TLorentzVector,TLorentzVector>> positions;
+        vector<pair<TLorentzVector,TLorentzVector>> momenta; 
+        vector<int> regions;
+        vector<size_t> npointsPerRegion;
+
         if(mcp.Mother()>0) {
             parentPdg = (fBt->FindMother(&mcp))->PdgCode();
             auto const& progenitor = fBt->FindEve(&mcp);
@@ -742,7 +771,96 @@ void gar::StructuredTree::FillG4Tree( Event const & e) {
         }
        
 
-        GarG4Particle g4p(mcp,parentPdg,progenitorPdg,progenitorId);
+        // find regions of interest and get the entry and exit 4-vectors
+        //std::cout << "looking for regions..." << std::endl;
+        bool enter = false;
+        size_t nptsreg=0;
+        TLorentzVector *pEnter=0, *pExit=0, *xEnter=0, *xExit=0;
+        for(size_t ipt = 0; ipt < mcp.NumberTrajectoryPoints(); ipt++){
+
+            //if particle is not in a region of interest, skip to next traj point
+            std::string regionName = PointToRegion(mcp.Position(ipt).Vect());  //fGeo->VolumeName(mcp.Position(ipt).Vect());
+            if(fRegionNameToID.at(regionName)==-1)//==fRegionNameToID.end())
+                continue;
+
+            //std::cout << "trajectory point in " << regionName << " (" << 
+            //             fRegionNameToID.at(regionName) << ")" << std::endl;;
+            //is this the last trajectory point?
+            bool last = (ipt==mcp.NumberTrajectoryPoints()-1);
+            std::string nextName;
+            if(!last) nextName = PointToRegion(mcp.Position(ipt+1).Vect());
+            //if(nextName!=regionName) std::cout << "   next region is " << nextName << std::endl;
+
+            // if the particle is entering into a region of interest
+            if(!enter) {
+                enter = true;
+                nptsreg=0;
+                nptsreg++;
+                pEnter = new TLorentzVector(mcp.Momentum(ipt));
+                xEnter = new TLorentzVector(mcp.Position(ipt));
+                regions.push_back(fRegionNameToID.at(regionName));
+
+                // is this the only point in this region?
+                if(regionName != nextName) {
+
+                    enter = false;
+                    pExit = pEnter;
+                    xExit = xEnter;
+                    momenta.push_back({*pEnter,*pExit});
+                    positions.push_back({*xEnter,*xExit});
+                    npointsPerRegion.push_back(nptsreg);
+
+                    /*if(momenta.size()==0 && !last)//first region and not last traj point
+                        std::cout << "found MCParticle with single point in " << regionName << std::endl;
+                    else if(momenta.size()==0 && last) //first region and not last traj point
+                        std::cout << "found MCParticle with single and only point in " << regionName << std::endl;
+                    else if(last) //not first region and last traj point
+                        std::cout << "   last point in  " << regionName << " with a single point" << std::endl;
+                    else //not first region and not last traj point
+                        std::cout << "   now it's in  " << regionName << " with a single point" << std::endl; */
+                }
+            }//if now entering ROI
+
+            if(enter)
+                nptsreg++;
+
+            //if last point or next region is not this one (this is the exit point)
+            if(enter &&                         //if it entered, it can exit and ...
+               (last || ( !last &&              //it's the last point or if not...
+                regionName != nextName ) ) ) {  //the next region isn't this one
+
+                /*if(momenta.size()==0 && !last)     //first region but not last traj point
+                    std::cout << "found MCParticle in " << regionName << std::endl;
+                else if(momenta.size()==0 && last) //first region and last traj point
+                    std::cout << "found MCParticle with first and last point in " << regionName << std::endl;
+                else if(last)//not first region but last traj point
+                    std::cout << "   last point in " << regionName << std::endl;
+                else //not first region and not last traj point
+                    std::cout << "   now it's in  " << regionName << std::endl;
+
+                std::cout << "number of traj. points in this region = " << nptsreg << std::endl;*/
+
+                enter = false;
+                pExit = new TLorentzVector(mcp.Momentum(ipt));
+                xExit = new TLorentzVector(mcp.Position(ipt));
+
+                momenta.push_back({*pEnter,*pExit});
+                positions.push_back({*xEnter,*xExit});
+                npointsPerRegion.push_back(nptsreg);
+
+            }//if now exiting ROI
+
+        }//for trajectory points
+        //std::cout << "done." << std::endl;
+        //if(momenta.size()!=0)
+        //    std::cout << "  filled momenta/positions with " << momenta.size() << " pairs" << std::endl;
+
+        // sanity check
+        if(momenta.size()!=positions.size()) std::cout << "G4Particle: positions-momenta size mismatch" << std::endl;
+        if(momenta.size()!=regions.size()) std::cout << "G4Particle: positions/momenta - regions size mismatch" << std::endl;
+
+        // make a G4Particle
+        GarG4Particle g4p(mcp,parentPdg,progenitorPdg,progenitorId,positions,momenta,regions,npointsPerRegion);
         fG4Particles.push_back(g4p.GetGaranaObj());
 
         /*bool foundfs = false;
@@ -1012,7 +1130,8 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
     // TODO: add track end assns when available (add on to BackTrackerCore)
     art::FindManyP<rec::Track/*, rec::TrackEnd*/>* findManyCalTrackEnd = NULL;
     findManyCalTrackEnd = new art::FindManyP<rec::Track/*, rec::TrackEnd*/>(CalClusterHandle,e,fECALAssnLabel);
-
+    //art::FindManyP<MCParticle>* findManyCalMCP = NULL;
+    //findManyCalMCP = new art::FindManyP<MCParticle>(CalClusterHandle,e,fECALAssnLabel);
 
     // save per-track info
     size_t iTrack = 0;
@@ -1021,18 +1140,18 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
 
         //get track -> G4Particle Assns
         vector<pair<MCParticle*,float>> trackmcps = fBt->TrackToMCParticles(&track); //MCParticle w/fraction energy contributed to track
-        std::cout << "size of track <-> G4p vec from BT: " << trackmcps.size() << std::endl;
+        //std::cout << "size of track <-> G4p vec from BT: " << trackmcps.size() << std::endl;
         vector<UInt_t> indices;
         for(auto const& mcpe : trackmcps){
-            std::cout << "looking for G4P match to associated match MCP with track ID, " << mcpe.first->TrackId() << std::endl;
+            //std::cout << "looking for G4P match to associated match MCP with track ID, " << mcpe.first->TrackId() << std::endl;
             for(size_t i=0; i< fG4Particles.size(); i++) {
-                std::cout << "  check G4Particle " << i << " with track ID, " << fG4Particles[i].TrackID() << std::endl;
+                //std::cout << "  check G4Particle " << i << " with track ID, " << fG4Particles[i].TrackID() << std::endl;
                 if( mcpe.first->TrackId() == fG4Particles[i].TrackID()) //fMCParticles and fG4Particles have same mapping
                     indices.push_back(i);
             }
         }
 
-        std::cout << "found " << indices.size() << " track <-> G4P matches" << std::endl;
+       // std::cout << "found " << indices.size() << " track <-> G4P matches" << std::endl;
         fTrackG4PIndices.push_back(indices);
 
         //Reconstructed momentum forward and backward
@@ -1131,11 +1250,33 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
 
     // Get info for ECal clusters and for ECAL-matched tracks
     size_t iCluster = 0;
-    for ( auto const& cluster : (*CalClusterHandle) ) {
+    for ( auto cluster : *CalClusterHandle ) {
 
-        fCalClusters.push_back(MakeAnaCalCluster(cluster));
+        vector<std::pair<int,float>> edeps; // trackID , true deposited energy [GeV]
+        const vector<art::Ptr<rec::CaloHit>> hits = fBt->ClusterToCaloHits(&cluster);
+        for(auto const& hit : hits) {
+
+            auto const& ides = fBt->CaloHitToCalIDEs(hit);
+            for(auto const& ide : ides) {
+
+                std::pair<int,float> trkdep = std::make_pair(ide.trackID,ide.energyTot);
+                if(std::find(edeps.begin(),edeps.end(),trkdep) == edeps.end()) {
+                    edeps.push_back(trkdep);
+                }
+                else {
+                    (*(std::find(edeps.begin(),edeps.end(),trkdep))).second+=trkdep.second;
+                }
+
+            }// for calo IDEs
+
+        }// for calo hits
+
+	if(edeps.size()==0) std::cout << "have a cluster, but edeps is empty!" << std::endl;
+
+        fCalClusters.push_back(MakeAnaCalCluster(cluster,edeps));
         fCalTrackIndices.push_back({});
-            fCalTrackEnds.push_back({});
+        fCalTrackEnds.push_back({});
+        fCalG4PIndices.push_back({});
 
         size_t nMatch = 0;
         if ( findManyCalTrackEnd->isValid() ) {
@@ -1150,16 +1291,50 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
                 if(trackIDs[imatch] == track.getIDNumber()){
                     fCalTrackIndices.back().push_back(imatch);
                     //fCalTrackEnds.back().push_back(fee);
+                    break;
                 }
             }
 
         }//for matched tracks
+        //std::cout << "filled ECal cluster -> track associations. on to MCParticles..." << std::endl;
+
+        // list of MCParticles associated with this cluster and the fraction of the total energy contributed
+	vector<std::pair<MCParticle*,float>> clustToMCPs = fBt->ClusterToMCParticles(&cluster);
+
+	//need to find MCParticle index
+	for(size_t imcp=0; imcp<clustToMCPs.size(); imcp++) {
+
+	    vector<int> pdgs;
+	    for(size_t index=0; index<fG4Particles.size(); index++){        
+
+                if(fG4Particles.at(index).TrackID() == clustToMCPs.at(imcp).first->TrackId()){
+		    pdgs.push_back(fG4Particles.at(index).PDG());
+    	            fCalG4PIndices.back().push_back(index);
+                    break;
+                }// if cluster and MCParticle track IDs match
+            }// for G4Particles
+        }// for cluster-MCParticle matches
+	//std::cout << "filled ECal cluster -> MCParticle associations" << std::endl;
+
+        /*const vector<art::Ptr<rec::CaloHit>> hits = fBt->ClusterToCaloHits(&cluster);
+        for(auto const& hit : hits) {
+
+            const vector<sdp::CalIDE> ides = CaloHitToCalIDEs(hit);
+            for(auto const& ide : ides) {
+
+                
+
+            }
+
+        }// for calo hits*/
+
+
         iCluster++;
-    }//for ECal clusters
+    }// for ECal clusters
 
     return;
 
-} //FillHighLevelReco
+} // end FillHighLevelReco()
 
 
 
@@ -1167,6 +1342,48 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
 //==============================================================================
 // Helper Functions
 //==============================================================================
+
+// determine if point could be in a ROI
+std::string gar::StructuredTree::PointToRegion(const TVector3& point) {
+
+    std::string region = "Unknown";
+    std::string volName = fGeo->VolumeName(point);
+
+    //only care about volumes in MPD
+    if( fGeo->PointInMPD(point) ) {
+
+        region = "MPD";
+
+        //GArTPC->TPCChamber->TPCGas->TPCDrift
+        if( fGeo->PointInGArTPC(point) ) {
+            region = "TPC";
+            if(volName.find("1")!=std::string::npos)
+                region += "1";
+            else if(volName.find("2")!=std::string::npos)
+                region += "2";
+            else
+                region = "GArInactive";
+        }
+        else if ( fGeo->PointInECALBarrel(point) ) region = "BarrelECal";
+        else if ( fGeo->PointInECALEndcap(point) ) region = "EndcapECal";
+
+        //FIXME: probably missing the daughter volumes below
+        else if ( volName == "volCryostat" )
+            region = "Cryostat";
+
+        else if ( volName == "volEndcapCryostat" )
+            region = "EndcapCryostat";
+
+        else if ( volName == "volYokeBarrel" )
+            region = "YokeBarrel";
+
+        else if ( volName == "volYokeEndcap" )
+            region = "YokeEndcap";
+    }
+
+    return region;
+}
+
 // Process ionization.  Eventually this moves into the reco code.
 void gar::StructuredTree::processIonizationInfo(rec::TrackIoniz& ion, float ionizeTruncate,
            float& forwardIonVal, float& backwardIonVal) {
