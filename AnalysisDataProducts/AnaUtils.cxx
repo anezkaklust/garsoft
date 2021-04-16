@@ -20,18 +20,20 @@
 namespace gar{
 
     //////////////////////////////////////////////
-    const garana::CaloCluster MakeAnaCalCluster(const rec::Cluster& clust) {
+    const garana::CaloCluster MakeAnaCalCluster(const rec::Cluster& clust, const std::vector<std::pair<int,float>>& edeps) {
 
        TLorentzVector pos( clust.Position()[0], clust.Position()[1], clust.Position()[2], clust.Time() );
+
+       //trade in our arrays for vectors/TVector3s
        const float* eigs = clust.EigenVectors(); 
-       vector<TVector3> vecs;
+       std::vector<TVector3> vecs;
        for(int i=0; i<3; i++){
            TVector3 eig( eigs[i], eigs[i+1], eigs[i+2] );
            vecs.push_back(eig);
        }
 
        garana::CaloCluster outclust(pos, clust.Energy(), clust.EnergyError(), clust.TimeDiffFirstLast(),
-                                    clust.Shape(), clust.ITheta(), clust.IPhi(), vecs );
+                                    clust.Shape(), clust.ITheta(), clust.IPhi(), vecs, edeps );
         
        return outclust;
     }//
@@ -40,7 +42,7 @@ namespace gar{
     const garana::Vee         MakeAnaVee(const rec::Vee& vee) {
 
        TLorentzVector vtx( vee.Position()[0], vee.Position()[1], vee.Position()[2], vee.Time() );
-       vector<TLorentzVector> vecs;
+       std::vector<TLorentzVector> vecs;
        for(int i=0; i<3; i++) {
            vecs.push_back(vee.FourMomentum(i));
        }

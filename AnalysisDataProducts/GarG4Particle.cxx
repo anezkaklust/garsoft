@@ -7,16 +7,18 @@
 
 using namespace gar;
 
-GarG4Particle::GarG4Particle (const simb::MCParticle& mcp, int parentPdg, int progenitorPdg, int progenitorTrackId)
+GarG4Particle::GarG4Particle (const simb::MCParticle& mcp, int parentPdg, int progenitorPdg, int progenitorTrackId,
+                              const vector<pair<TLorentzVector,TLorentzVector>>& positions,
+    		              const vector<pair<TLorentzVector,TLorentzVector>>& momenta, const vector<int>& regions,
+                              const vector<size_t>& nptsPerRegion )
 {
 
     fG4P = new garana::G4Particle(
-            mcp.PdgCode(), parentPdg, progenitorPdg, 
+            mcp.NumberTrajectoryPoints(), mcp.PdgCode(), parentPdg, progenitorPdg, 
             mcp.TrackId(), mcp.Mother(), progenitorTrackId,
             gar::ProcessNameToCode(mcp.Process()),
             gar::ProcessNameToCode(mcp.EndProcess()),
-            mcp.Position(), mcp.EndPosition(),
-            mcp.Momentum(), mcp.EndMomentum() 
+            positions, momenta, regions, nptsPerRegion
           );
 
 }//constructor

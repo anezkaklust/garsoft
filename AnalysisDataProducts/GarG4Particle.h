@@ -17,6 +17,12 @@
 
 #include <TLorentzVector.h>
 
+#include <vector>
+#include <utility>
+
+using std::vector;
+using std::pair;
+
 namespace gar {
 
    class GarG4Particle{
@@ -24,7 +30,11 @@ namespace gar {
     public:
 
        GarG4Particle(){}
-       GarG4Particle(const simb::MCParticle& mcp, int parentPdg, int progenitorPdg, int progenitorTrackId);
+       GarG4Particle(const simb::MCParticle& mcp, int parentPdg, int progenitorPdg, int progenitorTrackId,
+                     const vector<pair<TLorentzVector,TLorentzVector>>& positions,
+    		     const vector<pair<TLorentzVector,TLorentzVector>>& momenta, const vector<int>& regions,
+                     const vector<size_t>& nptsPerRegion );
+
 
        garana::G4Particle GetGaranaObj() { return *fG4P; };
 

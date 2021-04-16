@@ -18,7 +18,7 @@ namespace gar{
     //extern std::unordered_map<std::string,int> processMap;
     int ProcessNameToCode(std::string const& p);
 
-    const garana::CaloCluster MakeAnaCalCluster(const rec::Cluster& clust);
+    const garana::CaloCluster MakeAnaCalCluster(const rec::Cluster& clust, const std::vector<std::pair<int,float>>& edeps);
     const garana::Vee         MakeAnaVee(const rec::Vee& vee);
     const garana::Vertex      MakeAnaVtx(const rec::Vertex& vtx);
     
