@@ -62,6 +62,7 @@ find_ups_boost  ()
 find_ups_root   ()
 find_ups_product( gsl )
 find_ups_product( edepsim )
+find_ups_product( garana         )
 cet_find_library( EDEPSIMIO NAMES edepsim_io PATHS ENV EDEPSIM_LIB )
 
 #message(STATUS "ROOTSYS is ${ROOTSYS}")
