@@ -80,9 +80,10 @@ namespace gar {
 
                 int cellIndexX = _decoder->get(cID, _xId);
                 int cellIndexY = _decoder->get(cID, _yId);
-                int slice = _decoder->get(cID, "slice");
+                int layer = _decoder->get(cID, "layer");
 
-                if(slice == 1 || slice == 5) {
+                if (layer % 2 == 0)
+                {
                     //Segmentation in Y
                     int nCellsX = 1;
                     // int nCellsY = int(_layer_dim_Y / _stripSizeY);
@@ -92,7 +93,7 @@ namespace gar {
                     cellPosition[2] = 0.;
                 }
 
-                if(slice == 3) {
+                if(layer % 2 != 0) {
                     //Segmentation in X
                     int nCellsY = 1;
                     // int nCellsX = int(_layer_dim_Y / _stripSizeY);
@@ -125,14 +126,14 @@ namespace gar {
                 int nCellsX = 1;
                 int nCellsY = 1;
 
-                if(slice == 1 || slice == 5) {
+                if(layer % 2 == 0) {
                     //Segmentation in Y
                     nCellsX = 1;
                     nCellsY = int(_layer_dim_Y / _stripSizeY);
 
                 }
 
-                if(slice == 3) {
+                if(layer % 2 != 0) {
                     //Segmentation in X
                     nCellsY = 1;
                     nCellsX = int(_layer_dim_X / _stripSizeX);

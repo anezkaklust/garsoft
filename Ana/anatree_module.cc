@@ -53,6 +53,7 @@
 
 #include "CoreUtils/ServiceUtil.h"
 #include "Geometry/GeometryGAr.h"
+#include "Geometry/BitFieldCoder.h"
 
 #include "TTree.h"
 #include "TDatabasePDG.h"
@@ -178,6 +179,10 @@ namespace gar {
 
         //Geometry
         const geo::GeometryCore* fGeo; ///< pointer to the geometry
+        const string fECALEncoding;
+        const string fMuIDEncoding;
+        gar::geo::BitFieldCoder *fFieldDecoder_ECAL;
+        gar::geo::BitFieldCoder *fFieldDecoder_MuID;
 
         typedef int TrkId;
         std::unordered_map<TrkId, Int_t> TrackIdToIndex;
@@ -429,6 +434,7 @@ namespace gar {
         std::vector<Float_t>            fRecoHitTime;
         std::vector<Float_t>            fRecoHitEnergy;
         std::vector<ULong64_t>          fRecoHitCellID;
+        std::vector<Int_t>              fRecoHitLayer;
         Float_t                         fRecoEnergySum;
 
         //Muon system reco hits
@@ -440,6 +446,7 @@ namespace gar {
         std::vector<Float_t>            fRecoHitTime_MuID;
         std::vector<Float_t>            fRecoHitEnergy_MuID;
         std::vector<ULong64_t>          fRecoHitCellID_MuID;
+        std::vector<Int_t>              fRecoHitLayer_MuID;
         Float_t                         fRecoEnergySum_MuID;
 
         // calo cluster data
@@ -483,6 +490,14 @@ gar::anatree::anatree(fhicl::ParameterSet const & p)
 : EDAnalyzer(p),
 fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "Seed")) {
     fGeo     = gar::providerFrom<geo::GeometryGAr>();
+
+    fECALEncoding = fGeo->GetECALCellIDEncoding();
+    fFieldDecoder_ECAL = new gar::geo::BitFieldCoder( fECALEncoding );
+
+    if(fGeo->HasMuonDetector()) {
+        fMuIDEncoding = fGeo->GetMuIDCellIDEncoding();
+        fFieldDecoder_MuID = new gar::geo::BitFieldCoder( fMuIDEncoding );
+    }
 
     bool usegenlabels =
     p.get_if_present<std::vector<std::string> >("GeneratorLabels",fGeneratorLabels);
@@ -907,6 +922,7 @@ void gar::anatree::beginJob() {
         fTree->Branch("RecoHitTime",      &fRecoHitTime);
         fTree->Branch("RecoHitEnergy",    &fRecoHitEnergy);
         fTree->Branch("RecoHitCellID",    &fRecoHitCellID);
+        fTree->Branch("RecoHitLayer",     &fRecoHitLayer);
         fTree->Branch("RecoEnergySum",    &fRecoEnergySum);
 
         if(fGeo->HasMuonDetector()) {
@@ -918,6 +934,7 @@ void gar::anatree::beginJob() {
             fTree->Branch("RecoHitTime_MuID",       &fRecoHitTime_MuID);
             fTree->Branch("RecoHitEnergy_MuID",     &fRecoHitEnergy_MuID);
             fTree->Branch("RecoHitCellID_MuID",     &fRecoHitCellID_MuID);
+            fTree->Branch("RecoHitLayer_MuID",      &fRecoHitLayer_MuID);
             fTree->Branch("RecoEnergySum_MuID",     &fRecoEnergySum_MuID);
         }
     }
@@ -1270,6 +1287,7 @@ void gar::anatree::ClearVectors() {
         fRecoHitTime.clear();
         fRecoHitEnergy.clear();
         fRecoHitCellID.clear();
+        fRecoHitLayer.clear();
         fRecoEnergySum = 0.;
 
         if(fGeo->HasMuonDetector()) {
@@ -1281,6 +1299,7 @@ void gar::anatree::ClearVectors() {
             fRecoHitTime_MuID.clear();
             fRecoHitEnergy_MuID.clear();
             fRecoHitCellID_MuID.clear();
+            fRecoHitLayer_MuID.clear();
             fRecoEnergySum_MuID = 0.;
         }
     }
@@ -1718,6 +1737,7 @@ void gar::anatree::FillRecoInfo(art::Event const & e) {
             fRecoHitTime.push_back(Hit.Time().first);
             fRecoHitEnergy.push_back(Hit.Energy());
             fRecoHitCellID.push_back(Hit.CellID());
+            fRecoHitLayer.push_back(fFieldDecoder_ECAL->get(Hit.CellID(), "layer"));
             fRecoEnergySum += Hit.Energy();
         }
 
@@ -1731,6 +1751,7 @@ void gar::anatree::FillRecoInfo(art::Event const & e) {
                 fRecoHitTime_MuID.push_back(Hit.Time().first);
                 fRecoHitEnergy_MuID.push_back(Hit.Energy());
                 fRecoHitCellID_MuID.push_back(Hit.CellID());
+                fRecoHitLayer_MuID.push_back(fFieldDecoder_MuID->get(Hit.CellID(), "layer"));
                 fRecoEnergySum_MuID += Hit.Energy();
             }
         }
