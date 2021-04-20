@@ -14,7 +14,7 @@ services:
 TFileService:           { fileName: "convert_hist.root" }
 TimeTracker:            {}
  #See Geometry.fcl for the list of geometries available
-GeometryGAr:            @local::nd_hall_mpd_only_SPYv2_geo
+GeometryGAr:            @local::nd_hall_mpd_only_SPYv3_geo
 GeometryGArConfigurationWriter: {}
 ExptGeoHelperInterface: @local::standard_geometry_helper
 DetectorClocks:         @local::standard_clocks

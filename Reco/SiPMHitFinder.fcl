@@ -8,7 +8,7 @@ ECALInstanceName:   "ECAL"
 MuIDInstanceName:   "MuID"
 MIPThreshold:       0.25      # apply this threshold if we don't already have zero-suppressed raw digits
 Desaturation:       true
-ECALSamplingFactorGeV:  4.32
+ECALSamplingFactorGeV: 2.726
 UseTimePositionReco: false
 }
 

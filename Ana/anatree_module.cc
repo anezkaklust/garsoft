@@ -179,8 +179,8 @@ namespace gar {
 
         //Geometry
         const geo::GeometryCore* fGeo; ///< pointer to the geometry
-        const string fECALEncoding;
-        const string fMuIDEncoding;
+        std::string fECALEncoding;
+        std::string fMuIDEncoding;
         gar::geo::BitFieldCoder *fFieldDecoder_ECAL;
         gar::geo::BitFieldCoder *fFieldDecoder_MuID;
 

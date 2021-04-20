@@ -815,7 +815,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::string GeometryCore::GetECALCellIDEncoding() const
+        const std::string GeometryCore::GetECALCellIDEncoding() const
         {
             if(fECALSegmentationAlg)
             return fECALSegmentationAlg->cellEncoding();
@@ -824,7 +824,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::string GeometryCore::GetMinervaCellIDEncoding() const
+        const std::string GeometryCore::GetMinervaCellIDEncoding() const
         {
             if(fMinervaSegmentationAlg)
             return fMinervaSegmentationAlg->cellEncoding();
@@ -833,7 +833,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::string GeometryCore::GetMuIDCellIDEncoding() const
+        const std::string GeometryCore::GetMuIDCellIDEncoding() const
         {
             if(fMuIDSegmentationAlg)
             return fMuIDSegmentationAlg->cellEncoding();

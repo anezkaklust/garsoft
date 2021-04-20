@@ -12,7 +12,7 @@ services:
   # Load the service that manages root files for histograms.
   message:      @local::evd_message
   #See Geometry.fcl for the list of geometries available
-  GeometryGAr:               @local::nd_hall_mpd_only_SPYv2_geo
+  GeometryGAr:               @local::nd_hall_mpd_only_SPYv3_geo
   ExptGeoHelperInterface:    @local::standard_geometry_helper # from Geometry.fcl
   DetectorProperties:        @local::standard_detproperties   # from DetectorProperties.fcl
   GArProperties:             @local::standard_garproperties   # from GArProperties.fcl
