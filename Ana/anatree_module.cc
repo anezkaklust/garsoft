@@ -1517,7 +1517,6 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
     size_t iMCParticle  = 0;
     fMCPVertIndex.resize(nMCParticles);
     for (; iMCParticle<nMCParticles; ++iMCParticle) {
-        foundMCvert:
             // Assign noprimary to start with
             fMCPVertIndex[iMCParticle] = -1;
             // Do the primaries first
@@ -1536,12 +1535,14 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
                         Float_t dist = std::hypot(trackX-vertX,trackY-vertY,trackZ-vertZ);
                         if ( dist <= fMatchMCPtoVertDist ) {
                             fMCPVertIndex[iMCParticle] = vertexIndex;
-                            ++iMCParticle; goto foundMCvert;
+                            goto foundMCvert; // break out of all inner loops
                         }
                     }
                     ++vertexIndex;
                 }
             }
+        foundMCvert:
+            ;
     }
 
     // Now the secondaries.  As they are after the primaries, do not re-init iMCParticle

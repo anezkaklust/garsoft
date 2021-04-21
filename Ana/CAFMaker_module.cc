@@ -649,7 +649,6 @@ void gar::CAFMaker::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Stand
     size_t nMCParticles = (*MCPHandle).size();
     size_t iMCParticle  = 0;
     for (; iMCParticle<nMCParticles; ++iMCParticle) {
-        foundMCvert:
             // Assign noprimary to start with
             rec.mc.part[iMCParticle].vtxidx = -1;
             // Do the primaries first
@@ -668,13 +667,14 @@ void gar::CAFMaker::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Stand
                         Float_t dist = std::hypot(trackX-vertX,trackY-vertY,trackZ-vertZ);
                         if ( dist <= fMatchMCPtoVertDist ) {
                             rec.mc.part[iMCParticle].vtxidx = vertexIndex;
-                            ++iMCParticle;
-                            goto foundMCvert;
+                            goto foundMCvert; // break out of all inner loops
                         }
                     }
                     ++vertexIndex;
                 }
             }
+    foundMCvert:
+            ;
     }
 
     // Now the secondaries.  As they are after the primaries, do not re-init iMCParticle
