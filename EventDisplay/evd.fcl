@@ -7,6 +7,7 @@ services:
   # Load the service that manages root files for histograms.
   message:      @local::evd_message
   @table::custom_disp
+  GeometryGArConfigurationWriter: {}
 }
 
 # Define the services
