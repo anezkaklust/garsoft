@@ -469,6 +469,9 @@ namespace gar {
         std::vector<Int_t>              fClusterMCindex;          // Branch index (NOT the GEANT track ID) of MCParticle
         std::vector<Float_t>            fClusterMCfrac;           // that best matches & fraction of ionization therefrom
 
+        // ECAL cluster to ECAL hits association info
+        std::vector<std::vector<ULong64_t>>          fClusterAssn_RecoHitIDNumber;  
+
         // ECAL cluster to track association info
         std::vector<ULong64_t>          fCALAssn_ClusIDNumber;   // Being the cluster which this Assn belongs to
         std::vector<ULong64_t>          fCALAssn_TrackIDNumber;  // The rec::TrackEnd (see Track.h) that extrapolated to cluster
@@ -615,6 +618,7 @@ fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "See
     }
 
     consumes<std::vector<rec::Cluster> >(fClusterLabel);
+    consumes<art::Assns<rec::Cluster, rec::CaloHit>>(fClusterLabel);
     consumes<art::Assns<rec::Cluster, rec::Track>>(fECALAssnLabel);
 
     return;
@@ -959,6 +963,8 @@ void gar::anatree::beginJob() {
         fTree->Branch("ClusterMainAxisZ",           &fClusterMainAxisZ);
         fTree->Branch("ClusterMCindex",             &fClusterMCindex);
         fTree->Branch("ClusterMCfrac",              &fClusterMCfrac);
+
+        fTree->Branch("ClusterAssn_RecoHitIDNumber", &fClusterAssn_RecoHitIDNumber);
     }
 
     if (fWriteMatchedTracks) {
@@ -1323,6 +1329,8 @@ void gar::anatree::ClearVectors() {
         fClusterMainAxisZ.clear();
         fClusterMCindex.clear();
         fClusterMCfrac.clear();
+
+        fClusterAssn_RecoHitIDNumber.clear();
     }
 
     if (fWriteMatchedTracks) {
@@ -1827,11 +1835,16 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
     // Get handle for CaloClusters; also Assn for matching tracks
     art::Handle< std::vector<rec::Cluster> > RecoClusterHandle;
     art::FindManyP<rec::Track, rec::TrackEnd>* findManyCALTrackEnd = NULL;
+    art::FindManyP<gar::rec::CaloHit>* findManyClusterRecoHit = NULL;
+
     if (fWriteCaloClusters) {
         if (!e.getByLabel(fClusterLabel, RecoClusterHandle)) {
             throw cet::exception("anatree") << " No rec::Cluster branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
+
+        findManyClusterRecoHit = new art::FindManyP<gar::rec::CaloHit>(RecoClusterHandle,e,fClusterLabel);
+
         if (fWriteTracks) {
             findManyCALTrackEnd = new art::FindManyP<rec::Track, rec::TrackEnd>
             (RecoClusterHandle,e,fECALAssnLabel);
@@ -2072,6 +2085,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
 
     // save Cluster info
     if (fWriteCaloClusters) {
+        size_t iCluster = 0;
         for ( auto const& cluster : (*RecoClusterHandle) ) {
             fnCluster++;
             fClusterIDNumber.push_back(cluster.getIDNumber());
@@ -2090,6 +2104,18 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
             fClusterMainAxisY.push_back(cluster.EigenVectors()[1]);
             fClusterMainAxisZ.push_back(cluster.EigenVectors()[2]);
 
+            //Get the associated reco hit
+            std::vector<ULong64_t> fVecHitIDs = {};
+            if (findManyClusterRecoHit->isValid()) {
+                int nClusterHit = findManyClusterRecoHit->at(iCluster).size();
+                for (int iClusterHit=0; iClusterHit<nClusterHit; ++iClusterHit) {
+                    rec::CaloHit hit  = *(findManyClusterRecoHit->at(iCluster).at(iClusterHit));
+                    fVecHitIDs.push_back(hit.getIDNumber());
+                }
+            }
+
+            fClusterAssn_RecoHitIDNumber.push_back(fVecHitIDs);
+
             // Matching MCParticle info
             std::vector<std::pair<simb::MCParticle*,float>> trakt;
             trakt = BackTrack->ClusterToMCParticles( const_cast<rec::Cluster*>(&cluster) );
@@ -2103,6 +2129,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
             } else {
             	fClusterMCfrac.push_back(0.0);
             }
+            iCluster++;
         }
     }
 

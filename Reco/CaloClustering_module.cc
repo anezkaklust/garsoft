@@ -60,7 +60,7 @@ namespace gar {
 
             std::string fTrackLabel;  ///< label to find the reco tracks
             std::string fCaloHitLabel;  ///< label to find the right reco calo hits
-            std::string fECALInstanceName; ///< product instance name for the ECAL
+            std::string fInstanceName; ///< product instance name
 
             const detinfo::DetectorProperties*  fDetProp;      ///< detector properties
             const geo::GeometryCore*            fGeo;          ///< pointer to the geometry
@@ -73,7 +73,7 @@ namespace gar {
         {
             fTrackLabel = p.get<std::string>("TrackLabel", "track");
             fCaloHitLabel = p.get<std::string>("CaloHitLabel", "calohit");
-            fECALInstanceName =  p.get<std::string >("ECALInstanceName", "");
+            fInstanceName =  p.get<std::string >("InstanceName", "");
 
             fGeo     = gar::providerFrom<geo::GeometryGAr>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
@@ -82,11 +82,11 @@ namespace gar {
             auto fClusterAlgoPars = p.get<fhicl::ParameterSet>("ClusterAlgPars");
             fClusterAlgo = std::make_unique<rec::alg::KNNClusterAlg>(fClusterAlgoPars);
 
-            art::InputTag ecaltag(fCaloHitLabel, fECALInstanceName);
-            consumes< std::vector<gar::rec::CaloHit> >(ecaltag);
-            produces< std::vector<gar::rec::Cluster> >();
-            produces< art::Assns<gar::rec::Cluster, gar::rec::CaloHit> >();
-            if (fClusterAlgo->usesTracks()) produces< art::Assns<gar::rec::Cluster, gar::rec::Track> >();
+            art::InputTag tag(fCaloHitLabel, fInstanceName);
+            consumes<std::vector<gar::rec::CaloHit>>(tag);
+            produces< std::vector<gar::rec::Cluster> >(fInstanceName);
+            produces< art::Assns<gar::rec::Cluster, gar::rec::CaloHit> >(fInstanceName);
+            if (fClusterAlgo->usesTracks()) produces< art::Assns<gar::rec::Cluster, gar::rec::Track> >(fInstanceName);
         }
 
         void CaloClustering::produce(art::Event & e)
@@ -98,11 +98,12 @@ namespace gar {
             //Collect the tracks to be passed to the algo.  As of Jun 2019, the algo doesn't need tracks.
             //But maybe someday it will!
             std::vector< art::Ptr<gar::rec::Track> > artTrk;
-            this->CollectTracks(e, fTrackLabel, artTrk);
+            if (fClusterAlgo->usesTracks())
+                this->CollectTracks(e, fTrackLabel, artTrk);
 
             //Collect the hits to be passed to the algo
             std::vector< art::Ptr<gar::rec::CaloHit> > artHits;
-            this->CollectHits(e, fCaloHitLabel, fECALInstanceName, artHits);
+            this->CollectHits(e, fCaloHitLabel, fInstanceName, artHits);
 
             //Prepare the hits for clustering (tag isolated hits and possible mip hits)
             //trkMaptoArtPtr will be empty if ( !fClusterAlgo->usesTracks() )
@@ -117,7 +118,7 @@ namespace gar {
             std::unique_ptr< art::Assns<gar::rec::Cluster, gar::rec::CaloHit> > ClusterHitAssns(new art::Assns<gar::rec::Cluster, gar::rec::CaloHit>);
             std::unique_ptr< art::Assns<gar::rec::Cluster, gar::rec::Track> > ClusterTrackAssns(new art::Assns<gar::rec::Cluster, gar::rec::Track>);
 
-            art::PtrMaker<gar::rec::Cluster> makeClusterPtr(e);
+            art::PtrMaker<gar::rec::Cluster> makeClusterPtr(e, fInstanceName);
 
             MF_LOG_DEBUG("CaloClustering_module")
             << "Found " << ClusterVec.size() << " Clusters";
@@ -162,9 +163,10 @@ namespace gar {
                 }
             }
 
-            e.put(std::move(ClusterCol));
-            e.put(std::move(ClusterHitAssns));
-            if (fClusterAlgo->usesTracks()) e.put(std::move(ClusterTrackAssns));
+            e.put(std::move(ClusterCol), fInstanceName);
+            e.put(std::move(ClusterHitAssns), fInstanceName);
+            if (fClusterAlgo->usesTracks())
+                e.put(std::move(ClusterTrackAssns), fInstanceName);
 
             return;
         }

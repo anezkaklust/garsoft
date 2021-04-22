@@ -58,7 +58,7 @@ namespace gar {
             float CorrectStripHitTime(float x, float y, float z, std::pair<float, float> hitTime, raw::CellID_t cID);
 
             std::string fCaloHitLabel;  ///< label to find the right reco calo hits
-            std::string fECALInstanceName; ///< product instance name for the ECAL
+            std::string fInstanceName; ///< product instance name
 
             bool fSaveStripEndsOnly;
             bool fSaveUnsplitHits;
@@ -75,7 +75,7 @@ namespace gar {
         CaloStripSplitter::CaloStripSplitter(fhicl::ParameterSet const & p) : EDProducer{p}
         {
             fCaloHitLabel = p.get<std::string>("CaloHitLabel", "calohit");
-            fECALInstanceName =  p.get<std::string >("ECALInstanceName", "");
+            fInstanceName =  p.get<std::string >("InstanceName", "");
 
             fGeo     = gar::providerFrom<geo::GeometryGAr>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
@@ -93,9 +93,9 @@ namespace gar {
                 << " Saving Strip ends flag turned on! ";
             }
 
-            art::InputTag ecaltag(fCaloHitLabel, fECALInstanceName);
+            art::InputTag ecaltag(fCaloHitLabel, fInstanceName);
             consumes< std::vector<gar::rec::CaloHit> >(ecaltag);
-            produces< std::vector<gar::rec::CaloHit> >(fECALInstanceName);
+            produces<std::vector<gar::rec::CaloHit>>(fInstanceName);
         }
 
         //----------------------------------------------------------------------------
@@ -103,7 +103,7 @@ namespace gar {
         {
             //Collect the hits to be passed to the algo
             std::vector< art::Ptr<gar::rec::CaloHit> > artHits;
-            this->CollectHits(e, fCaloHitLabel, fECALInstanceName, artHits);
+            this->CollectHits(e, fCaloHitLabel, fInstanceName, artHits);
 
             //Prepare the hits for SSA
             fSSAAlgo->PrepareAlgo(artHits);
@@ -188,7 +188,7 @@ namespace gar {
                 HitCol->emplace_back(*it);
             }
 
-            e.put(std::move(HitCol), fECALInstanceName);
+            e.put(std::move(HitCol), fInstanceName);
 
             return;
         }

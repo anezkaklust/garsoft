@@ -29,8 +29,8 @@ namespace gar {
                 ClearLists();
 
                 fGeo = gar::providerFrom<geo::GeometryGAr>();
-                fInnerSymmetry = fGeo->GetECALInnerSymmetry();
-                fStripWidth = -1;//cm
+                fInnerSymmetry = 0;
+                fStripWidth = -1; //cm
                 fStripLength = -1;//cm
                 fnVirtual = 1;
 
@@ -50,10 +50,23 @@ namespace gar {
             void StripSplitterAlg::reconfigure(fhicl::ParameterSet const& pset)
             {
                 fSSAAlgName = pset.get<std::string>("SSAAlgName");
+                fDet = pset.get<std::string>("DetectorSystem"); //ECAL or MuID
                 fSaveStripEnds = pset.get<bool>("SaveStripEnds", false);
 
-                std::string fEncoding = fGeo->GetECALCellIDEncoding();
-                fFieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
+                if(fDet == "ECAL") {
+                    fEncoding = fGeo->GetECALCellIDEncoding();
+                    fFieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
+                    fInnerSymmetry = fGeo->GetECALInnerSymmetry();
+                }
+                else if(fDet == "MuID") {
+                    fEncoding = fGeo->GetMuIDCellIDEncoding();
+                    fFieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
+                    fInnerSymmetry = fGeo->GetMuIDInnerSymmetry();
+                } else {
+                    MF_LOG_ERROR("StripSplitterAlg::reconfigure")
+                        << "Detector system parameter incorrectly set. Should be ECAL or MuID -- Exiting!";
+                    throw cet::exception("StripSplitterAlg::reconfigure");
+                }
 
                 return;
             }
@@ -154,7 +167,7 @@ namespace gar {
                         //1 == Barrel, 2 == Endcap
                         unsigned int det_id = fFieldDecoder->get(hit->CellID(), "system");
 
-                        if ( det_id != 1 && det_id != 2 )
+                        if ( det_id != 1 && det_id != 2  && det_id != 4 )
                         {
                             MF_LOG_ERROR("StripSplitterAlg::DoStripSplitting")
                             << " Check det it " << det_id

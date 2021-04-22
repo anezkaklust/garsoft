@@ -109,6 +109,8 @@
   <class name="std::vector<gar::rec::Cluster>"                           />
   <class name="std::vector<gar::rec::PFParticle>"                        />
 
+  <class name="std::vector<std::vector<ULong64_t>>"                        />
+
   <class name="art::Wrapper< std::vector<gar::rec::Hit   > >"                  />
   <class name="art::Wrapper< std::vector<gar::rec::TPCCluster   > >"           />
   <class name="art::Wrapper< std::vector<gar::rec::VecHit   > >"               />

@@ -56,7 +56,8 @@ namespace gar {
             // Declare member data here.
             std::string fTrackLabel;    ///< label to find the reco tracks
             std::string fClusterLabel;  ///< label to find the right reco caloclusters
-            int   fVerbosity;
+            std::string fInstanceName;
+            int fVerbosity;
             float fTrackEndXCut;        ///< Extrapolate only track ends outside central drift
             float fTrackEndRCut;        ///< Extrapolate only track ends outside central region
             float fPerpRCut;            ///< Max dist cluster center to circle of track (z,y) only
@@ -87,6 +88,7 @@ namespace gar {
 
             fTrackLabel        = p.get<std::string>("TrackLabel", "track");
             fClusterLabel      = p.get<std::string>("ClusterLabel","calocluster");
+            fInstanceName      = p.get<std::string>("InstanceName","");
             fVerbosity         = p.get<int>("Verbosity", 0);
             // Needs to be computed in produce; so will be 0.0 to do that 
             // otherwise of course the fcl file value appears
@@ -101,7 +103,7 @@ namespace gar {
             fClocks  = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
             fGeo     = gar::providerFrom<geo::GeometryGAr>();
 
-            produces< art::Assns<gar::rec::Cluster, gar::rec::Track, gar::rec::TrackEnd > >();
+            produces< art::Assns<gar::rec::Cluster, gar::rec::Track, gar::rec::TrackEnd > >(fInstanceName);
         }
 
 
@@ -138,7 +140,7 @@ namespace gar {
             // Get tracks and clusters.  If either is missing, just skip this event
             // processing.  That's not an exception
             art::Handle< std::vector<gar::rec::Cluster> > ClusterHandle;
-            e.getByLabel(fClusterLabel, ClusterHandle);
+            e.getByLabel(fClusterLabel, fInstanceName, ClusterHandle);
             if (!ClusterHandle.isValid()) return;
             art::Handle< std::vector<gar::rec::Track> >   TrackHandle;
             e.getByLabel(fTrackLabel, TrackHandle);
@@ -356,7 +358,7 @@ namespace gar {
                 }
             } // end loop over clusters
 
-            e.put(std::move(ClusterTrackAssns));
+            e.put(std::move(ClusterTrackAssns), fInstanceName);
             return;
         }
 

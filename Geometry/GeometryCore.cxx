@@ -857,6 +857,7 @@ namespace gar {
             if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
                 const std::array<double, 3> shape = this->FindShapeSize(node);
                 fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                fMuIDSegmentationAlg->setVariables(GetMuIDInnerAngle(), 0.);
                 pos = fMuIDSegmentationAlg->GetPosition(*this, cID);
             }
 
@@ -930,6 +931,7 @@ namespace gar {
 
             if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
                 fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                fMuIDSegmentationAlg->setVariables(GetMuIDInnerAngle(), 0.);
                 strip_length = fMuIDSegmentationAlg->getStripLength(*this, localtemp, cID);
             }
 
@@ -956,6 +958,7 @@ namespace gar {
 
             if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
                 fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                fMuIDSegmentationAlg->setVariables(GetMuIDInnerAngle(), 0.);
                 localStripEnds = fMuIDSegmentationAlg->getStripEnds(*this, localtemp, cID);
             }
 
@@ -985,6 +988,7 @@ namespace gar {
 
             if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
                 fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                fMuIDSegmentationAlg->setVariables(GetMuIDInnerAngle(), 0.);
                 light_prop = fMuIDSegmentationAlg->CalculateLightPropagation(*this, local, cID);
             }
 
@@ -1006,6 +1010,7 @@ namespace gar {
 
             if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
                 fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                fMuIDSegmentationAlg->setVariables(GetMuIDInnerAngle(), 0.);
                 pos = fMuIDSegmentationAlg->ReconstructStripHitPosition(*this, local, xlocal, cID);
             }
 
@@ -1216,7 +1221,7 @@ namespace gar {
                 std::cout << "MuID Geometry" << std::endl;
                 std::cout << "MuID Barrel inner radius: " << GetMuIDInnerBarrelRadius() << " cm" << std::endl;
                 std::cout << "MuID Barrel outer radius: " << GetMuIDOuterBarrelRadius() << " cm" << std::endl;
-                std::cout << "MuID Barrel inner symmetry: " << GetECALInnerSymmetry() << std::endl;
+                std::cout << "MuID Barrel inner symmetry: " << GetMuIDInnerSymmetry() << std::endl;
                 std::cout << "MuID Barrel polyhedra angle: " << GetMuIDInnerAngle()*180/M_PI << " deg" << std::endl;
                 std::cout << "MuID Barrel polyhedra side length: " << GetMuIDBarrelSideLength() << " cm" << std::endl;
                 std::cout << "MuID Barrel polyhedra apothem length: " << GetMuIDBarrelApothemLength() << " cm" << std::endl;
