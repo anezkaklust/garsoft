@@ -9,5 +9,5 @@ knnclusteralg_muid:
 {
 ClusterAlgName:                        "Simple Nearest Neighbor clustering"
 EnergyCut:                             0.0 # in GeV
-DistanceCut:                           10.0 # in cm
+DistanceCut:                           30.0 # in cm
 }

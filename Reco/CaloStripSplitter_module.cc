@@ -63,7 +63,6 @@ namespace gar {
             bool fSaveStripEndsOnly;
             bool fSaveUnsplitHits;
             bool fSaveStripEnds;
-            bool fChattyLog;
 
             const detinfo::DetectorProperties*  fDetProp;      ///< detector properties
             const geo::GeometryCore*            fGeo;          ///< pointer to the geometry
@@ -75,13 +74,12 @@ namespace gar {
         CaloStripSplitter::CaloStripSplitter(fhicl::ParameterSet const & p) : EDProducer{p}
         {
             fCaloHitLabel = p.get<std::string>("CaloHitLabel", "calohit");
-            fInstanceName =  p.get<std::string >("InstanceName", "");
+            fInstanceName =  p.get<std::string >("InstanceLabelName", "");
 
             fGeo     = gar::providerFrom<geo::GeometryGAr>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fSaveStripEndsOnly = p.get<bool>("SaveStripEndsOnly", false);
             fSaveUnsplitHits   = p.get<bool>("SaveUnsplitHits", true);
-            fChattyLog         = p.get<bool>("ChattyLog", true);
 
             //configure the cluster algorithm
             auto fSSAAlgoPars = p.get<fhicl::ParameterSet>("SSAAlgPars");
@@ -93,8 +91,8 @@ namespace gar {
                 << " Saving Strip ends flag turned on! ";
             }
 
-            art::InputTag ecaltag(fCaloHitLabel, fInstanceName);
-            consumes< std::vector<gar::rec::CaloHit> >(ecaltag);
+            art::InputTag tag(fCaloHitLabel, fInstanceName);
+            consumes<std::vector<gar::rec::CaloHit>>(tag);
             produces<std::vector<gar::rec::CaloHit>>(fInstanceName);
         }
 
@@ -136,14 +134,6 @@ namespace gar {
                     }
 
                     rec::CaloHit hit(energy, newtime, newpos, cellID, layer);
-
-                    if(fChattyLog) {
-                        MF_LOG_INFO("CaloStripSplitter_module") << "recohit " << &hit
-                        << " with cellID " << cellID
-                        << " has energy " << energy * CLHEP::MeV / CLHEP::GeV
-                        << " pos (" << newpos[0] << ", " <<  newpos[1] << ", " << newpos[2] << ")";
-                    }
-
                     HitCol->emplace_back(hit);
                 }
 

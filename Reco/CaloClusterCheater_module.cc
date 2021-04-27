@@ -79,7 +79,7 @@ namespace gar {
             EDProducer{pset}
             {
                 fCaloHitModuleLabel    = pset.get< std::string  >("CaloHitModuleLabel", "calohit"  );
-                fInstanceName          =  pset.get<std::string >("InstanceName", "");
+                fInstanceName          =  pset.get<std::string >("InstanceLabelName", "");
 
                 fMinHits               = pset.get< unsigned int >("MinHits",            1          );
                 fIgnoreNeutrons        = pset.get< bool >("IgnoreNeutrons",             true      );

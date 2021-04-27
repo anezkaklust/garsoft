@@ -4,20 +4,18 @@ standard_CaloStripSplitter:
 {
 module_type:        CaloStripSplitter
 CaloHitLabel:       "sipmhit"
-InstanceName:       "ECAL"
+InstanceLabelName:  "ECAL"
 SaveStripEndsOnly:  false
 SaveUnsplitHits:    false
 SSAAlgPars:         @local::stripsplitteralg
-ChattyLog:          false
 }
 
 standard_CaloStripSplitter_MuID:
 {
 module_type:        CaloStripSplitter
-CaloHitLabel:       "sipmhit"
-InstanceName:       "MuID"
+CaloHitLabel:       "sipmhitmuid"
+InstanceLabelName:  "MuID"
 SaveStripEndsOnly:  false
-SaveUnsplitHits:    false
+SaveUnsplitHits:    true
 SSAAlgPars:         @local::stripsplitteralg_muid
-ChattyLog:          false
 }

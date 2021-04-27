@@ -74,6 +74,7 @@ track:              @local::standard_tpctrackfit2
 vertex:             @local::standard_vertexfinder1
 veefinder1:         @local::standard_veefinder1
 sipmhit:            @local::standard_SiPMHitFinder
+sipmhitmuid:        @local::standard_SiPMHitFinder_MuID
 sscalohit:          @local::standard_CaloStripSplitter
 sscalohitmuid:      @local::standard_CaloStripSplitter_MuID
 calocluster:        @local::standard_CaloClustering
@@ -86,7 +87,7 @@ analyzers:
 
 #Define the producer and filter modules for this path, order matters.  Put init 1st!
 #Filters reject all following items.  ee lines starting physics.producers below
-reco: [init,hit,tpcclusterpass1,vechit,patrec,trackpass1,vertexpass1,tpccluster,track,vertex,veefinder1,sipmhit,sscalohit,sscalohitmuid,calocluster,caloclustermuid,trkecalassn]
+reco: [init,hit,tpcclusterpass1,vechit,patrec,trackpass1,vertexpass1,tpccluster,track,vertex,veefinder1,sipmhit,sipmhitmuid,sscalohit,sscalohitmuid,calocluster,caloclustermuid,trkecalassn]
 
 #define the output stream, there could be more than one if using filters
 stream1:  [ out1 ]
@@ -111,3 +112,4 @@ fileName:    "reco.root" #default file name, can override from command line with
 physics.producers.track.PatRecLabel: "tpccluster"  # from the stitch step, input to second-pass fit
 physics.producers.vertex.TrackLabel: "track"
 physics.producers.sipmhit.UseTimePositionReco: false
+physics.producers.sipmhitmuid.UseTimePositionReco: false

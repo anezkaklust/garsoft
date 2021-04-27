@@ -48,7 +48,7 @@ physics:
  }
  analyzers:
  {
-   anatree: @local::standard_anatree_spyv2
+   anatree: @local::standard_anatree_spyv3
  }
 
  ana: [ anatree ]

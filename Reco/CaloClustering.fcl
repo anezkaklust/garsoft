@@ -4,7 +4,7 @@ standard_CaloClustering:
 {
 module_type:        CaloClustering
 CaloHitLabel:       "sscalohit"
-InstanceName:       "ECAL"
+InstanceLabelName:  "ECAL"
 TrackLabel:         "track"
 ClusterAlgPars:     @local::knnclusteralg
 }
@@ -13,7 +13,7 @@ standard_CaloClustering_MuID:
 {
 module_type:        CaloClustering
 CaloHitLabel:       "sscalohitmuid"
-InstanceName:       "MuID"
+InstanceLabelName:  "MuID"
 TrackLabel:         "track"
 ClusterAlgPars:     @local::knnclusteralg_muid
 }
@@ -22,7 +22,7 @@ standard_CaloClusterCheater:
 {
 module_type:        CaloClusterCheater
 CaloHitModuleLabel: "sipmhit"
-InstanceName:       "ECAL"
+InstanceLabelName:  "ECAL"
 MinHits:            1
 IgnoreNeutrons:     true
 }
@@ -30,8 +30,8 @@ IgnoreNeutrons:     true
 standard_CaloClusterCheater_MuID:
 {
 module_type:        CaloClusterCheater
-CaloHitModuleLabel: "sipmhit"
-InstanceName:       "MuID"
+CaloHitModuleLabel: "sipmhitmuid"
+InstanceLabelName:  "MuID"
 MinHits:            1
 IgnoreNeutrons:     true
 }

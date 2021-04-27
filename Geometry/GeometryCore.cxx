@@ -151,6 +151,8 @@ namespace gar {
 
             //Check if it is ECAL endcap -> layer size is not the BBox! It is the apothem
             bool isBarrel = true;
+            bool isECAL = false;
+
             if (volname.find("barrel") == std::string::npos &&
                 volname.find("Barrel") == std::string::npos) {
                 isBarrel =  false;
@@ -158,10 +160,14 @@ namespace gar {
             if (volname.find("PV") != std::string::npos) {
                 isBarrel =  false;
             }
+
+            if (volname.find("ECal") != std::string::npos || volname.find("ecal") != std::string::npos)
+                isECAL = true;
+
             // Old code commented out here but keep it a bit for reference
             // if(volname.find("endcap") != std::string::npos || volname.find("Endcap") != std::string::npos ) isBarrel = false;
 
-            std::array<double, 3> shape;
+            std::array<double, 3> shape = {0., 0., 0.};
 
             if (vol)
             {
@@ -171,7 +177,7 @@ namespace gar {
                     shape[0] = box->GetDX();
                     shape[1] = box->GetDY();
                 } else {
-                    if(fECALEndcapOutside){
+                    if(fECALEndcapOutside && isECAL){
                         shape[0] = GetECALEndcapApothemLength() / 2.;
                         shape[1] = GetECALEndcapApothemLength() / 2.;
                     } else {

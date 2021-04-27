@@ -73,7 +73,7 @@ namespace gar {
         {
             fTrackLabel = p.get<std::string>("TrackLabel", "track");
             fCaloHitLabel = p.get<std::string>("CaloHitLabel", "calohit");
-            fInstanceName =  p.get<std::string >("InstanceName", "");
+            fInstanceName =  p.get<std::string >("InstanceLabelName", "");
 
             fGeo     = gar::providerFrom<geo::GeometryGAr>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();

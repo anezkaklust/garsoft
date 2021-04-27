@@ -126,10 +126,11 @@ namespace gar {
         std::vector<std::string> fGeneratorLabels;
         std::vector<std::string> fGENIEGeneratorLabels;
         std::string fPOTtag;
+
+        std::string fInstanceLabelCalo; ///< Instance name for ECAL
+        std::string fInstanceLabelMuID; ///< Instance name for MuID
         
         std::string fGeantLabel; ///< module label for geant4 simulated hits
-        std::string fGeantInstanceCalo; ///< Instance name ECAL for sdp::CaloDeposit
-        std::string fGeantInstanceMuID; ///< Instance name MuID for sdp::CaloDeposit
 
         std::string fHitLabel; ///< module label for reco TPC hits rec::Hit
         std::string fTPCClusterLabel; ///< module label for TPC Clusters rec::TPCCluster
@@ -139,15 +140,12 @@ namespace gar {
         std::string fVeeLabel; ///< module label for conversion/decay vertexes rec:Vee
 
         std::string fRawCaloHitLabel; ///< module label for digitized calo hits raw::CaloRawDigit
-        std::string fRawCaloHitInstanceCalo; ///< Instance name ECAL for raw::CaloRawDigit
-        std::string fRawCaloHitInstanceMuID; ///< Instance name MuID for raw::CaloRawDigit
 
         std::string fCaloHitLabel; ///< module label for reco calo hits rec::CaloHit
-        std::string fCaloHitInstanceCalo; ///< Instance name ECAL for rec::CaloHit
         std::string fMuIDHitLabel;
-        std::string fCaloHitInstanceMuID; ///< Instance name MuID for rec::CaloHit
 
         std::string fClusterLabel; ///< module label for calo clusters rec::Cluster
+        std::string fClusterMuIDLabel; ///< module label for calo clusters rec::Cluster in MuID
         std::string fPFLabel; ///< module label for reco particles rec::PFParticle
         std::string fECALAssnLabel; ///< module label for track-clusters associations
 
@@ -469,8 +467,31 @@ namespace gar {
         std::vector<Int_t>              fClusterMCindex;          // Branch index (NOT the GEANT track ID) of MCParticle
         std::vector<Float_t>            fClusterMCfrac;           // that best matches & fraction of ionization therefrom
 
+        // calo cluster data
+        UInt_t                          fnCluster_MuID;
+        std::vector<ULong64_t>          fClusterIDNumber_MuID;
+        std::vector<UInt_t>             fClusterNhits_MuID;
+        std::vector<Float_t>            fClusterEnergy_MuID;
+        std::vector<Float_t>            fClusterTime_MuID;
+        std::vector<Float_t>            fClusterTimeDiffFirstLast_MuID;
+        std::vector<Float_t>            fClusterX_MuID;
+        std::vector<Float_t>            fClusterY_MuID;
+        std::vector<Float_t>            fClusterZ_MuID;
+        std::vector<Float_t>            fClusterTheta_MuID;
+        std::vector<Float_t>            fClusterPhi_MuID;
+        std::vector<Float_t>            fClusterPID_MuID;
+        // std::vector<Float_t> fClusterShape;
+        std::vector<Float_t>            fClusterMainAxisX_MuID;
+        std::vector<Float_t>            fClusterMainAxisY_MuID;
+        std::vector<Float_t>            fClusterMainAxisZ_MuID;
+        std::vector<Int_t>              fClusterMCindex_MuID;          // Branch index (NOT the GEANT track ID) of MCParticle
+        std::vector<Float_t>            fClusterMCfrac_MuID;           // that best matches & fraction of ionization therefrom
+
         // ECAL cluster to ECAL hits association info
         std::vector<std::vector<ULong64_t>>          fClusterAssn_RecoHitIDNumber;  
+
+        // MuID cluster to MuID hits association info
+        std::vector<std::vector<ULong64_t>>          fClusterMuIDAssn_MuIDHitIDNumber;  
 
         // ECAL cluster to track association info
         std::vector<ULong64_t>          fCALAssn_ClusIDNumber;   // Being the cluster which this Assn belongs to
@@ -514,8 +535,8 @@ fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "See
 
     //Sim Hits
     fGeantLabel        = p.get<std::string>("GEANTLabel","geant");
-    fGeantInstanceCalo = p.get<std::string>("GEANTInstanceCalo","ECAL");
-    fGeantInstanceMuID = p.get<std::string>("GEANTInstanceMuID","MuID");
+    fInstanceLabelCalo = p.get<std::string>("InstanceLabelCalo","ECAL");
+    fInstanceLabelMuID = p.get<std::string>("InstanceLabelMuID","MuID");
 
     fHitLabel         = p.get<std::string>("HitLabel","hit");
     fTPCClusterLabel  = p.get<std::string>("TPCClusterLabel","tpccluster");
@@ -526,15 +547,11 @@ fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "See
 
     //Calorimetric related ECAL/MuID
     fRawCaloHitLabel        = p.get<std::string>("RawCaloHitLabel","daqecal");
-    fRawCaloHitInstanceCalo = p.get<std::string>("RawCaloHitInstanceCalo","ECAL");
-    fRawCaloHitInstanceMuID = p.get<std::string>("RawCaloHitInstanceMuID","MuID");
-
     fCaloHitLabel        = p.get<std::string>("CaloHitLabel","sipmhit");
-    fCaloHitInstanceCalo = p.get<std::string>("CaloHitInstanceCalo","ECAL");
     fMuIDHitLabel        = p.get<std::string>("MuIDHitLabel","sipmhit");
-    fCaloHitInstanceMuID = p.get<std::string>("CaloHitInstanceMuID","MuID");
 
     fClusterLabel     = p.get<std::string>("ClusterLabel","calocluster");
+    fClusterMuIDLabel = p.get<std::string>("MuIDClusterLabel","caloclustermuid");
     fPFLabel          = p.get<std::string>("PFLabel","pandora");
     fECALAssnLabel    = p.get<std::string>("ECALAssnLabel","trkecalassn");
 
@@ -596,29 +613,35 @@ fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "See
     consumes<art::Assns<rec::TrackIoniz, rec::Track>>(fTrackLabel);
 
     //Calorimetry related
-    art::InputTag ecalgeanttag(fGeantLabel, fGeantInstanceCalo);
+    art::InputTag ecalgeanttag(fGeantLabel, fInstanceLabelCalo);
     consumes<std::vector<gar::sdp::CaloDeposit> >(ecalgeanttag);
 
-    art::InputTag ecalrawtag(fRawCaloHitLabel, fRawCaloHitInstanceCalo);
+    art::InputTag ecalrawtag(fRawCaloHitLabel, fInstanceLabelCalo);
     consumes<std::vector<raw::CaloRawDigit> >(ecalrawtag);
 
-    art::InputTag ecalhittag(fCaloHitLabel, fCaloHitInstanceCalo);
+    art::InputTag ecalhittag(fCaloHitLabel, fInstanceLabelCalo);
     consumes<std::vector<rec::CaloHit> >(ecalhittag);
+
+    art::InputTag ecalclustertag(fClusterLabel, fInstanceLabelCalo);
+    consumes<std::vector<rec::Cluster> >(ecalclustertag);
+    consumes<art::Assns<rec::Cluster, rec::CaloHit>>(ecalclustertag);
 
     //Muon system related
     if (fGeo->HasMuonDetector()) {
-        art::InputTag muidgeanttag(fGeantLabel, fGeantInstanceMuID);
+        art::InputTag muidgeanttag(fGeantLabel, fInstanceLabelMuID);
         consumes<std::vector<gar::sdp::CaloDeposit> >(muidgeanttag);
 
-        art::InputTag muidrawtag(fRawCaloHitLabel, fRawCaloHitInstanceMuID);
+        art::InputTag muidrawtag(fRawCaloHitLabel, fInstanceLabelMuID);
         consumes<std::vector<raw::CaloRawDigit> >(muidrawtag);
 
-        art::InputTag muidhittag(fCaloHitLabel, fCaloHitInstanceMuID);
+        art::InputTag muidhittag(fCaloHitLabel, fInstanceLabelMuID);
         consumes<std::vector<rec::CaloHit> >(muidhittag);
+
+        art::InputTag muidclustertag(fClusterMuIDLabel, fInstanceLabelMuID);
+        consumes<std::vector<rec::Cluster> >(muidclustertag);
+        consumes<art::Assns<rec::Cluster, rec::CaloHit>>(muidclustertag);
     }
 
-    consumes<std::vector<rec::Cluster> >(fClusterLabel);
-    consumes<art::Assns<rec::Cluster, rec::CaloHit>>(fClusterLabel);
     consumes<art::Assns<rec::Cluster, rec::Track>>(fECALAssnLabel);
 
     return;
@@ -965,6 +988,29 @@ void gar::anatree::beginJob() {
         fTree->Branch("ClusterMCfrac",              &fClusterMCfrac);
 
         fTree->Branch("ClusterAssn_RecoHitIDNumber", &fClusterAssn_RecoHitIDNumber);
+
+        if(fGeo->HasMuonDetector()) {
+            fTree->Branch("nCluster_MuID",                   &fnCluster_MuID);
+            fTree->Branch("ClusterIDNumber_MuID",            &fClusterIDNumber_MuID);
+            fTree->Branch("ClusterNhits_MuID",               &fClusterNhits_MuID);
+            fTree->Branch("ClusterEnergy_MuID",              &fClusterEnergy_MuID);
+            fTree->Branch("ClusterTime_MuID",                &fClusterTime_MuID);
+            fTree->Branch("ClusterTimeDiffFirstLast_MuID",   &fClusterTimeDiffFirstLast_MuID);
+            fTree->Branch("ClusterX_MuID",                   &fClusterX_MuID);
+            fTree->Branch("ClusterY_MuID",                   &fClusterY_MuID);
+            fTree->Branch("ClusterZ_MuID",                   &fClusterZ_MuID);
+            fTree->Branch("ClusterTheta_MuID",               &fClusterTheta_MuID);
+            fTree->Branch("ClusterPhi_MuID",                 &fClusterPhi_MuID);
+            fTree->Branch("ClusterPID_MuID",                 &fClusterPID_MuID);
+            // fTree->Branch("ClusterShape",            &fClusterShape);
+            fTree->Branch("ClusterMainAxisX_MuID",           &fClusterMainAxisX_MuID);
+            fTree->Branch("ClusterMainAxisY_MuID",           &fClusterMainAxisY_MuID);
+            fTree->Branch("ClusterMainAxisZ_MuID",           &fClusterMainAxisZ_MuID);
+            fTree->Branch("ClusterMCindex_MuID",             &fClusterMCindex_MuID);
+            fTree->Branch("ClusterMCfrac_MuID",              &fClusterMCfrac_MuID);
+
+            fTree->Branch("ClusterMuIDAssn_MuIDHitIDNumber", &fClusterMuIDAssn_MuIDHitIDNumber);
+        }
     }
 
     if (fWriteMatchedTracks) {
@@ -1331,6 +1377,29 @@ void gar::anatree::ClearVectors() {
         fClusterMCfrac.clear();
 
         fClusterAssn_RecoHitIDNumber.clear();
+
+        if(fGeo->HasMuonDetector()) {
+            fnCluster_MuID = 0;
+            fClusterIDNumber_MuID.clear();
+            fClusterNhits_MuID.clear();
+            fClusterEnergy_MuID.clear();
+            fClusterTime_MuID.clear();
+            fClusterTimeDiffFirstLast_MuID.clear();
+            fClusterX_MuID.clear();
+            fClusterY_MuID.clear();
+            fClusterZ_MuID.clear();
+            fClusterTheta_MuID.clear();
+            fClusterPhi_MuID.clear();
+            fClusterPID_MuID.clear();
+            // fClusterShape.clear();
+            fClusterMainAxisX_MuID.clear();
+            fClusterMainAxisY_MuID.clear();
+            fClusterMainAxisZ_MuID.clear();
+            fClusterMCindex_MuID.clear();
+            fClusterMCfrac_MuID.clear();
+
+            fClusterMuIDAssn_MuIDHitIDNumber.clear();
+        }
     }
 
     if (fWriteMatchedTracks) {
@@ -1603,8 +1672,8 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
     // Get handles for MCCaloInfo
     art::Handle< std::vector<gar::sdp::CaloDeposit> > SimHitHandle;//ecal
     art::Handle< std::vector<gar::sdp::CaloDeposit> > MuIDSimHitHandle;//ecal
-    art::InputTag ecalgeanttag(fGeantLabel, fGeantInstanceCalo);
-    art::InputTag muidgeanttag(fGeantLabel, fGeantInstanceMuID);
+    art::InputTag ecalgeanttag(fGeantLabel, fInstanceLabelCalo);
+    art::InputTag muidgeanttag(fGeantLabel, fInstanceLabelMuID);
     if (fWriteMCCaloInfo) {
         if (!e.getByLabel(ecalgeanttag, SimHitHandle)) {
             throw cet::exception("anatree") << " No gar::sdp::CaloDeposit branch."
@@ -1653,8 +1722,8 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
 void gar::anatree::FillRawInfo(art::Event const & e) {
 
     // Get handle for CaloDigits
-    art::InputTag ecalrawtag(fRawCaloHitLabel, fRawCaloHitInstanceCalo);
-    art::InputTag muidrawtag(fRawCaloHitLabel, fRawCaloHitInstanceMuID);
+    art::InputTag ecalrawtag(fRawCaloHitLabel, fInstanceLabelCalo);
+    art::InputTag muidrawtag(fRawCaloHitLabel, fInstanceLabelMuID);
     art::Handle< std::vector<gar::raw::CaloRawDigit> > RawHitHandle;
     art::Handle< std::vector<gar::raw::CaloRawDigit> > MuIDRawHitHandle;
 
@@ -1720,8 +1789,8 @@ void gar::anatree::FillRecoInfo(art::Event const & e) {
     }
 
     // Get handle for CaloHits
-    art::InputTag ecalrecotag(fCaloHitLabel, fCaloHitInstanceCalo);
-    art::InputTag muirecotag(fMuIDHitLabel, fCaloHitInstanceMuID);
+    art::InputTag ecalrecotag(fCaloHitLabel, fInstanceLabelCalo);
+    art::InputTag muirecotag(fMuIDHitLabel, fInstanceLabelMuID);
     art::Handle< std::vector<rec::CaloHit> > RecoHitHandle;
     art::Handle< std::vector<rec::CaloHit> > MuIDRecoHitHandle;
 
@@ -1833,17 +1902,30 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
     }
 
     // Get handle for CaloClusters; also Assn for matching tracks
+    art::InputTag ecalclustertag(fClusterLabel, fInstanceLabelCalo);
+    art::InputTag muidclustertag(fClusterMuIDLabel, fInstanceLabelCalo);
     art::Handle< std::vector<rec::Cluster> > RecoClusterHandle;
+    art::Handle< std::vector<rec::Cluster> > RecoClusterMuIDHandle;
     art::FindManyP<rec::Track, rec::TrackEnd>* findManyCALTrackEnd = NULL;
     art::FindManyP<gar::rec::CaloHit>* findManyClusterRecoHit = NULL;
+    art::FindManyP<gar::rec::CaloHit>* findManyClusterMuIDHit = NULL;
 
     if (fWriteCaloClusters) {
-        if (!e.getByLabel(fClusterLabel, RecoClusterHandle)) {
+        if (!e.getByLabel(ecalclustertag, RecoClusterHandle)) {
             throw cet::exception("anatree") << " No rec::Cluster branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
 
-        findManyClusterRecoHit = new art::FindManyP<gar::rec::CaloHit>(RecoClusterHandle,e,fClusterLabel);
+        if (fGeo->HasMuonDetector() && !e.getByLabel(muidclustertag, RecoClusterMuIDHandle)) {
+            throw cet::exception("anatree") << " No rec::Cluster (MuID) branch."
+            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+        }
+
+        findManyClusterRecoHit = new art::FindManyP<gar::rec::CaloHit>(RecoClusterHandle,e,ecalclustertag);
+
+        if (fGeo->HasMuonDetector())
+            findManyClusterMuIDHit = new art::FindManyP<gar::rec::CaloHit>(RecoClusterMuIDHandle,e,muidclustertag);
+        
 
         if (fWriteTracks) {
             findManyCALTrackEnd = new art::FindManyP<rec::Track, rec::TrackEnd>
@@ -2130,6 +2212,57 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
             	fClusterMCfrac.push_back(0.0);
             }
             iCluster++;
+        }
+
+        if(fGeo->HasMuonDetector()) {
+            size_t iCluster = 0;
+            for ( auto const& cluster : (*RecoClusterMuIDHandle) ) {
+                fnCluster_MuID++;
+                fClusterIDNumber_MuID.push_back(cluster.getIDNumber());
+                fClusterNhits_MuID.push_back(cluster.CalorimeterHits().size());
+                fClusterEnergy_MuID.push_back(cluster.Energy());
+                fClusterTime_MuID.push_back(cluster.Time());
+                fClusterTimeDiffFirstLast_MuID.push_back(cluster.TimeDiffFirstLast());
+                fClusterX_MuID.push_back(cluster.Position()[0]);
+                fClusterY_MuID.push_back(cluster.Position()[1]);
+                fClusterZ_MuID.push_back(cluster.Position()[2]);
+                fClusterTheta_MuID.push_back(cluster.ITheta());
+                fClusterPhi_MuID.push_back(cluster.IPhi());
+                fClusterPID_MuID.push_back(cluster.ParticleID());
+                // fClusterShape.push_back(cluster.Shape());
+                fClusterMainAxisX_MuID.push_back(cluster.EigenVectors()[0]);
+                fClusterMainAxisY_MuID.push_back(cluster.EigenVectors()[1]);
+                fClusterMainAxisZ_MuID.push_back(cluster.EigenVectors()[2]);
+
+                //Get the associated reco hit
+                std::vector<ULong64_t> fVecHitIDs = {};
+                if (findManyClusterMuIDHit->isValid()) {
+                    int nClusterHit = findManyClusterMuIDHit->at(iCluster).size();
+                    for (int iClusterHit=0; iClusterHit<nClusterHit; ++iClusterHit) {
+                        rec::CaloHit hit  = *(findManyClusterMuIDHit->at(iCluster).at(iClusterHit));
+                        fVecHitIDs.push_back(hit.getIDNumber());
+                    }
+                }
+
+                fClusterMuIDAssn_MuIDHitIDNumber.push_back(fVecHitIDs);
+
+                /*** TO DO ***/
+                // Matching MCParticle info
+                // std::vector<std::pair<simb::MCParticle*,float>> trakt;
+                // trakt = BackTrack->ClusterToMCParticles( const_cast<rec::Cluster*>(&cluster) );
+                // int eileen = -1;
+                // if (trakt.size()>0 && TrackIdToIndex.size()!=0) {
+                //     eileen = TrackIdToIndex[trakt[0].first->TrackId()];
+                // }
+                // fClusterMCindex_MuID.push_back(eileen);
+                // if (eileen > -1) {
+                //     fClusterMCfrac_MuID.push_back(trakt[0].second);
+                // } else {
+                //     fClusterMCfrac_MuID.push_back(0.0);
+                // }
+                fClusterMCfrac_MuID.push_back(0.0);
+                iCluster++;
+            }
         }
     }
 

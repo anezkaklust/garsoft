@@ -1,6 +1,6 @@
 BEGIN_PROLOG
 
-standard_anatree_spyv2:
+standard_anatree_spyv3:
 {
  module_type:               anatree
 
@@ -18,26 +18,19 @@ standard_anatree_spyv2:
 
 # GENIEGeneratorLabels:      [ "generator" ]
 
+ InstanceLabelCalo:        "ECAL"
+ InstanceLabelMuID:        "MuID"
  GEANTLabel:               "geant"
- GEANTInstanceCalo:        "ECAL"
- GEANTInstanceMuID:        "MuID"
-
  RawCaloHitLabel:          "daqsipm"
- RawCaloHitInstanceCalo:   "ECAL"
- RawCaloHitInstanceMuID:   "MuID"
-
  HitLabel:                 "hit"
-
  CaloHitLabel:             "sscalohit"
- CaloHitInstanceCalo:      "ECAL"
- MuIDHitLabel:             "sipmhit"
- CaloHitInstanceMuID:      "MuID"
-
+ MuIDHitLabel:             "sscalohitmuid"
  TPCClusterLabel:          "tpccluster"
  TrackLabel:               "track"
  TrackTrajectoryLabel:     "track"
  VertexLabel:              "vertex"
  ClusterLabel:             "calocluster"
+ MuIDClusterLabel:         "caloclustermuid"
  ECALAssnLabel:            "trkecalassn"
  VeeLabel:                 "veefinder1"
 
@@ -80,7 +73,7 @@ standard_anatree_spyv2:
  WriteCohInfo:              false
 }
 
-standard_anatree_spyv2_edep:
+standard_anatree_spyv3_edep:
 {
  module_type:               anatree
 
@@ -98,26 +91,19 @@ standard_anatree_spyv2_edep:
 
 # GENIEGeneratorLabels:      [ "generator" ]
 
+ InstanceLabelCalo:        "ECAL"
+ InstanceLabelMuID:        "MuID"
  GEANTLabel:               "edepconvert"
- GEANTInstanceCalo:        "ECAL"
- GEANTInstanceMuID:        "MuID"
-
  RawCaloHitLabel:          "daqsipm"
- RawCaloHitInstanceCalo:   "ECAL"
- RawCaloHitInstanceMuID:   "MuID"
-
  HitLabel:                 "hit"
-
  CaloHitLabel:             "sscalohit"
- CaloHitInstanceCalo:      "ECAL"
- MuIDHitLabel:             "sipmhit"
- CaloHitInstanceMuID:      "MuID"
-
+ MuIDHitLabel:             "sscalohitmuid"
  TPCClusterLabel:          "tpccluster"
  TrackLabel:               "track"
  TrackTrajectoryLabel:     "track"
  VertexLabel:              "vertex"
  ClusterLabel:             "calocluster"
+ MuIDClusterLabel:         "caloclustermuid"
  ECALAssnLabel:            "trkecalassn"
  VeeLabel:                 "veefinder1"
 
@@ -178,26 +164,19 @@ standard_anatree_dayone:
 
 # GENIEGeneratorLabels:      [ "generator" ]
 
+ InstanceLabelCalo:        "TrackerSc"
+ InstanceLabelMuID:        "MuID"
  GEANTLabel:               "geant"
- GEANTInstanceCalo:        "TrackerSc"
- GEANTInstanceMuID:        "MuID"
-
  RawCaloHitLabel:          "daqsipm"
- RawCaloHitInstanceCalo:   "ECAL"
- RawCaloHitInstanceMuID:   "MuID"
-
  HitLabel:                 "hit"
-
  CaloHitLabel:             "sscalohit"
- CaloHitInstanceCalo:      "ECAL"
- MuIDHitLabel:             "sipmhit"
- CaloHitInstanceMuID:      "MuID"
-
+ MuIDHitLabel:             "sscalohitmuid"
  TPCClusterLabel:          "dayone"
  TrackLabel:               "trackpass1"
  TrackTrajectoryLabel:     "trackpass1"
  VertexLabel:              "vertex"
  ClusterLabel:             "calocluster"
+ MuIDClusterLabel:         "caloclustermuid"
  ECALAssnLabel:            "trkecalassn"
  VeeLabel:                 "veefinder1"
 
@@ -257,27 +236,20 @@ standard_anatree_dayone_edep:
 # to look for all GTruth data products in the event.
 
 # GENIEGeneratorLabels:      [ "generator" ]
-
+ 
+ InstanceLabelCalo:        "TrackerSc"
+ InstanceLabelMuID:        "MuID"
  GEANTLabel:               "edepconvert"
- GEANTInstanceCalo:        "TrackerSc"
- GEANTInstanceMuID:        "MuID"
-
  RawCaloHitLabel:          "daqsipm"
- RawCaloHitInstanceCalo:   "ECAL"
- RawCaloHitInstanceMuID:   "MuID"
-
  HitLabel:                 "hit"
-
  CaloHitLabel:             "sscalohit"
- CaloHitInstanceCalo:      "ECAL"
- MuIDHitLabel:             "sipmhit"
- CaloHitInstanceMuID:      "MuID"
-
+ MuIDHitLabel:             "sscalohitmuid"
  TPCClusterLabel:          "dayone"
  TrackLabel:               "trackpass1"
  TrackTrajectoryLabel:     "trackpass1"
  VertexLabel:              "vertex"
  ClusterLabel:             "calocluster"
+ MuIDClusterLabel:         "caloclustermuid"
  ECALAssnLabel:            "trkecalassn"
  VeeLabel:                 "veefinder1"
 
