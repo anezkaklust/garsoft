@@ -19,7 +19,7 @@ standard_tpcpatrec2:
 
  ConvAngleCut:        1.0   # angle to cut when breaking VH clusters into tracks when searching for conversions
 
- MinNumTPCClusters:          20    # minimum number of hits on a track
+ MinNumTPCClusters:          15    # minimum number of hits on a track
  InitialTPNTPCClusters:     100    # number of hits to use for initial trackpar estimate, if present
  PrintLevel:                  0     # Debug printout:  0: none, 1: track parameters and residuals, 2: everything
 }
