@@ -22,6 +22,7 @@ standard_anatree_spyv3:
  InstanceLabelMuID:        "MuID"
  GEANTLabel:               "geant"
  RawCaloHitLabel:          "daqsipm"
+ RawMuIDHitLabel:          "daqsipmmuid"
  HitLabel:                 "hit"
  CaloHitLabel:             "sscalohit"
  MuIDHitLabel:             "sscalohitmuid"
@@ -61,6 +62,7 @@ standard_anatree_spyv3:
 # Calorimetry info is: (a) calorimeter digits if WriteCaloDigits; (b) hits if
 # WriteCaloHits; (c) clusters if WriteCaloClusters (d) associations to tracks if
 # (WriteMatchedTracks && WriteCaloClusters && WriteTracks).
+ WriteMuID:                 true
  WriteCaloDigits:           false
  WriteCaloHits:             true
  WriteCaloClusters:         true
@@ -95,6 +97,7 @@ standard_anatree_spyv3_edep:
  InstanceLabelMuID:        "MuID"
  GEANTLabel:               "edepconvert"
  RawCaloHitLabel:          "daqsipm"
+ RawMuIDHitLabel:          "daqsipmmuid"
  HitLabel:                 "hit"
  CaloHitLabel:             "sscalohit"
  MuIDHitLabel:             "sscalohitmuid"
@@ -134,6 +137,7 @@ standard_anatree_spyv3_edep:
 # Calorimetry info is: (a) calorimeter digits if WriteCaloDigits; (b) hits if
 # WriteCaloHits; (c) clusters if WriteCaloClusters (d) associations to tracks if
 # (WriteMatchedTracks && WriteCaloClusters && WriteTracks).
+ WriteMuID:                 true
  WriteCaloDigits:           false
  WriteCaloHits:             true
  WriteCaloClusters:         true
@@ -168,6 +172,7 @@ standard_anatree_dayone:
  InstanceLabelMuID:        "MuID"
  GEANTLabel:               "geant"
  RawCaloHitLabel:          "daqsipm"
+ RawMuIDHitLabel:          "daqsipmmuid"
  HitLabel:                 "hit"
  CaloHitLabel:             "sscalohit"
  MuIDHitLabel:             "sscalohitmuid"
@@ -207,6 +212,7 @@ standard_anatree_dayone:
 # Calorimetry info is: (a) calorimeter digits if WriteCaloDigits; (b) hits if
 # WriteCaloHits; (c) clusters if WriteCaloClusters (d) associations to tracks if
 # (WriteMatchedTracks && WriteCaloClusters && WriteTracks).
+ WriteMuID:                 true
  WriteCaloDigits:           false
  WriteCaloHits:             false
  WriteCaloClusters:         false
@@ -241,6 +247,7 @@ standard_anatree_dayone_edep:
  InstanceLabelMuID:        "MuID"
  GEANTLabel:               "edepconvert"
  RawCaloHitLabel:          "daqsipm"
+ RawMuIDHitLabel:          "daqsipmmuid"
  HitLabel:                 "hit"
  CaloHitLabel:             "sscalohit"
  MuIDHitLabel:             "sscalohitmuid"
@@ -280,6 +287,7 @@ standard_anatree_dayone_edep:
 # Calorimetry info is: (a) calorimeter digits if WriteCaloDigits; (b) hits if
 # WriteCaloHits; (c) clusters if WriteCaloClusters (d) associations to tracks if
 # (WriteMatchedTracks && WriteCaloClusters && WriteTracks).
+ WriteMuID:                 true
  WriteCaloDigits:           false
  WriteCaloHits:             false
  WriteCaloClusters:         false
