@@ -16,7 +16,7 @@ standard_tpctrackfit2:
  SortAlg:                          2    # 1: old sort alg, 2: greedy distance sorting
  SortTransWeight:            0.1        # for use in hit sorting algorithm #1 -- transverse distance weight factor
  SortDistBack:               2.0        # for use in hit sorting algorithm #1 -- how far to go back before raising the distance figure of merit
- SortDistCut:               50.0        # distance cut for sort algorithm #2
+ SortDistCut:               20.0        # distance cut for sort algorithm #2
  MinNumTPCClusters:               15    # minimum number of TPCClusters on a track
  InitialTPNTPCClusters:          100    # number of TPCClusters to use for initial trackpar estimate, if present
  PrintLevel:                       0    # Debug printout:  0: none, 1: track parameters and residuals, 2: everything
