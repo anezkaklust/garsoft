@@ -107,7 +107,7 @@ namespace gar {
             {
                 fTrackParBeg[2] = 0;
             }
-            fTrackParBeg[3] = TMath::ATan2(vtxDir[2],vtxDir[1]);
+            fTrackParBeg[3] = TMath::ATan2(vtxDir[1],vtxDir[2]);
 
             if (vtxDir[1] != 0 || vtxDir[2] != 0)
             {
@@ -129,7 +129,7 @@ namespace gar {
             {
                 fTrackParEnd[2] = 0;
             }
-            fTrackParEnd[3] = TMath::ATan2(endDir[2],endDir[1]);
+            fTrackParEnd[3] = TMath::ATan2(endDir[1],endDir[2]);
 
             if (endDir[1] != 0 || endDir[2] != 0)
             {
