@@ -17,6 +17,7 @@
   <class name="caf::SRClusterBranch"/>
   <class name="caf::SRTPCCluster"/>
   <class name="caf::SRECalCluster"/>
+  <class name="caf::SRMuIDCluster"/>
   <class name="caf::SRNeutrino"/>
   <class name="caf::SRGenieParticle"/>
   <class name="caf::SRParticle"/>
@@ -35,6 +36,7 @@
   <class name="std::vector<caf::SRRecoHit>"/>
   <class name="std::vector<caf::SRTPCCluster>"/>
   <class name="std::vector<caf::SRECalCluster>"/>
+  <class name="std::vector<caf::SRMuIDCluster>"/>
   <class name="std::vector<caf::SRDigit>"/>
   <class name="std::vector<caf::SRTrack>"/>
   <class name="std::vector<caf::SRTrackTrajectory>"/>

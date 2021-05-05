@@ -1727,7 +1727,7 @@ void gar::anatree::FillRawInfo(art::Event const & e) {
 
     // Get handle for CaloDigits
     art::InputTag ecalrawtag(fRawCaloHitLabel, fInstanceLabelCalo);
-    art::InputTag muidrawtag(fRawCaloHitLabel, fInstanceLabelMuID);
+    art::InputTag muidrawtag(fRawMuIDHitLabel, fInstanceLabelMuID);
     art::Handle< std::vector<gar::raw::CaloRawDigit> > RawHitHandle;
     art::Handle< std::vector<gar::raw::CaloRawDigit> > MuIDRawHitHandle;
 
