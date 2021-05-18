@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ASCII"?>
-<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../GDMLSchema/gdml.xsd">
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://service-spi.web.cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
   <define>
     <position unit="cm" name="MinervaScLayer_slice1_pos" x="0.0" y="0.0" z="0.0"/>
     <position unit="cm" name="Tracker_layer00_slice1_pos" x="0.0" y="0.0" z="0.0"/>
@@ -943,11 +943,11 @@
       <fraction ref="copper63" n="0.6917"/>
       <fraction ref="copper65" n="0.3083"/>
     </element>
-    <isotope name="zinc_local_local64" Z="30" N="64">
+    <isotope name="zinc64" Z="30" N="64">
       <atom type="A" value="63.93"/>
     </isotope>
-    <element name="zinc_local_local">
-      <fraction ref="zinc_local_local64" n="1.0"/>
+    <element name="zinc">
+      <fraction ref="zinc64" n="1.0"/>
     </element>
     <element name="bromine" Z="35" formula="Br">
       <atom value="79.904"/>
@@ -1259,7 +1259,7 @@
       <fraction ref="aluminum" n="0.0207"/>
       <fraction ref="sodium" n="0.0449"/>
       <fraction ref="potassium" n="0.0821"/>
-      <fraction ref="zinc_local_local" n="0.0882"/>
+      <fraction ref="zinc" n="0.0882"/>
       <fraction ref="titanium" n="0.0292"/>
       <fraction ref="oxygen" n="0.444"/>
     </material>
@@ -1423,8 +1423,8 @@
     <tube name="Cryostat_Coil1" lunit="cm" aunit="radian" rmin="350.0" rmax="354.0" z="150.0" startphi="0.0" deltaphi="6.283185307179586"/>
     <tube name="Cryostat_Coil2" lunit="cm" aunit="radian" rmin="350.0" rmax="354.0" z="150.0" startphi="0.0" deltaphi="6.283185307179586"/>
     <tube name="Cryostat_Coil3" lunit="cm" aunit="radian" rmin="350.0" rmax="354.0" z="150.0" startphi="0.0" deltaphi="6.283185307179586"/>
-    <tube name="CryostatInnerBarrelWall" lunit="cm" aunit="radian" rmin="336.25" rmax="340.75" z="778.8000000000001" startphi="0.0" deltaphi="6.283185307179586"/>
-    <tube name="CryostatOuterBarrelWall" lunit="cm" aunit="radian" rmin="371.1" rmax="375.6" z="778.8000000000001" startphi="0.0" deltaphi="6.283185307179586"/>
+    <tube name="CryostatInnerBarrelWall" lunit="cm" aunit="radian" rmin="336.25" rmax="338.75" z="778.8000000000001" startphi="0.0" deltaphi="6.283185307179586"/>
+    <tube name="CryostatOuterBarrelWall" lunit="cm" aunit="radian" rmin="374.40000000000003" rmax="375.6" z="778.8000000000001" startphi="0.0" deltaphi="6.283185307179586"/>
     <tube name="CryostatEndcap_min" lunit="cm" aunit="radian" rmin="0.0" rmax="375.6" z="778.8000000000001" startphi="0.0" deltaphi="6.283185307179586"/>
     <tube name="CryostatEndcap_max" lunit="cm" aunit="radian" rmin="0.0" rmax="375.6" z="787.8000000000001" startphi="0.0" deltaphi="6.283185307179586"/>
     <subtraction name="CryostatEndcap">
