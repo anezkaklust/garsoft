@@ -854,6 +854,12 @@
       <fraction ref="nickel" n="0.09"/>
       <fraction ref="carbon" n="0.001"/>
     </material>
+    <material name="SteelTMS" formula="">
+      <D value="7.85"/>
+      <fraction ref="iron" n="0.9951"/>
+      <fraction ref="silicon" n="0.0045"/>
+      <fraction ref="carbon" n="0.0004"/>
+    </material>
     <material name="polycarbonate" formula="">
       <D value="1.2"/>
       <composite ref="carbon" n="16"/>
@@ -867,6 +873,16 @@
     </material>
     <material name="fibrous_glass" formula="">
       <D value="1.0"/>
+      <fraction ref="SiO2" n="0.6"/>
+      <fraction ref="CaO" n="0.224"/>
+      <fraction ref="Al2O3" n="0.118"/>
+      <fraction ref="MgO" n="0.034"/>
+      <fraction ref="TiO2" n="0.013"/>
+      <fraction ref="Na2O" n="0.01"/>
+      <fraction ref="Fe2O3" n="0.001"/>
+    </material>
+    <material name="Fiberglass" formula="">
+      <D value="0.7"/>
       <fraction ref="SiO2" n="0.6"/>
       <fraction ref="CaO" n="0.224"/>
       <fraction ref="Al2O3" n="0.118"/>
@@ -932,6 +948,16 @@
       <fraction ref="silicon" n="0.0028"/>
       <fraction ref="sulfur" n="0.0005"/>
     </material>
+    <material name="LowDensityCarbonSteel" formula="">
+      <D value="0.754"/>
+      <fraction ref="carbon" n="0.003"/>
+      <fraction ref="copper" n="0.0025"/>
+      <fraction ref="iron" n="0.98"/>
+      <fraction ref="manganese" n="0.0103"/>
+      <fraction ref="phosphorus" n="0.0009"/>
+      <fraction ref="silicon" n="0.0028"/>
+      <fraction ref="sulfur" n="0.0005"/>
+    </material>
     <material name="ReifConcrete" formula="">
       <D value="2.5"/>
       <fraction ref="CaO" n="0.6661"/>
@@ -942,6 +968,13 @@
     </material>
     <material name="Polyurethane" formula="">
       <D value="0.065"/>
+      <composite ref="carbon" n="27"/>
+      <composite ref="hydrogen" n="36"/>
+      <composite ref="nitrogen" n="2"/>
+      <composite ref="oxygen" n="10"/>
+    </material>
+    <material name="PolyurethaneFoam" formula="">
+      <D value="0.09"/>
       <composite ref="carbon" n="27"/>
       <composite ref="hydrogen" n="36"/>
       <composite ref="nitrogen" n="2"/>
@@ -1070,6 +1103,10 @@
       <D value="0.000625"/>
       <composite ref="nitrogen" n="1"/>
     </material>
+    <material name="NitrogenGas" formula="">
+      <D value="0.0012"/>
+      <composite ref="nitrogen" n="1"/>
+    </material>
     <material name="HP_Ar" formula="">
       <D value="0.01784"/>
       <composite ref="argon" n="1"/>
@@ -1096,6 +1133,53 @@
     <material name="NoGas" formula="">
       <D value="1e-25"/>
       <fraction ref="argon" n="1.0"/>
+    </material>
+    <material name="Vac" formula="">
+      <D value="1.225e-11"/>
+      <fraction ref="nitrogen" n="0.781154"/>
+      <fraction ref="oxygen" n="0.209476"/>
+      <fraction ref="argon" n="0.00934"/>
+    </material>
+    <material name="G10" formula="">
+      <D value="1.85"/>
+      <fraction ref="Epoxy" n="0.206"/>
+      <fraction ref="Glass" n="0.794"/>
+    </material>
+    <material name="Silicon" formula="">
+      <D value="2.33"/>
+      <composite ref="silicon" n="1"/>
+    </material>
+    <material name="EJ280WLS" formula="">
+      <D value="1.023"/>
+      <composite ref="carbon" n="9"/>
+      <composite ref="hydrogen" n="10"/>
+    </material>
+    <material name="Y11" formula="">
+      <D value="1.023"/>
+      <composite ref="carbon" n="9"/>
+      <composite ref="hydrogen" n="10"/>
+    </material>
+    <material name="Y11C" formula="">
+      <D value="1.023"/>
+      <composite ref="carbon" n="9"/>
+      <composite ref="hydrogen" n="10"/>
+    </material>
+    <material name="ESR" formula="">
+      <D value="1.38"/>
+      <composite ref="carbon" n="10"/>
+      <composite ref="hydrogen" n="8"/>
+      <composite ref="oxygen" n="4"/>
+    </material>
+    <material name="PSA" formula="">
+      <D value="1.18"/>
+      <composite ref="carbon" n="4"/>
+      <composite ref="hydrogen" n="6"/>
+      <composite ref="oxygen" n="2"/>
+    </material>
+    <material name="TPB" formula="">
+      <D value="1.079"/>
+      <composite ref="carbon" n="28"/>
+      <composite ref="hydrogen" n="22"/>
     </material>
   </materials>
   <solids>
