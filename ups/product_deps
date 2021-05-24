@@ -1,7 +1,7 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version 
 parent	garsoft	v02_10_01
-defaultqual	e19
+defaultqual	e20
 
 # These optional lines define the installed directories where
 # headers, libraries, and executables will be found
@@ -31,7 +31,7 @@ genie_xsec     	v3_00_04a
 genie_phyopt    v3_00_04
 gallery         v1_16_02
 dune_pardata    v01_56_00
-duneutil        v09_16_00
+duneutil        v09_23_00       -       optional
 pandora         v03_16_00b
 edepsim         v3_0_1
 cetbuildtools	v7_17_01	-	only_for_build
@@ -43,6 +43,8 @@ end_product_list
 qualifier  nutools    genie_xsec              genie_phyopt  gallery    dune_pardata  nusystematics  nuevdb     nug4       nurandom   duneutil   pandora   edepsim
 e19:debug  e19:debug  G1810a0211a:e1000:k250 	dkcharmtau 	  e19:debug  -nq-      e19:debug    e19:debug  e19:debug  e19:debug  e19:debug  e19:debug e19:debug
 e19:prof   e19:prof   G1810a0211a:e1000:k250 	dkcharmtau	  e19:prof   -nq-      e19:prof     e19:prof   e19:prof   e19:prof   e19:prof   e19:prof  e19:prof
+e20:debug  e20:debug  G1810a0211a:e1000:k250 	dkcharmtau 	  e20:debug  -nq-      e20:debug    e20:debug  e20:debug  e20:debug  e20:debug  e20:debug e20:debug
+e20:prof   e20:prof   G1810a0211a:e1000:k250 	dkcharmtau	  e20:prof   -nq-      e20:prof     e20:prof   e20:prof   e20:prof   e20:prof   e20:prof  e20:prof
 c7:debug   c7:debug   G1810a0211a:e1000:k250 	dkcharmtau	  c7:debug   -nq-	c7:debug    c7:debug   c7:debug   c7:debug   c7:debug   c7:debug  c7:debug
 c7:prof    c7:prof    G1810a0211a:e1000:k250 	dkcharmtau	  c7:prof    -nq-	c7:prof     c7:prof    c7:prof    c7:prof    c7:prof    c7:prof   c7:prof
 end_qualifier_list
