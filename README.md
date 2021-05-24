@@ -29,7 +29,7 @@ source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
 mkdir <new empty directory>
 cd <new emtpy directory>
 export MRB_PROJECT=garsoft
-export COMPILER=e19
+export COMPILER=e20
 export BUILDTYPE=prof
 mrb newDev -v develop -q ${COMPILER}:${BUILDTYPE}
 source localProducts*/setup
@@ -42,7 +42,7 @@ mrb i -j4
 mrbslp
 ```
 
-The COMPILER variable above is a UPS qualifier indicating which version of which compiler to use. The head of develop has been upgraded to art v3_05_01, which uses a compiler qualifier "e19" corresponds to GCC v8.2.0: https://cdcvs.fnal.gov/redmine/projects/cet-is-public/wiki/AboutQualifiers
+The COMPILER variable above is a UPS qualifier indicating which version of which compiler to use. The head of develop has been upgraded to art v3_06_03, which uses a compiler qualifier "e20" corresponds to GCC v9.3.0: https://cdcvs.fnal.gov/redmine/projects/cet-is-public/wiki/AboutQualifiers
 
 The BUILDTYPE variable above is either "prof" or "debug". Both kinds of builds include debug symbols, but "prof" turns on optimization, which can make using a debugger more challenging, but will make the code run faster.
 
