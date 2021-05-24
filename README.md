@@ -35,7 +35,7 @@ mrb newDev -v develop -q ${COMPILER}:${BUILDTYPE}
 source localProducts*/setup
 mkdir work
 cd srcs
-mrb g -b develop --github-org dune --repo-type github garsoft
+mrb g garsoft
 cd $MRB_BUILDDIR
 mrbsetenv
 mrb i -j4
