@@ -34,7 +34,7 @@ TFileService:           { fileName: "reco_hist.root" }
 TimeTracker:            {}
 RandomNumberGenerator:  {} #ART native random number generator
  #See Geometry.fcl for the list of geometries available
-GeometryGAr:            @local::nd_hall_mpd_only_SPYv2_geo
+GeometryGAr:            @local::nd_hall_mpd_only_SPYv3_geo
 GeometryGArConfigurationWriter: {}
 ExptGeoHelperInterface: @local::standard_geometry_helper
 DetectorClocks:         @local::standard_clocks
@@ -74,8 +74,11 @@ track:              @local::standard_tpctrackfit2
 vertex:             @local::standard_vertexfinder1
 veefinder1:         @local::standard_veefinder1
 sipmhit:            @local::standard_SiPMHitFinder
+sipmhitmuid:        @local::standard_SiPMHitFinder_MuID
 sscalohit:          @local::standard_CaloStripSplitter
+sscalohitmuid:      @local::standard_CaloStripSplitter_MuID
 calocluster:        @local::standard_CaloClustering
+caloclustermuid:    @local::standard_CaloClustering_MuID
 trkecalassn:        @local::standard_TPCECALAssociation
 }
 analyzers:
@@ -84,7 +87,7 @@ analyzers:
 
 #Define the producer and filter modules for this path, order matters.  Put init 1st!
 #Filters reject all following items.  ee lines starting physics.producers below
-reco: [init,hit,tpcclusterpass1,vechit,patrec,trackpass1,vertexpass1,tpccluster,track,vertex,veefinder1,sipmhit,sscalohit,calocluster,trkecalassn]
+reco: [init,hit,tpcclusterpass1,vechit,patrec,trackpass1,vertexpass1,tpccluster,track,vertex,veefinder1,sipmhit,sipmhitmuid,sscalohit,sscalohitmuid,calocluster,caloclustermuid,trkecalassn]
 
 #define the output stream, there could be more than one if using filters
 stream1:  [ out1 ]
@@ -109,7 +112,4 @@ fileName:    "reco.root" #default file name, can override from command line with
 physics.producers.track.PatRecLabel: "tpccluster"  # from the stitch step, input to second-pass fit
 physics.producers.vertex.TrackLabel: "track"
 physics.producers.sipmhit.UseTimePositionReco: false
-physics.producers.sipmhit.ECALInstanceName: "ECAL"
-physics.producers.sipmhit.MuIDInstanceName: "MuID"
-physics.producers.sscalohit.ECALInstanceName: "ECAL"
-physics.producers.calocluster.CaloHitLabel: "sscalohit"
+physics.producers.sipmhitmuid.UseTimePositionReco: false

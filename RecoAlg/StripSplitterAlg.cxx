@@ -29,8 +29,8 @@ namespace gar {
                 ClearLists();
 
                 fGeo = gar::providerFrom<geo::GeometryGAr>();
-                fInnerSymmetry = fGeo->GetECALInnerSymmetry();
-                fStripWidth = -1;//cm
+                fInnerSymmetry = 0;
+                fStripWidth = -1; //cm
                 fStripLength = -1;//cm
                 fnVirtual = 1;
 
@@ -50,10 +50,23 @@ namespace gar {
             void StripSplitterAlg::reconfigure(fhicl::ParameterSet const& pset)
             {
                 fSSAAlgName = pset.get<std::string>("SSAAlgName");
+                fDet = pset.get<std::string>("DetectorSystem"); //ECAL or MuID
                 fSaveStripEnds = pset.get<bool>("SaveStripEnds", false);
 
-                std::string fEncoding = fGeo->GetECALCellIDEncoding();
-                fFieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
+                if(fDet == "ECAL") {
+                    fEncoding = fGeo->GetECALCellIDEncoding();
+                    fFieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
+                    fInnerSymmetry = fGeo->GetECALInnerSymmetry();
+                }
+                else if(fDet == "MuID") {
+                    fEncoding = fGeo->GetMuIDCellIDEncoding();
+                    fFieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
+                    fInnerSymmetry = fGeo->GetMuIDInnerSymmetry();
+                } else {
+                    MF_LOG_ERROR("StripSplitterAlg::reconfigure")
+                        << "Detector system parameter incorrectly set. Should be ECAL or MuID -- Exiting!";
+                    throw cet::exception("StripSplitterAlg::reconfigure");
+                }
 
                 return;
             }
@@ -149,12 +162,10 @@ namespace gar {
                     for (uint i = 0; i < toSplit->size(); i++)
                     {
                         const gar::rec::CaloHit* hit = toSplit->at(i);
-                        // is this a barrel or endcap collection?
-                        TVector3 point(hit->Position()[0], hit->Position()[1], hit->Position()[2]);
-                        //1 == Barrel, 2 == Endcap
+                        //1 == Barrel, 2 == Endcap, 4 == MuID
                         unsigned int det_id = fFieldDecoder->get(hit->CellID(), "system");
 
-                        if ( det_id != 1 && det_id != 2 )
+                        if ( det_id != 1 && det_id != 2  && det_id != 4 )
                         {
                             MF_LOG_ERROR("StripSplitterAlg::DoStripSplitting")
                             << " Check det it " << det_id
@@ -172,7 +183,7 @@ namespace gar {
 
                         // split the hits
                         std::vector <const gar::rec::CaloHit*> virtualhits;
-                        bool isBarrel = det_id == 0 ? true : false;
+                        bool isBarrel = (det_id == 0 || det_id == 4) ? true : false;
                         getVirtualHits(hit, orientation, isBarrel, virtualhits);
 
                         // add (new) hits to collections
@@ -220,7 +231,10 @@ namespace gar {
                 const std::array<double, 3> pt = { hit->Position()[0], hit->Position()[1], hit->Position()[2] };
                 fStripWidth = fGeo->getStripWidth(pt);
                 fStripLength = fGeo->getStripLength(pt, hit->CellID());
-                fnVirtual = int(fStripLength / fStripWidth);
+                fnVirtual = 0;
+
+                if(fStripWidth != 0) 
+                    fnVirtual = int(fStripLength / fStripWidth);
 
                 MF_LOG_DEBUG("StripSplitterAlg")
                 << " StripSplitterAlg::getVirtualHits()"
@@ -416,7 +430,7 @@ namespace gar {
                     pos[1] = virtualCentre.Y();
                     pos[2] = virtualCentre.Z();
 
-                // make the new hit
+                    // make the new hit
                     const gar::rec::CaloHit* newhit = new gar::rec::CaloHit(energy, hit->Time(), pos, hit->CellID(), hit->Layer());
 
                     MF_LOG_DEBUG("StripSplitterAlg::getVirtualHits()")

@@ -13,13 +13,13 @@ standard_tpcpatrec2:
  SortAlg:             2    # 1: old sort alg, 2: greedy distance sorting
  SortTransWeight:     0.1   # for use in hit sorting algorithm #1  -- transverse distance weight factor
  SortDistBack:        2.0   # for use in hit sorting algorithm #1 -- how far to go back before raising the distance figure of merit
- SortDistCut:         50.0        # distance cut for sort algorithm #2
+ SortDistCut:         20.0        # distance cut for sort algorithm #2
 
  CloseEtaUnmatch:     20.0  # Look for another VH within this distance and drop the matching condition of eta mismatches (helps conversions)
 
  ConvAngleCut:        1.0   # angle to cut when breaking VH clusters into tracks when searching for conversions
 
- MinNumTPCClusters:          20    # minimum number of hits on a track
+ MinNumTPCClusters:          15    # minimum number of hits on a track
  InitialTPNTPCClusters:     100    # number of hits to use for initial trackpar estimate, if present
  PrintLevel:                  0     # Debug printout:  0: none, 1: track parameters and residuals, 2: everything
 }

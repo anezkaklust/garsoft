@@ -2,7 +2,7 @@ BEGIN_PROLOG
 
 standard_ecalreadoutsimalg:
 {
- ECALReadoutSimType:       Standard
+ ReadoutSimType:       Standard_ECAL
  AddNoise:                 true  # add noise hits
  Saturation:               true  # do SiPM saturation
  TimeSmearing:             true  # perform time smearing
@@ -10,7 +10,7 @@ standard_ecalreadoutsimalg:
 
 standard_muidreadoutsimalg:
 {
- MuIDReadoutSimType:       Standard
+ ReadoutSimType:       Standard_MuID
  AddNoise:                 true  # add noise hits
  Saturation:               true  # do SiPM saturation
  TimeSmearing:             true  # perform time smearing

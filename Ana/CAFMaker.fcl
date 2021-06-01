@@ -18,30 +18,25 @@ standard_cafmaker_spyv3:
 
 # GENIEGeneratorLabels:      [ "generator" ]
 
+ InstanceLabelCalo:        "ECAL"
+ InstanceLabelMuID:        "MuID"
+
  GEANTLabel:               "geant"
- GEANTInstanceCalo:        "ECAL"
- GEANTInstanceMuID:        "MuID"
-
  RawCaloHitLabel:          "daqsipm"
- RawCaloHitInstanceCalo:   "ECAL"
- RawCaloHitInstanceMuID:   "MuID"
-
+ RawMuIDHitLabel:          "daqsipmmuid"
  HitLabel:                 "hit"
-
  CaloHitLabel:             "sscalohit"
- CaloHitInstanceCalo:      "ECAL"
- MuIDHitLabel:             "sipmhit"
- CaloHitInstanceMuID:      "MuID"
-
+ MuIDHitLabel:             "sscalohitmuid"
  TPCClusterLabel:          "tpccluster"
  TrackLabel:               "track"
  TrackTrajectoryLabel:     "track"
  VertexLabel:              "vertex"
  ClusterLabel:             "calocluster"
+ MuIDClusterLabel:         "caloclustermuid"
  ECALAssnLabel:            "trkecalassn"
  VeeLabel:                 "veefinder1"
 
- POTSummaryLabel:         "edepconvert" # leave blank to skip POTSummary
+ POTSummaryLabel:         "generator" # leave blank to skip POTSummary
 
 # What to save? ==============================================
 # MC info is: (a) MCTruth, GTruth, MCParticle if WriteMCinfo; (b) MCPtrajectory if
@@ -70,6 +65,7 @@ standard_cafmaker_spyv3:
 # Calorimetry info is: (a) calorimeter digits if WriteCaloDigits; (b) hits if
 # WriteCaloHits; (c) clusters if WriteCaloClusters (d) associations to tracks if
 # (WriteMatchedTracks && WriteCaloClusters && WriteTracks).
+ WriteMuID:                 true
  WriteCaloDigits:           false
  WriteCaloHits:             true
  WriteCaloClusters:         true
@@ -100,28 +96,24 @@ standard_cafmaker_spyv3_edep:
 
 # GENIEGeneratorLabels:      [ "generator" ]
 
+ InstanceLabelCalo:        "ECAL"
+ InstanceLabelMuID:        "MuID"
  GEANTLabel:               "edepconvert"
- GEANTInstanceCalo:        "ECAL"
- GEANTInstanceMuID:        "MuID"
-
  RawCaloHitLabel:          "daqsipm"
- RawCaloHitInstanceCalo:   "ECAL"
- RawCaloHitInstanceMuID:   "MuID"
-
+ RawMuIDHitLabel:          "daqsipmmuid"
  HitLabel:                 "hit"
-
  CaloHitLabel:             "sscalohit"
- CaloHitInstanceCalo:      "ECAL"
- MuIDHitLabel:             "sipmhit"
- CaloHitInstanceMuID:      "MuID"
-
+ MuIDHitLabel:             "sscalohitmuid"
  TPCClusterLabel:          "tpccluster"
  TrackLabel:               "track"
  TrackTrajectoryLabel:     "track"
  VertexLabel:              "vertex"
  ClusterLabel:             "calocluster"
+ MuIDClusterLabel:         "caloclustermuid"
  ECALAssnLabel:            "trkecalassn"
  VeeLabel:                 "veefinder1"
+
+ POTSummaryLabel:         "edepconvert" # leave blank to skip POTSummary
 
 # What to save? ==============================================
 # MC info is: (a) MCTruth, GTruth, MCParticle if WriteMCinfo; (b) MCPtrajectory if
@@ -150,6 +142,7 @@ standard_cafmaker_spyv3_edep:
 # Calorimetry info is: (a) calorimeter digits if WriteCaloDigits; (b) hits if
 # WriteCaloHits; (c) clusters if WriteCaloClusters (d) associations to tracks if
 # (WriteMatchedTracks && WriteCaloClusters && WriteTracks).
+ WriteMuID:                 true
  WriteCaloDigits:           false
  WriteCaloHits:             true
  WriteCaloClusters:         true
@@ -180,26 +173,20 @@ standard_cafmaker_dayone:
 
 # GENIEGeneratorLabels:      [ "generator" ]
 
+ InstanceLabelCalo:        "TrackerSc"
+ InstanceLabelMuID:        "MuID"
  GEANTLabel:               "geant"
- GEANTInstanceCalo:        "TrackerSc"
- GEANTInstanceMuID:        "MuID"
-
  RawCaloHitLabel:          "daqsipm"
- RawCaloHitInstanceCalo:   "ECAL"
- RawCaloHitInstanceMuID:   "MuID"
-
+ RawMuIDHitLabel:          "daqsipmmuid"
  HitLabel:                 "hit"
-
  CaloHitLabel:             "sscalohit"
- CaloHitInstanceCalo:      "ECAL"
- MuIDHitLabel:             "sipmhit"
- CaloHitInstanceMuID:      "MuID"
-
+ MuIDHitLabel:             "sscalohitmuid"
  TPCClusterLabel:          "dayone"
  TrackLabel:               "trackpass1"
  TrackTrajectoryLabel:     "trackpass1"
  VertexLabel:              "vertex"
  ClusterLabel:             "calocluster"
+ MuIDClusterLabel:         "caloclustermuid"
  ECALAssnLabel:            "trkecalassn"
  VeeLabel:                 "veefinder1"
 
@@ -232,6 +219,7 @@ standard_cafmaker_dayone:
 # Calorimetry info is: (a) calorimeter digits if WriteCaloDigits; (b) hits if
 # WriteCaloHits; (c) clusters if WriteCaloClusters (d) associations to tracks if
 # (WriteMatchedTracks && WriteCaloClusters && WriteTracks).
+ WriteMuID:                 true
  WriteCaloDigits:           false
  WriteCaloHits:             false
  WriteCaloClusters:         false
@@ -262,26 +250,20 @@ standard_cafmaker_dayone_edep:
 
 # GENIEGeneratorLabels:      [ "generator" ]
 
+ InstanceLabelCalo:        "TrackerSc"
+ InstanceLabelMuID:        "MuID"
  GEANTLabel:               "edepconvert"
- GEANTInstanceCalo:        "TrackerSc"
- GEANTInstanceMuID:        "MuID"
-
  RawCaloHitLabel:          "daqsipm"
- RawCaloHitInstanceCalo:   "ECAL"
- RawCaloHitInstanceMuID:   "MuID"
-
+ RawMuIDHitLabel:          "daqsipmmuid"
  HitLabel:                 "hit"
-
  CaloHitLabel:             "sscalohit"
- CaloHitInstanceCalo:      "ECAL"
- MuIDHitLabel:             "sipmhit"
- CaloHitInstanceMuID:      "MuID"
-
+ MuIDHitLabel:             "sscalohitmuid"
  TPCClusterLabel:          "dayone"
  TrackLabel:               "trackpass1"
  TrackTrajectoryLabel:     "trackpass1"
  VertexLabel:              "vertex"
  ClusterLabel:             "calocluster"
+ MuIDClusterLabel:         "caloclustermuid"
  ECALAssnLabel:            "trkecalassn"
  VeeLabel:                 "veefinder1"
 
@@ -314,6 +296,7 @@ standard_cafmaker_dayone_edep:
 # Calorimetry info is: (a) calorimeter digits if WriteCaloDigits; (b) hits if
 # WriteCaloHits; (c) clusters if WriteCaloClusters (d) associations to tracks if
 # (WriteMatchedTracks && WriteCaloClusters && WriteTracks).
+ WriteMuID:                 true
  WriteCaloDigits:           false
  WriteCaloHits:             false
  WriteCaloClusters:         false

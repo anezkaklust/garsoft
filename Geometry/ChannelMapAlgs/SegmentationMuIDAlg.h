@@ -44,6 +44,8 @@ namespace gar {
 
                 std::array<double, 3> ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const gar::raw::CellID_t& cID) const override;
 
+                const double& stripSizeX() const override { return _stripSizeX; }
+
                 const double& stripSizeY() const { return _stripSizeY; }
 
                 const double& layerDimX() const { return _layer_dim_X; }

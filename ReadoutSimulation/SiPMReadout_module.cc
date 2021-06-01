@@ -80,12 +80,10 @@ namespace gar {
             std::map<raw::CellID_t, std::vector< art::Ptr<sdp::CaloDeposit> > > MakeCellIDMapArtPtr(std::vector< art::Ptr<sdp::CaloDeposit> > &hitVector);
 
             std::string                         fG4Label;    ///< label of G4 module
-            std::string                         fECALInstanceName; ///< product instance name for the ECAL
-            std::string                         fMuIDInstanceName; ///< product instance name for the MuID
+            std::string                         fInstanceLabelName; ///< product instance name
 
             const gar::geo::GeometryCore*       fGeo;        ///< geometry information
-            std::unique_ptr<SiPMReadoutSimAlg>  fROECALSimAlg;   ///< algorithm to simulate the electronics of the ECAL
-            std::unique_ptr<SiPMReadoutSimAlg>  fROMuIDSimAlg;   ///< algorithm to simulate the electronics of the MuID
+            std::unique_ptr<SiPMReadoutSimAlg>  fROSimAlg;   ///< algorithm to simulate the electronics
 
             CLHEP::HepRandomEngine              &fEngine;  ///< random engine
         };
@@ -104,17 +102,11 @@ namespace gar {
 
             this->reconfigure(pset);
 
-            art::InputTag ecaltag(fG4Label, fECALInstanceName);
-            consumes< std::vector<sdp::CaloDeposit> >(ecaltag);
-            produces< std::vector<raw::CaloRawDigit> >(fECALInstanceName);
-            produces< art::Assns<raw::CaloRawDigit, sdp::CaloDeposit>  >(fECALInstanceName);
+            art::InputTag tag(fG4Label, fInstanceLabelName);
+            consumes< std::vector<sdp::CaloDeposit> >(tag);
+            produces< std::vector<raw::CaloRawDigit> >(fInstanceLabelName);
+            produces< art::Assns<raw::CaloRawDigit, sdp::CaloDeposit>  >(fInstanceLabelName);
 
-            if(fGeo->HasMuonDetector()) {
-                art::InputTag muidtag(fG4Label, fMuIDInstanceName);
-                consumes< std::vector<sdp::CaloDeposit> >(muidtag);
-                produces< std::vector<raw::CaloRawDigit> >(fMuIDInstanceName);//for the MuID
-                produces< art::Assns<raw::CaloRawDigit, sdp::CaloDeposit>  >(fMuIDInstanceName);//for the MuID
-            }
             return;
         }
 
@@ -130,31 +122,20 @@ namespace gar {
             MF_LOG_DEBUG("SiPMReadout") << "Debug: SiPMReadout()";
 
             fG4Label = pset.get<std::string >("G4ModuleLabel", "geant");
-            fECALInstanceName =  pset.get<std::string >("ECALInstanceName", "");
+            fInstanceLabelName =  pset.get<std::string >("InstanceLabelName", "");
 
-            auto ECALROAlgPars = pset.get<fhicl::ParameterSet>("ECALReadoutSimAlgPars");
-            auto ECALROAlgName = ECALROAlgPars.get<std::string>("ECALReadoutSimType");
+            auto ROAlgPars = pset.get<fhicl::ParameterSet>("ReadoutSimAlgPars");
+            auto ROAlgName = ROAlgPars.get<std::string>("ReadoutSimType");
 
-            if(ECALROAlgName.compare("Standard") == 0) {
-                fROECALSimAlg = std::make_unique<gar::rosim::ECALReadoutSimStandardAlg>(fEngine, ECALROAlgPars);
+            if(ROAlgName.compare("Standard_ECAL") == 0) {
+                fROSimAlg = std::make_unique<gar::rosim::ECALReadoutSimStandardAlg>(fEngine, ROAlgPars);
+            } 
+            else if(ROAlgName.compare("Standard_MuID") == 0) {
+                fROSimAlg = std::make_unique<gar::rosim::MuIDReadoutSimStandardAlg>(fEngine, ROAlgPars);
             }
             else {
                 throw cet::exception("SiPMReadout")
-                << "Unable to determine which ECAL readout simulation algorithm to use, bail";
-            }
-
-            //Muon ID
-            fMuIDInstanceName =  pset.get<std::string >("MuIDInstanceName", "");
-
-            auto MuIDROAlgPars = pset.get<fhicl::ParameterSet>("MuIDReadoutSimAlgPars");
-            auto MuIDROAlgName = MuIDROAlgPars.get<std::string>("MuIDReadoutSimType");
-
-            if(MuIDROAlgName.compare("Standard") == 0) {
-                fROMuIDSimAlg = std::make_unique<gar::rosim::MuIDReadoutSimStandardAlg>(fEngine, MuIDROAlgPars);
-            }
-            else {
-                throw cet::exception("SiPMReadout")
-                << "Unable to determine which MuID readout simulation algorithm to use, bail";
+                << "Unable to determine which readout simulation algorithm to use, bail";
             }
 
             return;
@@ -166,77 +147,39 @@ namespace gar {
             MF_LOG_DEBUG("SiPMReadout") << "produce()";
 
             //Collect the hits to be passed to the algo
-            std::vector< art::Ptr<sdp::CaloDeposit> > artECALHits;
-            this->CollectHits(evt, fG4Label, fECALInstanceName, artECALHits);
+            std::vector< art::Ptr<sdp::CaloDeposit> > artHits;
+            this->CollectHits(evt, fG4Label, fInstanceLabelName, artHits);
 
             //Get contributions per cellID for association to digi hit
-            std::map<raw::CellID_t, std::vector< art::Ptr<sdp::CaloDeposit> > > m_cIDMapArtPtrVec = this->MakeCellIDMapArtPtr(artECALHits);
+            std::map<raw::CellID_t, std::vector< art::Ptr<sdp::CaloDeposit> > > m_cIDMapArtPtrVec = this->MakeCellIDMapArtPtr(artHits);
 
             //Pass the sim hits to the algo
-            fROECALSimAlg->PrepareAlgo(artECALHits);
+            fROSimAlg->PrepareAlgo(artHits);
 
             //Perform the digitization
-            fROECALSimAlg->DoDigitization();
+            fROSimAlg->DoDigitization();
 
             //Get the digitized hits
-            std::vector< raw::CaloRawDigit* > digiECALVec = fROECALSimAlg->GetDigitizedHits();
+            std::vector< raw::CaloRawDigit* > digiVec = fROSimAlg->GetDigitizedHits();
 
             // loop over the lists and put the particles and voxels into the event as collections
-            std::unique_ptr< std::vector<raw::CaloRawDigit> > digitECALCol (new std::vector<raw::CaloRawDigit>);
-            std::unique_ptr< art::Assns<raw::CaloRawDigit, sdp::CaloDeposit> > DigiSimECALHitsAssns(new art::Assns<raw::CaloRawDigit, sdp::CaloDeposit>);
+            std::unique_ptr< std::vector<raw::CaloRawDigit> > digitCol (new std::vector<raw::CaloRawDigit>);
+            std::unique_ptr< art::Assns<raw::CaloRawDigit, sdp::CaloDeposit> > DigiSimHitsAssns(new art::Assns<raw::CaloRawDigit, sdp::CaloDeposit>);
 
-            art::PtrMaker<raw::CaloRawDigit> makeDigiECALPtr(evt, fECALInstanceName);
+            art::PtrMaker<raw::CaloRawDigit> makeDigiPtr(evt, fInstanceLabelName);
 
-            for(auto const &it : digiECALVec)
+            for(auto const &it : digiVec)
             {
-                digitECALCol->emplace_back(*it);
-                art::Ptr<raw::CaloRawDigit> digiECALPtr = makeDigiECALPtr(digitECALCol->size() - 1);
+                digitCol->emplace_back(*it);
+                art::Ptr<raw::CaloRawDigit> digiPtr = makeDigiPtr(digitCol->size() - 1);
                 //get the associated vector of art ptr based on cellID
                 std::vector< art::Ptr<sdp::CaloDeposit> > simPtrVec = m_cIDMapArtPtrVec[it->CellID()];
                 for(auto hitpointer : simPtrVec)
-                DigiSimECALHitsAssns->addSingle(digiECALPtr, hitpointer);
+                DigiSimHitsAssns->addSingle(digiPtr, hitpointer);
             }
 
-            evt.put(std::move(digitECALCol), fECALInstanceName);
-            evt.put(std::move(DigiSimECALHitsAssns), fECALInstanceName);
-
-            //Treat the MuID hits
-            if(fGeo->HasMuonDetector())
-            {
-                std::vector< art::Ptr<sdp::CaloDeposit> > artMuIDHits;
-                this->CollectHits(evt, fG4Label, fMuIDInstanceName, artMuIDHits);
-
-                //Get contributions per cellID for association to digi hit
-                m_cIDMapArtPtrVec = this->MakeCellIDMapArtPtr(artMuIDHits);
-
-                //Pass the sim hits to the algo
-                fROMuIDSimAlg->PrepareAlgo(artMuIDHits);
-
-                //Perform the digitization
-                fROMuIDSimAlg->DoDigitization();
-
-                //Get the digitized hits
-                std::vector< raw::CaloRawDigit* > digiMuIDVec = fROMuIDSimAlg->GetDigitizedHits();
-
-                // loop over the lists and put the particles and voxels into the event as collections
-                std::unique_ptr< std::vector<raw::CaloRawDigit> > digitMuIDCol (new std::vector<raw::CaloRawDigit>);
-                std::unique_ptr< art::Assns<raw::CaloRawDigit, sdp::CaloDeposit> > DigiSimMuIDHitsAssns(new art::Assns<raw::CaloRawDigit, sdp::CaloDeposit>);
-
-                art::PtrMaker<raw::CaloRawDigit> makeDigiMuIDPtr(evt, fMuIDInstanceName);
-
-                for(auto const &it : digiMuIDVec)
-                {
-                    digitMuIDCol->emplace_back(*it);
-                    art::Ptr<raw::CaloRawDigit> digiMuIDPtr = makeDigiMuIDPtr(digitMuIDCol->size() - 1);
-                    //get the associated vector of art ptr based on cellID
-                    std::vector< art::Ptr<sdp::CaloDeposit> > simPtrVec = m_cIDMapArtPtrVec[it->CellID()];
-                    for(auto hitpointer : simPtrVec)
-                    DigiSimMuIDHitsAssns->addSingle(digiMuIDPtr, hitpointer);
-                }
-
-                evt.put(std::move(digitMuIDCol), fMuIDInstanceName);
-                evt.put(std::move(DigiSimMuIDHitsAssns), fMuIDInstanceName);
-            }
+            evt.put(std::move(digitCol), fInstanceLabelName);
+            evt.put(std::move(DigiSimHitsAssns), fInstanceLabelName);
 
             return;
         } // CaloReadout::produce()

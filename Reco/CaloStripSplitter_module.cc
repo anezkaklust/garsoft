@@ -58,12 +58,11 @@ namespace gar {
             float CorrectStripHitTime(float x, float y, float z, std::pair<float, float> hitTime, raw::CellID_t cID);
 
             std::string fCaloHitLabel;  ///< label to find the right reco calo hits
-            std::string fECALInstanceName; ///< product instance name for the ECAL
+            std::string fInstanceName; ///< product instance name
 
             bool fSaveStripEndsOnly;
             bool fSaveUnsplitHits;
             bool fSaveStripEnds;
-            bool fChattyLog;
 
             const detinfo::DetectorProperties*  fDetProp;      ///< detector properties
             const geo::GeometryCore*            fGeo;          ///< pointer to the geometry
@@ -75,13 +74,12 @@ namespace gar {
         CaloStripSplitter::CaloStripSplitter(fhicl::ParameterSet const & p) : EDProducer{p}
         {
             fCaloHitLabel = p.get<std::string>("CaloHitLabel", "calohit");
-            fECALInstanceName =  p.get<std::string >("ECALInstanceName", "");
+            fInstanceName =  p.get<std::string >("InstanceLabelName", "");
 
             fGeo     = gar::providerFrom<geo::GeometryGAr>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fSaveStripEndsOnly = p.get<bool>("SaveStripEndsOnly", false);
             fSaveUnsplitHits   = p.get<bool>("SaveUnsplitHits", true);
-            fChattyLog         = p.get<bool>("ChattyLog", true);
 
             //configure the cluster algorithm
             auto fSSAAlgoPars = p.get<fhicl::ParameterSet>("SSAAlgPars");
@@ -93,9 +91,9 @@ namespace gar {
                 << " Saving Strip ends flag turned on! ";
             }
 
-            art::InputTag ecaltag(fCaloHitLabel, fECALInstanceName);
-            consumes< std::vector<gar::rec::CaloHit> >(ecaltag);
-            produces< std::vector<gar::rec::CaloHit> >(fECALInstanceName);
+            art::InputTag tag(fCaloHitLabel, fInstanceName);
+            consumes<std::vector<gar::rec::CaloHit>>(tag);
+            produces<std::vector<gar::rec::CaloHit>>(fInstanceName);
         }
 
         //----------------------------------------------------------------------------
@@ -103,7 +101,7 @@ namespace gar {
         {
             //Collect the hits to be passed to the algo
             std::vector< art::Ptr<gar::rec::CaloHit> > artHits;
-            this->CollectHits(e, fCaloHitLabel, fECALInstanceName, artHits);
+            this->CollectHits(e, fCaloHitLabel, fInstanceName, artHits);
 
             //Prepare the hits for SSA
             fSSAAlgo->PrepareAlgo(artHits);
@@ -136,14 +134,6 @@ namespace gar {
                     }
 
                     rec::CaloHit hit(energy, newtime, newpos, cellID, layer);
-
-                    if(fChattyLog) {
-                        MF_LOG_INFO("CaloStripSplitter_module") << "recohit " << &hit
-                        << " with cellID " << cellID
-                        << " has energy " << energy * CLHEP::MeV / CLHEP::GeV
-                        << " pos (" << newpos[0] << ", " <<  newpos[1] << ", " << newpos[2] << ")";
-                    }
-
                     HitCol->emplace_back(hit);
                 }
 
@@ -188,7 +178,7 @@ namespace gar {
                 HitCol->emplace_back(*it);
             }
 
-            e.put(std::move(HitCol), fECALInstanceName);
+            e.put(std::move(HitCol), fInstanceName);
 
             return;
         }

@@ -6,10 +6,16 @@ standard_sipmreadout:
 {
  module_type:           "SiPMReadout"
  G4ModuleLabel:         "geant"
- ECALInstanceName:      "ECAL"
- MuIDInstanceName:      "MuID"
- ECALReadoutSimAlgPars: @local::standard_ecalreadoutsimalg
- MuIDReadoutSimAlgPars: @local::standard_muidreadoutsimalg
+ InstanceLabelName:     "ECAL"
+ ReadoutSimAlgPars: @local::standard_ecalreadoutsimalg
+}
+
+standard_sipmreadout_muid:
+{
+ module_type:           "SiPMReadout"
+ G4ModuleLabel:         "geant"
+ InstanceLabelName:     "MuID"
+ ReadoutSimAlgPars: @local::standard_muidreadoutsimalg
 }
 
 END_PROLOG

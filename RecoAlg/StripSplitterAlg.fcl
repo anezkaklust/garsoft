@@ -1,5 +1,13 @@
 stripsplitteralg:
 {
 SSAAlgName: "Strip Splitter Algorithm"
+DetectorSystem: "ECAL"
+SaveStripEnds: false
+}
+
+stripsplitteralg_muid:
+{
+SSAAlgName: "Strip Splitter Algorithm"
+DetectorSystem: "MuID"
 SaveStripEnds: false
 }

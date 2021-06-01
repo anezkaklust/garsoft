@@ -80,9 +80,10 @@ namespace gar {
 
                 int cellIndexX = _decoder->get(cID, _xId);
                 int cellIndexY = _decoder->get(cID, _yId);
-                int slice = _decoder->get(cID, "slice");
+                int layer = _decoder->get(cID, "layer");
 
-                if(slice == 1 || slice == 5) {
+                if (layer % 2 == 0)
+                {
                     //Segmentation in Y
                     int nCellsX = 1;
                     // int nCellsY = int(_layer_dim_Y / _stripSizeY);
@@ -92,7 +93,7 @@ namespace gar {
                     cellPosition[2] = 0.;
                 }
 
-                if(slice == 3) {
+                if(layer % 2 != 0) {
                     //Segmentation in X
                     int nCellsY = 1;
                     // int nCellsX = int(_layer_dim_Y / _stripSizeY);
@@ -125,14 +126,14 @@ namespace gar {
                 int nCellsX = 1;
                 int nCellsY = 1;
 
-                if(slice == 1 || slice == 5) {
+                if(layer % 2 == 0) {
                     //Segmentation in Y
                     nCellsX = 1;
                     nCellsY = int(_layer_dim_Y / _stripSizeY);
 
                 }
 
-                if(slice == 3) {
+                if(layer % 2 != 0) {
                     //Segmentation in X
                     nCellsY = 1;
                     nCellsX = int(_layer_dim_X / _stripSizeX);
@@ -177,10 +178,10 @@ namespace gar {
             double SegmentationMuIDAlg::getStripLength(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
             {
                 double stripLength = 0.;
-                int slice = _decoder->get(cID, "slice");
+                int layer = _decoder->get(cID, "layer");
 
-                if(slice == 1 || slice == 5) stripLength = _layer_dim_X;
-                if(slice == 3) stripLength = _layer_dim_Y;
+                if(layer == 1 || layer == 3) stripLength = _layer_dim_X;
+                if(layer == 2) stripLength = _layer_dim_Y;
 
                 return stripLength;
             }
@@ -188,12 +189,12 @@ namespace gar {
             //----------------------------------------------------------------------------
             std::pair<TVector3, TVector3> SegmentationMuIDAlg::getStripEnds(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
             {
-                int slice = _decoder->get(cID, "slice");
+                int layer = _decoder->get(cID, "layer");
 
                 TVector3 stripEnd1(0., 0., 0.);
                 TVector3 stripEnd2(0., 0., 0.);
 
-                if(slice == 1 || slice == 5) {
+                if(layer == 1 || layer == 3) {
                     stripEnd1.SetX(-_layer_dim_X/2.);
                     stripEnd2.SetX(_layer_dim_X/2.);
                     stripEnd1.SetY(local[1]);
@@ -202,7 +203,7 @@ namespace gar {
                     stripEnd2.SetZ(local[2]);
                 }
 
-                if(slice == 3) {
+                if(layer == 2) {
                     stripEnd1.SetY(-_layer_dim_Y/2.);
                     stripEnd2.SetY(_layer_dim_Y/2.);
                     stripEnd1.SetX(local[0]);
@@ -224,14 +225,14 @@ namespace gar {
                 //time2 is right SiPM
                 float time2 = 0.;
 
-                int slice = _decoder->get(cID, "slice");
+                int layer = _decoder->get(cID, "layer");
 
-                if(slice == 1 || slice == 5) {
+                if(layer == 1 || layer == 3) {
                     time1 = ( _layer_dim_X / 2 + local[0] ) / c;
                     time2 = ( _layer_dim_X / 2 - local[0] ) / c;
                 }
 
-                if(slice == 3) {
+                if(layer == 2) {
                     time1 = ( _layer_dim_Y / 2 + local[1] ) / c;
                     time2 = ( _layer_dim_Y / 2 - local[1] ) / c;
                 }
@@ -242,7 +243,7 @@ namespace gar {
             //----------------------------------------------------------------------------
             std::array<double, 3> SegmentationMuIDAlg::ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const gar::raw::CellID_t& cID) const
             {
-                int slice = _decoder->get(cID, "slice");
+                int layer = _decoder->get(cID, "layer");
                 float pos = xlocal;
                 std::array<double, 3> newlocal;
 
@@ -252,11 +253,11 @@ namespace gar {
 
                 if( std::abs(pos) > stripLength / 2. ) pos = (pos > 0) ? stripLength / 2. : -stripLength / 2.;
 
-                if(slice == 1 || slice == 5) {
+                if(layer == 1 || layer == 3) {
                     newlocal = {pos, local[1], local[2]};
                 }
 
-                if(slice == 3) {
+                if(layer == 2) {
                     newlocal = {local[0], pos, local[2]};
                 }
 

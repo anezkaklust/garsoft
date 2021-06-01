@@ -151,6 +151,8 @@ namespace gar {
 
             //Check if it is ECAL endcap -> layer size is not the BBox! It is the apothem
             bool isBarrel = true;
+            bool isECAL = false;
+
             if (volname.find("barrel") == std::string::npos &&
                 volname.find("Barrel") == std::string::npos) {
                 isBarrel =  false;
@@ -158,10 +160,14 @@ namespace gar {
             if (volname.find("PV") != std::string::npos) {
                 isBarrel =  false;
             }
+
+            if (volname.find("ECal") != std::string::npos || volname.find("ecal") != std::string::npos)
+                isECAL = true;
+
             // Old code commented out here but keep it a bit for reference
             // if(volname.find("endcap") != std::string::npos || volname.find("Endcap") != std::string::npos ) isBarrel = false;
 
-            std::array<double, 3> shape;
+            std::array<double, 3> shape = {0., 0., 0.};
 
             if (vol)
             {
@@ -171,7 +177,7 @@ namespace gar {
                     shape[0] = box->GetDX();
                     shape[1] = box->GetDY();
                 } else {
-                    if(fECALEndcapOutside){
+                    if(fECALEndcapOutside && isECAL){
                         shape[0] = GetECALEndcapApothemLength() / 2.;
                         shape[1] = GetECALEndcapApothemLength() / 2.;
                     } else {
@@ -815,7 +821,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::string GeometryCore::GetECALCellIDEncoding() const
+        const std::string GeometryCore::GetECALCellIDEncoding() const
         {
             if(fECALSegmentationAlg)
             return fECALSegmentationAlg->cellEncoding();
@@ -824,7 +830,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::string GeometryCore::GetMinervaCellIDEncoding() const
+        const std::string GeometryCore::GetMinervaCellIDEncoding() const
         {
             if(fMinervaSegmentationAlg)
             return fMinervaSegmentationAlg->cellEncoding();
@@ -833,7 +839,7 @@ namespace gar {
         }
 
         //----------------------------------------------------------------------------
-        std::string GeometryCore::GetMuIDCellIDEncoding() const
+        const std::string GeometryCore::GetMuIDCellIDEncoding() const
         {
             if(fMuIDSegmentationAlg)
             return fMuIDSegmentationAlg->cellEncoding();
@@ -857,6 +863,7 @@ namespace gar {
             if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
                 const std::array<double, 3> shape = this->FindShapeSize(node);
                 fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                fMuIDSegmentationAlg->setVariables(GetMuIDInnerAngle(), 0.);
                 pos = fMuIDSegmentationAlg->GetPosition(*this, cID);
             }
 
@@ -930,6 +937,7 @@ namespace gar {
 
             if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
                 fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                fMuIDSegmentationAlg->setVariables(GetMuIDInnerAngle(), 0.);
                 strip_length = fMuIDSegmentationAlg->getStripLength(*this, localtemp, cID);
             }
 
@@ -956,6 +964,7 @@ namespace gar {
 
             if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
                 fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                fMuIDSegmentationAlg->setVariables(GetMuIDInnerAngle(), 0.);
                 localStripEnds = fMuIDSegmentationAlg->getStripEnds(*this, localtemp, cID);
             }
 
@@ -985,6 +994,7 @@ namespace gar {
 
             if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
                 fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                fMuIDSegmentationAlg->setVariables(GetMuIDInnerAngle(), 0.);
                 light_prop = fMuIDSegmentationAlg->CalculateLightPropagation(*this, local, cID);
             }
 
@@ -1006,6 +1016,7 @@ namespace gar {
 
             if(node_name.find("Yoke") != std::string::npos || node_name.find("yoke") != std::string::npos) {
                 fMuIDSegmentationAlg->setLayerDimXY(shape[0] * 2, shape[1] * 2);
+                fMuIDSegmentationAlg->setVariables(GetMuIDInnerAngle(), 0.);
                 pos = fMuIDSegmentationAlg->ReconstructStripHitPosition(*this, local, xlocal, cID);
             }
 
@@ -1216,7 +1227,7 @@ namespace gar {
                 std::cout << "MuID Geometry" << std::endl;
                 std::cout << "MuID Barrel inner radius: " << GetMuIDInnerBarrelRadius() << " cm" << std::endl;
                 std::cout << "MuID Barrel outer radius: " << GetMuIDOuterBarrelRadius() << " cm" << std::endl;
-                std::cout << "MuID Barrel inner symmetry: " << GetECALInnerSymmetry() << std::endl;
+                std::cout << "MuID Barrel inner symmetry: " << GetMuIDInnerSymmetry() << std::endl;
                 std::cout << "MuID Barrel polyhedra angle: " << GetMuIDInnerAngle()*180/M_PI << " deg" << std::endl;
                 std::cout << "MuID Barrel polyhedra side length: " << GetMuIDBarrelSideLength() << " cm" << std::endl;
                 std::cout << "MuID Barrel polyhedra apothem length: " << GetMuIDBarrelApothemLength() << " cm" << std::endl;

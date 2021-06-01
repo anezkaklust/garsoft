@@ -2,5 +2,7 @@
 
 physics.producers.daq.G4ModuleLabel:        "edepconvert"
 physics.producers.daqsipm.G4ModuleLabel:    "edepconvert"
-physics.producers.daqsipm.ECALInstanceName:   "ECAL"
-physics.producers.daqsipm.MuIDInstanceName:   "MuID"
+physics.producers.daqsipm.InstanceLabelName: "ECAL"
+
+physics.producers.daqsipmmuid.G4ModuleLabel:    "edepconvert"
+physics.producers.daqsipmmuid.InstanceLabelName: "MuID"

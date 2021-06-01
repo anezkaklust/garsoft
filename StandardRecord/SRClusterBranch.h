@@ -3,6 +3,7 @@
 
 #include "StandardRecord/SRTPCCluster.h"
 #include "StandardRecord/SRECalCluster.h"
+#include "StandardRecord/SRMuIDCluster.h"
 
 #include <vector>
 
@@ -18,6 +19,9 @@ namespace caf
 
     unsigned int necal;
     std::vector<SRECalCluster> ecal;
+
+    unsigned int nmuid;
+    std::vector<SRMuIDCluster> muid;
   };
 }
 

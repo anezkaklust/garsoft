@@ -61,9 +61,11 @@ namespace gar{
                 gar::geo::BitFieldCoder const* fFieldDecoder;
 
                 std::string fSSAAlgName;
+                std::string fDet;
                 bool fSaveStripEnds;
 
                 int fInnerSymmetry;
+                std::string fEncoding;
                 double fStripWidth;
                 double fStripLength;
                 int fnVirtual;

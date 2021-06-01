@@ -4,11 +4,23 @@ standard_SiPMHitFinder:
 {
 module_type:        SiPMHitFinder
 RawDigitLabel:      "daqsipm"
-ECALInstanceName:   "ECAL"
-MuIDInstanceName:   "MuID"
+InstanceLabelName:  "ECAL"
 MIPThreshold:       0.25      # apply this threshold if we don't already have zero-suppressed raw digits
 Desaturation:       true
-ECALSamplingFactorGeV:  4.32
+ECALSamplingFactorGeV: 2.726
+MuIDSamplingFactorGeV: 1.0
+UseTimePositionReco: false
+}
+
+standard_SiPMHitFinder_MuID:
+{
+module_type:        SiPMHitFinder
+RawDigitLabel:      "daqsipmmuid"
+InstanceLabelName:  "MuID"
+MIPThreshold:       0.25      # apply this threshold if we don't already have zero-suppressed raw digits
+Desaturation:       true
+ECALSamplingFactorGeV: 2.726
+MuIDSamplingFactorGeV: 1.0
 UseTimePositionReco: false
 }
 

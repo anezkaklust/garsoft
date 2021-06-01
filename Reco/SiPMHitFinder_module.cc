@@ -54,6 +54,8 @@ namespace gar {
             void produce(art::Event & e) override;
 
         protected:
+            void CollectDigiHits(const art::Event &evt, const std::string &label, const std::string &instance, std::vector< art::Ptr<gar::raw::CaloRawDigit> > &hitVector);
+
             float CalibrateToMIP(unsigned int ADC);
 
             float CalibratetoMeV(float x, float y, float z, double MIP);
@@ -66,12 +68,11 @@ namespace gar {
 
             // Declare member data here.
             std::string fRawDigitLabel;  ///< label to find the right raw digits
-            std::string fECALInstanceName; ///< product instance name for the ECAL
-            std::string fMuIDInstanceName; ///< product instance name for the MuID
+            std::string fInstanceLabelName; ///< product instance name
 
             float fMIPThreshold;   ///< zero-suppression threshold (in case the raw digits need to be zero-suppressed)
             bool fDesaturation; ///< flag to perform the SiPM desaturation
-            float fECALfactorSamplingGeV;
+            float fSamplingCorrection;
             bool fUseTimePositionReco;
 
             const detinfo::DetectorProperties*  fDetProp;      ///< detector properties
@@ -84,52 +85,48 @@ namespace gar {
         SiPMHitFinder::SiPMHitFinder(fhicl::ParameterSet const & p) : EDProducer{p}
         // :
         {
-            fRawDigitLabel = p.get<std::string>("RawDigitLabel", "daqecal");
-            fECALInstanceName =  p.get<std::string >("ECALInstanceName", "");
+            fRawDigitLabel = p.get<std::string>("RawDigitLabel", "daqsipm");
+            fInstanceLabelName = p.get<std::string>("InstanceLabelName", "");
 
             fMIPThreshold = p.get<float>("MIPThreshold", 0.25);
             fDesaturation = p.get<bool>("Desaturation", false);
-            fECALfactorSamplingGeV = p.get<float>("ECALSamplingFactorGeV", 1/0.24);
+            fSamplingCorrection = p.get<float>("ECALSamplingFactorGeV", 1.0);
             fUseTimePositionReco = p.get<bool>("UseTimePositionReco", true);
 
             fGeo     = gar::providerFrom<geo::GeometryGAr>();
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fSiPMUtils = std::make_unique<util::SiPMUtils>(fDetProp->EffectivePixel());
 
-            std::string fECALEncoding = fGeo->GetECALCellIDEncoding();
-            fFieldDecoder = new gar::geo::BitFieldCoder( fECALEncoding );
+            std::string fEncoding = fGeo->GetECALCellIDEncoding();
+            art::InputTag tag(fRawDigitLabel, fInstanceLabelName);
+            consumes< std::vector<raw::CaloRawDigit> >(tag);
+            produces< std::vector<rec::CaloHit> >(fInstanceLabelName);
+            produces< art::Assns<rec::CaloHit, raw::CaloRawDigit>  >(fInstanceLabelName);
 
-            art::InputTag ecaltag(fRawDigitLabel, fECALInstanceName);
-            consumes< std::vector<raw::CaloRawDigit> >(ecaltag);
-            produces< std::vector<rec::CaloHit> >(fECALInstanceName);
-            produces< art::Assns<rec::CaloHit, raw::CaloRawDigit>  >(fECALInstanceName);
-
-            //Muon ID
-            fMuIDInstanceName =  p.get<std::string >("MuIDInstanceName", "");
-
-            if(fGeo->HasMuonDetector()) {
-                art::InputTag muidtag(fRawDigitLabel, fMuIDInstanceName);
-                consumes< std::vector<raw::CaloRawDigit> >(muidtag);
-                produces< std::vector<rec::CaloHit> >(fMuIDInstanceName);
-                produces< art::Assns<rec::CaloHit, raw::CaloRawDigit>  >(fMuIDInstanceName);
+            if(fInstanceLabelName.compare("MuID") == 0) {
+                fEncoding = fGeo->GetMuIDCellIDEncoding();
+                fSamplingCorrection = p.get<float>("MuIDSamplingFactorGeV", 1.0);
             }
+
+            fFieldDecoder = new gar::geo::BitFieldCoder( fEncoding );
         }
 
         void SiPMHitFinder::produce(art::Event & e)
         {
             // create an emtpy output hit collection -- to add to.
-            std::unique_ptr< std::vector<rec::CaloHit> > ecalhitCol ( new std::vector< rec::CaloHit > );
-            std::unique_ptr< art::Assns<rec::CaloHit, raw::CaloRawDigit> > ecalRecoDigiHitsAssns( new art::Assns<rec::CaloHit, raw::CaloRawDigit> );
+            std::unique_ptr< std::vector<rec::CaloHit> > hitCol ( new std::vector< rec::CaloHit > );
+            std::unique_ptr< art::Assns<rec::CaloHit, raw::CaloRawDigit> > RecoDigiHitsAssns( new art::Assns<rec::CaloHit, raw::CaloRawDigit> );
 
-            art::PtrMaker<rec::CaloHit> makeCaloHitPtr(e, fECALInstanceName);
+            //Collect the hits to be passed to the algo
+            std::vector< art::Ptr<gar::raw::CaloRawDigit> > artDigiHits;
+            this->CollectDigiHits(e, fRawDigitLabel, fInstanceLabelName, artDigiHits);
 
-            // the input raw digits
-            art::InputTag ecaltag(fRawDigitLabel, fECALInstanceName);
-            auto digiCol = e.getValidHandle< std::vector<raw::CaloRawDigit> >(ecaltag);
+            art::PtrMaker<gar::rec::CaloHit> makeHitPtr(e, fInstanceLabelName);
 
-            for (size_t idigit = 0; idigit < digiCol->size(); ++idigit)
+            for (std::vector< art::Ptr<gar::raw::CaloRawDigit> >::const_iterator iter = artDigiHits.begin(), iterEnd = artDigiHits.end(); iter != iterEnd; ++iter)
             {
-                const raw::CaloRawDigit& digitHit = (*digiCol)[idigit];
+                art::Ptr<gar::raw::CaloRawDigit> digiArtPtr = *iter;
+                const gar::raw::CaloRawDigit &digitHit = *(digiArtPtr.get());
 
                 unsigned int hitADC = digitHit.ADC().first;
                 std::pair<float, float> hitTime = digitHit.Time();
@@ -193,104 +190,40 @@ namespace gar {
 
                 //Store the hit (energy in GeV, time in ns, pos in cm and cellID)
                 unsigned int layer = fFieldDecoder->get(cellID, "layer");
-                rec::CaloHit hit(fECALfactorSamplingGeV * energy * CLHEP::MeV / CLHEP::GeV, time, pos, cellID, layer);
-                ecalhitCol->emplace_back(hit);
+                rec::CaloHit hit(fSamplingCorrection * energy * CLHEP::MeV / CLHEP::GeV, time, pos, cellID, layer);
+                hitCol->emplace_back(hit);
 
                 MF_LOG_DEBUG("SiPMHitFinder") << "recohit " << &hit
                 << " with cellID " << cellID
-                << " has energy " << fECALfactorSamplingGeV * energy * CLHEP::MeV / CLHEP::GeV
+                << " has energy " << fSamplingCorrection * energy * CLHEP::MeV / CLHEP::GeV
                 << " pos (" << pos[0] << ", " <<  pos[1] << ", " << pos[2] << ")";
 
                 //Make association between digi hits and reco hits
-                art::Ptr<rec::CaloHit> hitPtr = makeCaloHitPtr(ecalhitCol->size() - 1);
-                art::Ptr<raw::CaloRawDigit> digiArtPtr = art::Ptr<raw::CaloRawDigit>(digiCol, idigit);
-                ecalRecoDigiHitsAssns->addSingle(hitPtr, digiArtPtr);
+                art::Ptr<rec::CaloHit> hitPtr = makeHitPtr(hitCol->size() - 1);
+                RecoDigiHitsAssns->addSingle(hitPtr, digiArtPtr);
             }
 
             //move the reco hit collection
-            e.put(std::move(ecalhitCol), fECALInstanceName);
-            e.put(std::move(ecalRecoDigiHitsAssns), fECALInstanceName);
-
-            if(fGeo->HasMuonDetector()) {
-                // create an emtpy output hit collection -- to add to.
-                std::unique_ptr< std::vector<rec::CaloHit> > muidhitCol ( new std::vector< rec::CaloHit > );
-                std::unique_ptr< art::Assns<rec::CaloHit, raw::CaloRawDigit> > muidRecoDigiHitsAssns( new art::Assns<rec::CaloHit, raw::CaloRawDigit> );
-
-                art::PtrMaker<rec::CaloHit> makeMuIDHitPtr(e, fMuIDInstanceName);
-
-                // the input raw digits
-                art::InputTag muidtag(fRawDigitLabel, fMuIDInstanceName);
-                auto digiCol = e.getValidHandle< std::vector<raw::CaloRawDigit> >(muidtag);
-
-                for (size_t idigit = 0; idigit < digiCol->size(); ++idigit)
-                {
-                    const raw::CaloRawDigit& digitHit = (*digiCol)[idigit];
-
-                    unsigned int hitADC = digitHit.ADC().first;
-                    std::pair<float, float> hitTime = digitHit.Time();
-                    float x = digitHit.X();
-                    float y = digitHit.Y();
-                    float z = digitHit.Z();
-                    raw::CellID_t cellID = digitHit.CellID();
-
-                    //Do Calibration of the hit in MIPs
-                    float hitMIP = this->CalibrateToMIP(hitADC);
-
-                    if(hitMIP < fMIPThreshold)
-                    {
-                        MF_LOG_DEBUG("SiPMHitFinder") << "Signal under the " << fMIPThreshold << " MIP threshold" << std::endl;
-                        continue;
-                    }
-
-                    //Desaturation
-                    float energy = 0.;
-                    if(fDesaturation)
-                    {
-                        double sat_px = hitMIP * fDetProp->LightYield();
-                        //DeSaturate
-                        double unsat_px = fSiPMUtils->DeSaturate(sat_px);
-
-                        //Calibrate to the MeV scale
-                        double unsat_energy = unsat_px / fDetProp->LightYield();
-                        energy = this->CalibratetoMeV(x, y, z, unsat_energy);
-                    }
-                    else{
-                        //Calibrate to the MeV scale
-                        energy = this->CalibratetoMeV(x, y, z, hitMIP);
-                    }
-
-                    //Position reconstruction based on time for the strips
-                    float pos[3] = {0., 0., 0.};
-                    std::pair<float, float> time;
-
-                    std::array<double, 3> strip_pos = this->CalculateStripHitPosition(x, y, z, hitTime, cellID);
-                    pos[0] = strip_pos[0];
-                    pos[1] = strip_pos[1];
-                    pos[2] = strip_pos[2];
-                    time = std::make_pair( this->CorrectStripHitTime(pos[0], pos[1], pos[2], hitTime, cellID), 0. );
-
-                    //Store the hit (energy in GeV, time in ns, pos in cm and cellID)
-                    unsigned int layer = fFieldDecoder->get(cellID, "layer");
-                    rec::CaloHit hit(energy * CLHEP::MeV / CLHEP::GeV, time, pos, cellID, layer);
-                    muidhitCol->emplace_back(hit);
-
-                    MF_LOG_DEBUG("SiPMHitFinder") << "recohit " << &hit
-                    << " with cellID " << cellID
-                    << " has energy " << energy * CLHEP::MeV / CLHEP::GeV
-                    << " pos (" << pos[0] << ", " <<  pos[1] << ", " << pos[2] << ")";
-
-                    //Make association between digi hits and reco hits
-                    art::Ptr<rec::CaloHit> hitPtr = makeMuIDHitPtr(muidhitCol->size() - 1);
-                    art::Ptr<raw::CaloRawDigit> digiArtPtr = art::Ptr<raw::CaloRawDigit>(digiCol, idigit);
-                    muidRecoDigiHitsAssns->addSingle(hitPtr, digiArtPtr);
-                }
-
-                //move the reco hit collection
-                e.put(std::move(muidhitCol), fMuIDInstanceName);
-                e.put(std::move(muidRecoDigiHitsAssns), fMuIDInstanceName);
-            }
+            e.put(std::move(hitCol), fInstanceLabelName);
+            e.put(std::move(RecoDigiHitsAssns), fInstanceLabelName);
 
             return;
+        }
+
+        //----------------------------------------------------------------------------
+        void SiPMHitFinder::CollectDigiHits(const art::Event &evt, const std::string &label, const std::string &instance, std::vector< art::Ptr<gar::raw::CaloRawDigit> > &hitVector)
+        {
+            art::Handle< std::vector<gar::raw::CaloRawDigit> > theHits;
+            evt.getByLabel(label, instance, theHits);
+
+            if (!theHits.isValid())
+            return;
+
+            for (unsigned int i = 0; i < theHits->size(); ++i)
+            {
+                const art::Ptr<gar::raw::CaloRawDigit> hit(theHits, i);
+                hitVector.push_back(hit);
+            }
         }
 
         //----------------------------------------------------------------------------
