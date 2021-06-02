@@ -54,11 +54,13 @@ namespace gar{
             int   trackID;      ///< Geant4 trackID, as modified by ParticleListAction::PreTrackingAction
             float energyFrac;   ///< fraction of gar::rec::Hit energy from the particle with this trackID
             float energyTot;    ///< total energy for this trackID.  In units of probably-GeV.
+            TLorentzVector position; ///< deposited energy-weighted mean true 4-position [cm,ns]
+            TLorentzVector momentum; ///< deposited energy-weighted mean true 4-momentum [GeV/c,GeV]
 
             HitIDE() {}
 
-            HitIDE(int id, float ef, float e)
-                : trackID(id), energyFrac(ef), energyTot(e) {}
+            HitIDE(int id, float ef, float e, const TLorentzVector& pos, const TLorentzVector& mom)
+                : trackID(id), energyFrac(ef), energyTot(e), position(pos), momentum(mom) {}
         };
         struct CalIDE {
             int   trackID;      ///< Geant4 trackID, as modified by ParticleListAction::PreTrackingAction
@@ -229,6 +231,8 @@ namespace gar{
             std::vector<CalIDE>
             CellIDToCalIDEs(raw::CellID_t const& cellID, float const time) const;
 
+
+  	    TLorentzVector EnergyDepositToMomentum(const int& trackID, const TLorentzVector& position, size_t& startTrajIndex) const;
 
 
         protected:

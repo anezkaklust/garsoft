@@ -332,6 +332,7 @@ namespace gar{
             fGeo->ChannelToPosition(channel, chanpos);
 
             double totalEallTracks = 0.0;
+            size_t itraj=0;
             for (auto const& edep : chanEDeps) {
 
                 if (edep->TrackID() == sdp::NoParticleId) continue;
@@ -341,6 +342,13 @@ namespace gar{
                 if ( (unsigned int)start <= tdc && tdc <= (unsigned int)stop) {
                     float energy = edep->Energy();
                     totalEallTracks += energy;
+
+                    TLorentzVector simpos(edep->X(),edep->Y(),edep->Z(),edep->Time());
+                    TLorentzVector simmom = EnergyDepositToMomentum(edep->TrackID(),simpos,itraj);
+                    simpos *= energy;
+                    simmom *= energy;
+
+
                     // EnergyDeposits can contain negative track IDs corresponding to tracks
                     // created in showers.  The absolute magnitude of the track is the track
                     // id of the parent of the EM showering process.  That is the particle
@@ -348,10 +356,12 @@ namespace gar{
                     int tid = abs( edep->TrackID() );
                     auto tidmapiter = tidmap.find(tid);
                     if (tidmapiter == tidmap.end()) {
-                        hitIDEs.emplace_back(tid, 0.0, energy);
+                        hitIDEs.emplace_back(tid, 0.0, energy, simpos, simmom);
                         tidmap[tid] = hitIDEs.size()-1;
                     } else {
                         hitIDEs.at(tidmapiter->second).energyTot += energy;
+                        hitIDEs.at(tidmapiter->second).position += simpos;
+                        hitIDEs.at(tidmapiter->second).momentum += simmom;
                     }
                 }
             }
@@ -365,6 +375,8 @@ namespace gar{
             // loop over the hitIDEs to set the fractional energy for each TrackID
             for (size_t i = 0; i < hitIDEs.size(); ++i) {
                 hitIDEs[i].energyFrac = hitIDEs[i].energyTot / totalEallTracks;
+                hitIDEs[i].position *= 1.0/totalEallTracks;
+                hitIDEs[i].momentum *= 1.0/totalEallTracks;
             }
             return hitIDEs;
         }
@@ -910,6 +922,32 @@ namespace gar{
             return retval;
         }
 
+        //----------------------------------------------------------------------
+        TLorentzVector BackTrackerCore::EnergyDepositToMomentum(const int& trackID, 
+                              const TLorentzVector& position, size_t& startTrajIndex) const {
+
+            auto const& mcp = TrackIDToParticle(trackID); // MCParticle
+            float dr=FLT_MAX, dt=FLT_MAX; // spatial and temporal distance
+
+            // stepping through the trajectory, the distance should decrease until
+            // min dist found (could be starting point)
+            for(;startTrajIndex<mcp->NumberTrajectoryPoints(); startTrajIndex++){
+
+                if( (position - mcp->Position(startTrajIndex)).Vect().Mag() < dr &&
+                  abs((position - mcp->Position(startTrajIndex)).T()) < dt) {
+
+                    dr = (position - mcp->Position(startTrajIndex)).Vect().Mag();
+                    dt = abs((position - mcp->Position(startTrajIndex)).T());
+                }
+                else {
+		    break;
+                }
+
+            }// for trajectory points
+
+            return  mcp->Momentum(startTrajIndex);
+
+        }// def EnergyDepositToMomentum()
 
     } // cheat
 } // gar
