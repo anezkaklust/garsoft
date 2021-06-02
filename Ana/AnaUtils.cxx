@@ -6,9 +6,7 @@
 //#ifndef GAR_ANAUTILS_cxx
 //#define GAR_ANAUTILS_cxx
 
-#include "AnalysisDataProducts/AnaUtils.h"
-//#include "nusimdata/SimulationBase/MCParticle.h"
-
+#include "AnaUtils.h"
 #include <iostream>
 
 using std::vector;
@@ -47,7 +45,7 @@ namespace gar{
 
 
     //////////////////////////////////////////////
-    garana::CaloCluster MakeAnaCalCluster(const rec::Cluster& clust, const std::vector<std::pair<int,float>>& edeps) {
+    garana::CaloCluster MakeAnaCalCluster(const rec::Cluster& clust, const int& region, const std::vector<std::pair<int,float>>& edeps) {
 
        TLorentzVector pos( clust.Position()[0], clust.Position()[1], clust.Position()[2], clust.Time() );
 
@@ -59,7 +57,7 @@ namespace gar{
            vecs.push_back(eig);
        }
 
-       garana::CaloCluster outclust(pos, clust.Energy(), clust.EnergyError(), clust.TimeDiffFirstLast(),
+       garana::CaloCluster outclust(pos, region, clust.Energy(), clust.EnergyError(), clust.TimeDiffFirstLast(),
                                     clust.Shape(), clust.ITheta(), clust.IPhi(), vecs, edeps );
         
        return outclust;
@@ -228,7 +226,7 @@ namespace gar{
 
     }
 
-    void ChangeToTpcCoords(garana::GTruth& gt,         const TLorentzVector& origin) {
+    /*void ChangeToTpcCoords(garana::GTruth& gt,         const TLorentzVector& origin) {
         gt
     }
 
@@ -254,7 +252,7 @@ namespace gar{
     
     void ChangeToTpcCoords(garana::FSParticle& g4p,    const TLorentzVector& origin) {
 
-    }
+    }*/
 
 
 }//namespace

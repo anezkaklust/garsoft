@@ -33,10 +33,6 @@
 #include "nusimdata/SimulationBase/MCTruth.h"
 #include "nusimdata/SimulationBase/MCParticle.h"
 
-//garana includes
-//#include "garana/DataProducts/GTruth.h"
-//#include "garana/DataProducts/FSParticle.h"
-
 //garsoft includes
 #include "SimulationDataProducts/EnergyDeposit.h"
 #include "SimulationDataProducts/SimChannel.h"
@@ -53,13 +49,10 @@
 #include "ReconstructionDataProducts/Cluster.h"
 
 #include "RawDataProducts/CaloRawDigit.h"
+#include "SummaryDataProducts/RunData.h"
+#include "SummaryDataProducts/POTSummary.h"
 
-#include "AnalysisDataProducts/GarGTruth.h"
-#include "AnalysisDataProducts/GarFSParticle.h"
-#include "AnalysisDataProducts/GarG4Particle.h"
-#include "AnalysisDataProducts/MCDisplayTrack.h"
-#include "AnalysisDataProducts/AnaTrack.h"
-#include "AnalysisDataProducts/AnaUtils.h"
+#include "AnaUtils.cxx"
 
 #include "MCCheater/BackTracker.h"
 
@@ -83,7 +76,6 @@
 #include <iostream>
 
 //save ourselves some typing
-using namespace gar;
 using std::vector;
 using std::string;
 using std::pair;
@@ -111,6 +103,7 @@ namespace gar {
         StructuredTree & operator = (StructuredTree &&) = delete;
 
         virtual void beginJob() override;
+	virtual void endRun(art::Run const& run) override;
 
         // Required functions.
         void analyze( Event const & e ) override;
@@ -138,7 +131,11 @@ namespace gar {
         // Calculate the track PID based on reco momentum and Tom's parametrization
         vector< pair<int, float> > processPIDInfo( float p );
 
+        float xTPC;
+        float rTPC;
+
         // Input data labels
+        string fPOTtag;
         string fGeantLabel; ///< module label for geant4 simulated hits
         string fGeantInstanceCalo; ///< Instance name ECAL for sdp::CaloDeposit
         string fGeantInstanceMuID; ///< Instance name MuID for sdp::CaloDeposit
@@ -189,7 +186,11 @@ namespace gar {
         Int_t fEvent;        ///< number of the event being processed
         Int_t fRun;          ///< number of the run being processed
         Int_t fSubRun;       ///< number of the sub-run being processed
-       
+	Int_t fPOT;
+        Int_t fNSpills;
+	TLorentzVector fTpcCenter;
+        std::string fGeometry;      
+ 
         // headerTree
         string   fTreeType; ///<"structured" (in our case yes) or "flat" (no)
 
@@ -249,7 +250,7 @@ namespace gar {
         vector<vector<UInt_t>>    fCalG4PIndices; ///< index of fG4Particles associated with fCalClusters
 
         // displayTree
-        vector<adp::MCDisplayTrack>     fMCDisplay;   ///< sparsified MCTrajectory
+        //vector<adp::MCDisplayTrack>     fMCDisplay;   ///< sparsified MCTrajectory
         vector<rec::TrackTrajectory>    fRecoDisplay; ///< reconstructed track trajectory points
 
         //map of PID TH2 per momentum value
@@ -372,33 +373,44 @@ gar::StructuredTree::StructuredTree(fhicl::ParameterSet const & p)
 //==============================================================================
 void gar::StructuredTree::beginJob() {
 
+    fTreeType = "structured";
+    fTpcCenter.SetXYZT(fGeo->TPCXCent(),fGeo->TPCYCent(),fGeo->TPCZCent(),0.);
+    xTPC = fGeo->TPCLength() / 2.;
+    rTPC = fGeo->TPCRadius();
+    fGeometry = fGeo->GDMLFile();
+
     art::ServiceHandle<art::TFileService> tfs;
 
     // headerTree
     fHeaderTree  = tfs->make<TTree>("headerTree", "sample provenance information");
-    fHeaderTree->Branch("Run",           &fRun,         "Run/I");
-    fHeaderTree->Branch("SubRun",        &fSubRun,      "SubRun/I");
-    fHeaderTree->Branch("TreeType",      "std::string", &fTreeType);
+    fHeaderTree->Branch("Run",           &fRun,            "Run/I");
+    fHeaderTree->Branch("SubRun",        &fSubRun,         "SubRun/I");
+    fHeaderTree->Branch("TreeType",      "std::string",    &fTreeType);
+    fHeaderTree->Branch("POT",           &fPOT,            "POT/I");
+    fHeaderTree->Branch("NSpills",       &fNSpills,        "NSpills/I");
+    fHeaderTree->Branch("Geometry",      "std::string",    &fGeometry);
+    fHeaderTree->Branch("TpcCenter",     "TLorentzVector", &fTpcCenter); 
+
     // genTree
     fGenTree     = tfs->make<TTree>("genTree",    "generator level info");
     fGenTree->Branch("Event",        &fEvent,       "Event/I");
-    fGenTree->Branch("GIndex",       "vector<Int_t>",  &fGIndex);
-    fGenTree->Branch("GTruth",       "vector<garana::GTruth>",  &fGTruth);
-    fGenTree->Branch("FSParticles",  "vector<vector<garana::FSParticle>>", &fFSParticles);
+    fGenTree->Branch("GIndex",       "std::vector<Int_t>",  &fGIndex);
+    fGenTree->Branch("GTruth",       "std::vector<garana::GTruth>",  &fGTruth);
+    fGenTree->Branch("FSParticles",  "std::vector<std::vector<garana::FSParticle>>", &fFSParticles);
 
     // g4Tree
     fG4Tree      = tfs->make<TTree>("g4Tree",     "GEANT4 level info");
     fG4Tree->Branch("Event",        &fEvent,       "Event/I");
-    fG4Tree->Branch("TruthIndex",   "vector<UInt_t>", &fG4TruthIndex);
-    fG4Tree->Branch("FSIndex",      "vector<UInt_t>", &fG4FSIndex);
-    fG4Tree->Branch("G4Particles",  "vector<garana::G4Particle>",  &fG4Particles);
+    fG4Tree->Branch("TruthIndex",   "std::vector<UInt_t>", &fG4TruthIndex);
+    fG4Tree->Branch("FSIndex",      "std::vector<UInt_t>", &fG4FSIndex);
+    fG4Tree->Branch("G4Particles",  "std::vector<garana::G4Particle>",  &fG4Particles);
     if(fAnaMode == "reco" || fAnaMode == "readout"){
-        fG4Tree->Branch("CalHits.", "vector<sdp::CaloDeposit>", &fSimCalHits);
-        fG4Tree->Branch("TPCHits", "vector<sdp::EnergyDeposit>", &fSimTPCHits);
+        fG4Tree->Branch("CalHits.", "std::vector<sdp::CaloDeposit>", &fSimCalHits);
+        fG4Tree->Branch("TPCHits", "std::vector<sdp::EnergyDeposit>", &fSimTPCHits);
         //fG4Tree->Branch("CalHitsG4Indices.", "vector<UInt_t>", &fSimCalHitsG4P);
         //fG4Tree->Branch("TPCHitsG4Indices", "vector<UInt_t>", &fSimTPCHitsG4P);
         if(fGeo->HasMuonDetector()){
-            fG4Tree->Branch("MuIDHits.", "vector<sdp::CaloDeposit>", &fSimMuHits);
+            fG4Tree->Branch("MuIDHits.", "std::vector<sdp::CaloDeposit>", &fSimMuHits);
             //fG4Tree->Branch("MuIDHitsG4Indices.", "vector<sdp::CaloDeposit>", &fSimMuHitsG4P);
         }
     }
@@ -406,9 +418,9 @@ void gar::StructuredTree::beginJob() {
     if (fWriteDisplay) {
         fDisplayTree = tfs->make<TTree>("displayTree","truth/reco level traj points for event display");
         fDisplayTree->Branch("Event",         &fEvent,       "Event/I");
-        fDisplayTree->Branch("MCTracks", "vector<MCDisplayTrack>",   &fMCDisplay);
+        //fDisplayTree->Branch("MCTracks", "std::vector<adp::MCDisplayTrack>",   &fMCDisplay);
         if(fAnaMode!="readout"){
-            fDisplayTree->Branch("RecoTracks", "vector<adp::AnaTrack>",   &fRecoDisplay);
+            fDisplayTree->Branch("RecoTracks", "std::vector<garana::Track>",   &fRecoDisplay);
         }
 
     }
@@ -416,10 +428,10 @@ void gar::StructuredTree::beginJob() {
     if(fAnaMode=="readout"){
         fDetTree     = tfs->make<TTree>("detTree",    "detector readout level info");
         fDetTree->Branch("Event",         &fEvent,       "Event/I");
-        fDetTree->Branch("TPCDigits",   "vector<gar::raw::RawDigit>",     &fTPCDigits);
-        fDetTree->Branch("CaloDigits.", "vector<gar::raw::CaloDigit>",    &fCaloDigits);
+        fDetTree->Branch("TPCDigits",   "std::vector<gar::raw::RawDigit>",     &fTPCDigits);
+        fDetTree->Branch("CaloDigits.", "std::vector<gar::raw::CaloDigit>",    &fCaloDigits);
         if(fGeo->HasMuonDetector()){
-            fDetTree->Branch("MuDigits.", "vector<gar::raw::CaloDigit>",    &fMuDigits);
+            fDetTree->Branch("MuDigits.", "std::vector<gar::raw::CaloDigit>",    &fMuDigits);
         }
 
         return; //probably don't want reco info for readout simulation analysis unless doing hit reco ana
@@ -428,29 +440,29 @@ void gar::StructuredTree::beginJob() {
     //recoTree
     fRecoTree    = tfs->make<TTree>("recoTree",   "reconstruction level info");
     fRecoTree->Branch("Event",            &fEvent,                      "Event/I");
-    fRecoTree->Branch("Tracks",           "vector<garana::Track>",      &fTracks);
-    fRecoTree->Branch("Vees",             "vector<garana::Vee>",      &fVees);
-    fRecoTree->Branch("Vertices",         "vector<garana::Vertex>",   &fVertices);
-    fRecoTree->Branch("CalClusters",      "vector<garana::CaloCluster>",  &fCalClusters);
-    fRecoTree->Branch("TrackG4Indices",   "vector<vector<UInt_t>>",     &fTrackG4PIndices);
-    fRecoTree->Branch("VertTrackIndices", "vector<vector<UInt_t>>",     &fVertTrackIndices);
-    fRecoTree->Branch("VertTrackEnds",    "vector<vector<Int_t>>",      &fVertTrackEnds);
-    fRecoTree->Branch("VeeTrackIndices",  "vector<vector<UInt_t>>",     &fVeeTrackIndices);
-    fRecoTree->Branch("VeeTrackEnds",     "vector<vector<Int_t>>",      &fVeeTrackEnds);
-    fRecoTree->Branch("CalTrackIndices",  "vector<vector<UInt_t>>",     &fCalTrackIndices);
-    //fRecoTree->Branch("CalTrackEnds",   "vector<vector<Int_t>>", &fCalTrackEnds);
-    fRecoTree->Branch("CalG4Indices",     "vector<vector<UInt_t>>",     &fCalG4PIndices);
+    fRecoTree->Branch("Tracks",           "std::vector<garana::Track>",      &fTracks);
+    fRecoTree->Branch("Vees",             "std::vector<garana::Vee>",      &fVees);
+    fRecoTree->Branch("Vertices",         "std::vector<garana::Vertex>",   &fVertices);
+    fRecoTree->Branch("CalClusters",      "std::vector<garana::CaloCluster>",  &fCalClusters);
+    fRecoTree->Branch("TrackG4Indices",   "std::vector<std::vector<UInt_t>>",     &fTrackG4PIndices);
+    fRecoTree->Branch("VertTrackIndices", "std::vector<std::vector<UInt_t>>",     &fVertTrackIndices);
+    fRecoTree->Branch("VertTrackEnds",    "std::vector<std::vector<Int_t>>",      &fVertTrackEnds);
+    fRecoTree->Branch("VeeTrackIndices",  "std::vector<std::vector<UInt_t>>",     &fVeeTrackIndices);
+    fRecoTree->Branch("VeeTrackEnds",     "std::vector<std::vector<Int_t>>",      &fVeeTrackEnds);
+    fRecoTree->Branch("CalTrackIndices",  "std::vector<std::vector<UInt_t>>",     &fCalTrackIndices);
+    //fRecoTree->Branch("CalTrackEnds",   "std::vector<std::vector<Int_t>>", &fCalTrackEnds);
+    fRecoTree->Branch("CalG4Indices",     "std::vector<std::vector<UInt_t>>",     &fCalG4PIndices);
     if(fGeo->HasMuonDetector()){
-            fRecoTree->Branch("MuIDClusters", "vector<garana::CaloCluster>",   &fMuClusters);
+            fRecoTree->Branch("MuIDClusters", "std::vector<garana::CaloCluster>",   &fMuClusters);
     }
 
     //TODO: add Assns for reco r&d products
     if(fAnaMode == "reco"){
-        fRecoTree->Branch("TPCHits",       "vector<gar::rec::Hit>",        &fTPCHits);
-        fRecoTree->Branch("TPCClusters",   "vector<gar::rec::TPCCluster>", &fTPCClusters);
-        fRecoTree->Branch("CalHits",       "vector<gar::rec::CaloHit>",    &fCalHits);
+        fRecoTree->Branch("TPCHits",       "std::vector<gar::rec::Hit>",        &fTPCHits);
+        fRecoTree->Branch("TPCClusters",   "std::vector<gar::rec::TPCCluster>", &fTPCClusters);
+        fRecoTree->Branch("CalHits",       "std::vector<gar::rec::CaloHit>",    &fCalHits);
         if(fGeo->HasMuonDetector()){
-            fRecoTree->Branch("MuIDHits",       "vector<gar::rec::CaloHit>", &fMuHits);
+            fRecoTree->Branch("MuIDHits",       "std::vector<gar::rec::CaloHit>", &fMuHits);
         }
     }
 
@@ -492,6 +504,31 @@ void gar::StructuredTree::beginJob() {
 
 }  // End of StructuredTree::beginJob
 
+////==============================================================================
+////==============================================================================
+////==============================================================================
+void gar::StructuredTree::endRun(art::Run const& run) {
+
+   auto const& ID = run.id();
+
+    art::Handle<sumdata::POTSummary> summaryHandle;
+    if (!run.getByLabel(fPOTtag, summaryHandle)) {
+        MF_LOG_DEBUG("anatree") << " No sumdata::POTSummary branch for run " << ID
+        <<" Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+        return;
+    }
+
+    sumdata::POTSummary const& RunPOT = *summaryHandle;
+    fPOT = RunPOT.TotalPOT();
+    fNSpills = RunPOT.TotalSpills();
+
+    fHeaderTree->Fill();
+
+    MF_LOG_INFO("anatree") << "POT for this file is " << fPOT
+    << " The number of spills is " << fNSpills;
+
+}
+
 //==============================================================================
 //==============================================================================
 //==============================================================================
@@ -511,13 +548,6 @@ void gar::StructuredTree::analyze(art::Event const & e) {
     fRun    = e.run();
     fSubRun = e.subRun();
     fEvent  = e.id().event();
-
-    //only need to fill header tree once
-    if(fHeaderTree->GetEntries()==0){
-        mf::LogDebug("StructuredTree") << "fill header tree";
-        fTreeType = "structured";
-        fHeaderTree->Fill();
-    }
 
     //Fill generator and MC Information
     mf::LogDebug("StructuredTree") << "fill truth level info";
@@ -577,7 +607,7 @@ void gar::StructuredTree::ClearVectors() {
 
     // displayTree
     if (fWriteDisplay) {
-        fMCDisplay.clear();
+        //fMCDisplay.clear();
         fRecoDisplay.clear();
     }
 
@@ -676,6 +706,8 @@ void gar::StructuredTree::FillGenTree(art::Event const & e) {
 
             auto const& mct = mcthandle->at(imct); //MCTruth
             fMCTruths.push_back(&mct);
+            //if(fEvent==994)
+		//std::cout << "neutrino in event 994 has CCNC = " << mct.GetNeutrino().CCNC() << std::endl;
 
             //check if MCTruth produced by GENIE
             //TO DO: we might not want to make all nu samples reweightable
@@ -684,16 +716,24 @@ void gar::StructuredTree::FillGenTree(art::Event const & e) {
             //       Dirt - probably not
             if(mct.GeneratorInfo().generator == simb::_ev_generator::kGENIE) {
                 // for GTruth handles...
-                for (size_t igthl = 0; igthl < gthandlelist.size(); ++igthl) {
+                //for (size_t igthl = 0; igthl < gthandlelist.size(); ++igthl) {
+                for (auto const& gth : gthandlelist) {
 
+                    auto const& gt = (*gth).at(0);
+			
                     // only expect one GTruth per MCTruth
-                    if((*gthandlelist.at(igthl)).size()!=1) 
+                    //if((*gthandlelist.at(igthl)).size()!=1) 
+                    if((*gth).size()!=1)
                         throw cet::exception("StructuredTree") 
                                 << "more than 1 GTruth in MCTruth! ("
-                                << (*gthandlelist.at(igthl)).size() << ")";
+                                //<< (*gthandlelist.at(igthl)).size() << ")";
+                                << (*gth).size() << ")";
 
-                    adp::GarGTruth gt((*gthandlelist.at(igthl)).at(0));
-                    fGTruth.push_back(gt.GetGaranaObj());
+                    //adp::GarGTruth gt((*gthandlelist.at(igthl)).at(0));
+                    // need to convert vertex units from meters to cm for GENIE data
+                    garana::GTruth gtout = MakeAnaGTruth( gt, fRegionNameToID.at( PointToRegion(100*gt.fVertex.Vect()) ) );
+                    gtout.fVertex -= fTpcCenter;
+                    fGTruth.push_back(gtout); //MakeAnaGTruth( gt, fRegionNameToID.at( PointToRegion(100*gt.fVertex.Vect()) ) ) );
                     fGIndex.push_back(fGIndex.size());
                 }
                 mf::LogDebug("StructuredTree::FillGenTree")
@@ -719,8 +759,7 @@ void gar::StructuredTree::FillGenTree(art::Event const & e) {
                         << mcp.Position(0).T() << "), and "
                         << (int)mcp.NumberTrajectoryPoints() << " trajectory points";
 
-                    GarFSParticle gfsp(mcp);
-                    fFSParticles.back().push_back(gfsp.GetGaranaObj());
+                    fFSParticles.back().push_back(MakeFSParticle(mcp));
 
                 }//if FS particle
             }//for MCParticles
@@ -743,6 +782,10 @@ void gar::StructuredTree::FillG4Tree( Event const & e) {
 
     //loop over MCParticles
     for ( auto mcp : *MCPHandle ) {
+
+	//if(abs(mcp.PdgCode())==12 || abs(mcp.PdgCode())==14)
+	//    std::cout << "neutrino MCParticle??? (PDG = " << mcp.PdgCode() 
+        //              << " | trackID = " << mcp.TrackId() << ")" << std::endl;
 
         fMCParticles.push_back(&mcp);
 	//std::cout << "MCParticle created in " << fGeo->VolumeName(mcp.Position(0).Vect()) << std::endl;
@@ -860,8 +903,7 @@ void gar::StructuredTree::FillG4Tree( Event const & e) {
         if(momenta.size()!=regions.size()) std::cout << "G4Particle: positions/momenta - regions size mismatch" << std::endl;
 
         // make a G4Particle
-        GarG4Particle g4p(mcp,parentPdg,progenitorPdg,progenitorId,positions,momenta,regions,npointsPerRegion);
-        fG4Particles.push_back(g4p.GetGaranaObj());
+        fG4Particles.push_back(MakeG4Particle(mcp,parentPdg,progenitorPdg,progenitorId,positions,momenta,regions,npointsPerRegion));
 
         /*bool foundfs = false;
         for(UInt_t index=0; index<fFSParticles.size(); index++) {
@@ -916,8 +958,8 @@ void gar::StructuredTree::FillG4Tree( Event const & e) {
             //No charge don't store the trajectory
             //if (definition==nullptr || definition->Charge() == 0) continue;
 
-            adp::MCDisplayTrack mcdis(mcp);
-            fMCDisplay.push_back(mcdis);
+            //adp::MCDisplayTrack mcdis(mcp);
+            //fMCDisplay.push_back(mcdis);
         }
 
     }//for MCParticles
@@ -1151,7 +1193,7 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
             }
         }
 
-       // std::cout << "found " << indices.size() << " track <-> G4P matches" << std::endl;
+        // std::cout << "found " << indices.size() << " track <-> G4P matches" << std::endl;
         fTrackG4PIndices.push_back(indices);
 
         //Reconstructed momentum forward and backward
@@ -1166,9 +1208,34 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
             processIonizationInfo(ionization, fIonizTruncate, avgIonF, avgIonB);
         } 
 
-        adp::AnaTrack anatrk(track, pidF, pidB, avgIonF, avgIonB);
-        trackIDs.push_back(anatrk.TrackID());
-        fTracks.push_back(anatrk.GaranaTrack());
+        // track truth-matching info
+        TVector3 trkVtx(track.Vertex()[0],track.Vertex()[1],track.Vertex()[2]);
+        vector<art::Ptr<rec::Hit>> hits = fBt->TrackToHits(&track); // not time ordered
+        std::sort(hits.begin(),hits.end(),
+          [trkVtx] ( const art::Ptr<rec::Hit>& hl, const art::Ptr<rec::Hit>& hr ) -> bool {
+                 TVector3 rhitl(hl->Position()[0],hl->Position()[1],hl->Position()[2]);
+                 TVector3 rhitr(hr->Position()[0],hr->Position()[1],hr->Position()[2]);
+                 return (trkVtx-rhitl).Mag() < (trkVtx-rhitr).Mag(); 
+          });
+
+	// first and last rec::Hit
+        auto hitIdesBeg = fBt->HitToHitIDEs(*(hits.begin()));
+        auto hitIdesEnd = fBt->HitToHitIDEs(*(hits.end()-1));
+        vector<pair<UInt_t,TLorentzVector>> truePosBeg, trueMomBeg, truePosEnd, trueMomEnd;
+
+        for(auto const& ide : hitIdesBeg) {
+            truePosBeg.push_back(std::make_pair(ide.trackID , ide.position));
+            trueMomBeg.push_back(std::make_pair(ide.trackID , ide.momentum));
+        }
+
+        for(auto const& ide : hitIdesEnd) {
+            truePosEnd.push_back(std::make_pair(ide.trackID , ide.position));
+            trueMomEnd.push_back(std::make_pair(ide.trackID , ide.momentum));
+        }
+
+        // make a garana::Track
+        trackIDs.push_back(track.getIDNumber());
+        fTracks.push_back(MakeAnaTrack(track, pidF, pidB, avgIonF, avgIonB,truePosBeg,truePosEnd,trueMomBeg,trueMomEnd));
 
         iTrack++;
     } //for tracks
@@ -1250,13 +1317,20 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
 
     // Get info for ECal clusters and for ECAL-matched tracks
     size_t iCluster = 0;
+    size_t n0edep = 0; // number of clusters with no associated true energy deposits
     for ( auto cluster : *CalClusterHandle ) {
 
+	size_t n0ide=0; // number of hits with no associated CalIDEs
         vector<std::pair<int,float>> edeps; // trackID , true deposited energy [GeV]
+	std::string regionName = PointToRegion(TVector3(cluster.Position()));  //fGeo->VolumeName(mcp.Position(ipt).Vect());
+        int clustreg = fRegionNameToID.at(regionName);
         const vector<art::Ptr<rec::CaloHit>> hits = fBt->ClusterToCaloHits(&cluster);
+        //if(hits.size()==0) std::cout << "cluster " << iCluster << ": hits is empty!" << std::endl;
+        //else std::cout << "cluster " << iCluster << " with " << hits.size() << " hits" << std::endl;
         for(auto const& hit : hits) {
 
             auto const& ides = fBt->CaloHitToCalIDEs(hit);
+            if(ides.size()==0) n0ide++; //std::cout << "have a hit, but ides is empty!" << std::endl;
             for(auto const& ide : ides) {
 
                 std::pair<int,float> trkdep = std::make_pair(ide.trackID,ide.energyTot);
@@ -1271,9 +1345,19 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
 
         }// for calo hits
 
-	if(edeps.size()==0) std::cout << "have a cluster, but edeps is empty!" << std::endl;
+	if(hits.size()!=0 && n0ide>0) mf::LogDebug("FillHighLevelReco") 
+                                                << "     hits with no IDEs: " << n0ide << " of " << hits.size() 
+                                                << " hits affected (" << 100.0*(hits.size()-n0ide)/hits.size() 
+                                                << " %)"; // << std::endl;
 
-        fCalClusters.push_back(MakeAnaCalCluster(cluster,edeps));
+	if(edeps.size()==0) {
+            mf::LogDebug("FillHighLevelReco") << "have a cluster, but edeps is empty!";
+            edeps.push_back({-1,-1});
+            n0edep++;
+        }
+	//else std::cout << "  found " << edeps.size() << "  truth edeps" << std::endl;
+
+        fCalClusters.push_back(MakeAnaCalCluster(cluster,clustreg,edeps));
         fCalTrackIndices.push_back({});
         fCalTrackEnds.push_back({});
         fCalG4PIndices.push_back({});
@@ -1331,6 +1415,9 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
 
         iCluster++;
     }// for ECal clusters
+    //std::cout << "number ECal clusters: " << iCluster << std::endl;
+    //std::cout << "cluster truth matching 'efficiency': " << 1.0*(iCluster-n0edep)/iCluster << std::endl;
+
 
     return;
 

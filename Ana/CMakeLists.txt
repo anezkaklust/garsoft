@@ -2,13 +2,17 @@ include_directories( $ENV{GEANT4_FQ_DIR}/include )
 include_directories( $ENV{NUTOOLS_DIR}/include   )
 include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
 
-art_make(BASENAME_ONLY
-      MODULE_LIBRARIES Geometry
+art_make(
+	BASENAME_ONLY
+	LIB_LIBRARIES GaranaProducts
+		      ReconstructionDataProducts
+		      nusimdata_SimulationBase
+		      ${ROOT_BASIC_LIB_LIST}
+        MODULE_LIBRARIES Geometry
                        ReadoutSimulation
                        SimulationDataProducts
                        RawDataProducts
                        ReconstructionDataProducts
-                       AnalysisDataProducts
                        MCCheater_BackTracker_service
                        nusimdata_SimulationBase
                        nurandom_RandomUtils_NuRandomService_service

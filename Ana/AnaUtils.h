@@ -41,24 +41,24 @@ namespace gar{
                                        const vector<pair<TLorentzVector,TLorentzVector>>& momenta, const vector<int>& regions,
                                        const vector<size_t>& nptsPerRegion);
 
-    garana::Track       MakeAnaTrack(const rec::Track& trk, const vector<pair<int,float>>& pidf,
+    const garana::Track       MakeAnaTrack(const rec::Track& trk, const vector<pair<int,float>>& pidf,
                                      const vector<pair<int,float>>& pidb, float ionf, float ionb, 
                                      const vector<pair<UInt_t,TLorentzVector>>& posBeg, 
                                      const vector<pair<UInt_t,TLorentzVector>>& posEnd,
                                      const vector<pair<UInt_t,TLorentzVector>>& momBeg, 
                                      const vector<pair<UInt_t,TLorentzVector>>& momEnd);
         
-    garana::CaloCluster MakeAnaCalCluster(const rec::Cluster& clust, const vector<pair<int,float>>& edeps);
+    garana::CaloCluster MakeAnaCalCluster(const rec::Cluster& clust, const int& region, const vector<pair<int,float>>& edeps);
     garana::Vee         MakeAnaVee(const rec::Vee& vee);
     garana::Vertex      MakeAnaVtx(const rec::Vertex& vtx);
     
-    void ChangeToTpcCoords(garana::GTruth& gt,         const TLorentzVector& origin);
+    /*void ChangeToTpcCoords(garana::GTruth& gt,         const TLorentzVector& origin);
     void ChangeToTpcCoords(garana::Track& track,       const TLorentzVector& origin);
     void ChangeToTpcCoords(garana::CaloCluster& clust, const TLorentzVector& origin);
     void ChangeToTpcCoords(garana::Vertex& vtx,        const TLorentzVector& origin);
     void ChangeToTpcCoords(garana::Vee& vee,           const TLorentzVector& origin);
     void ChangeToTpcCoords(garana::G4Particle& g4p,    const TLorentzVector& origin);
-    void ChangeToTpcCoords(garana::FSParticle& g4p,    const TLorentzVector& origin);
+    void ChangeToTpcCoords(garana::FSParticle& g4p,    const TLorentzVector& origin);*/
 }
 
 #endif
