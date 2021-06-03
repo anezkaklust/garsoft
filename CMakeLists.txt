@@ -95,6 +95,8 @@ add_subdirectory (Ana)
 add_subdirectory (Filters)
 add_subdirectory (StandardRecord)
 
+cet_find_library( GaranaProducts NAMES GaranaProducts PATHS ENV GARANA_LIB)
+
 # Pandora
 option(BUILD_W_PANDORA "Build with Pandora" ON )
 
