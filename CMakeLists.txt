@@ -62,8 +62,9 @@ find_ups_boost  ()
 find_ups_root   ()
 find_ups_product( gsl )
 find_ups_product( edepsim )
-find_ups_product( garana         )
 cet_find_library( EDEPSIMIO NAMES edepsim_io PATHS ENV EDEPSIM_LIB )
+find_ups_product( garana         )
+cet_find_library( GARANAPRODUCTS NAMES GaranaProducts PATHS ENV GARANA_LIB)
 
 #message(STATUS "ROOTSYS is ${ROOTSYS}")
 #message(STATUS "GSL_FQ_DIR is $ENV{GSL_FQ_DIR}")
@@ -94,8 +95,6 @@ add_subdirectory (RecoAlg)
 add_subdirectory (Ana)
 add_subdirectory (Filters)
 add_subdirectory (StandardRecord)
-
-cet_find_library( GARANAPRODUCTS NAMES GaranaProducts PATHS ENV GARANA_LIB)
 
 # Pandora
 option(BUILD_W_PANDORA "Build with Pandora" ON )
