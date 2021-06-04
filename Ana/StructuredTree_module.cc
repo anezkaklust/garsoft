@@ -1107,7 +1107,7 @@ void gar::StructuredTree::FillRecoInfo( Event const & e) {
     InputTag tpcclustertag(fTPCClusterLabel);
     InputTag tracktag(fTrackLabel);
     auto TPCClusterHandle = e.getValidHandle< vector<rec::TPCCluster> >(tpcclustertag);
-    auto TrackHandle      = e.getValidHandle< vector<rec::Track> >(tracktag);
+    //auto TrackHandle      = e.getValidHandle< vector<rec::Track> >(tracktag);
     //art::FindManyP<rec::TPCCluster>* findManyTPCClusters = NULL;
     //findManyTPCClusters = new art::FindManyP<rec::TPCCluster>(TrackHandle,e,fTrackLabel);
 
@@ -1151,7 +1151,7 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
     InputTag veetag(fVeeLabel);
     InputTag calclustertag(fClusterLabel); //instance too?
     auto TrackHandle      = e.getValidHandle< vector<rec::Track> >(tracktag);
-    auto TrackIonHandle   = e.getValidHandle< vector<rec::TrackIoniz> >(iontag);
+    //auto TrackIonHandle   = e.getValidHandle< vector<rec::TrackIoniz> >(iontag);
     auto VertexHandle     = e.getValidHandle< vector<rec::Vertex> >(verttag);
     auto VeeHandle        = e.getValidHandle< vector<rec::Vee> >(veetag);
     auto CalClusterHandle = e.getValidHandle< vector<rec::Cluster> >(calclustertag);
