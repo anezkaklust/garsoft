@@ -1,13 +1,11 @@
 include_directories( $ENV{GEANT4_FQ_DIR}/include )
 include_directories( $ENV{NUTOOLS_DIR}/include   )
 include_directories( $ENV{GARANA_DIR}/include )
-include_directories( $ENV{GARANA_LIB} )
 include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
 
 art_make(
 	BASENAME_ONLY
-	LIB_LIBRARIES #garana_DataProducts_dict 
-		      GaranaProducts
+	LIB_LIBRARIES ${GARANAPRODUCTS}
 		      ReconstructionDataProducts
 		      nusimdata_SimulationBase
 		      ${ROOT_BASIC_LIB_LIST}
@@ -36,8 +34,7 @@ art_make(
                        ${CETLIB_EXCEPT}
                        ${ROOT_BASIC_LIB_LIST}
                        ${ROOT_EG}
-		       #garana_DataProducts_dict
-                       GaranaProducts
+                       ${GARANAPRODUCTS}
                        garsoft_StandardRecord
          )
 
