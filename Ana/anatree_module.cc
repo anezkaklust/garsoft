@@ -1257,7 +1257,7 @@ void gar::anatree::ClearVectors() {
         fTrackPIDF.clear();
         fTrackPIDProbF.clear();
         fTrackPIDB.clear();
-        fTrackPIDProbF.clear();
+        fTrackPIDProbB.clear();
         fTrackMCindex.clear();
         fTrackMCfrac.clear();
 
