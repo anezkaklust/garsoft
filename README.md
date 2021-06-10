@@ -48,11 +48,13 @@ The BUILDTYPE variable above is either "prof" or "debug". Both kinds of builds i
 
 Each time you log in and want to work with your garsoft test release, execute (or write a script), do the following to set up a build environment:
 
+```
 source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
 export MRB_PROJECT=garsoft
 source <directory you created from the creation step above>/localProducts*/setup
 cd ${MRB_BUILDDIR}
 mrbsetenv
+```
 
 Note: mrbsetenv sets up a build environment, and environment variables will point to the build directory. mrbslp will set up installed local products for running. Sometimes this makes a difference -- if a build fails, the build directory can have an incomplete set of things in it. It may also be missing some items (pandora XML files is a common one in far detector sim/reco that only get picked up with mrbslp).
 
