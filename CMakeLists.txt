@@ -64,6 +64,9 @@ find_ups_product( gsl )
 find_ups_product( edepsim )
 find_ups_product( garana )
 
+#message(STATUS "GARANA_DIR is $ENV{GARANA_DIR}")
+#message(STATUS "GARANA_LIB is $ENV{GARANA_LIB}")
+
 cet_find_library( EDEPSIMIO NAMES edepsim_io PATHS ENV EDEPSIM_LIB )
 
 # cet_find_library( GARANAPRODUCTS NAMES GaranaProducts PATHS ENV GARANA_LIB)
