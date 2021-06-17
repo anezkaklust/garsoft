@@ -19,15 +19,16 @@ cmake_minimum_required (VERSION 3.12...3.18 FATAL_ERROR)
 
 project(garsoft)
 
+    find_package( cetbuildtools REQUIRED)
+
 # cetbuildtools contains our cmake modules
 SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
 IF (NOT CETBUILDTOOLS_VERSION)
     MESSAGE (FATAL_ERROR "ERROR: setup cetbuildtools to get the cmake modules")
 ENDIF()
 
-set(CMAKE_MODULE_PATH $ENV{CANVAS_ROOT_IO_DIR}/Modules
-		      $ENV{CETBUILDTOOLS_DIR}/Modules
-		      ${CMAKE_MODULE_PATH})
+list(APPEND CMAKE_MODULE_PATH $ENV{CANVAS_ROOT_IO_DIR}/Modules
+                              $ENV{CETBUILDTOOLS_DIR}/Modules)
 
 include(CetCMakeEnv)
 cet_cmake_env()
@@ -56,15 +57,16 @@ find_ups_product( nugen          )
 find_ups_product( nurandom       )
 find_ups_product( libwda         )
 find_ups_product( postgresql     )
-find_ups_product( cetbuildtools  )
 find_ups_geant4(  geant4         )
 find_ups_boost  ()
 find_ups_root   ()
 find_ups_product( gsl )
 find_ups_product( edepsim )
+find_ups_product( garana )
+
 cet_find_library( EDEPSIMIO NAMES edepsim_io PATHS ENV EDEPSIM_LIB )
-find_ups_product( garana         )
-cet_find_library( GARANAPRODUCTS NAMES GaranaProducts PATHS ENV GARANA_LIB)
+
+# cet_find_library( GARANAPRODUCTS NAMES GaranaProducts PATHS ENV GARANA_LIB)
 
 #message(STATUS "ROOTSYS is ${ROOTSYS}")
 #message(STATUS "GSL_FQ_DIR is $ENV{GSL_FQ_DIR}")
