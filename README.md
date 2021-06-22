@@ -60,7 +60,13 @@ Note: mrbsetenv sets up a build environment, and environment variables will poin
 
 Some examples from dunetpc on how to work with git, check out code, develop on branches, and pushing code: [dunetpc git/mrb tutorial](https://cdcvs.fnal.gov/redmine/projects/dunetpc/wiki/_Tutorial_)
 
-## Run a sample 1000-event GENIE job after building or setting up code:
+## Run a sample 1000-event 
+
+
+
+
+
+job after building or setting up code:
 
 ```
 art -n 1000 -c prodgenie.fcl
@@ -75,7 +81,7 @@ or, insetead of the last line, use
 art -c evd3D.fcl reco.root
 ```
 
-for a nice eve-based event display Eldwan provided. Note that the prodgenie.fcl job requires flux files. Currently the location of those flux files is set to a pnfs directory at FNAL. (If you are running somewhere other than the FNAL cluster, you might want to try prodsingle.fcl instead, or you will need to edit the search path and copy method in the prodgenie.fcl file. The fcl files are in $FHICL_FILE_PATH.)
+for a nice eve-based event display Eldwan provided. Note that the prodgenie.fcl job requires flux files. Currently the location of those flux files is set to a pnfs directory at FNAL. (If you are running somewhere other than the FNAL cluster, you might want to try prodsingle.fcl instead, or you will need to edit the search path and copy method in the prodgenie.fcl file. The fcl files are in $FHICL_FILE_PATH.)  In order for art to find the flux files, you need a grid proxy or an unexpired Kerberos ticket from which ifdh can make a grid proxy.  setup_fnal_security (in duneutil) also gives you a grid proxy based on your Kerberos ticket.
 
 You can now make an analysis root tree with
 
