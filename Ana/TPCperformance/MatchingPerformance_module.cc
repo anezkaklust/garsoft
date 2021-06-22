@@ -112,10 +112,12 @@ namespace gar {
         // Detector properties
         const detinfo::DetectorProperties* fDetProp;
         const detinfo::DetectorClocks*     fClocks;
+        float                              fMaxXdisplacement;
 
         // Keepin an eye on it all
-        int fVerbosity;
-        float fClusterDirNhitCut;          ///< Do not plot cluster direction unless you have this many hits or more
+        int   fVerbosity;
+        int   fClusterDirNhitCut;          ///< Do not plot cluster direction unless you have this many hits or more
+        float fDistPastOriginCut;          ///< Distance downstream of origin required
         TH1F* chargeFracAll;               ///< Ionization frac before no-stub cut
         TH1F* chargeFracStub;              ///< Ionization frac after no-stub cut
 
@@ -198,6 +200,10 @@ gar::MatchingPerformance::MatchingPerformance(fhicl::ParameterSet const & p) : E
     fECALAssnLabel     = p.get<std::string>("ECALAssnLabel","trkecalassn");
     fVerbosity         = p.get<int>        ("Verbosity", 0);
     fClusterDirNhitCut = p.get<int>        ("ClusterDirNhitCut",    5);
+    // For an octagonal ECAL of 278.5 cm apothem and 5.8 degree beam angle,
+    // 87.2 cm corresponds to the 3 downstream, some of the bottom and none
+    // of the top ECAL modules.
+    fDistPastOriginCut = p.get<float>      ("DistPastOriginCut", 87.2);
 
     pdgInstance = TDatabasePDG::Instance();
 
@@ -224,8 +230,7 @@ void gar::MatchingPerformance::beginJob() {
     ItsInTulsa[1] = fGeo->TPCYCent();
     ItsInTulsa[2] = fGeo->TPCZCent();
 
-    fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
-    fClocks  = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
+
 
     art::ServiceHandle<art::TFileService> tfs;
     fTree = tfs->make<TTree>("GArAnaTree","GArAnaTree");
@@ -297,6 +302,13 @@ void gar::MatchingPerformance::beginJob() {
 //==============================================================================
 //==============================================================================
 void gar::MatchingPerformance::analyze(art::Event const & event) {
+
+    // Need this here because the clock service is invoked at preProcessEvent.
+    fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
+    fClocks  = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
+    fMaxXdisplacement =
+                     fDetProp->DriftVelocity(fDetProp->Efield(),fDetProp->Temperature())
+                    *fClocks->SpillLength();
 
     // Is the backtracker good to go?  Need to fill fBack on per-event basis
     // not in beginJob()
@@ -502,12 +514,13 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
         }
         if (!whackThatECAL) continue;
 
-        // This track is nice so far; have to check for stubbiness
+        // This track is nice so far
         if (fVerbosity>0) chargeFracAll->Fill(fracMCPart);
         niceNice tmp = {track, theMCPart, fracMCPart};
         niceTracks.push_back(tmp);
     }
  
+    // Now have to check for stubbiness
     for (size_t iNiceTrk=0; iNiceTrk<niceTracks.size(); ++iNiceTrk) {
         simb::MCParticle theMCPart = niceTracks[iNiceTrk].zekond;
 
@@ -515,9 +528,8 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
         // & make sure this is the "biggest" one in terms of deposited charge; take the
         // smaller-contributing (stub) tracks out of consideration
         std::vector<art::Ptr<rec::Track>> tracksFromSameMCP;
-        tracksFromSameMCP = fBack->MCParticleToTracks(&theMCPart,TrackGrabber);
-
         std::vector<std::pair<ULong64_t,float>> trkID_Epairs;
+        tracksFromSameMCP = fBack->MCParticleToTracks(&theMCPart,TrackGrabber);
         for (size_t iTrkFromSame=0; iTrkFromSame<tracksFromSameMCP.size(); ++iTrkFromSame) {
             // index & dereference art::Ptr.
             rec::Track tmpTrk = *(tracksFromSameMCP[iTrkFromSame]);
@@ -527,7 +539,7 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
             ULong64_t thisTracksID = tmpTrk.getIDNumber();
             trkID_Epairs.push_back( std::make_pair(thisTracksID,thisTracksE) );
         }
-        // Next, sort trkID_Epairs by value.  1st, declare the type of the sorting predicate
+        // Next, sort trkID_Epairs by ionization.  1st, declare the type of the sorting predicate
         typedef std::function<bool(std::pair<ULong64_t,float>, std::pair<ULong64_t,float>)>
             Comparator;
         // Create a set to contain the pairs sorted using lambda func
@@ -537,6 +549,7 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
                 return a.second > b.second;
             }
         );
+
         // Keep the first one; the rest are stubs to remove.
         if (sortedTrkID_Epairs.size()>0) sortedTrkID_Epairs.erase(sortedTrkID_Epairs.begin());
         for ( auto& iTrkID_E : sortedTrkID_Epairs ) {
@@ -560,9 +573,23 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
         float            fracMCPart = niceTracks[iNiceTrk].turd;
         if (fVerbosity>0) chargeFracStub->Fill(fracMCPart);
 
-        // Examine matched clusters on both ends of the track unless the particle
-        // was created in the gas.
+
+
+        // Examine matched clusters on downstream ends of the track unless 
+        // MC vertex in gas - don't test the matching quality then.
         std::deque<rec::TrackEnd> endList = {rec::TrackEndBeg,rec::TrackEndEnd};
+
+        float endX,endY, distDownStream;    
+        float const beamdir = -0.101033;	// radians
+        endX = track.Vertex()[2] -ItsInTulsa[2];
+        endY = track.Vertex()[1] -ItsInTulsa[1];
+        distDownStream = std::cos(beamdir)*endX +std::sin(beamdir)*endY;
+        if (distDownStream<fDistPastOriginCut) endList.pop_front();
+        endX = track.End()[2]    -ItsInTulsa[2];
+        endY = track.End()[1]    -ItsInTulsa[1];
+        distDownStream = std::cos(beamdir)*endX +std::sin(beamdir)*endY;
+        if (distDownStream<fDistPastOriginCut) endList.pop_back();
+
         TVector3 positionMCP = theMCPart.Position(0).Vect();
         if (fGeo->PointInGArTPC(positionMCP)) {
             // Don't include the drift distance in matching
@@ -577,9 +604,11 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
             }
         }
 
+
+
         for (std::deque<rec::TrackEnd>::iterator iEnd = endList.begin();
                                                  iEnd < endList.end();  ++iEnd) {
-            // Record info about the track at correct end - need trackPar,End later
+            // Record info about the track at correct end - need trackPar,End 
             // later and they must be in MPD coordinates.
             fTrackIDNumber.push_back(track.getIDNumber());
             Float_t saveChi2;
@@ -646,8 +675,29 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
 
 
             // Now, look for the ECAL-track matching info
-            std::vector<art::Ptr<rec::Cluster>> clustersOnMCP;
-            clustersOnMCP = fBack->MCParticleToClusters(&theMCPart, ClusterGrabber);
+            std::vector<rec::Cluster> clustersOnMCP;
+            for (rec::Cluster cluster : *ClusterHandle) {
+                if (fBack->MCParticleCreatedCluster(&theMCPart,&cluster)) {
+                    clustersOnMCP.push_back(cluster);
+                }
+                if (fBack->ClusterCreatedMCParticle(&theMCPart,&cluster)) {
+                    clustersOnMCP.push_back(cluster);
+                }
+            }
+
+			// Because of how IsForebearOf works, the ionization in the cluster
+            // which is from theMCPart makes theMCPart both a parent and descendent
+            // of the MCParticles in the cluster.  So we must remove duplicate 
+            // clustersOnMCP, which means sorting them, which means we need a 
+            // lambda function, etc. 
+            std::sort(clustersOnMCP.begin(),clustersOnMCP.end(),
+                [](rec::Cluster a,rec::Cluster b){return a.getIDNumber() > b.getIDNumber();});
+            std::vector<rec::Cluster>::iterator itr =
+                std::unique(clustersOnMCP.begin(),clustersOnMCP.end());
+            clustersOnMCP.resize(std::distance(clustersOnMCP.begin(),itr));
+
+
+
 
             float eAssocNoInTruth = 0.0;            int nAssocNoInTruth = 0;
             float eUnassocInTruth = 0.0;            int nUnassocInTruth = 0;
@@ -663,6 +713,9 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
                 if ( (*TrackHandle)[iTrack] == track ) break;
             }
 
+            // nCALedClusts.size() == trackEndsFromAssn.size() and is the same
+            // number regardless of std::deque<rec::TrackEnd>::iterator iEnd but
+            // the code reads better here
             findManyTrackEndCAL->get(iTrack, clustersFromAssn,trackEndsFromAssn);
             nCALedClusts = clustersFromAssn.size();
 
@@ -685,9 +738,6 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
 
                 float retXYZ1[3];    float retXYZ2[3];    TVector3 trackXYZ;
                 float cutQuantity = -1.0;      bool over25 = false;
-                float maxXdisplacement =
-                     fDetProp->DriftVelocity(fDetProp->Efield(),fDetProp->Temperature())
-                    *fClocks->SpillLength();
 
                 if (inECALBarrel) {
                     int errcode = util::TrackPropagator::PropagateToCylinder(
@@ -707,22 +757,22 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
                                      && !fGeo->PointInECALEndcap(trackXYZ);
                         trackXYZ -= TVector3(ItsInTulsa);
                         if (!looneyExtrap) {
-                            extrapXerr = trackXYZ.X() -xClus;  // Check in the matching code too
+                            extrapXerr = trackXYZ.X() -xClus;
                             float expected_mean = 0;
                             if (trackEnd[0]<-25) {
-                                expected_mean = +maxXdisplacement/2.0;
+                                expected_mean = +fMaxXdisplacement/2.0;
                                 over25 = true;
                             }
                             if (trackEnd[0]>+25) {
-                                expected_mean = -maxXdisplacement/2.0;
+                                expected_mean = -fMaxXdisplacement/2.0;
                                 over25 = true;
                             }
                             cutQuantity = abs(extrapXerr -expected_mean);
                         }
                     }
                 } else {
-                    // In an endcap.  How many radians in a maxXdisplacement?
-                    float radiansInDrift = trackPar[2]*maxXdisplacement
+                    // In an endcap.  How many radians in a fMaxXdisplacement?
+                    float radiansInDrift = trackPar[2]*fMaxXdisplacement
                                          / tan(trackPar[4]);
                     if ( abs(radiansInDrift) >= 2.0*M_PI ) goto angleCut;
                     int errcode = util::TrackPropagator::PropagateToX(
@@ -782,7 +832,7 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
 
                 bool clusterOnMCP = false;
                 for (size_t iClusOnMCP = 0; iClusOnMCP<clustersOnMCP.size(); ++iClusOnMCP) {
-                    if ( *(clustersOnMCP[iClusOnMCP]) == cluster ) {
+                    if ( clustersOnMCP[iClusOnMCP] == cluster ) {
                         clusterOnMCP = true;
                         break;
                     }
@@ -791,7 +841,7 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
 
 
  
-                if ( clusterOnTrack &&!clusterOnMCP ) {
+                if (!clusterOnMCP ) {
                     fRadClusTrackFal.push_back(distRadially);
                     if (inECALBarrel) {
                         if (over25) {
@@ -805,16 +855,11 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
                     fDotClustTrackFal.push_back(dotSee);
                     fDistClustTrackFal.push_back(dist3dXtrap);
 
-                    eAssocNoInTruth += cluster.Energy();
-                    nAssocNoInTruth += cluster.CalorimeterHits().size();
-                }
-
-                if (!clusterOnTrack && clusterOnMCP ) {
-                    eUnassocInTruth += cluster.Energy();
-                    nUnassocInTruth += cluster.CalorimeterHits().size();
-                }
-
-                if ( clusterOnTrack && clusterOnMCP ) {
+                    if ( clusterOnTrack ) {
+                        eAssocNoInTruth += cluster.Energy();
+                        nAssocNoInTruth += cluster.CalorimeterHits().size();
+                    }
+                } else {
                     fRadClusTrackTru.push_back(distRadially);
                     if (inECALBarrel) {
                         if (over25) {
@@ -828,8 +873,13 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
                     fDotClustTrackTru.push_back(dotSee);
                     fDistClustTrackTru.push_back(dist3dXtrap);
 
-                    eIsassocInTruth += cluster.Energy();
-                    nIsassocInTruth += cluster.CalorimeterHits().size();
+                    if (!clusterOnTrack && clusterOnMCP ) {
+                        eUnassocInTruth += cluster.Energy();
+                        nUnassocInTruth += cluster.CalorimeterHits().size();
+                    } else {
+                        eIsassocInTruth += cluster.Energy();
+                        nIsassocInTruth += cluster.CalorimeterHits().size();
+                    }
                 }
             }
 
@@ -840,10 +890,8 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
             fEisassocInTruth.push_back(eIsassocInTruth);
             fNisassocInTruth.push_back(nIsassocInTruth);
 
-        } // end loop over not-in-gas track ends
+        } // end loop over track ends
     } // end loop over TrackHandle
-
-
 
 
 

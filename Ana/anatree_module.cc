@@ -540,23 +540,23 @@ fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "See
     fInstanceLabelCalo = p.get<std::string>("InstanceLabelCalo","ECAL");
     fInstanceLabelMuID = p.get<std::string>("InstanceLabelMuID","MuID");
 
-    fHitLabel         = p.get<std::string>("HitLabel","hit");
-    fTPCClusterLabel  = p.get<std::string>("TPCClusterLabel","tpccluster");
-    fTrackLabel       = p.get<std::string>("TrackLabel","track");
+    fHitLabel          = p.get<std::string>("HitLabel","hit");
+    fTPCClusterLabel   = p.get<std::string>("TPCClusterLabel","tpccluster");
+    fTrackLabel        = p.get<std::string>("TrackLabel","track");
     fTrackTrajectoryLabel  = p.get<std::string>("TrackTrajectoryLabel","track");
-    fVertexLabel      = p.get<std::string>("VertexLabel","vertex");
-    fVeeLabel         = p.get<std::string>("VeeLabel","veefinder1");
+    fVertexLabel       = p.get<std::string>("VertexLabel","vertex");
+    fVeeLabel          = p.get<std::string>("VeeLabel","veefinder1");
 
     //Calorimetric related ECAL/MuID
-    fRawCaloHitLabel     = p.get<std::string>("RawCaloHitLabel","daqsipm");
-    fRawMuIDHitLabel     = p.get<std::string>("RawMuIDHitLabel","daqsipmmuid");
-    fCaloHitLabel        = p.get<std::string>("CaloHitLabel","sipmhit");
-    fMuIDHitLabel        = p.get<std::string>("MuIDHitLabel","sipmhit");
+    fRawCaloHitLabel   = p.get<std::string>("RawCaloHitLabel","daqsipm");
+    fRawMuIDHitLabel   = p.get<std::string>("RawMuIDHitLabel","daqsipmmuid");
+    fCaloHitLabel      = p.get<std::string>("CaloHitLabel","sipmhit");
+    fMuIDHitLabel      = p.get<std::string>("MuIDHitLabel","sipmhit");
 
-    fClusterLabel     = p.get<std::string>("ClusterLabel","calocluster");
-    fClusterMuIDLabel = p.get<std::string>("MuIDClusterLabel","caloclustermuid");
-    fPFLabel          = p.get<std::string>("PFLabel","pandora");
-    fECALAssnLabel    = p.get<std::string>("ECALAssnLabel","trkecalassn");
+    fClusterLabel      = p.get<std::string>("ClusterLabel","calocluster");
+    fClusterMuIDLabel  = p.get<std::string>("MuIDClusterLabel","caloclustermuid");
+    fPFLabel           = p.get<std::string>("PFLabel","pandora");
+    fECALAssnLabel     = p.get<std::string>("ECALAssnLabel","trkecalassn");
 
     // What to write
     fWriteMCinfo              = p.get<bool>("WriteMCinfo",        true);
@@ -1623,7 +1623,7 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
                 }
             }
         foundMCvert:
-            ;
+        ;
     }
 
     // Now the secondaries.  As they are after the primaries, do not re-init iMCParticle

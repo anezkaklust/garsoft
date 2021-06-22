@@ -165,17 +165,17 @@ namespace gar{
                 walker = momma;
             }
 
-           (*fECALTrackToTPCTrack)[trackID] = walker->TrackId();
+            (*fECALTrackToTPCTrack)[trackID] = walker->TrackId();
             return walker;
          }
 
 
 
         //----------------------------------------------------------------------
-        bool BackTrackerCore::IsDescendedFrom (simb::MCParticle* const forebear,
-                                               simb::MCParticle* const afterbear) const {
+        bool BackTrackerCore::IsForebearOf(simb::MCParticle* const forebear,
+                                           simb::MCParticle* const afterbear) const {
             if (!fHasMC) {
-                throw cet::exception("BackTrackerCore::IsDescendedFrom")
+                throw cet::exception("BackTrackerCore::IsForebearOf")
                     << "Attempting to backtrack without MC truth information";
             }
 
@@ -466,7 +466,7 @@ namespace gar{
 
                     for (auto iHitIDE : hitIDEs) {
                         // Don't double count if this hit has > 1 of the desired GEANT track IDs
-                        if (iHitIDE.trackID    == trackIDin &&
+                        if (iHitIDE.trackID   == trackIDin &&
                            iHitIDE.energyFrac >= fMinHitEnergyFraction) {
                            total += weight;
                            break;
@@ -922,6 +922,61 @@ namespace gar{
             return retval;
         }
 
+
+
+        //----------------------------------------------------------------------
+        bool BackTrackerCore::ClusterCreatedMCParticle(simb::MCParticle* const p,
+                                                       rec::Cluster* const c) {
+            std::vector<simb::MCParticle*> partsIsParts = MCPartsInCluster(c);
+            for (simb::MCParticle* clusPart : partsIsParts) {
+                if (IsForebearOf(clusPart,p)) return true;
+            }
+            return false;
+        }
+
+
+
+        //----------------------------------------------------------------------
+        bool BackTrackerCore::MCParticleCreatedCluster(simb::MCParticle* const p,
+                                                       rec::Cluster* const c) {
+            std::vector<simb::MCParticle*> partsIsParts = MCPartsInCluster(c);
+
+            for (simb::MCParticle* clusPart : partsIsParts) {
+                if (IsForebearOf(p,clusPart)) return true;
+            }
+            return false;
+        }
+
+
+
+        //----------------------------------------------------------------------
+        std::vector<simb::MCParticle*>
+        BackTrackerCore::MCPartsInCluster(rec::Cluster* const c) {
+
+            std::vector<int> trackIdsInCluster;
+            std::vector<art::Ptr<rec::CaloHit>> const caloHits = ClusterToCaloHits(c);
+            for (art::Ptr iCaloHit : caloHits) {
+                std::vector<CalIDE> IDEsThisHit = CaloHitToCalIDEs(iCaloHit);
+                for ( CalIDE iIDE : IDEsThisHit ) trackIdsInCluster.push_back(iIDE.trackID);
+            }
+
+            std::sort(trackIdsInCluster.begin(),trackIdsInCluster.end());
+            std::vector<int>::iterator itr =
+                std::unique(trackIdsInCluster.begin(),trackIdsInCluster.end());
+            trackIdsInCluster.resize(std::distance(trackIdsInCluster.begin(),itr));
+
+            std::vector<simb::MCParticle*> retval;
+            for ( int trackId : trackIdsInCluster) {
+                simb::MCParticle* pahtay = TrackIDToParticle(trackId);
+                retval.push_back(pahtay);
+            }
+            return retval;
+        }
+
+
+
+
+
         //----------------------------------------------------------------------
         TLorentzVector BackTrackerCore::EnergyDepositToMomentum(const int& trackID, 
                               const TLorentzVector& position, size_t& startTrajIndex) const {
@@ -933,21 +988,24 @@ namespace gar{
             // min dist found (could be starting point)
             for(;startTrajIndex<mcp->NumberTrajectoryPoints(); startTrajIndex++){
 
-                if( (position - mcp->Position(startTrajIndex)).Vect().Mag() < dr &&
+                if(   (position - mcp->Position(startTrajIndex)).Vect().Mag() < dr &&
                   abs((position - mcp->Position(startTrajIndex)).T()) < dt) {
 
                     dr = (position - mcp->Position(startTrajIndex)).Vect().Mag();
                     dt = abs((position - mcp->Position(startTrajIndex)).T());
-                }
-                else {
-		    break;
+                } else {
+		            break;
                 }
 
-            }// for trajectory points
+            } // for trajectory points
 
             return  mcp->Momentum(startTrajIndex);
 
-        }// def EnergyDepositToMomentum()
+        } // def EnergyDepositToMomentum()
+
+
+
+
 
     } // cheat
 } // gar

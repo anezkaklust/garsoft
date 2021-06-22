@@ -122,8 +122,8 @@ namespace gar{
             simb::MCParticle* const FindTPCEve(simb::MCParticle* const p) const;
             simb::MCParticle* const FindTPCEve(int const trackId) const;
 
-            bool IsDescendedFrom(simb::MCParticle* const forebear,
-                                 simb::MCParticle* const afterbear) const;
+            bool IsForebearOf(simb::MCParticle* const forebear,
+                              simb::MCParticle* const afterbear) const;
 
             // Returns an ::art::Ptr<> to simb::MCTruth
             art::Ptr<simb::MCTruth> const ParticleToMCTruth(simb::MCParticle* const p) const;
@@ -221,6 +221,11 @@ namespace gar{
             MCParticleToClusters(simb::MCParticle* const p,
                               std::vector<art::Ptr<rec::Cluster>> const& clusters);
 
+            bool ClusterCreatedMCParticle(simb::MCParticle* const p,
+                                          rec::Cluster* const c);
+
+            bool MCParticleCreatedCluster(simb::MCParticle* const p,
+                                          rec::Cluster* const c);
 
 
         private:
@@ -231,8 +236,10 @@ namespace gar{
             std::vector<CalIDE>
             CellIDToCalIDEs(raw::CellID_t const& cellID, float const time) const;
 
+            std::vector<simb::MCParticle*>
+            MCPartsInCluster(rec::Cluster* const c);
 
-  	    TLorentzVector EnergyDepositToMomentum(const int& trackID, const TLorentzVector& position, size_t& startTrajIndex) const;
+  	        TLorentzVector EnergyDepositToMomentum(const int& trackID, const TLorentzVector& position, size_t& startTrajIndex) const;
 
 
         protected:
