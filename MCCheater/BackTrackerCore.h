@@ -203,6 +203,8 @@ namespace gar{
 
             std::vector<std::pair<simb::MCParticle*,float>> TrackToMCParticles(rec::Track* const t);
 
+            double TrackToTotalEnergy(rec::Track* const t);
+
             std::vector<art::Ptr<rec::Track>>
             MCParticleToTracks(simb::MCParticle* const p,
                               std::vector<art::Ptr<rec::Track>> const& tracks);

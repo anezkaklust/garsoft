@@ -732,6 +732,25 @@ namespace gar{
         }
 
 
+        //-----------------------------------------------------------------------
+        double BackTrackerCore::TrackToTotalEnergy(rec::Track* const t) {
+
+            double etot = 0.; // total energy
+            std::vector<art::Ptr<rec::Hit>> const hits = TrackToHits(t); // all of this track's hits
+
+            // loop over hits, get IDEs, and sum up energy deposits
+            for(auto const& hit : hits) {
+                std::vector<HitIDE> ides = HitToHitIDEs(hit);
+
+                for(auto const& ide : ides) {
+                    etot += ide.energyTot;
+                }// for ides
+            }// for hits 
+
+            return etot;
+        }
+
+
 
         //----------------------------------------------------------------------
         std::vector<std::pair<simb::MCParticle*,float>>
