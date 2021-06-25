@@ -1222,6 +1222,7 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
         auto hitIdesBeg = fBt->HitToHitIDEs(*(hits.begin()));
         auto hitIdesEnd = fBt->HitToHitIDEs(*(hits.end()-1));
         vector<pair<UInt_t,TLorentzVector>> truePosBeg, trueMomBeg, truePosEnd, trueMomEnd;
+        vector<std::pair<int,float>> trueEnergy;
 
         for(auto const& ide : hitIdesBeg) {
             truePosBeg.push_back(std::make_pair(ide.trackID , ide.position));
@@ -1233,9 +1234,16 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
             trueMomEnd.push_back(std::make_pair(ide.trackID , ide.momentum));
         }
 
+        std::vector<std::pair<simb::MCParticle*,float>> trkmcps = fBt->TrackToMCParticles(&track);
+	double etot = fBt->TrackToTotalEnergy(&track);
+	for(auto const& mcpfrac : trkmcps) {
+            trueEnergy.push_back(std::make_pair(mcpfrac.first->TrackId(),etot*mcpfrac.second));
+        }
+
         // make a garana::Track
         trackIDs.push_back(track.getIDNumber());
-        fTracks.push_back(MakeAnaTrack(track, pidF, pidB, avgIonF, avgIonB,truePosBeg,truePosEnd,trueMomBeg,trueMomEnd));
+        fTracks.push_back(MakeAnaTrack(track, pidF, pidB, avgIonF, avgIonB,truePosBeg,truePosEnd,trueMomBeg,
+                                       trueMomEnd, trueEnergy) );
 
         iTrack++;
     } //for tracks

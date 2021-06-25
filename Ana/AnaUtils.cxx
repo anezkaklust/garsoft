@@ -202,7 +202,8 @@ namespace gar{
                                      const vector<pair<UInt_t,TLorentzVector>>& posBeg,
                                      const vector<pair<UInt_t,TLorentzVector>>& posEnd,
                                      const vector<pair<UInt_t,TLorentzVector>>& momBeg,
-                                     const vector<pair<UInt_t,TLorentzVector>>& momEnd) 
+                                     const vector<pair<UInt_t,TLorentzVector>>& momEnd,
+                                     const vector<pair<int,float>>& edeps) 
     {
 
         const float* tmp = trk.Vertex();
@@ -220,7 +221,8 @@ namespace gar{
         garana::Track anatrk( trk.LengthForward(), trk.LengthBackward(), trk.Momentum_beg(), trk.Momentum_end(),
                         vtx, end, vtxDir, endDir, trk.ChisqForward(), trk.ChisqBackward(), trk.NHits(),
                         trk.TrackParBeg(), trk.TrackParEnd(), trk.CovMatBegPacked(), trk.CovMatEndPacked(),
-                        trk.ChargeBeg(), trk.ChargeEnd(), pidf, pidb, ionf, ionb, posBeg, posEnd, momBeg, momEnd);
+                        trk.ChargeBeg(), trk.ChargeEnd(), pidf, pidb, ionf, ionb, posBeg, posEnd, momBeg, 
+                        momEnd, edeps);
  
 	return anatrk;
 

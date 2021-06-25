@@ -5,7 +5,8 @@ include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
 
 art_make(
 	BASENAME_ONLY
-	LIB_LIBRARIES $ENV{GARANA_LIB}/libGaranaProducts.so
+	LIB_LIBRARIES #$ENV{GARANA_LIB}/libGaranaProducts.so
+                      GaranaProducts
 		      ReconstructionDataProducts
 		      nusimdata_SimulationBase
 		      ${ROOT_BASIC_LIB_LIST}
@@ -34,7 +35,8 @@ art_make(
                        ${CETLIB_EXCEPT}
                        ${ROOT_BASIC_LIB_LIST}
                        ${ROOT_EG}
-                       $ENV{GARANA_LIB}/libGaranaProducts.so
+                       #$ENV{GARANA_LIB}/libGaranaProducts.so
+                       GaranaProducts
                        garsoft_StandardRecord
          )
 
