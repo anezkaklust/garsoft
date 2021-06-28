@@ -39,7 +39,7 @@ namespace gar{
             fRawTPCDataLabel      = pset.get<std::string>("RawTPCDataLabel",         "daq");
 
             fRawCaloDataLabel         = pset.get<std::string>("RawCaloDataLabel",        "daqsipm");
-            fRawCaloDataECALInstance  = pset.get<std::string>("RawCaloDataECALInstance", ""  );
+            fRawCaloDataECALInstance  = pset.get<std::string>("RawCaloDataECALInstance", "ECAL"  );
             fECALtimeResolution       = pset.get<double     >("ECALtimeResolution",       1.0);
             fMinHitEnergyFraction     = pset.get<double     >("MinHitEnergyFraction",     0.1);
             fMinCaloHitEnergyFrac     = pset.get<double     >("MinCaloHitEnergyFrac",     0.1);
@@ -49,6 +49,7 @@ namespace gar{
             fTrackFracMCP         = pset.get<double     >("TrackFracMCP",             0.8);
 
             fClusterLabel         = pset.get<std::string>("ClusterLabel",            "calocluster");
+            fClusterECALInstance  = pset.get<std::string>("ClusterECALInstance",     "ECAL"  );
             fClusterFracMCP       = pset.get<double     >("ClusterFracMCP",           0.8);
 
 

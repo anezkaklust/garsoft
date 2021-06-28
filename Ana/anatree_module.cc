@@ -5,7 +5,7 @@
 //
 // Generated at Mon Aug 27 16:41:13 2018 by Thomas Junk using cetskelgen
 // from cetlib version v3_03_01.
-// Additions from Leo Bellantoni, 2019-20
+// Additions from Leo Bellantoni, 2019-21
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "art/Framework/Core/EDAnalyzer.h"
@@ -164,8 +164,8 @@ namespace gar {
         bool  fWriteVertices;      ///< Reco vertexes & their tracks  Default=true
         bool  fWriteVees;          ///< Reco vees & their tracks      Default=true
 
-        bool fWriteMuID;
-        bool fWriteCaloDigits;     ///< Raw digits for calorimetry.   Default=false
+        bool  fWriteMuID;
+        bool  fWriteCaloDigits;    ///< Raw digits for calorimetry.   Default=false
         bool  fWriteCaloHits;      ///< Write ECAL hits.              Default=true
         bool  fWriteCaloClusters;  ///< Write ECAL clusters.          Default=true
         bool  fWriteMatchedTracks; ///< Write ECAL-track Assns        Default=true
@@ -324,6 +324,8 @@ namespace gar {
         std::vector<Float_t>            fTPCClusterCovYY;
         std::vector<Float_t>            fTPCClusterCovYZ;
         std::vector<Float_t>            fTPCClusterCovZZ;
+        std::vector<Int_t>              fTPCClusterMCindex;      // Branch index (NOT the GEANT track ID) of MCParticle
+        std::vector<Float_t>            fTPCClusterMCfrac;       // that best matches & fraction of ionization therefrom
 
         // track data
         std::vector<ULong64_t>          fTrackIDNumber;
@@ -343,20 +345,20 @@ namespace gar {
         std::vector<Float_t>            fTrackEndPZ;
         std::vector<Int_t>              fTrackEndQ;
 
-        std::vector<Float_t>            fTrackLenF;         // from foward fit, from the Beg end to the End end
+        std::vector<Float_t>            fTrackLenF;         // from forward fit, from the Beg end to the End end
         std::vector<Float_t>            fTrackLenB;
-        std::vector<Float_t>            fTrackChi2F;        // from foward fit, from the Beg end to the End end
+        std::vector<Float_t>            fTrackChi2F;        // from forward fit, from the Beg end to the End end
         std::vector<Float_t>            fTrackChi2B;
         std::vector<Int_t>              fNTPCClustersOnTrack;
-        std::vector<Float_t>            fTrackAvgIonF;      // from foward fit, from the Beg end to the End end
+        std::vector<Float_t>            fTrackAvgIonF;      // from forward fit, from the Beg end to the End end
         std::vector<Float_t>            fTrackAvgIonB;
 
         std::vector<Int_t>              fTrackPIDF;
         std::vector<Float_t>            fTrackPIDProbF;
         std::vector<Int_t>              fTrackPIDB;
         std::vector<Float_t>            fTrackPIDProbB;
-        std::vector<Int_t>              fTrackMCindex;      // Branch index (NOT the GEANT track ID) of MCPartice
-        std::vector<Float_t>            fTrackMCfrac;       // that best matchs & fraction of ionization therefrom
+        std::vector<Int_t>              fTrackMCindex;      // Branch index (NOT the GEANT track ID) of MCParticle
+        std::vector<Float_t>            fTrackMCfrac;       // that best matches & fraction of ionization therefrom
 
         //TrackTrajectory
         std::vector<Float_t>            fTrackTrajectoryFWDX; //forward
@@ -550,8 +552,8 @@ fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "See
     //Calorimetric related ECAL/MuID
     fRawCaloHitLabel   = p.get<std::string>("RawCaloHitLabel","daqsipm");
     fRawMuIDHitLabel   = p.get<std::string>("RawMuIDHitLabel","daqsipmmuid");
-    fCaloHitLabel      = p.get<std::string>("CaloHitLabel","sipmhit");
-    fMuIDHitLabel      = p.get<std::string>("MuIDHitLabel","sipmhit");
+    fCaloHitLabel      = p.get<std::string>("CaloHitLabel","sscalohit");
+    fMuIDHitLabel      = p.get<std::string>("MuIDHitLabel","sscalohitmuid");
 
     fClusterLabel      = p.get<std::string>("ClusterLabel","calocluster");
     fClusterMuIDLabel  = p.get<std::string>("MuIDClusterLabel","caloclustermuid");
@@ -817,7 +819,9 @@ void gar::anatree::beginJob() {
         fTree->Branch("TPCClusterCovYY",       &fTPCClusterCovYY);
         fTree->Branch("TPCClusterCovYZ",       &fTPCClusterCovYZ);
         fTree->Branch("TPCClusterCovZZ",       &fTPCClusterCovZZ);
-    }
+        fTree->Branch("TPCClusterMCindex",     &fTPCClusterMCindex);
+        fTree->Branch("TPCClusterMCfrac",      &fTPCClusterMCfrac);
+   }
 
     // All position, momentum, etc
     if (fWriteTracks) {
@@ -1078,20 +1082,20 @@ void gar::anatree::analyze(art::Event const & e) {
     fSubRun = e.subRun();
     fEvent  = e.id().event();
 
-    // Need a non-constant backtracker instance, for now, in anayze ot beginJob
+    // Need a non-constant backtracker instance, for now, in analyze not beginJob
     cheat::BackTrackerCore const* const_bt = gar::providerFrom<cheat::BackTracker>();
     BackTrack = const_cast<cheat::BackTrackerCore*>(const_bt);
 
     //Fill generator and MC Information
     if (fWriteMCinfo) FillGeneratorMonteCarloInfo(e);
 
-    //Fill Raw Information
+    //Fill raw calorimeter information
     if (fWriteCaloDigits) FillRawInfo(e);
 
-    //Fill Reco Information
+    //Fill reco information
     FillRecoInfo(e);
 
-    //Fill HL Reco Information
+    //Fill high-leve reco information
     FillHighLevelRecoInfo(e);
 
     fTree->Fill();
@@ -1229,6 +1233,8 @@ void gar::anatree::ClearVectors() {
         fTPCClusterCovYY.clear();
         fTPCClusterCovYZ.clear();
         fTPCClusterCovZZ.clear();
+        fTPCClusterMCindex.clear();
+        fTPCClusterMCfrac.clear();
     }
 
     if (fWriteTracks) {
@@ -1850,11 +1856,13 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
 
     // Get handle for TPCClusters
     art::Handle< std::vector<rec::TPCCluster> > TPCClusterHandle;
+    art::FindManyP<rec::Hit>* findManyHits = NULL;
     if (fWriteTPCClusters) {
         if (!e.getByLabel(fTPCClusterLabel, TPCClusterHandle)) {
             throw cet::exception("anatree") << " No rec::TPCCluster branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
+        findManyHits = new art::FindManyP<rec::Hit>(TPCClusterHandle,e,fTPCClusterLabel);
     }
 
     // Get handles for Tracks and their ionizations; also Assn's to TPCClusters, TrackIoniz
@@ -1942,6 +1950,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
     // FindManyP<rec::Track> to work; seems the underlying Assn isn't found.  Have
     // to FindManyP<TPCCluster> instead and  iterate if (fWriteTracks).  :(
     if (fWriteTPCClusters) {
+        size_t iTPCCluster = 0;
         for ( auto const& TPCCluster : (*TPCClusterHandle) ) {
             fTPCClusterX.push_back(TPCCluster.Position()[0]);
             fTPCClusterY.push_back(TPCCluster.Position()[1]);
@@ -1956,6 +1965,42 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
             fTPCClusterCovYY.push_back(cov[3]);
             fTPCClusterCovYZ.push_back(cov[4]);
             fTPCClusterCovZZ.push_back(cov[5]);
+
+            // To get MC matching info from TPCClusters, 1st get the associated Hits
+            int indexToPush = -1;        float valueToPush = 0;
+            if ( findManyHits->isValid() ) {
+                std::map<int,float> sumEforTrkID;
+                float eTotCluster = 0;
+                auto const& hitsInTPCCluster = findManyHits->at(iTPCCluster);
+                for (size_t iHits = 0; iHits<hitsInTPCCluster.size(); ++iHits) {
+                    std::vector<cheat::HitIDE> IDEs = BackTrack->HitToHitIDEs( hitsInTPCCluster[iHits] );
+                    for (size_t iIDE = 0; iIDE<IDEs.size(); ++iIDE) {
+                        int  trackID    = IDEs[iIDE].trackID;
+                        float thisEdepE = IDEs[iIDE].energyTot;
+                        if ( sumEforTrkID.find(trackID) == sumEforTrkID.end() ) {
+                            sumEforTrkID[trackID] = 0;
+                        }
+                        sumEforTrkID[trackID] += thisEdepE;
+                        eTotCluster           += thisEdepE;
+                    }
+                }
+                if (sumEforTrkID.size()!=0) {
+                    // Sort the map by value.  Start by declaring the type of the sorting predicate
+                    typedef std::function<bool(std::pair<int,float>, std::pair<int,float>)> Comparator;
+                    // Declare a set that will store the pairs using above comparison logic
+                    std::set<std::pair<int,float>, Comparator> setOfTrkIDs(
+                        sumEforTrkID.begin(), sumEforTrkID.end(),
+                        [](std::pair<int,float> a ,std::pair<int,float> b) {
+                            return a.second > b.second;
+                        }
+                    );
+                    auto iReturnSet = setOfTrkIDs.begin();
+                    indexToPush     = TrackIdToIndex[iReturnSet->first];
+                    valueToPush     = iReturnSet->second/eTotCluster;
+                }
+            }
+            fTPCClusterMCindex.push_back(indexToPush);
+            fTPCClusterMCfrac.push_back(valueToPush);
 
             Int_t trackForThisTPCluster = -1;
             if (fWriteTracks) {

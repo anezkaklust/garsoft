@@ -11,7 +11,6 @@ standard_matchingstudy:
 
  Verbosity:                 1
  ClusterDirNhitCut:         5
- DistPastOriginCut:        87.2
 }
 
 END_PROLOG

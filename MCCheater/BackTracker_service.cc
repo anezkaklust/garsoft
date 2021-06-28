@@ -344,25 +344,27 @@ namespace gar {
 
 
       // Create an unordered map of IDNumbers of reco'd Clusters to the CaloHits in those tracks
+      art::InputTag ecalclustertag(fClusterLabel, fClusterECALInstance);
       art::Handle<std::vector<rec::Cluster>> recoClusterCol;
-      evt.getByLabel(fClusterLabel, recoClusterCol);
+      evt.getByLabel(ecalclustertag, recoClusterCol);
       if (!recoClusterCol.isValid()) {
         ++fSTFU;
         if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
           MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
-            << "Unable to find rec::Clusters in " << fClusterLabel <<
-            "; no backtracking of reconstructed ECAL clusters will be possible";
+            << "Unable to find rec::Clusters in " << fClusterLabel << ", "
+            << fClusterECALInstance << " instance; no backtracking of ECAL "
+            << "clusters will be possible";
         }
 
       } else {
-        art::FindManyP<rec::CaloHit> fmCaloHits(recoClusterCol, evt, fClusterLabel);
+        art::FindManyP<rec::CaloHit> fmCaloHits(recoClusterCol, evt, ecalclustertag);
         if (!fmCaloHits.isValid()) {
           ++fSTFU;
           if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
             MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
               << "Unable to find valid association between Clusters and "
-              << "CaloHits in " << fTrackLabel <<
-              "; no backtracking of reconstructed tracks will be possible";
+              << "CaloHits in " << fClusterLabel << ", " << fClusterECALInstance 
+              << " instance; no backtracking of reconstructed tracks will be possible";
           }
 
         } else {
