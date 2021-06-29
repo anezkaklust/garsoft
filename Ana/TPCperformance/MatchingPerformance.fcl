@@ -8,6 +8,7 @@ standard_matchingstudy:
  TrackLabel:               "track"
  ClusterLabel:             "calocluster"
  ECALAssnLabel:            "trkecalassn"
+ InstanceLabelECAL:        "ECAL"
 
  Verbosity:                 1
  ClusterDirNhitCut:         5

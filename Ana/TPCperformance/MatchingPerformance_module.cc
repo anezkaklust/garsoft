@@ -99,6 +99,7 @@ namespace gar {
         std::string fTrackLabel;
         std::string fClusterLabel;
         std::string fECALAssnLabel;
+        std::string fInstanceLabelECAL; ///< Instance name for ECAL
 
         // the analysis tree
         TTree *fTree;
@@ -193,12 +194,13 @@ namespace gar {
 //==============================================================================
 gar::MatchingPerformance::MatchingPerformance(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
 
-    fGeantLabel        = p.get<std::string>("GEANTLabel",   "geant");
-    fTrackLabel        = p.get<std::string>("TrackLabel",   "track");
-    fClusterLabel      = p.get<std::string>("ClusterLabel", "calocluster");
-    fECALAssnLabel     = p.get<std::string>("ECALAssnLabel","trkecalassn");
-    fVerbosity         = p.get<int>        ("Verbosity", 0);
-    fClusterDirNhitCut = p.get<int>        ("ClusterDirNhitCut",    5);
+    fGeantLabel        = p.get<std::string>("GEANTLabel",       "geant");
+    fTrackLabel        = p.get<std::string>("TrackLabel",       "track");
+    fClusterLabel      = p.get<std::string>("ClusterLabel",     "calocluster");
+    fECALAssnLabel     = p.get<std::string>("ECALAssnLabel",    "trkecalassn");
+    fInstanceLabelECAL = p.get<std::string>("InstanceLabelCalo","ECAL");
+    fVerbosity         = p.get<int>        ("Verbosity",         0);
+    fClusterDirNhitCut = p.get<int>        ("ClusterDirNhitCut", 5);
 
     pdgInstance = TDatabasePDG::Instance();
 
@@ -396,14 +398,16 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
     }
     art::Handle< std::vector<rec::Cluster> > ClusterHandle;
-    if (!event.getByLabel(fClusterLabel, ClusterHandle)) {
+	art::InputTag ecalclustertag(fClusterLabel, fInstanceLabelECAL);
+    if (!event.getByLabel(ecalclustertag, ClusterHandle)) {
         throw cet::exception("MatchingPerformance") << " No rec::Cluster branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
     }
 
     art::FindMany<rec::Cluster, rec::TrackEnd>* findManyTrackEndCAL = NULL;
+	art::InputTag ecalassntag(fECALAssnLabel, fInstanceLabelECAL);
     findManyTrackEndCAL = new art::FindMany<rec::Cluster, rec::TrackEnd>
-            (TrackHandle,event,fECALAssnLabel);
+            (TrackHandle,event,ecalassntag);
     if ( !findManyTrackEndCAL->isValid() ) {
         throw cet::exception("MatchingPerformance") << " Bad TrackEnd-ECAL Assn."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;

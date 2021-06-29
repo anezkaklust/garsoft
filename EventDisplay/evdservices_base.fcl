@@ -41,8 +41,8 @@ standard_recodrawingopt:
  DrawVertices:              1  	       # 0 = off, 1 = on
  DrawEvents:                0  	       # 0 = off, 1 = on
  HitModuleLabels:           ["hit"]    # list of module labels in which to look for gar::rec::Hits
- TPCClusterModuleLabels:    ["tpccluster"]    # list of module labels in which to look for gar::rec::TPCClusters
- CaloClusterModuleLabels:   ["calocluster"]   # list of module labels in which to look for gar::rec::Clusters
+ TPCClusterModuleLabels:    ["tpccluster"]       # list of module labels in which to look for gar::rec::TPCClusters
+ CaloClusterModuleLabels:   ["calocluster:ECAL"] # list of module labels in which to look for gar::rec::Clusters
  CaloHitModuleLabels:       ["sipmhit:ECAL", "sscalohit:ECAL" ]   # list of module labels in which to look for gar::rec::Clusters
  TrackModuleLabels:         ["track"]  # list of module labels in which to look for gar::rec::Tracks
  ShowerModuleLabels:        ["shower"] # list of module labels in which to look for gar::rec::Showers
