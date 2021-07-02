@@ -550,6 +550,12 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
         );
 
         // Keep the first one; the rest are stubs to remove.
+		/* === DEBUG =========*/
+		std::cout << "\nsortedTrkID_Epairs.size()= " << sortedTrkID_Epairs.size()
+		<< " and the contents are\n" << "(";
+		std::cout << sortedTrkID_Epairs.begin()->first << ", " << 
+		sortedTrkID_Epairs.begin()->second << ")\n";
+		/* === DEBUG =========*/
         if (sortedTrkID_Epairs.size()>0) sortedTrkID_Epairs.erase(sortedTrkID_Epairs.begin());
         for ( auto& iTrkID_E : sortedTrkID_Epairs ) {
             std::vector<niceNice>::iterator notNice;

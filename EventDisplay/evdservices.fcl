@@ -35,7 +35,7 @@ custom_evd:                @local::standard_evd
 custom_disp:
 {
   #See Geometry.fcl for the list of geometries available
-  GeometryGAr:               @local::nd_hall_mpd_only_SPYv2_geo
+  GeometryGAr:               @local::nd_hall_mpd_only_SPYv3_geo
   ExptGeoHelperInterface:    @local::standard_geometry_helper # from Geometry.fcl
   DetectorPropertiesService: @local::standard_detproperties   # from DetectorProperties.fcl
   GArProperties:             @local::standard_garproperties   # from GArProperties.fcl
