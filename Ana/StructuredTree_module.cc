@@ -104,6 +104,7 @@ namespace gar {
 
         virtual void beginJob() override;
 	virtual void endRun(art::Run const& run) override;
+        virtual void endJob() override;
 
         // Required functions.
         void analyze( Event const & e ) override;
@@ -522,11 +523,16 @@ void gar::StructuredTree::endRun(art::Run const& run) {
     fPOT = RunPOT.TotalPOT();
     fNSpills = RunPOT.TotalSpills();
 
-    fHeaderTree->Fill();
+    //fHeaderTree->Fill();
 
     MF_LOG_INFO("anatree") << "POT for this file is " << fPOT
     << " The number of spills is " << fNSpills;
 
+}
+
+void gar::StructuredTree::endJob() {
+
+    fHeaderTree->Fill();
 }
 
 //==============================================================================
