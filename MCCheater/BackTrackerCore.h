@@ -263,6 +263,7 @@ namespace gar{
             std::string                                         fTPCClusterLabel;       ///< label for TPCCluster producing module
             double                                              fTrackFracMCP;          ///< min frac of ionization in a track for matching to an MCParticle
             std::string                                         fClusterLabel;          ///< label for ECAL cluster producing module
+            std::string                                         fClusterECALInstance;   ///< instance name for the ECAL clusters
             double                                              fClusterFracMCP;        ///< min frac of ionization in a cluster for matching to an MCParticle
 
             sim::ParticleList                                   fParticleList;          ///< Maps MCParticle::TrackId() to same MCParticle

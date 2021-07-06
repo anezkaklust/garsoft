@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////
 //
 // GENIEEventFilter_module class:
-// Algoritm to produce a filtered event file having
-// events with user-defined GENIE final state
+// Algoritm to produce a filtered event file having events with user-defined 
+// GENIE stauscode==1 (not GEANT!) particles in MCTruth
 //
 // eldwan.brianne@desy.de
 //
@@ -51,7 +51,7 @@ namespace gar{
             std::string fGeneratorLabel;
             std::vector<int> fPDG;
 
-            bool isSubset(std::vector<int> const& a, std::vector<int> const& b) const;
+            bool isMatched(std::vector<int> const& a, std::vector<int> const& b) const;
 
         }; // class GENIEEventFilter
 
@@ -59,7 +59,7 @@ namespace gar{
         FSPEventFilter::FSPEventFilter(fhicl::ParameterSet const & pset)
         : EDFilter{pset}
         {
-            fGeneratorLabel = pset.get< std::string      >("GeneratorModuleLabel", "genie");
+            fGeneratorLabel = pset.get< std::string      >("GeneratorModuleLabel", "generator");
             fPDG            = pset.get< std::vector<int> >("PDG");
         }
 
@@ -85,30 +85,24 @@ namespace gar{
             for(int i = 0; i < mcp->NParticles(); ++i){
                 simb::MCParticle part(mcp->GetParticle(i));
 
-                if(part.StatusCode()== 1)
-                FSP.push_back(part.PdgCode());
+                if (part.StatusCode()== 1)
+                    FSP.push_back(part.PdgCode());
             }
 
-            return isSubset(fPDG, FSP); // returns true if the user-defined fPDG exist(s) in the final state particles
+            return isMatched(fPDG, FSP); // returns true if the user-defined fPDG exist(s) in the final state particles
         }
 
         //------------------------------------------------
-        bool FSPEventFilter::isSubset(std::vector<int> const& a, std::vector<int> const& b) const
+        bool FSPEventFilter::isMatched(std::vector<int> const& a, std::vector<int> const& b) const
         {
             for (auto const a_int : a) {
-                bool found = false;
                 for (auto const b_int : b) {
                     if (a_int == b_int) {
-                        found = true;
-                        break;
+                        return true;
                     }
                 }
-                if (!found){
-                    return false;
-                }
             }
-
-            return true;
+            return false;
         }
 
     } //namespace filt

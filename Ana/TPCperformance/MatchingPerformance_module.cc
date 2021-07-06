@@ -99,6 +99,7 @@ namespace gar {
         std::string fTrackLabel;
         std::string fClusterLabel;
         std::string fECALAssnLabel;
+        std::string fInstanceLabelECAL; ///< Instance name for ECAL
 
         // the analysis tree
         TTree *fTree;
@@ -117,7 +118,6 @@ namespace gar {
         // Keepin an eye on it all
         int   fVerbosity;
         int   fClusterDirNhitCut;          ///< Do not plot cluster direction unless you have this many hits or more
-        float fDistPastOriginCut;          ///< Distance downstream of origin required
         TH1F* chargeFracAll;               ///< Ionization frac before no-stub cut
         TH1F* chargeFracStub;              ///< Ionization frac after no-stub cut
 
@@ -194,16 +194,13 @@ namespace gar {
 //==============================================================================
 gar::MatchingPerformance::MatchingPerformance(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
 
-    fGeantLabel        = p.get<std::string>("GEANTLabel",   "geant");
-    fTrackLabel        = p.get<std::string>("TrackLabel",   "track");
-    fClusterLabel      = p.get<std::string>("ClusterLabel", "calocluster");
-    fECALAssnLabel     = p.get<std::string>("ECALAssnLabel","trkecalassn");
-    fVerbosity         = p.get<int>        ("Verbosity", 0);
-    fClusterDirNhitCut = p.get<int>        ("ClusterDirNhitCut",    5);
-    // For an octagonal ECAL of 278.5 cm apothem and 5.8 degree beam angle,
-    // 87.2 cm corresponds to the 3 downstream, some of the bottom and none
-    // of the top ECAL modules.
-    fDistPastOriginCut = p.get<float>      ("DistPastOriginCut", 87.2);
+    fGeantLabel        = p.get<std::string>("GEANTLabel",       "geant");
+    fTrackLabel        = p.get<std::string>("TrackLabel",       "track");
+    fClusterLabel      = p.get<std::string>("ClusterLabel",     "calocluster");
+    fECALAssnLabel     = p.get<std::string>("ECALAssnLabel",    "trkecalassn");
+    fInstanceLabelECAL = p.get<std::string>("InstanceLabelCalo","ECAL");
+    fVerbosity         = p.get<int>        ("Verbosity",         0);
+    fClusterDirNhitCut = p.get<int>        ("ClusterDirNhitCut", 5);
 
     pdgInstance = TDatabasePDG::Instance();
 
@@ -401,14 +398,16 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
     }
     art::Handle< std::vector<rec::Cluster> > ClusterHandle;
-    if (!event.getByLabel(fClusterLabel, ClusterHandle)) {
+	art::InputTag ecalclustertag(fClusterLabel, fInstanceLabelECAL);
+    if (!event.getByLabel(ecalclustertag, ClusterHandle)) {
         throw cet::exception("MatchingPerformance") << " No rec::Cluster branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
     }
 
     art::FindMany<rec::Cluster, rec::TrackEnd>* findManyTrackEndCAL = NULL;
+	art::InputTag ecalassntag(fECALAssnLabel, fInstanceLabelECAL);
     findManyTrackEndCAL = new art::FindMany<rec::Cluster, rec::TrackEnd>
-            (TrackHandle,event,fECALAssnLabel);
+            (TrackHandle,event,ecalassntag);
     if ( !findManyTrackEndCAL->isValid() ) {
         throw cet::exception("MatchingPerformance") << " Bad TrackEnd-ECAL Assn."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
@@ -551,6 +550,12 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
         );
 
         // Keep the first one; the rest are stubs to remove.
+		/* === DEBUG =========*/
+		std::cout << "\nsortedTrkID_Epairs.size()= " << sortedTrkID_Epairs.size()
+		<< " and the contents are\n" << "(";
+		std::cout << sortedTrkID_Epairs.begin()->first << ", " << 
+		sortedTrkID_Epairs.begin()->second << ")\n";
+		/* === DEBUG =========*/
         if (sortedTrkID_Epairs.size()>0) sortedTrkID_Epairs.erase(sortedTrkID_Epairs.begin());
         for ( auto& iTrkID_E : sortedTrkID_Epairs ) {
             std::vector<niceNice>::iterator notNice;
@@ -578,17 +583,6 @@ void gar::MatchingPerformance::FillVectors(art::Event const& event) {
         // Examine matched clusters on downstream ends of the track unless 
         // MC vertex in gas - don't test the matching quality then.
         std::deque<rec::TrackEnd> endList = {rec::TrackEndBeg,rec::TrackEndEnd};
-
-        float endX,endY, distDownStream;    
-        float const beamdir = -0.101033;	// radians
-        endX = track.Vertex()[2] -ItsInTulsa[2];
-        endY = track.Vertex()[1] -ItsInTulsa[1];
-        distDownStream = std::cos(beamdir)*endX +std::sin(beamdir)*endY;
-        if (distDownStream<fDistPastOriginCut) endList.pop_front();
-        endX = track.End()[2]    -ItsInTulsa[2];
-        endY = track.End()[1]    -ItsInTulsa[1];
-        distDownStream = std::cos(beamdir)*endX +std::sin(beamdir)*endY;
-        if (distDownStream<fDistPastOriginCut) endList.pop_back();
 
         TVector3 positionMCP = theMCPart.Position(0).Vect();
         if (fGeo->PointInGArTPC(positionMCP)) {

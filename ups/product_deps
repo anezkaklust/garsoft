@@ -58,6 +58,7 @@ pathPrepend(FW_SEARCH_PATH, ${UPS_PROD_DIR}/gdml)
 pathPrepend(FW_SEARCH_PATH, ${UPS_PROD_DIR}/xml)
 pathPrepend(FW_SEARCH_PATH, ${UPS_PROD_DIR}/txt)
 pathPrepend(GXMLPATH, ${UPS_PROD_DIR}/xml)
+pathPrepend(FHICL_FILE_PATH, .:./job)
 
 table_fragment_end
 
