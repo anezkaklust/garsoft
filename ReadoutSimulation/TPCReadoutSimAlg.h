@@ -12,6 +12,7 @@
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandFlat.h"
 
 #include "RawDataProducts/RawDigit.h"
 #include "DetectorInfo/DetectorProperties.h"
@@ -120,6 +121,9 @@ namespace gar {
       
       CLHEP::HepRandomEngine &           fEngine;   ///< random number engine
       bool                               fAddNoise; ///< flag to add noise or not
+      int                                fNoiseSpectrum; ///< 0: Gaussian white noise; more to come
+      float                              fNoiseAmplitude; ///< noise amplitdue
+      int                                fNoiseVecSize;  ///< how much noise to pre-generate
       int                                fCompressType; ///< Switch to compress raw digits
       int                                fZSThreshold;  ///< for ZS Compression, threshold (upwards)
       unsigned int                       fZSTicksBefore; ///< for ZS Compression, # samples before

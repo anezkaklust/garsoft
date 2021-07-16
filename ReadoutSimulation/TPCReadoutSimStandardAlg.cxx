@@ -23,6 +23,22 @@ namespace gar {
       
       fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
       
+      fNoiseVec.clear();
+      std::vector<double> noisevecdbl(fNoiseVecSize,0);
+      if (fNoiseSpectrum == 0)
+	{
+           CLHEP::RandGauss GaussRand(fEngine);
+	   GaussRand.fireArray(fNoiseVecSize, &noisevecdbl[0],0.0,fNoiseAmplitude);
+	   for (int i=0; i<fNoiseVecSize; ++i)
+	     {
+	       long inoise = lrint(noisevecdbl[i]*fNoiseAmplitude);
+	       if (inoise > 32767) inoise = 32767;   // to be stored in a signed short.
+	       if (inoise < -32767) inoise = -32767;   // to be stored in a signed short.
+	       fNoiseVec.push_back( (short) inoise );
+	     }
+	}
+
+
       return;
     }
     
@@ -82,6 +98,9 @@ namespace gar {
     void TPCReadoutSimStandardAlg::reconfigure(fhicl::ParameterSet const& pset)
     {
       fAddNoise = pset.get<bool>("AddNoise", false);
+      fNoiseSpectrum = pset.get<int>("NoiseSpectrum", 0);
+      fNoiseVecSize = pset.get<int>("NoiseVecSize",500000);
+      fNoiseAmplitude = pset.get<float>("NoiseAmplitude", 0);
       fCompressType = pset.get<int>("CompressType",0);
       fZSThreshold = pset.get<int>("ZSThreshold",5);
       fZSTicksBefore = pset.get<unsigned int>("ZSTicksBefore",5);
@@ -131,12 +150,25 @@ namespace gar {
       return;
     }
     
+    // TODO:  Figure out how to parameterize noise that's correlated between channels
+    // This method just works one channel at a time.
+    // TODO: Include more noise models
     //----------------------------------------------------------------------------
     void TPCReadoutSimStandardAlg::AddNoiseToADCs(std::vector<short> & adcs)
     {
-      for(auto adc : adcs){
-          // TODO: figure out how to add noise
-        adc += 0;
+      // start sampling the pregenerated noise vector from a random spot
+      CLHEP::RandFlat FlatRand(fEngine);
+      double xnvi = ((double) fNoiseVec.size() - 1) * FlatRand.fire();
+      if (xnvi < 0) xnvi = 0;  // just to be extra sure
+      size_t i = (size_t ) xnvi;
+      if (i >= fNoiseVec.size())
+	{
+	  i = fNoiseVec.size() - 1;
+	}
+      for (auto adc : adcs){
+	 adc += fNoiseVec[i];  // we check the bounds of i already
+	 ++i;
+	 if (i>=fNoiseVec.size()) i=0;
 	if (adc>fADCSaturation) adc = fADCSaturation;
       }
       

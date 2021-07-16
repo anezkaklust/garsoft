@@ -37,7 +37,10 @@ namespace gar{
       // Assume that the noise level is dependent on the amount of signal recorded
       void  AddNoiseToADCs(std::vector<short> & adcs);
       short ElectronsToADCs(float electrons);
-      
+
+      // pre-generated noise -- in ADC counts
+      std::vector<short> fNoiseVec;
+
     };
     
   }
