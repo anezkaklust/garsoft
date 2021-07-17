@@ -28,13 +28,15 @@ namespace gar {
       if (fNoiseSpectrum == 0)
 	{
            CLHEP::RandGauss GaussRand(fEngine);
+	   //std::cout << "noise amplitude: " << fNoiseAmplitude << std::endl;
 	   GaussRand.fireArray(fNoiseVecSize, &noisevecdbl[0],0.0,fNoiseAmplitude);
 	   for (int i=0; i<fNoiseVecSize; ++i)
 	     {
-	       long inoise = lrint(noisevecdbl[i]*fNoiseAmplitude);
+	       long inoise = lrint(noisevecdbl[i]);
 	       if (inoise > 32767) inoise = 32767;   // to be stored in a signed short.
 	       if (inoise < -32767) inoise = -32767;   // to be stored in a signed short.
 	       fNoiseVec.push_back( (short) inoise );
+	       //std::cout << "inoise: " << i << " " << inoise << std::endl;
 	     }
 	}
 
@@ -129,9 +131,10 @@ namespace gar {
         // do nothing if we already have a digit for this channel
         if(channels.count(c) > 0) continue;
         
+	//std::cout << "Making noise digit for channel: " << c << std::endl;
+	//std::cout << "ZS Threshold: " << fZSThreshold << std::endl;
         std::vector<short> adcs(fDetProp->NumberTimeSamples(), 0);
         this->AddNoiseToADCs(adcs);
-        
 	      // check for zero suppression
         gar::raw::Compress_t cflag = gar::raw::kNone;
         int retblocks = 1;
@@ -140,7 +143,7 @@ namespace gar {
 	    retblocks = gar::raw::Compress(adcs,raw::kZeroSuppression,fZSThreshold,fZSTicksBefore,fZSTicksAfter);
 	    cflag = gar::raw::kZeroSuppression;
 	  }
-
+	//std::cout << "retblocks: " << retblocks << std::endl;
         auto numTicks = fDetProp->NumberTimeSamples();
 	if (retblocks) digits.emplace_back(c, numTicks, adcs, cflag, 0);
 
@@ -165,11 +168,13 @@ namespace gar {
 	{
 	  i = fNoiseVec.size() - 1;
 	}
-      for (auto adc : adcs){
-	 adc += fNoiseVec[i];  // we check the bounds of i already
+      //std::cout << "In AddNoiseToADCs: " << i << " " << fNoiseVec.size() << " " << adcs.size() << std::endl; 
+      for (size_t j=0; j<adcs.size(); ++j)
+	{
+	 adcs[j] += fNoiseVec[i];  // we check the bounds of i already
 	 ++i;
 	 if (i>=fNoiseVec.size()) i=0;
-	if (adc>fADCSaturation) adc = fADCSaturation;
+	 if (adcs[j]>fADCSaturation) adcs[j] = fADCSaturation;
       }
       
       return;
