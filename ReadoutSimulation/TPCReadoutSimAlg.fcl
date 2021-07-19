@@ -4,10 +4,13 @@ standard_tpcreadoutsimalg:
 {
  TPCReadoutSimType: Standard
  AddNoise:          false
- CompressType:      1   # zero suppression=1, no compression=0
- ZSThreshold:       5   # ADC counts
- ZSTicksBefore:     5   # ticks to retain before an upcrossing of threshold
- ZSTicksAfter:      5   # ticks to retain after an upcrossing of threshold
+ NoiseSpectrum:     0     # 0: white noise: independent Gaussians on every sample
+ NoiseAmplitude:    1.8     # So far, just for the independent Gaussians
+ NoiseVecSize:  5000000    # how much noise to pre-generate
+ CompressType:      1     # zero suppression=1, no compression=0
+ ZSThreshold:       10    # ADC counts
+ ZSTicksBefore:     5     # ticks to retain before an upcrossing of threshold
+ ZSTicksAfter:      5     # ticks to retain after an upcrossing of threshold
  ADCSaturation:     4095  # limit of a 12-bit ADC
 }
 

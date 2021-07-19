@@ -249,10 +249,11 @@ namespace gar {
                           pos[0] = chanposx - driftdistance;
                         }
 
-                      if (hitSig < 0)
-                        {
-                          MF_LOG_WARNING("CompressedHitFinder") << "Negative Signal in hit finder" << std::endl;
-                        }
+		      // noise hits are plentiful
+                      //if (hitSig < 0)
+                      //  {
+                      //    MF_LOG_WARNING("CompressedHitFinder") << "Negative Signal in hit finder" << std::endl;
+                      //  }
                       if (hitSig>0)
                         {
                           rec::Hit newHit(channel,hitSig,pos,begT,endT,hitTime,hitRMS);

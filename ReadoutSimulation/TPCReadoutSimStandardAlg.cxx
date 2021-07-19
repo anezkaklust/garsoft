@@ -23,6 +23,24 @@ namespace gar {
       
       fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
       
+      fNoiseVec.clear();
+      std::vector<double> noisevecdbl(fNoiseVecSize,0);
+      if (fNoiseSpectrum == 0)
+	{
+           CLHEP::RandGauss GaussRand(fEngine);
+	   //std::cout << "noise amplitude: " << fNoiseAmplitude << std::endl;
+	   GaussRand.fireArray(fNoiseVecSize, &noisevecdbl[0],0.0,fNoiseAmplitude);
+	   for (int i=0; i<fNoiseVecSize; ++i)
+	     {
+	       long inoise = lrint(noisevecdbl[i]);
+	       if (inoise > 32767) inoise = 32767;   // to be stored in a signed short.
+	       if (inoise < -32767) inoise = -32767;   // to be stored in a signed short.
+	       fNoiseVec.push_back( (short) inoise );
+	       //std::cout << "inoise: " << i << " " << inoise << std::endl;
+	     }
+	}
+
+
       return;
     }
     
@@ -82,6 +100,9 @@ namespace gar {
     void TPCReadoutSimStandardAlg::reconfigure(fhicl::ParameterSet const& pset)
     {
       fAddNoise = pset.get<bool>("AddNoise", false);
+      fNoiseSpectrum = pset.get<int>("NoiseSpectrum", 0);
+      fNoiseVecSize = pset.get<int>("NoiseVecSize",500000);
+      fNoiseAmplitude = pset.get<float>("NoiseAmplitude", 0);
       fCompressType = pset.get<int>("CompressType",0);
       fZSThreshold = pset.get<int>("ZSThreshold",5);
       fZSTicksBefore = pset.get<unsigned int>("ZSTicksBefore",5);
@@ -110,9 +131,10 @@ namespace gar {
         // do nothing if we already have a digit for this channel
         if(channels.count(c) > 0) continue;
         
+	//std::cout << "Making noise digit for channel: " << c << std::endl;
+	//std::cout << "ZS Threshold: " << fZSThreshold << std::endl;
         std::vector<short> adcs(fDetProp->NumberTimeSamples(), 0);
         this->AddNoiseToADCs(adcs);
-        
 	      // check for zero suppression
         gar::raw::Compress_t cflag = gar::raw::kNone;
         int retblocks = 1;
@@ -121,7 +143,7 @@ namespace gar {
 	    retblocks = gar::raw::Compress(adcs,raw::kZeroSuppression,fZSThreshold,fZSTicksBefore,fZSTicksAfter);
 	    cflag = gar::raw::kZeroSuppression;
 	  }
-
+	//std::cout << "retblocks: " << retblocks << std::endl;
         auto numTicks = fDetProp->NumberTimeSamples();
 	if (retblocks) digits.emplace_back(c, numTicks, adcs, cflag, 0);
 
@@ -131,13 +153,28 @@ namespace gar {
       return;
     }
     
+    // TODO:  Figure out how to parameterize noise that's correlated between channels
+    // This method just works one channel at a time.
+    // TODO: Include more noise models
     //----------------------------------------------------------------------------
     void TPCReadoutSimStandardAlg::AddNoiseToADCs(std::vector<short> & adcs)
     {
-      for(auto adc : adcs){
-          // TODO: figure out how to add noise
-        adc += 0;
-	if (adc>fADCSaturation) adc = fADCSaturation;
+      // start sampling the pregenerated noise vector from a random spot
+      CLHEP::RandFlat FlatRand(fEngine);
+      double xnvi = ((double) fNoiseVec.size() - 1) * FlatRand.fire();
+      if (xnvi < 0) xnvi = 0;  // just to be extra sure
+      size_t i = (size_t ) xnvi;
+      if (i >= fNoiseVec.size())
+	{
+	  i = fNoiseVec.size() - 1;
+	}
+      //std::cout << "In AddNoiseToADCs: " << i << " " << fNoiseVec.size() << " " << adcs.size() << std::endl; 
+      for (size_t j=0; j<adcs.size(); ++j)
+	{
+	 adcs[j] += fNoiseVec[i];  // we check the bounds of i already
+	 ++i;
+	 if (i>=fNoiseVec.size()) i=0;
+	 if (adcs[j]>fADCSaturation) adcs[j] = fADCSaturation;
       }
       
       return;
