@@ -2019,7 +2019,8 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
                 }
             }
             pushit:
-                fTPCClusterTrkIDNumber.push_back(trackForThisTPCluster);
+            fTPCClusterTrkIDNumber.push_back(trackForThisTPCluster);
+            iTPCCluster++;
         }
     }
 
