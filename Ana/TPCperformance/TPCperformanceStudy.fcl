@@ -14,7 +14,7 @@
 #include "BackTracker.fcl"
 #include "ECALProperties.fcl"
 
-process_name: AnaProc
+process_name: PerfProc
 
 services:
 {
@@ -50,11 +50,11 @@ physics:
  }
  analyzers:
  {
-#   anatree: @local::standard_momentumstudy
-   anatree: @local::standard_matchingstudy
+#   perfstudy: @local::standard_momentumstudy
+   perfstudy: @local::standard_matchingstudy
  }
 
- ana: [ anatree ]
+ ana: [ perfstudy ]
  trigger_paths: [ ]
  end_paths: [ ana ]
 }

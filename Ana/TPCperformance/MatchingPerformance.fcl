@@ -12,6 +12,8 @@ standard_matchingstudy:
 
  Verbosity:                 1
  ClusterDirNhitCut:         5
+ MinPvalCut:                0.0
+ MinIonFracCut:             0.50
 }
 
 END_PROLOG
