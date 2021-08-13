@@ -51,7 +51,9 @@ namespace gar {
       
       void operator += (gar::rec::Hit const& h);
 
-      bool operator <  (gar::rec::Hit const& h);
+      bool operator <  (gar::rec::Hit const& h) const;
+
+      bool operator == (gar::rec::Hit const& h) const;
       
       friend std::ostream& operator << (std::ostream & o, gar::rec::Hit const& h);
       

@@ -88,7 +88,7 @@ namespace gar {
     
     //--------------------------------------------------------------------------
     // Sometimes one must sort Hits
-    bool Hit::operator<(gar::rec::Hit const& h)
+    bool Hit::operator < (gar::rec::Hit const& h) const
     {
       if (Channel()   < h.Channel()  ) return true;
       if (Channel()   > h.Channel()  ) return false;
@@ -97,7 +97,31 @@ namespace gar {
       if (EndTime()   < h.EndTime()  ) return true;
       if (EndTime()   > h.EndTime()  ) return false;
       // I dunno wot den
-      return true;
+      //return true; //original
+      return false;
+      
+    }
+
+    //--------------------------------------------------------------------------
+    bool Hit::operator == (gar::rec::Hit const& h) const
+    {
+        //if(Position()!=h.Position())
+        //    return false;
+        if(Channel()!=h.Channel())
+            return false;
+        //if(Signal()!=h.Signal())
+        //    return false;
+        if(StartTime()!=h.StartTime())
+            return false;
+        if(EndTime()!=h.EndTime())
+            return false;
+        //if(RMS()!=h.RMS())
+        //    return false;
+        //if(Time()!=h.Time())
+        //    return false;
+
+        return true;
+
     }
 
     //--------------------------------------------------------------------------
