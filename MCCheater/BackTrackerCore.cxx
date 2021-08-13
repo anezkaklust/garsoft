@@ -724,6 +724,8 @@ namespace gar{
         std::vector<art::Ptr<rec::Hit>> const
         BackTrackerCore::TrackToHits(rec::Track* const t) {
 
+            //std::cout << "BT:TrackToHits called, read map with " << fTrackIDToHits.size() << " entries" << std::endl;
+
             // Evidently, use of std::unordered_map keeps this method from being const
             std::vector<art::Ptr<gar::rec::Hit>> retval;
             if ( !fTrackIDToHits.empty() ) {
@@ -731,7 +733,31 @@ namespace gar{
             }
             return retval;
         }
+        //-----------------------------------------------------------------------
+        std::vector<art::Ptr<rec::Hit>> const 
+        BackTrackerCore::TPCClusterToHits(rec::TPCCluster* const clust) {
 
+            // Evidently, use of std::unordered_map keeps this method from being const
+            std::vector<art::Ptr<gar::rec::Hit>> retval;
+            if ( !fTPCClusterIDToHits.empty() ) {
+                retval = fTPCClusterIDToHits[ clust->getIDNumber() ];
+            }
+            return retval;
+        }
+
+        //-----------------------------------------------------------------------
+        //std::vector<art::Ptr<rec::TPCCluster>> const 
+        std::vector<const rec::TPCCluster*> const
+        BackTrackerCore::TrackToClusters(rec::Track* const t) {
+
+            // Evidently, use of std::unordered_map keeps this method from being const
+            //std::vector<art::Ptr<gar::rec::TPCCluster>> retval;
+            std::vector<const gar::rec::TPCCluster*> retval;
+            if ( !fTrackIDToClusters.empty() ) {
+                retval = fTrackIDToClusters[ t->getIDNumber() ];
+            }
+            return retval;     
+        }
 
         //-----------------------------------------------------------------------
         double BackTrackerCore::TrackToTotalEnergy(rec::Track* const t) {

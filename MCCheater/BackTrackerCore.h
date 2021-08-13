@@ -201,6 +201,11 @@ namespace gar{
             // data products in the event, and suitable Assns between them
             std::vector<art::Ptr<rec::Hit>> const TrackToHits(rec::Track* const t);
 
+            std::vector<art::Ptr<rec::Hit>> const TPCClusterToHits(rec::TPCCluster* const clust);
+
+            //std::vector<art::Ptr<rec::TPCCluster>> const TrackToClusters(rec::Track* const t);
+            std::vector<const rec::TPCCluster*> const TrackToClusters(rec::Track* const t);
+
             std::vector<std::pair<simb::MCParticle*,float>> TrackToMCParticles(rec::Track* const t);
 
             double TrackToTotalEnergy(rec::Track* const t);
@@ -284,6 +289,16 @@ namespace gar{
             // Mapping final reco products to their constituents
             std::unordered_map< rec::IDNumber, std::vector<art::Ptr<rec::Hit>> >
                                                                 fTrackIDToHits;         ///< Reco track ID to track's hits
+            // Mapping final reco products to their constituents
+            //std::unordered_map< rec::IDNumber, std::vector<art::Ptr<rec::TPCCluster>> >
+            std::unordered_map< rec::IDNumber, std::vector<const rec::TPCCluster*> >
+                                                                fTrackIDToClusters;         ///< Reco track ID to track's clusters
+
+
+            // Mapping final reco products to their constituents
+            std::unordered_map< rec::IDNumber, std::vector<art::Ptr<rec::Hit>> >
+                                                                fTPCClusterIDToHits;         ///< Reco TPC cluster ID to cluster's hits
+
             std::unordered_map< rec::IDNumber, std::vector<art::Ptr<rec::CaloHit>> >
                                                                 fClusterIDToCaloHits;   ///< Reco ECAL cluster ID to CaloHits
 
