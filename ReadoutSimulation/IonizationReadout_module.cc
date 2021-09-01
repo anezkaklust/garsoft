@@ -117,13 +117,17 @@ namespace gar {
 
   } // namespace rosim
 
+
+
+
+
   namespace rosim {
 
     //----------------------------------------------------------------------
     // Constructor
     IonizationReadout::IonizationReadout(fhicl::ParameterSet const& pset) : art::EDProducer{pset},
-      fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,pset,"Seed"))
-    {
+      fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,pset,"Seed")) {
+
       fTime  = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
 
       fNumTicks = gar::providerFrom<detinfo::DetectorPropertiesService>()->NumberTimeSamples();
@@ -144,8 +148,8 @@ namespace gar {
       struct stat sb;
       if (fullname.empty() || stat(fullname.c_str(), &sb)!=0)
         throw cet::exception("IonizationReadout") << "Input pad response function file "
-						  << fPRFFileName
-						  << " not found in FW_SEARCH_PATH\n";
+                          << fPRFFileName
+                          << " not found in FW_SEARCH_PATH\n";
 
       TFile infile(fullname.c_str(),"READ");  // file will close when infile goes out of scope
       fHFILLPRF = (TH2F*) infile.Get("respHFILL");
@@ -160,15 +164,17 @@ namespace gar {
       return;
     }
 
-    //----------------------------------------------------------------------
-    // Destructor
-    IonizationReadout::~IonizationReadout()
-    {
-    }
+
 
     //----------------------------------------------------------------------
-    void IonizationReadout::reconfigure(fhicl::ParameterSet const& pset)
-    {
+    // Destructor
+    IonizationReadout::~IonizationReadout() {}
+
+
+
+    //----------------------------------------------------------------------
+    void IonizationReadout::reconfigure(fhicl::ParameterSet const& pset) {
+
       MF_LOG_DEBUG("IonizationReadout") << "Debug: IonizationReadout()";
       ::art::ServiceHandle<::art::RandomNumberGenerator> rng;
 
@@ -182,29 +188,33 @@ namespace gar {
       auto driftAlgName = driftAlgPars.get<std::string>("DriftAlgType");
 
 
-      if(driftAlgName.compare("Standard") == 0)
+      if (driftAlgName.compare("Standard") == 0) {
         fDriftAlg = std::make_unique<gar::rosim::ElectronDriftStandardAlg>(fEngine,
                                                                            driftAlgPars);
-      else
+      } else {
         throw cet::exception("IonizationReadout")
-	  << "Unable to determine which electron drift algorithm to use, bail";
+          << "Unable to determine which electron drift algorithm to use, bail";
+      }
 
       auto tpcROAlgPars = pset.get<fhicl::ParameterSet>("TPCReadoutSimAlgPars");
       auto tpcROAlgName = tpcROAlgPars.get<std::string>("TPCReadoutSimType");
 
-      if(tpcROAlgName.compare("Standard") == 0)
+      if (tpcROAlgName.compare("Standard") == 0){
         fROSimAlg = std::make_unique<gar::rosim::TPCReadoutSimStandardAlg>(fEngine,
                                                                            tpcROAlgPars);
-      else
+      } else {
         throw cet::exception("IonizationReadout")
-	  << "Unable to determine which TPC readout simulation algorithm to use, bail";
+          << "Unable to determine which TPC readout simulation algorithm to use, bail";
+      }
 
       return;
     }
 
+
+
     //----------------------------------------------------------------------
-    void IonizationReadout::beginJob()
-    {
+    void IonizationReadout::beginJob() {
+
       //auto* rng = &*(::art::ServiceHandle<::art::RandomNumberGenerator>());
 
       // create the ionization and scintillation calculator;
@@ -216,15 +226,18 @@ namespace gar {
       return;
     }
 
+
+
     //--------------------------------------------------------------------------
-    void IonizationReadout::beginRun(::art::Run& run)
-    {
+    void IonizationReadout::beginRun(::art::Run& run) {
       return;
     }
 
+
+
     //--------------------------------------------------------------------------
-    void IonizationReadout::produce(::art::Event& evt)
-    {
+    void IonizationReadout::produce(::art::Event& evt) {
+
       MF_LOG_DEBUG("IonizationReadout") << "produce()";
 
       // loop over the lists and put the particles and voxels into the event as collections
@@ -238,93 +251,84 @@ namespace gar {
 
         std::vector<edepIDE> eDepIDEs;
 
-	// drift the ionization electrons to the readout and create edepIDE objects
-	this->DriftElectronsToReadout(*eDepCol, eDepIDEs);
+        // drift the ionization electrons to the readout and create edepIDE objects
+        this->DriftElectronsToReadout(*eDepCol, eDepIDEs);
 
-	if (eDepIDEs.size()>0)
-	  {
+        if (eDepIDEs.size()>0) {
 
-	    // The IDEs should have been combined already so that there are no repeat
-	    // TDC values for any channel  -- TODO -- the Pad response functions might break this assumption
+          // IDEs have been combined already; there are no repeat TDC values for any channel
+          unsigned int       prevChan = eDepIDEs.front().Channel;
+          std::set<size_t>   digitEDepLocs;
+          std::vector<float> electrons(fNumTicks, 0.);
 
-	    unsigned int       prevChan = eDepIDEs.front().Channel;
-	    std::set<size_t>   digitEDepLocs;
-	    std::vector<float> electrons(fNumTicks, 0.);
+          // make the signal raw digits and set their associations to the energy deposits
+          for (auto edide : eDepIDEs) {
 
-	    // make the signal raw digits and set their associations to the energy deposits
-	    for(auto edide : eDepIDEs){
+            MF_LOG_DEBUG("IonizationReadout")
+              << "Current eDepIDE channel is "
+              << edide.Channel
+              << " previous channel is "
+              << prevChan;
 
-	      MF_LOG_DEBUG("IonizationReadout")
-		<< "Current eDepIDE channel is "
-		<< edide.Channel
-		<< " previous channel is "
-		<< prevChan;
+            if (edide.Channel != prevChan) {
+              MF_LOG_DEBUG("IonizationReadout")
+                << "There are  "
+                << digitEDepLocs.size()
+                << " locations for "
+                << edide.Channel
+                << " rdCol size is currently "
+                << rdCol->size();
 
-	      if(edide.Channel != prevChan){
-		MF_LOG_DEBUG("IonizationReadout")
-		  << "There are  "
-		  << digitEDepLocs.size()
-		  << " locations for "
-		  << edide.Channel
-		  << " rdCol size is currently "
-		  << rdCol->size();
+              // this method clears the electrons and digitEDepLocs collections
+              // after creating the RawDigit
+              this->CreateSignalDigit(prevChan,
+                                      electrons,
+                                      digitEDepLocs,
+                                      *rdCol,
+                                      eDepCol,
+                                      *erassn,
+                                      evt);
 
-		// this method clears the electrons and digitEDepLocs collections
-		// after creating the RawDigit
-		this->CreateSignalDigit(prevChan,
-					electrons,
-					digitEDepLocs,
-					*rdCol,
-					eDepCol,
-					*erassn,
-					evt);
+              // reset the previous channel info
+              prevChan = edide.Channel;
+            }
 
-		// reset the previous channel info
-		prevChan = edide.Channel;
+            // put overflow times in the last bin.  Is this okay?  TODO
+            size_t esize = electrons.size();
+            if (esize>0) {
+              if (edide.TDC >= esize) {
+                electrons[esize - 1] = edide.NumElect;
+              } else {
+                electrons[edide.TDC] = edide.NumElect;
+              }
+            }
 
-	      }
+            for (auto loc : edide.edepLocs) digitEDepLocs.insert(loc);
 
-	      // put overflow times in the last bin.  Is this okay?  TODO
+          } // end loop to fill signal raw digit vector and make EnergyDeposit associations
 
-	      size_t esize = electrons.size();
-	      if (esize>0)
-		{
-		  if (edide.TDC >= esize)
-		    {
-		      electrons[esize - 1] = edide.NumElect;
-		    }
-		  else
-		    {
-		      electrons[edide.TDC] = edide.NumElect;
-		    }
-		}
+          // still one more digit to make because we ran out of channels to compare against
+          this->CreateSignalDigit(eDepIDEs.back().Channel,
+                                  electrons,
+                                  digitEDepLocs,
+                                  *rdCol,
+                                  eDepCol,
+                                  *erassn,
+                                  evt);
 
-	      for(auto loc : edide.edepLocs) digitEDepLocs.insert(loc);
+          MF_LOG_DEBUG("IonizationReadout")
+            << "Created "
+            << rdCol->size()
+            << " raw digits from signal";
 
-	    } // end loop to fill signal raw digit vector and make EnergyDeposit associations
+          // now make the noise digits
+          // to do -- only make noise digits on channels we haven't
+          // yet considered for noise digits, but which may have
+          // been entirely zero-suppressed -- may need to keep a
+          // list of channels and pass it in
+          fROSimAlg->CreateNoiseDigits(*rdCol);
 
-	    // still one more digit to make because we ran out of channels to compare against
-	    this->CreateSignalDigit(eDepIDEs.back().Channel,
-				    electrons,
-				    digitEDepLocs,
-				    *rdCol,
-				    eDepCol,
-				    *erassn,
-				    evt);
-
-	    MF_LOG_DEBUG("IonizationReadout")
-	      << "Created "
-	      << rdCol->size()
-	      << " raw digits from signal";
-
-	    // now make the noise digits
-	    // to do -- only make noise digits on channels we haven't
-	    // yet considered for noise digits, but which may have
-	    // been entirely zero-suppressed -- may need to keep a
-	    // list of channels and pass it in
-	    fROSimAlg->CreateNoiseDigits(*rdCol);
-
-	  } // end if the EdepIDEs have any size
+        } // end if the EdepIDEs have any size
 
       } // end if there were energy deposits to use
 
@@ -348,13 +352,14 @@ namespace gar {
       rosim::ElectronDriftInfo driftInfo;
 
       // loop over the energy deposits
-      for(size_t e = 0; e < edepCol.size(); ++e){
+      for (size_t e = 0; e < edepCol.size(); ++e) {
 
         // get the positions, arrival times, and electron cluster sizes
         // for this energy deposition
         fDriftAlg->DriftElectronsToReadout(edepCol[e], driftInfo);
 
-        // auto is double in this case.
+        // auto is vector<double> or vector<int> in the clusterSize case.  Size of vector is
+        // number of clusters produced by DriftElectronsToReadout.
         auto clusterXPos = driftInfo.ClusterXPos();
         auto clusterYPos = driftInfo.ClusterYPos();
         auto clusterZPos = driftInfo.ClusterZPos();
@@ -363,120 +368,106 @@ namespace gar {
 
         // the vectors should all have the same size by the time we get them
         // here (verified by the ElectronDriftInfo object when they are filled)
-        for(size_t c = 0; c < clusterXPos.size(); ++c){
+        for (size_t c = 0; c < clusterXPos.size(); ++c) {
 
           xyz[0] = clusterXPos[c];
           xyz[1] = clusterYPos[c];
           xyz[2] = clusterZPos[c];
 
 
-	  // map the cluster's drift point to channels.  Use the method that also gives
-	  // us a list of neighboring channels.
+          // map the cluster's drift point to channels.  Use the method that also gives
+          // us a list of neighboring channels.
 
-	  gar::geo::ChanWithNeighbors cwn;
-	  geo->NearestChannelInfo(xyz, cwn);
+          gar::geo::ChanWithNeighbors cwn;
+          geo->NearestChannelInfo(xyz, cwn);
 
-	  // the first channel in the list is the nearest one to the xyz point
-	  chan = cwn.at(0).id;
+          // the first channel in the list is the nearest one to the xyz point
+          chan = cwn.at(0).id;
 
-	  // if charge is deposited on the cover electrodes or is otherwise in a gap, skip it
+          // if charge is deposited on the cover electrodes or is otherwise in a gap, skip it
 
-	  if (chan == geo->GapChannelNumber()) continue;
+          if (chan == geo->GapChannelNumber()) continue;
 
-	  // incorporate pad response function. 
-	  // figure out what fraction of the charge of this cluster is to be deposted in each of the channels
-	  // in chanset.  Need to know if the channel is iroc, ioroc, ooroc, or hole-filler, and use the pad response functions
+          // incorporate pad response function. 
+          // figure out what fraction of the charge of this cluster is to be deposted in each of the channels
+          // in chanset.  Need to know if the channel is iroc, ioroc, ooroc, or hole-filler, and use the pad response functions
 
-	  TVector3 pos = cwn.at(0).pos;
-	  TVector3 pproj(0,xyz[1],xyz[2]);  // assume the pad planes are in the YZ plane
+          TVector3 pos = cwn.at(0).pos;
+          TVector3 pproj(0,xyz[1],xyz[2]);  // assume the pad planes are in the YZ plane
 
-	  std::vector<float> chanweight;
-	  size_t ncdistrib = cwn.size();
-	  if (!fUsePRF) ncdistrib = 1;    //  localize to just one channel if we aren't using the PRF
-	  float sumw = 0;
+          std::vector<float> chanweight;
+          size_t ncdistrib = cwn.size();
+          if (!fUsePRF) ncdistrib = 1;    //  localize to just one channel if we aren't using the PRF
+          float sumw = 0;
 
-	  //std::cout << "pproj: " << pproj.Y() << " " << pproj.Z() << std::endl;
-	  for (size_t icd=0; icd<ncdistrib; ++icd)
-	    {
-	      TH2F *prfhist=0;
-	      if (cwn.at(icd).roctype == gar::geo::HFILLER) 
-		{
-		  prfhist = fHFILLPRF;
-		  //std::cout << " hole filler" << std::endl;
-		}
-	      else if (cwn.at(icd).roctype == gar::geo::IROC)
-		{
-		  prfhist = fIROCPRF;
-		  //std::cout << " iroc " << std::endl;
-		} 
-	      else if (cwn.at(icd).roctype == gar::geo::IOROC)
-		{
-		  prfhist = fIOROCPRF;
-		  //std::cout << " ioroc " << std::endl;
-		} 
-	      else if (cwn.at(icd).roctype == gar::geo::OOROC)
-		{
-		  prfhist = fOOROCPRF;
-		  //std::cout << " ooroc " << std::endl;
-		} 
-	      else
-		{
-		  throw cet::exception("IonizationReadout") << "Ununderstood readout chamber type "
-							    << cwn.at(icd).roctype << "\n";
-		}
-	      TVector3 dproj = pproj - cwn.at(icd).pos;
-	      dproj.SetX(0);
-  	      //std::cout << " Pad loc: " << cwn.at(icd).pos.Y() << " " << cwn.at(icd).pos.Z() << std::endl;
+          MF_LOG_DEBUG("IonizationReadout::DriftElectronsToReadout") << "pproj: " << pproj.Y() << " " << pproj.Z() << std::endl;
+          for (size_t icd=0; icd<ncdistrib; ++icd) {
+            TH2F *prfhist=0;
+            if (cwn.at(icd).roctype == gar::geo::HFILLER) {
+              prfhist = fHFILLPRF;
+              MF_LOG_DEBUG("IonizationReadout::DriftElectronsToReadout") << " hole filler" << std::endl;
+            } else if (cwn.at(icd).roctype == gar::geo::IROC) {
+              prfhist = fIROCPRF;
+              MF_LOG_DEBUG("IonizationReadout::DriftElectronsToReadout") << " iroc " << std::endl;
+            } else if (cwn.at(icd).roctype == gar::geo::IOROC) {
+              prfhist = fIOROCPRF;
+              MF_LOG_DEBUG("IonizationReadout::DriftElectronsToReadout") << " ioroc " << std::endl;
+            } else if (cwn.at(icd).roctype == gar::geo::OOROC) {
+              prfhist = fOOROCPRF;
+              MF_LOG_DEBUG("IonizationReadout::DriftElectronsToReadout") << " ooroc " << std::endl;
+            } else {
+              throw cet::exception("IonizationReadout::DriftElectronsToReadout") << "Ununderstood readout chamber type "
+                                << cwn.at(icd).roctype << "\n";
+            }
+            TVector3 dproj = pproj - cwn.at(icd).pos;
+            dproj.SetX(0);
+            MF_LOG_DEBUG("IonizationReadout::DriftElectronsToReadout") << " Pad loc: " << cwn.at(icd).pos.Y() << 
+              " " << cwn.at(icd).pos.Z() << std::endl;
 
-	      float dist_along_padrow = dproj.Dot(cwn.at(icd).padrowdir);  
-	      float dist_perp_padrow = (dproj - dist_along_padrow*cwn.at(icd).padrowdir).Mag(); // assume symmetric PRF
-	      //std::cout << "along, perp: " << dist_along_padrow << " " << dist_perp_padrow << std::endl;
+            float dist_along_padrow = dproj.Dot(cwn.at(icd).padrowdir);  
+            float dist_perp_padrow = (dproj - dist_along_padrow*cwn.at(icd).padrowdir).Mag(); // assume symmetric PRF
+            MF_LOG_DEBUG("IonizationReadout::DriftElectronsToReadout") << "along, perp: " << dist_along_padrow << 
+              " " << dist_perp_padrow << std::endl;
 
-	      dist_along_padrow = TMath::Abs(dist_along_padrow);
-	      if (dist_along_padrow < prfhist->GetXaxis()->GetBinUpEdge(prfhist->GetNbinsX()) &&
-		  dist_perp_padrow < prfhist->GetYaxis()->GetBinUpEdge(prfhist->GetNbinsY()))
-		{
-		  chanweight.push_back(prfhist->GetBinContent(prfhist->FindBin(dist_along_padrow,dist_perp_padrow)));
-		}
-	      else
-		{
-		  chanweight.push_back(0);
-		}
-	      sumw += chanweight.back();
-	    }
+            dist_along_padrow = TMath::Abs(dist_along_padrow);
+            if (dist_along_padrow < prfhist->GetXaxis()->GetBinUpEdge(prfhist->GetNbinsX()) &&
+                dist_perp_padrow < prfhist->GetYaxis()->GetBinUpEdge(prfhist->GetNbinsY())) {
+              chanweight.push_back(prfhist->GetBinContent(prfhist->FindBin(dist_along_padrow,dist_perp_padrow)));
+            } else {
+              chanweight.push_back(0);
+    
+            }
+            sumw += chanweight.back();
+          }
 
-	  if (sumw == 0)
-	    {
-	      throw cet::exception("IonizationReadout") << "Weight sum is zero, even when including the closest channel "
-							<< "\n";
-	    }
-	  float rsumw = 1.0/sumw;
-	  for (size_t i=0; i<chanweight.size(); ++i)
-	    {
-	      if (chanweight.at(i)>0 && clusterSize.at(c) > 0)
-		{
-		  edepIDEs.emplace_back(clusterSize.at(c)*chanweight.at(i)*rsumw,
-					cwn.at(i).id,
-					fTime->TPCG4Time2TDC(clusterTime.at(c)),
-					e);
-		  this->CheckChannelToEnergyDepositMapping(edepIDEs.back().Channel,
-							   edepCol[e],
-							   "DriftElectronsToReadout");
-		}
-
-	    }
+  
+          if (sumw == 0) {
+            throw cet::exception("IonizationReadout::DriftElectronsToReadout") << 
+              "Weight sum is zero, even when including the closest channel " << std::endl;
+          }
+          float rsumw = 1.0/sumw;
+          for (size_t i=0; i<chanweight.size(); ++i) {
+            if (chanweight.at(i)>0 && clusterSize.at(c) > 0) {
+              edepIDEs.emplace_back(clusterSize.at(c)*chanweight.at(i)*rsumw,
+                                    cwn.at(i).id,
+                                    fTime->TPCG4Time2TDC(clusterTime.at(c)),
+                                    e);
+              this->CheckChannelToEnergyDepositMapping(edepIDEs.back().Channel,
+                                                       edepCol[e],
+                                                       "DriftElectronsToReadout");
+            }
+          }
 
 
-          MF_LOG_DEBUG("IonizationReadout")
-	    << "cluster time: "
-	    << clusterTime[c]
-	    << " TDC "
-	    << fTime->TPCG4Time2TDC(clusterTime[c])
-	    << " "
-	    << fTime->G4ToElecTime(clusterTime[c])
-	    << " "
-	    << fTime->TPCClock().TickPeriod();
-
+          MF_LOG_DEBUG("IonizationReadout::DriftElectronsToReadout")
+            << "cluster time: "
+            << clusterTime[c]
+            << " TDC "
+            << fTime->TPCG4Time2TDC(clusterTime[c])
+            << " "
+            << fTime->G4ToElecTime(clusterTime[c])
+            << " "
+            << fTime->TPCClock().TickPeriod();
 
         }
 
@@ -489,26 +480,27 @@ namespace gar {
 
     //--------------------------------------------------------------------------
     void IonizationReadout::CombineIDEs(std::vector<edepIDE>                 & edepIDEs,
-                                        std::vector<sdp::EnergyDeposit> const& edepCol)
-    {
-      MF_LOG_DEBUG("IonizationReadout")
-	<< "starting with "
-	<< edepIDEs.size()
-	<< " energy deposits";
+                                        std::vector<sdp::EnergyDeposit> const& edepCol) {
+
+      MF_LOG_DEBUG("IonizationReadout::CombineIDEs")
+        << "starting with "
+        << edepIDEs.size()
+        << " energy deposits";
 
       if (edepIDEs.size()==0) return;
 
       std::vector<edepIDE> temp;
 
-      // sort the edepIDE objects.  This is the sorting by channel and TDC
-      // because that is all the < operator of edepIDEs does
+      // sort the edepIDE objects.  This is sorting by channel 1st & TDC
+      // 2nd via the < operator of edepIDE
       std::sort(edepIDEs.begin(), edepIDEs.end());
 
       for(auto itr : edepIDEs){
-        for(auto edloc : itr.edepLocs)
+        for(auto edloc : itr.edepLocs) {
           this->CheckChannelToEnergyDepositMapping(itr.Channel,
-                                                   edepCol[edloc],
-                                                   "CombineIDEsAfterSort");
+        										   edepCol[edloc],
+        										   "CombineIDEsAfterSort");
+        }
       }
 
       edepIDE prev = edepIDEs.front();
@@ -519,35 +511,37 @@ namespace gar {
       // with the same channel and tdc values for the IDEs
       // start with entry 1 as sum is already holding the information
       // from entry 0
-      for(size_t e = 1; e < edepIDEs.size(); ++e){
+      for (size_t e = 1; e < edepIDEs.size(); ++e) {
         cur = edepIDEs[e];
 
-        MF_LOG_DEBUG("IonizationReadout")
-	  << "current edepIDE: "
-	  << cur.NumElect
-	  << " "
-	  << cur.Channel
-	  << " "
-	  << cur.TDC
-	  << " "
-	  << cur.edepLocs.size();
+        MF_LOG_DEBUG("IonizationReadout::CombineIDEs")
+          << "current edepIDE: "
+          << cur.NumElect
+          << " "
+          << cur.Channel
+          << " "
+          << cur.TDC
+          << " "
+          << cur.edepLocs.size();
 
-        if(cur != prev){
-          MF_LOG_DEBUG("IonizationReadout")
-	    << "storing edepIDE sum: "
-	    << sum.NumElect
-	    << " "
-	    << sum.Channel
-	    << " "
-	    << sum.TDC
-	    << " "
-	    << sum.edepLocs.size();
+        if (cur != prev) {
+          MF_LOG_DEBUG("IonizationReadout::CombineIDEs")
+            << "storing edepIDE sum: "
+            << sum.NumElect
+            << " "
+            << sum.Channel
+            << " "
+            << sum.TDC
+            << " "
+            << sum.edepLocs.size();
 
-          if(fCheckChan)
-            for(auto edloc : sum.edepLocs)
-              this->CheckChannelToEnergyDepositMapping(sum.Channel,
-                                                       edepCol[edloc],
-                                                       "CombineIDEsStore");
+          if (fCheckChan) {
+        	for (auto edloc : sum.edepLocs) {
+        	  this->CheckChannelToEnergyDepositMapping(sum.Channel,
+        											   edepCol[edloc],
+        											   "CombineIDEsStore");
+        	}
+          }
 
           // put the summed edepIDE into the temp vector
           temp.push_back(sum);
@@ -555,11 +549,10 @@ namespace gar {
           // start over with a fresh sum
           sum  = cur;
           prev = cur;
-        }
-        else{
-          MF_LOG_DEBUG("IonizationReadout")
-	    << "summing current edepIDE";
 
+        } else {
+          MF_LOG_DEBUG("IonizationReadout::CombineIDEs")
+        	<< "summing current edepIDE";
           sum  += cur;
           prev  = cur;
         }
@@ -569,10 +562,10 @@ namespace gar {
       // now swap the input vector with the temp vector
       temp.swap(edepIDEs);
 
-      MF_LOG_DEBUG("IonizationReadout")
-	<< "ending with "
-	<< edepIDEs.size()
-	<< " energy deposits";
+      MF_LOG_DEBUG("IonizationReadout::CombineIDEs")
+        << "ending with "
+        << edepIDEs.size()
+        << " energy deposits";
 
       return;
     }
@@ -591,28 +584,27 @@ namespace gar {
 
       bool todrop=false;
       raw::RawDigit tmpdigit = fROSimAlg->CreateRawDigit(channel, electrons, todrop);
-      if (!todrop)
-	{
-	  digCol.emplace_back(tmpdigit);
 
-	  MF_LOG_DEBUG("IonizationReadout")
-	    << "Associating "
-	    << eDepLocs.size()
-	    << " energy deposits to digit for channel "
-	    << channel;
+      if (!todrop) {
+        digCol.emplace_back(tmpdigit);
 
-	  // loop over the locations in the eDepCol to make the associations
-	  for(auto ed : eDepLocs){
-	    auto const ptr = art::Ptr<sdp::EnergyDeposit>(eDepCol, ed);
+        MF_LOG_DEBUG("IonizationReadout::CreateSignalDigit")
+          << "Associating "
+          << eDepLocs.size()
+          << " energy deposits to digit for channel "
+          << channel;
 
-	    this->CheckChannelToEnergyDepositMapping(channel,
-						     *ptr,
-						     "CreateSignalDigit");
+        // loop over the locations in the eDepCol to make the associations
+        for (auto ed : eDepLocs) {
+          auto const ptr = art::Ptr<sdp::EnergyDeposit>(eDepCol, ed);
 
-	    //std::cout << "Making association: " << digCol.size() << " " << ptr << std::endl;
-	    util::CreateAssn(*this, evt, digCol, ptr, erassn);
-	  }
-	}
+          this->CheckChannelToEnergyDepositMapping(channel, *ptr, "CreateSignalDigit");
+
+          MF_LOG_DEBUG("IonizationReadout::CreateSignalDigit")
+            << "Making association: " << digCol.size() << " " << ptr << std::endl;
+          util::CreateAssn(*this, evt, digCol, ptr, erassn);
+        }
+      }
 
       eDepLocs.clear();
       electrons.clear();
@@ -626,7 +618,7 @@ namespace gar {
                                                                sdp::EnergyDeposit const& edep,
                                                                std::string        const& id)
     {
-      if(!fCheckChan) return;
+      if (!fCheckChan) return;
 
       // check that the channel for this cluster is close to what we expect
       // for the energy deposit
@@ -636,21 +628,21 @@ namespace gar {
 
       if(std::abs(edep.Y() - xyz[1]) > 1 ||
          std::abs(edep.Z() - xyz[2]) > 1){
-	//    MF_LOG_VERBATIM("IonizationReadout")
-	std::cout 
-	  << "In function "
-	  << id
-	  << ": Channel "
-	  << channel
-	  << " is off from the energy deposit: ("
-	  << xyz[1]
-	  << ", "
-	  << xyz[2]
-	  << ") vs ("
-	  << edep.Y()
-	  << ", "
-	  << edep.Z()
-	  << ") " << std::endl;
+
+        MF_LOG_DEBUG("IonizationReadout::CheckChannelToEnergyDepositMapping")
+          << "In function "
+          << id
+          << ": Channel "
+          << channel
+          << " is off from the energy deposit: ("
+          << xyz[1]
+          << ", "
+          << xyz[2]
+          << ") vs ("
+          << edep.Y()
+          << ", "
+          << edep.Z()
+          << ") " << std::endl;
       }
 
       return;

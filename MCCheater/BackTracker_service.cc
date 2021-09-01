@@ -174,7 +174,8 @@ namespace gar {
         if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
           MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
             << "Unable to find RawDigits in " << fRawTPCDataLabel <<
-            "; no backtracking in TPC will be possible";
+            "; no backtracking in TPC will be possible" <<
+            "\n Well did you EXPECT RawDigits in this file?";
         }
 
       } else {
@@ -185,7 +186,8 @@ namespace gar {
             MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
               << "Unable to find valid association between RawDigits and "
               << "energy deposits in " << fRawTPCDataLabel <<
-              "; no backtracking in TPC will be possible";
+              "; no backtracking in TPC will be possible" <<
+              "\n Well did you EXPECT those Assns in this file?";
           }
 
         } else {
@@ -202,6 +204,15 @@ namespace gar {
             eDeps.clear();
             fmEnergyDep.get(iDig, eDeps);    // uses vector::insert
             if (eDeps.size() < 1) continue;
+
+			for (size_t iDep=0; iDep<eDeps.size(); ++iDep) {
+				MF_LOG_DEBUG("BackTracker_service::RebuildNoSC") << "eDep\t" << iDep << " from RawDigit \t" << iDig
+					<< "\t TrkID, energy, dl, position:\t " << eDeps[iDep]->TrackID()
+					<< "\t " << eDeps[iDep]->Energy() << "\t " << eDeps[iDep]->dX()
+					<< "\t " << eDeps[iDep]->X() << "\t " << eDeps[iDep]->Y()
+					<< "\t " << eDeps[iDep]->Z() << std::endl;
+			}
+
             fChannelToEDepCol[ (*digCol)[iDig].Channel() ].swap(eDeps);
           }
           fHasHits = true;
@@ -223,7 +234,8 @@ namespace gar {
         if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
           MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
             << "Unable to find CaloRawDigits in " << fRawCaloDataLabel <<
-            "; no backtracking in ECAL will be possible";
+            "; no backtracking in ECAL will be possible" <<
+            "\n Well did you EXPECT CaloRawDigits in this file?";
         }
 
       } else {
@@ -234,7 +246,8 @@ namespace gar {
             MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
               << "Unable to find valid association between CaloRawDigits and "
               << "calorimeter energy deposits in " << fRawCaloDataLabel <<
-              "; no backtracking in ECAL will be possible";
+              "; no backtracking in ECAL will be possible" <<
+              "\n Well did you EXPECT those Assns in this file?";
           }
 
         } else {
@@ -262,7 +275,8 @@ namespace gar {
         if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
           MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
             << "Unable to find rec::Tracks in " << fTrackLabel <<
-            "; no backtracking of reconstructed tracks will be possible";
+            "; no backtracking of reconstructed tracks will be possible" <<
+            "\n Well did you EXPECT tracks in this file?";
         }
 
       } else {
@@ -273,7 +287,8 @@ namespace gar {
             MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
               << "Unable to find valid association between Tracks and "
               << "TPCClusters in " << fTrackLabel <<
-              "; no backtracking of reconstructed tracks will be possible";
+              "; no backtracking of reconstructed tracks will be possible" <<
+              "\n Well did you EXPECT those Assns in this file?";
           }
 
         } else {
@@ -296,7 +311,8 @@ namespace gar {
         if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
           MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
             << "Unable to find rec::TPCClusters in " << fTPCClusterLabel <<
-            "; no backtracking of reconstructed tracks will be possible";
+            "; no backtracking of reconstructed tracks will be possible" <<
+            "\n Well did you EXPECT TPCClusters in this file?";
         }
 
       } else {
@@ -307,7 +323,8 @@ namespace gar {
             MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
               << "Unable to find valid association between TPCClusters and "
               << "Hits in " << fTPCClusterLabel <<
-              "; no backtracking of reconstructed tracks will be possible";
+              "; no backtracking of reconstructed tracks will be possible" <<
+              "\n Well did you EXPECT those Assns in this file?";
           }
 
         } else {
@@ -353,7 +370,8 @@ namespace gar {
           MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
             << "Unable to find rec::Clusters in " << fClusterLabel << ", "
             << fClusterECALInstance << " instance; no backtracking of ECAL "
-            << "clusters will be possible";
+            << "clusters will be possible" <<
+              "\n Well did you EXPECT ECAL Clusters in this file?";
         }
 
       } else {
@@ -364,7 +382,8 @@ namespace gar {
             MF_LOG_WARNING("BackTracker_service::RebuildNoSC")
               << "Unable to find valid association between Clusters and "
               << "CaloHits in " << fClusterLabel << ", " << fClusterECALInstance 
-              << " instance; no backtracking of reconstructed tracks will be possible";
+              << " instance; no backtracking of reconstructed tracks will be possible" <<
+              "\n Well did you EXPECT those Assns in this file?";
           }
 
         } else {

@@ -184,6 +184,7 @@ namespace gar {
                         // split the hits
                         std::vector <const gar::rec::CaloHit*> virtualhits;
                         bool isBarrel = (det_id == 0 || det_id == 4) ? true : false;
+                        /* DEBLEO: Should it be bool isBarrel = (det_id == 1); */
                         getVirtualHits(hit, orientation, isBarrel, virtualhits);
 
                         // add (new) hits to collections

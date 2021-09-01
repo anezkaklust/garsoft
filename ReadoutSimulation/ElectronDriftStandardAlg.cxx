@@ -48,7 +48,7 @@ namespace gar {
       // if none, just return the empty vector
       const int electrons = gar::rosim::IonizationAndScintillation::Instance()->NumberIonizationElectrons();
 
-      if(electrons <= 0) return;
+      if (electrons <= 0) return;
 
       // We need a random number thrower for the diffusion, etc
       CLHEP::RandGauss GaussRand(fEngine);
@@ -61,7 +61,8 @@ namespace gar {
                       dep.Y(),
                       dep.Z()};
 
-      //std::cout << "energy deposition: " << dep.X() << " " << dep.Y() << " " << dep.Z() << std::endl;
+      MF_LOG_DEBUG("ElectronDriftStandardAlg::DriftElectronsToReadout") << "energy deposition: " 
+        << dep.X() << " " << dep.Y() << " " << dep.Z() << std::endl;
 
       // The geometry has x = TPCXCent() at the cathode plane. Compute the drift time for a two-drift-volume
       // TPC.  If we only have one drift volume, need to get that information here.
@@ -106,22 +107,21 @@ namespace gar {
         YDiff[c] += xyz[1];
         ZDiff[c] += xyz[2];
 
-	//std::cout << "Drift xyz: " << XDiff[c] << " " << YDiff[c] << " " << ZDiff[c] << " " << TDiff[c] << std::endl;
-	// LOG_DEBUG("IonizationReadout")
-        //<< "g4 time: "
-        //<< g4time
-        //<< " drift time "
-        //<< driftT
-        //<< " diffusion  x:"
-        //<< XDiff[c]
-        //<< " y "
-        //<< YDiff[c]
-        //<< " z "
-        //<< ZDiff[c]
-        //<< " t "
-        //<< TDiff[c]
-        //<< " tick period "
-        //<< fTime->TPCClock().TickPeriod();
+	  MF_LOG_DEBUG("ElectronDriftStandardAlg::DriftElectronsToReadout")
+        << "g4 time: "
+        << g4time
+        << " drift time "
+        << driftT
+        << " diffusion  x:"
+        << XDiff[c]
+        << " y "
+        << YDiff[c]
+        << " z "
+        << ZDiff[c]
+        << " t "
+        << TDiff[c]
+        << " tick period "
+        << fTime->TPCClock().TickPeriod();
 
       }
       
