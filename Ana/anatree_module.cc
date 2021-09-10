@@ -434,10 +434,10 @@ namespace gar {
         std::vector<Float_t>            fRecoHitY;
         std::vector<Float_t>            fRecoHitZ;
         std::vector<Float_t>            fRecoHitTime;
-        std::vector<Float_t>            fRecoHitEnergy;
-        std::vector<ULong64_t>          fRecoHitCellID;
-        std::vector<Int_t>              fRecoHitLayer;
-        Float_t                         fRecoEnergySum;
+        std::vector<Float_t>            fRecoHitEnergy;			// Hit energies have the sampling fraction
+        std::vector<ULong64_t>          fRecoHitCellID;			// correction factors in Reco/SiPMHitFinder.fcl
+        std::vector<Int_t>              fRecoHitLayer;			// These are propagated to clusters and the same
+        Float_t                         fRecoEnergySum;			// is done for the NuID system.
 
         //Muon system reco hits
         UInt_t                          fReconHits_MuID;
