@@ -79,7 +79,7 @@ namespace gar{
     ///////////////////////////////////////////////
     garana::Vertex      MakeAnaVtx(const rec::Vertex& vtx) {
 
-      TLorentzVector pos( vtx.Position()[0], vtx.Position()[0], vtx.Position()[0], vtx.Time() );
+      TLorentzVector pos( vtx.Position()[0], vtx.Position()[1], vtx.Position()[2], vtx.Time() );
       garana::Vertex outvtx(pos, vtx.CovMat());
 
       return outvtx;
@@ -126,7 +126,9 @@ namespace gar{
         {"tInelastic"                , 36},
         {"kaon0SInelastic"           , 37},
         {"sigma+Inelastic"           , 38},
-        {"lambdaInelastic"           , 39}
+        {"lambdaInelastic"           , 39},
+        {"anti_protonInelastic"      , 40},
+        {"alphaInelastic"            , 41}
     };
 
 
