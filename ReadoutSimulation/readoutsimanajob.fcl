@@ -8,6 +8,7 @@
 #include "Geometry.fcl"
 #include "RunHistory.fcl"
 #include "BackTracker.fcl"
+#include "ECALProperties.fcl"
 
 #Plugins
 #include "RawDigitAna.fcl"
@@ -30,6 +31,7 @@ services:
  NuRandomService:        @local::standard_NuRandomService
  MagneticField:          @local::standard_mag_garsoft
  BackTracker:            @local::standard_backtracker
+ ECALProperties:         @local::standard_ecalproperties
  #RunHistory:             @local::standard_runhistory
 }
 
