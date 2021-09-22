@@ -169,13 +169,14 @@ namespace gar {
           // Determine cluster position in endcap for cuts to accumulate more hits
           float rHit = std::hypot(xyz[1],xyz[2]);
           bool In_CROC =                                                  rHit < euclid->GetIROCInnerRadius();
-          bool In_IROC = euclid->GetIROCInnerRadius() < rHit 		  && rHit < euclid->GetIROCOuterRadius();
-          bool InIOROC = euclid->GetOROCInnerRadius() < rHit 		  && rHit < euclid->GetOROCPadHeightChangeRadius();
+          bool In_IROC = euclid->GetIROCInnerRadius() < rHit 		   && rHit < euclid->GetIROCOuterRadius();
+          bool InIOROC = euclid->GetOROCInnerRadius() < rHit 		   && rHit < euclid->GetOROCPadHeightChangeRadius();
           bool InOOROC = euclid->GetOROCPadHeightChangeRadius() < rHit && rHit < euclid->GetOROCOuterRadius();
 
           for (size_t ix = ihitx+1; ix<nhits; ++ix) // look for candidate hits to cluster in with this one
             {
               size_t ihc = hsi[ix];  // candidate hit to add to the cluster if it's in range
+              if (used[ihc]) continue;
 
               int sidetest = 0;
               auto hitchantest = hits.at(ihc).Channel();
@@ -313,7 +314,8 @@ namespace gar {
 
           if (fPrintLevel > 0)
             {
-              std::cout << "Made a TPC Cluster pos: " << fcpos[0] << " " << fcpos[1] << " " << fcpos[2] << "  signal: " << csig << std::endl;
+              std::cout << "Made a TPC Cluster pos: " << fcpos[0] << " " << fcpos[1] << " " << fcpos[2] << 
+                "  signal: " << csig << "  nHits: " << hitsinclus.size() << std::endl;
             }
           auto const TPCClusterPointer = TPCClusterPtrMaker(TPCClusterCol->size()-1);
           for (size_t i=0; i<hitsinclus.size(); ++i)

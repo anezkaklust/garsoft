@@ -95,10 +95,10 @@ namespace gar {
             fTrackEndXCut      = p.get<float>("TrackEndXCut",     215.0);
             fTrackEndRCut      = p.get<float>("TrackEndRCut",     230.0);
             fPerpRCut          = p.get<float>("PerpRCut",          10.0);
-            fBarrelXCut        = p.get<float>("BarrelXCut",        35.0);
-            fEndcapRphiCut     = p.get<float>("EndXCut",           32.0);
+            fBarrelXCut        = p.get<float>("BarrelXCut",        10.0);
+            fEndcapRphiCut     = p.get<float>("EndXCut",           10.0);
             fClusterDirNhitCut = p.get<int>  ("ClusterDirNhitCut",    5);
-            fClusterDirCut     = p.get<float>("ClusterDirCut",    0.000);
+            fClusterDirCut     = p.get<float>("ClusterDirCut",     0.40);
             fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fClocks  = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
             fGeo     = gar::providerFrom<geo::GeometryGAr>();
@@ -177,7 +177,6 @@ namespace gar {
                     gar::rec::Track track = (*TrackHandle)[iTrack];
 
                     // Which if any ends of the track are near the outer edges of the TPC?
-                    // These specific cuts could perhaps be increased
                     bool outside[2];    outside[0] = outside[1] = false;
                     candTrack.clear();  candEnd.clear();   candDist.clear();
 
@@ -315,8 +314,9 @@ namespace gar {
  
                             angleCut:
                             float trackDir[3];
+                            float xEval = trackXYZ.x();  // Ya not the cluster X
                             int errcode = util::TrackPropagator::DirectionX(
-                                trackPar,trackEnd, xClus,trackDir);
+                                trackPar,trackEnd, xEval,trackDir);
                             if (fVerbosity>0) nEntryVsCut->Fill(30);
                             if (errcode!=0) {
                                 // Unlikely but possible condition
@@ -338,7 +338,7 @@ namespace gar {
                             art::Ptr<gar::rec::Track> const trackPtr = trackPtrMaker(iTrack);
                             candTrack.push_back(trackPtr);
                             candEnd.push_back(iEnd);
-                            float howFar = std::hypot(trackEnd[0] -xClus, trackEnd[1] -yClus, trackEnd[2] -zClus);
+                            float howFar = std::hypot(trackXYZ.x() -xClus, trackXYZ.y() -yClus, trackXYZ.z() -zClus);
                             candDist.push_back(howFar);
                         }
                     } // end loop over 2 ends of track
