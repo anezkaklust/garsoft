@@ -212,129 +212,190 @@ namespace gar {
             {
 
                 // sort the TPC Clusters along Z
+                bool debug=false;
 
+                std::vector<std::vector<gar::rec::TPCCluster>> TPCClusterColTime;
+                std::vector<gar::rec::TPCCluster> TPCClusterColTimeBlock;
                 std::sort(TPCClusterCol->begin(),TPCClusterCol->end(),
                 [](const gar::rec::TPCCluster &a, const gar::rec::TPCCluster &b)->bool
-                { return a.Position()[2] < b.Position()[2]; } );
-
+                { return a.Time() < b.Time(); } );
                 size_t ntpcclus = TPCClusterCol->size();
 
-                // look for best-fit tracks in the list of TPC clusters
-                // find the best triplet of TPC Clusters with spacing at least fZCut that fit on a circle
-                // to think about -- time and energy cuts
-
-                size_t bestnpts = 0;
-                float bestsumr2 = 0;
-                std::vector<size_t> besttpcclusindex;
-                gar::rec::Track besttrack;
-
-                for (size_t i=0; i<ntpcclus; ++i)
+        
+                float startt= 0;
+                if (ntpcclus!=0)
                 {
-                    const float *ipos = TPCClusterCol->at(i).Position();
-                    for (size_t j=i+1; j<ntpcclus; ++j)
+                    startt=TPCClusterCol->at(0).Time();
+                    for(size_t i=0; i<ntpcclus; i++)
                     {
-                        const float *jpos = TPCClusterCol->at(j).Position();
-                        if (TMath::Abs( ipos[2] - jpos[2] ) < fZCut1) continue;
-                        for (size_t k=j+1; k<ntpcclus; ++k)
+                        
+                        if(TPCClusterCol->at(i).Time()-startt<=19)
                         {
-                            const float *kpos = TPCClusterCol->at(k).Position();
-                            if (TMath::Abs( ipos[2] - kpos[2] ) < fZCut1) continue;
-                            std::vector<gar::rec::TPCCluster> triplet;
-                            triplet.push_back(TPCClusterCol->at(i));
-                            triplet.push_back(TPCClusterCol->at(j));
-                            triplet.push_back(TPCClusterCol->at(k));
-                            gar::rec::TrackPar triplettrack;
-                            makepatrectrack(triplet,triplettrack);
-
-                            // pick the best TPC clusters at each Z position.  Save their
-                            // indices in tpcclusindex and sum the squares of distances in sumr2
-
-                            std::vector<size_t> tpcclusindex;
-                            float sumr2 = 0;
-
-                            float zcur = -2E9;
-                            int tpcclusindexb = -1;
-                            float dbest=1E9;
-                            gar::rec::Track tpt;
-
-                            for (size_t k2=0; k2<ntpcclus; ++k2)
-                            {
-                                const float *k2pos = TPCClusterCol->at(k2).Position();
-
-                                // clusters are sorted along Z.  If we found a new Z, put the best point on the list
-
-                                if ((TMath::Abs(zcur - k2pos[2]) > fZCut2) &&
-                                (tpcclusindexb > -1) &&
-                                (dbest < fRCut) )
-                                {
-                                    tpcclusindex.push_back(tpcclusindexb);
-                                    sumr2 += dbest*dbest;
-                                    dbest = 1E9;
-                                    tpcclusindexb = -1;
-                                    zcur = k2pos[2];
-                                }
-
-                                float dist=0;
-                                tpt = triplettrack.CreateTrack();
-                                int retcode = util::TrackPropagator::DistXYZ(tpt.TrackParBeg(),tpt.Vertex(),k2pos,dist);
-                                if (retcode != 0) continue;
-                                if (dist > fRCut) continue;
-                                if (dist<dbest)
-                                {
-                                    dbest = dist;
-                                    tpcclusindexb = k2;
-                                }
-                                // last point -- check to see if it gets added.
-                                if (k2 == ntpcclus-1 && tpcclusindexb > -1)
-                                {
-                                    tpcclusindex.push_back(tpcclusindexb);
-                                    sumr2 += dbest*dbest;
-                                }
-                            }  // end loop over k2 -- assigning clusters to this track
-
-                            if (tpcclusindex.size() > bestnpts ||
-                            ((tpcclusindex.size() == bestnpts) &&
-                            (sumr2 < bestsumr2)))
-                            {
-                                bestnpts = tpcclusindex.size();
-                                bestsumr2 = sumr2;
-                                besttpcclusindex = tpcclusindex;
-                                besttrack = tpt;
-                            }
-                        } // end loop over k in triplet
-                    } // end loop over j in triplet
-                } // end loop over i in triplet
-
-                // so far we can only make one track.  Look at other points in collection not yet used and make more tracks
-
-                if (bestnpts > 0)
-                {
-                    // "besttrack" above only has track parameters from the triplet.  make a new track from
-                    // all the TPC clusters
-                    //trkCol->push_back(besttrack);
-                    std::vector<gar::rec::TPCCluster> tcv;
-                    for (size_t i=0;i<besttpcclusindex.size(); ++i)
-                    {
-                        tcv.push_back(TPCClusterCol->at(besttpcclusindex.at(i)));
+                            TPCClusterColTimeBlock.push_back(TPCClusterCol->at(i));
+                        }
+                        else
+                        {
+                            TPCClusterColTime.push_back(TPCClusterColTimeBlock);
+                            startt=TPCClusterCol->at(i).Time();
+                            TPCClusterColTimeBlock.clear();     
+                            TPCClusterColTimeBlock.push_back(TPCClusterCol->at(i));             
+                        }
+                        
                     }
 
-                    gar::rec::TrackPar btp;
-                    makepatrectrack(tcv,btp);
-                    gar::rec::Track btt = btp.CreateTrack();
-                    trkCol->push_back(btt);
-
-                    auto const trackpointer = trackPtrMaker(trkCol->size()-1);
-                    for (size_t i=0; i<besttpcclusindex.size(); ++i)
-                    {
-                        auto const tpccluspointer = tpcclusPtrMaker(besttpcclusindex.at(i));
-                        TPCClusterTrkAssns->addSingle(tpccluspointer,trackpointer);
-                    }
+                    if(TPCClusterColTimeBlock.size()!=0) TPCClusterColTime.push_back(TPCClusterColTimeBlock);
                 }
 
+
+                if(debug)
+                {
+                for(size_t c=0; c<TPCClusterColTime.size(); c++)
+                {
+                    
+                    std::cout << "l"<<c<<" = { ";
+                    for (size_t d=0; d<TPCClusterColTime.at(c).size(); d++) {
+                    std::cout << TPCClusterColTime.at(c).at(d).Time() << ", ";
+                    }
+                    std::cout << "};\n";
+                
+                }
+                }
+                
+                for(size_t t=0; t<TPCClusterColTime.size(); t++)
+                {
+                    std::sort(TPCClusterColTime.at(t).begin(),TPCClusterColTime.at(t).end(),
+                    [](const gar::rec::TPCCluster &a, const gar::rec::TPCCluster &b)->bool
+                    { return a.Position()[2] < b.Position()[2]; } );
+
+
+                    size_t ntpcclust = TPCClusterColTime.at(t).size();
+                    
+                    /*
+                    std::ofstream outfile;
+                    outfile.open("time_spill_std.txt", std::ios_base::app); // append instead of overwrite
+                    for (size_t i=0; i<ntpcclus; ++i)
+                    {
+                    outfile << TPCClusterCol->at(i).Time() <<" "<< TPCClusterCol->at(i).Position()[2]<<"\n";
+                    }
+                    */
+                    // look for best-fit tracks in the list of TPC clusters
+                    // find the best triplet of TPC Clusters with spacing at least fZCut that fit on a circle
+                    // to think about -- time and energy cuts
+
+                    size_t bestnpts = 0;
+                    float bestsumr2 = 0;
+                    std::vector<size_t> besttpcclusindex;
+                    gar::rec::Track besttrack;
+
+                    for (size_t i=0; i<ntpcclust; ++i)
+                    {
+                        const float *ipos = TPCClusterColTime.at(t).at(i).Position();
+                        for (size_t j=i+1; j<ntpcclust; ++j)
+                        {
+                            const float *jpos = TPCClusterColTime.at(t).at(j).Position();
+                            if (TMath::Abs( ipos[2] - jpos[2] ) < fZCut1) continue;
+                            for (size_t k=j+1; k<ntpcclust; ++k)
+                            {
+                                const float *kpos = TPCClusterColTime.at(t).at(k).Position();
+                                if (TMath::Abs( ipos[2] - kpos[2] ) < fZCut1) continue;
+                                std::vector<gar::rec::TPCCluster> triplet;
+                                triplet.push_back(TPCClusterColTime.at(t).at(i));
+                                triplet.push_back(TPCClusterColTime.at(t).at(j));
+                                triplet.push_back(TPCClusterColTime.at(t).at(k));
+                                gar::rec::TrackPar triplettrack;
+                                makepatrectrack(triplet,triplettrack);
+
+                                // pick the best TPC clusters at each Z position.  Save their
+                                // indices in tpcclusindex and sum the squares of distances in sumr2
+
+                                std::vector<size_t> tpcclusindex;
+                                float sumr2 = 0;
+
+                                float zcur = -2E9;
+                                int tpcclusindexb = -1;
+                                float dbest=1E9;
+                                gar::rec::Track tpt;
+
+                                for (size_t k2=0; k2<ntpcclust; ++k2)
+                                {
+                                    const float *k2pos = TPCClusterColTime.at(t).at(k2).Position();
+
+                                    // clusters are sorted along Z.  If we found a new Z, put the best point on the list
+
+                                    if ((TMath::Abs(zcur - k2pos[2]) > fZCut2) &&
+                                    (tpcclusindexb > -1) &&
+                                    (dbest < fRCut) )
+                                    {
+                                        tpcclusindex.push_back(tpcclusindexb);
+                                        sumr2 += dbest*dbest;
+                                        dbest = 1E9;
+                                        tpcclusindexb = -1;
+                                        zcur = k2pos[2];
+                                    }
+
+                                    float dist=0;
+                                    tpt = triplettrack.CreateTrack();
+                                    int retcode = util::TrackPropagator::DistXYZ(tpt.TrackParBeg(),tpt.Vertex(),k2pos,dist);
+                                    if (retcode != 0) continue;
+                                    if (dist > fRCut) continue;
+                                    if (dist<dbest)
+                                    {
+                                        dbest = dist;
+                                        tpcclusindexb = k2;
+                                    }
+                                    // last point -- check to see if it gets added.
+                                    if (k2 == ntpcclust-1 && tpcclusindexb > -1)
+                                    {
+                                        tpcclusindex.push_back(tpcclusindexb);
+                                        sumr2 += dbest*dbest;
+                                    }
+                                }  // end loop over k2 -- assigning clusters to this track
+
+                                if (tpcclusindex.size() > bestnpts ||
+                                ((tpcclusindex.size() == bestnpts) &&
+                                (sumr2 < bestsumr2)))
+                                {
+                                    bestnpts = tpcclusindex.size();
+                                    bestsumr2 = sumr2;
+                                    besttpcclusindex = tpcclusindex;
+                                    besttrack = tpt;
+                                }
+                            } // end loop over k in triplet
+                        } // end loop over j in triplet
+                    } // end loop over i in triplet
+
+                    // so far we can only make one track.  Look at other points in collection not yet used and make more tracks
+
+                    if (bestnpts > 0)
+                    {
+                        // "besttrack" above only has track parameters from the triplet.  make a new track from
+                        // all the TPC clusters
+                        //trkCol->push_back(besttrack);
+                        std::vector<gar::rec::TPCCluster> tcv;
+                        for (size_t i=0;i<besttpcclusindex.size(); ++i)
+                        {
+                            tcv.push_back(TPCClusterColTime.at(t).at(besttpcclusindex.at(i)));
+                        }
+
+                        gar::rec::TrackPar btp;
+                        makepatrectrack(tcv,btp);
+                        gar::rec::Track btt = btp.CreateTrack();
+                        trkCol->push_back(btt);
+
+                        auto const trackpointer = trackPtrMaker(trkCol->size()-1);
+                        for (size_t i=0; i<besttpcclusindex.size(); ++i)
+                        {
+                            auto const tpccluspointer = tpcclusPtrMaker(besttpcclusindex.at(i));
+                            TPCClusterTrkAssns->addSingle(tpccluspointer,trackpointer);
+                        }
+                    }
+
+                }
             }
             e.put(std::move(trkCol));
             e.put(std::move(TPCClusterCol));
             e.put(std::move(TPCClusterTrkAssns));
+            
         }
 
         // digitize the plane hits based on minerva numbers
