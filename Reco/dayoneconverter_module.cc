@@ -81,6 +81,7 @@ namespace gar {
             float       fZCut1;          ///< Cut to ensure TPC Clusters are on different planes
             float       fZCut2;          ///< Cut to ensure TPC clusters are on the same plane
             float       fRCut;           ///< Road in the YZ plane to add hits on a circle
+            float       fTimeBunch;      ///< Time bunch spread, in ns            
 
             CLHEP::HepRandomEngine &fEngine;  //< random engine
 
@@ -115,6 +116,7 @@ namespace gar {
             fZCut1    = p.get<float>("ZCut1",10.0); // in cm
             fZCut2    = p.get<float>("ZCut2",0.5); // in cm
             fRCut     = p.get<float>("RCut" ,5.0);  // in cm
+            fTimeBunch = p.get<float>("TimeBunch",150000); // in ns            
 
             art::InputTag tpcedeptag(fInputEdepLabel,fInputEdepInstanceTPC);
             art::InputTag muidedeptag(fInputEdepLabel,fInputEdepInstanceMuID);
@@ -211,7 +213,7 @@ namespace gar {
             if (true)
             {
 
-                // sort the TPC Clusters along Z
+                // sort the TPC Clusters based on time
                 bool debug=false;
 
                 std::vector<std::vector<gar::rec::TPCCluster>> TPCClusterColTime;
@@ -221,7 +223,8 @@ namespace gar {
                 { return a.Time() < b.Time(); } );
                 size_t ntpcclus = TPCClusterCol->size();
 
-        
+                if (ntpcclus!=0&&debug) std::cout<<"Time start and end: "<<TPCClusterCol->at(0).Time()<<" "<<TPCClusterCol->at(TPCClusterCol->size()-1).Time()<<std::endl;
+
                 float startt= 0;
                 if (ntpcclus!=0)
                 {
@@ -229,7 +232,7 @@ namespace gar {
                     for(size_t i=0; i<ntpcclus; i++)
                     {
                         
-                        if(TPCClusterCol->at(i).Time()-startt<=19)
+                        if(TPCClusterCol->at(i).Time()-startt<=fTimeBunch)
                         {
                             TPCClusterColTimeBlock.push_back(TPCClusterCol->at(i));
                         }
@@ -263,6 +266,8 @@ namespace gar {
                 
                 for(size_t t=0; t<TPCClusterColTime.size(); t++)
                 {
+
+                    ////Sort the clusters along Z
                     std::sort(TPCClusterColTime.at(t).begin(),TPCClusterColTime.at(t).end(),
                     [](const gar::rec::TPCCluster &a, const gar::rec::TPCCluster &b)->bool
                     { return a.Position()[2] < b.Position()[2]; } );
@@ -270,14 +275,7 @@ namespace gar {
 
                     size_t ntpcclust = TPCClusterColTime.at(t).size();
                     
-                    /*
-                    std::ofstream outfile;
-                    outfile.open("time_spill_std.txt", std::ios_base::app); // append instead of overwrite
-                    for (size_t i=0; i<ntpcclus; ++i)
-                    {
-                    outfile << TPCClusterCol->at(i).Time() <<" "<< TPCClusterCol->at(i).Position()[2]<<"\n";
-                    }
-                    */
+                    
                     // look for best-fit tracks in the list of TPC clusters
                     // find the best triplet of TPC Clusters with spacing at least fZCut that fit on a circle
                     // to think about -- time and energy cuts

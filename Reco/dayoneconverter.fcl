@@ -16,6 +16,7 @@ ThrPE:                    5.0     # energy threshold cut in pe
 ZCut1:                   10.0     # in cm to make sure initial TPC clusters are on different plane pairs
 ZCut2:                    0.5     # in cm to make sure initial TPC clusters are on the same half plane
 RCut:                     5.0     # in cm -- road to collect TPC clusters on tracks
+TimeBunch:           150000.0     # in ns -- Time bunch spread
 }
 
 END_PROLOG
