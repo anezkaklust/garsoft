@@ -6,10 +6,12 @@ If your computer has CVMFS installed and running, you can type
 
 ```
 source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
+unsetup mrb
+setup mrb -o
 setup garsoft v02_10_02 -q e20:prof
 ```
 
-and then proceed to the section below on running a sample of GArSoft events.
+and then proceed to the section below on running a sample of GArSoft events.  The rollback of mrb to the old version with setup mrb -o is a temporary solution until code and makefile script changes are made to make GArSoft compatible with the new mrb v5.x, which was made default on Sep. 21, 2021.  mrb is set up without a version number in /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh and thus the default ("current") version is selected.
 
 The version in the setup command above will go out of date. To see what versions are available, type
 
@@ -26,6 +28,8 @@ To set up a new test release for doing development in your own area, execute the
 
 ```
 source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
+unsetup mrb
+setup mrb -o
 mkdir <new empty directory>
 cd <new emtpy directory>
 export MRB_PROJECT=garsoft
