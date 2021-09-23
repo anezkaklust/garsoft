@@ -28,6 +28,8 @@ To set up a new test release for doing development in your own area, execute the
 
 ```
 source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
+unsetup mrb
+setup mrb -o
 mkdir <new empty directory>
 cd <new emtpy directory>
 export MRB_PROJECT=garsoft
