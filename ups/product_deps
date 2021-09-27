@@ -34,7 +34,7 @@ dune_pardata    v01_74_00
 duneutil        v09_31_00    optional
 pandora         v03_16_00f
 edepsim         v3_0_1c
-garana          v00_00_13 
+garana          v00_00_14 
 cetbuildtools	v8_17_03	-	only_for_build
 end_product_list
 

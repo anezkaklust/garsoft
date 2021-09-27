@@ -70,7 +70,7 @@ find_ups_product( cetlib )
 
 cet_find_library( EDEPSIMIO NAMES edepsim_io PATHS ENV EDEPSIM_LIB )
 
-#cet_find_library( GARANAPRODUCTS NAMES GaranaProducts PATHS ENV GARANA_LIB)
+cet_find_library( GARANAPRODUCTS NAMES GaranaProducts PATHS ENV GARANA_LIB)
 
 #message(STATUS "ROOTSYS is ${ROOTSYS}")
 #message(STATUS "GSL_FQ_DIR is $ENV{GSL_FQ_DIR}")
