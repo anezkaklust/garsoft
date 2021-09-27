@@ -30,6 +30,7 @@
 #include <iterator> // std::back_inserter()
 #include <algorithm> // std::copy()
 #include <utility> // std::forward()
+#include <numeric> // std::accumulate()
 
 namespace sim {
   class DumpGTruth;
@@ -134,8 +135,9 @@ void sim::DumpGTruth::analyze(art::Event const& event) {
   
   std::vector<ProductInfo_t> AllTruths;
   if (bAllTruth) {
-    std::vector<art::Handle<std::vector<simb::GTruth>>> handles;
-    event.getManyByType(handles);
+    //std::vector<art::Handle<std::vector<simb::GTruth>>> handles;
+    //event.getManyByType(handles);
+    auto handles = event.getMany<std::vector<simb::GTruth> >();
     std::copy(handles.begin(), handles.end(), std::back_inserter(AllTruths));
   }
   else {

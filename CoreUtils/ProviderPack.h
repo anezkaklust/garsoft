@@ -129,11 +129,11 @@ namespace gar {
      * in the source provider pack.
      */
     template<typename... OtherProviders>
-    ProviderPack(OtherProviders const*... providers)
+    ProviderPack(OtherProviders const*... providers_tmp)
       {
         details::SetFrom
           <this_type, ProviderPack<OtherProviders...>, Providers...>
-          (*this, ProviderPack<OtherProviders...>(providers...));
+          (*this, ProviderPack<OtherProviders...>(providers_tmp...));
       }
 
     /// Returns the provider with the specified type

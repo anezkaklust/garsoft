@@ -74,7 +74,8 @@ namespace gar {
 
                 void setLayerDimXY(const double& dimX, const double& dimY) const override { _layer_dim_X = dimX; _layer_dim_Y = dimY; }
 
-                void setVariables(const double& innerangle, const double &endcapsidelength) const override { /* no op */ }
+		// unused variables innerangle, endcapsidelength
+                void setVariables(const double& , const double & ) const override { /* no op */ }
 
             protected:
 

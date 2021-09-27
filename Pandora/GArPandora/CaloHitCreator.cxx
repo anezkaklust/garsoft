@@ -219,7 +219,7 @@ namespace gar {
         //------------------------------------------------------------------------------------------------------------------------------------------
 
         void CaloHitCreator::GetBarrelCaloHitProperties( const gar::rec::CaloHit *const pCaloHit,
-        const std::vector<gar::geo::LayeredCalorimeterStruct::Layer> &layers, unsigned int barrelSymmetryOrder, PandoraApi::CaloHit::Parameters &caloHitParameters, FloatVector const& normalVector, float &absorberCorrection ) const
+							 const std::vector<gar::geo::LayeredCalorimeterStruct::Layer> &layers, unsigned int barrelSymmetryOrder, PandoraApi::CaloHit::Parameters &caloHitParameters, FloatVector const& /* normalVector */, float &absorberCorrection ) const
         {
             caloHitParameters.m_hitRegion = pandora::BARREL;
 

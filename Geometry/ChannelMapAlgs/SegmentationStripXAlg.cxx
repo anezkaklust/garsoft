@@ -67,13 +67,13 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            void SegmentationStripXAlg::Initialize(const gar::geo::GeometryCore& geo)
+            void SegmentationStripXAlg::Initialize(const gar::geo::GeometryCore& )
             {
 
             }
 
             //----------------------------------------------------------------------------
-            std::array<double, 3> SegmentationStripXAlg::GetPosition(const gar::geo::GeometryCore& geo, const gar::raw::CellID_t& cID) const
+            std::array<double, 3> SegmentationStripXAlg::GetPosition(const gar::geo::GeometryCore& , const gar::raw::CellID_t& cID) const
             {
                 std::array<double, 3> cellPosition;
 
@@ -91,7 +91,7 @@ namespace gar {
 
             //----------------------------------------------------------------------------
             /// determine the cell ID based on the position
-            gar::raw::CellID_t SegmentationStripXAlg::GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
+            gar::raw::CellID_t SegmentationStripXAlg::GetCellID(const gar::geo::GeometryCore& , const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
             {
                 gar::raw::CellID_t cID = 0;
 
@@ -130,25 +130,25 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            bool SegmentationStripXAlg::isTile(const gar::raw::CellID_t& cID) const
+            bool SegmentationStripXAlg::isTile(const gar::raw::CellID_t& ) const
             {
                 return false;
             }
 
             //----------------------------------------------------------------------------
-            bool SegmentationStripXAlg::isBarrel(const gar::raw::CellID_t& cID) const
+            bool SegmentationStripXAlg::isBarrel(const gar::raw::CellID_t& ) const
             {
                 return true;
             }
 
             //----------------------------------------------------------------------------
-            double SegmentationStripXAlg::getStripLength(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
+            double SegmentationStripXAlg::getStripLength(const gar::geo::GeometryCore& , const std::array<double, 3> & , const gar::raw::CellID_t& ) const
             {
                 return _layer_dim_Y;
             }
 
             //----------------------------------------------------------------------------
-            std::pair<TVector3, TVector3> SegmentationStripXAlg::getStripEnds(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
+            std::pair<TVector3, TVector3> SegmentationStripXAlg::getStripEnds(const gar::geo::GeometryCore& , const std::array<double, 3> &local, const gar::raw::CellID_t& ) const
             {
                 TVector3 stripEnd1(0., 0., 0.);
                 TVector3 stripEnd2(0., 0., 0.);
@@ -164,7 +164,7 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            std::pair<float, float> SegmentationStripXAlg::CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
+            std::pair<float, float> SegmentationStripXAlg::CalculateLightPropagation(const gar::geo::GeometryCore& , const std::array<double, 3> &local, const gar::raw::CellID_t& ) const
             {
                 float c = (CLHEP::c_light * CLHEP::mm / CLHEP::ns) / CLHEP::cm; // in cm/ns
                 //time1 is left SiPM

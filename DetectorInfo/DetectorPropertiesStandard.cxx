@@ -88,7 +88,7 @@ namespace gar {
     {}
 
     //--------------------------------------------------------------------
-    bool DetectorPropertiesStandard::Update(uint64_t t)
+    bool DetectorPropertiesStandard::Update(uint64_t )
     {
 
       CalculateXTicksParams();

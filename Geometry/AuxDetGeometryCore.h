@@ -230,7 +230,7 @@ namespace gar {
                                                           size_t     & ad,
                                                           size_t     & sv) const;
 
-      const uint32_t           PositionToAuxDetChannel(double const worldLoc[3],
+      uint32_t           PositionToAuxDetChannel(double const worldLoc[3],
                                                        size_t     & ad,
                                                        size_t     & sv) const;
       const TVector3           AuxDetChannelToPosition(uint32_t    const& channel,

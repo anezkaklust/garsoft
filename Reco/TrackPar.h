@@ -46,12 +46,12 @@ namespace gar
       const float *getCovMatBeg() const;
       const float *getCovMatEnd() const;
 
-      const float getYCentBeg() const; // center of helix using beginning track parameters
-      const float getZCentBeg() const;
-      const float getYCentEnd() const; // center of helix using end track parameters
-      const float getZCentEnd() const;
-      const bool  getBegCentValid() const;  // is circle center calc valid (really just curvature != 0)
-      const bool  getEndCentValid() const;
+      float getYCentBeg() const; // center of helix using beginning track parameters
+      float getZCentBeg() const;
+      float getYCentEnd() const; // center of helix using end track parameters
+      float getZCentEnd() const;
+      bool  getBegCentValid() const;  // is circle center calc valid (really just curvature != 0)
+      bool  getEndCentValid() const;
 
       size_t getNTPCClusters() const;
       float getLengthForwards() const;

@@ -15,6 +15,8 @@
 #include "DetectorInfo/ECALPropertiesService.h"
 #include "DetectorInfo/DetectorClocksServiceGAr.h"
 
+#include "TFile.h"
+
 // Art includes
 #include "art_root_io/RootDB/SQLite3Wrapper.h"
 #include "fhiclcpp/make_ParameterSet.h"
@@ -60,7 +62,7 @@ namespace gar {
     }
 
     //-------------------------------------------------------------
-    void DetectorPropertiesServiceStandardGAr::preProcessEvent(const ::art::Event& evt, art::ScheduleContext)
+    void DetectorPropertiesServiceStandardGAr::preProcessEvent(const ::art::Event& , art::ScheduleContext)
     {
       // Make sure TPC Clock is updated with TimeService (though in principle it shouldn't change
       fProp->UpdateClocks(gar::providerFrom<detinfo::DetectorClocksServiceGAr>());
@@ -102,7 +104,7 @@ namespace gar {
 
       if(filename.size() != 0) {
 
-        TFile* file = TFile::Open(filename.c_str(), "READ");
+        TFile* file = (TFile*) new TFile(filename.c_str(), "READ");
         if(file != 0 && !file->IsZombie() && file->IsOpen()) {
 
           // Open the sqlite datatabase.
@@ -117,8 +119,10 @@ namespace gar {
           sqlite3_stmt * stmt = 0;
           sqlite3_prepare_v2(sqliteDB, "SELECT PSetBlob from ParameterSets;", -1, &stmt, NULL);
           while (sqlite3_step(stmt) == SQLITE_ROW) {
-            fhicl::ParameterSet ps;
-            fhicl::make_ParameterSet(reinterpret_cast<char const *>(sqlite3_column_text(stmt, 0)), ps);
+            //fhicl::ParameterSet ps;
+            //fhicl::make_ParameterSet(reinterpret_cast<char const *>(sqlite3_column_text(stmt, 0)), ps);
+	    auto ps = fhicl::ParameterSet::make(reinterpret_cast<char const *>(sqlite3_column_text(stmt, 0)));
+
             // Is this a DetectorPropertiesService parameter set?
 
             bool psok = isDetectorPropertiesServiceStandardGAr(ps);

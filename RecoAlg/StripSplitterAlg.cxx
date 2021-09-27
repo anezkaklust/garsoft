@@ -5,11 +5,10 @@
 //
 
 #include "cetlib_except/exception.h"
-
 #include "fhiclcpp/ParameterSet.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "RecoAlg/StripSplitterAlg.h"
-
 #include "Geometry/GeometryGAr.h"
 #include "CoreUtils/ServiceUtil.h"
 #include "Geometry/LocalTransformation.h"
@@ -216,7 +215,9 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            void StripSplitterAlg::getVirtualHits(const gar::rec::CaloHit *hit, int orientation, bool isBarrel, std::vector <const gar::rec::CaloHit*> &virtualhits)
+            void StripSplitterAlg::getVirtualHits(const gar::rec::CaloHit *hit, 
+						  int , // orientation,
+						  bool isBarrel, std::vector <const gar::rec::CaloHit*> &virtualhits)
             {
                 MF_LOG_DEBUG("StripSplitterAlg")
                 << "StripSplitterAlg::getVirtualHits()";

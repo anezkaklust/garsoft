@@ -27,13 +27,15 @@
 #include "GArG4/EnergyDepositAction.h"
 #include "GArG4/ParticleListAction.h"
 
+#include <regex>
+
 namespace gar {
 
   namespace garg4 {
 
     //-------------------------------------------------------------
     // Constructor.
-    EnergyDepositAction::EnergyDepositAction(CLHEP::HepRandomEngine*    engine,
+    EnergyDepositAction::EnergyDepositAction(CLHEP::HepRandomEngine*  , // engine,
       fhicl::ParameterSet const& pset)
       //: fEngine(engine)
       {

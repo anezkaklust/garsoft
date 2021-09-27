@@ -15,6 +15,7 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "canvas/Utilities/InputTag.h"
+#include "canvas/Persistency/Common/Assns.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Persistency/Common/PtrMaker.h"
@@ -108,8 +109,10 @@ namespace gar {
     void veefinder1::produce(art::Event & e) {
       std::unique_ptr< std::vector<rec::Vee> >
         veeCol(new std::vector<rec::Vee>);
-      std::unique_ptr< art::Assns<rec::Track, rec::Vee, rec::TrackEnd> >
-        trkVeeAssns(new::art::Assns<rec::Track, rec::Vee, rec::TrackEnd>);
+
+      auto trkVeeAssns = std::make_unique<  art::Assns<rec::Track, rec::Vee, rec::TrackEnd> >();
+      //std::unique_ptr< art::Assns<rec::Track, rec::Vee, rec::TrackEnd> >
+      // trkVeeAssns(new art::Assns<rec::Track, rec::Vee, rec::TrackEnd>);
 
       auto trackHandle = e.getValidHandle< std::vector<Track>  >(fTrackLabel);
       auto const& tracks = *trackHandle;

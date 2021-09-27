@@ -131,7 +131,7 @@ namespace gar {
         } // GeometryCore::LoadGeometryFile()
 
         //......................................................................
-        const float GeometryCore::GetSensVolumeThickness(const TVector3& point) const
+        float GeometryCore::GetSensVolumeThickness(const TVector3& point) const
         {
             TGeoNode *node = gGeoManager->FindNode(point.x(), point.y(), point.z());
 

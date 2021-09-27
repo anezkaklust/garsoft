@@ -188,7 +188,7 @@ namespace gar {
     }
     
     //......................................................................
-    size_t const AuxDetGeo::FindSensitiveVolume(double const worldPos[3]) const
+    size_t AuxDetGeo::FindSensitiveVolume(double const worldPos[3]) const
     {
       double local[3] = {0.};
       for(unsigned int a = 0; a < fSensitive.size(); ++a) {

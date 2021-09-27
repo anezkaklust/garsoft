@@ -287,8 +287,8 @@ namespace gar {
 				   std::vector<float> &trackparbeg,
 				   float &chisquared,
 				   float &length,
-				   float *covmat,                     // 5x5 covariance matrix
-				   std::vector<std::pair<float,float>>& dSigdXs,
+				   float * /* covmat */,                // 5x5 covariance matrix
+				   std::vector<std::pair<float,float>>& /* dSigdXs */,
 				   std::vector<TVector3>& trajpts)
     {
 
@@ -328,7 +328,7 @@ namespace gar {
     // 3: phi
     // 4: lambda
 
-    void dayonetrackfit::updatepar(TVectorF &parvec, float zcur, float xh, float yh, float zh, TVectorF &predstep, float &dlength)
+    void dayonetrackfit::updatepar(TVectorF &parvec, float zcur, float xh, float /* yh */, float zh, TVectorF &predstep, float &dlength)
     {
 
       predstep = parvec;

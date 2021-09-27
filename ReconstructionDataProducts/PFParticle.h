@@ -69,17 +69,17 @@ namespace gar {
             void setParent(size_t parent);
             void setDaughters(std::vector<size_t> daughters);
 
-            const int                                  Type() const;
-            const float                                Energy() const;
-            const float*                               Position() const;
-            const float*                               Momentum() const;
-            const float                                Mass() const;
-            const float                                Charge() const;
-            const int                                  Pdg() const;
-            const float                                GoodnessOfPdg() const;
-            const size_t                               Parent() const;
-            const std::vector<size_t>                  Daughters() const;
-            const size_t                               NDaughters() const;
+            int                                  Type() const;
+            float                                Energy() const;
+            const float*                         Position() const;
+            const float*                         Momentum() const;
+            float                                Mass() const;
+            float                                Charge() const;
+            int                                  Pdg() const;
+            float                                GoodnessOfPdg() const;
+            size_t                               Parent() const;
+            const std::vector<size_t>            Daughters() const;
+            size_t                               NDaughters() const;
 
             friend std::ostream& operator << (std::ostream & o, gar::rec::PFParticle const& h);
 
@@ -87,17 +87,17 @@ namespace gar {
 
         };
 
-        inline const int                      gar::rec::PFParticle::Type()                const { return fType;         }
-        inline const float                    gar::rec::PFParticle::Energy()              const { return fEnergy;       }
+        inline int                            gar::rec::PFParticle::Type()                const { return fType;         }
+        inline float                          gar::rec::PFParticle::Energy()              const { return fEnergy;       }
         inline const float*                   gar::rec::PFParticle::Position()            const { return &fPos[0];      }
         inline const float*                   gar::rec::PFParticle::Momentum()            const { return &fMom[0];      }
-        inline const float                    gar::rec::PFParticle::Mass()                const { return fMass;         }
-        inline const float                    gar::rec::PFParticle::Charge()              const { return fCharge;       }
-        inline const int                      gar::rec::PFParticle::Pdg()                 const { return fPdg;          }
-        inline const float                    gar::rec::PFParticle::GoodnessOfPdg()       const { return fGoodness;     }
-        inline const size_t                   gar::rec::PFParticle::Parent()              const { return fParent;       }
+        inline float                          gar::rec::PFParticle::Mass()                const { return fMass;         }
+        inline float                          gar::rec::PFParticle::Charge()              const { return fCharge;       }
+        inline int                            gar::rec::PFParticle::Pdg()                 const { return fPdg;          }
+        inline float                          gar::rec::PFParticle::GoodnessOfPdg()       const { return fGoodness;     }
+        inline size_t                         gar::rec::PFParticle::Parent()              const { return fParent;       }
         inline const std::vector<size_t>      gar::rec::PFParticle::Daughters()           const { return fDaughters;    }
-        inline const size_t                   gar::rec::PFParticle::NDaughters()          const { return fDaughters.size();    }
+        inline size_t                         gar::rec::PFParticle::NDaughters()          const { return fDaughters.size();    }
     }//rec
 } // gar
 

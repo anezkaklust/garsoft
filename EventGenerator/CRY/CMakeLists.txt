@@ -5,7 +5,7 @@ art_make(MODULE_LIBRARIES Geometry
                           Geometry_GeometryGAr_service
                           SummaryDataProducts
                           nutools_EventGeneratorBase_CRY
-                          ${CRY}
+                          CRY
                           nusimdata_SimulationBase
                           nurandom_RandomUtils_NuRandomService_service
                           ${ART_FRAMEWORK_CORE}

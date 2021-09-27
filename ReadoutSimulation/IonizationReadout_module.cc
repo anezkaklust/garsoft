@@ -229,7 +229,7 @@ namespace gar {
 
 
     //--------------------------------------------------------------------------
-    void IonizationReadout::beginRun(::art::Run& run) {
+    void IonizationReadout::beginRun(::art::Run& /* run */) {
       return;
     }
 

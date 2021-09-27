@@ -233,7 +233,7 @@ void gar::anatest::FillVectors(art::Event const & e) {
     // Get handles for MCinfo, also good for MCPTrajectory
     std::vector< art::Handle<std::vector<simb::MCTruth>> > mcthandlelist;
     if (fGeneratorLabels.size()<1) {
-        e.getManyByType(mcthandlelist);    // get them all (even if there are none)
+        mcthandlelist = e.getMany<std::vector<simb::MCTruth> >();    // get them all (even if there are none)
     } else {
         mcthandlelist.resize(fGeneratorLabels.size());
         for (size_t i=0; i< fGeneratorLabels.size(); ++i) {

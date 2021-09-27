@@ -119,7 +119,7 @@ namespace gar {
         }
 
         //--------------------------------------------------------------------------
-        const unsigned int CaloHit::GetCellLengthScale() const
+        unsigned int CaloHit::GetCellLengthScale() const
         {
             std::array<double, 3> point = {this->Position()[0], this->Position()[1], this->Position()[2]};
             if(gar::providerFrom<geo::GeometryGAr>()->isTile(point, this->CellID()))

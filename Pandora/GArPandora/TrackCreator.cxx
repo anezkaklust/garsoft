@@ -55,21 +55,21 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        pandora::StatusCode TrackCreator::ExtractKinks(const art::Event &pEvent)
+        pandora::StatusCode TrackCreator::ExtractKinks(const art::Event & /* pEvent */)
         {
             return pandora::STATUS_CODE_SUCCESS;
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        pandora::StatusCode TrackCreator::ExtractProngsAndSplits(const art::Event &pEvent)
+      pandora::StatusCode TrackCreator::ExtractProngsAndSplits(const art::Event & /* pEvent */)
         {
             return pandora::STATUS_CODE_SUCCESS;
         }
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        pandora::StatusCode TrackCreator::ExtractV0s(const art::Event &pEvent)
+      pandora::StatusCode TrackCreator::ExtractV0s(const art::Event & /* pEvent */)
         {
             return pandora::STATUS_CODE_SUCCESS;
         }
@@ -204,7 +204,7 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        void TrackCreator::TrackReachesECAL(const gar::rec::Track *const pTrack, PandoraApi::Track::Parameters &trackParameters) const
+        void TrackCreator::TrackReachesECAL(const gar::rec::Track *const /* pTrack */, PandoraApi::Track::Parameters &trackParameters) const
         {
             trackParameters.m_reachesCalorimeter = true;
             return;
@@ -290,9 +290,9 @@ namespace gar {
             if( result != 0 ) {
                 //Propagate to the Endcap
                 float endcapProjection[3] = {0., 0., 0.};
-                int result = util::TrackPropagator::PropagateToX( pTrack->TrackParEnd(), pTrack->End(), (pTrack->End()[0] > 0) ? m_settings.m_eCalEndCapInnerZ / CLHEP::cm : -m_settings.m_eCalEndCapInnerZ / CLHEP::cm, endcapProjection, m_settings.m_eCalBarrelInnerR / CLHEP::cm );
+                int result_local = util::TrackPropagator::PropagateToX( pTrack->TrackParEnd(), pTrack->End(), (pTrack->End()[0] > 0) ? m_settings.m_eCalEndCapInnerZ / CLHEP::cm : -m_settings.m_eCalEndCapInnerZ / CLHEP::cm, endcapProjection, m_settings.m_eCalBarrelInnerR / CLHEP::cm );
 
-                if(result == 0) {
+                if(result_local == 0) {
                     bestECalProjection.SetValues(endcapProjection[0] * CLHEP::cm, endcapProjection[1] * CLHEP::cm, endcapProjection[2] * CLHEP::cm);
                 }
             }

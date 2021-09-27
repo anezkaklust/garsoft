@@ -260,7 +260,7 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        pandora::StatusCode PseudoLayerPlugin::ReadSettings(const pandora::TiXmlHandle xmlHandle)
+      pandora::StatusCode PseudoLayerPlugin::ReadSettings(const pandora::TiXmlHandle /* xmlHandle */)
         {
             return STATUS_CODE_SUCCESS;
         }

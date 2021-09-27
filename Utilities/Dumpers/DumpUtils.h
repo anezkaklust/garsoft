@@ -64,7 +64,7 @@ namespace gar {
       Array_t const& a; ///< A reference to the array to be printed.
       size_t n; ///< Number of elements to be printed.
       
-      ArrayDumper(Array_t const& a, size_t n): a(a), n(n) {}
+      ArrayDumper(Array_t const& aloc, size_t nloc): a(aloc), n(nloc) {}
       
       // constructors ahead
       ArrayDumper(This_t const& from) = default;
@@ -92,7 +92,7 @@ namespace gar {
       Array_t a; ///< A reference to the array to be printed.
       size_t n; ///< Number of elements to be printed.
       
-      ArrayDumper(Array_t a, size_t n): a(a), n(n) {}
+      ArrayDumper(Array_t aloc, size_t nloc): a(aloc), n(nloc) {}
       
       /// Inserts the content of the referenced array into the specified stream.
       template <typename Stream>
@@ -158,7 +158,7 @@ namespace gar {
       
       Vector_t const& v; ///< A reference to the vector to be printed.
       
-      explicit VectorDumper(Vector_t const& v): v(v) {}
+      explicit VectorDumper(Vector_t const& vloc): v(vloc) {}
       
       // constructors ahead
       VectorDumper(This_t const& from) = default;

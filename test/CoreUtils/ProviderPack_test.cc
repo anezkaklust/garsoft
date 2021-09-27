@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(test_ProviderPack) {
   auto myA = SP1.get<svc::ProviderA>();
   static_assert(std::is_same<decltype(myA), svc::ProviderA const*>(),
     "Failed to get the element of type A");
-  BOOST_CHECK_EQUAL(myA, &providerA);
+  BOOST_TEST(myA == &providerA);
   
   // get element B
   static_assert
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE(test_ProviderPack) {
   auto myB = SP1.get<svc::ProviderB>();
   static_assert(std::is_same<decltype(myB), svc::ProviderB const*>(),
     "Failed to get the element of type B");
-  BOOST_CHECK_EQUAL(myB, &providerB);
+  BOOST_TEST(myB == &providerB);
   
   // get element C
   static_assert
@@ -126,14 +126,14 @@ BOOST_AUTO_TEST_CASE(test_ProviderPack) {
   auto myC = SP1.get<svc::ProviderC>();
   static_assert(std::is_same<decltype(myC), svc::ProviderC const*>(),
     "Failed to get the element of type C");
-  BOOST_CHECK_EQUAL(myC, &providerC);
+  BOOST_TEST(myC == &providerC);
   
   
   // set element A
   svc::ProviderA providerA2;
   SP1.set(&providerA2);
   myA = SP1.get<svc::ProviderA>();
-  BOOST_CHECK_EQUAL(myA, &providerA2);
+  BOOST_TEST(myA == &providerA2);
   
   // get element D
   // should be a compilation error
@@ -149,13 +149,13 @@ BOOST_AUTO_TEST_CASE(test_ProviderPack) {
   
   // default constructor: all null
   gar::ProviderPack<svc::ProviderA, svc::ProviderB> SP2;
-  BOOST_CHECK(SP2.get<svc::ProviderA>() == nullptr);
-  BOOST_CHECK(SP2.get<svc::ProviderB>() == nullptr);
+  BOOST_TEST(SP2.get<svc::ProviderA>() == nullptr);
+  BOOST_TEST(SP2.get<svc::ProviderB>() == nullptr);
   
   // extraction constructor
   gar::ProviderPack<svc::ProviderA, svc::ProviderB> SP3(SP1);
-  BOOST_CHECK_EQUAL(SP3.get<svc::ProviderA>(), SP1.get<svc::ProviderA>());
-  BOOST_CHECK_EQUAL(SP3.get<svc::ProviderB>(), SP1.get<svc::ProviderB>());
+  BOOST_TEST(SP3.get<svc::ProviderA>() == SP1.get<svc::ProviderA>());
+  BOOST_TEST(SP3.get<svc::ProviderB>() == SP1.get<svc::ProviderB>());
   
   // multiple elements of the same type
   // should be a compilation error

@@ -1032,7 +1032,7 @@ namespace gar {
 
         bool PointInECALEndcap(TVector3 const& point) const;
 
-        const float GetSensVolumeThickness(const TVector3& point) const;
+        float GetSensVolumeThickness(const TVector3& point) const;
 
         const std::array<double, 3> FindShapeSize(const TGeoNode *node) const;
 

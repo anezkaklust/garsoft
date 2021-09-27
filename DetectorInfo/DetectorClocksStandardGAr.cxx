@@ -46,7 +46,7 @@ namespace gar {
   
   
   //------------------------------------------------------------------
-  bool detinfo::DetectorClocksStandardGAr::Update(uint64_t ts)
+  bool detinfo::DetectorClocksStandardGAr::Update(uint64_t )
   {
     return true;
   }

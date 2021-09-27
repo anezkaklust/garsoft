@@ -455,8 +455,8 @@ void gar::CAFMaker::analyze(art::Event const & e) {
 void gar::CAFMaker::endRun(const art::Run& run)
 {
   if(fPOTHist){
-    art::Handle<gar::sumdata::POTSummary> potsum;
-    run.getByLabel(fPOTSummaryLabel, potsum);
+    art::InputTag itag(fPOTSummaryLabel);
+    auto potsum = run.getHandle<gar::sumdata::POTSummary>(itag);
     fPOTHist->Fill(.5, potsum->totgoodpot);
   }
 }
@@ -472,12 +472,14 @@ void gar::CAFMaker::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Stand
     std::vector< art::Handle< std::vector<simb::GTruth> > > gthandlelist;
 
     if (fGeneratorLabels.size()<1) {
-        e.getManyByType(mcthandlelist);    // get them all (even if there are none)
+      mcthandlelist = e.getMany<std::vector<simb::MCTruth> >();    // get them all (even if there are none)
     } else {
         mcthandlelist.resize(fGeneratorLabels.size());
         for (size_t i=0; i< fGeneratorLabels.size(); ++i) {
             // complain if we wanted a specific one but didn't find it
-            if (!e.getByLabel(fGeneratorLabels.at(i),mcthandlelist.at(i))) {
+	  art::InputTag itag(fGeneratorLabels.at(i));
+	  mcthandlelist.at(i) = e.getHandle< std::vector<simb::MCTruth> >(itag);
+            if (!mcthandlelist.at(i)) {
                 throw cet::exception("CAFMaker") << " No simb::MCTruth branch."
                 << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
             }
@@ -485,7 +487,7 @@ void gar::CAFMaker::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Stand
     }
 
     if (fGENIEGeneratorLabels.size()<1) {
-        e.getManyByType(gthandlelist);  // get them all (even if there are none)
+      gthandlelist = e.getMany<std::vector<simb::GTruth> >();  // get them all (even if there are none)
     } else {
         gthandlelist.resize(fGENIEGeneratorLabels.size());
         for (size_t i=0; i< fGENIEGeneratorLabels.size(); ++i) {
@@ -543,8 +545,9 @@ void gar::CAFMaker::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Stand
     }
 
     // Save the particle list from the GENIE event record
-    std::vector< art::Handle< std::vector<sdp::GenieParticle> > > gparthandlelist;
-    e.getManyByType(gparthandlelist);
+    //std::vector< art::Handle< std::vector<sdp::GenieParticle> > > gparthandlelist;
+    //e.getManyByType(gparthandlelist);
+    auto gparthandlelist = e.getMany<std::vector<sdp::GenieParticle>>();
 
     for (size_t igphl = 0; igphl < gparthandlelist.size(); ++igphl) {
         for ( auto const& gpart : (*gparthandlelist.at(igphl)) ) {

@@ -10,6 +10,7 @@
  *
  */
 
+#include <numeric> // std::accumulate
 #include "MCDumpers.h" // sim::dump namespace
 
 // nutools libraries
@@ -130,8 +131,9 @@ void sim::DumpMCTruth::analyze(art::Event const& event) {
   
   std::vector<ProductInfo_t> AllTruths;
   if (bAllTruth) {
-    std::vector<art::Handle<std::vector<simb::MCTruth>>> handles;
-    event.getManyByType(handles);
+    //std::vector<art::Handle<std::vector<simb::MCTruth>>> handles;
+    //event.getManyByType(handles);
+    auto handles = event.getMany<std::vector<simb::MCTruth> >();
     std::copy(handles.begin(), handles.end(), std::back_inserter(AllTruths));
   }
   else {

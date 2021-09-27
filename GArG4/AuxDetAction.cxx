@@ -9,6 +9,7 @@
 #include "cetlib/search_path.h"
 
 #include <algorithm>
+#include <regex>
 
 #include "TGeoMaterial.h"
 #include "TGeoNode.h"
@@ -41,7 +42,7 @@ namespace gar {
 
         //-------------------------------------------------------------
         // Constructor.
-        AuxDetAction::AuxDetAction(CLHEP::HepRandomEngine*    engine,
+      AuxDetAction::AuxDetAction(CLHEP::HepRandomEngine*  , //  engine,
         fhicl::ParameterSet const& pset)
         {
             fGeo = gar::providerFrom<geo::GeometryGAr>();
@@ -101,7 +102,7 @@ namespace gar {
         }
 
         //-------------------------------------------------------------
-        void AuxDetAction::PreTrackingAction(const G4Track* track)
+      void AuxDetAction::PreTrackingAction(const G4Track* /* track */)
         {
 
         }

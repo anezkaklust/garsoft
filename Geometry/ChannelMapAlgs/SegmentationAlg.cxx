@@ -50,22 +50,22 @@ namespace gar {
                     }
 
                     //----------------------------------------------------------------------------
-                    double SegmentationAlg::getStripLength(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const {
+                    double SegmentationAlg::getStripLength(const gar::geo::GeometryCore& , const std::array<double, 3> & , const gar::raw::CellID_t& ) const {
                         return 0.;
                     }
 
                     //----------------------------------------------------------------------------
-                    std::pair<TVector3, TVector3> SegmentationAlg::getStripEnds(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const {
+                    std::pair<TVector3, TVector3> SegmentationAlg::getStripEnds(const gar::geo::GeometryCore& , const std::array<double, 3> & , const gar::raw::CellID_t& ) const {
                         return std::make_pair( TVector3(0, 0, 0), TVector3(0, 0, 0) );
                     }
 
                     //----------------------------------------------------------------------------
-                    std::pair<float, float> SegmentationAlg::CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const {
+                    std::pair<float, float> SegmentationAlg::CalculateLightPropagation(const gar::geo::GeometryCore& , const std::array<double, 3> & , const gar::raw::CellID_t& ) const {
                         return std::make_pair( 0., 0. );
                     }
 
                     //----------------------------------------------------------------------------
-                    std::array<double, 3> SegmentationAlg::ReconstructStripHitPosition(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const float &xlocal, const gar::raw::CellID_t& cID) const {
+                    std::array<double, 3> SegmentationAlg::ReconstructStripHitPosition(const gar::geo::GeometryCore& , const std::array<double, 3> & , const float & , const gar::raw::CellID_t& ) const {
                         return std::array<double, 3>{ {0., 0., 0.} };
                     }
                 }//seg

@@ -67,13 +67,13 @@ namespace gar {
 
                 void setFieldNameSlice(const std::string& fieldName) { _sliceId = fieldName; }
 
-                bool isTile(const gar::raw::CellID_t& cID) const override { /* no op */ return false; }
+                bool isTile(const gar::raw::CellID_t& ) const override { /* no op */ return false; }
 
-                bool isBarrel(const gar::raw::CellID_t& cID) const override { /* no op */ return true; }
+                bool isBarrel(const gar::raw::CellID_t& ) const override { /* no op */ return true; }
 
                 void setLayerDimXY(const double& dimX, const double& dimY) const override { _layer_dim_X = dimX; _layer_dim_Y = dimY; }
 
-                void setVariables(const double& innerangle, const double &endcapsidelength) const override { /* no op */ }
+                void setVariables(const double & , const double &) const override { /* no op */ }
 
                 void AddHitsMinerva(std::map< gar::raw::CellID_t, std::vector<gar::sdp::CaloDeposit> > &m_Deposits, std::vector<gar::sdp::CaloDeposit> &fDeposits) const;
 

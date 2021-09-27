@@ -10,7 +10,8 @@
 #define GArPropertiesSERVICE_H
 
 #include "fhiclcpp/ParameterSet.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
+#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
 #include "DetectorInfo/GArProperties.h"
 #include "CoreUtils/ServiceUtil.h"
 

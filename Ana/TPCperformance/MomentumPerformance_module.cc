@@ -296,14 +296,17 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
     // =============  Get art handles ==========================================
     // Get handles for MCinfo, also good for MCPTrajectory.  Want to get all
     // MCTruths, regardless of generator label.
-    std::vector< art::Handle< std::vector<simb::MCTruth> > > mctruthHandles;
-    art::Handle< std::vector<simb::MCParticle> > MCPHandle;
-    event.getManyByType(mctruthHandles);
+    //std::vector< art::Handle< std::vector<simb::MCTruth> > > mctruthHandles;
+    //event.getManyByType(mctruthHandles);
+    // new for art v3.0.9
+    auto mctruthHandles = event.getMany<std::vector<simb::MCTruth> >();
+
     if (mctruthHandles.size()!=1) {
         throw cet::exception("MomentumPerformance") << " Need just 1 simb::MCTruth"
         << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
     }
 
+    art::Handle< std::vector<simb::MCParticle> > MCPHandle;
     if (!event.getByLabel(fGeantLabel, MCPHandle)) {
         throw cet::exception("MomentumPerformance") << " No simb::MCParticle"
         << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
@@ -477,11 +480,11 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
         // What fraction of the hits in all tracks matched to this MCParticle
         // are in the pickedTrack?
         int num, den;        num = den = 0;
-        for (int iTrack=0; iTrack<(int)matchedTracks.size(); ++iTrack) {
-            rec::Track thisTrack = *(matchedTracks[iTrack]);
+        for (int iTrack_local=0; iTrack_local<(int)matchedTracks.size(); ++iTrack_local) {
+            rec::Track thisTrack = *(matchedTracks[iTrack_local]);
             std::vector<art::Ptr<rec::Hit>> umlazi = fBack->TrackToHits(&thisTrack);
             den += umlazi.size();
-            if (iTrack == pickedTrack) num += umlazi.size();
+            if (iTrack_local == pickedTrack) num += umlazi.size();
         }
         fNhitPicked.push_back(num);
         fNhitMatched.push_back(den);
@@ -504,9 +507,9 @@ void gar::MomentumPerformance::FillVectors(art::Event const& event) {
         // Need to determine which track in TrackHandle is the one
         // picked from matchedTracks
         int iPickedTrack = -1;
-        for (size_t iTrack=0; iTrack<TrackHandle->size(); ++iTrack ) {
-            if ( allTracks[iTrack]->getIDNumber() == theTrack.getIDNumber() ) {
-                iPickedTrack = iTrack;
+        for (size_t iTrack_local=0; iTrack_local<TrackHandle->size(); ++iTrack_local ) {
+            if ( allTracks[iTrack_local]->getIDNumber() == theTrack.getIDNumber() ) {
+                iPickedTrack = iTrack_local;
                 break;
             }
         }

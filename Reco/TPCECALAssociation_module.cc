@@ -14,6 +14,7 @@
 #include "art/Persistency/Common/PtrMaker.h"
 
 #include "canvas/Utilities/InputTag.h"
+#include "canvas/Persistency/Common/Assns.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 

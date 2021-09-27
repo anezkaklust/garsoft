@@ -86,9 +86,9 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            size_t AuxDetChannelMapAlg::ChannelToAuxDet(std::vector<geo::AuxDetGeo*> const& auxDets,
-            std::string                  const& detName,
-            uint32_t                     const& /*channel*/) const
+            size_t AuxDetChannelMapAlg::ChannelToAuxDet(std::vector<geo::AuxDetGeo*> const& ,//auxDets,
+                                                        std::string                  const& detName,
+                                                        uint32_t                     const& /*channel*/) const
             {
                 // loop over the map of AuxDet names to Geo object numbers to determine which auxdet
                 // we have.  If no name in the map matches the provided string, throw an exception

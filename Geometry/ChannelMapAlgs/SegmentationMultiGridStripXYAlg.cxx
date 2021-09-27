@@ -83,13 +83,13 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            void SegmentationMultiGridStripXYAlg::Initialize(const gar::geo::GeometryCore& geo)
+            void SegmentationMultiGridStripXYAlg::Initialize(const gar::geo::GeometryCore& )
             {
 
             }
 
             //----------------------------------------------------------------------------
-            std::array<double, 3> SegmentationMultiGridStripXYAlg::GetPosition(const gar::geo::GeometryCore& geo, const gar::raw::CellID_t& cID) const
+            std::array<double, 3> SegmentationMultiGridStripXYAlg::GetPosition(const gar::geo::GeometryCore& , const gar::raw::CellID_t& cID) const
             {
                 //Local origin for the Barrel in the middle of the layer
                 //Local origin for the Endcal at the corner of the full stave
@@ -207,7 +207,7 @@ namespace gar {
 
             //----------------------------------------------------------------------------
             /// determine the cell ID based on the position
-            gar::raw::CellID_t SegmentationMultiGridStripXYAlg::GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
+            gar::raw::CellID_t SegmentationMultiGridStripXYAlg::GetCellID(const gar::geo::GeometryCore& , const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
             {
                 gar::raw::CellID_t cID = 0;
 
@@ -372,7 +372,7 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            double SegmentationMultiGridStripXYAlg::getStripLength(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
+            double SegmentationMultiGridStripXYAlg::getStripLength(const gar::geo::GeometryCore& , const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
             {
                 double stripLength = 0.;
                 bool isBarrel = this->isBarrel(cID);
@@ -404,7 +404,7 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            std::pair<TVector3, TVector3> SegmentationMultiGridStripXYAlg::getStripEnds(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
+            std::pair<TVector3, TVector3> SegmentationMultiGridStripXYAlg::getStripEnds(const gar::geo::GeometryCore& , const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
             {
                 //Local origin for the Barrel in the middle of the layer
                 //Local origin for the Endcal at the corner of the full stave
@@ -456,7 +456,7 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            std::pair<float, float> SegmentationMultiGridStripXYAlg::CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
+            std::pair<float, float> SegmentationMultiGridStripXYAlg::CalculateLightPropagation(const gar::geo::GeometryCore& , const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
             {
                 //Propagate the light to the SiPM on the side
                 //convert c to mm/ns

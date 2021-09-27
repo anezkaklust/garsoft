@@ -598,17 +598,17 @@ namespace gar {
     //......................................................................
     void RecoBaseDrawer::DrawVecHit3D(std::vector<const gar::rec::VecHit*> const& vechits,
 				      evdb::View3D *view,
-				      int color,
+				      int /*color*/,
 				      int /*marker*/,
 				      int /*size*/)
     {
       size_t p =0;
       for(unsigned int idx = 0; idx < vechits.size(); ++idx){
 
-	int color  = evd::kColor[idx%evd::kNCOLS];
+	int colorloc  = evd::kColor[idx%evd::kNCOLS];
 
 	// Make and fill a polyline: the vechit extent in both directions
-	TPolyLine3D& pl = view->AddPolyLine3D(2, color, 1, 1);
+	TPolyLine3D& pl = view->AddPolyLine3D(2, colorloc, 1, 1);
 	// Make and fill a polymarker: the vechit position
 	// TODO: Could add one but how best to display?
 	//TPolyMarker3D& pm = view->AddPolyMarker3D(1, 6, 33, 1);

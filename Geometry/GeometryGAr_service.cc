@@ -222,7 +222,7 @@ namespace gar {
        {
        
          try {
-           return run.getByLabel<gar::sumdata::GeometryConfigurationInfo>(art::InputTag{"GeometryGArConfigurationWriter"});
+           return run.getProduct<gar::sumdata::GeometryConfigurationInfo>(art::InputTag{"GeometryGArConfigurationWriter"});
          }
          catch (art::Exception const& e) {
              throw art::Exception{

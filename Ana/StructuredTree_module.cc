@@ -677,10 +677,14 @@ void gar::StructuredTree::FillGenTree(art::Event const & e) {
 
     // =============  Get art handles ==========================================
     // Get handles for MCinfo, also good for MCPTrajectory
-    vector< art::Handle< vector<simb::MCTruth> > > mcthandlelist;
-    vector< art::Handle< vector<simb::GTruth> > > gthandlelist; 
-    e.getManyByType(mcthandlelist);
-    e.getManyByType(gthandlelist);
+    //vector< art::Handle< vector<simb::MCTruth> > > mcthandlelist;
+    //vector< art::Handle< vector<simb::GTruth> > > gthandlelist; 
+    //e.getManyByType(mcthandlelist);
+    //e.getManyByType(gthandlelist);
+  // new for art v3.0.9
+
+    auto mcthandlelist = e.getMany<vector<simb::MCTruth> >();
+    auto gthandlelist  = e.getMany<vector<simb::GTruth> >();
 
     vector<string> genInstances; //instances for different generator products
 

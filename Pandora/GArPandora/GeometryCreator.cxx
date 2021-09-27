@@ -86,7 +86,7 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        void GeometryCreator::SetAdditionalSubDetectorParameters(SubDetectorNameMap &subDetectorNameMap) const
+        void GeometryCreator::SetAdditionalSubDetectorParameters(SubDetectorNameMap & /* subDetectorNameMap */) const
         {
 
         }

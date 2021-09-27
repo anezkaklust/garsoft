@@ -3,12 +3,9 @@ include_directories( $ENV{NUTOOLS_DIR}/include   )
 include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
 include_directories( $ENV{GSL_FQ_DIR}/include     )
 
-set(GSLLIBS
-$ENV{GSL_FQ_DIR}/lib/libgsl.so
-$ENV{GSL_FQ_DIR}/lib/libgslcblas.so
-)
+cet_find_library(GSGSL NAMES gsl PATHS ENV GSL_FQ_DIR PATH_SUFFIXES lib NO_DEFAULT_PATH)
+cet_find_library(GSGSLCBLAS NAMES gslcblas PATHS ENV GSL_FQ_DIR PATH_SUFFIXES lib NO_DEFAULT_PATH)
 
-#MESSAGE(STATUS "GSLLIBS is ${GSLLIBS}")
 
 cet_make( LIBRARIES
                        Geometry
@@ -27,8 +24,9 @@ cet_make( LIBRARIES
                        ${ROOT_BASIC_LIB_LIST}
                        ${CLHEP}
                        ${Boost_SYSTEM_LIBRARY}
-		                ${GSLLIBS}
-                        nug4_MagneticFieldServices_MagneticFieldServiceStandard_service
+		       GSGSL
+		       GSGSLCBLAS
+                       nug4_MagneticFieldServices_MagneticFieldServiceStandard_service
                        NO_DICTIONARY )
 
 # Simulation base is included in making the dictionary for associations

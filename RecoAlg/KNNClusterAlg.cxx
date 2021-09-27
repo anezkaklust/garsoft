@@ -5,6 +5,7 @@
 //
 
 #include "fhiclcpp/ParameterSet.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "RecoAlg/KNNClusterAlg.h"
 #include "RecoAlg/NNClusters.h"

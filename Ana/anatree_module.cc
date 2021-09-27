@@ -1434,7 +1434,7 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
     std::vector< art::Handle< std::vector<simb::GTruth> > > gthandlelist;
 
     if (fGeneratorLabels.size()<1) {
-        e.getManyByType(mcthandlelist);    // get them all (even if there are none)
+      mcthandlelist = e.getMany<std::vector<simb::MCTruth> >(); // get them all (even if there are none)
     } else {
         mcthandlelist.resize(fGeneratorLabels.size());
         for (size_t i=0; i< fGeneratorLabels.size(); ++i) {
@@ -1447,7 +1447,7 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
     }
 
     if (fGENIEGeneratorLabels.size()<1) {
-        e.getManyByType(gthandlelist);  // get them all (even if there are none)
+      gthandlelist = e.getMany< std::vector<simb::GTruth> >();  // get them all (even if there are none)
     } else {
         gthandlelist.resize(fGENIEGeneratorLabels.size());
         for (size_t i=0; i< fGENIEGeneratorLabels.size(); ++i) {
@@ -1498,8 +1498,7 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
     }
 
     // Save the particle list from the GENIE event record
-    std::vector< art::Handle< std::vector<sdp::GenieParticle> > > gparthandlelist;
-    e.getManyByType(gparthandlelist);
+    auto gparthandlelist = e.getMany<std::vector<sdp::GenieParticle>>();
 
     for (size_t igphl = 0; igphl < gparthandlelist.size(); ++igphl) {
         unsigned int nGPart = 0;
@@ -2266,7 +2265,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
         }
 
         if(fGeo->HasMuonDetector() && fWriteMuID) {
-            size_t iCluster = 0;
+            size_t iCluster_local = 0;
             for ( auto const& cluster : (*RecoClusterMuIDHandle) ) {
                 fnCluster_MuID++;
                 fClusterIDNumber_MuID.push_back(cluster.getIDNumber());
@@ -2288,9 +2287,9 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
                 //Get the associated reco hit
                 std::vector<ULong64_t> fVecHitIDs = {};
                 if (findManyClusterMuIDHit->isValid()) {
-                    int nClusterHit = findManyClusterMuIDHit->at(iCluster).size();
+                    int nClusterHit = findManyClusterMuIDHit->at(iCluster_local).size();
                     for (int iClusterHit=0; iClusterHit<nClusterHit; ++iClusterHit) {
-                        rec::CaloHit hit  = *(findManyClusterMuIDHit->at(iCluster).at(iClusterHit));
+                        rec::CaloHit hit  = *(findManyClusterMuIDHit->at(iCluster_local).at(iClusterHit));
                         fVecHitIDs.push_back(hit.getIDNumber());
                     }
                 }
@@ -2313,7 +2312,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
                 // }
                 fClusterMCindex_MuID.push_back(0);
                 fClusterMCfrac_MuID.push_back(0.0);
-                iCluster++;
+                iCluster_local++;
             }
         }
     }

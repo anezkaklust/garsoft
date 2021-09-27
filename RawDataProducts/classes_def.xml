@@ -49,7 +49,7 @@
     source="unsigned short fSamples" 
     targetClass="raw::RawDigit" 
     target="fSamples" 
-    include="garsoft/RawDataProducts/RawDigit.h">
+    include="RawDataProducts/RawDigit.h">
     <![CDATA[fSamples = onfile.fSamples;]]>
 </ioread> 
 

@@ -2,7 +2,8 @@
 #define UTILITIES_ROOTGRAPHICS_ROOTGRAPHICSENABLINGSERVICE_H
 
 // framework libraries
-#include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
+#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
 
 namespace fhicl { class ParameterSet; }
 namespace art { class ActivityRegistry; }
