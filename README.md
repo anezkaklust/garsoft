@@ -6,8 +6,6 @@ If your computer has CVMFS installed and running, you can type
 
 ```
 source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
-unsetup mrb
-setup mrb -o
 setup garsoft v02_10_02 -q e20:prof
 ```
 
@@ -24,12 +22,10 @@ after sourcing the setup script. This list is not expected to be sorted.
 
 ## Building GArSoft from Source -- all other dependencies in CVMFS
 
-To set up a new test release for doing development in your own area, execute the following commands (or put them in a shell script) to set up a new development area.
+To set up a new test release for doing development in your own area, execute the following commands (or put them in a shell script) to set up a new development area.  These instructions are tested to work on the current version in the head of develop. If you are working with a private test release made before September 27, 2021, you may need to use the old mrb version.  After sourcing the DUNE setup script, unsetup mrb and setup mrb -o.  Or make a new test release with the latest software.
 
 ```
 source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
-unsetup mrb
-setup mrb -o
 mkdir <new empty directory>
 cd <new emtpy directory>
 export MRB_PROJECT=garsoft
