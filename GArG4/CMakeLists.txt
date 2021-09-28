@@ -62,7 +62,7 @@ art_make(LIB_LIBRARIES      nug4_ParticleNavigation
                             ${ROOT_REFLEX}
                             ${ROOT_EGPYTHIA6}
                             ${ROOT_GUI}
-                            ${ROOT_BASIC_LIB_LIST}
+                            ROOT_BASIC_LIB_LIST
                             ${ROOT_GEOM}
                             ${CLHEP}
                             ${G4LIBS}
@@ -89,7 +89,7 @@ art_make(LIB_LIBRARIES      nug4_ParticleNavigation
                             ${FHICLCPP}
                             ${CETLIB}
                             ${CETLIB_EXCEPT}
-                            ${ROOT_BASIC_LIB_LIST}
+                            ROOT_BASIC_LIB_LIST
                             ${G4LIBS}
 )
 

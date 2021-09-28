@@ -30,7 +30,7 @@ art_make( MODULE_LIBRARIES SimulationDataProducts
                            ${CLHEP}
     			                 ${GENIE_LIBS_DIR_WITH_LFLAGS}
                            ${ROOT_EGPYTHIA6}    # FIXME!!! - resolving genie run time reference
-                           ${ROOT_BASIC_LIB_LIST}
+                           ROOT_BASIC_LIB_LIST
                            ${ROOT_EG}
         )
 

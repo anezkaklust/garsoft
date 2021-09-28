@@ -21,7 +21,7 @@ cet_make( LIBRARIES
                        ${MF_MESSAGELOGGER}
                        ${FHICLCPP}
                        ${CETLIB_EXCEPT}
-                       ${ROOT_BASIC_LIB_LIST}
+                       ROOT_BASIC_LIB_LIST
                        ${CLHEP}
                        ${Boost_SYSTEM_LIBRARY}
 		       GSGSL

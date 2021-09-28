@@ -20,7 +20,7 @@ art_make(
     canvas
     ${MF_MESSAGELOGGER}
     ${ROOT_EG}
-    ${ROOT_BASIC_LIB_LIST}
+    ROOT_BASIC_LIB_LIST
     ${CETLIB_EXCEPT}
     ${FHICLCPP}
     ${Boost_SYSTEM_LIBRARY}
@@ -38,7 +38,7 @@ art_make(
     canvas
     ${MF_MESSAGELOGGER}
     ${ROOT_EG}
-    ${ROOT_BASIC_LIB_LIST}
+    ROOT_BASIC_LIB_LIST
     ${FHICLCPP}
     ${CETLIB_EXCEPT}
   )

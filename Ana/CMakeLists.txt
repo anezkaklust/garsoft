@@ -10,7 +10,7 @@ art_make(
 	LIB_LIBRARIES GaranaProducts
 		      ReconstructionDataProducts
 		      nusimdata_SimulationBase
-		      ${ROOT_BASIC_LIB_LIST}
+		      ROOT_BASIC_LIB_LIST
         MODULE_LIBRARIES Geometry
                        ReadoutSimulation
                        SimulationDataProducts
@@ -34,7 +34,7 @@ art_make(
                        ${MF_MESSAGELOGGER}
                        ${FHICLCPP}
                        ${CETLIB_EXCEPT}
-                       ${ROOT_BASIC_LIB_LIST}
+                       ROOT_BASIC_LIB_LIST
                        ${ROOT_EG}
                        GaranaProducts
                        garsoft_StandardRecord

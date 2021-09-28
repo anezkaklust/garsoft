@@ -19,7 +19,7 @@ art_make(MODULE_LIBRARIES Geometry
                            ${CETLIB}
                            ${CETLIB_EXCEPT}
                            ${CLHEP}
-                           ${ROOT_BASIC_LIB_LIST}
+                           ROOT_BASIC_LIB_LIST
                            ${ROOT_EG}
         )
 

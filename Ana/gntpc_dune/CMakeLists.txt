@@ -18,7 +18,7 @@ cet_make_exec(gntpc_dune
   SOURCE
     main/gNtpConvDUNE.cxx
   LIBRARIES
-    ${ROOT_BASIC_LIB_LIST}
+    ROOT_BASIC_LIB_LIST
     ${ROOT_EVE}
     ${ROOT_EVE_LIB_LIST}
     ${ROOT_EGPYTHIA6}
