@@ -1565,11 +1565,9 @@ namespace gar{
                 if( event.isRealData() ) return;
 
                 std::vector<const simb::MCTruth*> temp;
-                //std::vector< art::Handle< std::vector<simb::MCTruth> > > mctcol;
                 // use get by Type because there should only be one collection of these in the event
                 try
                 {
-		    //event.getManyByType(mctcol);
 		    auto mctcol = event.getMany<std::vector<simb::MCTruth> >();
                     for(size_t mctc = 0; mctc < mctcol.size(); ++mctc)
                     {

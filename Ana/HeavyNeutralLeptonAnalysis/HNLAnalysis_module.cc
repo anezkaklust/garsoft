@@ -644,8 +644,7 @@ void gar::HNLAnalysis::FillVectors(art::Event const& event) {
   findManyCALTrackEnd = new art::FindManyP<rec::Track, rec::TrackEnd>(RecoClusterHandle,event,fECALAssnLabel);
 
   // Get handles for MCinfo, also good for MCPTrajectory.  Want to get all MCTruths, regardless of generator label.
-  //std::vector< art::Handle< std::vector<simb::MCTruth> > > mctruthHandles;
-  //event.getManyByType(mctruthHandles);
+
   auto mctruthHandles = event.getMany<std::vector<simb::MCTruth> >();
   if (mctruthHandles.size()!=1) {
     throw cet::exception("HNLAnalysis") << " Need just 1 simb::MCTruth"

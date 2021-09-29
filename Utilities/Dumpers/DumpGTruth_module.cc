@@ -135,8 +135,6 @@ void sim::DumpGTruth::analyze(art::Event const& event) {
   
   std::vector<ProductInfo_t> AllTruths;
   if (bAllTruth) {
-    //std::vector<art::Handle<std::vector<simb::GTruth>>> handles;
-    //event.getManyByType(handles);
     auto handles = event.getMany<std::vector<simb::GTruth> >();
     std::copy(handles.begin(), handles.end(), std::back_inserter(AllTruths));
   }

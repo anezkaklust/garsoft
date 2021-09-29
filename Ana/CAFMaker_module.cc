@@ -545,8 +545,7 @@ void gar::CAFMaker::FillGeneratorMonteCarloInfo(art::Event const & e, caf::Stand
     }
 
     // Save the particle list from the GENIE event record
-    //std::vector< art::Handle< std::vector<sdp::GenieParticle> > > gparthandlelist;
-    //e.getManyByType(gparthandlelist);
+
     auto gparthandlelist = e.getMany<std::vector<sdp::GenieParticle>>();
 
     for (size_t igphl = 0; igphl < gparthandlelist.size(); ++igphl) {

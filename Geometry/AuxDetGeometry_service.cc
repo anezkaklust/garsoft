@@ -62,8 +62,6 @@ namespace gar {
       
       // check here to see if we need to load a new geometry.
       // get the detector id from the run object
-      //std::vector< art::Handle<sumdata::RunData> > rdcol;
-      //run.getManyByType(rdcol);
       auto rdcol = run.getMany<sumdata::RunData>();
       if (rdcol.empty()) {
         MF_LOG_WARNING("LoadNewGeometry")

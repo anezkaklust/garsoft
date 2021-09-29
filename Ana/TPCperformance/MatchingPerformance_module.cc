@@ -417,9 +417,7 @@ bool gar::MatchingPerformance::FillVectors(art::Event const& event) {
  
     // Get handles for MCinfo, also good for MCPTrajectory.  Want to get all
     // MCTruths, regardless of generator label.
-    //std::vector< art::Handle< std::vector<simb::MCTruth> > > mctruthHandles;
-    //event.getManyByType(mctruthHandles);
-    // new for art 3.0.9
+
     auto mctruthHandles = event.getMany<std::vector<simb::MCTruth> >();
 
     if (mctruthHandles.size()!=1) {
