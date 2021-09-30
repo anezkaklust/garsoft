@@ -6,7 +6,7 @@ If your computer has CVMFS installed and running, you can type
 
 ```
 source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
-setup garsoft v02_10_02 -q e20:prof
+setup garsoft v02_13_00 -q e20:prof
 ```
 
 and then proceed to the section below on running a sample of GArSoft events.  
