@@ -215,6 +215,34 @@ nd_hall_mpd_lar_dayone_auxdet_geo:
  SortingParameters: {}
 }
 
+## ND-GAr-Lite geometry with ND-LAr in the ND-Hall using 6 plane configuration used in GAr-Lite CDR.
+nd_hall_garlite_lar_6plane_geo:
+{
+ ForceUseFCLOnly:   false
+ SortingParameters:
+ {
+  PixelActiveSize: 0.3      # cm
+  PixelPitch:      0.333333 # cm
+ }
+ SegmentationAlgPars: @local::standard_dayone_spyv3_segals
+ RelativePath:      ""
+ GDML:              "nd_hall_mpd_lar_only/nd_hall_garlite_lar_SPY_v3_wMuID_6plane.gdml"
+ ROOT:              "nd_hall_mpd_lar_only/nd_hall_garlite_lar_SPY_v3_wMuID_6plane.gdml"
+ SurfaceY:          0.          # cm
+ Name:              "Realistic"
+ PositionEpsilon:   1.e-4
+ PointInWarnings:   false
+ ECALEndcapOutsidePV: false
+}
+
+nd_hall_garlite_lar_6plane_auxdet_geo:
+{
+ ROOT:              "nd_hall_mpd_lar_only/nd_hall_garlite_lar_SPY_v3_wMuID_6plane.gdml"
+ RelativePath:      ""
+ ForceUseFCLOnly:   false
+ SortingParameters: {}
+}
+
 ## Old ND-GAr geometry in the nd hall used for the ND CDR studies for backward compatibility
 
 nd_hall_mpd_only_cdr_geo:

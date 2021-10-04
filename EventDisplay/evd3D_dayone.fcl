@@ -46,7 +46,7 @@ physics:
 
  analyzers:
  {
-  evdisp: @local::evd3D_dayone
+  evdisp: @local::evd3D_dayone_5plane
  }
 
  #list the modules for this path, order matters, filters reject all following items
