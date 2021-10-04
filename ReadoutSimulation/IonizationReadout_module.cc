@@ -85,13 +85,14 @@ namespace gar {
                                    std::vector<edepIDE>                 & edepIDEs);
       void CombineIDEs(std::vector<edepIDE>                 & edepIDEs,
                        std::vector<sdp::EnergyDeposit> const& edepCol);
-      void CreateSignalDigit(unsigned int                                     const& channel,
-                             std::vector<float>                                    & electrons,
-                             std::set<size_t>                                      & eDepLocs,
-                             std::vector<raw::RawDigit>                            & digCol,
-                             ::art::ValidHandle< std::vector<sdp::EnergyDeposit> > & eDepCol,
-                             ::art::Assns<sdp::EnergyDeposit, raw::RawDigit>       & erassn,
-                             ::art::Event                                          & evt);
+      void CreateSignalDigit(unsigned int                                      const& channel,
+                             std::vector<float>                                     & electrons,
+                             std::set<size_t>                                       & eDepLocs,
+                             std::deque<float>                                      & eDepWeights,
+                             std::vector<raw::RawDigit>                             & digCol,
+                             ::art::ValidHandle< std::vector<sdp::EnergyDeposit> >  & eDepCol,
+                             ::art::Assns<sdp::EnergyDeposit, raw::RawDigit, float> & erassn,
+                             ::art::Event                                           & evt);
       void CheckChannelToEnergyDepositMapping(unsigned int       const& channel,
                                               sdp::EnergyDeposit const& edep,
                                               std::string        const& id);
@@ -133,7 +134,7 @@ namespace gar {
       this->reconfigure(pset);
 
       produces< std::vector<raw::RawDigit>                      >();
-      produces< ::art::Assns<sdp::EnergyDeposit, raw::RawDigit> >();
+      produces< ::art::Assns<sdp::EnergyDeposit, raw::RawDigit, float> >();
 
 
       // read in the pad response function histograms
@@ -229,7 +230,7 @@ namespace gar {
 
       // loop over the lists and put the particles and voxels into the event as collections
       std::unique_ptr< std::vector<raw::RawDigit>                      > rdCol (new std::vector<raw::RawDigit>                     );
-      std::unique_ptr< ::art::Assns<sdp::EnergyDeposit, raw::RawDigit> > erassn(new ::art::Assns<sdp::EnergyDeposit, raw::RawDigit>);
+      std::unique_ptr< ::art::Assns<sdp::EnergyDeposit, raw::RawDigit, float> > erassn(new ::art::Assns<sdp::EnergyDeposit, raw::RawDigit, float>);
 
       // first get the energy deposits from the event record
       auto eDepCol = evt.getValidHandle< std::vector<sdp::EnergyDeposit> >(fG4Label);
@@ -249,6 +250,7 @@ namespace gar {
 
 	    unsigned int       prevChan = eDepIDEs.front().Channel;
 	    std::set<size_t>   digitEDepLocs;
+            std::deque<float>  digitEDepWeights;
 	    std::vector<float> electrons(fNumTicks, 0.);
 
 	    // make the signal raw digits and set their associations to the energy deposits
@@ -274,6 +276,7 @@ namespace gar {
 		this->CreateSignalDigit(prevChan,
 					electrons,
 					digitEDepLocs,
+                                        digitEDepWeights,
 					*rdCol,
 					eDepCol,
 					*erassn,
@@ -300,6 +303,7 @@ namespace gar {
 		}
 
 	      for(auto loc : edide.edepLocs) digitEDepLocs.insert(loc);
+              for(auto w : edide.edepWeights) digitEDepWeights.push_front(w);
 
 	    } // end loop to fill signal raw digit vector and make EnergyDeposit associations
 
@@ -307,6 +311,7 @@ namespace gar {
 	    this->CreateSignalDigit(eDepIDEs.back().Channel,
 				    electrons,
 				    digitEDepLocs,
+                                    digitEDepWeights,
 				    *rdCol,
 				    eDepCol,
 				    *erassn,
@@ -458,7 +463,7 @@ namespace gar {
 		  edepIDEs.emplace_back(clusterSize.at(c)*chanweight.at(i)*rsumw,
 					cwn.at(i).id,
 					fTime->TPCG4Time2TDC(clusterTime.at(c)),
-					e);
+					e, chanweight.at(i));
 		  this->CheckChannelToEnergyDepositMapping(edepIDEs.back().Channel,
 							   edepCol[e],
 							   "DriftElectronsToReadout");
@@ -578,13 +583,14 @@ namespace gar {
     }
 
     //--------------------------------------------------------------------------
-    void IonizationReadout::CreateSignalDigit(unsigned int                                     const& channel,
-                                              std::vector<float>                                    & electrons,
-                                              std::set<size_t>                                      & eDepLocs,
-                                              std::vector<raw::RawDigit>                            & digCol,
-                                              ::art::ValidHandle< std::vector<sdp::EnergyDeposit> > & eDepCol,
-                                              ::art::Assns<sdp::EnergyDeposit, raw::RawDigit>       & erassn,
-                                              ::art::Event                                          & evt)
+    void IonizationReadout::CreateSignalDigit(unsigned int                                      const& channel,
+                                              std::vector<float>                                     & electrons,
+                                              std::set<size_t>                                       & eDepLocs,
+                                              std::deque<float>                                      & eDepWeights,
+                                              std::vector<raw::RawDigit>                             & digCol,
+                                              ::art::ValidHandle< std::vector<sdp::EnergyDeposit> >  & eDepCol,
+                                              ::art::Assns<sdp::EnergyDeposit, raw::RawDigit, float> & erassn,
+                                              ::art::Event                                           & evt)
     {
 
       // could be that all the adc's fell below threshold, so test if we got a raw digit at all.
@@ -602,6 +608,7 @@ namespace gar {
 	    << channel;
 
 	  // loop over the locations in the eDepCol to make the associations
+	  size_t index = 0;
 	  for(auto ed : eDepLocs){
 	    auto const ptr = art::Ptr<sdp::EnergyDeposit>(eDepCol, ed);
 
@@ -610,11 +617,14 @@ namespace gar {
 						     "CreateSignalDigit");
 
 	    //std::cout << "Making association: " << digCol.size() << " " << ptr << std::endl;
-	    util::CreateAssn(*this, evt, digCol, ptr, erassn);
+	    //util::CreateAssn(*this, evt, digCol, ptr, erassn);
+	    util::CreateAssnD(*this, evt, digCol, ptr, eDepWeights.at(index), erassn);
+            index++;
 	  }
 	}
 
       eDepLocs.clear();
+      eDepWeights.clear();
       electrons.clear();
       electrons.resize(fNumTicks, 0);
 

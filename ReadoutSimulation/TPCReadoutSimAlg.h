@@ -32,12 +32,14 @@ namespace gar {
       edepIDE(float          numE,
               unsigned int   chan,
               unsigned short tdc,
-              size_t         edepIdx)
+              size_t         edepIdx,
+              float          edepWeight)
       : NumElect(numE)
       , Channel (chan)
       , TDC     (tdc)
       {
         edepLocs.insert(edepIdx);
+        edepWeights.push_front(edepWeight);
       }
       
       //------------------------------------------------------------------------
@@ -89,14 +91,17 @@ namespace gar {
         
         for(auto const e : b.edepLocs)
           edepLocs.insert(e);
-        
+        for(auto const w : b.edepWeights)
+          edepWeights.push_front(w);
+   
         return;
       }
       
       float            NumElect;
       unsigned int     Channel;
       unsigned short   TDC;
-      std::set<size_t> edepLocs;
+      std::unordered_set<size_t> edepLocs; // keeps insert order, loads from front
+      std::deque<float> edepWeights; // fraction of parent edep associated to digit, use deque for efficient front loading
     };
 
     class TPCReadoutSimAlg{
