@@ -178,7 +178,7 @@ namespace gar {
         }
 
       } else {
-        art::FindMany<sdp::EnergyDeposit> fmEnergyDep(digCol, evt, fRawTPCDataLabel);
+        art::FindMany<sdp::EnergyDeposit, float> fmEnergyDep(digCol, evt, fRawTPCDataLabel);
         if (!fmEnergyDep.isValid()) {
           ++fSTFU;
           if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
@@ -197,12 +197,19 @@ namespace gar {
               << " channels in the geometry";
           }
 
+          std::vector<float const*> depweights;
           std::vector<const sdp::EnergyDeposit*> eDeps;
           for (size_t iDig = 0; iDig < digCol->size(); ++iDig) {
             eDeps.clear();
-            fmEnergyDep.get(iDig, eDeps);    // uses vector::insert
+            depweights.clear();
+            fmEnergyDep.get(iDig, eDeps, depweights);    // uses vector::insert
             if (eDeps.size() < 1) continue;
-            fChannelToEDepCol[ (*digCol)[iDig].Channel() ].swap(eDeps);
+            
+            for(size_t idep=0; idep<eDeps.size(); idep++) {
+                float w = 1.;
+                if(fSplitEDeps) w = *depweights[idep];
+                fChannelToEDepCol[ (*digCol)[iDig].Channel() ].emplace_back(std::make_pair(eDeps[idep],w)); 
+            }
           }
           fHasHits = true;
         }

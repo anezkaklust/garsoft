@@ -61,6 +61,39 @@ namespace gar{
 
             HitIDE(int id, float ef, float e, const TLorentzVector& pos, const TLorentzVector& mom)
                 : trackID(id), energyFrac(ef), energyTot(e), position(pos), momentum(mom) {}
+
+            bool operator == (HitIDE const& hitr) {
+                if(this->trackID    != hitr.trackID)    return false;
+                if(this->energyTot  != hitr.energyTot)  return false;
+                if(this->energyFrac != hitr.energyFrac) return false;
+                if(this->position   != hitr.position)   return false;
+                if(this->momentum   != hitr.momentum)   return false;
+                return true;  
+            }
+
+            // sort in this order: trackID, time, total then frac deposited energy, postion, momentum, energy
+            // this is probably overkill, but better to be careful
+            bool operator < (HitIDE const& hitr) {
+                if(*this == hitr)                              return false;
+                if(this->trackID < hitr.trackID)               return true;
+                if(this->trackID > hitr.trackID)               return false;
+                if(this->energyTot < hitr.energyTot)           return true;
+                if(this->energyTot > hitr.energyTot)           return false;
+                if(this->energyFrac < hitr.energyFrac)         return true;
+                if(this->energyFrac > hitr.energyFrac)         return false;
+                if(this->position.Rho() < hitr.position.Rho()) return true;
+                if(this->position.Rho() > hitr.position.Rho()) return false;
+                if(this->position.Phi() < hitr.position.Phi()) return true;
+                if(this->position.Phi() > hitr.position.Phi()) return false;
+                if(this->position.Z()   < hitr.position.Z())   return true;
+                if(this->position.Z()   > hitr.position.Z())   return false;
+                if(this->momentum.P()   < hitr.position.P())   return true;
+                if(this->momentum.P()   > hitr.position.P())   return false;
+                if(this->momentum.E()   < hitr.position.E())   return true;
+                if(this->momentum.E()   > hitr.position.E())   return false;
+                return false;
+                
+            }
         };
         struct CalIDE {
             int   trackID;      ///< Geant4 trackID, as modified by ParticleListAction::PreTrackingAction
@@ -127,10 +160,6 @@ namespace gar{
 
             // Returns an ::art::Ptr<> to simb::MCTruth
             art::Ptr<simb::MCTruth> const ParticleToMCTruth(simb::MCParticle* const p) const;
-
-
-
-
 
             // Following should work as long as there are also RawDigit and EnergyDeposit
             // data products in the event, and suitable Assns between them
@@ -208,6 +237,8 @@ namespace gar{
 
             std::vector<std::pair<simb::MCParticle*,float>> TrackToMCParticles(rec::Track* const t);
 
+            // given a pointer to a track object, returns the total true deposited energy [GeV]
+            // associated with the track
             double TrackToTotalEnergy(rec::Track* const t);
 
             std::vector<art::Ptr<rec::Track>>
@@ -246,7 +277,7 @@ namespace gar{
             std::vector<simb::MCParticle*>
             MCPartsInCluster(rec::Cluster* const c);
 
-  	        TLorentzVector EnergyDepositToMomentum(const int& trackID, const TLorentzVector& position, size_t& startTrajIndex) const;
+  	    TLorentzVector EnergyDepositToMomentum(const int& trackID, const TLorentzVector& position, size_t& startTrajIndex) const;
 
 
         protected:
@@ -279,8 +310,10 @@ namespace gar{
 
             double                                              fInverseVelocity;       ///< inverse drift velocity
             double                                              fLongDiffConst;         ///< longitudinal diffusion constant
+            bool                                                fSplitEDeps;            ///< use weights from PRFs to break true energy deposits into channel specific contributions
+
             // vector gives a fast lookup and is only 677864*24 = 16Mbytes.
-            std::vector<std::vector<const sdp::EnergyDeposit*>> fChannelToEDepCol;      ///< convenience collections of EnergyDeposits for each channel
+            std::vector<std::vector<std::pair<const sdp::EnergyDeposit*, float const>>> fChannelToEDepCol;      ///< convenience collections of EnergyDeposits for each channel
 
             // ECAL max channel id is something like 2^56.  Try an unordered map, not a vector.
             std::unordered_map<raw::CellID_t,std::vector<const sdp::CaloDeposit*>>
