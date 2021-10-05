@@ -3,7 +3,7 @@
 cet_make_exec(makeDST.exe
   SOURCE makeDST.cxx
   LIBRARIES
-    ${ROOT_BASIC_LIB_LIST}
+    ROOT_BASIC_LIB_LIST
     cetlib cetlib_except
 )
 

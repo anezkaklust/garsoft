@@ -321,7 +321,7 @@ namespace util {
 
 
 
-    int TrackPropagator::DirectionPhi(const float* trackpar, const float* Xpoint,
+  int TrackPropagator::DirectionPhi(const float* trackpar, const float* ,// (unused) Xpoint,
             float& phiEval, float* retXYZ) {
 
         retXYZ[0] = std::tan(trackpar[4]);

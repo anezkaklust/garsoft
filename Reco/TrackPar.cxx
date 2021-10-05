@@ -139,32 +139,32 @@ namespace gar
     }
 
 
-    const float TrackPar::getYCentBeg() const
+    float TrackPar::getYCentBeg() const
     {
       return fYCentBeg;
     }
 
-    const float TrackPar::getZCentBeg() const
+    float TrackPar::getZCentBeg() const
     {
       return fZCentBeg;
     }
 
-    const float TrackPar::getYCentEnd() const
+    float TrackPar::getYCentEnd() const
     {
       return fYCentEnd;
     }
 
-    const float TrackPar::getZCentEnd() const
+    float TrackPar::getZCentEnd() const
     {
       return fZCentEnd;
     }
 
-    const bool  TrackPar::getBegCentValid() const
+    bool TrackPar::getBegCentValid() const
     {
       return fBegCentValid;
     }
 
-    const bool  TrackPar::getEndCentValid() const
+    bool TrackPar::getEndCentValid() const
     {
       return fEndCentValid;
     }

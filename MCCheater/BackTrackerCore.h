@@ -141,19 +141,19 @@ namespace gar{
             // Returns a bare pointer to the MCParticle corresponding to a given TrackID
             // Negative trackID values, corresponding to EM shower particles, return
             // the parent particle.
-            simb::MCParticle* const TrackIDToParticle(int const& id) const;
+            simb::MCParticle*  TrackIDToParticle(int const& id) const;
 
-            simb::MCParticle* const FindMother(simb::MCParticle* const p) const {
+            simb::MCParticle*  FindMother(simb::MCParticle* const p) const {
                 // Always walk up the ParticleList in case someday somebody changes it
                 return TrackIDToParticle(p->Mother());
             }
 
-            simb::MCParticle* const FindEve(simb::MCParticle* const p) const;
+            simb::MCParticle*  FindEve(simb::MCParticle* const p) const;
 
             // FindTPCEve is not a const method because it saves result of previous
             // calls in `this' for efficiency.  2nd signature mostly for internal use.
-            simb::MCParticle* const FindTPCEve(simb::MCParticle* const p) const;
-            simb::MCParticle* const FindTPCEve(int const trackId) const;
+            simb::MCParticle*  FindTPCEve(simb::MCParticle* const p) const;
+            simb::MCParticle*  FindTPCEve(int const trackId) const;
 
             bool IsForebearOf(simb::MCParticle* const forebear,
                               simb::MCParticle* const afterbear) const;

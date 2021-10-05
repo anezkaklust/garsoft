@@ -60,7 +60,7 @@ namespace evd{
 
    //......................................................................
    void AnalysisBaseDrawer::DrawDeDx(const art::Event& evt,
-                                     evdb::View2D* view)
+                                     evdb::View2D* ) // view)
    {
       art::ServiceHandle<evd::RecoDrawingOptions>     recoOpt;
       art::ServiceHandle<evd::AnalysisDrawingOptions> anaOpt;

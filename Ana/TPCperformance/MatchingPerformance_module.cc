@@ -417,14 +417,15 @@ bool gar::MatchingPerformance::FillVectors(art::Event const& event) {
  
     // Get handles for MCinfo, also good for MCPTrajectory.  Want to get all
     // MCTruths, regardless of generator label.
-    std::vector< art::Handle< std::vector<simb::MCTruth> > > mctruthHandles;
-    art::Handle< std::vector<simb::MCParticle> > MCPHandle;
-    event.getManyByType(mctruthHandles);
+
+    auto mctruthHandles = event.getMany<std::vector<simb::MCTruth> >();
+
     if (mctruthHandles.size()!=1) {
         throw cet::exception("MatchingPerformance") << " Need just 1 simb::MCTruth"
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
     }
 
+    art::Handle< std::vector<simb::MCParticle> > MCPHandle;
     if (!event.getByLabel(fGeantLabel, MCPHandle)) {
         throw cet::exception("MatchingPerformance") << " No simb::MCParticle"
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
@@ -557,9 +558,9 @@ bool gar::MatchingPerformance::FillVectors(art::Event const& event) {
 
 
 
-    for (size_t iNiceTrk=0; iNiceTrk<niceTracks.size(); ++iNiceTrk) {
-        rec::Track       track      = niceTracks[iNiceTrk].recoTrk;
-        simb::MCParticle theMCPart  = niceTracks[iNiceTrk].simiTrk;
+    for (size_t iNiceTrk_local=0; iNiceTrk_local<niceTracks.size(); ++iNiceTrk_local) {
+        rec::Track       track      = niceTracks[iNiceTrk_local].recoTrk;
+        simb::MCParticle theMCPart  = niceTracks[iNiceTrk_local].simiTrk;
 
 
 

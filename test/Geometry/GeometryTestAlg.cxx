@@ -353,9 +353,9 @@ namespace gar{
         << pVolume->GetShape()->GetName() << ") with " << (path.size()-1)
         << " ancestors";
         for (TGeoNode const* pNode: path) {
-          TGeoVolume const* pVolume = pNode->GetVolume();
-          log << "\n      * '" << pVolume->GetName() << "' (a "
-          << pVolume->GetShape()->GetName() << ") with a "
+          TGeoVolume const* pVolume_loc = pNode->GetVolume();
+          log << "\n      * '" << pVolume_loc->GetName() << "' (a "
+          << pVolume_loc->GetShape()->GetName() << ") with a "
           << pNode->GetMatrix()->IsA()->GetName() << " that "
           << (pNode->GetMatrix()->IsTranslation()? "is": "is not")
           << " a simple translation";

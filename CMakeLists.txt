@@ -15,9 +15,9 @@
 
 
 # use cmake 2.8 or later
-cmake_minimum_required (VERSION 3.12...3.18 FATAL_ERROR)
+cmake_minimum_required (VERSION 3.19 FATAL_ERROR)
 
-project(garsoft)
+project(garsoft VERSION 02.14.00)
 
     find_package( cetbuildtools REQUIRED)
 
@@ -63,13 +63,14 @@ find_ups_root   ()
 find_ups_product( gsl )
 find_ups_product( edepsim )
 find_ups_product( garana )
+find_ups_product( cetlib )
 
 #message(STATUS "GARANA_DIR is $ENV{GARANA_DIR}")
 #message(STATUS "GARANA_LIB is $ENV{GARANA_LIB}")
 
 cet_find_library( EDEPSIMIO NAMES edepsim_io PATHS ENV EDEPSIM_LIB )
 
-# cet_find_library( GARANAPRODUCTS NAMES GaranaProducts PATHS ENV GARANA_LIB)
+cet_find_library( GARANAPRODUCTS NAMES GaranaProducts PATHS ENV GARANA_LIB)
 
 #message(STATUS "ROOTSYS is ${ROOTSYS}")
 #message(STATUS "GSL_FQ_DIR is $ENV{GSL_FQ_DIR}")
@@ -101,6 +102,8 @@ add_subdirectory (Ana)
 add_subdirectory (Filters)
 add_subdirectory (StandardRecord)
 
+message(STATUS "GSL_FQ_DIR is $ENV{GSL_FQ_DIR}")
+
 # Pandora
 option(BUILD_W_PANDORA "Build with Pandora" ON )
 
@@ -109,7 +112,6 @@ find_ups_product( pandora )
 cet_find_library( PANDORASDK NAMES PandoraSDK PATHS ENV PANDORA_LIB )
 cet_find_library( PANDORAMONITORING NAMES PandoraMonitoring PATHS ENV PANDORA_LIB )
 cet_find_library( LCPANDORACONTENT NAMES LCContent PATHS ENV PANDORA_LIB )
-
 add_subdirectory (Pandora)
 endif()
 

@@ -15,7 +15,7 @@ namespace gar {
         namespace seg {
 
             //----------------------------------------------------------------------------
-            ChannelMapStandardAlg::ChannelMapStandardAlg(fhicl::ParameterSet const& p)
+            ChannelMapStandardAlg::ChannelMapStandardAlg(fhicl::ParameterSet const& )
             {
             }
 

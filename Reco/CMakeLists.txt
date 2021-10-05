@@ -25,7 +25,7 @@ art_make(BASENAME_ONLY
                        ${MF_MESSAGELOGGER}
                        ${FHICLCPP}
                        ${CETLIB_EXCEPT}
-                       ${ROOT_BASIC_LIB_LIST}
+                       ROOT_BASIC_LIB_LIST
                        ${CLHEP}
                        ${Boost_SYSTEM_LIBRARY}
                        MCCheater_BackTracker_service
@@ -54,7 +54,7 @@ art_make(BASENAME_ONLY
                        ${MF_MESSAGELOGGER}
                        ${FHICLCPP}
                        ${CETLIB_EXCEPT}
-                       ${ROOT_BASIC_LIB_LIST}
+                       ROOT_BASIC_LIB_LIST
          )
 
 install_headers()

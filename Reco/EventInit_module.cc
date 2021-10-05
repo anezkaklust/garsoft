@@ -63,7 +63,7 @@ namespace gar {
 
 
 
-        void EventInit::produce(art::Event & e) {
+        void EventInit::produce(art::Event & /* e */) {
             IDNumberGen::create()->newEventReset();
             return;
         }

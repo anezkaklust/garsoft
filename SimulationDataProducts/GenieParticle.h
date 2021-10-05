@@ -26,7 +26,7 @@ namespace gar {
             fStatus(status),
             fName(name),
             fFirstMother(firstmother),
-            fLastMother(lastdaughter),
+            fLastMother(lastmother),
             fFirstDaughter(firstdaughter),
             fLastDaughter(lastdaughter),
             fPx(px),

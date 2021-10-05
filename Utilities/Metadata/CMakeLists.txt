@@ -13,7 +13,7 @@
 			art_Utilities canvas
 			${MF_MESSAGELOGGER}
 			cetlib cetlib_except
-			${ROOT_BASIC_LIB_LIST}
+			ROOT_BASIC_LIB_LIST
     )
 
 simple_plugin( FileCatalogMetadataMPD "service"

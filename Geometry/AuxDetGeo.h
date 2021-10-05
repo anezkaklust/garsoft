@@ -49,11 +49,11 @@ namespace gar {
       
       // methods for the sensitive volumes in the aux det
       
-      size_t             const  FindSensitiveVolume      (double const worldLoc[3])  const;
+      size_t                    FindSensitiveVolume      (double const worldLoc[3])  const;
       AuxDetSensitiveGeo const& PositionToSensitiveVolume(double const worldLoc[3],
                                                           size_t     & sv)           const;
       AuxDetSensitiveGeo const& SensitiveVolume(size_t sv) const { return *fSensitive[sv];   }
-      size_t             const  NSensitiveVolume()         const { return fSensitive.size(); }
+      size_t                    NSensitiveVolume()         const { return fSensitive.size(); }
       
       void                      SortSubVolumes(geo::AuxDetGeoObjectSorter const& sorter);
       

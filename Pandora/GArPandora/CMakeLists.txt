@@ -29,9 +29,9 @@ art_make(BASENAME_ONLY
           ${CETLIB}
           ${CETLIB_EXCEPT}
           MCCheater_BackTracker_service
-          ${PANDORASDK}
-          ${PANDORAMONITORING}
-          ${LCPANDORACONTENT}
+          PANDORASDK
+          PANDORAMONITORING
+          LCPANDORACONTENT
           ${CLHEP}
           GArContent
 

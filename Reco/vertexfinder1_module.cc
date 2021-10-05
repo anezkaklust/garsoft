@@ -14,6 +14,7 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "canvas/Utilities/InputTag.h"
+#include "canvas/Persistency/Common/Assns.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Persistency/Common/PtrMaker.h"
@@ -77,7 +78,7 @@ namespace gar {
       std::unique_ptr< std::vector<rec::Vertex> >
         vtxCol(new std::vector<rec::Vertex>);
       std::unique_ptr< art::Assns<rec::Track, rec::Vertex, rec::TrackEnd> >
-        trkVtxAssns(new::art::Assns<rec::Track, rec::Vertex, rec::TrackEnd>);
+        trkVtxAssns(new art::Assns<rec::Track, rec::Vertex, rec::TrackEnd>);
 
       auto trackHandle = e.getValidHandle< std::vector<Track>  >(fTrackLabel);
       auto const& tracks = *trackHandle;
@@ -217,7 +218,7 @@ namespace gar {
 
       // goodTrack returns true if the track can be used in vertexing
 
-    bool vertexfinder1::goodTrack(TrackPar trk, TrackEnd usebeg)
+    bool vertexfinder1::goodTrack(TrackPar trk, TrackEnd /* usebeg */)
     {
       int trknclus = trk.getNTPCClusters();
       if ( trknclus < fNTPCClusCut ) return false;

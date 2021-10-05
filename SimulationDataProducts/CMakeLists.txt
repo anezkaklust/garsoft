@@ -4,7 +4,7 @@ cet_make( LIBRARIES nusimdata_SimulationBase
                     MF_MessageLogger
                     
                     cetlib
-                    ${ROOT_BASIC_LIB_LIST}
+                    ROOT_BASIC_LIB_LIST
           NO_DICTIONARY )
 
 art_dictionary( DICTIONARY_LIBRARIES SimulationDataProducts )

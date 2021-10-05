@@ -12,7 +12,7 @@ namespace gar {
     
     //----------------------------------------------------------------------------
     TPCReadoutSimAlg::TPCReadoutSimAlg(CLHEP::HepRandomEngine      & engine,
-                                       fhicl::ParameterSet    const& pset)
+                                       fhicl::ParameterSet    const& /* pset */)
     : fEngine (engine)
     , fDetProp(nullptr)
     {

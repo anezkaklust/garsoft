@@ -5,11 +5,10 @@
 //
 
 #include "cetlib_except/exception.h"
-
 #include "fhiclcpp/ParameterSet.h"
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #include "RecoAlg/StripSplitterAlg.h"
-
 #include "Geometry/GeometryGAr.h"
 #include "CoreUtils/ServiceUtil.h"
 #include "Geometry/LocalTransformation.h"
@@ -184,6 +183,7 @@ namespace gar {
                         // split the hits
                         std::vector <const gar::rec::CaloHit*> virtualhits;
                         bool isBarrel = (det_id == 0 || det_id == 4) ? true : false;
+                        /* DEBLEO: Should it be bool isBarrel = (det_id == 1); */
                         getVirtualHits(hit, orientation, isBarrel, virtualhits);
 
                         // add (new) hits to collections
@@ -215,7 +215,9 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            void StripSplitterAlg::getVirtualHits(const gar::rec::CaloHit *hit, int orientation, bool isBarrel, std::vector <const gar::rec::CaloHit*> &virtualhits)
+            void StripSplitterAlg::getVirtualHits(const gar::rec::CaloHit *hit, 
+						  int , // orientation,
+						  bool isBarrel, std::vector <const gar::rec::CaloHit*> &virtualhits)
             {
                 MF_LOG_DEBUG("StripSplitterAlg")
                 << "StripSplitterAlg::getVirtualHits()";

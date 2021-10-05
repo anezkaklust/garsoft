@@ -63,13 +63,13 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            void SegmentationGridXYAlg::Initialize(const gar::geo::GeometryCore& geo)
+            void SegmentationGridXYAlg::Initialize(const gar::geo::GeometryCore& )
             {
 
             }
 
             //----------------------------------------------------------------------------
-            std::array<double, 3> SegmentationGridXYAlg::GetPosition(const gar::geo::GeometryCore& geo, const gar::raw::CellID_t& cID) const
+            std::array<double, 3> SegmentationGridXYAlg::GetPosition(const gar::geo::GeometryCore& , const gar::raw::CellID_t& cID) const
             {
                 std::array<double, 3> cellPosition;
                 cellPosition[0] = binToPosition(_decoder->get(cID, _xId), _gridSizeX, _offsetX);
@@ -81,7 +81,7 @@ namespace gar {
 
             //----------------------------------------------------------------------------
             /// determine the cell ID based on the position
-            gar::raw::CellID_t SegmentationGridXYAlg::GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
+            gar::raw::CellID_t SegmentationGridXYAlg::GetCellID(const gar::geo::GeometryCore& , const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
             {
                 gar::raw::CellID_t cID = 0;
 

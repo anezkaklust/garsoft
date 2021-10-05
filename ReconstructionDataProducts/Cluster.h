@@ -69,16 +69,16 @@ namespace gar {
             void setShape(const float* shape);
             void setParticleID(int pid);
 
-            const float                                 Energy() const;
-            const float                                 EnergyError() const;
-            const float                                 Time() const;
-            const float                                 TimeDiffFirstLast() const;
-            const float*                                Position() const;
-            const float                                 ITheta() const;
-            const float                                 IPhi() const;
-            const float*                                EigenVectors() const;
-            const float*                                Shape() const;
-            const int                                   ParticleID() const;
+            float                                 Energy() const;
+            float                                 EnergyError() const;
+            float                                 Time() const;
+            float                                 TimeDiffFirstLast() const;
+            const float*                          Position() const;
+            float                                 ITheta() const;
+            float                                 IPhi() const;
+            const float*                          EigenVectors() const;
+            const float*                          Shape() const;
+            int                                   ParticleID() const;
             const std::vector<gar::rec::Track*>&        Tracks() const;
             const std::vector<gar::rec::CaloHit*>&      CalorimeterHits() const;
             const std::vector<float>&                   HitContributions() const;
@@ -89,16 +89,16 @@ namespace gar {
 
         };
 
-        inline const float               gar::rec::Cluster::Energy()              const { return fEnergy;          }
-        inline const float               gar::rec::Cluster::EnergyError()         const { return fEnergyError;          }
-        inline const float               gar::rec::Cluster::Time()                const { return fTime;          }
-        inline const float               gar::rec::Cluster::TimeDiffFirstLast()   const { return fTimeDiffFirstLast; }
-        inline const float*              gar::rec::Cluster::Position()            const { return fPosition;        }
-        inline const float               gar::rec::Cluster::ITheta()              const { return fTheta;          }
-        inline const float               gar::rec::Cluster::IPhi()                const { return fPhi;          }
-        inline const float*              gar::rec::Cluster::EigenVectors()        const { return fEigenVector;     }
-        inline const float*              gar::rec::Cluster::Shape()               const { return fShape;           }
-        inline const int                 gar::rec::Cluster::ParticleID()          const { return fParticleId;      }
+        inline float               gar::rec::Cluster::Energy()              const { return fEnergy;          }
+        inline float               gar::rec::Cluster::EnergyError()         const { return fEnergyError;          }
+        inline float               gar::rec::Cluster::Time()                const { return fTime;          }
+        inline float               gar::rec::Cluster::TimeDiffFirstLast()   const { return fTimeDiffFirstLast; }
+        inline const float*        gar::rec::Cluster::Position()            const { return fPosition;        }
+        inline float               gar::rec::Cluster::ITheta()              const { return fTheta;          }
+        inline float               gar::rec::Cluster::IPhi()                const { return fPhi;          }
+        inline const float*        gar::rec::Cluster::EigenVectors()        const { return fEigenVector;     }
+        inline const float*        gar::rec::Cluster::Shape()               const { return fShape;           }
+        inline int                 gar::rec::Cluster::ParticleID()          const { return fParticleId;      }
         inline const std::vector<gar::rec::Track*>&   gar::rec::Cluster::Tracks() const { return fTracks;      }
         inline const std::vector<gar::rec::CaloHit*>& gar::rec::Cluster::CalorimeterHits()  const { return fHits;    }
         inline const std::vector<float>&              gar::rec::Cluster::HitContributions() const { return fWeights; }

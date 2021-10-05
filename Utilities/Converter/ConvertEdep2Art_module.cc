@@ -9,6 +9,7 @@
 #include <iostream>
 #include <limits>
 #include <exception>
+#include <regex>
 
 // Framework includes
 #include "art/Framework/Core/EDProducer.h"
@@ -335,7 +336,7 @@ namespace util {
     }
 
     //--------------------------------------------------------------------------
-    void ConvertEdep2Art::endRun(::art::Run& run) {
+  void ConvertEdep2Art::endRun(::art::Run& /* run */) {
         return;
     }
 
@@ -815,7 +816,7 @@ namespace util {
 
         // Make link between MCTruth and MCParticles
         size_t nGeneratedParticles = 0;
-        const std::map<int, size_t> fTrackIDToMCTruthIndex = this->TrackIDToMCTruthIndexMap(); //Need to make trackID to MCTruth index map
+        const std::map<int, size_t> fTrackIDToMCTruthIndex_local = this->TrackIDToMCTruthIndexMap(); //Need to make trackID to MCTruth index map
 
         for (std::map<int, simb::MCParticle*>::iterator itPart = fParticleList->begin(); itPart != fParticleList->end(); ++itPart)
         {
@@ -838,8 +839,8 @@ namespace util {
             partCol->push_back(std::move(p));
 
             try {
-                if( fTrackIDToMCTruthIndex.count(trackID) > 0) {
-                    size_t mctidx = fTrackIDToMCTruthIndex.find(trackID)->second;
+                if( fTrackIDToMCTruthIndex_local.count(trackID) > 0) {
+                    size_t mctidx = fTrackIDToMCTruthIndex_local.find(trackID)->second;
                     evgb::util::CreateAssn(*this, evt, *partCol, mctPtrs.at(mctidx), *tpassn, nGeneratedParticles);
                 }
             }

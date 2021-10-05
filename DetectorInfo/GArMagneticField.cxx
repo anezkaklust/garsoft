@@ -36,6 +36,7 @@
 #include <string>
 #include <sys/stat.h>
 #include <vector>
+#include <fstream>
 
 #include "cetlib/search_path.h"
 

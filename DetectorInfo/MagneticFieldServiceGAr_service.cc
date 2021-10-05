@@ -17,7 +17,6 @@
 #include "art/Framework/Principal/Run.h" // for Run
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/GlobalSignal.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
 #include "canvas/Persistency/Provenance/RunID.h"
 
 //-----------------------------------------------
@@ -28,7 +27,7 @@ mag::MagneticFieldServiceGAr::MagneticFieldServiceGAr(fhicl::ParameterSet const&
 }
 
 //----------------------------------------------
-void mag::MagneticFieldServiceGAr::preBeginRun(const art::Run& run)
+void mag::MagneticFieldServiceGAr::preBeginRun(const art::Run& )
 {
 
 }

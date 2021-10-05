@@ -70,7 +70,7 @@ simple_plugin (AnalysisDrawingOptions service
 			         ${MF_MESSAGELOGGER}
 	             ${FHICLCPP}
 			         ${CETLIB}
-               ${ROOT_BASIC_LIB_LIST}
+               ROOT_BASIC_LIB_LIST
      )
 
 simple_plugin (ColorDrawingOptions service
@@ -88,7 +88,7 @@ simple_plugin (ColorDrawingOptions service
 		         	 ${MF_MESSAGELOGGER}
 	             ${FHICLCPP}
 			         ${CETLIB}
-               ${ROOT_BASIC_LIB_LIST}
+               ROOT_BASIC_LIB_LIST
      )
 
 simple_plugin (EvdLayoutOptions service
@@ -106,7 +106,7 @@ simple_plugin (EvdLayoutOptions service
         			 ${MF_MESSAGELOGGER}
 	             ${FHICLCPP}
 			         ${CETLIB}
-               ${ROOT_BASIC_LIB_LIST}
+               ROOT_BASIC_LIB_LIST
      )
 
 simple_plugin (RawDrawingOptions service
@@ -124,7 +124,7 @@ simple_plugin (RawDrawingOptions service
         			 ${MF_MESSAGELOGGER}
 	             ${FHICLCPP}
 			         ${CETLIB}
-               ${ROOT_BASIC_LIB_LIST}
+               ROOT_BASIC_LIB_LIST
      )
 
 simple_plugin (RecoDrawingOptions service
@@ -142,7 +142,7 @@ simple_plugin (RecoDrawingOptions service
 	         		 ${MF_MESSAGELOGGER}
                ${FHICLCPP}
 		         	 ${CETLIB}
-               ${ROOT_BASIC_LIB_LIST}
+               ROOT_BASIC_LIB_LIST
      )
 
 simple_plugin (SimulationDrawingOptions service
@@ -160,7 +160,7 @@ simple_plugin (SimulationDrawingOptions service
 	         		 ${MF_MESSAGELOGGER}
                ${FHICLCPP}
 		         	 ${CETLIB}
-               ${ROOT_BASIC_LIB_LIST}
+               ROOT_BASIC_LIB_LIST
      )
 
 

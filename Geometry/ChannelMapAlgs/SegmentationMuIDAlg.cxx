@@ -68,13 +68,13 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            void SegmentationMuIDAlg::Initialize(const gar::geo::GeometryCore& geo)
+            void SegmentationMuIDAlg::Initialize(const gar::geo::GeometryCore& )
             {
 
             }
 
             //----------------------------------------------------------------------------
-            std::array<double, 3> SegmentationMuIDAlg::GetPosition(const gar::geo::GeometryCore& geo, const gar::raw::CellID_t& cID) const
+            std::array<double, 3> SegmentationMuIDAlg::GetPosition(const gar::geo::GeometryCore& , const gar::raw::CellID_t& cID) const
             {
                 std::array<double, 3> cellPosition;
 
@@ -108,7 +108,7 @@ namespace gar {
 
             //----------------------------------------------------------------------------
             /// determine the cell ID based on the position
-            gar::raw::CellID_t SegmentationMuIDAlg::GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
+            gar::raw::CellID_t SegmentationMuIDAlg::GetCellID(const gar::geo::GeometryCore& , const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const
             {
                 gar::raw::CellID_t cID = 0;
 
@@ -163,19 +163,19 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            bool SegmentationMuIDAlg::isTile(const gar::raw::CellID_t& cID) const
+            bool SegmentationMuIDAlg::isTile(const gar::raw::CellID_t& ) const
             {
                 return false;
             }
 
             //----------------------------------------------------------------------------
-            bool SegmentationMuIDAlg::isBarrel(const gar::raw::CellID_t& cID) const
+            bool SegmentationMuIDAlg::isBarrel(const gar::raw::CellID_t& ) const
             {
                 return true;
             }
 
             //----------------------------------------------------------------------------
-            double SegmentationMuIDAlg::getStripLength(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
+            double SegmentationMuIDAlg::getStripLength(const gar::geo::GeometryCore& , const std::array<double, 3> & , const gar::raw::CellID_t& cID) const
             {
                 double stripLength = 0.;
                 int layer = _decoder->get(cID, "layer");
@@ -187,7 +187,7 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            std::pair<TVector3, TVector3> SegmentationMuIDAlg::getStripEnds(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
+            std::pair<TVector3, TVector3> SegmentationMuIDAlg::getStripEnds(const gar::geo::GeometryCore& , const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
             {
                 int layer = _decoder->get(cID, "layer");
 
@@ -217,7 +217,7 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            std::pair<float, float> SegmentationMuIDAlg::CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
+            std::pair<float, float> SegmentationMuIDAlg::CalculateLightPropagation(const gar::geo::GeometryCore& , const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
             {
                 float c = (CLHEP::c_light * CLHEP::mm / CLHEP::ns) / CLHEP::cm; // in cm/ns
                 //time1 is left SiPM

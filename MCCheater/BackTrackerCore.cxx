@@ -66,7 +66,7 @@ namespace gar{
 
 
         //----------------------------------------------------------------------
-        simb::MCParticle* const BackTrackerCore::TrackIDToParticle(int const& id) const {
+        simb::MCParticle*  BackTrackerCore::TrackIDToParticle(int const& id) const {
             if (!fHasMC) {
                 throw cet::exception("BackTrackerCore::TrackIDToParticle")
                     << "Attempting to backtrack without MC truth information";
@@ -92,7 +92,7 @@ namespace gar{
 
 
         //----------------------------------------------------------------------
-        simb::MCParticle* const BackTrackerCore::FindEve(simb::MCParticle* const p) const {
+        simb::MCParticle*  BackTrackerCore::FindEve(simb::MCParticle* const p) const {
             if (!fHasMC) {
                 throw cet::exception("BackTrackerCore::FindEve")
                     << "Attempting to backtrack without MC truth information";
@@ -105,7 +105,7 @@ namespace gar{
 
 
         //----------------------------------------------------------------------
-        simb::MCParticle* const BackTrackerCore::FindTPCEve(simb::MCParticle* const p) const {
+        simb::MCParticle*  BackTrackerCore::FindTPCEve(simb::MCParticle* const p) const {
             if (!fHasMC) {
                 throw cet::exception("BackTrackerCore::FindTPCEve")
                     << "Attempting to backtrack without MC truth information";
@@ -138,7 +138,7 @@ namespace gar{
 
 
         //----------------------------------------------------------------------
-        simb::MCParticle* const BackTrackerCore::FindTPCEve(int trackID) const {
+        simb::MCParticle*  BackTrackerCore::FindTPCEve(int trackID) const {
             if (!fHasMC) {
                 throw cet::exception("BackTrackerCore::FindTPCEve")
                     << "Attempting to backtrack without MC truth information";

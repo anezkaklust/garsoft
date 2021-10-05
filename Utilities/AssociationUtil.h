@@ -601,7 +601,7 @@ namespace util {
 // MARK CreateAssn_01
 template<class PRODUCER, class T, class U>
 bool util::CreateAssn(
-  PRODUCER        const& prod,
+  PRODUCER        const& /* prod */,
   art::Event           & evt,
   std::vector<T>  const& a,
   art::Ptr<U>     const& b,
@@ -735,7 +735,7 @@ bool util::CreateAssn(
 // MARK CreateAssn_07
 template<class PRODUCER, class T, class U>
 bool util::CreateAssn(
-  PRODUCER        const& prod,
+  PRODUCER        const& /* prod */,
   art::Event           & evt,
   std::vector<T>  const& a,
   std::vector<U>  const& /* b */,

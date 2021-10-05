@@ -22,8 +22,8 @@ namespace gar {
     {}
     
     //------------------------------------------------------------------------
-    void AuxDetGeometryHelperExample::doConfigureAuxDetChannelMapAlg(fhicl::ParameterSet     const& sortingParameters,
-                                                                     gar::geo::AuxDetGeometryCore*  geom)
+    void AuxDetGeometryHelperExample::doConfigureAuxDetChannelMapAlg(fhicl::ParameterSet     const& ,//sortingParameters,
+                                                                     gar::geo::AuxDetGeometryCore* )//  geom)
     {
       
       // This is where your experiment specific helper has to instantiate its

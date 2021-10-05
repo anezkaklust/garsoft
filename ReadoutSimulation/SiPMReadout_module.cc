@@ -175,7 +175,7 @@ namespace gar {
                 //get the associated vector of art ptr based on cellID
                 std::vector< art::Ptr<sdp::CaloDeposit> > simPtrVec = m_cIDMapArtPtrVec[it->CellID()];
                 for(auto hitpointer : simPtrVec)
-                DigiSimHitsAssns->addSingle(digiPtr, hitpointer);
+                   DigiSimHitsAssns->addSingle(digiPtr, hitpointer);
             }
 
             evt.put(std::move(digitCol), fInstanceLabelName);

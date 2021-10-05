@@ -14,7 +14,8 @@
 #include "fhiclcpp/ParameterSet.h"
 #include "art/Framework/Services/Registry/ActivityRegistry.h"
 #include "art/Framework/Services/Registry/ServiceHandle.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
+#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
 #include "art/Persistency/Provenance/ScheduleContext.h"
 
 #include "MCCheater/BackTrackerCore.h"

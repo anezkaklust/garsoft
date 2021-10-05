@@ -173,8 +173,8 @@ void gar::rec::sort_TPCClusters_along_track(const std::vector<gar::rec::TPCClust
                                             int printlevel,
                                             float &lengthforwards,
                                             float &lengthbackwards,
-                                            float sorttransweight,
-                                            float sortdistback)
+                                            float /* sorttransweight */,
+                                            float /* sortdistback */)
 {
 
   // this sorting code appears in the patrec stage too, if only to make tracks that can be drawn
@@ -399,7 +399,7 @@ bool gar::rec::sort2_check_cyclic(std::vector<int> &link1, std::vector<int> &lin
 void gar::rec::sort_TPCClusters_along_track2(const std::vector<gar::rec::TPCCluster>  &TPCClusters,
                                              std::vector<int> &hlf,
                                              std::vector<int> &hlb,
-                                             int printlevel,
+                                             int /* printlevel */,
                                              float &lengthforwards,
                                              float &lengthbackwards,
 					     float dcut)

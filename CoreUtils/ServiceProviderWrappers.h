@@ -26,7 +26,8 @@
 
 // framework and support libraries
 #include "art/Framework/Services/Registry/ServiceTable.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h" // (for includers)
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
+#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
 
 // C/C++ standard libraries
 #include <memory> // std::unique_ptr<>
@@ -54,7 +55,8 @@ namespace gar {
     *     #include "CoreUtils/ServiceProviderWrappers.h"
     *     #include "path/to/MyProvider.h"
     *     
-    *     #include "art/Framework/Services/Registry/ServiceMacros.h"
+    *     #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
+    *     #include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
     *     
     *     namespace myprov {
     *       
@@ -187,7 +189,8 @@ namespace gar {
     *     #include "path/to/MyProviderA.h"
     *     #include "path/to/MyServiceInterface.h"
     *     
-    *     #include "art/Framework/Services/Registry/ServiceMacros.h"
+    *     #include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
+    *     #include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
     *     
     *     namespace myprov {
     *       

@@ -137,7 +137,7 @@ namespace gar {
 
         //------------------------------------------------------------------------------------------------------------------------------------------
 
-        void PfoCreator::SetClusterSubDetectorEnergies(const pandora::StringVector &subDetectorNames, const pandora::CaloHitList &pandoraCaloHitList, pandora::FloatVector &hitE, pandora::FloatVector &hitX, pandora::FloatVector &hitY, pandora::FloatVector &hitZ) const
+      void PfoCreator::SetClusterSubDetectorEnergies(const pandora::StringVector & /* subDetectorNames */, const pandora::CaloHitList &pandoraCaloHitList, pandora::FloatVector &hitE, pandora::FloatVector &hitX, pandora::FloatVector &hitY, pandora::FloatVector &hitZ) const
         {
             for (pandora::CaloHitList::const_iterator hIter = pandoraCaloHitList.begin(), hIterEnd = pandoraCaloHitList.end(); hIter != hIterEnd; ++hIter)
             {
@@ -361,7 +361,7 @@ namespace gar {
 
     //------------------------------------------------------------------------------------------------------------------------------------------
 
-    void PfoCreator::AddTracksToRecoParticle(const pandora::ParticleFlowObject *const pPandoraPfo, gar::rec::PFParticle &pReconstructedParticle) const
+    void PfoCreator::AddTracksToRecoParticle(const pandora::ParticleFlowObject *const pPandoraPfo, gar::rec::PFParticle & /* pReconstructedParticle */) const
     {
         const pandora::TrackList &trackList(pPandoraPfo->GetTrackList());
 

@@ -32,7 +32,7 @@ namespace gar {
 
                 gar::raw::CellID_t GetCellID(const gar::geo::GeometryCore& geo, const unsigned int& det_id, const unsigned int& stave, const unsigned int& module, const unsigned int& layer, const unsigned int& slice, const std::array<double, 3>& localPosition) const override;
 
-                bool isTile(const gar::raw::CellID_t& cID) const override { return true; }
+                bool isTile(const gar::raw::CellID_t& ) const override { return true; }
 
                 bool isBarrel(const gar::raw::CellID_t& cID) const override;
 
@@ -64,7 +64,8 @@ namespace gar {
 
                 void setLayerDimXY(const double& dimX, const double& dimY) const override { _layer_dim_X = dimX; _layer_dim_Y = dimY; }
 
-                void setVariables(const double& innerangle, const double &endcapsidelength) const override { /* no op */ }
+		// unused variables inneragle and endcapsidelength
+                void setVariables(const double& , const double & ) const override { /* no op */ }
 
             protected:
 

@@ -24,7 +24,7 @@ namespace gar {
             CaloHit();
 
             // let the compiler provide the dtor
-            const unsigned int GetCellLengthScale() const;
+            unsigned int GetCellLengthScale() const;
 
             bool operator< (const CaloHit &rhs) const;
 

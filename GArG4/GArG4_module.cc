@@ -391,7 +391,7 @@ namespace gar {
         }
 
         //--------------------------------------------------------------------------
-        void GArG4::beginRun(::art::Run& run)
+        void GArG4::beginRun(::art::Run& /* run */)
         {
             // prepare the filter object (null if no filtering)
 
@@ -467,7 +467,9 @@ namespace gar {
             // event
             std::vector< ::art::Handle< std::vector<simb::MCTruth> > > mclists;
             if(fInputLabels.size() < 1)
-            evt.getManyByType(mclists);
+              {
+		mclists = evt.getMany< std::vector<simb::MCTruth> >();
+	      }
             else{
                 mclists.resize(fInputLabels.size());
                 for(size_t i = 0; i < fInputLabels.size(); ++i)

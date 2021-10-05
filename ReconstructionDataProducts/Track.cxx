@@ -54,7 +54,7 @@ namespace gar {
         const float *vtxDir,
         const float *endDir,
         const size_t nhits,
-        const int   charge,
+	const int   , //charge,
         const double time)
         : fLengthforwards  (length  )
         , fLengthbackwards  (length  )

@@ -61,7 +61,7 @@ void gar::detinfo::DetectorClocksServiceStandardGAr::preProcessEvent(::art::Even
 }
 
 //------------------------------------------------------
-void gar::detinfo::DetectorClocksServiceStandardGAr::preBeginRun(::art::Run const& run)
+void gar::detinfo::DetectorClocksServiceStandardGAr::preBeginRun(::art::Run const& ) // run)
 //------------------------------------------------------
 {
   // run number is unsigned so clang says this statement cannot happen
@@ -105,9 +105,10 @@ void gar::detinfo::DetectorClocksServiceStandardGAr::postOpenFile(std::string co
       
       while (sqlite3_step(stmt) == SQLITE_ROW) {
         
-        fhicl::ParameterSet ps;
-        fhicl::make_ParameterSet(reinterpret_cast<char const *>(sqlite3_column_text(stmt, 0)), ps);
-        
+        //fhicl::ParameterSet ps;
+        //fhicl::make_ParameterSet(reinterpret_cast<char const *>(sqlite3_column_text(stmt, 0)), ps);
+	auto ps = fhicl::ParameterSet::make(reinterpret_cast<char const *>(sqlite3_column_text(stmt, 0)));
+
         if(!fClocks->IsRightConfig(ps)) continue;
         
         for(size_t i=0; i<detinfo::kInheritConfigTypeMax; ++i) {

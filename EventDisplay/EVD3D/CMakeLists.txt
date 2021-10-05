@@ -74,7 +74,7 @@ simple_plugin (EventDisplay3DService service
                   ${FHICLCPP}
                   ${CETLIB}
                   ${ROOT_EVE}
-                  ${ROOT_BASIC_LIB_LIST}
+                  ROOT_BASIC_LIB_LIST
                )
 
 install_headers()

@@ -23,13 +23,13 @@
 #include <iostream>
 
 
-void wait(std::chrono::milliseconds dur) {
+void waitgst(std::chrono::milliseconds dur) {
   std::cout << " <waiting for " << dur.count() << " ms>" << std::endl;
   std::this_thread::sleep_for(dur);
-} // wait()
+} // waitgst()
 
 
-int main(int argc, char** argv) {
+int main() {
 
   std::chrono::milliseconds WaitFor { 250 };
 
@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
   << " s"
   << std::endl;
 
-  wait(WaitFor);
+  waitgst(WaitFor);
   std::cout
   << " - elapsed time so far: "
   << timer.elapsed()
@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
   << "Stopping watch"
   << std::endl;
   timer.stop();
-  wait(WaitFor);
+  waitgst(WaitFor);
   std::cout
   << " - elapsed time so far: "
   << timer.elapsed()
@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
   << "Resuming watch"
   << std::endl;
   timer.resume();
-  wait(WaitFor);
+  waitgst(WaitFor);
   std::cout
   << " - elapsed time so far: "
   << timer.elapsed()
@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
   << "Restarting watch"
   << std::endl;
   timer.restart();
-  wait(WaitFor);
+  waitgst(WaitFor);
   std::cout
   << " - elapsed time so far: "
   << timer.elapsed()

@@ -14,16 +14,16 @@
 #include "garana/DataProducts/FSParticle.h"
 #include "garana/DataProducts/G4Particle.h"
 
-#include "garsoft/ReconstructionDataProducts/Track.h"
+#include "ReconstructionDataProducts/Track.h"
 #include "garana/DataProducts/Track.h"
 
-#include "garsoft/ReconstructionDataProducts/Cluster.h"
+#include "ReconstructionDataProducts/Cluster.h"
 #include "garana/DataProducts/CaloCluster.h"
 
-#include "garsoft/ReconstructionDataProducts/Vertex.h"
+#include "ReconstructionDataProducts/Vertex.h"
 #include "garana/DataProducts/Vertex.h"
 
-#include "garsoft/ReconstructionDataProducts/Vee.h"
+#include "ReconstructionDataProducts/Vee.h"
 #include "garana/DataProducts/Vee.h"
 
 using std::vector;

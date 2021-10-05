@@ -1067,8 +1067,9 @@ namespace testing {
   BasicTesterEnvironment<ConfigurationClass>::CompileParameterSet
     (std::string cfg)
   {
-    fhicl::ParameterSet global_pset;
-    fhicl::make_ParameterSet(cfg, global_pset);
+    //fhicl::ParameterSet global_pset;
+    //fhicl::make_ParameterSet(cfg, global_pset);
+    auto global_pset = fhicl::ParameterSet::make(cfg);
     return global_pset;
   } // BasicTesterEnvironment<>::CompileParameterSet()
   
@@ -1089,13 +1090,16 @@ namespace testing {
     details::FirstAbsoluteOrLookupWithDotPolicy policy(search_path);
     
     // parse a configuration file; obtain intermediate form
-    fhicl::intermediate_table table;
-    fhicl::parse_document(config_path, policy, table);
+    //fhicl::intermediate_table table;
+    //fhicl::parse_document(config_path, policy, table);
+    // idiom for art 3.0.9
+    auto table = fhicl::parse_document(config_path, policy);
     
     // translate into a parameter set
-    fhicl::ParameterSet global_pset;
-    fhicl::make_ParameterSet(table, global_pset);
-    
+    //fhicl::ParameterSet global_pset;
+    //fhicl::make_ParameterSet(table, global_pset);
+    auto global_pset = fhicl::ParameterSet::make(table);
+
     return global_pset;
   } // BasicTesterEnvironment<>::ParseParameters()
   
@@ -1130,7 +1134,7 @@ namespace testing {
    */
   template <typename ConfigurationClass>
   void BasicTesterEnvironment<ConfigurationClass>::SetupMessageFacility
-    (fhicl::ParameterSet const& pset, std::string appl_name /* = "" */) const
+    (fhicl::ParameterSet const& pset, std::string /* appl_name  = "" */) const
   {
     fhicl::ParameterSet mf_pset;
     

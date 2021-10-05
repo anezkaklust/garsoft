@@ -208,8 +208,8 @@ auto gar::geo::GeometryGArConfigurationWriter::makeInfoFromRunData(art::Run& run
 // -----------------------------------------------------------------------------
 gar::sumdata::RunData const* gar::geo::GeometryGArConfigurationWriter::readRunData(art::Run& run) const
 {
-  std::vector<art::Handle<gar::sumdata::RunData>> allRunData;
-  run.getManyByType(allRunData);
+  auto allRunData = run.getMany<gar::sumdata::RunData>();
+
   return allRunData.empty() ? nullptr: allRunData.front().product();
 } // gar::geo::GeometryGArConfigurationWriter::readRunData()
 

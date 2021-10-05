@@ -14,6 +14,7 @@
 #include "art/Persistency/Common/PtrMaker.h"
 
 #include "canvas/Utilities/InputTag.h"
+#include "canvas/Persistency/Common/Assns.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
@@ -106,7 +107,7 @@ namespace gar {
             this->CollectHits(e, fCaloHitLabel, fInstanceName, artHits);
 
             //Prepare the hits for clustering (tag isolated hits and possible mip hits)
-            //trkMaptoArtPtr will be empty if ( !fClusterAlgo->usesTracks() )
+            //artTrk and trkMaptoArtPtr will be empty if ( !fClusterAlgo->usesTracks() )
             fClusterAlgo->PrepareAlgo(artTrk, artHits, trkMaptoArtPtr, hitMaptoArtPtr);
             //Perform the clustering
             fClusterAlgo->DoClustering();

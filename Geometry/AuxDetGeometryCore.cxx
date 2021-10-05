@@ -180,7 +180,7 @@ namespace gar {
     }
 
     //......................................................................
-    const uint32_t AuxDetGeometryCore::PositionToAuxDetChannel(double const worldLoc[3],
+    uint32_t AuxDetGeometryCore::PositionToAuxDetChannel(double const worldLoc[3],
                                                                size_t      &ad,
                                                                size_t      &sv) const
     {

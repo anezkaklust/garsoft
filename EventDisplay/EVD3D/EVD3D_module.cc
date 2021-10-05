@@ -456,7 +456,7 @@ namespace gar{
             }
 
             //----------------------------------------------------
-            void EventDisplay3D::beginRun(const art::Run& run)
+            void EventDisplay3D::beginRun(const art::Run& /* run */)
             {
                 return;
             }
@@ -607,8 +607,8 @@ namespace gar{
                         //If Barrel or Endcap -> show daughters
                         if(nodename.find("BarrelECal") != std::string::npos || nodename.find("EndcapECal") != std::string::npos)
                         {
-                            TGeoScale nullmatgm;
-                            TGeoMatrix* topECal = &nullmatgm;
+                            TGeoScale nullmatgm_local;
+                            TGeoMatrix* topECal = &nullmatgm_local;
                             topECal = node->GetMatrix();
 
                             for(int idaugh = 0; idaugh < node->GetNdaughters(); idaugh++)
@@ -693,8 +693,8 @@ namespace gar{
 
                         const TGeoNode *node = topnodes.at(i);
 
-                        TGeoScale nullmatgm;
-                        TGeoMatrix* topLAr = &nullmatgm;
+                        TGeoScale nullmatgm_local;
+                        TGeoMatrix* topLAr = &nullmatgm_local;
                         topLAr = node->GetMatrix();
 
                         for(int idaugh = 0; idaugh < node->GetNdaughters(); idaugh++)
@@ -1263,7 +1263,7 @@ namespace gar{
             }
 
             //----------------------------------------------------
-            void EventDisplay3D::DrawIntersections(const gar::rec::Track* trk, TEveElementList* &fTrackList, int counter)
+            void EventDisplay3D::DrawIntersections(const gar::rec::Track* trk, TEveElementList* &fTrackList_local, int counter)
             {
                 int color  = evd::kColor[counter%evd::kNCOLS];
                 //Check the intersection with the ECAL Barrel
@@ -1287,7 +1287,7 @@ namespace gar{
                     intersection1->SetMarkerStyle(22);
                     intersection1->SetMarkerColor(color);
                     intersection1->SetPoint(0, xyz_intersection[0], xyz_intersection[1], xyz_intersection[2]);//cm
-                    fTrackList->AddElement(intersection1);
+                    fTrackList_local->AddElement(intersection1);
                 }
                 else{
                     //Try Endcap
@@ -1308,7 +1308,7 @@ namespace gar{
                         intersection3->SetMarkerStyle(29);
                         intersection3->SetMarkerColor(color);
                         intersection3->SetPoint(0, xyz_intersection[0], xyz_intersection[1], xyz_intersection[2]);//cm
-                        fTrackList->AddElement(intersection3);
+                        fTrackList_local->AddElement(intersection3);
                     }
                 }
 
@@ -1330,7 +1330,7 @@ namespace gar{
                     intersection2->SetMarkerStyle(23);
                     intersection2->SetMarkerColor(color);
                     intersection2->SetPoint(0, xyz_intersection[0], xyz_intersection[1], xyz_intersection[2]);//cm
-                    fTrackList->AddElement(intersection2);
+                    fTrackList_local->AddElement(intersection2);
                 }
                 else{
                     //Try Endcap
@@ -1351,7 +1351,7 @@ namespace gar{
                         intersection4->SetMarkerStyle(29);
                         intersection4->SetMarkerColor(color);
                         intersection4->SetPoint(0, xyz_intersection[0], xyz_intersection[1], xyz_intersection[2]);//cm
-                        fTrackList->AddElement(intersection4);
+                        fTrackList_local->AddElement(intersection4);
                     }
                 }
 
@@ -1565,12 +1565,10 @@ namespace gar{
                 if( event.isRealData() ) return;
 
                 std::vector<const simb::MCTruth*> temp;
-                std::vector< art::Handle< std::vector<simb::MCTruth> > > mctcol;
                 // use get by Type because there should only be one collection of these in the event
                 try
                 {
-                    event.getManyByType(mctcol);
-
+		    auto mctcol = event.getMany<std::vector<simb::MCTruth> >();
                     for(size_t mctc = 0; mctc < mctcol.size(); ++mctc)
                     {
                         art::Handle< std::vector<simb::MCTruth> > mclistHandle = mctcol[mctc];

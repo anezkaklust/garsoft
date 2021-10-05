@@ -15,6 +15,7 @@
 #include "art/Framework/Principal/Run.h"
 #include "art/Framework/Principal/SubRun.h"
 #include "canvas/Utilities/InputTag.h"
+#include "canvas/Persistency/Common/Assns.h"
 #include "fhiclcpp/ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 #include "art/Persistency/Common/PtrMaker.h"
@@ -71,9 +72,9 @@ namespace gar {
             std::string fInstanceLabelName; ///< product instance name
 
             float fMIPThreshold;   ///< zero-suppression threshold (in case the raw digits need to be zero-suppressed)
-            bool fDesaturation; ///< flag to perform the SiPM desaturation
+            bool  fDesaturation; ///< flag to perform the SiPM desaturation
             float fSamplingCorrection;
-            bool fUseTimePositionReco;
+            bool  fUseTimePositionReco;
 
             const detinfo::DetectorProperties*  fDetProp;      ///< detector properties
             const geo::GeometryCore*            fGeo;          ///< pointer to the geometry
@@ -83,18 +84,17 @@ namespace gar {
 
 
         SiPMHitFinder::SiPMHitFinder(fhicl::ParameterSet const & p) : EDProducer{p}
-        // :
         {
-            fRawDigitLabel = p.get<std::string>("RawDigitLabel", "daqsipm");
-            fInstanceLabelName = p.get<std::string>("InstanceLabelName", "");
+            fRawDigitLabel       = p.get<std::string>("RawDigitLabel", "daqsipm");
+            fInstanceLabelName   = p.get<std::string>("InstanceLabelName", "");
 
-            fMIPThreshold = p.get<float>("MIPThreshold", 0.25);
-            fDesaturation = p.get<bool>("Desaturation", false);
-            fSamplingCorrection = p.get<float>("ECALSamplingFactorGeV", 1.0);
+            fMIPThreshold        = p.get<float>("MIPThreshold", 0.25);
+            fDesaturation        = p.get<bool>("Desaturation", false);
+            fSamplingCorrection  = p.get<float>("ECALSamplingFactorGeV", 1.0);
             fUseTimePositionReco = p.get<bool>("UseTimePositionReco", true);
 
-            fGeo     = gar::providerFrom<geo::GeometryGAr>();
-            fDetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
+            fGeo       = gar::providerFrom<geo::GeometryGAr>();
+            fDetProp   = gar::providerFrom<detinfo::DetectorPropertiesService>();
             fSiPMUtils = std::make_unique<util::SiPMUtils>(fDetProp->EffectivePixel());
 
             std::string fEncoding = fGeo->GetECALCellIDEncoding();
@@ -138,7 +138,7 @@ namespace gar {
                 //Do Calibration of the hit in MIPs
                 float hitMIP = this->CalibrateToMIP(hitADC);
 
-                if(hitMIP < fMIPThreshold)
+                if (hitMIP < fMIPThreshold)
                 {
                     MF_LOG_DEBUG("SiPMHitFinder") << "Signal under the " << fMIPThreshold << " MIP threshold" << std::endl;
                     continue;
@@ -146,7 +146,7 @@ namespace gar {
 
                 //Desaturation
                 float energy = 0.;
-                if(fDesaturation)
+                if (fDesaturation)
                 {
                     double sat_px = hitMIP * fDetProp->LightYield();
                     //DeSaturate
@@ -156,7 +156,7 @@ namespace gar {
                     double unsat_energy = unsat_px / fDetProp->LightYield();
                     energy = this->CalibratetoMeV(x, y, z, unsat_energy);
                 }
-                else{
+                else {
                     //Calibrate to the MeV scale
                     energy = this->CalibratetoMeV(x, y, z, hitMIP);
                 }
@@ -166,15 +166,15 @@ namespace gar {
                 std::pair<float, float> time;
                 const std::array<double, 3> point = { x, y, z };
 
-                if(fGeo->isTile(point, cellID))
+                if (fGeo->isTile(point, cellID))
                 {
                     pos[0] = x;
                     pos[1] = y;
                     pos[2] = z;
                     time = hitTime;
                 }
-                else{
-                    if(fUseTimePositionReco){
+                else {
+                    if( fUseTimePositionReco) {
                         std::array<double, 3> strip_pos = this->CalculateStripHitPosition(x, y, z, hitTime, cellID);
                         pos[0] = strip_pos[0];
                         pos[1] = strip_pos[1];
@@ -216,21 +216,21 @@ namespace gar {
             art::Handle< std::vector<gar::raw::CaloRawDigit> > theHits;
             evt.getByLabel(label, instance, theHits);
 
-            if (!theHits.isValid())
-            return;
+            if (!theHits.isValid()) return;
 
             for (unsigned int i = 0; i < theHits->size(); ++i)
             {
                 const art::Ptr<gar::raw::CaloRawDigit> hit(theHits, i);
                 hitVector.push_back(hit);
             }
+            return;
         }
 
         //----------------------------------------------------------------------------
         float SiPMHitFinder::CalibrateToMIP(unsigned int ADC)
         {
             float calibrated_ADC = 0.;
-            if(ADC <= 0) {
+            if (ADC <= 0) {
                 return calibrated_ADC;
             }
 

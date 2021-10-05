@@ -10,7 +10,8 @@
 #define DETECTORCLOCKSSERVICE_H
 
 #include "fhiclcpp/ParameterSet.h"
-#include "art/Framework/Services/Registry/ServiceMacros.h"
+#include "art/Framework/Services/Registry/ServiceDeclarationMacros.h"
+#include "art/Framework/Services/Registry/ServiceDefinitionMacros.h"
 #include "DetectorInfo/DetectorClocks.h"
 #include "CoreUtils/ServiceUtil.h"
 
