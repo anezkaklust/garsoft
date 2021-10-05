@@ -97,15 +97,16 @@ private:
   //TTree *fTree;
   TH1F  *fHistGenDiff;
   TH1F  *fHistG4Diff;
-  TH1F  *fHistHitComplete;
-  TH1F  *fHistHitEnergy;
+  TH1F  *fHistHitCompleteE; ///< MCParticle total energy remaining after all hits accounted for
+  TH1F  *fHistHitCompleteKE; ///< MCParticle kinetic energy remaining after all hits accounted for
+  TH1F  *fHistHitEnergy;   ///< total energy contributed from each MCParticle to hits
   TH1F  *fHistTrackHitDiff;
   TH1F  *fHistTrackHitMult;
   TH1F  *fHistClustHitMult;
   TH1F  *fHistClustMult;
   TH1F  *fHistNHitAssocTrackNHitTotDiff;
   TH1F  *fHistEdepRelKE;
-
+  TH1F  *fHistEdeps; ///< total energy deposited by MCParticle via sdp::EnergyDeposit
 
   TH2F  *fHistG4Diff2d;
 
@@ -168,7 +169,9 @@ void BackTrackerAna::beginJob() {
     //fTree = tfs->make<TTree>("backtrackTree", "analyze garsoft::BackTracker performance");
     fHistGenDiff = tfs->make<TH1F>("hGenDiff","gen stage;E_{final} - E_{initial} [MeV]",101,-500,500); //genie conserves energy?
     fHistG4Diff = tfs->make<TH1F>("hG4Diff","G4 stage;E_{final} - E_{initial} [GeV]",301,-1000,2000);//geant conserves energy?
-    fHistHitComplete = tfs->make<TH1F>("hHitComplete","reco stage: TPC hit;remaining MCParticle energy [GeV]",101,-100,100);
+    fHistEdeps = tfs->make<TH1F>("hEdeps","G4 stage - sdp::EnergyDeposit; remaining MCParticle KE [GeV]",200,-10,10);
+    fHistHitCompleteE = tfs->make<TH1F>("hHitCompleteE","reco stage: TPC hit;remaining MCParticle energy [GeV]",200,-10,10);
+    fHistHitCompleteKE = tfs->make<TH1F>("hHitCompleteKE","reco stage: TPC hit;remaining MCParticle energy [GeV]",200,-10,10);
     fHistHitEnergy = tfs->make<TH1F>("hHitEnergy", "TPC Hit -> deposited energy; energy per hit [MeV]",1000,0,10);
     fHistTrackHitDiff = tfs->make<TH1F>("hTrackHitDiff","reco stage: TPC track vs. hit;track - sum hit energy [GeV]",51,-2,2);
     //fHistTrackTotHitSum = tfs->make<TH1F>("hTrackTotHitSum","reco stage: TPC track vs hit; 
@@ -177,8 +180,9 @@ void BackTrackerAna::beginJob() {
     fHistClustMult = tfs->make<TH1F>("hClustMult","reco stage: TPC track #rightarrow cluster;cluster duplication",30,-0.5,29.5);
     fHistNHitAssocTrackNHitTotDiff = tfs->make<TH1F>("hNHitAssocTrackNHitTotDiff","TPC Track #rightarrow hit;total N^{0} hits - total N^{0} hits assoc'd to tracks",11001,-1000,10000);
 
-    fHistEdepRelKE = tfs->make<TH1F>("hEdepRelKE","Track -> MCParticles;E_{dep}/KE_{initial}",30,0,30);
+    fHistEdepRelKE = tfs->make<TH1F>("hEdepRelKE","Track -> MCParticles;E_{dep}/KE_{initial}",29,0,29.001);//want 1 in the first bin
     fHistG4Diff2d = tfs->make<TH2F>("hG4Diff2d","G4 stage;E_{initial} [GeV]; E_{final} [GeV]",100,0,1000,100,0,1000);
+
 }// end beginJob()
 
 void BackTrackerAna::analyze(art::Event const& e)
@@ -233,10 +237,15 @@ void BackTrackerAna::analyze(art::Event const& e)
 
     art::InputTag mcptag(fGeantLabel);
     auto MCPHandle = e.getValidHandle<vector<simb::MCParticle>>(mcptag);
+    auto MCDepHandle = e.getValidHandle<vector<sdp::EnergyDeposit>>(mcptag);
     double eprim = 0., efinal = 0.;
 
-    map<int,double> mcpIdToKE;
-    map<int,double> trkIdToERemain;
+    map<int,double> mcpIdToKE, trkIdToERemain, trkIdToKERemain, trkIdToEdep; //maps for bookkeeping MCParticle energy
+
+    //loop over energy deposits
+    for(sdp::EnergyDeposit const& ed : *MCDepHandle){
+        trkIdToEdep[ed.TrackID()] += ed.Energy();
+    }
 
     //loop over MCParticles
     for ( auto mcp : *MCPHandle ) {
@@ -251,45 +260,69 @@ void BackTrackerAna::analyze(art::Event const& e)
         }
 
         if(fGeo->PointInGArTPC(mcp.Position().Vect())) {
-            trkIdToERemain[mcp.TrackId()] = mcp.E();
+            trkIdToKERemain[mcp.TrackId()] = mcp.E()-mcp.Momentum().M(); // fill with MCParticles initial KE
+            trkIdToERemain[mcp.TrackId()] = mcp.E(); // fill with MCParticles initial E
         }
 
         efinal += mcp.EndE();
-        //cout << "MCP (PDG " << mcp.PdgCode() << ") end energy: " << mcp.EndE() << " GeV" << endl;
 
         if(mcp.E() < mcp.EndE())
             std::cout << "MCParticle with final energy > intial energy ??? Ef-Ei = " << mcp.EndE()-mcp.E() << std::endl;
+
+        double deltaEDep = mcp.E()-mcp.Momentum().M()-trkIdToEdep[mcp.TrackId()];
+        if(deltaEDep <0 && deltaEDep>1e-11) 
+            deltaEDep=0.;
+        fHistEdeps->Fill(deltaEDep); 
+        if(deltaEDep<-1e-11)
+            cout << "negative remaining energy from EnergyDeposit subtraction"
+                 << "\n\ttrackID = " << mcp.TrackId()
+                 << "\n\tPDG = " << mcp.PdgCode()
+                 << "\n\tinitial KE = " << mcp.E()-mcp.Momentum().M()
+                 << "\n\tMCP remaining energy = " << mcp.E()-mcp.Momentum().M()-trkIdToEdep[mcp.TrackId()]
+                 << endl;
 
     }// for MCParticles
 
     fHistG4Diff->Fill(efinal-eprim);
     fHistG4Diff2d->Fill(eprim,efinal);
 
+    //------------------- reco -------------------------------------------------------------------
     // loop over ALL hits, fill map to count instances in associations to TPCClusters and Tracks
     art::InputTag tpchittag(fHitLabel);
     auto TPCHitHandle = e.getValidHandle< vector<rec::Hit> >(tpchittag);
-    size_t nhit = TPCHitHandle->size();
-    map<rec::Hit,int> track_hitcounts, cluster_hitcounts;
+    size_t nhit = TPCHitHandle->size(); //total number of hits
+    map<rec::Hit,int> track_hitcounts, cluster_hitcounts; //count instances of hits found from track/cluster associations
+    //int nprint = 0;
     for ( rec::Hit const hit : *TPCHitHandle ) {
-        //std::cout << hit << std::endl;
-        for(cheat::HitIDE const& ide : fBt->HitToHitIDEs(hit)) { //hitIdes) {
-            trkIdToERemain[ide.trackID] -= ide.energyTot;
-            fHistHitEnergy->Fill(ide.energyTot*1000.);
+
+        /*if(nprint<5&&e.id().event()<10) {
+            cout << hit << endl;
+            nprint++;
+        }*/
+
+        for(cheat::HitIDE const& ide : fBt->HitToHitIDEs(hit)) { 
+            trkIdToERemain[ide.trackID] -= ide.energyTot; //subtract energy from MCParticle's total energy
+            trkIdToKERemain[ide.trackID] -= ide.energyTot; //subtract energy from MCParticle's available (kinetic) energy
+            fHistHitEnergy->Fill(ide.energyTot*1000.); //energy in hit converted to MeV
         }
-        //if(track_hitcounts.find(hit.getIDNumber())!=track_hitcounts.end())
+
         if(track_hitcounts.find(hit)!=track_hitcounts.end()){
             cout << "duplicate hits found in hit list" << endl;
         }
-        //track_hitcounts[hit.getIDNumber()] = 0;
-        //cluster_hitcounts[hit.getIDNumber()] = 0;
+
         track_hitcounts[hit] = 0;
         cluster_hitcounts[hit] = 0;
+
     }//for all hits
 
 
     for(auto const& pair : trkIdToERemain) {
-        fHistHitComplete->Fill(pair.second);
+        fHistHitCompleteE->Fill(pair.second);
     }
+    for(auto const& pair : trkIdToKERemain) {
+        fHistHitCompleteKE->Fill(pair.second);
+    }   
+ 
     //-------------------TPCCluster -> hits ----------------------------------------
     art::InputTag tpcclustag(fTPCClusterLabel);
     auto TPCClusterHandle = e.getValidHandle< vector<rec::TPCCluster> >(tpcclustag);
@@ -315,9 +348,6 @@ void BackTrackerAna::analyze(art::Event const& e)
             cluster_hitcounts[*hit] += 1;
         }// for matched hits
     }// for all TPCClusters
-
-
-    cout << "TPCCluster->hits: " << nclusterhit_notfound << " hits out of " << nclusterhit << " not found" << endl;
 
     //----------- TPC track->hits --------------------------------------
     art::InputTag tracktag(fTrackLabel);
@@ -350,8 +380,19 @@ void BackTrackerAna::analyze(art::Event const& e)
             }
             double eratio = mcp.second*etot/mcpIdToKE[mcp.first->TrackId()];
             fHistEdepRelKE->Fill(eratio);
-            if(eratio>1) std::cout << "bad eratio for trackID " << mcp.first->TrackId() << " with associated energy/initial KE, "
-                                   << eratio << std::endl;
+            if(eratio>1)
+                cout << "bad true contributed energy to track:MCParticle initial KE ratio!"
+                     << "\n\ttrackID = " << mcp.first->TrackId()
+                     << "\n\tPDG = " << mcp.first->PdgCode()
+                     << "\n\tTotal energy = " << mcp.first->E() << " GeV"
+                     << "\n\tKE0 = " << mcpIdToKE[mcp.first->TrackId()] << " GeV"
+                     << "\n\tTotal track length = " << mcp.first->Trajectory().TotalLength() << " cm"
+                     << "\n\tAvg. dE/dx = " << (mcp.first->E()-mcp.first->EndE())*1e3/mcp.first->Trajectory().TotalLength()<< " MeV/cm"
+                     << "\n\ttotal true track energy = " << etot << " GeV"
+                     << "\n\ttrue energy contributed = " << mcp.second*etot << " GeV"
+                     << "\n\tFraction of total true track energy contributed = " << mcp.second
+                     << "\n\tratio = " << eratio 
+                     << endl;
         }
 
         for(auto const& hit : hits) {
