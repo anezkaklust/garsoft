@@ -207,10 +207,10 @@ namespace gar {
             fmEnergyDep.get(iDig, eDeps, depweights);    // uses vector::insert
             if (eDeps.size() < 1) continue;
             
-            for(size_t idep=0; idep<eDeps.size(); idep++) {
+            for(size_t iDep=0; iDep<eDeps.size(); iDep++) {
                 float w = 1.;
-                if(fSplitEDeps) w = *depweights[idep];
-                fChannelToEDepCol[ (*digCol)[iDig].Channel() ].emplace_back(std::make_pair(eDeps[idep],w));
+                if(fSplitEDeps) w = *depweights[iDep];
+                fChannelToEDepCol[ (*digCol)[iDig].Channel() ].emplace_back(std::make_pair(eDeps[iDep],w));
 
                 MF_LOG_DEBUG("BackTracker_service::RebuildNoSC") << "eDep\t" << iDep << " from RawDigit \t" << iDig
                         << "\t TrkID, energy, dl, position:\t " << eDeps[iDep]->TrackID()
