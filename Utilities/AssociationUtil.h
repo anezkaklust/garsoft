@@ -925,7 +925,7 @@ bool util::CreateAssnD(
 //----------------------------------------------------------------------
 // MARK CreateAssnD_02
 template <typename PRODUCER, typename T, typename U, typename D>
-bool util::CreateAssnD(PRODUCER const&      prod,
+bool util::CreateAssnD(PRODUCER const&      /*prod*/,
                 art::Event&           evt,
                 std::vector<T> const& a,
                 art::Ptr<U>    const& b,
