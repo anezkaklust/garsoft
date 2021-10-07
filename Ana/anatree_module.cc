@@ -1705,12 +1705,15 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
 
     if(fWriteMuID) {
       art::InputTag muidgeanttag(fGeantLabel, fInstanceLabelMuID);
-      auto MuIDSimHitHandle = e.getHandle< std::vector<gar::sdp::CaloDeposit> >(muidgeanttag);
-
-      if (fGeo->HasMuonDetector() && !MuIDSimHitHandle) {
-        throw cet::exception("anatree") << " No gar::sdp::CaloDeposit branch."
-                                        << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-      }
+      art::Handle< std::vector<gar::sdp::CaloDeposit> > MuIDSimHitHandle;
+      if (fGeo->HasMuonDetector())
+        {
+          MuIDSimHitHandle = e.getHandle< std::vector<gar::sdp::CaloDeposit> >(muidgeanttag);
+          if (!MuIDSimHitHandle) {
+            throw cet::exception("anatree") << " No gar::sdp::CaloDeposit branch."
+                                            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+          }
+        }
 
       // Save simulation muon system hit info
       for ( auto const& SimHit : (*MuIDSimHitHandle) ) {
@@ -1755,11 +1758,15 @@ void gar::anatree::FillRawInfo(art::Event const & e) {
   // save muon system raw digits info
   if(fWriteMuID) {
     art::InputTag muidrawtag(fRawMuIDHitLabel, fInstanceLabelMuID);
-    auto  MuIDRawHitHandle = e.getHandle<std::vector<gar::raw::CaloRawDigit> >(muidrawtag);
-    if (fGeo->HasMuonDetector() && !MuIDRawHitHandle) {
-      throw cet::exception("anatree") << " No :raw::CaloRawDigit branch."
-                                      << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+    art::Handle<std::vector<gar::raw::CaloRawDigit> > MuIDRawHitHandle;
+    if (fGeo->HasMuonDetector()) {
+      MuIDRawHitHandle = e.getHandle<std::vector<gar::raw::CaloRawDigit> >(muidrawtag);
+      if (!MuIDRawHitHandle) {
+        throw cet::exception("anatree") << " No :raw::CaloRawDigit branch."
+                                        << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+      }
     }
+
     for ( auto const& DigiHit : (*MuIDRawHitHandle) ) {
       fDiginHits_MuID++;
       fDigiHitX_MuID.push_back(DigiHit.X());
@@ -1821,10 +1828,13 @@ void gar::anatree::FillRecoInfo(art::Event const & e) {
 
     if(fWriteMuID) {
       art::InputTag muirecotag(fMuIDHitLabel, fInstanceLabelMuID);
-      auto MuIDRecoHitHandle = e.getHandle<std::vector<rec::CaloHit> >(muirecotag);
-      if (fGeo->HasMuonDetector() && !MuIDRecoHitHandle) {
-        throw cet::exception("anatree") << " No rec::CaloHit branch."
-                                        << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+      art::Handle<std::vector<rec::CaloHit> > MuIDRecoHitHandle;
+      if (fGeo->HasMuonDetector()) {
+        MuIDRecoHitHandle = e.getHandle<std::vector<rec::CaloHit> >(muirecotag);
+        if (!MuIDRecoHitHandle) {
+          throw cet::exception("anatree") << " No rec::CaloHit branch."
+                                          << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+        }
       }
       for ( auto const& Hit : (*MuIDRecoHitHandle) ) {
         fReconHits_MuID++;
@@ -1931,10 +1941,12 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
     }
 
     if(fWriteMuID) {
-      RecoClusterMuIDHandle = e.getHandle< std::vector<rec::Cluster> >(muidclustertag);
-      if (fGeo->HasMuonDetector() && !RecoClusterMuIDHandle) {
-        throw cet::exception("anatree") << " No rec::Cluster (MuID) branch."
-                                        << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+      if (fGeo->HasMuonDetector()){
+        RecoClusterMuIDHandle = e.getHandle< std::vector<rec::Cluster> >(muidclustertag);
+        if (!RecoClusterMuIDHandle) {
+          throw cet::exception("anatree") << " No rec::Cluster (MuID) branch."
+                                          << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
+        }
       }
     }
 
@@ -1946,6 +1958,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
 
     if (fWriteTracks)
       findManyCALTrackEnd = new art::FindManyP<rec::Track, rec::TrackEnd>(RecoClusterHandle,e,fECALAssnLabel);
+
   }
 
   // save clusters in the TPC. For some reason, can't get FindOneP<rec::Track> or
