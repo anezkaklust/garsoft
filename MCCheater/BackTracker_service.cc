@@ -179,7 +179,7 @@ namespace gar {
         }
 
       } else {
-        art::FindMany<sdp::EnergyDeposit> fmEnergyDep(digCol, evt, fRawTPCDataLabel);
+        art::FindMany<sdp::EnergyDeposit, float> fmEnergyDep(digCol, evt, fRawTPCDataLabel);
         if (!fmEnergyDep.isValid()) {
           ++fSTFU;
           if (fSTFU<=10) {    // Ye who comprehend messagelogger, doeth ye better.
@@ -199,21 +199,26 @@ namespace gar {
               << " channels in the geometry";
           }
 
+          std::vector<float const*> depweights;
           std::vector<const sdp::EnergyDeposit*> eDeps;
           for (size_t iDig = 0; iDig < digCol->size(); ++iDig) {
             eDeps.clear();
-            fmEnergyDep.get(iDig, eDeps);    // uses vector::insert
+            depweights.clear();
+            fmEnergyDep.get(iDig, eDeps, depweights);    // uses vector::insert
             if (eDeps.size() < 1) continue;
+            
+            for(size_t iDep=0; iDep<eDeps.size(); iDep++) {
+                float w = 1.;
+                if(fSplitEDeps) w = *depweights[iDep];
+                fChannelToEDepCol[ (*digCol)[iDig].Channel() ].emplace_back(std::make_pair(eDeps[iDep],w));
 
-			for (size_t iDep=0; iDep<eDeps.size(); ++iDep) {
-				MF_LOG_DEBUG("BackTracker_service::RebuildNoSC") << "eDep\t" << iDep << " from RawDigit \t" << iDig
-					<< "\t TrkID, energy, dl, position:\t " << eDeps[iDep]->TrackID()
-					<< "\t " << eDeps[iDep]->Energy() << "\t " << eDeps[iDep]->dX()
-					<< "\t " << eDeps[iDep]->X() << "\t " << eDeps[iDep]->Y()
-					<< "\t " << eDeps[iDep]->Z() << std::endl;
-			}
-
-            fChannelToEDepCol[ (*digCol)[iDig].Channel() ].swap(eDeps);
+                MF_LOG_DEBUG("BackTracker_service::RebuildNoSC") << "eDep\t" << iDep << " from RawDigit \t" << iDig
+                        << "\t TrkID, energy, dl, position:\t " << eDeps[iDep]->TrackID()
+                        << "\t " << eDeps[iDep]->Energy() << "\t " << eDeps[iDep]->dX()
+                        << "\t " << eDeps[iDep]->X() << "\t " << eDeps[iDep]->Y()
+                        << "\t " << eDeps[iDep]->Z() << std::endl;
+ 
+            }
           }
           fHasHits = true;
         }
@@ -267,7 +272,8 @@ namespace gar {
       // Create an unordered map of IDNumbers of reco'd Tracks to the hits in those tracks
       // Just to keep the code comprehensible, first map Tracks to TPCClusters, then
       // TPCClusters to Hits, then build the combined map.
-      std::unordered_map< rec::IDNumber, std::vector<const rec::TPCCluster*> > lTrackIDToTPCClusters;
+      //std::unordered_map< rec::IDNumber, std::vector<const rec::TPCCluster*> > lTrackIDToTPCClusters;
+      fTrackIDToClusters.clear();
       art::Handle<std::vector<rec::Track>> recoTrackCol;
       evt.getByLabel(fTrackLabel, recoTrackCol);
       if (!recoTrackCol.isValid()) {
@@ -292,18 +298,21 @@ namespace gar {
           }
 
         } else {
+          //std::vector<const rec::TPCCluster*> tpclusThisTrack;
           std::vector<const rec::TPCCluster*> tpclusThisTrack;
           for (size_t iTrack = 0; iTrack < recoTrackCol->size(); ++iTrack) {
             tpclusThisTrack.clear();
             fmTPCClusts.get(iTrack, tpclusThisTrack);    // uses vector::insert
             if (tpclusThisTrack.size() < 1) continue;
-            lTrackIDToTPCClusters[ (*recoTrackCol)[iTrack].getIDNumber() ] = tpclusThisTrack;
+            //lTrackIDToTPCClusters[ (*recoTrackCol)[iTrack].getIDNumber() ] = tpclusThisTrack;
+            fTrackIDToClusters[ (*recoTrackCol)[iTrack].getIDNumber() ] = tpclusThisTrack;
           }
         }
       }
 
       // Construct map of TPCCluster to Hits
-      std::unordered_map< rec::IDNumber,std::vector<art::Ptr<rec::Hit>> > lTPClusIDsToHits;
+      //std::unordered_map< rec::IDNumber,std::vector<art::Ptr<rec::Hit>> > lTPClusIDsToHits;
+      fTPCClusterIDToHits.clear();
       art::Handle<std::vector<rec::TPCCluster>> tpclusCol;
       evt.getByLabel(fTPCClusterLabel, tpclusCol);
       if (!tpclusCol.isValid()) {
@@ -333,21 +342,27 @@ namespace gar {
             hitsThisTPCCluster.clear();
             fmHits.get(iTPClus, hitsThisTPCCluster);    // uses vector::insert
             if (hitsThisTPCCluster.size() < 1) continue;
-            lTPClusIDsToHits[(*tpclusCol)[iTPClus].getIDNumber()] = hitsThisTPCCluster;
+            //lTPClusIDsToHits[(*tpclusCol)[iTPClus].getIDNumber()] = hitsThisTPCCluster;
+            fTPCClusterIDToHits[(*tpclusCol)[iTPClus].getIDNumber()] = hitsThisTPCCluster;
           }
         }
       }
 
       // Now compound the lists to make fTrackIDToHits
       fTrackIDToHits.clear();
-      if ( !lTrackIDToTPCClusters.empty() && !lTPClusIDsToHits.empty()) {
+      //if ( !lTrackIDToTPCClusters.empty() && !lTPClusIDsToHits.empty()) {
+      if ( !fTrackIDToClusters.empty() && !fTPCClusterIDToHits.empty()) {
         for (auto aTrack : *recoTrackCol) {
           std::vector<const rec::TPCCluster*> tpclusThisTrack =
-            lTrackIDToTPCClusters[ aTrack.getIDNumber() ];
+          //std::vector<art::Ptr<rec::TPCCluster>> tpclusThisTrack =
+            //lTrackIDToTPCClusters[ aTrack.getIDNumber() ];
+            fTrackIDToClusters[ aTrack.getIDNumber() ];
           std::vector<art::Ptr<rec::Hit>> hitsThisTrack;
           for (const rec::TPCCluster* aTPClus : tpclusThisTrack) {
+          //for (const art::Ptr<rec::TPCCluster> aTPClus : tpclusThisTrack) {
             std::vector<art::Ptr<rec::Hit>> hitsThisClus =
-              lTPClusIDsToHits[aTPClus->getIDNumber()];
+              //lTPClusIDsToHits[aTPClus->getIDNumber()];
+              fTPCClusterIDToHits[aTPClus->getIDNumber()];
             hitsThisTrack.insert( hitsThisTrack.end(),
                                   hitsThisClus.begin(),hitsThisClus.end() );
           }

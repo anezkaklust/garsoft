@@ -64,6 +64,10 @@
   <class name="art::Assns<gar::raw::RawDigit,      gar::sdp::EnergyDeposit, void>" />
   <class name="art::Wrapper<art::Assns<gar::sdp::EnergyDeposit, gar::raw::RawDigit,      void> >" />
   <class name="art::Wrapper<art::Assns<gar::raw::RawDigit,      gar::sdp::EnergyDeposit, void> >" />
+  <class name="art::Assns<gar::sdp::EnergyDeposit, gar::raw::RawDigit,      float>" />
+  <class name="art::Assns<gar::raw::RawDigit,      gar::sdp::EnergyDeposit, float>" />
+  <class name="art::Wrapper<art::Assns<gar::sdp::EnergyDeposit, gar::raw::RawDigit,      float> >" />
+  <class name="art::Wrapper<art::Assns<gar::raw::RawDigit,      gar::sdp::EnergyDeposit, float> >" />
 
   <class name="std::pair< art::Ptr<gar::sdp::CaloDeposit>, art::Ptr<gar::raw::CaloRawDigit> >" />
   <class name="std::pair< art::Ptr<gar::raw::CaloRawDigit>,      art::Ptr<gar::sdp::CaloDeposit>     >" />

@@ -536,6 +536,18 @@ namespace util {
   //@}
 
   
+  // MARK CreateAssnD_02
+  template <typename PRODUCER, typename T, typename U, typename D>
+  bool CreateAssnD(PRODUCER const&      prod,
+                  art::Event&           evt,
+                  std::vector<T> const& a,
+                  art::Ptr<U>    const& b,
+                  typename art::Assns<U,T,D>::data_t  const& data,
+                  art::Assns<U,T,D>&    assn,
+                  size_t                indx=UINT_MAX
+                  );
+
+
   // method to return all objects of type U that are not associated to 
   // objects of type T. Label is the module label that would have produced
   // the associations and likely the objects of type T
@@ -910,6 +922,34 @@ bool util::CreateAssnD(
   return true;
 } // util::CreateAssnD() [01b]
 
+//----------------------------------------------------------------------
+// MARK CreateAssnD_02
+template <typename PRODUCER, typename T, typename U, typename D>
+bool util::CreateAssnD(PRODUCER const&      /*prod*/,
+                art::Event&           evt,
+                std::vector<T> const& a,
+                art::Ptr<U>    const& b,
+                typename art::Assns<U,T,D>::data_t const& data,
+                art::Assns<U,T,D>     &assn,
+                size_t                indx /*=UINT_MAX*/)
+{
+  if (indx == UINT_MAX) indx = a.size()-1;
+
+  try{
+    art::ProductID aid = evt.getProductID< std::vector<T > >();
+    art::Ptr<T> aptr(aid, indx, evt.productGetter(aid));
+    //std::cout << "In assoc util: " << aptr << " " << b << " " << indx << std::endl;
+    assn.addSingle(b, aptr, data);
+    return true;
+  }
+  catch(cet::exception &e){
+    mf::LogWarning("AssociationUtil")
+      << "unable to create requested art:Assns, exception thrown: " << e;
+    return false;
+  }
+
+
+}
 
 //----------------------------------------------------------------------
 template<class T, class U> inline std::vector<const U*> util::FindUNotAssociatedToT(art::Handle<U>     b,

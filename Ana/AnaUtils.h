@@ -46,7 +46,8 @@ namespace gar{
                                      const vector<pair<UInt_t,TLorentzVector>>& posBeg, 
                                      const vector<pair<UInt_t,TLorentzVector>>& posEnd,
                                      const vector<pair<UInt_t,TLorentzVector>>& momBeg, 
-                                     const vector<pair<UInt_t,TLorentzVector>>& momEnd);
+                                     const vector<pair<UInt_t,TLorentzVector>>& momEnd,
+                                     const vector<pair<int,float>>& edeps);
         
     garana::CaloCluster MakeAnaCalCluster(const rec::Cluster& clust, const int& region, const vector<pair<int,float>>& edeps);
     garana::Vee         MakeAnaVee(const rec::Vee& vee);

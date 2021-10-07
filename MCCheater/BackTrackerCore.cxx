@@ -52,7 +52,7 @@ namespace gar{
             fClusterECALInstance  = pset.get<std::string>("ClusterECALInstance",     "ECAL"  );
             fClusterFracMCP       = pset.get<double     >("ClusterFracMCP",           0.8);
 
-
+            fSplitEDeps           = pset.get<bool       >("SplitEDeps",               true);
 
             fECALTrackToTPCTrack  = new std::unordered_map<int, int>;
             return;
@@ -220,10 +220,6 @@ namespace gar{
             return fMCTruthList[mct];
         }
 
-
-
-
-
         //----------------------------------------------------------------------
         std::vector<HitIDE>
         BackTrackerCore::HitToHitIDEs(art::Ptr<rec::Hit> const& hit) const {
@@ -304,6 +300,8 @@ namespace gar{
 
             // loop over the energy deposits in the channel and grab those in time window
 
+            if(start<0 || stop <0) 
+                MF_LOG_WARNING("BackTrackerCore::ChannelToHitIDEs") << "start and/or stop times are negative!";
             std::vector<HitIDE> hitIDEs;
 
             if(fChannelToEDepCol.size() < channel){
@@ -332,16 +330,25 @@ namespace gar{
             float chanpos[3]={0.,0.,0};
             fGeo->ChannelToPosition(channel, chanpos);
 
+            // loop over all EnergyDeposits for this channel and
+            // calculate a weighted average, in contributed energy, 
+            // 4-position and 4-momentum
             double totalEallTracks = 0.0;
             size_t itraj=0;
-            for (auto const& edep : chanEDeps) {
+            for (auto const& edepfrac : chanEDeps) {
 
+                auto edep = edepfrac.first;
+                float weight = edepfrac.second;
+                if(weight<0 || weight>1) 
+                    MF_LOG_WARNING("BackTrackerCore::ChannelToHitIDEs") << "bad weight (" << weight << ")";
                 if (edep->TrackID() == sdp::NoParticleId) continue;
 
                 tdc = fClocks->TPCG4Time2TDC
                         (edep->Time() +TMath::Abs(edep->X()-chanpos[0]) *fInverseVelocity);
                 if ( (unsigned int)start <= tdc && tdc <= (unsigned int)stop) {
-                    float energy = edep->Energy();
+                    float energy = edep->Energy() * weight;
+                    MF_LOG_DEBUG("BackTrackerCore::ChannelToHitIDEs") << "edep energy: " << edep->Energy() 
+                                 << ", weight: " << weight << ", contributed energy: " << energy;
                     totalEallTracks += energy;
 
                     TLorentzVector simpos(edep->X(),edep->Y(),edep->Z(),edep->Time());
@@ -379,6 +386,16 @@ namespace gar{
                 hitIDEs[i].position *= 1.0/totalEallTracks;
                 hitIDEs[i].momentum *= 1.0/totalEallTracks;
             }
+
+            // remove duplicate HitIDEs (not that any should be there)
+            size_t nbefore = hitIDEs.size();
+            std::sort(hitIDEs.begin(),hitIDEs.end());
+            hitIDEs.erase(std::unique(hitIDEs.begin(),hitIDEs.end()),hitIDEs.end());
+            size_t nafter = hitIDEs.size();
+            if(nbefore!=nafter) 
+              MF_LOG_WARNING("BackTrackerCore::ChannelToHitIDEs") << "found and removed " 
+                             << nbefore-nafter << " duplicate HitIDEs (not expected for single channel)";
+
             return hitIDEs;
         }
 
@@ -724,12 +741,79 @@ namespace gar{
         std::vector<art::Ptr<rec::Hit>> const
         BackTrackerCore::TrackToHits(rec::Track* const t) {
 
+            //std::cout << "BT:TrackToHits called, read map with " << fTrackIDToHits.size() << " entries" << std::endl;
+
             // Evidently, use of std::unordered_map keeps this method from being const
             std::vector<art::Ptr<gar::rec::Hit>> retval;
             if ( !fTrackIDToHits.empty() ) {
                 retval = fTrackIDToHits[ t->getIDNumber() ];
             }
+            // useful for debugging, but reduces performance 
+            /*size_t nduplicate = 0;
+            for(size_t i=0; i<retval.size(); i++) {
+              for(size_t j=i+1; j<retval.size(); j++) {
+                if(*retval[i]==*retval[j]) nduplicate++;
+              }
+            }
+            if(nduplicate!=0) std::cout << nduplicate << " duplicate hits matched to track" << std::endl;*/
             return retval;
+        }
+        //-----------------------------------------------------------------------
+        std::vector<art::Ptr<rec::Hit>> const 
+        BackTrackerCore::TPCClusterToHits(rec::TPCCluster* const clust) {
+
+            // Evidently, use of std::unordered_map keeps this method from being const
+            std::vector<art::Ptr<gar::rec::Hit>> retval;
+            if ( !fTPCClusterIDToHits.empty() ) {
+                retval = fTPCClusterIDToHits[ clust->getIDNumber() ];
+            }
+            return retval;
+        }
+
+        //-----------------------------------------------------------------------
+        //std::vector<art::Ptr<rec::TPCCluster>> const 
+        std::vector<const rec::TPCCluster*> const
+        BackTrackerCore::TrackToClusters(rec::Track* const t) {
+
+            // Evidently, use of std::unordered_map keeps this method from being const
+            //std::vector<art::Ptr<gar::rec::TPCCluster>> retval;
+            std::vector<const gar::rec::TPCCluster*> retval;
+            if ( !fTrackIDToClusters.empty() ) {
+                retval = fTrackIDToClusters[ t->getIDNumber() ];
+            }
+            return retval;     
+        }
+
+        //-----------------------------------------------------------------------
+        double BackTrackerCore::TrackToTotalEnergy(rec::Track* const t) {
+
+            double etot = 0.; // total energy
+            std::vector<art::Ptr<rec::Hit>> const hits = TrackToHits(t); // all of this track's hits
+            std::vector<HitIDE> allIdes;
+
+            // loop over hits, get IDEs, and sum up energy deposits
+            for(auto const& hit : hits) {
+                std::vector<HitIDE> ides = HitToHitIDEs(hit);
+                allIdes.insert(allIdes.end(),ides.begin(),ides.end());
+
+            }// for hits
+
+            /*size_t pretotal = allIdes.size();
+
+            // remove duplicate HitIdes
+            // comment out for now since we could have meaningful duplicate HitIDEs 
+            // e.g. a common sdp::EnergyDeposit split evenly among channels
+            std::sort(allIdes.begin(),allIdes.end());
+            allIdes.erase( std::unique(allIdes.begin(),allIdes.end()), allIdes.end());
+            size_t posttotal = allIdes.size();
+
+            if(pretotal!=posttotal) std::cout << "removed " << pretotal-posttotal << " duplicated IDEs" << std::endl;*/
+
+            for(auto const& ide : allIdes) {
+                etot += ide.energyTot;
+            }// for ides
+
+            return etot;
         }
 
 

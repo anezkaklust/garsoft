@@ -3,11 +3,14 @@ include_directories( $ENV{NUTOOLS_DIR}/include   )
 include_directories( $ENV{GARANA_DIR}/include )
 include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
 
-# 	LIB_LIBRARIES $ENV{GARANA_LIB}/libGaranaProducts.so
+# N.B. due to some issues setting up garana libraries, there are two ways to 
+# to set that library paths, depending on whether or not you are developing
+# side-by-side with GArAna or not (two lines below)
 
 art_make(
 	BASENAME_ONLY
-	LIB_LIBRARIES GaranaProducts
+	LIB_LIBRARIES #$ENV{GARANA_LIB}/libGaranaProducts.so # use when developing side-by-side with GArAna
+                      GaranaProducts # use when setting up GArAna from UPS (default behavior)
 		      ReconstructionDataProducts
 		      nusimdata_SimulationBase
 		      ROOT_BASIC_LIB_LIST
@@ -36,7 +39,8 @@ art_make(
                        ${CETLIB_EXCEPT}
                        ROOT_BASIC_LIB_LIST
                        ${ROOT_EG}
-                       GaranaProducts
+                       #$ENV{GARANA_LIB}/libGaranaProducts.so # use when developing side-by-side with GArAna
+                       GaranaProducts # use when setting up GArAna from UPS (default behavior)
                        garsoft_StandardRecord
          )
 

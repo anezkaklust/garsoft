@@ -1,0 +1,24 @@
+BEGIN_PROLOG
+
+standard_backtrackerana:
+{
+ module_type:               BackTrackerAna
+
+ #=== input product labels ===
+ GEANTLabel:               "geant"
+ GEANTInstanceCalo:        "ECAL"
+
+ HitLabel:                 "hit"
+ CaloHitLabel:             "sscalohit"
+ CaloHitInstanceCalo:      ""
+
+ TPCClusterLabel:          "tpccluster"
+ TrackLabel:               "track"
+ VertexLabel:              "vertex"
+ ClusterLabel:             "calocluster"
+ #ECALAssnLabel:            "trkecalassn"
+ VeeLabel:                 "veefinder1"
+
+}
+
+END_PROLOG

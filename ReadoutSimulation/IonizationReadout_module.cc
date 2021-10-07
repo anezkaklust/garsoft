@@ -85,13 +85,14 @@ namespace gar {
                                    std::vector<edepIDE>                 & edepIDEs);
       void CombineIDEs(std::vector<edepIDE>                 & edepIDEs,
                        std::vector<sdp::EnergyDeposit> const& edepCol);
-      void CreateSignalDigit(unsigned int                                     const& channel,
-                             std::vector<float>                                    & electrons,
-                             std::set<size_t>                                      & eDepLocs,
-                             std::vector<raw::RawDigit>                            & digCol,
-                             ::art::ValidHandle< std::vector<sdp::EnergyDeposit> > & eDepCol,
-                             ::art::Assns<sdp::EnergyDeposit, raw::RawDigit>       & erassn,
-                             ::art::Event                                          & evt);
+      void CreateSignalDigit(unsigned int                                      const& channel,
+                             std::vector<float>                                     & electrons,
+                             std::set<size_t>                                       & eDepLocs,
+                             std::deque<float>                                      & eDepWeights,
+                             std::vector<raw::RawDigit>                             & digCol,
+                             ::art::ValidHandle< std::vector<sdp::EnergyDeposit> >  & eDepCol,
+                             ::art::Assns<sdp::EnergyDeposit, raw::RawDigit, float> & erassn,
+                             ::art::Event                                           & evt);
       void CheckChannelToEnergyDepositMapping(unsigned int       const& channel,
                                               sdp::EnergyDeposit const& edep,
                                               std::string        const& id);
@@ -137,7 +138,7 @@ namespace gar {
       this->reconfigure(pset);
 
       produces< std::vector<raw::RawDigit>                      >();
-      produces< ::art::Assns<sdp::EnergyDeposit, raw::RawDigit> >();
+      produces< ::art::Assns<sdp::EnergyDeposit, raw::RawDigit, float> >();
 
 
       // read in the pad response function histograms
@@ -242,7 +243,7 @@ namespace gar {
 
       // loop over the lists and put the particles and voxels into the event as collections
       std::unique_ptr< std::vector<raw::RawDigit>                      > rdCol (new std::vector<raw::RawDigit>                     );
-      std::unique_ptr< ::art::Assns<sdp::EnergyDeposit, raw::RawDigit> > erassn(new ::art::Assns<sdp::EnergyDeposit, raw::RawDigit>);
+      std::unique_ptr< ::art::Assns<sdp::EnergyDeposit, raw::RawDigit, float> > erassn(new ::art::Assns<sdp::EnergyDeposit, raw::RawDigit, float>);
 
       // first get the energy deposits from the event record
       auto eDepCol = evt.getValidHandle< std::vector<sdp::EnergyDeposit> >(fG4Label);
@@ -251,85 +252,90 @@ namespace gar {
 
         std::vector<edepIDE> eDepIDEs;
 
-        // drift the ionization electrons to the readout and create edepIDE objects
-        this->DriftElectronsToReadout(*eDepCol, eDepIDEs);
+	// drift the ionization electrons to the readout and create edepIDE objects
+	this->DriftElectronsToReadout(*eDepCol, eDepIDEs);
 
-        if (eDepIDEs.size()>0) {
+	if (eDepIDEs.size()>0)
+	  {
 
-          // IDEs have been combined already; there are no repeat TDC values for any channel
-          unsigned int       prevChan = eDepIDEs.front().Channel;
-          std::set<size_t>   digitEDepLocs;
-          std::vector<float> electrons(fNumTicks, 0.);
+            // IDEs have been combined already; there are no repeat TDC values for any channel
+	    unsigned int       prevChan = eDepIDEs.front().Channel;
+	    std::set<size_t>   digitEDepLocs;
+            std::deque<float>  digitEDepWeights;
+	    std::vector<float> electrons(fNumTicks, 0.);
 
-          // make the signal raw digits and set their associations to the energy deposits
-          for (auto edide : eDepIDEs) {
+	    // make the signal raw digits and set their associations to the energy deposits
+	    for(auto edide : eDepIDEs){
 
-            MF_LOG_DEBUG("IonizationReadout")
-              << "Current eDepIDE channel is "
-              << edide.Channel
-              << " previous channel is "
-              << prevChan;
+	      MF_LOG_DEBUG("IonizationReadout")
+		<< "Current eDepIDE channel is "
+		<< edide.Channel
+		<< " previous channel is "
+		<< prevChan;
 
-            if (edide.Channel != prevChan) {
-              MF_LOG_DEBUG("IonizationReadout")
-                << "There are  "
-                << digitEDepLocs.size()
-                << " locations for "
-                << edide.Channel
-                << " rdCol size is currently "
-                << rdCol->size();
+	      if(edide.Channel != prevChan){
+		MF_LOG_DEBUG("IonizationReadout")
+		  << "There are  "
+		  << digitEDepLocs.size()
+		  << " locations for "
+		  << edide.Channel
+		  << " rdCol size is currently "
+		  << rdCol->size();
 
-              // this method clears the electrons and digitEDepLocs collections
-              // after creating the RawDigit
-              this->CreateSignalDigit(prevChan,
-                                      electrons,
-                                      digitEDepLocs,
-                                      *rdCol,
-                                      eDepCol,
-                                      *erassn,
-                                      evt);
+		// this method clears the electrons and digitEDepLocs collections
+		// after creating the RawDigit
+		this->CreateSignalDigit(prevChan,
+					electrons,
+					digitEDepLocs,
+                                        digitEDepWeights,
+					*rdCol,
+					eDepCol,
+					*erassn,
+					evt);
 
-              // reset the previous channel info
-              prevChan = edide.Channel;
-            }
+		// reset the previous channel info
+		prevChan = edide.Channel;
 
-            // put overflow times in the last bin.  Is this okay?  TODO
-            size_t esize = electrons.size();
-            if (esize>0) {
-              if (edide.TDC >= esize) {
-                electrons[esize - 1] = edide.NumElect;
-              } else {
-                electrons[edide.TDC] = edide.NumElect;
+	      }
+
+  	      // put overflow times in the last bin.  Is this okay?  TODO
+              size_t esize = electrons.size();
+              if (esize>0) {
+                if (edide.TDC >= esize) {
+                  electrons[esize - 1] = edide.NumElect;
+                } else {
+                  electrons[edide.TDC] = edide.NumElect;
+                }
               }
-            }
 
-            for (auto loc : edide.edepLocs) digitEDepLocs.insert(loc);
+	      for(auto loc : edide.edepLocs) digitEDepLocs.insert(loc);
+              for(auto w : edide.edepWeights) digitEDepWeights.push_front(w);
 
-          } // end loop to fill signal raw digit vector and make EnergyDeposit associations
+	    } // end loop to fill signal raw digit vector and make EnergyDeposit associations
 
-          // still one more digit to make because we ran out of channels to compare against
-          this->CreateSignalDigit(eDepIDEs.back().Channel,
-                                  electrons,
-                                  digitEDepLocs,
-                                  *rdCol,
-                                  eDepCol,
-                                  *erassn,
-                                  evt);
+	    // still one more digit to make because we ran out of channels to compare against
+	    this->CreateSignalDigit(eDepIDEs.back().Channel,
+				    electrons,
+				    digitEDepLocs,
+                                    digitEDepWeights,
+				    *rdCol,
+				    eDepCol,
+				    *erassn,
+				    evt);
 
-          MF_LOG_DEBUG("IonizationReadout")
-            << "Created "
-            << rdCol->size()
-            << " raw digits from signal";
+	    MF_LOG_DEBUG("IonizationReadout")
+	      << "Created "
+	      << rdCol->size()
+	      << " raw digits from signal";
 
-          // now make the noise digits
-          // to do -- only make noise digits on channels we haven't
-          // yet considered for noise digits, but which may have
-          // been entirely zero-suppressed -- may need to keep a
-          // list of channels and pass it in
-          fROSimAlg->CreateNoiseDigits(*rdCol);
+	    // now make the noise digits
+	    // to do -- only make noise digits on channels we haven't
+	    // yet considered for noise digits, but which may have
+	    // been entirely zero-suppressed -- may need to keep a
+	    // list of channels and pass it in
+	    fROSimAlg->CreateNoiseDigits(*rdCol);
 
         } // end if the EdepIDEs have any size
-
       } // end if there were energy deposits to use
 
       evt.put(std::move(rdCol));
@@ -373,7 +379,6 @@ namespace gar {
           xyz[0] = clusterXPos[c];
           xyz[1] = clusterYPos[c];
           xyz[2] = clusterZPos[c];
-
 
           // map the cluster's drift point to channels.  Use the method that also gives
           // us a list of neighboring channels.
@@ -440,7 +445,6 @@ namespace gar {
             sumw += chanweight.back();
           }
 
-  
           if (sumw == 0) {
             throw cet::exception("IonizationReadout::DriftElectronsToReadout") << 
               "Weight sum is zero, even when including the closest channel " << std::endl;
@@ -451,13 +455,12 @@ namespace gar {
               edepIDEs.emplace_back(clusterSize.at(c)*chanweight.at(i)*rsumw,
                                     cwn.at(i).id,
                                     fTime->TPCG4Time2TDC(clusterTime.at(c)),
-                                    e);
+                                    e, chanweight.at(i));
               this->CheckChannelToEnergyDepositMapping(edepIDEs.back().Channel,
                                                        edepCol[e],
                                                        "DriftElectronsToReadout");
             }
           }
-
 
           MF_LOG_DEBUG("IonizationReadout::DriftElectronsToReadout")
             << "cluster time: "
@@ -470,7 +473,6 @@ namespace gar {
             << fTime->TPCClock().TickPeriod();
 
         }
-
       } // end loop over deposit collections
 
       this->CombineIDEs(edepIDEs, edepCol);
@@ -571,13 +573,14 @@ namespace gar {
     }
 
     //--------------------------------------------------------------------------
-    void IonizationReadout::CreateSignalDigit(unsigned int                                     const& channel,
-                                              std::vector<float>                                    & electrons,
-                                              std::set<size_t>                                      & eDepLocs,
-                                              std::vector<raw::RawDigit>                            & digCol,
-                                              ::art::ValidHandle< std::vector<sdp::EnergyDeposit> > & eDepCol,
-                                              ::art::Assns<sdp::EnergyDeposit, raw::RawDigit>       & erassn,
-                                              ::art::Event                                          & evt)
+    void IonizationReadout::CreateSignalDigit(unsigned int                                      const& channel,
+                                              std::vector<float>                                     & electrons,
+                                              std::set<size_t>                                       & eDepLocs,
+                                              std::deque<float>                                      & eDepWeights,
+                                              std::vector<raw::RawDigit>                             & digCol,
+                                              ::art::ValidHandle< std::vector<sdp::EnergyDeposit> >  & eDepCol,
+                                              ::art::Assns<sdp::EnergyDeposit, raw::RawDigit, float> & erassn,
+                                              ::art::Event                                           & evt)
     {
 
       // could be that all the adc's fell below threshold, so test if we got a raw digit at all.
@@ -595,18 +598,20 @@ namespace gar {
           << channel;
 
         // loop over the locations in the eDepCol to make the associations
+        size_t index = 0;
         for (auto ed : eDepLocs) {
           auto const ptr = art::Ptr<sdp::EnergyDeposit>(eDepCol, ed);
 
           this->CheckChannelToEnergyDepositMapping(channel, *ptr, "CreateSignalDigit");
-
           MF_LOG_DEBUG("IonizationReadout::CreateSignalDigit")
             << "Making association: " << digCol.size() << " " << ptr << std::endl;
-          util::CreateAssn(*this, evt, digCol, ptr, erassn);
+	  util::CreateAssnD(*this, evt, digCol, ptr, eDepWeights.at(index), erassn);
+          index++;
         }
       }
 
       eDepLocs.clear();
+      eDepWeights.clear();
       electrons.clear();
       electrons.resize(fNumTicks, 0);
 

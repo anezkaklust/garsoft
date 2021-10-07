@@ -104,6 +104,7 @@ namespace gar {
 
     virtual void beginJob() override;
     virtual void endRun(art::Run const& run) override;
+    virtual void endJob() override;
 
     // Required functions.
     void analyze( Event const & e ) override;
@@ -522,11 +523,14 @@ void gar::StructuredTree::endRun(art::Run const& run) {
   fPOT = RunPOT.TotalPOT();
   fNSpills = RunPOT.TotalSpills();
 
-  fHeaderTree->Fill();
-
   MF_LOG_INFO("anatree") << "POT for this file is " << fPOT
                          << " The number of spills is " << fNSpills;
 
+}
+
+void gar::StructuredTree::endJob() {
+
+    fHeaderTree->Fill();
 }
 
 //==============================================================================
@@ -1198,7 +1202,7 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
     //Reconstructed momentum forward and backward
     vector< pair<int, float> > pidF = processPIDInfo( track.Momentum_beg() );
     vector< pair<int, float> > pidB = processPIDInfo( track.Momentum_end() );
- 
+    
     //average ionization
     float avgIonF = 0., avgIonB=0.;
     if (findIonization->isValid()) {
@@ -1221,25 +1225,35 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
     auto hitIdesBeg = fBt->HitToHitIDEs(*(hits.begin()));
     auto hitIdesEnd = fBt->HitToHitIDEs(*(hits.end()-1));
     vector<pair<UInt_t,TLorentzVector>> truePosBeg, trueMomBeg, truePosEnd, trueMomEnd;
-
+    vector<std::pair<int,float>> trueEnergy;
+    
     for(auto const& ide : hitIdesBeg) {
       truePosBeg.push_back(std::make_pair(ide.trackID , ide.position));
       trueMomBeg.push_back(std::make_pair(ide.trackID , ide.momentum));
     }
+
 
     for(auto const& ide : hitIdesEnd) {
       truePosEnd.push_back(std::make_pair(ide.trackID , ide.position));
       trueMomEnd.push_back(std::make_pair(ide.trackID , ide.momentum));
     }
 
-    // make a garana::Track
-    trackIDs.push_back(track.getIDNumber());
-    fTracks.push_back(MakeAnaTrack(track, pidF, pidB, avgIonF, avgIonB,truePosBeg,truePosEnd,trueMomBeg,trueMomEnd));
+   std::vector<std::pair<simb::MCParticle*,float>> trkmcps = fBt->TrackToMCParticles(&track);
+	double etot = fBt->TrackToTotalEnergy(&track);
+	for(auto const& mcpfrac : trkmcps) {
+            trueEnergy.push_back(std::make_pair(mcpfrac.first->TrackId(),etot*mcpfrac.second));
+        }
+
+        // make a garana::Track
+        trackIDs.push_back(track.getIDNumber());
+        fTracks.push_back(MakeAnaTrack(track, pidF, pidB, avgIonF, avgIonB,truePosBeg,truePosEnd,trueMomBeg,
+                                       trueMomEnd, trueEnergy) );
+
 
     iTrack++;
   } //for tracks
 
-    // save Vertex and Track-Vertex association info
+  // save Vertex and Track-Vertex association info
   size_t iVertex = 0;
   for ( auto const& vertex : *VertexHandle ) {
 
