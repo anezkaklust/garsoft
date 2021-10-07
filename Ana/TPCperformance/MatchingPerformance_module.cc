@@ -394,14 +394,15 @@ bool gar::MatchingPerformance::FillVectors(art::Event const& event) {
 
     // =============  Get art handles ==========================================
     // Get handles for Tracks, clusters, associations between them
-    art::Handle< std::vector<rec::Track> > TrackHandle;
-    if (!event.getByLabel(fTrackLabel, TrackHandle)) {
+  auto TrackHandle = event.getHandle< std::vector<rec::Track> >(fTrackLabel);
+    if (!TrackHandle) {
         throw cet::exception("MatchingPerformance") << " No rec::Track"
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
     }
-    art::Handle< std::vector<rec::Cluster> > ClusterHandle;
-	art::InputTag ecalclustertag(fClusterLabel, fInstanceLabelECAL);
-    if (!event.getByLabel(ecalclustertag, ClusterHandle)) {
+
+    art::InputTag ecalclustertag(fClusterLabel, fInstanceLabelECAL);
+    auto ClusterHandle = event.getHandle< std::vector<rec::Cluster> >(ecalclustertag);
+    if (!ClusterHandle) {
         throw cet::exception("MatchingPerformance") << " No rec::Cluster branch."
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
     }
@@ -425,8 +426,8 @@ bool gar::MatchingPerformance::FillVectors(art::Event const& event) {
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
     }
 
-    art::Handle< std::vector<simb::MCParticle> > MCPHandle;
-    if (!event.getByLabel(fGeantLabel, MCPHandle)) {
+    auto MCPHandle = event.getHandle< std::vector<simb::MCParticle> >(fGeantLabel);
+    if (!MCPHandle) {
         throw cet::exception("MatchingPerformance") << " No simb::MCParticle"
             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
     }
