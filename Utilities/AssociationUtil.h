@@ -119,9 +119,8 @@ namespace util {
    * for convenience.
    *     
    *     // this is the original list of digits, thawed from the event
-   *     art::Handle< std::vector<raw::RawDigit>> digitVecHandle;
-   *     evt.getByLabel(DigitModuleLabel, spill_name, digitVecHandle);
-   *     
+   *     art::InputTag itag(DigitModuleLabel, spill_name);
+   *     auto digitVecHandle = evt.getHandle< std::vector<raw::RawDigit>>(itag);
    *     // the collection of wires that will be written as data product
    *     std::unique_ptr<std::vector<recob::Wire>> wirecol(new std::vector<recob::Wire>);
    *     // ... and an association set
@@ -177,8 +176,7 @@ namespace util {
    * Example of usage:
    *     
    *     // this is the original list of digits, thawed from the event
-   *     art::Handle< std::vector<raw::RawDigit>> digitVecHandle;
-   *     evt.getByLabel(DigitModuleLabel, digitVecHandle);
+   *     auto digitVecHandle = evt.getHandle< std::vector<raw::RawDigit>>(DigitModuleLabel);
    *     
    *     // the collection of wires that will be written as data product
    *     std::unique_ptr<std::vector<recob::Wire>> wirecol(new std::vector<recob::Wire>);
