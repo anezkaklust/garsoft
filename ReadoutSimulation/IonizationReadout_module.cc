@@ -353,7 +353,6 @@ namespace gar {
       float        xyz[3] = {0.};
       unsigned int chan   = 0;
 
-      size_t empcounter=0;
       std::vector<edepIDE> edepIDEaccumulator;
 
       // now instantiate an ElectronDriftInfo object to keep track of the
@@ -463,10 +462,8 @@ namespace gar {
                                                        edepCol[e],
                                                        "DriftElectronsToReadout");
 	      // compress as we go to save memory
-	      ++empcounter;
-	      if (empcounter > 10000)
+	      if (edepIDEaccumulator.size() > 10000)
 		{
-		  empcounter = 0;
                   this->CombineIDEs(edepIDEaccumulator, edepCol);
 		  edepIDEs.insert(edepIDEs.end(),edepIDEaccumulator.begin(),edepIDEaccumulator.end());
 		  edepIDEaccumulator.clear();
@@ -487,6 +484,8 @@ namespace gar {
         }
       } // end loop over deposit collections
 
+      // one last collection of accumulated edepIDEs 
+      edepIDEs.insert(edepIDEs.end(),edepIDEaccumulator.begin(),edepIDEaccumulator.end());
       this->CombineIDEs(edepIDEs, edepCol);
 
       return;
