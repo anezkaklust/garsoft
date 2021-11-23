@@ -1651,7 +1651,12 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
       const TDatabasePDG* databasePDG = TDatabasePDG::Instance();
       const TParticlePDG* definition = databasePDG->GetParticle( mcp.PdgCode() );
       //No charge don't store the trajectory
-      if (definition==nullptr || definition->Charge() == 0) continue;
+      // this test fails for alpha particles because they aren't in databasePDG
+      // so skip it in this case.
+      if (mcp.PdgCode() != 1000020040)
+        {
+	  if (definition==nullptr || definition->Charge() == 0) continue;
+	}
       //TrackID of the mcp to keep track to which mcp this trajectory is
       int trackId = mcp.TrackId();
       for(uint iTraj=0; iTraj < mcp.Trajectory().size(); iTraj++) {
