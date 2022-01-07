@@ -342,7 +342,7 @@ namespace util {
 
     //------------------------------------------------------------------------------
     unsigned int ConvertEdep2Art::GetLayerNumber(std::string volname) const {
-        return std::atoi( (volname.substr( volname.find("layer_") + 6, 2)).c_str() );
+        return std::atoi( (volname.substr( volname.find("layer") + 5, 2)).c_str() );
     }
 
     //------------------------------------------------------------------------------
