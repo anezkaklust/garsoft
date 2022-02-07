@@ -43,7 +43,7 @@
 // moving only in the z direction, the entry would be
 //
 // 0 1
-// 1 13 0 0 0 0 0. 0. 1.0 5.0011 0.105 1.0 1.0 1.0 0.0
+// 1 13 0 0 0 0 0. 0. 5.0 5.0011 0.105 1.0 1.0 1.0 0.0
 //
 // There are some assumptions that go into using this format that may not
 // be obvious.  The first is that only particles with status code = 1 
