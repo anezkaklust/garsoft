@@ -33,7 +33,7 @@ namespace evd{
 			  std::string& dates,
 			  std::string& times)
   {
-    titles = "DUNE ND MPD";
+    titles = "DUNE ND-GAr";
 
     // get the event
     const art::Event* evt = evdb::EventHolder::Instance()->GetEvent();
