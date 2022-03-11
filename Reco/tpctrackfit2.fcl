@@ -9,8 +9,8 @@ standard_tpctrackfit2:
  RoadYZinFit:                1000.0     # how far in cm to keep a TPCCluster in the fit step
  FirstPassFitType:           "Kalman"   # helix or Kalman -- only Kalman supported for now
  SecondPassFitType:          "Kalman"   # helix or Kalman -- only Kalman supported for now
- KalCurvStepUncSq:           1.0E-8     # square of constant uncertainty term on each step of Kalman fit -- curvature
- KalPhiStepUncSq:            1.0E-8     # square of constant uncertainty term on each step of Kalman fit -- phi
+ KalCurvStepUncSq:           1.0E-9     # square of constant uncertainty term on each step of Kalman fit -- curvature
+ KalPhiStepUncSq:            1.0E-9     # square of constant uncertainty term on each step of Kalman fit -- phi
  KalLambdaStepUncSq:         1.0E-4     # square of constant uncertainty term on each step of Kalman fit -- lambda
  KalCovZYMeasure:            4.0        # constant uncertainty term on measurement in Kalman (the R matrix) in cm
  SortAlg:                          2    # 1: old sort alg, 2: greedy distance sorting
