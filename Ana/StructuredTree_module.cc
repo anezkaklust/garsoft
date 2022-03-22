@@ -158,6 +158,7 @@ namespace gar {
     string fCaloHitInstanceMuID; ///< Instance name MuID for rec::CaloHit
 
     string fClusterLabel; ///< module label for calo clusters rec::Cluster
+    string fClusterInstance; ///< instance name ECAL for rec::Cluster
     string fPFLabel; ///< module label for reco particles rec::PFParticle
     string fECALAssnLabel; ///< module label for track-clusters associations
 
@@ -300,6 +301,7 @@ gar::StructuredTree::StructuredTree(fhicl::ParameterSet const & p)
   fCaloHitInstanceMuID = p.get<string>("CaloHitInstanceMuID","MuID");
 
   fClusterLabel     = p.get<string>("ClusterLabel","calocluster");
+  fClusterInstance  = p.get<string>("ClusterInstance","ECAL");
   fPFLabel          = p.get<string>("PFLabel","pandora");
   fECALAssnLabel    = p.get<string>("ECALAssnLabel","trkecalassn");
 
@@ -363,7 +365,8 @@ gar::StructuredTree::StructuredTree(fhicl::ParameterSet const & p)
     consumes<vector<rec::CaloHit> >(muidhittag);
   }
 
-  consumes<vector<rec::Cluster> >(fClusterLabel);
+  InputTag ecalclustertag(fClusterLabel,fClusterInstance);
+  consumes<vector<rec::Cluster> >(ecalclustertag);
   consumes<Assns<rec::Cluster, rec::Track>>(fECALAssnLabel);
 
   return;
@@ -1152,7 +1155,7 @@ void gar::StructuredTree::FillHighLevelRecoInfo( Event const & e) {
   InputTag iontag(fTrackLabel);
   InputTag verttag(fVertexLabel);
   InputTag veetag(fVeeLabel);
-  InputTag calclustertag(fClusterLabel); //instance too?
+  InputTag calclustertag(fClusterLabel,fClusterInstance); 
   auto TrackHandle      = e.getValidHandle< vector<rec::Track> >(tracktag);
   //auto TrackIonHandle   = e.getValidHandle< vector<rec::TrackIoniz> >(iontag);
   auto VertexHandle     = e.getValidHandle< vector<rec::Vertex> >(verttag);
