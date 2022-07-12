@@ -64,11 +64,10 @@ find_ups_product( gsl )
 find_ups_product( edepsim )
 find_ups_product( garana )
 find_ups_product( cetlib )
+find_ups_product( log4cpp )
 
 #message(STATUS "GARANA_DIR is $ENV{GARANA_DIR}")
 #message(STATUS "GARANA_LIB is $ENV{GARANA_LIB}")
-
-cet_find_library( EDEPSIMIO NAMES edepsim_io PATHS ENV EDEPSIM_LIB )
 
 #message(STATUS "ROOTSYS is ${ROOTSYS}")
 #message(STATUS "GSL_FQ_DIR is $ENV{GSL_FQ_DIR}")
@@ -104,6 +103,8 @@ message(STATUS "GSL_FQ_DIR is $ENV{GSL_FQ_DIR}")
 
 # Pandora
 option(BUILD_W_PANDORA "Build with Pandora" ON )
+
+# to do -- get rid of the cet_find_library calls here to satisfy the migration script
 
 if( BUILD_W_PANDORA )
 find_ups_product( pandora )

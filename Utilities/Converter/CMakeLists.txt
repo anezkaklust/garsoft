@@ -30,7 +30,7 @@ art_make(LIB_LIBRARIES      SimulationDataProducts
                             ${ROOT_GEOM}
                             ${CLHEP}
                             ${Boost_SYSTEM_LIBRARY}
-                            EDEPSIMIO
+			    EDepSim::edepsim_io
        MODULE_LIBRARIES     SimulationDataProducts
                             SummaryDataProducts
                             Geometry
@@ -54,7 +54,7 @@ art_make(LIB_LIBRARIES      SimulationDataProducts
                             ROOT_BASIC_LIB_LIST
                             ${ROOT_EGPYTHIA6}
                             ${GENIE_LIBS_DIR_WITH_LFLAGS}
-                            EDEPSIMIO
+			    EDepSim::edepsim_io
 )
 
 
