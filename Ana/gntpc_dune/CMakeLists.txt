@@ -27,7 +27,6 @@ cet_make_exec(gntpc_dune
     pythia6
     ${LIBXML2_LIBRARIES}
     gsl
-    gslcblas
 )
 
 install_source()
