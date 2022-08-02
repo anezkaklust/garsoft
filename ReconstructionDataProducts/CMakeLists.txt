@@ -22,7 +22,6 @@ cet_make( LIBRARIES
                     ROOT::Tree              
                        ${CLHEP}
                        ${Boost_SYSTEM_LIBRARY}
-		       gsl
                        nug4_MagneticFieldServices_MagneticFieldServiceStandard_service
                        NO_DICTIONARY )
 
