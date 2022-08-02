@@ -32,7 +32,7 @@
 #include "GENIE/Framework/Ntuple/NtpMCEventRecord.h"
 #include "GENIE/Framework/Ntuple/NtpWriter.h"
 #include "GENIE/Framework/Numerical/RandomGen.h"
-#include "GENIE/Framework/Messenger/Messenger.h"
+// #include "GENIE/Framework/Messenger/Messenger.h"
 #include "GENIE/Framework/ParticleData/PDGCodes.h"
 #include "GENIE/Framework/ParticleData/PDGUtils.h"
 #include "GENIE/Framework/ParticleData/PDGLibrary.h"
@@ -41,6 +41,8 @@
 #include "GENIE/Framework/Utils/CmdLnArgParser.h"
 #include "GENIE/Framework/Utils/SystemUtils.h"
 #include "GENIE/Framework/Utils/T2KEvGenMetaData.h"
+
+#include "messagefacility/MessageLogger/MessageLogger.h"
 
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
 #include "GENIE/Tools/Flux/GJPARCNuFlux.h"
@@ -163,10 +165,10 @@ int main(int argc, char ** argv)
 	break;
 
    default:
-     LOG("gntpc", pFATAL)
+     MF_LOG_ERROR("gntpc")
           << "Invalid output format [" << gOptOutFileFormat << "]";
      PrintSyntax();
-     gAbortingInErr = true;
+     //     gAbortingInErr = true;
      exit(3);
   }
   return 0;
@@ -281,7 +283,7 @@ void ConvertToGST(void)
 
   // Open output file & create output summary tree & create the tree branches
   //
-  LOG("gntpc", pNOTICE)
+  MF_LOG_INFO("gntpc")
        << "*** Saving summary tree to: " << gOptOutFileName;
   TFile fout(gOptOutFileName.c_str(),"recreate");
 
@@ -390,16 +392,16 @@ void ConvertToGST(void)
   er_tree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
   thdr    = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
   if (!er_tree) {
-    LOG("gntpc", pERROR) << "Null input GHEP event tree";
+    MF_LOG_ERROR("gntpc") << "Null input GHEP event tree";
     return;
   }
-  LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
+  MF_LOG_INFO("gntpc") << "Input tree header: " << *thdr;
 
   // Get the mc record
   NtpMCEventRecord * mcrec = 0;
   er_tree->SetBranchAddress("gmcrec", &mcrec);
   if (!mcrec) {
-    LOG("gntpc", pERROR) << "Null MC record";
+    MF_LOG_ERROR("gntpc") << "Null MC record";
     return;
   }
 
@@ -407,11 +409,11 @@ void ConvertToGST(void)
   Long64_t nmax = (gOptN<0) ?
        er_tree->GetEntries() : TMath::Min( er_tree->GetEntries(), gOptN );
   if (nmax<0) {
-    LOG("gntpc", pERROR) << "Number of events = 0";
+    MF_LOG_ERROR("gntpc") << "Number of events = 0";
     return;
   }
 
-  LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
+  MF_LOG_INFO("gntpc") << "*** Analyzing: " << nmax << " events";
 
   TLorentzVector pdummy(0,0,0,0);
 
@@ -422,13 +424,13 @@ void ConvertToGST(void)
     NtpMCRecHeader rec_header = mcrec->hdr;
     EventRecord &  event      = *(mcrec->event);
 
-    LOG("gntpc", pINFO) << rec_header;
-    LOG("gntpc", pINFO) << event;
+    MF_LOG_INFO("gntpc") << rec_header;
+    MF_LOG_INFO("gntpc") << event;
 
     // Go further only if the event is physical
     bool is_unphysical = event.IsUnphysical();
     if(is_unphysical) {
-      LOG("gntpc", pINFO) << "Skipping unphysical event";
+      MF_LOG_INFO("gntpc") << "Skipping unphysical event";
       mcrec->Clear();
       continue;
     }
@@ -458,7 +460,7 @@ void ConvertToGST(void)
     GHepParticle * neutrino = event.Probe();
     GHepParticle * target = event.Particle(1);
     if(nullptr == target){
-        LOG("gntpc", pINFO) << "Skipping no target";
+        MF_LOG_INFO("gntpc") << "Skipping no target";
         mcrec->Clear();
         continue;
     }
@@ -540,7 +542,7 @@ void ConvertToGST(void)
     double Q2s = kine.Q2(get_selected);
     double Ws  = kine.W (get_selected);
 
-    LOG("gntpc", pDEBUG)
+    MF_LOG_DEBUG("gntpc")
        << "[Select] Q2 = " << Q2s << ", W = " << Ws
        << ", x = " << xs << ", y = " << ys << ", t = " << ts;
 
@@ -592,7 +594,7 @@ void ConvertToGST(void)
 //      W = TMath::Sqrt(W2);
 //    }
 
-    LOG("gntpc", pDEBUG)
+    MF_LOG_DEBUG("gntpc")
        << "[Calc] Q2 = " << Q2 << ", W = " << W
        << ", x = " << x << ", y = " << y << ", t = " << t;
 
@@ -611,7 +613,7 @@ void ConvertToGST(void)
     // (after the intranuclear rescattering step)
     //
 
-    LOG("gntpc", pDEBUG) << "Extracting final state hadronic system";
+    MF_LOG_DEBUG("gntpc") << "Extracting final state hadronic system";
 
     vector<int> final_had_syst;
     while( (p = (GHepParticle *) piter.Next()) && study_hadsyst)
@@ -658,7 +660,7 @@ void ConvertToGST(void)
     // 'identical' with the final  state hadronic system
     //
 
-    LOG("gntpc", pDEBUG) << "Extracting primary hadronic system";
+    MF_LOG_DEBUG("gntpc") << "Extracting primary hadronic system";
 
     ip = -1;
     TObjArrayIter piter_prim(&event);
@@ -684,7 +686,7 @@ void ConvertToGST(void)
 	    ist_store = ip;    //store this mother
 	    continue;
 	  }
-	  //	  LOG("gntpc",pNOTICE) << p->FirstMother()<< "  "<<ist_store;
+	  //	  MF_LOG_INFO("gntpc") << p->FirstMother()<< "  "<<ist_store;
 	  if(p->FirstMother()==ist_store) {
 	      prim_had_syst.push_back(ip);
 	    }
@@ -711,7 +713,7 @@ void ConvertToGST(void)
 	    ist_store = ip;    //store this mother
 	    continue;
 	  }
-	  //	  LOG("gntpc",pNOTICE) << p->FirstMother()<< "  "<<ist_store;
+	  //	  MF_LOG_INFO("gntpc") << p->FirstMother()<< "  "<<ist_store;
 	  if(p->FirstMother()==ist_store) {
 	      prim_had_syst.push_back(ip);
 	    }
@@ -725,7 +727,7 @@ void ConvertToGST(void)
 	    ist_store = ip;    //store this mother
 	    continue;
 	  }
-	  //	  LOG("gntpc",pNOTICE) << "MEC: " << p->FirstMother()<< "  "<<ist_store;
+	  //	  MF_LOG_INFO("gntpc") << "MEC: " << p->FirstMother()<< "  "<<ist_store;
 	  if(p->FirstMother()==ist_store) {
 	      prim_had_syst.push_back(ip);
 	    }
@@ -842,12 +844,12 @@ void ConvertToGST(void)
       else if (p->Pdg() == kPdgGamma || p->Pdg() == kPdgElectron || p->Pdg() == kPdgPositron) brNiEM++;
       else brNiOther++;
 
-      LOG("gntpc", pINFO)
+      MF_LOG_INFO("gntpc")
         << "Counting in primary hadronic system: idx = " << prim_had_syst[j]
         << " -> " << p->Name();
     }
 
-    LOG("gntpc", pINFO)
+    MF_LOG_INFO("gntpc")
      << "N(p):"             << brNiP
      << ", N(n):"           << brNiN
      << ", N(pi+):"         << brNiPip
@@ -913,12 +915,12 @@ void ConvertToGST(void)
       else if ( hpdg == kPdgPositron    )  { brNfEM++;    brCalResp0 += (e_h * hE); }
       else                                 { brNfOther++; brCalResp0 += hKE;        }
 
-      LOG("gntpc", pINFO)
+      MF_LOG_INFO("gntpc")
         << "Counting in f/s system from hadronic vtx: idx = " << final_had_syst[j]
         << " -> " << p->Name();
     }
 
-    LOG("gntpc", pINFO)
+    MF_LOG_INFO("gntpc")
      << "N(p):"             << brNfP
      << ", N(n):"           << brNfN
      << ", N(pi+):"         << brNfPip
@@ -966,7 +968,7 @@ void ConvertToGXML(void)
   tree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
   thdr = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
 
-  LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
+  MF_LOG_INFO("gntpc") << "Input tree header: " << *thdr;
 
   //-- get mc record
   NtpMCEventRecord * mcrec = 0;
@@ -986,10 +988,10 @@ void ConvertToGXML(void)
   Long64_t nmax = (gOptN<0) ?
        tree->GetEntries() : TMath::Min(tree->GetEntries(), gOptN);
   if (nmax<0) {
-    LOG("gntpc", pERROR) << "Number of events = 0";
+    MF_LOG_ERROR("gntpc") << "Number of events = 0";
     return;
   }
-  LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
+  MF_LOG_INFO("gntpc") << "*** Analyzing: " << nmax << " events";
 
   //-- event loop
   for(Long64_t iev = 0; iev < nmax; iev++) {
@@ -997,8 +999,8 @@ void ConvertToGXML(void)
     NtpMCRecHeader rec_header = mcrec->hdr;
     EventRecord &  event      = *(mcrec->event);
 
-    LOG("gntpc", pINFO) << rec_header;
-    LOG("gntpc", pINFO) << event;
+    MF_LOG_INFO("gntpc") << rec_header;
+    MF_LOG_INFO("gntpc") << event;
 
     //
     // convert the current event
@@ -1098,7 +1100,7 @@ void ConvertToGXML(void)
   output.close();
   fin.Close();
 
-  LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
+  MF_LOG_INFO("gntpc") << "\nDone converting GENIE's GHEP ntuple";
 }
 //____________________________________________________________________________________
 // GENIE GHEP FORMAT -> GHEP MOCK DATA FORMAT
@@ -1112,7 +1114,7 @@ void ConvertToGHepMock(void)
   tree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
   thdr = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
 
-  LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
+  MF_LOG_INFO("gntpc") << "Input tree header: " << *thdr;
 
   //-- get mc record
   NtpMCEventRecord * mcrec = 0;
@@ -1122,10 +1124,10 @@ void ConvertToGHepMock(void)
   Long64_t nmax = (gOptN<0) ?
        tree->GetEntries() : TMath::Min(tree->GetEntries(), gOptN);
   if (nmax<0) {
-    LOG("gntpc", pERROR) << "Number of events = 0";
+    MF_LOG_ERROR("gntpc") << "Number of events = 0";
     return;
   }
-  LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
+  MF_LOG_INFO("gntpc") << "*** Analyzing: " << nmax << " events";
 
   //-- initialize an Ntuple Writer
   NtpWriter ntpw(kNFGHEP, thdr->runnu);
@@ -1138,8 +1140,8 @@ void ConvertToGHepMock(void)
     NtpMCRecHeader rec_header = mcrec->hdr;
     EventRecord &  event      = *(mcrec->event);
 
-    LOG("gntpc", pINFO) << rec_header;
-    LOG("gntpc", pINFO) << event;
+    MF_LOG_INFO("gntpc") << rec_header;
+    MF_LOG_INFO("gntpc") << event;
 
     EventRecord * stripped_event = new EventRecord;
     Interaction * nullint = new Interaction;
@@ -1170,7 +1172,7 @@ void ConvertToGHepMock(void)
 
   fin.Close();
 
-  LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
+  MF_LOG_INFO("gntpc") << "\nDone converting GENIE's GHEP ntuple";
 }
 //____________________________________________________________________________________
 // GENIE GHEP EVENT TREE FORMAT -> TRACKER FORMATS
@@ -1184,7 +1186,7 @@ void ConvertToGTracker(void)
   tree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
   thdr = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
 
-  LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
+  MF_LOG_INFO("gntpc") << "Input tree header: " << *thdr;
 
   gFileMajorVrs = utils::system::GenieMajorVrsNum(thdr->cvstag.GetString().Data());
   gFileMinorVrs = utils::system::GenieMinorVrsNum(thdr->cvstag.GetString().Data());
@@ -1198,7 +1200,7 @@ void ConvertToGTracker(void)
   flux::GJPARCNuFluxPassThroughInfo * flux_info = 0;
   tree->SetBranchAddress("flux", &flux_info);
 #else
-  LOG("gntpc", pWARN)
+  MF_LOG_WARNING("gntpc")
     << "\n Flux drivers are not enabled."
     << "\n No flux pass-through information will be written-out in the rootracker file"
     << "\n If this isn't what you are supposed to be doing then build GENIE by adding "
@@ -1212,10 +1214,10 @@ void ConvertToGTracker(void)
   Long64_t nmax = (gOptN<0) ?
        tree->GetEntries() : TMath::Min(tree->GetEntries(), gOptN);
   if (nmax<0) {
-    LOG("gntpc", pERROR) << "Number of events = 0";
+    MF_LOG_ERROR("gntpc") << "Number of events = 0";
     return;
   }
-  LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
+  MF_LOG_INFO("gntpc") << "*** Analyzing: " << nmax << " events";
 
   //-- event loop
   for(Long64_t iev = 0; iev < nmax; iev++) {
@@ -1224,8 +1226,8 @@ void ConvertToGTracker(void)
     EventRecord &  event      = *(mcrec->event);
     Interaction * interaction = event.Summary();
 
-    LOG("gntpc", pINFO) << rec_header;
-    LOG("gntpc", pINFO) << event;
+    MF_LOG_INFO("gntpc") << rec_header;
+    MF_LOG_INFO("gntpc") << event;
 
     GHepParticle * p = 0;
     TIter event_iter(&event);
@@ -1245,19 +1247,19 @@ void ConvertToGTracker(void)
     // add 'NEUT'-like event type
     if(gOptOutFileFormat == kConvFmt_t2k_tracker) {
     	int evtype = utils::ghep::NeutReactionCode(&event);
-        LOG("gntpc", pNOTICE) << "NEUT-like event type = " << evtype;
+        MF_LOG_INFO("gntpc") << "NEUT-like event type = " << evtype;
     	output << "$ genie " << evtype << endl;
     } //neut code
 
     // add 'NUANCE'-like event type
     else if(gOptOutFileFormat == kConvFmt_nuance_tracker) {
     	int evtype = utils::ghep::NuanceReactionCode(&event);
-        LOG("gntpc", pNOTICE) << "NUANCE-like event type = " << evtype;
+        MF_LOG_INFO("gntpc") << "NUANCE-like event type = " << evtype;
     	output << "$ nuance " << evtype << endl;
     } // nuance code
 
     else {
-        gAbortingInErr = true;
+      //        gAbortingInErr = true;
         exit(1);
     }
 
@@ -1414,7 +1416,7 @@ void ConvertToGTracker(void)
 //         }
 // </obsolte>
 
-         LOG("gntpc", pNOTICE)
+         MF_LOG_INFO("gntpc")
            << "Adding $track corrsponding to GHEP particle at position: " << iparticle
            << " (tracker status code: " << ist << ")";
 
@@ -1623,7 +1625,7 @@ be agreed with the SKDETSIM maintainers.
   output.close();
   fin.Close();
 
-  LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
+  MF_LOG_INFO("gntpc") << "\nDone converting GENIE's GHEP ntuple";
 }
 //____________________________________________________________________________________
 // GENIE GHEP EVENT TREE FORMAT -> ROOTRACKER FORMATS
@@ -1975,7 +1977,7 @@ void ConvertToGRooTracker(void)
   gtree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
   thdr  = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
 
-  LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
+  MF_LOG_INFO("gntpc") << "Input tree header: " << *thdr;
 
   //-- get mc record
   NtpMCEventRecord * mcrec = 0;
@@ -1990,11 +1992,11 @@ void ConvertToGRooTracker(void)
     genie::utils::T2KEvGenMetaData * metadata = NULL;
     metadata = (genie::utils::T2KEvGenMetaData *) gtree->GetUserInfo()->At(0);
     if(metadata){
-      LOG("gntpc", pINFO) << "Found T2KMetaData!";
-      LOG("gntpc", pINFO) << *metadata;
+      MF_LOG_INFO("gntpc") << "Found T2KMetaData!";
+      MF_LOG_INFO("gntpc") << *metadata;
     }
     else {
-      LOG("gntpc", pWARN)
+      MF_LOG_WARNING("gntpc")
         << "Could not find T2KMetaData attached to the event tree!";
     }
   }
@@ -2009,7 +2011,7 @@ void ConvertToGRooTracker(void)
      gtree->SetBranchAddress("flux", &gnumi_flux_info);
   }
 #else
-  LOG("gntpc", pWARN)
+  MF_LOG_WARNING("gntpc")
     << "\n Flux drivers are not enabled."
     << "\n No flux pass-through information will be written-out in the rootracker file"
     << "\n If this isn't what you are supposed to be doing then build GENIE by adding "
@@ -2020,10 +2022,10 @@ void ConvertToGRooTracker(void)
   Long64_t nmax = (gOptN<0) ?
       gtree->GetEntries() : TMath::Min(gtree->GetEntries(), gOptN);
   if (nmax<0) {
-    LOG("gntpc", pERROR) << "Number of events = 0";
+    MF_LOG_ERROR("gntpc") << "Number of events = 0";
     return;
   }
-  LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
+  MF_LOG_INFO("gntpc") << "*** Analyzing: " << nmax << " events";
 
   //-- event loop
   for(Long64_t iev = 0; iev < nmax; iev++) {
@@ -2033,15 +2035,15 @@ void ConvertToGRooTracker(void)
     EventRecord &  event      = *(mcrec->event);
     Interaction * interaction = event.Summary();
 
-    LOG("gntpc", pINFO) << rec_header;
-    LOG("gntpc", pINFO) << event;
-    LOG("gntpc", pINFO) << *interaction;
+    MF_LOG_INFO("gntpc") << rec_header;
+    MF_LOG_INFO("gntpc") << event;
+    MF_LOG_INFO("gntpc") << *interaction;
 #ifdef __GENIE_FLUX_DRIVERS_ENABLED__
     if(gOptOutFileFormat == kConvFmt_t2k_rootracker) {
        if(jnubeam_flux_info) {
-          LOG("gntpc", pINFO) << *jnubeam_flux_info;
+          MF_LOG_INFO("gntpc") << *jnubeam_flux_info;
        } else {
-          LOG("gntpc", pINFO) << "No JNUBEAM flux info associated with this event";
+          MF_LOG_INFO("gntpc") << "No JNUBEAM flux info associated with this event";
        }
     }
 #endif
@@ -2155,22 +2157,22 @@ void ConvertToGRooTracker(void)
 
 	// insert check here on size of iparticle
 	if (iparticle == kNPmax){// we have an issue
-	  LOG("gntpc", pWARN)
+	  MF_LOG_WARNING("gntpc")
 	    << "Event "<<brEvtNum
 	    <<" has greater than kNPmax = "<< kNPmax
 	    <<" number of particle entries in StdHep.";
 	  if(gOptTruncateBigEvents){
-	    LOG("gntpc",pWARN)
+	    MF_LOG_WARNING("gntpc")
 	      << "I will truncate the event to avoid"
 	      << " a static array overrun.";
 	    break;
 	  }
 	  else{
-	    LOG("gntpc",pFATAL)
+	    MF_LOG_ERROR("gntpc")
 	      <<"Dead in the H20!\n"
 	      <<"Rerun with option -t to truncate these large events.\n"
 	      <<"Or recompile to make static constant kNPmax larger.";
-	    gAbortingInErr=true;
+	    //	    gAbortingInErr=true;
 	    exit(1);
 	  }
 	}
@@ -2398,7 +2400,7 @@ void ConvertToGRooTracker(void)
   fout.Write();
   fout.Close();
 
-  LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
+  MF_LOG_INFO("gntpc") << "\nDone converting GENIE's GHEP ntuple";
 }
 //____________________________________________________________________________________
 // GENIE GHEP EVENT TREE -> NEUGEN-style format for AGKY studies
@@ -2424,7 +2426,7 @@ void ConvertToGHad(void)
   tree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
   thdr = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
 
-  LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
+  MF_LOG_INFO("gntpc") << "Input tree header: " << *thdr;
 
   //-- get mc record
   NtpMCEventRecord * mcrec = 0;
@@ -2451,10 +2453,10 @@ void ConvertToGHad(void)
   Long64_t nmax = (gOptN<0) ?
       tree->GetEntries() : TMath::Min(tree->GetEntries(), gOptN);
   if (nmax<0) {
-    LOG("gntpc", pERROR) << "Number of events = 0";
+    MF_LOG_ERROR("gntpc") << "Number of events = 0";
     return;
   }
-  LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
+  MF_LOG_INFO("gntpc") << "*** Analyzing: " << nmax << " events";
 
   //-- event loop
   for(Long64_t iev = 0; iev < nmax; iev++) {
@@ -2462,8 +2464,8 @@ void ConvertToGHad(void)
     NtpMCRecHeader rec_header = mcrec->hdr;
     EventRecord &  event      = *(mcrec->event);
 
-    LOG("gntpc", pINFO) << rec_header;
-    LOG("gntpc", pINFO) << event;
+    MF_LOG_INFO("gntpc") << rec_header;
+    MF_LOG_INFO("gntpc") << event;
 
 #ifdef __GHAD_NTP__
     brN = 0;
@@ -2643,7 +2645,7 @@ void ConvertToGHad(void)
   fout.Close();
 #endif
 
-  LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
+  MF_LOG_INFO("gntpc") << "\nDone converting GENIE's GHEP ntuple";
 }
 //____________________________________________________________________________________
 // GENIE GHEP EVENT TREE -> Summary tree for INTRANUKE studies
@@ -2682,7 +2684,7 @@ void ConvertToGINuke(void)
 
   //-- open output file & create output summary tree & create the tree branches
   //
-  LOG("gntpc", pNOTICE)
+  MF_LOG_INFO("gntpc")
        << "*** Saving summary tree to: " << gOptOutFileName;
   TFile fout(gOptOutFileName.c_str(),"recreate");
 
@@ -2726,16 +2728,16 @@ TTree * tEvtTree = new TTree("ginuke","GENIE INuke Summary Tree");
   er_tree = dynamic_cast <TTree *>           ( fin.Get("gtree")  );
   thdr    = dynamic_cast <NtpMCTreeHeader *> ( fin.Get("header") );
   if (!er_tree) {
-    LOG("gntpc", pERROR) << "Null input tree";
+    MF_LOG_ERROR("gntpc") << "Null input tree";
     return;
   }
-  LOG("gntpc", pINFO) << "Input tree header: " << *thdr;
+  MF_LOG_INFO("gntpc") << "Input tree header: " << *thdr;
 
   //-- get the mc record
   NtpMCEventRecord * mcrec = 0;
   er_tree->SetBranchAddress("gmcrec", &mcrec);
   if (!mcrec) {
-    LOG("gntpc", pERROR) << "Null MC record";
+    MF_LOG_ERROR("gntpc") << "Null MC record";
     return;
   }
 
@@ -2743,10 +2745,10 @@ TTree * tEvtTree = new TTree("ginuke","GENIE INuke Summary Tree");
   Long64_t nmax = (gOptN<0) ?
        er_tree->GetEntries() : TMath::Min( er_tree->GetEntries(), gOptN );
   if (nmax<0) {
-    LOG("gntpc", pERROR) << "Number of events = 0";
+    MF_LOG_ERROR("gntpc") << "Number of events = 0";
     return;
   }
-  LOG("gntpc", pNOTICE) << "*** Analyzing: " << nmax << " events";
+  MF_LOG_INFO("gntpc") << "*** Analyzing: " << nmax << " events";
 
   for(Long64_t iev = 0; iev < nmax; iev++) {
     brIEv = iev;
@@ -2754,8 +2756,8 @@ TTree * tEvtTree = new TTree("ginuke","GENIE INuke Summary Tree");
     NtpMCRecHeader rec_header = mcrec->hdr;
     EventRecord &  event      = *(mcrec->event);
 
-    LOG("gntpc", pINFO) << rec_header;
-    LOG("gntpc", pINFO) << event;
+    MF_LOG_INFO("gntpc") << rec_header;
+    MF_LOG_INFO("gntpc") << event;
 
     // analyze current event and fill the summary ntuple
 
@@ -2856,7 +2858,7 @@ TTree * tEvtTree = new TTree("ginuke","GENIE INuke Summary Tree");
   fout.Write();
   fout.Close();
 
-  LOG("gntpc", pINFO) << "\nDone converting GENIE's GHEP ntuple";
+  MF_LOG_INFO("gntpc") << "\nDone converting GENIE's GHEP ntuple";
 }
 //____________________________________________________________________________________
 // FUNCTIONS FOR PARSING CMD-LINE ARGUMENTS
@@ -2872,29 +2874,29 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // get input ROOT file (containing a GENIE GHEP event tree)
   if( parser.OptionExists('i') ) {
-    LOG("gntpc", pINFO) << "Reading input filename";
+    MF_LOG_INFO("gntpc") << "Reading input filename";
     gOptInpFileName = parser.ArgAsString('i');
   } else {
-    LOG("gntpc", pFATAL)
+    MF_LOG_ERROR("gntpc")
        << "Unspecified input filename - Exiting";
     PrintSyntax();
-    gAbortingInErr = true;
+    //    gAbortingInErr = true;
     exit(1);
   }
 
   // check input GENIE ROOT file
   bool inpok = !(gSystem->AccessPathName(gOptInpFileName.c_str()));
   if (!inpok) {
-    LOG("gntpc", pFATAL)
+    MF_LOG_ERROR("gntpc")
         << "The input ROOT file ["
         << gOptInpFileName << "] is not accessible";
-    gAbortingInErr = true;
+    //    gAbortingInErr = true;
     exit(2);
   }
 
   // get output file format
   if( parser.OptionExists('f') ) {
-    LOG("gntpc", pINFO) << "Reading output file format";
+    MF_LOG_INFO("gntpc") << "Reading output file format";
     string fmt = parser.ArgAsString('f');
 
          if (fmt == "gst")                   { gOptOutFileFormat = kConvFmt_gst;                   }
@@ -2911,48 +2913,48 @@ void GetCommandLineArgs(int argc, char ** argv)
     else                                     { gOptOutFileFormat = kConvFmt_undef;                 }
 
     if(gOptOutFileFormat == kConvFmt_undef) {
-      LOG("gntpc", pFATAL) << "Unknown output file format (" << fmt << ")";
-      gAbortingInErr = true;
+      MF_LOG_ERROR("gntpc") << "Unknown output file format (" << fmt << ")";
+      //      gAbortingInErr = true;
       exit(3);
     }
 
   } else {
-    LOG("gntpc", pFATAL) << "Unspecified output file format";
-    gAbortingInErr = true;
+    MF_LOG_ERROR("gntpc") << "Unspecified output file format";
+    //    gAbortingInErr = true;
     exit(4);
   }
 
   // get output file name
   if( parser.OptionExists('o') ) {
-    LOG("gntpc", pINFO) << "Reading output filename";
+    MF_LOG_INFO("gntpc") << "Reading output filename";
     gOptOutFileName = parser.ArgAsString('o');
   } else {
-    LOG("gntpc", pINFO)
+    MF_LOG_INFO("gntpc")
        << "Unspecified output filename - Using default";
     gOptOutFileName = DefaultOutputFile();
   }
 
   // get number of events to convert
   if( parser.OptionExists('n') ) {
-    LOG("gntpc", pINFO) << "Reading number of events to analyze";
+    MF_LOG_INFO("gntpc") << "Reading number of events to analyze";
     gOptN = parser.ArgAsInt('n');
   } else {
-    LOG("gntpc", pINFO)
+    MF_LOG_INFO("gntpc")
        << "Unspecified number of events to analyze - Use all";
     gOptN = -1;
   }
 
   // get format version number
   if( parser.OptionExists('v') ) {
-    LOG("gntpc", pINFO) << "Reading format version number";
+    MF_LOG_INFO("gntpc") << "Reading format version number";
     gOptVersion = parser.ArgAsInt('v');
-    LOG("gntpc", pINFO)
+    MF_LOG_INFO("gntpc")
        << "Using version number: " << gOptVersion;
   } else {
-    LOG("gntpc", pINFO)
+    MF_LOG_INFO("gntpc")
        << "Unspecified version number - Use latest";
     gOptVersion = LatestFormatVersionNumber();
-    LOG("gntpc", pINFO)
+    MF_LOG_INFO("gntpc")
        << "Latest version number: " << gOptVersion;
   }
 
@@ -2961,25 +2963,25 @@ void GetCommandLineArgs(int argc, char ** argv)
 
   // random number seed
   if( parser.OptionExists("seed") ) {
-    LOG("gntpc", pINFO) << "Reading random number seed";
+    MF_LOG_INFO("gntpc") << "Reading random number seed";
     gOptRanSeed = parser.ArgAsLong("seed");
   } else {
-    LOG("gntpc", pINFO) << "Unspecified random number seed - Using default";
+    MF_LOG_INFO("gntpc") << "Unspecified random number seed - Using default";
     gOptRanSeed = -1;
   }
 
   // truncate big events for RooTracker output?
   gOptTruncateBigEvents=parser.OptionExists('t');
 
-  LOG("gntpc", pNOTICE) << "Input filename  = " << gOptInpFileName;
-  LOG("gntpc", pNOTICE) << "Output filename = " << gOptOutFileName;
-  LOG("gntpc", pNOTICE) << "Conversion to format = " << gOptRanSeed
+  MF_LOG_INFO("gntpc") << "Input filename  = " << gOptInpFileName;
+  MF_LOG_INFO("gntpc") << "Output filename = " << gOptOutFileName;
+  MF_LOG_INFO("gntpc") << "Conversion to format = " << gOptRanSeed
                         << ", vrs = " << gOptVersion;
-  LOG("gntpc", pNOTICE) << "Number of events to be converted = " << gOptN;
-  LOG("gntpc", pNOTICE) << "Copy metadata? = " << ((gOptCopyJobMeta) ? "Yes" : "No");
-  LOG("gntpc", pNOTICE) << "Random number seed = " << gOptRanSeed;
-  LOG("gntpc", pNOTICE) << "Truncate big events (RooTracker only)? = "<< ((gOptTruncateBigEvents) ? "Yes" : "No");
-  LOG("gntpc", pNOTICE) << *RunOpt::Instance();
+  MF_LOG_INFO("gntpc") << "Number of events to be converted = " << gOptN;
+  MF_LOG_INFO("gntpc") << "Copy metadata? = " << ((gOptCopyJobMeta) ? "Yes" : "No");
+  MF_LOG_INFO("gntpc") << "Random number seed = " << gOptRanSeed;
+  MF_LOG_INFO("gntpc") << "Truncate big events (RooTracker only)? = "<< ((gOptTruncateBigEvents) ? "Yes" : "No");
+  MF_LOG_INFO("gntpc") << *RunOpt::Instance();
 }
 //____________________________________________________________________________________
 string DefaultOutputFile(void)
@@ -3040,7 +3042,7 @@ void PrintSyntax(void)
 {
 
 
-  LOG("gntpc",pINFO)
+  MF_LOG_INFO("gntpc")
     <<"\n\n"<<"gntpc_dune\n"
     <<"\nConverts a native GENIE (GHEP/ROOT) event tree file to a host of plain text, XML or bare-ROOT formats. This code is a lightly modified verison of GENIE gntpc but has specialized options and behavior for DUNE."
     <<"\n"

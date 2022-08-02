@@ -21,11 +21,14 @@
 #include "Geant4/G4ProcessManager.hh"
 #include "Geant4/G4ChargeExchange.hh"
 #include "Geant4/G4ChargeExchangeProcess.hh"
-#include "nug4/G4Base/G4PhysListFactorySingleton.hh"
+//#include "nug4/G4Base/G4PhysListFactorySingleton.hh"
+///PHYSLISTREG3(garg4,PhysicsList,garg4::PhysicsList)
+#include "Geant4/G4PhysListStamper.hh"
+G4_DECLARE_PHYSLIST_FACTORY_NS(gar::garg4::PhysicsList,garg4,PhysicsList);
 
 namespace gar {
 
-  PHYSLISTREG3(garg4,PhysicsList,garg4::PhysicsList)
+  
 #define G4MT_physicsVector ((G4VMPLsubInstanceManager.offset[g4vmplInstanceID]).physicsVector)
   
   namespace garg4 {

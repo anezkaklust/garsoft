@@ -21,11 +21,11 @@ art_make_library(SOURCE    ${src_files} ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE}Ci
  			   ${MF_MESSAGELOGGER}
                            ${FHICLCPP}
 			   ${CETLIB}
-                           ${ROOT_EVE}
+                           ROOT::Eve
                            ${ROOT_EVE_LIB_LIST}
-                           ${ROOT_EG}
+                           ROOT::EG
                            ${ROOT_RGL}
-                           ${ROOT_X3d}
+                           ROOT::X3d
                 )
 
 simple_plugin (EVD3D module
@@ -48,8 +48,8 @@ simple_plugin (EVD3D module
                   ${CETLIB}
                   ${ROOT_GUI}
                   ${ROOT_GEOM}
-                  ${ROOT_EVE}
-                  ${ROOT_EG}
+                  ROOT::Eve
+                  ROOT::EG
                   ${ROOT_RGL}
           )
 
@@ -73,8 +73,10 @@ simple_plugin (EventDisplay3DService service
                   ${MF_MESSAGELOGGER}
                   ${FHICLCPP}
                   ${CETLIB}
-                  ${ROOT_EVE}
-                  ROOT_BASIC_LIB_LIST
+                    ROOT::Eve
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
                )
 
 install_headers()

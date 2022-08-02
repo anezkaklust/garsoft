@@ -1,6 +1,7 @@
 include_directories( $ENV{GEANT4_FQ_DIR}/include )
 include_directories( $ENV{NUTOOLS_DIR}/include   )
 include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
+include_directories( $ENV{NUGEN_INC} )
 
 art_make(BASENAME_ONLY
         LIBRARY_NAME   GArReco
@@ -25,7 +26,9 @@ art_make(BASENAME_ONLY
                        ${MF_MESSAGELOGGER}
                        ${FHICLCPP}
                        ${CETLIB_EXCEPT}
-                       ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
                        ${CLHEP}
                        ${Boost_SYSTEM_LIBRARY}
                        MCCheater_BackTracker_service
@@ -54,7 +57,9 @@ art_make(BASENAME_ONLY
                        ${MF_MESSAGELOGGER}
                        ${FHICLCPP}
                        ${CETLIB_EXCEPT}
-                       ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
          )
 
 install_headers()

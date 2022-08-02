@@ -34,11 +34,13 @@ simple_plugin(BackTracker "service"
 			        art_Persistency_Common
 			        art_Persistency_Provenance
 			        art_Utilities
-              canvas
+                                canvas
 			        ${MF_MESSAGELOGGER}			        
 			        ${FHICLCPP}
 			        ${CETLIB_EXCEPT}
-			        ROOT_BASIC_LIB_LIST
+                                ROOT::Core
+                                ROOT::Hist
+                                ROOT::Tree              
 )
 
 install_headers()

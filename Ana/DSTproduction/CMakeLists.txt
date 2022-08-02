@@ -1,9 +1,11 @@
-
+include_directories ( $ENV{NUSIMDATA_INC} )
 
 cet_make_exec(makeDST.exe
   SOURCE makeDST.cxx
   LIBRARIES
-    ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
     cetlib cetlib_except
 )
 

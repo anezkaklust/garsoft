@@ -7,8 +7,11 @@ cet_make_library(LIBRARY_NAME garsoft_paramsim_utils
                    src/Utils.cpp
 		               src/MCP_Skimmer.cpp
 		               LIBRARIES
-                   ROOT_BASIC_LIB_LIST
-                   ${ROOT_EG}
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
+                    ROOT::EG
+                    ROOT::MathCore
                  )
 
 cet_make_exec(cafanatree_module
@@ -16,7 +19,9 @@ cet_make_exec(cafanatree_module
     main/cafanatree_module.cxx
   LIBRARIES
     garsoft_paramsim_utils
-    ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
 )
 
 cet_make_exec(mcp_skimmer
@@ -24,7 +29,10 @@ cet_make_exec(mcp_skimmer
     main/mcp_skimmer.cxx
   LIBRARIES
     garsoft_paramsim_utils
-    ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
+
 )
 
 install_source()

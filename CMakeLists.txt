@@ -17,7 +17,7 @@
 # use cmake 2.8 or later
 cmake_minimum_required (VERSION 3.19 FATAL_ERROR)
 
-project(garsoft VERSION 02.16.00)
+project(garsoft VERSION 02.17.00)
 
     find_package( cetbuildtools REQUIRED)
 
@@ -41,30 +41,38 @@ cet_set_compiler_flags(DIAGS CAUTIOUS
                        EXTRA_CXX_FLAGS -D_GLIBCXX_USE_NANOSLEEP ${ARTDFLAG} -Wno-variadic-macros)
 cet_report_compiler_flags()
 
-# these are minimum required versions, not the actual product versions
-find_ups_product( art            )
-find_ups_product( art_root_io    )
-find_ups_product( canvas         )
-find_ups_product( messagefacility)
-find_ups_product( genie          )
-#find_ups_product( dk2nu         )
-find_ups_product( nutools        )
-find_ups_product( nuevdb         )
-find_ups_product( nusimdata      )
-find_ups_product( nusystematics  )
-find_ups_product( nug4           )
-find_ups_product( nugen          )
-find_ups_product( nurandom       )
-find_ups_product( libwda         )
-find_ups_product( postgresql     )
-find_ups_geant4(          )
-find_ups_boost  ()
-find_ups_root   ()
-find_ups_product( gsl )
-find_ups_product( edepsim )
-find_ups_product( garana )
-find_ups_product( cetlib )
-find_ups_product( log4cpp )
+find_package(art REQUIRED EXPORT)
+find_package(art_root_io REQUIRED EXPORT)
+find_package(canvas_root_io REQUIRED)
+find_package(cetlib REQUIRED EXPORT)
+find_package(cetlib_except REQUIRED EXPORT)
+find_package(fhiclcpp REQUIRED EXPORT)
+find_package(messagefacility REQUIRED EXPORT)
+
+find_package(nug4 REQUIRED EXPORT)
+find_package(nugen REQUIRED EXPORT)
+find_package(nurandom REQUIRED EXPORT)
+find_package(nusimdata REQUIRED EXPORT)
+find_package(nutools REQUIRED EXPORT)
+find_package(nuevdb REQUIRED EXPORT)
+
+find_package(Boost REQUIRED COMPONENTS headers math_tr1 REQUIRED EXPORT) # boost::math::policies, boost::math::ellint*
+find_package(CLHEP COMPONENTS Evaluator Geometry Random Vector REQUIRED EXPORT)
+find_package(CRY REQUIRED EXPORT) # find module in nutools
+find_package(GENIE REQUIRED EXPORT) # find module in nugen
+find_package(Geant4 REQUIRED EXPORT)
+find_package(LibXml2 REQUIRED EXPORT)
+find_package(PostgreSQL REQUIRED EXPORT)
+find_package(ROOT COMPONENTS Core EG GenVector Geom Gpad Hist MathCore Matrix Physics RIO RooFitCore Tree REQUIRED EXPORT)
+find_package(Range-v3 REQUIRED EXPORT)
+find_package(SQLite3 REQUIRED EXPORT)
+find_package(ifdhc REQUIRED EXPORT)
+find_package(log4cpp REQUIRED EXPORT)
+
+find_package( GSL REQUIRED EXPORT )
+find_package( EDepSim REQUIRED EXPORT )
+find_package( garana REQUIRED EXPORT )
+find_ups_product( pythia )
 
 #message(STATUS "GARANA_DIR is $ENV{GARANA_DIR}")
 #message(STATUS "GARANA_LIB is $ENV{GARANA_LIB}")

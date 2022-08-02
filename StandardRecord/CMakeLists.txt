@@ -6,7 +6,10 @@ FILE( GLOB src_files *.cxx )
 
 cet_make_library( LIBRARY_NAME garsoft_StandardRecord
                   SOURCE       ${src_files}
-                  LIBRARIES    ROOT_BASIC_LIB_LIST
+                  LIBRARIES    
+		  ROOT::Core
+		  ROOT::Hist
+		  ROOT::Tree
                 )
 
 build_dictionary( garsoft_StandardRecord

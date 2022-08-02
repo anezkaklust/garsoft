@@ -1,15 +1,19 @@
-include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
+include_directories( $ENV{CLHEP_INCLUDE_DIR} )
+include_directories( $ENV{ART_INC} )
 
 art_make( LIB_LIBRARIES     ${MF_MESSAGELOGGER}
                             ${FHICLCPP}
                             ${CETLIB}
                             ${CETLIB_EXCEPT}
                             ${CLHEP}
-                            ROOT_BASIC_LIB_LIST
-                            ${ROOT_GEOM}
+                            ROOT::Core
+                            ROOT::Hist
+                            ROOT::Tree              
+		            ROOT::MathCore
+                            ROOT::Geom
+			    ROOT::EG
                             ${ROOT_XMLIO}
                             ${ROOT_GDML}
-                            ${ROOT_EG}
                             ${ROOT_TREEPLAYER}
                             ${ROOT_FFTW}
                             ${ROOT_REFLEX}

@@ -60,7 +60,9 @@ art_make(LIB_LIBRARIES nusimdata_SimulationBase
                        ${MF_MESSAGELOGGER}
                        ${FHICLCPP}
                        ${CETLIB_EXCEPT}
-                       ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
                        ${CLHEP}
                        ${G4LIBS}
                        ${Boost_SYSTEM_LIBRARY}
@@ -87,7 +89,9 @@ art_make(LIB_LIBRARIES nusimdata_SimulationBase
                        ${MF_MESSAGELOGGER}                       
                        ${FHICLCPP}
                        ${CETLIB_EXCEPT}
-                       ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
          )
 
 

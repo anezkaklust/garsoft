@@ -14,7 +14,11 @@ art_make(
     canvas
     ${MF_MESSAGELOGGER}
     ${ROOT_EG}
-    ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree         
+		    ROOT::Physics     
+		    ROOT::EG
     ${CETLIB_EXCEPT}
     ${FHICLCPP}
     ${Boost_SYSTEM_LIBRARY}
@@ -32,7 +36,11 @@ art_make(
     canvas
     ${MF_MESSAGELOGGER}
     ${ROOT_EG}
-    ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
+		    ROOT::Physics     
+		    ROOT::EG
     ${FHICLCPP}
     ${CETLIB_EXCEPT}
   )

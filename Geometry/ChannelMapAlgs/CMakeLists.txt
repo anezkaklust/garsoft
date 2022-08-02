@@ -8,7 +8,9 @@ art_make( BASENAME_ONLY
                             ${CETLIB}
                             ${CETLIB_EXCEPT}
                             ${CLHEP}
-                            ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
                             ${ROOT_GEOM}
                             ${ROOT_XMLIO}
                             ${ROOT_GDML}

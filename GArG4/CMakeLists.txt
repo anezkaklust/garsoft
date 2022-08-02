@@ -2,38 +2,25 @@
 include_directories( $ENV{GEANT4_FQ_DIR}/include )
 include_directories( $ENV{NUTOOLS_DIR}/include   )
 include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
+include_directories( $ENV{NUG4_INC} )
 
-set(G4LIBS ${G4FR}
-           ${G4GMOCREN}
-           ${G4OPENGL}
-           ${G4RAYTRACER}
-           ${G4TREE}
-           ${G4VRML}
-           ${G4ANALYSIS}
-           ${G4DIGITS_HITS}
-           ${G4ERROR_PROPAGATION}
-           ${G4EVENT}
-           ${G4GEOMETRY}
-           ${G4GL2PS}
-           ${G4GLOBAL}
-           ${G4GRAPHICS_REPS}
-           ${G4INTERCOMS}
-           ${G4INTERFACES}
-           ${G4MATERIALS}
-           ${G4MODELING}
-           ${G4PARMODELS}
-           ${G4PARTICLES}
-           ${G4PERSISTENCY}
-           ${G4PHYSICSLISTS}
-           ${G4PROCESSES}
-           ${G4READOUT}
-           ${G4RUN}
-           ${G4TRACK}
-           ${G4TRACKING}
-           ${G4VISHEPREP}
-           ${G4VISXXX}
-           ${G4VIS_MANAGEMENT}
-           ${G4ZLIB}
+set(G4LIBS 
+             Geant4::G4digits_hits
+  Geant4::G4event
+  Geant4::G4geometry
+  Geant4::G4global
+  Geant4::G4materials
+  Geant4::G4particles
+  Geant4::G4physicslists
+  Geant4::G4processes
+  Geant4::G4run
+  Geant4::G4track
+  Geant4::G4vis_management
+  Geant4::G4visHepRep
+  Geant4::G4VRML
+  Geant4::G4GMocren
+  Geant4::G4RayTracer
+  Geant4::G4Tree
     )
 
 art_make(LIB_LIBRARIES      nug4_ParticleNavigation
@@ -62,7 +49,9 @@ art_make(LIB_LIBRARIES      nug4_ParticleNavigation
                             ${ROOT_REFLEX}
                             ${ROOT_EGPYTHIA6}
                             ${ROOT_GUI}
-                            ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
                             ${ROOT_GEOM}
                             ${CLHEP}
                             ${G4LIBS}
@@ -89,7 +78,9 @@ art_make(LIB_LIBRARIES      nug4_ParticleNavigation
                             ${FHICLCPP}
                             ${CETLIB}
                             ${CETLIB_EXCEPT}
-                            ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
                             ${G4LIBS}
 )
 

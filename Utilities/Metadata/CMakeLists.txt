@@ -13,7 +13,9 @@
 			art_Utilities canvas
 			${MF_MESSAGELOGGER}
 			cetlib cetlib_except
-			ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
     )
 
 simple_plugin( FileCatalogMetadataMPD "service"

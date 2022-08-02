@@ -1,5 +1,6 @@
 include_directories( $ENV{CLHEP_INCLUDE_DIR} )
 include_directories ( $ENV{GENIE_INC}/GENIE )
+include_directories ( $ENV{GENIE_INC} )
 
 # genie
 execute_process(COMMAND genie-config --libs OUTPUT_VARIABLE GENIE_LIBS_DIR_WITH_LFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -30,7 +31,9 @@ art_make( MODULE_LIBRARIES SimulationDataProducts
                            ${CLHEP}
     			                 ${GENIE_LIBS_DIR_WITH_LFLAGS}
                            ${ROOT_EGPYTHIA6}    # FIXME!!! - resolving genie run time reference
-                           ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
                            ${ROOT_EG}
         )
 

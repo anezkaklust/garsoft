@@ -1,3 +1,4 @@
+include_directories( $ENV{NUGEN_INC} )
 
 art_make(MODULE_LIBRARIES Geometry
                            Geometry_GeometryGAr_service
@@ -19,8 +20,10 @@ art_make(MODULE_LIBRARIES Geometry
                            ${CETLIB}
                            ${CETLIB_EXCEPT}
                            ${CLHEP}
-                           ROOT_BASIC_LIB_LIST
-                           ${ROOT_EG}
+                           ROOT::Core
+                           ROOT::Hist
+                           ROOT::Tree              
+                           ROOT::EG
         )
 
 install_headers()

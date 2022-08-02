@@ -16,7 +16,9 @@ art_make(LIB_LIBRARIES
            art_Persistency_Common
            art_Persistency_Provenance
            art_Utilities
-           ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
          MODULE_LIBRARIES
            nusimdata_SimulationBase
            ${ART_FRAMEWORK_CORE}
@@ -26,7 +28,9 @@ art_make(LIB_LIBRARIES
            art_Persistency_Provenance
            art_Utilities
            ${MF_MESSAGELOGGER}
-           ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
            Geometry
            ${ART_FRAMEWORK_SERVICES_REGISTRY}
            ${ART_FRAMEWORK_SERVICES_OPTIONAL}

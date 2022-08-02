@@ -2,10 +2,11 @@
 include_directories( $ENV{NUSIMDATA_INC} )
 
 cet_make( LIBRARIES canvas
-		    MF_MessageLogger
-		    
-		    cetlib cetlib_except
-		    ROOT_BASIC_LIB_LIST
+                    MF_MessageLogger
+                    cetlib cetlib_except
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
                     ${ROOT_EG}
                     NO_DICTIONARY )
 

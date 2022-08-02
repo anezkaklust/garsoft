@@ -3,10 +3,12 @@ cet_make_exec(showGeometry
   SOURCE
     showGeometry.cpp
   LIBRARIES
-    ROOT_BASIC_LIB_LIST
-    ${ROOT_EG}
-    ${ROOT_EVE}
-    ${ROOT_EVE_LIB_LIST}
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
+		    ROOT::Geom
+		    ROOT::EG
+		    ROOT::Eve
 )
 
 install_source()

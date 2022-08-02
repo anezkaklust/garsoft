@@ -1,4 +1,4 @@
-
+include_directories ( $ENV{CETLIB_INC} )
 cet_test(NameSelector_test
          SOURCES   NameSelector_test.cxx
          LIBRARIES TestUtils

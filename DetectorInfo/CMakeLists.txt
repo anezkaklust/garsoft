@@ -7,14 +7,15 @@ art_make( NO_PLUGINS
                         ${CETLIB}
                         ${CETLIB_EXCEPT}
                         ${FHICLCPP}
-                        ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
                         ${Boost_SYSTEM_LIBRARY}
                         art_Utilities canvas
                         nug4_MagneticFieldServices_MagneticFieldServiceStandard_service
                         ${ART_FRAMEWORK_SERVICES_REGISTRY}
                         ${MF_MESSAGELOGGER}
                         ${CETLIB_EXCEPT}
-                        ROOT_BASIC_LIB_LIST
                         ${ROOT_GEOM}
                         ${ROOT_CORE}
                         ${G4GEOMETRY}
@@ -44,7 +45,9 @@ simple_plugin(DetectorClocksServiceStandardGAr "service"
               ${CETLIB_EXCEPT}
               ${ART_ROOT_IO_ROOTDB}
               ${SQLITE3}
-              ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
              )
 
 simple_plugin(DetectorPropertiesServiceStandardGAr "service"
@@ -63,7 +66,9 @@ simple_plugin(DetectorPropertiesServiceStandardGAr "service"
               ${CETLIB_EXCEPT}
               ${ART_ROOT_IO_ROOTDB}
               ${SQLITE3}
-              ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
              )
 
 simple_plugin(GArPropertiesServiceStandard "service"
@@ -90,7 +95,9 @@ simple_plugin(MagneticFieldServiceGAr "service"
               ${ART_FRAMEWORK_SERVICES_REGISTRY}
               ${MF_MESSAGELOGGER}
               ${CETLIB_EXCEPT}
-              ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
               ${ROOT_GEOM}
               ${ROOT_CORE}
               ${G4GEOMETRY}

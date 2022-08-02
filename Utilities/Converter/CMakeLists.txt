@@ -1,5 +1,6 @@
 include_directories( $ENV{CLHEP_INCLUDE_DIR} )
 include_directories( $ENV{GENIE_INC}/GENIE )
+include_directories( $ENV{GENIE_INC} )
 include_directories( $ENV{EDEPSIM_INC}/EDepSim )
 
 execute_process(COMMAND genie-config --libs OUTPUT_VARIABLE GENIE_LIBS_DIR_WITH_LFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -26,7 +27,9 @@ art_make(LIB_LIBRARIES      SimulationDataProducts
                             ${ROOT_REFLEX}
                             ${ROOT_EGPYTHIA6}
                             ${ROOT_GUI}
-                            ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
                             ${ROOT_GEOM}
                             ${CLHEP}
                             ${Boost_SYSTEM_LIBRARY}
@@ -51,7 +54,9 @@ art_make(LIB_LIBRARIES      SimulationDataProducts
                             ${FHICLCPP}
                             ${CETLIB}
                             ${CETLIB_EXCEPT}
-                            ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
                             ${ROOT_EGPYTHIA6}
                             ${GENIE_LIBS_DIR_WITH_LFLAGS}
 			    EDepSim::edepsim_io

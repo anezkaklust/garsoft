@@ -11,30 +11,30 @@ cet_rootcint( ${PACKAGE} )
 art_make_library(SOURCE    ${src_files} ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE}Cint.cc
                  LIBRARIES EventDisplay_EVD_ColorDrawingOptions_service
 		 	                     EventDisplay_EVD_RawDrawingOptions_service
-		                       EventDisplay_EVD_RecoDrawingOptions_service
+		                             EventDisplay_EVD_RecoDrawingOptions_service
 			                     EventDisplay_EVD_SimulationDrawingOptions_service
  			                     SimulationDataProducts
  			                     RawDataProducts
-	                         DetectorInfo_DetectorPropertiesServiceStandardGAr_service
-                           Geometry_GeometryGAr_service
+	                                     DetectorInfo_DetectorPropertiesServiceStandardGAr_service
+                                             Geometry_GeometryGAr_service
 			                     ReconstructionDataProducts
-                           nusimdata_SimulationBase
-                           nuevdb_EventDisplayBase
+                                             nusimdata_SimulationBase
+                                             nuevdb_EventDisplayBase
 			                     nuevdb_EventDisplayBase_Colors_service
-                           ${ART_FRAMEWORK_CORE}
+                                             ${ART_FRAMEWORK_CORE}
 			                     ${ART_FRAMEWORK_PRINCIPAL}
-                           ${ART_FRAMEWORK_IO}
+                                             ${ART_FRAMEWORK_IO}
 			                     art_Persistency_Common
-                           canvas
+                                             canvas
 		 	                     art_Utilities
  			                     ${MF_MESSAGELOGGER}
-                           ${FHICLCPP}
+                                             ${FHICLCPP}
 			                     ${CETLIB}
-                           ${ROOT_EVE}
+                           ROOT::Eve
                            ${ROOT_EVE_LIB_LIST}
-                           ${ROOT_EG}
+                           ROOT::EG
                            ${ROOT_RGL}
-                           ${ROOT_X3d}
+                           ROOT::X3d
                 )
 
 simple_plugin (EVD module
@@ -70,7 +70,9 @@ simple_plugin (AnalysisDrawingOptions service
 			         ${MF_MESSAGELOGGER}
 	             ${FHICLCPP}
 			         ${CETLIB}
-               ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree
      )
 
 simple_plugin (ColorDrawingOptions service
@@ -88,7 +90,10 @@ simple_plugin (ColorDrawingOptions service
 		         	 ${MF_MESSAGELOGGER}
 	             ${FHICLCPP}
 			         ${CETLIB}
-               ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
+
      )
 
 simple_plugin (EvdLayoutOptions service
@@ -106,7 +111,9 @@ simple_plugin (EvdLayoutOptions service
         			 ${MF_MESSAGELOGGER}
 	             ${FHICLCPP}
 			         ${CETLIB}
-               ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
      )
 
 simple_plugin (RawDrawingOptions service
@@ -124,7 +131,9 @@ simple_plugin (RawDrawingOptions service
         			 ${MF_MESSAGELOGGER}
 	             ${FHICLCPP}
 			         ${CETLIB}
-               ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
      )
 
 simple_plugin (RecoDrawingOptions service
@@ -142,7 +151,9 @@ simple_plugin (RecoDrawingOptions service
 	         		 ${MF_MESSAGELOGGER}
                ${FHICLCPP}
 		         	 ${CETLIB}
-               ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
      )
 
 simple_plugin (SimulationDrawingOptions service
@@ -160,7 +171,9 @@ simple_plugin (SimulationDrawingOptions service
 	         		 ${MF_MESSAGELOGGER}
                ${FHICLCPP}
 		         	 ${CETLIB}
-               ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
      )
 
 

@@ -7,7 +7,9 @@ art_make(
 	LIB_LIBRARIES garana::GaranaProducts
 		      ReconstructionDataProducts
 		      nusimdata_SimulationBase
-		      ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
         MODULE_LIBRARIES Geometry
                        ReadoutSimulation
                        SimulationDataProducts
@@ -31,7 +33,9 @@ art_make(
                        ${MF_MESSAGELOGGER}
                        ${FHICLCPP}
                        ${CETLIB_EXCEPT}
-                       ROOT_BASIC_LIB_LIST
+                    ROOT::Core
+                    ROOT::Hist
+                    ROOT::Tree              
                        ${ROOT_EG}
                        garana::GaranaProducts # use when setting up GArAna from UPS (default behavior)
                        garsoft_StandardRecord
