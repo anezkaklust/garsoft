@@ -30,7 +30,6 @@ cet_make_exec(gntpc_dune
     log4cpp
     ${LIBXML2_LIBRARIES}
     gsl
-    gslcblas
     messagefacility::MF_MessageLogger
 )
 

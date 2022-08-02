@@ -23,7 +23,6 @@ cet_make( LIBRARIES
                        ${CLHEP}
                        ${Boost_SYSTEM_LIBRARY}
 		       gsl
-		       gslcblas
                        nug4_MagneticFieldServices_MagneticFieldServiceStandard_service
                        NO_DICTIONARY )
 
