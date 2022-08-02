@@ -24,7 +24,7 @@ art_make(BASENAME_ONLY
                     ROOT::Tree              
                        ${CLHEP}
                        ${Boost_SYSTEM_LIBRARY}
-		       $ENV{GSL_LIB}/libgsl.so
+		       gsl
       MODULE_LIBRARIES Geometry
                        GArRecoAlg
                        SimulationDataProducts
