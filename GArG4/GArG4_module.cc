@@ -124,7 +124,7 @@ namespace gar {
         * Configuration parameters
         * -------------------------
         *
-        * - <b>G4PhysListName</b> (string, default "garg4::PhysicsList"):
+        * - <b>G4PhysListName</b> (string, default "gar::garg4::PhysicsList"):
         *     whether to use the G4 overlap checker, which catches different issues than ROOT
         * - <b>CheckOverlaps</b> (bool, default false):
         *     whether to use the G4 overlap checker
@@ -211,7 +211,7 @@ namespace gar {
         , fEDepActionPSet        (pset.get<fhicl::ParameterSet>("EDepActionPSet")                         )
         , fAuxDetActionPSet      (pset.get<fhicl::ParameterSet>("AuxDetActionPSet")                       )
         , fDetRegionNames        (pset.get< std::vector< std::string > >("DetRegionName", {})             )
-        , fG4PhysListName        (pset.get< std::string       >("G4PhysListName",   "garg4::PhysicsList") )
+        , fG4PhysListName        (pset.get< std::string       >("G4PhysListName",   "gar::garg4::PhysicsList") )
         , fCheckOverlaps         (pset.get< bool              >("CheckOverlaps",    false)                )
         , fdumpParticleList      (pset.get< bool              >("DumpParticleList", false)                )
         , fSmartStacking         (pset.get< int               >("SmartStacking",    0)                    )

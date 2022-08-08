@@ -12,7 +12,7 @@ standard_geant:
  GArSimParsPSet:         @local::standard_g4simpars
  AuxDetActionPSet:       @local::standard_auxdetaction
  EDepActionPSet:         @local::standard_energydepositaction
- G4PhysListName:         "garg4::PhysicsList"
+ G4PhysListName:         "gar::garg4::PhysicsList"
  CheckOverlaps:          false
  DumpParticleList:       false
  SmartStacking:          0
@@ -29,7 +29,7 @@ standard_geant_dayone:
  GArSimParsPSet:         @local::standard_g4simpars
  AuxDetActionPSet:       @local::standard_auxdetaction
  EDepActionPSet:         @local::standard_energydepositaction
- G4PhysListName:         "garg4::PhysicsList"
+ G4PhysListName:         "gar::garg4::PhysicsList"
  CheckOverlaps:          false
  DumpParticleList:       false
  SmartStacking:          0
