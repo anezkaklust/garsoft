@@ -1,6 +1,6 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version 
-parent	garsoft	v02_17_00
+parent	garsoft	v02_17_01
 defaultqual	e20
 
 # These optional lines define the installed directories where
@@ -32,7 +32,7 @@ genie_xsec     	v3_00_04a
 genie_phyopt    v3_00_04
 gallery         v1_18_04
 dune_pardata    v01_79_01
-duneutil        v09_48_01d00    optional
+duneutil        v09_48_01d00
 pandora         v03_16_00f
 edepsim         v3_0_1c
 garana          v00_01_00 
