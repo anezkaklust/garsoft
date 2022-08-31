@@ -47,17 +47,24 @@ namespace gar {
     inline T sqr(T v) { return v * v; }
 
     //......................................................................
-    // Constructor.
+    // Constructor.  Class variables that can't come from gdml get initialized here
+    //               from Geometry.fcl
     GeometryCore::GeometryCore(fhicl::ParameterSet const& pset)
-      : fSurfaceY         (pset.get< double            >("SurfaceY"               ))
-      , fDetectorName     (pset.get< std::string       >("Name"                   ))
-      , fPositionWiggle   (pset.get< double            >("PositionEpsilon",  1.e-4))
-      , fPointInWarnings  (pset.get< bool              >("PointInWarnings",  false))
-      , fECALEndcapOutside  (pset.get< bool            >("ECALEndcapOutsidePV", true))
-    {
+      : fSurfaceY         (pset.get<double     >("SurfaceY" 			   ))
+      , fDetectorName     (pset.get<std::string>("Name" 				   ))
+      , fPositionWiggle   (pset.get<double     >("PositionEpsilon",   1.e-4))
+      , fPointInWarnings  (pset.get<bool	   >("PointInWarnings",   false))
+      , fECALEndcapOutside(pset.get<bool	   >("ECALEndcapOutsidePV",true))
+      , fIndsOfRefract    (pset.get<fhicl::ParameterSet>
+                                                ("IndsOfRefract",fhicl::ParameterSet()))
+   {
       std::transform(fDetectorName.begin(), fDetectorName.end(), fDetectorName.begin(), ::tolower);
 
       InitVariables();
+
+      fIofRECAL    = fIndsOfRefract.get("ECALindex",    1.59);
+      fIofRMuID    = fIndsOfRefract.get("MuIDindex",    1.59);
+      fIofRMinerva = fIndsOfRefract.get("Minervaindex", 1.59);
     } // GeometryCore::GeometryCore()
 
 

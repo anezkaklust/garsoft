@@ -516,7 +516,7 @@ namespace gar{
 
             // Cut on Time for this hit +/- ECAL time resolution given in BackTracker.fcl
             std::vector<CalIDE> ides;
-            ides = this->CellIDToCalIDEs(hit->CellID(),hit->Time().first);
+            ides = this->CellIDToCalIDEs(*hit);
             return ides;
         }
 
@@ -530,7 +530,7 @@ namespace gar{
 
             // Cut on Time for this hit +/- ECALtimeResolution given in BackTracker.fcl
             std::vector<CalIDE> ides;
-            ides = this->CellIDToCalIDEs(hit.CellID(),hit.Time().first);
+            ides = this->CellIDToCalIDEs(hit);
             return ides;
         }
 
@@ -555,7 +555,7 @@ namespace gar{
             for (auto hit : allhits) {
                 calhids.clear();
 
-                calhids = this->CellIDToCalIDEs(hit->CellID(),hit->Time().first);
+                calhids = this->CellIDToCalIDEs(*hit);
 
                 for (auto const& hid : calhids) {
                     if ( hid.trackID==tkID && hid.energyFrac>fMinCaloHitEnergyFrac ) {
@@ -570,20 +570,36 @@ namespace gar{
 
         //----------------------------------------------------------------------
         std::vector<CalIDE>
-        BackTrackerCore::CellIDToCalIDEs(raw::CellID_t const& cell,
-                                         float const time) const {
+        BackTrackerCore::CellIDToCalIDEs(gar::rec::CaloHit hit) const {
 
             // loop over the energy deposits in the channel and grab those in time window
 
-            std::vector<CalIDE> calIDEs;
+            raw::CellID_t hitCell = hit.CellID();
+            std::pair<float, float> hitTime = hit.Time();   // need time corrected for strip length
+            float time;
+            if (hitTime.second==0) {
+                time = hitTime.first;
+            } else {
+                std::array<double, 3> point = {hit.Position()[0], hit.Position()[1], hit.Position()[2]};
+                double stripLength = fGeo->getStripLength(point, hit.CellID()); // in cm
+                float c = (CLHEP::c_light * CLHEP::mm / CLHEP::ns) / CLHEP::cm; // in cm/ns
+                TVector3 whereBe(hit.Position()[0], hit.Position()[1], hit.Position()[2]);    // C++ & ROOT at their finest
+                if ( fGeo->PointInECALBarrel(whereBe) || fGeo->PointInECALEndcap(whereBe) ) {
+                    c /= fGeo->getIofRECAL();
+                } else {
+                    c /= fGeo->getIofRMuID();
+                }
+                time = (hitTime.first + hitTime.second) / 2. - (stripLength / (2 * c));
+            }
 
+            std::vector<CalIDE> calIDEs;
             std::vector<const sdp::CaloDeposit*>  cellEDeps;
             try {
-                cellEDeps = fCellIDToEDepCol.at(cell);
+                cellEDeps = fCellIDToEDepCol.at(hitCell);
             }
             catch (std::out_of_range &) {
                 MF_LOG_WARNING("BackTrackerCore::CellIDToCalIDEs")
-                    << "No sdp::EnergyDeposits for selected ECAL cell: " << cell
+                    << "No sdp::EnergyDeposits for selected ECAL cell: " << hitCell
                     << ". There is no way to backtrack the given calorimeter hit,"
                     << " returning an empty vector.";
                 return calIDEs;
@@ -598,6 +614,8 @@ namespace gar{
             double totalEallTracks = 0.0;
             for (auto const& edep : cellEDeps) {
                 if (edep->TrackID() == sdp::NoParticleId) continue;
+
+                std::cout << "Time slew " << time - edep->Time() << std::endl;
 
                 if ( start<=edep->Time() && edep->Time()<=stop) {
                     float energy = edep->Energy();
@@ -1079,7 +1097,7 @@ namespace gar{
                     dr = (position - mcp->Position(startTrajIndex)).Vect().Mag();
                     dt = abs((position - mcp->Position(startTrajIndex)).T());
                 } else {
-		            break;
+                    break;
                 }
 
             } // for trajectory points

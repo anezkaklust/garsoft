@@ -213,8 +213,8 @@ namespace gar {
         //----------------------------------------------------------------------------
         void SiPMHitFinder::CollectDigiHits(const art::Event &evt, const std::string &label, const std::string &instance, std::vector< art::Ptr<gar::raw::CaloRawDigit> > &hitVector)
         {
-	    art::InputTag itag(label,instance);
-	    auto theHits = evt.getHandle< std::vector<gar::raw::CaloRawDigit> >(itag);
+        art::InputTag itag(label,instance);
+        auto theHits = evt.getHandle< std::vector<gar::raw::CaloRawDigit> >(itag);
             if (!theHits) return;
 
             for (unsigned int i = 0; i < theHits->size(); ++i)
@@ -264,6 +264,12 @@ namespace gar {
             // pos along strip is
             // x = c * (t1 - t2) / 2 (0 is the center of the strip)
             float c = (CLHEP::c_light * CLHEP::mm / CLHEP::ns) / CLHEP::cm; // in cm/ns
+            TVector3 whereBe(x,y,z);
+            if ( fGeo->PointInECALBarrel(whereBe) || fGeo->PointInECALEndcap(whereBe) ) {
+                c /= fGeo->getIofRECAL();
+            } else {
+                c /= fGeo->getIofRMuID();
+            }
             float xlocal = c * ( hitTime.first - hitTime.second ) / 2.;
 
             std::array<double, 3> local_back = fGeo->ReconstructStripHitPosition(point, pointLocal, xlocal, cID);
@@ -280,6 +286,12 @@ namespace gar {
             double stripLength = fGeo->getStripLength(point, cID); // in cm
 
             float c = (CLHEP::c_light * CLHEP::mm / CLHEP::ns) / CLHEP::cm; // in cm/ns
+            TVector3 whereBe(x,y,z);
+            if ( fGeo->PointInECALBarrel(whereBe) || fGeo->PointInECALEndcap(whereBe) ) {
+                c /= fGeo->getIofRECAL();
+            } else {
+                c /= fGeo->getIofRMuID();
+            }
             float time = (hitTime.first + hitTime.second) / 2. - (stripLength / (2 * c));
 
             return time;

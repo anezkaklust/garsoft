@@ -456,12 +456,14 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            std::pair<float, float> SegmentationMultiGridStripXYAlg::CalculateLightPropagation(const gar::geo::GeometryCore& , const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
+            std::pair<float, float> SegmentationMultiGridStripXYAlg::CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
             {
                 //Propagate the light to the SiPM on the side
                 //convert c to mm/ns
                 // c   = 29.9792458 cm/ns
                 float c = (CLHEP::c_light * CLHEP::mm / CLHEP::ns) / CLHEP::cm; // in cm/ns
+                c /= geo.getIofRECAL();  // Better use another algorithm for the MuID!
+
                 //time1 is left SiPM
                 float time1 = 0.;
                 //time2 is right SiPM

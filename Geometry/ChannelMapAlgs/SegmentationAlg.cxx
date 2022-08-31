@@ -15,59 +15,59 @@ namespace gar {
             //----------------------------------------------------------------------------
             SegmentationAlg::SegmentationAlg(fhicl::ParameterSet const& pset) :
                 _name("Segmentation"), _type("Segmentation"), _encoding(pset.get<std::string>("cellEncoding")), _decoder(new BitFieldCoder(pset.get<std::string>("cellEncoding"))) {
+            }
+
+            //----------------------------------------------------------------------------
+            SegmentationAlg::SegmentationAlg(const BitFieldCoder* newDecoder, fhicl::ParameterSet const& pset) :
+                _name("Segmentation"), _type("Segmentation"), _encoding(pset.get<std::string>("cellEncoding")), _decoder(newDecoder) {
+            }
+
+            //----------------------------------------------------------------------------
+            SegmentationAlg::~SegmentationAlg() {
+                if (_decoder != 0) {
+                    delete _decoder;
                 }
+            }
 
-                //----------------------------------------------------------------------------
-                SegmentationAlg::SegmentationAlg(const BitFieldCoder* newDecoder, fhicl::ParameterSet const& pset) :
-                    _name("Segmentation"), _type("Segmentation"), _encoding(pset.get<std::string>("cellEncoding")), _decoder(newDecoder) {
-                    }
+            //----------------------------------------------------------------------------
+            void SegmentationAlg::setDecoder(const BitFieldCoder* newDecoder) {
+                if ( _decoder == newDecoder )
+                return; //self assignment
+                else {
+                    delete _decoder;
+                }
+                _decoder = newDecoder;
+            }
 
-                    //----------------------------------------------------------------------------
-                    SegmentationAlg::~SegmentationAlg() {
-                        if (_decoder != 0) {
-                            delete _decoder;
-                        }
-                    }
+            //----------------------------------------------------------------------------
+            double SegmentationAlg::binToPosition(gar::raw::CellID_t bin, double cellSize, double offset) {
+                return bin * cellSize + offset;
+            }
 
-                    //----------------------------------------------------------------------------
-                    void SegmentationAlg::setDecoder(const BitFieldCoder* newDecoder) {
-                        if ( _decoder == newDecoder )
-                        return; //self assignment
-                        else {
-                            delete _decoder;
-                        }
-                        _decoder = newDecoder;
-                    }
+            //----------------------------------------------------------------------------
+            int SegmentationAlg::positionToBin(double position, double cellSize, double offset) {
+                return int( floor((position + 0.5 * cellSize - offset) / cellSize) );
+            }
 
-                    //----------------------------------------------------------------------------
-                    double SegmentationAlg::binToPosition(gar::raw::CellID_t bin, double cellSize, double offset) {
-                        return bin * cellSize + offset;
-                    }
+            //----------------------------------------------------------------------------
+            double SegmentationAlg::getStripLength(const gar::geo::GeometryCore& , const std::array<double, 3> & , const gar::raw::CellID_t& ) const {
+                return 0.;
+            }
 
-                    //----------------------------------------------------------------------------
-                    int SegmentationAlg::positionToBin(double position, double cellSize, double offset) {
-                        return int( floor((position + 0.5 * cellSize - offset) / cellSize) );
-                    }
+            //----------------------------------------------------------------------------
+            std::pair<TVector3, TVector3> SegmentationAlg::getStripEnds(const gar::geo::GeometryCore& , const std::array<double, 3> & , const gar::raw::CellID_t& ) const {
+                return std::make_pair( TVector3(0, 0, 0), TVector3(0, 0, 0) );
+            }
 
-                    //----------------------------------------------------------------------------
-                    double SegmentationAlg::getStripLength(const gar::geo::GeometryCore& , const std::array<double, 3> & , const gar::raw::CellID_t& ) const {
-                        return 0.;
-                    }
+            //----------------------------------------------------------------------------
+            std::pair<float, float> SegmentationAlg::CalculateLightPropagation(const gar::geo::GeometryCore& , const std::array<double, 3> & , const gar::raw::CellID_t& ) const {
+                return std::make_pair( 0., 0. );
+            }
 
-                    //----------------------------------------------------------------------------
-                    std::pair<TVector3, TVector3> SegmentationAlg::getStripEnds(const gar::geo::GeometryCore& , const std::array<double, 3> & , const gar::raw::CellID_t& ) const {
-                        return std::make_pair( TVector3(0, 0, 0), TVector3(0, 0, 0) );
-                    }
-
-                    //----------------------------------------------------------------------------
-                    std::pair<float, float> SegmentationAlg::CalculateLightPropagation(const gar::geo::GeometryCore& , const std::array<double, 3> & , const gar::raw::CellID_t& ) const {
-                        return std::make_pair( 0., 0. );
-                    }
-
-                    //----------------------------------------------------------------------------
-                    std::array<double, 3> SegmentationAlg::ReconstructStripHitPosition(const gar::geo::GeometryCore& , const std::array<double, 3> & , const float & , const gar::raw::CellID_t& ) const {
-                        return std::array<double, 3>{ {0., 0., 0.} };
-                    }
-                }//seg
-            }//geo
-        } //gar
+            //----------------------------------------------------------------------------
+            std::array<double, 3> SegmentationAlg::ReconstructStripHitPosition(const gar::geo::GeometryCore& , const std::array<double, 3> & , const float & , const gar::raw::CellID_t& ) const {
+                return std::array<double, 3>{ {0., 0., 0.} };
+            }
+        }//seg
+    }//geo
+} //gar

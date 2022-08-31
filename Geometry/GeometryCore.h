@@ -1054,6 +1054,12 @@ namespace gar {
 
         double getStripLength(const std::array<double, 3>& point, const gar::raw::CellID_t &cID) const;
 
+        double getIofRECAL() const { return fIofRECAL; }
+
+        double getIofRMuID() const { return fIofRMuID; }
+
+        double getIofRMinerva() const { return fIofRMinerva; }
+
         std::pair<TVector3, TVector3> GetStripEnds(const std::array<double, 3>& point, const gar::raw::CellID_t &cID) const;
 
         std::pair<float, float> CalculateLightPropagation(const std::array<double, 3>& point, const std::array<double, 3> &local, const gar::raw::CellID_t &cID) const;
@@ -1242,6 +1248,13 @@ namespace gar {
         bool fHasGasTPCDetector;
         bool fHasECALDetector;
         bool fHasTrackerScDetector;
+
+        // Indicies of refraction in scintillators.  Placed here because gdml won't have it.
+        // Costructed as a separate parameter set in Geometry.fcl
+        fhicl::ParameterSet fIndsOfRefract;
+        float               fIofRECAL;
+        float               fIofRMuID;
+        float               fIofRMinerva;
 
         //Related to the ECAL
         float fECALRinner;              ///< Minimum radius of the ECAL inner barrel

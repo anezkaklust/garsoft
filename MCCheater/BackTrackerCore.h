@@ -272,12 +272,12 @@ namespace gar{
                              double const start, double const stop) const;
 
             std::vector<CalIDE>
-            CellIDToCalIDEs(raw::CellID_t const& cellID, float const time) const;
+            CellIDToCalIDEs(gar::rec::CaloHit hit) const;
 
             std::vector<simb::MCParticle*>
             MCPartsInCluster(rec::Cluster* const c);
 
-  	    TLorentzVector EnergyDepositToMomentum(const int& trackID, const TLorentzVector& position, size_t& startTrajIndex) const;
+        TLorentzVector EnergyDepositToMomentum(const int& trackID, const TLorentzVector& position, size_t& startTrajIndex) const;
 
 
         protected:

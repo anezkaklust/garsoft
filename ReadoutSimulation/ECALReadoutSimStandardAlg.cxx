@@ -127,7 +127,7 @@ namespace gar {
             if(fTimeSmearing)
                 new_time = this->DoTimeSmearing(time);
 
-            //Calculate the position of the strip
+            //Calculate the position of the tile
             std::pair< std::array<double, 3>, bool > calc_pos = this->CalculatePosition(x, y, z, cID);
             //Check if need to drop the hit
             if ( calc_pos.second ) {
