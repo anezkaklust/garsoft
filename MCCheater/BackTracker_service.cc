@@ -267,7 +267,7 @@ namespace gar {
       // Just to keep the code comprehensible, first map Tracks to TPCClusters, then
       // TPCClusters to Hits, then build the combined map.
       //std::unordered_map< rec::IDNumber, std::vector<const rec::TPCCluster*> > lTrackIDToTPCClusters;
-      fTrackIDToClusters.clear();
+      fTrackIDToTPCClusters.clear();
       auto recoTrackCol = evt.getHandle<std::vector<rec::Track>>(fTrackLabel);
       if (!recoTrackCol) {
         ++fSTFU;
@@ -297,14 +297,12 @@ namespace gar {
             tpclusThisTrack.clear();
             fmTPCClusts.get(iTrack, tpclusThisTrack);    // uses vector::insert
             if (tpclusThisTrack.size() < 1) continue;
-            //lTrackIDToTPCClusters[ (*recoTrackCol)[iTrack].getIDNumber() ] = tpclusThisTrack;
-            fTrackIDToClusters[ (*recoTrackCol)[iTrack].getIDNumber() ] = tpclusThisTrack;
+            fTrackIDToTPCClusters[ (*recoTrackCol)[iTrack].getIDNumber() ] = tpclusThisTrack;
           }
         }
       }
 
       // Construct map of TPCCluster to Hits
-      //std::unordered_map< rec::IDNumber,std::vector<art::Ptr<rec::Hit>> > lTPClusIDsToHits;
       fTPCClusterIDToHits.clear();
       auto tpclusCol = evt.getHandle<std::vector<rec::TPCCluster>>(fTPCClusterLabel);
       if (!tpclusCol) {
@@ -334,7 +332,6 @@ namespace gar {
             hitsThisTPCCluster.clear();
             fmHits.get(iTPClus, hitsThisTPCCluster);    // uses vector::insert
             if (hitsThisTPCCluster.size() < 1) continue;
-            //lTPClusIDsToHits[(*tpclusCol)[iTPClus].getIDNumber()] = hitsThisTPCCluster;
             fTPCClusterIDToHits[(*tpclusCol)[iTPClus].getIDNumber()] = hitsThisTPCCluster;
           }
         }
@@ -342,13 +339,10 @@ namespace gar {
 
       // Now compound the lists to make fTrackIDToHits
       fTrackIDToHits.clear();
-      //if ( !lTrackIDToTPCClusters.empty() && !lTPClusIDsToHits.empty()) {
-      if ( !fTrackIDToClusters.empty() && !fTPCClusterIDToHits.empty()) {
+      if ( !fTrackIDToTPCClusters.empty() && !fTPCClusterIDToHits.empty()) {
         for (auto aTrack : *recoTrackCol) {
           std::vector<const rec::TPCCluster*> tpclusThisTrack =
-          //std::vector<art::Ptr<rec::TPCCluster>> tpclusThisTrack =
-            //lTrackIDToTPCClusters[ aTrack.getIDNumber() ];
-            fTrackIDToClusters[ aTrack.getIDNumber() ];
+            fTrackIDToTPCClusters[ aTrack.getIDNumber() ];
           std::vector<art::Ptr<rec::Hit>> hitsThisTrack;
           for (const rec::TPCCluster* aTPClus : tpclusThisTrack) {
           //for (const art::Ptr<rec::TPCCluster> aTPClus : tpclusThisTrack) {

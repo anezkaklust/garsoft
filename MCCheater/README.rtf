@@ -1,8 +1,8 @@
-{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf600
-{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fmodern\fcharset0 Courier;\f2\froman\fcharset0 Palatino-Italic;
+{\rtf1\ansi\ansicpg1252\cocoartf2639
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fmodern\fcharset0 Courier;\f2\froman\fcharset0 Palatino-Italic;
 \f3\fswiss\fcharset0 Helvetica-Oblique;}
-{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
-{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red255\green255\blue255;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\csgray\c100000;}
 \margl1440\margr1440\vieww22560\viewh17620\viewkind0
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
 
@@ -139,8 +139,7 @@ sim::ParticleList* GetParticleList() const;
 
 \f0 \
 
-\f1 simb::MCParticle* const\
-	TrackIDToParticle(int const& id) const;						
+\f1 simb::MCParticle* TrackIDToParticle(int const& id) const;			
 \f0 From a GEANT TrackID to an 
 \f1 MCParticle
 \f0 .  The reverse process is just \
@@ -152,8 +151,7 @@ sim::ParticleList* GetParticleList() const;
 \f0  on error condition.\
 \
 
-\f1 simb::MCParticle* const\
-	FindMother(simb::MCParticle* const p) const;					
+\f1 simb::MCParticle* FindMother(simb::MCParticle* const p) const;		
 \f0 From an 
 \f1 MCParticle
 \f0  to its mother particle.  The 
@@ -168,8 +166,7 @@ sim::ParticleList* GetParticleList() const;
 
 \f0 \
 
-\f1 simb::MCParticle* const\
-	FindEve(simb::MCParticle* const p) const;					
+\f1 simb::MCParticle* FindEve(simb::MCParticle* const p) const;			
 \f0 From an 
 \f1 MCParticle
 \f0  to its Eve 
@@ -184,15 +181,15 @@ sim::ParticleList* GetParticleList() const;
 \f0 .\
 \
 
-\f1 simb::MCParticle* const										
+\f1 simb::MCParticle* FindTPCEve(simb::MCParticle* const p);			
 \f0 From an 
 \f1 MCParticle
 \f0  to the progenitor 
 \f1 MCParticle
 \f0  which exited the TPC or is a primary.
 \f1 \
-	FindTPCEve(simb::MCParticle* const p);
-\f0 						Uses the 
+	
+\f0 													Uses the 
 \f1 GeometryCore::PointInMPD
 \f0  to find if one end of the particle is in the TPC and \
 														the other is not.  Will return 
@@ -201,22 +198,24 @@ sim::ParticleList* GetParticleList() const;
 \f1 TrackIDToParticle
 \f0 .\
 
-\f1 simb::MCParticle* const										
+\f1 simb::MCParticle* FindTPCEve(int const trackID);
+\f0 	
+\f1 				
 \f0 Signature using 
 \f1 trackID
 \f0  mostly for call in 
 \f1 CellIDToCalIDEs
 \f0  but may as well make it
 \f1 \
-	FindTPCEve(int const trackID);
-\f0 							public.  This is the method that prevents 
+	
+\f0 													public.  This is the method that prevents 
 \f1 BackTrackerCore
 \f0  from being 
 \f1 const
 \f0 .\
 \
 
-\f1 bool IsForebearOf(simb::MCParticle* const p, simb::MCParticle* const c) const;
+\f1 bool IsForebearOf(simb::MCParticle* const forebear, simb::MCParticle* const afterbear) const;
 \f0 \
 														Is 
 \f1 MCParticle c
@@ -261,6 +260,48 @@ sim::ParticleList* GetParticleList() const;
 \f3\i  between them 
 \f0\i0 -------------------------------
 \f1 \
+
+\f3\i \
+\
+\
+First we\'92ll need to define 
+\f1\i0 HitsIDE:\
+struct HitIDE \{\
+      int   trackID;               ///< Geant4 supplied trackID\
+ \cb3      float energyFrac;            ///< fraction of CaloRawDigit energy from the particle with this trackID\
+      TLorentzVector position;     ///< deposited energy-weighted mean true 4-position [cm, ns]\
+      TLorentzVector momentum;     ///< deposited energy-weighted mean true 4-momentum [GeV/c, GeV]\
+\
+\cb1       HitIDE() \{\}\
+      HitIDE(int id, float ef, float e, const TLorentzVector& pos, const TLorentzVector& mom,)\
+          : trackID(id), energyFrac(ef), energyTot(e), position(pos), momentum(mom) \{\}\
+      bool operator == (HitIDE const& hitr) const \{\'85\}\
+      bool operator <  (HitIDE const& hitr) const \{\'85\}\
+\};\
+
+\f0 														The 
+\f1 position
+\f0  and 
+\f1 momentum
+\f0  quantities in HitIDE hold the energy deposit (i.e. the\
+														ionization) weighted position and momentum of the track.  This is filled in \
+														
+\f1 ChannelToHitIDEs
+\f0  and is needed by 
+\f1 GArAna
+\f0 .\
+														If 
+\f1 SplitEDeps
+\f0  is 
+\f1 true
+\f0  (which is the default) in 
+\f1 BackTracker.fcl
+\f0 , Pad Response\
+														Functions should be used to to subdivide the energy deposit into different channels.
+\f1 \
+\
+\
+\
 std::vector<HitIDE>\
 	HitToHitIDEs(art::Ptr<rec::Hit> const& hit) const;
 \f0 			This is the 
@@ -389,16 +430,16 @@ std::pair<double,double>
 \
 \
 \
-First we\'92ll need to define an analog to 
-\f1\i0 HitsIDE:\
+First we\'92ll need to define 
+\f1\i0 CalIDE:\
 struct CalIDE \{\
-      int   trackID;      ///< Geant4 supplied trackID\
-      float energyFrac;   ///< fraction of CaloRawDigit energy from the particle with this trackID\
-      CalIDE()\
-      \{\}\
-      CalIDE(int id, float ef)\
-      : trackID(id), energyFrac(ef)\
-      \{\}\
+      int   trackID;               ///< Geant4 supplied trackID\
+ \cb3      float energyFrac;            ///< fraction of CaloRawDigit energy from the particle with this trackID\
+      float energyTot              ///< total energy for this trackID.  In units of probably-GeV.\
+\
+\cb1       CalIDE() \{\}\
+      CalIDE(int id, float ef, float e)\
+          : trackID(id), energyFrac(ef) \{\}\
 \};\
 \
 \
@@ -454,7 +495,7 @@ std::vector<CalIDE>
 \f1 std::vector<CalIDE>&										
 \f0 The above 3 methods are wrappers to this private one.  Works by looping through all the 
 \f1 \
-	CellIDToCalIDEs(raw::CellID_t const& cellID, float const time);	CaloDeposit
+	CellIDToCalIDEs(gar::rec::CaloHit);						CaloDeposit
 \f0 s for the CellID as given by 
 \f1 fCellIDToCaloDepCol
 \f0 .  Uses 
@@ -514,6 +555,44 @@ std::vector<art::Ptr<rec::Hit>> const
 \f1 \
 	TrackToHits(rec::Track* const t);
 \f0 \
+\
+
+\f1 std::vector<art::Ptr<rec::Hit>> const
+\f0 							A wrapper to the 
+\f1 unordered_map
+\f0  which is private in 
+\f1 BackTrackerCore
+\f0  and filled by \
+	
+\f1 TPCClusterToHits(rec::TPCCluster* const clust);
+\f0 				
+\f1 BackTracker_service.cc
+\f0  to get a collection of 
+\f1 rec::Hit
+\f0  for this 
+\f1 TPCCluster
+\f0 .\
+
+\f1 \
+std::vector<art::Ptr<rec::TPCCluster>> const
+\f0 						A wrapper to the 
+\f1 unordered_map
+\f0  which is private in 
+\f1 BackTrackerCore
+\f0  and filled by\
+	
+\f1 TrackToTPCCluster(rec::Track* const t);
+\f0 						
+\f1 BackTracker_service.cc
+\f0  to get a collection of 
+\f1 rec::Hit
+\f0  for this 
+\f1 Track
+\f0 .\
+\
+
+\f1 double TrackToTotalEnergy(rec::Track* const t)
+\f0 					Maybe not the best name - it actually gives the total ionization from HitIDEs.\
 \
 
 \f1 std::vector<std::pair<simb::MCParticle*,float>
@@ -586,21 +665,21 @@ std::vector<art::Ptr<rec::CaloHit>> const
 
 \f1 std::vector<std::pair<simb::MCParticle*,float>
 \f0 >					Uses 
-\f1 ClusterToHits
+\f1 ClusterToMCParticles
 \f0  and then 
 \f1 CaloHitToCalIDEs
-\f0  to get energy fractions for each  \
+\f0  to get energy fractions\
 
 \f1 	ClusterToMCParticles(rec::Cluster* const c);
-\f0 					
+\f0 					for each 
 \f1 MCParticle
-\f0  that might match the cluster; and returns that list of candidate 
-\f1 MCParticles
-\f0 \
-														sorted by their contribution.    Gets the 
-\f1 MCParticle
-\f0  entering the calorimeter using\
+\f0  that might match the cluster; and returns that list of candidate\
 														
+\f1 MCParticles
+\f0  sorted by their contribution.    Gets the 
+\f1 MCParticle
+\f0  entering the\
+														calorimeter using 
 \f1 FoundTPCEve
 \f0 .\
 
@@ -621,7 +700,7 @@ bool ClusterCreatedMCParticle(simb::MCParticle* const p,
 \f1 \
                               rec::Cluster* const c);
 \f0 				
-\f1 IsDescendedFrom
+\f1 IsForebearOf
 \f0  to see if 
 \f1 MCParticle p
 \f0  is descended from any of those 
@@ -644,7 +723,7 @@ bool MCParticleCreatedCluster(simb::MCParticle* const p,
 \f1 \
                               rec::Cluster* const c);
 \f0 				
-\f1 IsDescendedFrom
+\f1 IsForebearOf
 \f0  to see if any of those 
 \f1 MCParticle
 \f0 s are descended from 

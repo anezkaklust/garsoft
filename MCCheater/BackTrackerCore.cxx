@@ -570,7 +570,7 @@ namespace gar{
 
         //----------------------------------------------------------------------
         std::vector<CalIDE>
-        BackTrackerCore::CellIDToCalIDEs(gar::rec::CaloHit hit) const {
+        BackTrackerCore::CellIDToCalIDEs(rec::CaloHit hit) const {
 
             // loop over the energy deposits in the channel and grab those in time window
 
@@ -614,8 +614,6 @@ namespace gar{
             double totalEallTracks = 0.0;
             for (auto const& edep : cellEDeps) {
                 if (edep->TrackID() == sdp::NoParticleId) continue;
-
-                std::cout << "Time slew " << time - edep->Time() << std::endl;
 
                 if ( start<=edep->Time() && edep->Time()<=stop) {
                     float energy = edep->Energy();
@@ -759,14 +757,16 @@ namespace gar{
         std::vector<art::Ptr<rec::Hit>> const
         BackTrackerCore::TrackToHits(rec::Track* const t) {
 
-            //std::cout << "BT:TrackToHits called, read map with " << fTrackIDToHits.size() << " entries" << std::endl;
+            MF_LOG_DEBUG("BackTrackerCore::TrackToHits") << "BT:TrackToHits called, read map with " << 
+                fTrackIDToHits.size() << " entries" << std::endl;
 
             // Evidently, use of std::unordered_map keeps this method from being const
             std::vector<art::Ptr<gar::rec::Hit>> retval;
             if ( !fTrackIDToHits.empty() ) {
                 retval = fTrackIDToHits[ t->getIDNumber() ];
             }
-            // useful for debugging, but reduces performance 
+
+            // DEBUG. Commented because calculation is tim consuming
             /*size_t nduplicate = 0;
             for(size_t i=0; i<retval.size(); i++) {
               for(size_t j=i+1; j<retval.size(); j++) {
@@ -774,6 +774,7 @@ namespace gar{
               }
             }
             if(nduplicate!=0) std::cout << nduplicate << " duplicate hits matched to track" << std::endl;*/
+
             return retval;
         }
         //-----------------------------------------------------------------------
@@ -791,13 +792,13 @@ namespace gar{
         //-----------------------------------------------------------------------
         //std::vector<art::Ptr<rec::TPCCluster>> const 
         std::vector<const rec::TPCCluster*> const
-        BackTrackerCore::TrackToClusters(rec::Track* const t) {
+        BackTrackerCore::TrackToTPCClusters(rec::Track* const t) {
 
             // Evidently, use of std::unordered_map keeps this method from being const
             //std::vector<art::Ptr<gar::rec::TPCCluster>> retval;
             std::vector<const gar::rec::TPCCluster*> retval;
-            if ( !fTrackIDToClusters.empty() ) {
-                retval = fTrackIDToClusters[ t->getIDNumber() ];
+            if ( !fTrackIDToTPCClusters.empty() ) {
+                retval = fTrackIDToTPCClusters[ t->getIDNumber() ];
             }
             return retval;     
         }

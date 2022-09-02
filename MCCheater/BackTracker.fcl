@@ -22,7 +22,8 @@ standard_backtracker:
  ClusterECALInstance:      "ECAL"        # instance name for the the ECAL clusters (to distinguish from MuID clusters)
  ClusterFracMCP:            0.8          # Fraction of ECAL cluster's ionization to be tagged as from given MCParticle
 
- SplitEDeps:                true         # use weights from the PRFs to break true energy deposits into channel specific contributions
+ SplitEDeps:                true         # use weights from the Pad Response Functions to break true energy deposits
+                                         # in the TPC into channel specific contributions
 }
 
 END_PROLOG
