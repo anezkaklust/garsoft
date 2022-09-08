@@ -1,18 +1,17 @@
 BEGIN_PROLOG
 
+# Local version of the file included by Ana/anatestjob.fcl
+
 standard_anatest:
 {
- module_type:               anatest
+ module_type:       anatest
 
- GEANTLabel:               "geant"
- HitLabel:                 "hit"
- TPCClusterLabel:          "tpccluster"
- TrackLabel:               "track"
- VertexLabel:              "vertex"
- RawCaloHitLabel:          "daqecal"
- CaloHitLabel:             "calohit"
- ClusterLabel:             "calocluster"
- ECALAssnLabel:            "trkecalassn"
+ PickECALorMuID:    1
+ PickSystem:        1
+ PickModule:        1
+ PickStave:         1
+ PickLayer:         1
+ PickSlice:         2
 }
 
 END_PROLOG

@@ -362,13 +362,8 @@ namespace gar {
             //----------------------------------------------------------------------------
             bool SegmentationMultiGridStripXYAlg::isBarrel(const gar::raw::CellID_t& cID) const
             {
-                bool isBarrel = true;
-
-                int det_id = _decoder->get(cID, "system");
-                int module = _decoder->get(cID, "module");
-                if( det_id == 2 && (module == 0 || module == 6) ) isBarrel = false;
-
-                return isBarrel;
+                if( _decoder->get(cID, "system") == 2 ) return false;
+                return true;
             }
 
             //----------------------------------------------------------------------------

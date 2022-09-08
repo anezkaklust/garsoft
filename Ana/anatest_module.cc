@@ -5,7 +5,7 @@
 //
 // Generated at Tue Mar 3 11:11:11 2020 by Leo Bellantoni
 //
-// a plugin for testing reco output - derived from anatree_module.cc
+// a plugin for testing whatever needs be tested today.
 //
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -25,25 +25,18 @@
 #include "canvas/Persistency/Common/FindMany.h"
 #include "canvas/Persistency/Common/FindManyP.h"
 
-#include "nusimdata/SimulationBase/GTruth.h"
-#include "nusimdata/SimulationBase/MCTruth.h"
-#include "nusimdata/SimulationBase/MCParticle.h"
-#include "MCCheater/BackTracker.h"
-#include "SimulationDataProducts/EnergyDeposit.h"
-#include "SimulationDataProducts/SimChannel.h"
-#include "SimulationDataProducts/CaloDeposit.h"
-#include "ReconstructionDataProducts/TPCCluster.h"
-#include "ReconstructionDataProducts/Hit.h"
-#include "ReconstructionDataProducts/Track.h"
-#include "ReconstructionDataProducts/TrackIoniz.h"
-#include "ReconstructionDataProducts/Vertex.h"
-#include "ReconstructionDataProducts/CaloHit.h"
-#include "ReconstructionDataProducts/Cluster.h"
-#include "RawDataProducts/CaloRawDigit.h"
+
+
+#include "CoreUtils/ServiceUtil.h"
+#include "Geometry/GeometryGAr.h"
+#include "Geometry/GeometryCore.h"
+#include "Geometry/BitFieldCoder.h"
+
+
 
 #include "TTree.h"
-#include "TDatabasePDG.h"
-#include "TParticlePDG.h"
+
+
 
 #include <string>
 #include <vector>
@@ -77,36 +70,43 @@ namespace gar {
 
     private:
 
-        void ClearVectors();
-        void FillVectors(art::Event const & e);
-
         // Position of TPC from geometry service; 1 S Boston Ave.
         double ItsInTulsa[3];
 
-        // Input data labels
-        std::vector<std::string> fGeneratorLabels;
-        std::string fGeantLabel;
-        std::string fHitLabel;
-        std::string fTPCClusterLabel;
-        std::string fTrackLabel;
-        std::string fVertexLabel;
-        std::string fRawCaloHitLabel;
-        std::string fCaloHitLabel;
-        std::string fClusterLabel;
-        std::string fECALAssnLabel;
+        //Geometry
+        const geo::GeometryCore* fGeo; ///< pointer to the geometry
+/*        std::string fECALEncoding;
+        std::string fMuIDEncoding;
+         geo::BitFieldCoder *fFieldDecoder_ECAL;
+         geo::BitFieldCoder *fFieldDecoder_MuID;*/
 
-        // the analysis output tree
+
+
+        // Output tree
         TTree *fTree;
 
         // global event info
-        Int_t fEvent;        ///< number of the event being processed
-        Int_t fRun;          ///< number of the run being processed
-        Int_t fSubRun;       ///< number of the sub-run being processed
+        Int_t fEvent;
+        Int_t fRun;
+        Int_t fSubRun;
 
-        // Some random fields for now
-        std::vector<Int_t>              fNeutrinoType;
-        std::vector<Int_t>              fInteractionType;
-        std::vector<Float_t>            fQ2;
+
+
+        // Decipher the calorimeter geometry
+        // Positions in this node
+        Float_t fX;
+        Float_t fY;
+        Float_t fZ;
+
+        unsigned int fECALorMuID, fSystem, fModule, fStave, fLayer, fSlice;
+
+        unsigned int getECALorMuIDNumber(std::string volname) const;
+        unsigned int getSystemNumber    (std::string volname) const;
+        unsigned int getModuleNumber    (std::string volname) const;
+        unsigned int getStaveNumber     (std::string volname) const;
+        unsigned int getLayerNumber     (std::string volname) const;
+        unsigned int getSliceNumber     (std::string volname) const;
+
     };
 }
 
@@ -118,46 +118,30 @@ namespace gar {
 // constructor
 gar::anatest::anatest(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
 
-    bool usegenlabels =
-        p.get_if_present<std::vector<std::string> >("GeneratorLabels",fGeneratorLabels);
-    if (!usegenlabels) fGeneratorLabels.clear();
+    fGeo     = providerFrom<geo::GeometryGAr>();
 
-    fGeantLabel       = p.get<std::string>("GEANTLabel","geant");
-    fHitLabel         = p.get<std::string>("HitLabel","hit");
-    fTPCClusterLabel  = p.get<std::string>("TPCClusterLabel","tpccluster");
-    fTrackLabel       = p.get<std::string>("TrackLabel","track");
-    fVertexLabel      = p.get<std::string>("VertexLabel","vertex");
-    fRawCaloHitLabel  = p.get<std::string>("RawCaloHitLabel","daqecal");
-    fCaloHitLabel     = p.get<std::string>("CaloHitLabel","calohit");
-    fClusterLabel     = p.get<std::string>("ClusterLabel","calocluster");
-    fECALAssnLabel    = p.get<std::string>("ECALAssnLabel","trkecalassn");
 
-    fTree = nullptr;
+/*    fECALEncoding = fGeo->GetECALCellIDEncoding();
+      fFieldDecoder_ECAL = new gar::geo::BitFieldCoder( fECALEncoding );
 
-    if (usegenlabels) {
-        for (size_t i=0; i<fGeneratorLabels.size(); ++i) {
-            consumes<std::vector<simb::MCTruth> >(fGeneratorLabels.at(i));
-        }
-    } else {
-        consumesMany<std::vector<simb::MCTruth> >();
-    }
+    if (fGeo->HasMuonDetector()) {
+        fMuIDEncoding = fGeo->GetMuIDCellIDEncoding();
+        fFieldDecoder_MuID = new gar::geo::BitFieldCoder( fMuIDEncoding );
+    }*/
 
 
 
-    consumes<art::Assns<simb::MCTruth, simb::MCParticle> >(fGeantLabel);
 
-    consumes<std::vector<rec::Hit> >(fHitLabel);
-    consumes<std::vector<rec::TPCCluster> >(fTPCClusterLabel);
-    consumes<std::vector<rec::Track> >(fTrackLabel);
-    consumes<art::Assns<rec::Track, rec::TPCCluster> >(fTPCClusterLabel);
-    consumes<std::vector<rec::Vertex> >(fVertexLabel);
-    consumes<art::Assns<rec::Track, rec::Vertex> >(fVertexLabel);
+    fECALorMuID = p.get<unsigned int>("PickECALorMuID");
+    fSystem     = p.get<unsigned int>("PickSystem");
+    fModule     = p.get<unsigned int>("PickModule");
+    fStave      = p.get<unsigned int>("PickStave");
+    fLayer      = p.get<unsigned int>("PickLayer");
+    fSlice      = p.get<unsigned int>("PickSlice");
 
-    consumes<std::vector<gar::sdp::CaloDeposit> >(fGeantLabel);
-    consumes<std::vector<raw::CaloRawDigit> >(fRawCaloHitLabel);
-    consumes<std::vector<rec::CaloHit> >(fCaloHitLabel);
-    consumes<std::vector<rec::Cluster> >(fClusterLabel);
-    consumes<art::Assns<rec::Cluster, rec::Track>>(fECALAssnLabel);
+
+
+    fTree   = nullptr;
 
     return;
 } // end constructor
@@ -169,10 +153,9 @@ gar::anatest::anatest(fhicl::ParameterSet const & p) : EDAnalyzer(p) {
 //==============================================================================
 void gar::anatest::beginJob() {
 
-    art::ServiceHandle<geo::GeometryGAr> euclid;
-    ItsInTulsa[0] = euclid->TPCXCent();
-    ItsInTulsa[1] = euclid->TPCYCent();
-    ItsInTulsa[2] = euclid->TPCZCent();
+    ItsInTulsa[0] = fGeo->TPCXCent();
+    ItsInTulsa[1] = fGeo->TPCYCent();
+    ItsInTulsa[2] = fGeo->TPCZCent();
 
 
 
@@ -181,13 +164,13 @@ void gar::anatest::beginJob() {
 
 
 
-    fTree->Branch("Run",           &fRun,         "Run/I");
-    fTree->Branch("SubRun",        &fSubRun,      "SubRun/I");
-    fTree->Branch("Event",         &fEvent,       "Event/I");
-
-    fTree->Branch("NType",         &fNeutrinoType);
-    fTree->Branch("InterT",        &fInteractionType);
-    fTree->Branch("MC_Q2",         &fQ2);
+    fTree->Branch("Run",      &fRun,      "Run/I");
+    fTree->Branch("SubRun",   &fSubRun,   "SubRun/I");
+    fTree->Branch("Event",    &fEvent,    "Event/I");
+    
+    fTree->Branch("X",        &fX,        "X/F");
+    fTree->Branch("Y",        &fY,        "Y/F");
+    fTree->Branch("Z",        &fZ,        "Z/F");
 
     return;
 }  // End of :anatest::beginJob
@@ -199,227 +182,88 @@ void gar::anatest::beginJob() {
 //==============================================================================
 void gar::anatest::analyze(art::Event const & e) {
 
-    ClearVectors();
-    FillVectors(e);
-    fTree->Fill();
-    return;
-}
 
 
-
-//==============================================================================
-//==============================================================================
-//==============================================================================
-void gar::anatest::ClearVectors() {
-
-    // clear out all our vectors
-    fNeutrinoType.clear();
-    fInteractionType.clear();
-    fQ2.clear();
-
-    return;
-} // end :anatest::ClearVectors
-
-
-
-//==============================================================================
-//==============================================================================
-//==============================================================================
-void gar::anatest::FillVectors(art::Event const & e) {
-
-
-
-    // =============  Get art handles ==========================================
-    // Get handles for MCinfo, also good for MCPTrajectory
-    std::vector< art::Handle<std::vector<simb::MCTruth>> > mcthandlelist;
-    if (fGeneratorLabels.size()<1) {
-        mcthandlelist = e.getMany<std::vector<simb::MCTruth> >();    // get them all (even if there are none)
-    } else {
-        mcthandlelist.resize(fGeneratorLabels.size());
-        for (size_t i=0; i< fGeneratorLabels.size(); ++i) {
-	  mcthandlelist.at(i) = e.getHandle<std::vector<simb::MCTruth> >(fGeneratorLabels.at(i));
-            if (!mcthandlelist.at(i))
-                throw cet::exception("anatest") << " No simb::MCTruth branch."
-                     << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-        }
-    }
-
-
-
-    auto MCPHandle = e.getHandle<std::vector<simb::MCParticle> >(fGeantLabel);
-    if (!MCPHandle) {
-        throw cet::exception("anatest") << " No simb::MCParticle branch."
-            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-    }
-
-
-
-    // Get handles for MCCaloInfo
-    auto SimHitHandle = e.getHandle< std::vector<gar::sdp::CaloDeposit> >(fGeantLabel);
-    if (!SimHitHandle) {
-        throw cet::exception("anatest") << " No gar::sdp::CaloDeposit branch."
-            << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-    }
-
-
-
-    // Get handle for TPC hit data
-    auto HitHandle = e.getHandle< std::vector<rec::Hit> >(fHitLabel);
-    if (!HitHandle) {
-        throw cet::exception("anatest") << " No rec::Hit branch."
-        << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-    }
-
-
-
-    // Get handle for TPCClusters
-    auto TPCClusterHandle = e.getHandle< std::vector<rec::TPCCluster> >(fTPCClusterLabel);
-    if (!TPCClusterHandle) {
-        throw cet::exception("anatest") << " No rec::TPCCluster branch."
-        << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-    }
-
-
-
-    // Get handles for Tracks and also Assn's to TPCClusters, TrackIoniz
-    auto TrackHandle = e.getHandle< std::vector<rec::Track> >(fTrackLabel);
-    if (!TrackHandle) {
-        throw cet::exception("anatest") << " No rec::Track branch."
-        << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-    }
-    //art::FindManyP<rec::TPCCluster>* findManyTPCClusters = NULL;
-    //findManyTPCClusters = new art::FindManyP<rec::TPCCluster>(TrackHandle,e,fTrackLabel);
-
-
-
-    // Get handle for Vertices; also Assn's to Tracks
-    auto VertexHandle = e.getHandle< std::vector<rec::Vertex> >(fVertexLabel);
-    if (!VertexHandle) {
-        throw cet::exception("anatest") << " No rec::Vertex branch."
-        << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-    }
-    //art::FindManyP<rec::Track, rec::TrackEnd>* findManyTrackEnd = NULL;
-    //findManyTrackEnd = new art::FindManyP<rec::Track, rec::TrackEnd>(VertexHandle,e,fVertexLabel);
-
-
-    // Get handle for CaloDigits
-    auto RawHitHandle = e.getHandle< std::vector<gar::raw::CaloRawDigit> >(fRawCaloHitLabel);
-    if (!RawHitHandle) {
-        throw cet::exception("anatest") << " No :raw::CaloRawDigit branch."
-        << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-    }
-
-
-    // Get handle for CaloHits
-    auto RecoHitHandle = e.getHandle< std::vector<rec::CaloHit> >(fCaloHitLabel);
-    if (!RecoHitHandle) {
-        throw cet::exception("anatest") << " No rec::CaloHit branch."
-        << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-    }
-
-
-    // Get handle for CaloClusters; also Assn for matching tracks
-    auto RecoClusterHandle = e.getHandle< std::vector<rec::Cluster> >(fClusterLabel);
-    if (!RecoClusterHandle) {
-        throw cet::exception("anatest") << " No rec::Cluster branch."
-        << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
-    }
-    //art::FindManyP<rec::Track, rec::TrackEnd>* findManyCALTrackEnd = NULL;
-    //findManyCALTrackEnd = new art::FindManyP<rec::Track, rec::TrackEnd>
-    //                                   (RecoClusterHandle,e,fECALAssnLabel);
-
-
-
-    // =============  Pull art handles =========================================
-    fRun    = e.run();
+    fRun    = e.run();            // Hardly matters right now
     fSubRun = e.subRun();
     fEvent  = e.id().event();
 
-    for (size_t imchl = 0; imchl < mcthandlelist.size(); ++imchl) {
-        for ( auto const& mct : (*mcthandlelist.at(imchl)) ) {
-            if (mct.NeutrinoSet()) {
-                simb::MCNeutrino nuw = mct.GetNeutrino();
-                fNeutrinoType.push_back(nuw.Nu().PdgCode());
-                fInteractionType.push_back(nuw.InteractionType());
+
+    float Xrange = floor(fGeo->GetMPDHalfWidth());
+    float Yrange = floor(fGeo->GetMPDHalfHeight());
+    float Zrange = floor(fGeo->GetMPDLength()/2.0);
+
+    for (float Xo = -Xrange; Xo <= +Xrange; Xo+=1.0){
+        for (float Yo  = -Yrange; Yo <= +Yrange; Yo+=1.0){
+            for (float Zo  = -Zrange; Zo <= +Zrange; Zo+=1.0){
+
+                float X = Xo +ItsInTulsa[0];
+                float Y = Yo +ItsInTulsa[1];
+                float Z = Zo +ItsInTulsa[2];
+
+                TGeoNode* node = fGeo->FindNode(X, Y, Z);
+                if (node==NULL) continue;
+                std::string VolumeName  = node->GetVolume()->GetName();
+
+                unsigned int lECALorMuID = getECALorMuIDNumber(VolumeName);
+                unsigned int lSystem     = getSystemNumber(VolumeName);
+                unsigned int lModule     = getModuleNumber(VolumeName);
+                unsigned int lStave      = getStaveNumber(VolumeName);
+                // Don't select on Layer or Slice, for now.
+                // unsigned int lLayer      = getLayerNumber(VolumeName);
+                // unsigned int lSlice      = getSliceNumber(VolumeName);
+
+               if (lECALorMuID==fECALorMuID && lSystem==fSystem && 
+                    lModule==fModule         && lStave==fStave) {
+                        fX = Xo;    fY = Yo;    fZ = Zo;
+                        fTree->Fill();
+                }
             }
         }
     }
-
-    // Need a non-constant backtracker instance, for now.
-    cheat::BackTrackerCore const* const_bt = gar::providerFrom<cheat::BackTracker>();
-    cheat::BackTrackerCore*             bt = const_cast<cheat::BackTrackerCore*>(const_bt);
-
-    bool const dumpMCP = false;
-    sim::ParticleList* partList = bt->GetParticleList();
-    int nMotherless = 0;
-    for ( auto const& mcp : *MCPHandle ) {
-        if (mcp.Mother() > 0) {
-            simb::MCParticle* TPCeve = bt->FindTPCEve(mcp.TrackId());
-            if ( TPCeve->TrackId() == mcp.TrackId() ) ++nMotherless;
-        }
-        if (dumpMCP) {
-            std::cout << "TrackID: " << mcp.TrackId() << " is PDG: " << mcp.PdgCode() <<
-                " with mother " << mcp.Mother() << " produced by process " << mcp.Process()
-                << std::endl;
-        }
-    }
-    if (dumpMCP) {
-        std::cout << "Number of children: " << partList->size() << std::endl;
-        std::cout << "Number of motherless children: " << nMotherless << std::endl;
-    }
-
-
-
-
-    std::vector<art::Ptr<rec::Hit>> allhits;
-    art::PtrMaker<rec::Hit> makeHitPtr(e,HitHandle.id());
-    for (size_t iHit=0; iHit<HitHandle->size(); ++iHit) {
-        art::Ptr<rec::Hit> aPtr = makeHitPtr(iHit);
-        allhits.push_back(aPtr);
-    }
-    for (simb::MCParticle mcp : *MCPHandle) {
-		if ( mcp.Mother() > 0 ) continue;
-	    if ( abs(mcp.PdgCode()) == 13 ) bt->ParticleToHits(&mcp,allhits);
-	}
-
-
-
-
-
-/*  for ( rec::Cluster cluster : *RecoClusterHandle ) {
-        std::vector<std::pair<simb::MCParticle*,float>> whatMatches;
-        whatMatches = bt->ClusterToMCParticles(&cluster);
-        std::cout << "\nCluster No. " << cluster.getIDNumber() << " is made of MCParticles: " << std::endl;
-        for (auto itr = whatMatches.begin(); itr!=whatMatches.end(); ++itr) {
-            std::cout << "G4 track number " << itr->first->TrackId() << "\thas PDG code " <<
-                itr->first->PdgCode() << "\tand its mother is G4 track " << itr->first->Mother()
-                << "\tand energy fraction " << 100*(itr->second) << "%\n";
-        }
-    }
-
-    std::vector<art::Ptr<rec::Cluster>> clusterCol;
-    art::PtrMaker<rec::Cluster> makeClusterPtr(e,RecoClusterHandle.id());
-    for (size_t iCluster=0; iCluster<RecoClusterHandle->size(); ++iCluster ) {
-        art::Ptr<rec::Cluster> aPtr = makeClusterPtr(iCluster);
-        clusterCol.push_back(aPtr);
-    }
-    for ( simb::MCParticle mcp : *MCPHandle ) {
-        if (mcp.Mother() == 0) {
-            std::cout << "Particle PDG: " << mcp.PdgCode() << " matches to\n";
-            std::vector<art::Ptr<rec::Cluster>> clusterList =
-                bt->MCParticleToClusters(&mcp, clusterCol);
-            for (art::Ptr<rec::Cluster> iCluster : clusterList)
-                std::cout << iCluster->getIDNumber() << std::endl;
-        }
-    } */
-
-
-
-
-
     return;
 }
 
+
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
+unsigned int gar::anatest::getECALorMuIDNumber(std::string volname) const {
+    unsigned int retval = 0;
+    if( volname.find("ECAL") !=  std::string::npos ) retval = 1;
+    if( volname.find("ECal") !=  std::string::npos ) retval = 1;
+    if( volname.find("Yoke") !=  std::string::npos ) retval = 2;
+    return retval;
+}
+
+//------------------------------------------------------------------------------
+unsigned int gar::anatest::getSystemNumber(std::string volname) const {
+    unsigned int det_id = 0;
+    if( volname.find("Barrel") !=  std::string::npos ) det_id = 1;
+    if( volname.find("Endcap") !=  std::string::npos ) det_id = 2;
+    return det_id;
+}
+
+//------------------------------------------------------------------------------
+unsigned int gar::anatest::getModuleNumber(std::string volname) const {
+    return std::atoi( (volname.substr( volname.find("_module") + 7, 2)).c_str() );
+}
+
+//------------------------------------------------------------------------------
+unsigned int gar::anatest::getStaveNumber(std::string volname) const {
+    return std::atoi( (volname.substr( volname.find("_stave") + 6, 2)).c_str() );
+}
+
+//------------------------------------------------------------------------------
+unsigned int gar::anatest::getLayerNumber(std::string volname) const {
+    return std::atoi( (volname.substr( volname.find("layer") + 5, 2)).c_str() );
+}
+
+//------------------------------------------------------------------------------
+unsigned int gar::anatest::getSliceNumber(std::string volname) const {
+    return std::atoi( (volname.substr( volname.find("slice") + 5, 1)).c_str() );
+}
 
 
 DEFINE_ART_MODULE(gar::anatest)

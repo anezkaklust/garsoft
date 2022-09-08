@@ -101,7 +101,7 @@ namespace gar {
             bool SegmentationGridXYAlg::isBarrel(const gar::raw::CellID_t& cID) const
             {
                 bool isBarrel = true;
-
+                // The octogonal ECAL geometries havea module 6.  Leo doesn't get this code though.
                 int det_id = _decoder->get(cID, "system");
                 int module = _decoder->get(cID, "module");
                 if( det_id == 2 && (module == 0 || module == 6) ) isBarrel = false;
