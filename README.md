@@ -6,7 +6,7 @@ If your computer has CVMFS installed and running, you can type
 
 ```
 source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
-setup garsoft v02_16_00 -q e20:prof
+setup garsoft v02_17_01 -q e20:prof
 ```
 
 and then proceed to the section below on running a sample of GArSoft events.  
@@ -41,7 +41,7 @@ mrb i -j4
 mrbslp
 ```
 
-The COMPILER variable above is a UPS qualifier indicating which version of which compiler to use. The head of develop has been upgraded to art v3_06_03, which uses a compiler qualifier "e20" corresponds to GCC v9.3.0: https://cdcvs.fnal.gov/redmine/projects/cet-is-public/wiki/AboutQualifiers
+The COMPILER variable above is a UPS qualifier indicating which version of which compiler to use. The head of develop has been upgraded to art v3_09_03, which uses a compiler qualifier "e20", which corresponds to GCC v9.3.0: https://cdcvs.fnal.gov/redmine/projects/cet-is-public/wiki/AboutQualifiers
 
 The BUILDTYPE variable above is either "prof" or "debug". Both kinds of builds include debug symbols, but "prof" turns on optimization, which can make using a debugger more challenging, but will make the code run faster.
 
