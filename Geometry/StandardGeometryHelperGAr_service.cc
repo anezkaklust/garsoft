@@ -30,9 +30,9 @@ namespace gar
                                                    ::art::ActivityRegistry    &)
     : fPset( pset )
     , fChannelMap()
-    , fECALSegmentationAlg()
-    , fMinervaSegmentationAlg()
-    , fMuIDSegmentationAlg()
+    //, fECALSegmentationAlg()
+    //, fMinervaSegmentationAlg()
+    //, fMuIDSegmentationAlg()
     {}
 
     //----------------------------------------------------------------------------
