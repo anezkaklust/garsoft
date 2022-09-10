@@ -34,7 +34,7 @@ namespace gar {
     //--------------------------------------------------------------------
     DetectorPropertiesStandard::DetectorPropertiesStandard()
     : fGP(0)
-    , fECALP(0)
+    //, fECALP(0)
     , fClocks(0)
     , fGeo(0)
     {
@@ -45,11 +45,11 @@ namespace gar {
     DetectorPropertiesStandard::DetectorPropertiesStandard(fhicl::ParameterSet      const& pset,
                                                            const geo::GeometryCore*        geo,
                                                            const detinfo::GArProperties*   gp,
-                                                           const detinfo::ECALProperties*  ecalp,
+                                                           //const detinfo::ECALProperties*  ecalp,
                                                            const detinfo::DetectorClocks*  c,
                                                            std::set<std::string> const&    ignore_params /* = {} */)
     : fGP(gp)
-    , fECALP(ecalp)
+    //, fECALP(ecalp)
     , fClocks(c)
     , fGeo(geo)
     {
@@ -82,7 +82,7 @@ namespace gar {
     :DetectorPropertiesStandard(pset,
                                 providers.get<geo::GeometryCore>(),
                                 providers.get<detinfo::GArProperties>(),
-                                providers.get<detinfo::ECALProperties>(),
+                                //providers.get<detinfo::ECALProperties>(),
                                 providers.get<detinfo::DetectorClocks>(),
                                 ignore_params)
     {}
@@ -168,7 +168,7 @@ namespace gar {
 
       SetGeometry(providers.get<geo::GeometryCore>());
       SetGArProperties(providers.get<detinfo::GArProperties>());
-      SetECALProperties(providers.get<detinfo::ECALProperties>());
+      //SetECALProperties(providers.get<detinfo::ECALProperties>());
       SetDetectorClocks(providers.get<detinfo::DetectorClocks>());
 
     } // DetectorPropertiesStandard::Setup()
@@ -352,7 +352,7 @@ namespace gar {
     {
       if (!fGeo)    throw cet::exception(__FUNCTION__) << "Geometry is uninitialized!";
       if (!fGP)     throw cet::exception(__FUNCTION__) << "GArPropertiesStandard is uninitialized!";
-      if (!fECALP)  throw cet::exception(__FUNCTION__) << "ECALPropertiesStandard is uninitialized!";
+      //if (!fECALP)  throw cet::exception(__FUNCTION__) << "ECALPropertiesStandard is uninitialized!";
       if (!fClocks) throw cet::exception(__FUNCTION__) << "DetectorClocks is uninitialized!";
     }
 

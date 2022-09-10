@@ -15,7 +15,7 @@
 #include "Geometry/GeometryCore.h"
 #include "CoreUtils/ProviderPack.h"
 #include "DetectorInfo/GArProperties.h"
-#include "DetectorInfo/ECALProperties.h"
+//#include "DetectorInfo/ECALProperties.h"
 #include "DetectorInfo/DetectorClocks.h"
 #include "DetectorInfo/DetectorProperties.h"
 
@@ -37,7 +37,7 @@ namespace gar {
         /// List of service providers we depend on
       using providers_type = gar::ProviderPack<geo::GeometryCore,
                                                detinfo::GArProperties,
-                                               detinfo::ECALProperties,
+                                               //detinfo::ECALProperties,
                                                detinfo::DetectorClocks>;
 
         /// Structure for configuration parameters
@@ -98,7 +98,7 @@ namespace gar {
       DetectorPropertiesStandard(fhicl::ParameterSet    const&  pset,
                                  const geo::GeometryCore     *  geo,
                                  const detinfo::GArProperties*  gp,
-                                 const detinfo::ECALProperties* ecalp,
+                                 //const detinfo::ECALProperties* ecalp,
                                  const detinfo::DetectorClocks* c,
                                  std::set<std::string>   const& ignore_params = {});
 
@@ -164,7 +164,7 @@ namespace gar {
 
       void SetGeometry      (const geo::GeometryCore* g)          { fGeo    = g;    }
       void SetGArProperties (const detinfo::GArProperties* gp)    { fGP     = gp;   }
-      void SetECALProperties (const detinfo::ECALProperties* ecalp)    { fECALP     = ecalp;   }
+      //void SetECALProperties (const detinfo::ECALProperties* ecalp)    { fECALP     = ecalp;   }
       void SetDetectorClocks(const detinfo::DetectorClocks* clks) { fClocks = clks; }
 
       void SetNumberTimeSamples(unsigned int nsamp) { fNumberTimeSamples=nsamp;}
@@ -237,14 +237,23 @@ namespace gar {
       virtual double       ConvertTicksToTDC(double ticks) const override;
 
       //ECAL Properties
-      virtual double        EffectivePixel() const override { return fECALP->EffectivePixel(); }
-      virtual double        LightYield() const override { return fECALP->LightYield(); }
-      virtual double        SiPMGain() const override { return fECALP->SiPMGain(); }
-      virtual double        IntercalibrationFactor() const override { return fECALP->IntercalibrationFactor(); }
-      virtual double        ADCSaturation() const override { return fECALP->ADCSaturation(); }
-      virtual double        TimeResolution() const override { return fECALP->TimeResolution(); }
-      virtual double        MeVtoMIP() const override { return fECALP->MeVtoMIP(); }
-      virtual double        NoisePx() const override { return fECALP->NoisePx(); }
+      //virtual double        EffectivePixel() const override { return fECALP->EffectivePixel(); }
+      //virtual double        LightYield() const override { return fECALP->LightYield(); }
+      //virtual double        SiPMGain() const override { return fECALP->SiPMGain(); }
+      //virtual double        IntercalibrationFactor() const override { return fECALP->IntercalibrationFactor(); }
+      //virtual double        ADCSaturation() const override { return fECALP->ADCSaturation(); }
+      //virtual double        TimeResolution() const override { return fECALP->TimeResolution(); }
+      //virtual double        MeVtoMIP() const override { return fECALP->MeVtoMIP(); }
+      //virtual double        NoisePx() const override { return fECALP->NoisePx(); }
+
+      virtual double        EffectivePixel() const override { return 0; }
+      virtual double        LightYield() const override { return 0; }
+      virtual double        SiPMGain() const override { return 0; }
+      virtual double        IntercalibrationFactor() const override { return 0; }
+      virtual double        ADCSaturation() const override { return 0; }
+      virtual double        TimeResolution() const override { return 0; }
+      virtual double        MeVtoMIP() const override { return 0; }
+      virtual double        NoisePx() const override { return 0; }
 
       /// Verifies that the provider is in a fully configured status
       /// @throw cet::exception (category DetectorPropertiesStandard) if not ok
@@ -267,7 +276,7 @@ namespace gar {
       // service providers we depend on;
       // in principle could be replaced by a single providerpacl_type.
       const detinfo::GArProperties*  fGP;
-      const detinfo::ECALProperties*  fECALP;
+      //const detinfo::ECALProperties*  fECALP;
       const detinfo::DetectorClocks* fClocks;
       const geo::GeometryCore*       fGeo;
 

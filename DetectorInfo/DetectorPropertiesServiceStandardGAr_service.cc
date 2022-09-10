@@ -7,12 +7,12 @@
 
 // GArSoft includes
 #include "DetectorInfo/DetectorPropertiesServiceStandardGAr.h"
-#include "DetectorInfo/ECALProperties.h"
+//#include "DetectorInfo/ECALProperties.h"
 #include "DetectorInfo/GArProperties.h"
 #include "Geometry/GeometryGAr.h"
 #include "DetectorInfo/ServicePack.h" // gar::extractProviders()
 #include "DetectorInfo/GArPropertiesService.h"
-#include "DetectorInfo/ECALPropertiesService.h"
+//#include "DetectorInfo/ECALPropertiesService.h"
 #include "DetectorInfo/DetectorClocksServiceGAr.h"
 
 #include "TFile.h"
@@ -37,7 +37,7 @@ namespace gar {
       fProp = std::make_unique<detinfo::DetectorPropertiesStandard>(pset,
                                                                     gar::extractProviders<geo::GeometryGAr,
                                                                                           detinfo::GArPropertiesService,
-                                                                                          detinfo::ECALPropertiesService,
+                                                                                          //detinfo::ECALPropertiesService,
                                                                                           detinfo::DetectorClocksServiceGAr>(),
                                                                     std::set<std::string>({ "InheritNumberTimeSamples" })
                                                                     );
