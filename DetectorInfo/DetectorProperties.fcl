@@ -24,7 +24,7 @@ standard_mag_garsoft:
 {
 GlobalScaleFactor:   1.0   # to scale all of the individual field descriptions
 UnitFactor: 1.0 # to convert the map units to mm
-FieldDescriptions: [ { UseField:         1  # 0--off 1--Constant field
+FieldDescriptions: [ { UseField:         0  # 0--off 1--Constant field
                                             # 2--RZ Map 3--XYZ Map
                        ConstantField:    [ 0.5, 0.0, 0.0 ] # in Tesla
                        #MagnetizedVolume: "volNDHPgTPC"
