@@ -806,7 +806,7 @@ namespace gar {
         * This information is used by Geant4 simulation
         *
         */
-        std::string GetGArTPCVolumeName() const {return "TPC_Drift"; }
+        std::string GetGArTPCVolumeName() const {return "volTPCChamber"; }
         //@}
 
         //
