@@ -261,7 +261,7 @@ nd_hall_mpd_only_cdr_geo:
  Name:              "Realistic"
  PositionEpsilon:   1.e-4
  PointInWarnings:   false
- ECALEndcapOutsidePV: true
+ ##ECALEndcapOutsidePV: true
 }
 
 nd_hall_mpd_only_cdr_auxdet_geo:
@@ -270,6 +270,25 @@ nd_hall_mpd_only_cdr_auxdet_geo:
  RelativePath:      ""
  ForceUseFCLOnly:   false
  SortingParameters: {}
+}
+
+
+## TOAD geometry
+toad_geo:
+{
+ ForceUseFCLOnly:   false
+ SortingParameters:
+ {
+  PixelActiveSize: 0.3      # cm
+  PixelPitch:      0.333333 # cm
+ }
+ RelativePath:      ""
+ GDML:              "toad/toad_concept_v1.gdml"
+ ROOT:              "toad/toad_concept_v1.gdml"
+ SurfaceY:          0.          # cm
+ Name:              "Realistic"
+ PositionEpsilon:   1.e-4
+ PointInWarnings:   false
 }
 
 END_PROLOG
