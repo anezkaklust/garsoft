@@ -245,15 +245,15 @@ namespace gar {
             produces< std::vector<simb::MCParticle>                 >();
             produces< ::art::Assns<simb::MCTruth, simb::MCParticle> >();
 
-            produces< std::vector<sdp::LArDeposit>                 >();
+            //produces< std::vector<sdp::LArDeposit>                 >();
             produces< std::vector<sdp::EnergyDeposit>               >();
             
-            if(geo->HasECALDetector())
-            produces< std::vector<sdp::CaloDeposit>                 >("ECAL");//ECAL
-            if(geo->HasTrackerScDetector())
-            produces< std::vector<sdp::CaloDeposit>                 >("TrackerSc");//TrackerSc
-            if(geo->HasMuonDetector())
-            produces< std::vector<sdp::CaloDeposit>                 >("MuID");//MuID
+            //if(geo->HasECALDetector())
+            //produces< std::vector<sdp::CaloDeposit>                 >("ECAL");//ECAL
+            //if(geo->HasTrackerScDetector())
+            //produces< std::vector<sdp::CaloDeposit>                 >("TrackerSc");//TrackerSc
+            //if(geo->HasMuonDetector())
+            //produces< std::vector<sdp::CaloDeposit>                 >("MuID");//MuID
 
             // constructor decides if initialized value is a path or an environment variable
             cet::search_path sp("FW_SEARCH_PATH");
@@ -377,9 +377,9 @@ namespace gar {
             uaManager->AddAndAdoptAction(fEDepAction);
 
             // add UserAction for handling steps in auxiliary detectors
-            fAuxDetAction = new garg4::AuxDetAction(&(fEngine),
-            fAuxDetActionPSet);
-            uaManager->AddAndAdoptAction(fAuxDetAction);
+            //fAuxDetAction = new garg4::AuxDetAction(&(fEngine),
+            //fAuxDetActionPSet);
+            //uaManager->AddAndAdoptAction(fAuxDetAction);
 
 
             // UserActionManager is now configured so continue G4 initialization
@@ -456,9 +456,9 @@ namespace gar {
             std::unique_ptr< std::vector<simb::MCParticle> >                 partCol(new std::vector<simb::MCParticle>                );
             std::unique_ptr< std::vector<sdp::EnergyDeposit>  >              TPCCol  (new std::vector<sdp::EnergyDeposit>              );
             std::unique_ptr< ::art::Assns<simb::MCTruth, simb::MCParticle> > tpassn (new ::art::Assns<simb::MCTruth, simb::MCParticle>);
-            std::unique_ptr< std::vector< sdp::CaloDeposit > >          ECALCol  (new std::vector<sdp::CaloDeposit>           );
-            std::unique_ptr< std::vector< sdp::CaloDeposit > >          MuIDCol  (new std::vector<sdp::CaloDeposit>           );
-            std::unique_ptr< std::vector< sdp::LArDeposit > >           LArCol  (new std::vector<sdp::LArDeposit>           );
+            //std::unique_ptr< std::vector< sdp::CaloDeposit > >          ECALCol  (new std::vector<sdp::CaloDeposit>           );
+            //std::unique_ptr< std::vector< sdp::CaloDeposit > >          MuIDCol  (new std::vector<sdp::CaloDeposit>           );
+            //std::unique_ptr< std::vector< sdp::LArDeposit > >           LArCol  (new std::vector<sdp::LArDeposit>           );
 
             // reset the track ID offset as we have a new collection of interactions
             fParticleListAction->ResetTrackIDOffset();
@@ -554,6 +554,7 @@ namespace gar {
             }
 
             // And finally the sdp::CaloDepositions
+            /*
             std::vector<gar::sdp::CaloDeposit> deposits = fAuxDetAction->CaloDeposits();
             if (geo->HasTrackerScDetector())
                 deposits = fAuxDetAction->TrackerScDeposits();
@@ -566,8 +567,10 @@ namespace gar {
 
                 ECALCol->emplace_back(hit);
             }
+            */
 
             // And finally the sdp::CaloDepositions
+            /*
             for(auto const& hit : fAuxDetAction->MuIDDeposits())
             {
                 MF_LOG_DEBUG("GArG4")
@@ -586,19 +589,19 @@ namespace gar {
 
                 LArCol->emplace_back(hit);
             }
-
+            */
             evt.put(std::move(TPCCol));
 
-            std::string instanceName = "ECAL";
-            if(geo->HasTrackerScDetector())
-            instanceName = "TrackerSc";
+            //std::string instanceName = "ECAL";
+            // if(geo->HasTrackerScDetector())
+            //instanceName = "TrackerSc";
 
-            evt.put(std::move(ECALCol), instanceName);
+            //evt.put(std::move(ECALCol), instanceName);
 
-            if(geo->HasMuonDetector())
-            evt.put(std::move(MuIDCol), "MuID");
+            //if(geo->HasMuonDetector())
+            //evt.put(std::move(MuIDCol), "MuID");
             
-            evt.put(std::move(LArCol));
+            //evt.put(std::move(LArCol));
 
             evt.put(std::move(partCol));
             evt.put(std::move(tpassn));
