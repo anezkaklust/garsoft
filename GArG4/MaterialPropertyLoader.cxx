@@ -17,8 +17,8 @@
 #include "Geant4/G4MaterialPropertiesTable.hh"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
-#include "DetectorInfo/ECALProperties.h"
-#include "DetectorInfo/ECALPropertiesService.h"
+//#include "DetectorInfo/ECALProperties.h"
+//#include "DetectorInfo/ECALPropertiesService.h"
 #include "CoreUtils/ServiceUtil.h"
 
 namespace gar {
@@ -195,10 +195,10 @@ namespace gar {
 //      const detinfo::GArProperties*      GarProp = gar::providerFrom<detinfo::GArPropertiesService>();
 //      const detinfo::DetectorProperties* DetProp = gar::providerFrom<detinfo::DetectorPropertiesService>();
 
-        const detinfo::ECALProperties*     EcalProp = gar::providerFrom<detinfo::ECALPropertiesService>();
+        //const detinfo::ECALProperties*     EcalProp = gar::providerFrom<detinfo::ECALPropertiesService>();
 
-        SetMaterialConstProperty("Scintillator", "DENSITY", 1.06, CLHEP::g/CLHEP::cm3);
-        SetBirksConstant("Scintillator", EcalProp->ScintBirksConstant(), CLHEP::mm/CLHEP::MeV);
+        //SetMaterialConstProperty("Scintillator", "DENSITY", 1.06, CLHEP::g/CLHEP::cm3);
+        //SetBirksConstant("Scintillator", EcalProp->ScintBirksConstant(), CLHEP::mm/CLHEP::MeV);
     }
 
   } // garg4
