@@ -5,7 +5,7 @@
 //  Based on MarlinReco simple clusetring algo
 //  https://github.com/iLCSoft/MarlinReco/blob/master/Clustering/NNClustering/include/NNClusterProcessor.h
 //
-//  Modificaiton:  Addition of usesTracks, Leo Bellantoni 21 Jun2019
+//  Modification:  Addition of usesTracks, Leo Bellantoni 21 Jun2019
 //      If we have more clustering algorithms someday, this should be derived from
 //      some class with a bunch of virtual methods or some sort of thing like that.
 

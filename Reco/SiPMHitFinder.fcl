@@ -9,7 +9,7 @@ MIPThreshold:       0.25      # apply this threshold if we don't already have ze
 Desaturation:       true
 ECALSamplingFactorGeV: 2.726
 MuIDSamplingFactorGeV: 1.0
-UseTimePositionReco: false
+UseTimePositionReco: true
 }
 
 standard_SiPMHitFinder_MuID:
@@ -21,7 +21,7 @@ MIPThreshold:       0.25      # apply this threshold if we don't already have ze
 Desaturation:       true
 ECALSamplingFactorGeV: 2.726
 MuIDSamplingFactorGeV: 1.0
-UseTimePositionReco: false
+UseTimePositionReco: true
 }
 
 END_PROLOG

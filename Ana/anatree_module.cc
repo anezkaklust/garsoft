@@ -552,8 +552,8 @@ gar::anatree::anatree(fhicl::ParameterSet const & p)
   //Calorimetric related ECAL/MuID
   fRawCaloHitLabel   = p.get<std::string>("RawCaloHitLabel","daqsipm");
   fRawMuIDHitLabel   = p.get<std::string>("RawMuIDHitLabel","daqsipmmuid");
-  fCaloHitLabel      = p.get<std::string>("CaloHitLabel","sscalohit");
-  fMuIDHitLabel      = p.get<std::string>("MuIDHitLabel","sscalohitmuid");
+  fCaloHitLabel      = p.get<std::string>("CaloHitLabel","sipmhit");
+  fMuIDHitLabel      = p.get<std::string>("MuIDHitLabel","sipmhitmuid");
 
   fClusterLabel      = p.get<std::string>("ClusterLabel","calocluster");
   fClusterMuIDLabel  = p.get<std::string>("MuIDClusterLabel","caloclustermuid");
