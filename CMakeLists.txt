@@ -19,7 +19,7 @@ cmake_minimum_required (VERSION 3.19 FATAL_ERROR)
 
 project(garsoft VERSION 02.17.01)
 
-    find_package( cetbuildtools REQUIRED)
+find_package( cetbuildtools REQUIRED)
 
 # cetbuildtools contains our cmake modules
 SET ( CETBUILDTOOLS_VERSION $ENV{CETBUILDTOOLS_VERSION} )
