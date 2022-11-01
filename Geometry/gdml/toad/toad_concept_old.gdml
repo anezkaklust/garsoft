@@ -1,0 +1,965 @@
+<?xml version="1.0" encoding="ASCII"?>
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../GDMLSchema/gdml.xsd">
+  <define>
+    <position unit="cm" name="TPCChamber_pos" x="0.0" y="0.0" z="0.0"/>
+    <rotation unit="degree" name="Gas Endcap L_rot" x="0" y="0" z="0"/>
+    <position unit="cm" name="Gas Endcap L_pos" x="0.0" y="0.0" z="-22.33461538461539"/>
+    <rotation unit="degree" name="Gas Endcap R_rot" x="0" y="180" z="0"/>
+    <position unit="cm" name="Gas Endcap R_pos" x="0.0" y="0.0" z="22.33461538461539"/>
+    <rotation unit="degree" name="PV Endcap L_rot" x="0" y="0" z="0"/>
+    <position unit="cm" name="PV Endcap L_pos" x="0.0" y="0.0" z="-22.33461538461539"/>
+    <rotation unit="degree" name="PV Endcap R_rot" x="0" y="180" z="0"/>
+    <position unit="cm" name="PV Endcap R_pos" x="0.0" y="0.0" z="22.33461538461539"/>
+    <rotation unit="degree" name="Cathode _rot" x="0" y="0" z="0"/>
+    <position unit="cm" name="Cathode _pos" x="0.0" y="0.0" z="-30.150000000000002"/>
+    <rotation unit="degree" name="FC ring number 0_rot" x="0" y="0" z="0"/>
+    <position unit="cm" name="FC ring number 0_pos" x="0.0" y="0.0" z="-4.55"/>
+    <rotation unit="degree" name="FC ring number 1_rot" x="0" y="0" z="0"/>
+    <position unit="cm" name="FC ring number 1_pos" x="0.0" y="0.0" z="-7.050000000000001"/>
+    <rotation unit="degree" name="FC ring number 2_rot" x="0" y="0" z="0"/>
+    <position unit="cm" name="FC ring number 2_pos" x="0.0" y="0.0" z="-9.55"/>
+    <rotation unit="degree" name="FC ring number 3_rot" x="0" y="0" z="0"/>
+    <position unit="cm" name="FC ring number 3_pos" x="0.0" y="0.0" z="-12.05"/>
+    <rotation unit="degree" name="FC ring number 4_rot" x="0" y="0" z="0"/>
+    <position unit="cm" name="FC ring number 4_pos" x="0.0" y="0.0" z="-14.55"/>
+    <rotation unit="degree" name="FC ring number 5_rot" x="0" y="0" z="0"/>
+    <position unit="cm" name="FC ring number 5_pos" x="0.0" y="0.0" z="-17.05"/>
+    <rotation unit="degree" name="FC ring number 6_rot" x="0" y="0" z="0"/>
+    <position unit="cm" name="FC ring number 6_pos" x="0.0" y="0.0" z="-19.55"/>
+    <rotation unit="degree" name="FC ring number 7_rot" x="0" y="0" z="0"/>
+    <position unit="cm" name="FC ring number 7_pos" x="0.0" y="0.0" z="-22.05"/>
+    <rotation unit="degree" name="Terminator holder _rot" x="0" y="0" z="0"/>
+    <position unit="cm" name="Terminator holder _pos" x="0.0" y="0.0" z="2.8000000000000003"/>
+    <rotation unit="degree" name="Terminator bottom _rot" x="0" y="0" z="0"/>
+    <position unit="cm" name="Terminator bottom _pos" x="0.0" y="0.0" z="2.8000000000000003"/>
+    <rotation unit="degree" name="Terminator left _rot" x="0" y="0" z="-10"/>
+    <position unit="cm" name="Terminator left _pos" x="0.0" y="0.0" z="2.8000000000000003"/>
+    <rotation unit="degree" name="Terminator right _rot" x="0" y="0" z="10"/>
+    <position unit="cm" name="Terminator right _pos" x="0.0" y="0.0" z="2.8000000000000003"/>
+    <rotation unit="degree" name="OROC alu  main _rot" x="270" y="0" z="0"/>
+    <position unit="cm" name="OROC alu  main _pos" x="0.0" y="5.6000000000000005" z="3.94"/>
+    <rotation unit="degree" name="OROC alu frame _rot" x="270" y="0" z="0"/>
+    <position unit="cm" name="OROC alu frame _pos" x="0.0" y="7.75" z="8.13"/>
+    <rotation unit="degree" name="Rotation (x&lt;-&gt;z)" x="0" y="90" z="0"/>
+    <position name="center"/>
+    <rotation name="identity"/>
+  </define>
+  <materials>
+    <element name="hydrogen" Z="1" formula="H">
+      <atom value="1.00791"/>
+    </element>
+    <isotope name="boron11" Z="5" N="11">
+      <atom type="A" value="11.0"/>
+    </isotope>
+    <element name="boron">
+      <fraction ref="boron11" n="1.0"/>
+    </element>
+    <element name="carbon" Z="6" formula="C">
+      <atom value="12.0107"/>
+    </element>
+    <element name="nitrogen" Z="7" formula="N">
+      <atom value="14.0671"/>
+    </element>
+    <element name="oxygen" Z="8" formula="O">
+      <atom value="15.999"/>
+    </element>
+    <element name="fluorine" Z="9" formula="F">
+      <atom value="18.9984"/>
+    </element>
+    <element name="sodium" Z="11" formula="Na">
+      <atom value="22.99"/>
+    </element>
+    <element name="magnesium" Z="12" formula="Mg">
+      <atom value="24.305"/>
+    </element>
+    <element name="aluminum" Z="13" formula="Al">
+      <atom value="26.9815"/>
+    </element>
+    <element name="silicon" Z="14" formula="Si">
+      <atom value="28.0855"/>
+    </element>
+    <element name="phosphorus" Z="15" formula="P">
+      <atom value="30.973"/>
+    </element>
+    <element name="sulfur" Z="16" formula="S">
+      <atom value="32.065"/>
+    </element>
+    <element name="argon" Z="18" formula="Ar">
+      <atom value="39.948"/>
+    </element>
+    <element name="potassium" Z="19" formula="K">
+      <atom value="39.0983"/>
+    </element>
+    <element name="calcium" Z="20" formula="Ca">
+      <atom value="40.078"/>
+    </element>
+    <element name="titanium" Z="22" formula="Ti">
+      <atom value="47.867"/>
+    </element>
+    <element name="chromium" Z="24" formula="Cr">
+      <atom value="51.9961"/>
+    </element>
+    <element name="manganese" Z="25" formula="Mn">
+      <atom value="54.938"/>
+    </element>
+    <element name="iron" Z="26" formula="Fe">
+      <atom value="55.845"/>
+    </element>
+    <element name="nickel" Z="28" formula="Ni">
+      <atom value="58.6934"/>
+    </element>
+    <element name="tungsten" Z="74" formula="W">
+      <atom value="183.84"/>
+    </element>
+    <element name="gold" Z="79" formula="Au">
+      <atom value="196.966"/>
+    </element>
+    <element name="chlorine" Z="17" formula="Cl">
+      <atom value="35.453"/>
+    </element>
+    <isotope name="copper63" Z="29" N="63">
+      <atom type="A" value="62.93"/>
+    </isotope>
+    <isotope name="copper65" Z="29" N="65">
+      <atom type="A" value="64.93"/>
+    </isotope>
+    <element name="copper">
+      <fraction ref="copper63" n="0.6917"/>
+      <fraction ref="copper65" n="0.3083"/>
+    </element>
+    <isotope name="zinc64" Z="30" N="64">
+      <atom type="A" value="63.93"/>
+    </isotope>
+    <element name="zinc">
+      <fraction ref="zinc64" n="1.0"/>
+    </element>
+    <element name="bromine" Z="35" formula="Br">
+      <atom value="79.904"/>
+    </element>
+    <element name="xenon" Z="54" formula="Xe">
+      <atom value="131.293"/>
+    </element>
+    <element name="lead" Z="82" formula="Pb">
+      <atom value="207.2"/>
+    </element>
+    <material name="SiO2" formula="">
+      <D value="2.2"/>
+      <composite ref="silicon" n="1"/>
+      <composite ref="oxygen" n="2"/>
+    </material>
+    <material name="FeO" formula="">
+      <D value="5.745"/>
+      <composite ref="iron" n="1"/>
+      <composite ref="oxygen" n="1"/>
+    </material>
+    <material name="Al2O3" formula="">
+      <D value="3.97"/>
+      <composite ref="aluminum" n="2"/>
+      <composite ref="oxygen" n="3"/>
+    </material>
+    <material name="MgO" formula="">
+      <D value="3.58"/>
+      <composite ref="magnesium" n="1"/>
+      <composite ref="oxygen" n="1"/>
+    </material>
+    <material name="CO2" formula="">
+      <D value="1.562"/>
+      <composite ref="carbon" n="1"/>
+      <composite ref="oxygen" n="2"/>
+    </material>
+    <material name="CaO" formula="">
+      <D value="3.35"/>
+      <composite ref="calcium" n="1"/>
+      <composite ref="oxygen" n="1"/>
+    </material>
+    <material name="Na2O" formula="">
+      <D value="2.27"/>
+      <composite ref="sodium" n="2"/>
+      <composite ref="oxygen" n="1"/>
+    </material>
+    <material name="P2O5" formula="">
+      <D value="1.562"/>
+      <composite ref="phosphorus" n="2"/>
+      <composite ref="oxygen" n="5"/>
+    </material>
+    <material name="TiO2" formula="">
+      <D value="4.23"/>
+      <composite ref="titanium" n="1"/>
+      <composite ref="oxygen" n="2"/>
+    </material>
+    <material name="Fe2O3" formula="">
+      <D value="5.24"/>
+      <composite ref="iron" n="2"/>
+      <composite ref="oxygen" n="3"/>
+    </material>
+    <material name="Rock" formula="">
+      <D value="2.82"/>
+      <fraction ref="SiO2" n="0.5267"/>
+      <fraction ref="FeO" n="0.1174"/>
+      <fraction ref="Al2O3" n="0.1025"/>
+      <fraction ref="oxygen" n="0.0771"/>
+      <fraction ref="MgO" n="0.0473"/>
+      <fraction ref="CO2" n="0.0422"/>
+      <fraction ref="CaO" n="0.0382"/>
+      <fraction ref="carbon" n="0.024"/>
+      <fraction ref="sulfur" n="0.0186"/>
+      <fraction ref="Na2O" n="0.0053"/>
+      <fraction ref="P2O5" n="0.0007"/>
+    </material>
+    <material name="Dirt" formula="">
+      <D value="1.7"/>
+      <fraction ref="oxygen" n="0.438"/>
+      <fraction ref="silicon" n="0.257"/>
+      <fraction ref="sodium" n="0.222"/>
+      <fraction ref="aluminum" n="0.049"/>
+      <fraction ref="iron" n="0.019"/>
+      <fraction ref="potassium" n="0.015"/>
+    </material>
+    <material name="Air" formula="">
+      <D value="0.001225"/>
+      <fraction ref="nitrogen" n="0.781154"/>
+      <fraction ref="oxygen" n="0.209476"/>
+      <fraction ref="argon" n="0.00934"/>
+    </material>
+    <material name="Air35C" formula="">
+      <D value="0.00115"/>
+      <fraction ref="nitrogen" n="0.781154"/>
+      <fraction ref="oxygen" n="0.209476"/>
+      <fraction ref="argon" n="0.00934"/>
+    </material>
+    <material name="Vacuum_cryo" formula="">
+      <D value="1.15e-08"/>
+      <fraction ref="nitrogen" n="0.781154"/>
+      <fraction ref="oxygen" n="0.209476"/>
+      <fraction ref="argon" n="0.00934"/>
+    </material>
+    <material name="Bakelite" formula="">
+      <D value="1.25"/>
+      <fraction ref="hydrogen" n="0.057441"/>
+      <fraction ref="carbon" n="0.774591"/>
+      <fraction ref="oxygen" n="0.167968"/>
+    </material>
+    <material name="Honeycomb" formula="">
+      <D value="0.94"/>
+      <fraction ref="hydrogen" n="0.143711"/>
+      <fraction ref="carbon" n="0.856289"/>
+    </material>
+    <material name="C3H6" formula="">
+      <D value="0.946"/>
+      <composite ref="carbon" n="3"/>
+      <composite ref="hydrogen" n="6"/>
+    </material>
+    <material name="RadiatorBlend" formula="">
+      <D value="0.1586875"/>
+      <fraction ref="Air" n="0.006432978863069372"/>
+      <fraction ref="C3H6" n="0.9935670211369306"/>
+    </material>
+    <material name="RadiatorBlendNewConf" formula="">
+      <D value="0.19018"/>
+      <fraction ref="Air" n="0.005153012935114054"/>
+      <fraction ref="C3H6" n="0.994846987064886"/>
+    </material>
+    <material name="stGas_Xe" formula="">
+      <D value="0.004692544642857144"/>
+      <fraction ref="CO2" n="0.3"/>
+      <fraction ref="argon" n="0.7"/>
+    </material>
+    <material name="stGas_Xe19" formula="">
+      <D value="0.008915834821428574"/>
+      <fraction ref="CO2" n="0.3"/>
+      <fraction ref="argon" n="0.7"/>
+    </material>
+    <material name="straw_avg_ArXe" formula="">
+      <D value="0.020918592"/>
+      <fraction ref="CO2" n="0.3"/>
+      <fraction ref="argon" n="0.7"/>
+    </material>
+    <material name="Water" formula="">
+      <D value="1.0"/>
+      <composite ref="oxygen" n="1"/>
+      <composite ref="hydrogen" n="2"/>
+    </material>
+    <material name="ArgonTarget" formula="">
+      <D value="0.2297"/>
+      <composite ref="argon" n="1"/>
+    </material>
+    <material name="Aluminum" formula="">
+      <D value="2.7"/>
+      <composite ref="aluminum" n="1"/>
+    </material>
+    <material name="Copper" formula="">
+      <D value="8.96"/>
+      <composite ref="copper" n="1"/>
+    </material>
+    <material name="MagnetCoil" formula="">
+      <D value="6.94"/>
+      <fraction ref="Copper" n="0.964"/>
+      <fraction ref="Water" n="0.03600000000000003"/>
+    </material>
+    <material name="CarbonFiber" formula="">
+      <D value="1.6"/>
+      <composite ref="carbon" n="1"/>
+    </material>
+    <material name="stGas_Ar" formula="">
+      <D value="0.0018378571428571428"/>
+      <fraction ref="CO2" n="0.3"/>
+      <fraction ref="argon" n="0.7"/>
+    </material>
+    <material name="stGas_Ar19" formula="">
+      <D value="0.003491928571428571"/>
+      <fraction ref="CO2" n="0.3"/>
+      <fraction ref="argon" n="0.7"/>
+    </material>
+    <material name="carbonComposite" formula="">
+      <D value="0.65"/>
+      <fraction ref="carbon" n="0.99"/>
+      <fraction ref="hydrogen" n="0.01"/>
+    </material>
+    <material name="Kapton" formula="">
+      <D value="1.4"/>
+      <composite ref="carbon" n="22"/>
+      <composite ref="oxygen" n="5"/>
+      <composite ref="nitrogen" n="2"/>
+    </material>
+    <material name="Tungsten" formula="">
+      <D value="19.3"/>
+      <composite ref="tungsten" n="1"/>
+    </material>
+    <material name="Gold" formula="">
+      <D value="19.3"/>
+      <composite ref="gold" n="1"/>
+    </material>
+    <material name="Iron" formula="">
+      <D value="7.874"/>
+      <composite ref="iron" n="1"/>
+    </material>
+    <material name="Graphite" formula="">
+      <D value="2.23"/>
+      <composite ref="carbon" n="1"/>
+    </material>
+    <material name="Calcium" formula="">
+      <D value="1.55"/>
+      <composite ref="calcium" n="1"/>
+    </material>
+    <material name="Carbon_fiber" formula="">
+      <D value="1.6"/>
+      <composite ref="carbon" n="1"/>
+    </material>
+    <material name="Steel" formula="">
+      <D value="7.93"/>
+      <fraction ref="iron" n="0.7298"/>
+      <fraction ref="chromium" n="0.1792"/>
+      <fraction ref="nickel" n="0.09"/>
+      <fraction ref="carbon" n="0.001"/>
+    </material>
+    <material name="SteelTMS" formula="">
+      <D value="7.85"/>
+      <fraction ref="iron" n="0.9951"/>
+      <fraction ref="silicon" n="0.0045"/>
+      <fraction ref="carbon" n="0.0004"/>
+    </material>
+    <material name="polycarbonate" formula="">
+      <D value="1.2"/>
+      <composite ref="carbon" n="16"/>
+      <composite ref="hydrogen" n="6"/>
+      <composite ref="oxygen" n="3"/>
+    </material>
+    <material name="sttFrameMix" formula="">
+      <D value="0.235"/>
+      <fraction ref="carbon" n="0.7647058823529412"/>
+      <fraction ref="polycarbonate" n="0.23529411764705882"/>
+    </material>
+    <material name="fibrous_glass" formula="">
+      <D value="1.0"/>
+      <fraction ref="SiO2" n="0.6"/>
+      <fraction ref="CaO" n="0.224"/>
+      <fraction ref="Al2O3" n="0.118"/>
+      <fraction ref="MgO" n="0.034"/>
+      <fraction ref="TiO2" n="0.013"/>
+      <fraction ref="Na2O" n="0.01"/>
+      <fraction ref="Fe2O3" n="0.001"/>
+    </material>
+    <material name="Fiberglass" formula="">
+      <D value="0.7"/>
+      <fraction ref="SiO2" n="0.6"/>
+      <fraction ref="CaO" n="0.224"/>
+      <fraction ref="Al2O3" n="0.118"/>
+      <fraction ref="MgO" n="0.034"/>
+      <fraction ref="TiO2" n="0.013"/>
+      <fraction ref="Na2O" n="0.01"/>
+      <fraction ref="Fe2O3" n="0.001"/>
+    </material>
+    <material name="CH2FCF3" formula="">
+      <D value="0.00425"/>
+      <composite ref="carbon" n="2"/>
+      <composite ref="hydrogen" n="2"/>
+      <composite ref="fluorine" n="4"/>
+    </material>
+    <material name="C4H10" formula="">
+      <D value="0.00251"/>
+      <composite ref="carbon" n="4"/>
+      <composite ref="hydrogen" n="10"/>
+    </material>
+    <material name="SF6" formula="">
+      <D value="0.00617"/>
+      <composite ref="sulfur" n="4"/>
+      <composite ref="fluorine" n="6"/>
+    </material>
+    <material name="rpcGas" formula="">
+      <D value="0.001784"/>
+      <fraction ref="argon" n="0.75"/>
+      <fraction ref="CH2FCF3" n="0.2"/>
+      <fraction ref="C4H10" n="0.04"/>
+      <fraction ref="SF6" n="0.01"/>
+    </material>
+    <material name="epoxy_resin" formula="">
+      <D value="1.125"/>
+      <composite ref="carbon" n="38"/>
+      <composite ref="hydrogen" n="40"/>
+      <composite ref="oxygen" n="6"/>
+    </material>
+    <material name="SSteel304" formula="">
+      <D value="7.9"/>
+      <fraction ref="carbon" n="0.0008"/>
+      <fraction ref="manganese" n="0.02"/>
+      <fraction ref="phosphorus" n="0.00045"/>
+      <fraction ref="sulfur" n="0.0003"/>
+      <fraction ref="silicon" n="0.0075"/>
+      <fraction ref="chromium" n="0.18"/>
+      <fraction ref="nickel" n="0.08"/>
+      <fraction ref="nitrogen" n="0.001"/>
+      <fraction ref="iron" n="0.70995"/>
+    </material>
+    <material name="CalciumSilicate" formula="">
+      <D value="0.6"/>
+      <composite ref="calcium" n="1"/>
+      <composite ref="oxygen" n="3"/>
+      <composite ref="silicon" n="1"/>
+    </material>
+    <material name="CarbonSteel" formula="">
+      <D value="7.9"/>
+      <fraction ref="carbon" n="0.003"/>
+      <fraction ref="copper" n="0.0025"/>
+      <fraction ref="iron" n="0.98"/>
+      <fraction ref="manganese" n="0.0103"/>
+      <fraction ref="phosphorus" n="0.0009"/>
+      <fraction ref="silicon" n="0.0028"/>
+      <fraction ref="sulfur" n="0.0005"/>
+    </material>
+    <material name="LowDensityCarbonSteel" formula="">
+      <D value="0.754"/>
+      <fraction ref="carbon" n="0.003"/>
+      <fraction ref="copper" n="0.0025"/>
+      <fraction ref="iron" n="0.98"/>
+      <fraction ref="manganese" n="0.0103"/>
+      <fraction ref="phosphorus" n="0.0009"/>
+      <fraction ref="silicon" n="0.0028"/>
+      <fraction ref="sulfur" n="0.0005"/>
+    </material>
+    <material name="ReifConcrete" formula="">
+      <D value="2.5"/>
+      <fraction ref="CaO" n="0.6661"/>
+      <fraction ref="SiO2" n="0.2345"/>
+      <fraction ref="Al2O3" n="0.0445"/>
+      <fraction ref="Fe2O3" n="0.0307"/>
+      <fraction ref="MgO" n="0.0242"/>
+    </material>
+    <material name="Polyurethane" formula="">
+      <D value="0.065"/>
+      <composite ref="carbon" n="27"/>
+      <composite ref="hydrogen" n="36"/>
+      <composite ref="nitrogen" n="2"/>
+      <composite ref="oxygen" n="10"/>
+    </material>
+    <material name="PolyurethaneFoam" formula="">
+      <D value="0.09"/>
+      <composite ref="carbon" n="27"/>
+      <composite ref="hydrogen" n="36"/>
+      <composite ref="nitrogen" n="2"/>
+      <composite ref="oxygen" n="10"/>
+    </material>
+    <material name="Epoxy" formula="">
+      <D value="1.25"/>
+      <composite ref="carbon" n="6"/>
+      <composite ref="hydrogen" n="6"/>
+      <composite ref="oxygen" n="1"/>
+    </material>
+    <material name="Glass" formula="">
+      <D value="2.7"/>
+      <fraction ref="silicon" n="0.2743"/>
+      <fraction ref="boron" n="0.0166"/>
+      <fraction ref="aluminum" n="0.0207"/>
+      <fraction ref="sodium" n="0.0449"/>
+      <fraction ref="potassium" n="0.0821"/>
+      <fraction ref="zinc" n="0.0882"/>
+      <fraction ref="titanium" n="0.0292"/>
+      <fraction ref="oxygen" n="0.444"/>
+    </material>
+    <material name="FR4" formula="">
+      <D value="1.85"/>
+      <fraction ref="Epoxy" n="0.206"/>
+      <fraction ref="Glass" n="0.794"/>
+    </material>
+    <material name="PVT" formula="">
+      <D value="1.023"/>
+      <composite ref="carbon" n="9"/>
+      <composite ref="hydrogen" n="10"/>
+    </material>
+    <material name="Scintillator" formula="">
+      <D value="1.05"/>
+      <fraction ref="carbon" n="0.916"/>
+      <fraction ref="hydrogen" n="0.084"/>
+    </material>
+    <material name="ScintillatorLoadedBoron5" formula="">
+      <D value="1.05"/>
+      <fraction ref="carbon" n="0.866"/>
+      <fraction ref="hydrogen" n="0.084"/>
+      <fraction ref="boron" n="0.05"/>
+    </material>
+    <material name="Oil" formula="">
+      <D value="0.8"/>
+      <fraction ref="carbon" n="0.916"/>
+      <fraction ref="hydrogen" n="0.084"/>
+    </material>
+    <material name="Lead" formula="">
+      <D value="11.342"/>
+      <composite ref="lead" n="1"/>
+    </material>
+    <material name="LAr" formula="">
+      <D value="1.4"/>
+      <composite ref="argon" n="1"/>
+    </material>
+    <material name="GAr" formula="">
+      <D value="0.001784"/>
+      <composite ref="argon" n="1"/>
+    </material>
+    <material name="KLOEEcal" formula="">
+      <D value="5.3"/>
+      <fraction ref="Lead" n="0.42"/>
+      <fraction ref="Scintillator" n="0.48"/>
+      <fraction ref="epoxy_resin" n="0.1"/>
+    </material>
+    <material name="PVF" formula="">
+      <D value="1.71"/>
+      <composite ref="carbon" n="2"/>
+      <composite ref="hydrogen" n="3"/>
+      <composite ref="fluorine" n="1"/>
+    </material>
+    <material name="Kevlar" formula="">
+      <D value="1.45"/>
+      <composite ref="carbon" n="7"/>
+      <composite ref="hydrogen" n="5"/>
+      <composite ref="nitrogen" n="1"/>
+      <composite ref="oxygen" n="1"/>
+    </material>
+    <material name="NomexHoneycomb" formula="">
+      <D value="0.029"/>
+      <composite ref="carbon" n="7"/>
+      <composite ref="hydrogen" n="5"/>
+      <composite ref="nitrogen" n="1"/>
+      <composite ref="oxygen" n="1"/>
+    </material>
+    <material name="Mylar" formula="">
+      <D value="1.39"/>
+      <composite ref="carbon" n="10"/>
+      <composite ref="hydrogen" n="8"/>
+      <composite ref="oxygen" n="4"/>
+    </material>
+    <material name="KevlarPrepreg" formula="">
+      <D value="1.37"/>
+      <fraction ref="Kevlar" n="0.6"/>
+      <fraction ref="epoxy_resin" n="0.4"/>
+    </material>
+    <material name="Methane" formula="">
+      <D value="0.000716"/>
+      <composite ref="carbon" n="1"/>
+      <composite ref="hydrogen" n="4"/>
+    </material>
+    <material name="Ethane" formula="">
+      <D value="0.00134"/>
+      <composite ref="carbon" n="2"/>
+      <composite ref="hydrogen" n="6"/>
+    </material>
+    <material name="CF4" formula="">
+      <D value="0.00393"/>
+      <composite ref="carbon" n="1"/>
+      <composite ref="fluorine" n="4"/>
+    </material>
+    <material name="CH2F2" formula="">
+      <D value="0.00232"/>
+      <composite ref="carbon" n="1"/>
+      <composite ref="hydrogen" n="2"/>
+      <composite ref="fluorine" n="2"/>
+    </material>
+    <material name="DME" formula="">
+      <D value="0.00206"/>
+      <composite ref="carbon" n="2"/>
+      <composite ref="hydrogen" n="6"/>
+      <composite ref="oxygen" n="1"/>
+    </material>
+    <material name="Nitrogen" formula="">
+      <D value="0.000625"/>
+      <composite ref="nitrogen" n="1"/>
+    </material>
+    <material name="NitrogenGas" formula="">
+      <D value="0.0012"/>
+      <composite ref="nitrogen" n="1"/>
+    </material>
+    <material name="HP_Ar" formula="">
+      <D value="0.01784"/>
+      <composite ref="argon" n="1"/>
+    </material>
+    <material name="HP_ArCO2" formula="">
+      <D value="0.01802"/>
+      <fraction ref="HP_Ar" n="0.89"/>
+      <fraction ref="CO2" n="0.11"/>
+    </material>
+    <material name="HP_CO2" formula="">
+      <D value="0.01896125"/>
+      <fraction ref="CO2" n="1.0"/>
+    </material>
+    <material name="HP_ArCH4" formula="">
+      <D value="0.01677"/>
+      <fraction ref="HP_Ar" n="0.957"/>
+      <fraction ref="Methane" n="0.043"/>
+    </material>
+    <material name="HP_ArCF4" formula="">
+      <D value="0.01998"/>
+      <fraction ref="HP_Ar" n="0.801"/>
+      <fraction ref="CF4" n="0.199"/>
+    </material>
+    <material name="NoGas" formula="">
+      <D value="1e-25"/>
+      <fraction ref="argon" n="1.0"/>
+    </material>
+    <material name="Vac" formula="">
+      <D value="1.225e-11"/>
+      <fraction ref="nitrogen" n="0.781154"/>
+      <fraction ref="oxygen" n="0.209476"/>
+      <fraction ref="argon" n="0.00934"/>
+    </material>
+    <material name="G10" formula="">
+      <D value="1.85"/>
+      <fraction ref="Epoxy" n="0.206"/>
+      <fraction ref="Glass" n="0.794"/>
+    </material>
+    <material name="Silicon" formula="">
+      <D value="2.33"/>
+      <composite ref="silicon" n="1"/>
+    </material>
+    <material name="EJ280WLS" formula="">
+      <D value="1.023"/>
+      <composite ref="carbon" n="9"/>
+      <composite ref="hydrogen" n="10"/>
+    </material>
+    <material name="Y11" formula="">
+      <D value="1.023"/>
+      <composite ref="carbon" n="9"/>
+      <composite ref="hydrogen" n="10"/>
+    </material>
+    <material name="Y11C" formula="">
+      <D value="1.023"/>
+      <composite ref="carbon" n="9"/>
+      <composite ref="hydrogen" n="10"/>
+    </material>
+    <material name="ESR" formula="">
+      <D value="1.38"/>
+      <composite ref="carbon" n="10"/>
+      <composite ref="hydrogen" n="8"/>
+      <composite ref="oxygen" n="4"/>
+    </material>
+    <material name="PSA" formula="">
+      <D value="1.18"/>
+      <composite ref="carbon" n="4"/>
+      <composite ref="hydrogen" n="6"/>
+      <composite ref="oxygen" n="2"/>
+    </material>
+    <material name="TPB" formula="">
+      <D value="1.079"/>
+      <composite ref="carbon" n="28"/>
+      <composite ref="hydrogen" n="22"/>
+    </material>
+    <material name="PVC" formula="">
+      <D value="1.38"/>
+      <composite ref="carbon" n="2"/>
+      <composite ref="hydrogen" n="3"/>
+      <composite ref="chlorine" n="1"/>
+    </material>
+  </materials>
+  <solids>
+    <tube name="GArTPC" lunit="cm" aunit="radian" rmin="0.0" rmax="71.0" z="147.2" startphi="0.0" deltaphi="6.283185307179586"/>
+    <tube name="TPCChamber" lunit="cm" aunit="radian" rmin="0.0" rmax="69.0" z="73.6" startphi="0.0" deltaphi="6.283185307179586"/>
+    <tube name="PV Barrel" lunit="cm" aunit="radian" rmin="70.0" rmax="71.0" z="73.6" startphi="0.0" deltaphi="6.283185307179586"/>
+    <sphere name="Endcap Gas shape" lunit="cm" aunit="radian" rmin="0.0" rmax="91.63451538461538" startphi="0.0" deltaphi="6.283185307179586" starttheta="0.0" deltatheta="0.8693404302984896"/>
+    <tube name="Gas to subtract" lunit="cm" aunit="radian" rmin="0.0" rmax="69.0" z="118.26943076923078" startphi="0.0" deltaphi="6.283185307179586"/>
+    <subtraction name="Gas Endcaps subtract inner barrel">
+      <first ref="Endcap Gas shape"/>
+      <second ref="Gas to subtract"/>
+      <positionref ref="center"/>
+      <rotationref ref="identity"/>
+    </subtraction>
+    <sphere name="PV Endcap" lunit="cm" aunit="radian" rmin="91.63461538461539" rmax="92.63461538461539" startphi="0.0" deltaphi="6.283185307179586" starttheta="0.0" deltatheta="0.8693404302984896"/>
+    <tube name="Cathode cathode holder shape" lunit="cm" aunit="radian" rmin="56.0" rmax="59.0" z="0.1" startphi="0.0" deltaphi="6.283185307179586"/>
+    <tube name="Cathode cathode shape" lunit="cm" aunit="radian" rmin="0.0" rmax="56.0" z="0.0025000000000000005" startphi="0.0" deltaphi="6.283185307179586"/>
+    <tube name="FC ring number 0field cage shape" lunit="cm" aunit="radian" rmin="55.5" rmax="56.1" z="2.0" startphi="0.0" deltaphi="6.283185307179586"/>
+    <tube name="FC ring number 1field cage shape" lunit="cm" aunit="radian" rmin="55.5" rmax="56.1" z="2.0" startphi="0.0" deltaphi="6.283185307179586"/>
+    <tube name="FC ring number 2field cage shape" lunit="cm" aunit="radian" rmin="55.5" rmax="56.1" z="2.0" startphi="0.0" deltaphi="6.283185307179586"/>
+    <tube name="FC ring number 3field cage shape" lunit="cm" aunit="radian" rmin="55.5" rmax="56.1" z="2.0" startphi="0.0" deltaphi="6.283185307179586"/>
+    <tube name="FC ring number 4field cage shape" lunit="cm" aunit="radian" rmin="55.5" rmax="56.1" z="2.0" startphi="0.0" deltaphi="6.283185307179586"/>
+    <tube name="FC ring number 5field cage shape" lunit="cm" aunit="radian" rmin="55.5" rmax="56.1" z="2.0" startphi="0.0" deltaphi="6.283185307179586"/>
+    <tube name="FC ring number 6field cage shape" lunit="cm" aunit="radian" rmin="55.5" rmax="56.1" z="2.0" startphi="0.0" deltaphi="6.283185307179586"/>
+    <tube name="FC ring number 7field cage shape" lunit="cm" aunit="radian" rmin="55.5" rmax="56.1" z="2.0" startphi="0.0" deltaphi="6.283185307179586"/>
+    <tube name="Terminator holder terminator holder shape " lunit="cm" aunit="radian" rmin="56.0" rmax="59.0" z="0.1" startphi="0.0" deltaphi="6.283185307179586"/>
+    <tube name="Terminator bottom terminator shape 1" lunit="cm" aunit="radian" rmin="0.0" rmax="56.0" z="0.1" startphi="3.141592653589793" deltaphi="3.141592653589793"/>
+    <trd name="Terminator bottom oroc shape" lunit="cm" aunit="radian" x1="187.0988" x2="187.0988" y1="103.81818181818181" y2="103.81818181818181" z="2.1"/>
+    <subtraction name="Terminator bottom Terminator subtract">
+      <first ref="Terminator bottom terminator shape 1"/>
+      <second ref="Terminator bottom oroc shape"/>
+      <positionref ref="center"/>
+      <rotationref ref="identity"/>
+    </subtraction>
+    <tube name="Terminator left terminator shape 2" lunit="cm" aunit="radian" rmin="0.0" rmax="56.0" z="0.1" startphi="4.71238898038469" deltaphi="3.141592653589793"/>
+    <trd name="Terminator left oroc shape" lunit="cm" aunit="radian" x1="69.29585185185185" x2="69.29585185185185" y1="114.2" y2="114.2" z="2.1"/>
+    <subtraction name="Terminator left Terminator subtract">
+      <first ref="Terminator left terminator shape 2"/>
+      <second ref="Terminator left oroc shape"/>
+      <positionref ref="center"/>
+      <rotationref ref="identity"/>
+    </subtraction>
+    <tube name="Terminator right terminator shape 3" lunit="cm" aunit="radian" rmin="0.0" rmax="56.0" z="0.1" startphi="1.5707963267948966" deltaphi="3.141592653589793"/>
+    <trd name="Terminator right oroc shape" lunit="cm" aunit="radian" x1="69.29585185185185" x2="69.29585185185185" y1="114.2" y2="114.2" z="2.1"/>
+    <subtraction name="Terminator right Terminator subtract">
+      <first ref="Terminator right terminator shape 3"/>
+      <second ref="Terminator right oroc shape"/>
+      <positionref ref="center"/>
+      <rotationref ref="identity"/>
+    </subtraction>
+    <trd name="OROC alu  main OROC main shape " lunit="cm" aunit="radian" x1="46.7747" x2="87.0478" y1="2.18" y2="2.18" z="114.2"/>
+    <trd name="OROC alu frame vertical division " lunit="cm" aunit="radian" x1="1.6" x2="1.6" y1="4.25" y2="4.25" z="98.7"/>
+    <trd name="OROC alu frame OROC frame shape outer " lunit="cm" aunit="radian" x1="43.474700000000006" x2="83.7478" y1="6.2" y2="6.2" z="102.7"/>
+    <trd name="OROC alu frame OROC frame shape inner " lunit="cm" aunit="radian" x1="39.474700000000006" x2="79.7478" y1="6.200200000000001" y2="6.200200000000001" z="98.7"/>
+    <subtraction name="OROC alu frame OROC frame shape 1">
+      <first ref="OROC alu frame OROC frame shape outer "/>
+      <second ref="OROC alu frame OROC frame shape inner "/>
+      <positionref ref="center"/>
+      <rotationref ref="identity"/>
+    </subtraction>
+    <union name="OROC alu frame OROC frame shape">
+      <first ref="OROC alu frame OROC frame shape 1"/>
+      <second ref="OROC alu frame vertical division "/>
+      <positionref ref="center"/>
+      <rotationref ref="identity"/>
+    </union>
+    <box name="MPD" lunit="cm" x="1620.0" y="1620.0" z="1620.0"/>
+  </solids>
+  <structure>
+    <volume name="Cathode cathode holder vol">
+      <materialref ref="Steel"/>
+      <solidref ref="Cathode cathode holder shape"/>
+    </volume>
+    <volume name="Cathode cathode vol">
+      <materialref ref="Steel"/>
+      <solidref ref="Cathode cathode shape"/>
+    </volume>
+    <volume name="FC ring number 0field cage vol">
+      <materialref ref="Copper"/>
+      <solidref ref="FC ring number 0field cage shape"/>
+    </volume>
+    <volume name="FC ring number 1field cage vol">
+      <materialref ref="Copper"/>
+      <solidref ref="FC ring number 1field cage shape"/>
+    </volume>
+    <volume name="FC ring number 2field cage vol">
+      <materialref ref="Copper"/>
+      <solidref ref="FC ring number 2field cage shape"/>
+    </volume>
+    <volume name="FC ring number 3field cage vol">
+      <materialref ref="Copper"/>
+      <solidref ref="FC ring number 3field cage shape"/>
+    </volume>
+    <volume name="FC ring number 4field cage vol">
+      <materialref ref="Copper"/>
+      <solidref ref="FC ring number 4field cage shape"/>
+    </volume>
+    <volume name="FC ring number 5field cage vol">
+      <materialref ref="Copper"/>
+      <solidref ref="FC ring number 5field cage shape"/>
+    </volume>
+    <volume name="FC ring number 6field cage vol">
+      <materialref ref="Copper"/>
+      <solidref ref="FC ring number 6field cage shape"/>
+    </volume>
+    <volume name="FC ring number 7field cage vol">
+      <materialref ref="Copper"/>
+      <solidref ref="FC ring number 7field cage shape"/>
+    </volume>
+    <volume name="Terminator holder terminator holder vol ">
+      <materialref ref="PVC"/>
+      <solidref ref="Terminator holder terminator holder shape "/>
+    </volume>
+    <volume name="Terminator bottom terminator vol 1">
+      <materialref ref="Steel"/>
+      <solidref ref="Terminator bottom Terminator subtract"/>
+    </volume>
+    <volume name="Terminator left terminator vol 2">
+      <materialref ref="Steel"/>
+      <solidref ref="Terminator left Terminator subtract"/>
+    </volume>
+    <volume name="Terminator right terminator vol 3">
+      <materialref ref="Steel"/>
+      <solidref ref="Terminator right Terminator subtract"/>
+    </volume>
+    <volume name="OROC alu  main OROC main vol ">
+      <materialref ref="Aluminum"/>
+      <solidref ref="OROC alu  main OROC main shape "/>
+    </volume>
+    <volume name="OROC alu frame OROC frame vol ">
+      <materialref ref="Aluminum"/>
+      <solidref ref="OROC alu frame OROC frame shape"/>
+    </volume>
+    <volume name="volTPCChamber">
+      <materialref ref="HP_Ar"/>
+      <solidref ref="TPCChamber"/>
+      <physvol>
+        <volumeref ref="Cathode cathode holder vol"/>
+        <positionref ref="Cathode _pos"/>
+        <rotationref ref="Cathode _rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="Cathode cathode vol"/>
+        <positionref ref="Cathode _pos"/>
+        <rotationref ref="Cathode _rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="FC ring number 0field cage vol"/>
+        <positionref ref="FC ring number 0_pos"/>
+        <rotationref ref="FC ring number 0_rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="FC ring number 1field cage vol"/>
+        <positionref ref="FC ring number 1_pos"/>
+        <rotationref ref="FC ring number 1_rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="FC ring number 2field cage vol"/>
+        <positionref ref="FC ring number 2_pos"/>
+        <rotationref ref="FC ring number 2_rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="FC ring number 3field cage vol"/>
+        <positionref ref="FC ring number 3_pos"/>
+        <rotationref ref="FC ring number 3_rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="FC ring number 4field cage vol"/>
+        <positionref ref="FC ring number 4_pos"/>
+        <rotationref ref="FC ring number 4_rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="FC ring number 5field cage vol"/>
+        <positionref ref="FC ring number 5_pos"/>
+        <rotationref ref="FC ring number 5_rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="FC ring number 6field cage vol"/>
+        <positionref ref="FC ring number 6_pos"/>
+        <rotationref ref="FC ring number 6_rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="FC ring number 7field cage vol"/>
+        <positionref ref="FC ring number 7_pos"/>
+        <rotationref ref="FC ring number 7_rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="Terminator holder terminator holder vol "/>
+        <positionref ref="Terminator holder _pos"/>
+        <rotationref ref="Terminator holder _rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="Terminator bottom terminator vol 1"/>
+        <positionref ref="Terminator bottom _pos"/>
+        <rotationref ref="Terminator bottom _rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="Terminator left terminator vol 2"/>
+        <positionref ref="Terminator left _pos"/>
+        <rotationref ref="Terminator left _rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="Terminator right terminator vol 3"/>
+        <positionref ref="Terminator right _pos"/>
+        <rotationref ref="Terminator right _rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="OROC alu  main OROC main vol "/>
+        <positionref ref="OROC alu  main _pos"/>
+        <rotationref ref="OROC alu  main _rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="OROC alu frame OROC frame vol "/>
+        <positionref ref="OROC alu frame _pos"/>
+        <rotationref ref="OROC alu frame _rot"/>
+      </physvol>
+      <auxiliary auxtype="SensDet" auxvalue="Gas Barrel vol"/>
+    </volume>
+    <volume name="volPV Barrel">
+      <materialref ref="Steel"/>
+      <solidref ref="PV Barrel"/>
+    </volume>
+    <volume name="Gas Endcaps vol ">
+      <materialref ref="HP_Ar"/>
+      <solidref ref="Gas Endcaps subtract inner barrel"/>
+      <auxiliary auxtype="SensDet" auxvalue="Gas Endcaps vol"/>
+    </volume>
+    <volume name="vol PV Endcap">
+      <materialref ref="Steel"/>
+      <solidref ref="PV Endcap"/>
+    </volume>
+    <volume name="volGArTPC">
+      <materialref ref="Air"/>
+      <solidref ref="GArTPC"/>
+      <physvol>
+        <volumeref ref="volTPCChamber"/>
+        <positionref ref="TPCChamber_pos"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="volPV Barrel"/>
+        <positionref ref="center"/>
+        <rotationref ref="identity"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="Gas Endcaps vol "/>
+        <positionref ref="Gas Endcap L_pos"/>
+        <rotationref ref="Gas Endcap L_rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="Gas Endcaps vol "/>
+        <positionref ref="Gas Endcap R_pos"/>
+        <rotationref ref="Gas Endcap R_rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="vol PV Endcap"/>
+        <positionref ref="PV Endcap L_pos"/>
+        <rotationref ref="PV Endcap L_rot"/>
+      </physvol>
+      <physvol>
+        <volumeref ref="vol PV Endcap"/>
+        <positionref ref="PV Endcap R_pos"/>
+        <rotationref ref="PV Endcap R_rot"/>
+      </physvol>
+    </volume>
+    <volume name="volMPD">
+      <materialref ref="Air"/>
+      <solidref ref="MPD"/>
+      <physvol>
+        <volumeref ref="volGArTPC"/>
+        <positionref ref="center"/>
+        <rotationref ref="Rotation (x&lt;-&gt;z)"/>
+      </physvol>
+    </volume>
+  </structure>
+  <setup name="Default" version="0">
+    <world ref="volMPD"/>
+  </setup>
+</gdml>
