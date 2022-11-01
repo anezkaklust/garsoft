@@ -490,8 +490,9 @@ namespace gar{
                 this->DrawMCTPCTruth(event);
 
                 //Draw MCTruth
-                if(fDrawMCCaloTruth)
-                this->DrawMCCaloTruth(event);
+                //if(fDrawMCCaloTruth)
+                //this->DrawMCCaloTruth(event);
+                // no cal deposition in TOAD!
 
                 //Draw raw hits
                 if(fDrawECALRawHits)
@@ -596,20 +597,34 @@ namespace gar{
                 for(auto volname : fVolumesToShow)
                 {
                     std::vector<const TGeoNode*> nodevec = fGeometry->FindVolumePath(volname);
+                    // print what is in this
+                    // what am i actually iterating over lol
 
                     for(unsigned int i = 0; i < nodevec.size(); i++)
                     {
                         std::string nodename(nodevec.at(i)->GetName());
+                        std::cout << nodename << std::endl;
                         if(nodename.find(volname) == std::string::npos) continue;
 
                         const TGeoNode *node = nodevec.at(i);
 
+                        std::vector<const TGeoNode*> nodevec2;
+                        //for(int idaugh = 0; idaugh < node->GetNdaughters(); idaugh++){
+                        //    nodevec2 = node->GetDaughter();
+                        //}
                         //If Barrel or Endcap -> show daughters
-                        if(nodename.find("BarrelECal") != std::string::npos || nodename.find("EndcapECal") != std::string::npos)
+                        if(nodename.find("volGArTPC") != std::string::npos)//|| nodename.find("EndcapECal") != std::string::npos)
                         {
                             TGeoScale nullmatgm_local;
                             TGeoMatrix* topECal = &nullmatgm_local;
                             topECal = node->GetMatrix();
+
+                            TGeoShape *shape = node->GetVolume()->GetShape();
+                            TGeoShape* clonedShape = dynamic_cast<TGeoShape*> (shape->Clone("fakeShape"));
+                            TEveGeoShape *fakeShape = new TEveGeoShape(shape->GetName());
+                            fakeShape->SetShape(clonedShape);
+                            fakeShape->SetMainColor(kGray);
+                            fakeShape->SetMainTransparency(90);
 
                             for(int idaugh = 0; idaugh < node->GetNdaughters(); idaugh++)
                             {
@@ -619,16 +634,78 @@ namespace gar{
                                 TEveGeoShape *daugh_fakeShape = new TEveGeoShape(daugh_shape->GetName());
                                 daugh_fakeShape->SetShape(daugh_clonedShape);
 
-                                if(nodename.find("BarrelECal") != std::string::npos)
+                                std::string daugh_nodename = daugh_node->GetName();
+                                std::cout << daugh_nodename << std::endl;
+                                //std::cout << "anezkak hi" << std::endl;
+
+                                if(nodename.find("volGArTPC") != std::string::npos)
                                 {
-                                    daugh_fakeShape->SetMainColor(kOrange+10);
-                                    daugh_fakeShape->SetMainTransparency(80);
+                                    daugh_fakeShape->SetMainColor(kBlue);
+                                    daugh_fakeShape->SetMainTransparency(90);
+
+                                     // visualize the pressure vessel
+                                    if (daugh_nodename == "volPV_Barrel" || daugh_nodename == "vol_PV_Endcap")
+                                    {
+                                        daugh_fakeShape->SetMainColor(kGray);
+                                        daugh_fakeShape->SetMainTransparency(0);
+                                    }
                                 }
-                                else if(nodename.find("EndcapECal") != std::string::npos)
-                                {
-                                    daugh_fakeShape->SetMainColor(kGreen+1);
-                                    daugh_fakeShape->SetMainTransparency(80);
+                                
+    
+
+                                if (daugh_nodename == "volTPCChamber"){
+                                    for(int idaugh2 = 0; idaugh2 < daugh_node->GetNdaughters(); idaugh2++)
+                                    {
+                                        const TGeoNode *daugh_node2 = daugh_node->GetDaughter(idaugh2);
+                                        std::string daugh_nodename2 = daugh_node2->GetName();
+                                        std::cout << daugh_nodename2<< std::endl;
+
+                                        TGeoShape *daugh_shape2 = daugh_node2->GetVolume()->GetShape();
+                                        TGeoShape* daugh_clonedShape2 = dynamic_cast<TGeoShape*> (daugh_shape2->Clone("fakeShape2"));
+                                        TEveGeoShape *daugh_fakeShape2 = new TEveGeoShape(daugh_shape2->GetName());
+                                        daugh_fakeShape2->SetShape(daugh_clonedShape2);
+
+                                        if (daugh_nodename2 == "Cathodecathode_vol")
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kRed);
+                                            daugh_fakeShape2->SetMainTransparency(0);
+                                        }
+
+                                        if (daugh_nodename2 == "Cathodecathode_holder_vol_0")
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kRed);
+                                            daugh_fakeShape2->SetMainTransparency(0);
+                                        }
+
+                                        if (daugh_nodename2 == "FC_ringN_0field_cage_vol_0")
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kViolet);
+                                            daugh_fakeShape2->SetMainTransparency(80);
+                                        }
+                                        if (daugh_nodename2 == "FC_ringN_1field_cage_vol_0")
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kViolet);
+                                            daugh_fakeShape2->SetMainTransparency(80);
+                                        }
+                                        if (daugh_nodename2 == "FC_ringN_2field_cage_vol_0")
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kViolet);
+                                            daugh_fakeShape2->SetMainTransparency(80);
+                                        }
+                                        if (daugh_nodename2 == "FC_ringN_3field_cage_vol_0")
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kViolet);
+                                            daugh_fakeShape2->SetMainTransparency(80);
+                                        }
+
+                                        
+
+                                    
+
+                                    }
+
                                 }
+
 
                                 TGeoMatrix* currMat = daugh_node->GetMatrix();
                                 TGeoMatrix* mat = currMat->MakeClone();
@@ -643,14 +720,14 @@ namespace gar{
                                 list->AddElement(daugh_fakeShape);
                             }
                         }
-                        else{
+                        /*else{
                             TGeoShape *shape = node->GetVolume()->GetShape();
                             TGeoShape* clonedShape = dynamic_cast<TGeoShape*> (shape->Clone("fakeShape"));
 
                             TEveGeoShape *fakeShape = new TEveGeoShape(shape->GetName());
                             fakeShape->SetShape(clonedShape);
 
-                            if(nodename.find("TPC") != std::string::npos)
+                            if(nodename.find("TPCChamber") != std::string::npos)
                             {
                                 fakeShape->SetMainColor(kBlue+8);
                                 fakeShape->SetMainTransparency(80);
@@ -675,7 +752,7 @@ namespace gar{
                             // fakeShape->SetTransMatrix(*mat);
 
                             list->AddElement(fakeShape);
-                        }
+                        }*/
                     }
                     nodevec.clear();
                 }

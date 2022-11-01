@@ -2,7 +2,6 @@
 #include "evdservices_base.fcl"
 #include "DetectorProperties.fcl"
 #include "GArProperties.fcl"
-#include "ECALProperties.fcl"
 #include "DetectorClocks.fcl"
 
 process_name: EVD3D
@@ -12,11 +11,11 @@ services:
   # Load the service that manages root files for histograms.
   message:      @local::evd_message
   #See Geometry.fcl for the list of geometries available
-  GeometryGAr:               @local::nd_hall_mpd_only_SPYv3_geo
+  GeometryGAr:               @local::toad_geo
   ExptGeoHelperInterface:    @local::standard_geometry_helper # from Geometry.fcl
   DetectorProperties:        @local::standard_detproperties   # from DetectorProperties.fcl
   GArProperties:             @local::standard_garproperties   # from GArProperties.fcl
-  ECALProperties:            @local::standard_ecalproperties   # from ECALProperties.fcl
+  #ECALProperties:            @local::standard_ecalproperties   # from ECALProperties.fcl
   DetectorClocks:            @local::standard_clocks          # from DetectorClocks.fcl
   RootGraphicsEnablingService: {}
   EventDisplay3DService:       {}
