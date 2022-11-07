@@ -258,7 +258,7 @@ namespace gar {
 	}
       else
 	{
-	  throw cet::exception("tpctrackfit2_module") << "Sort Algorithm swithc not understood: " << fSortAlg;
+	  throw cet::exception("tpctrackfit2_module") << "Sort Algorithm switch not understood: " << fSortAlg;
 	}
       if (hlf.size() == 0) return 1;
       std::vector<float> tparend(6);
