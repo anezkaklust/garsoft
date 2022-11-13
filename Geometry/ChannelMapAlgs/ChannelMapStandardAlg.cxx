@@ -35,6 +35,8 @@ namespace gar {
                 fTPCCenter.x = geo.TPCXCent();
                 fTPCCenter.y = geo.TPCYCent();
                 fTPCCenter.z = geo.TPCZCent();
+                // Initialize at 0,0,0
+            
 
                 std::cout << "Initializing TPC channel standard map alg with TPC Center:  " << fTPCCenter.x << " " << fTPCCenter.y << " " << fTPCCenter.z << std::endl;
 
@@ -43,7 +45,7 @@ namespace gar {
 
                 fNumSectors = 18;
                 fSectorOffsetAngleDeg = 10.0;
-                fPhiSectorWidth = 2.0*TMath::Pi()/fNumSectors;
+                fPhiSectorWidth = 2.0*TMath::Pi()/18;
                 fNumPadRowsIROC = fROC->GetNRowLow();
                 fNumPadRowsOROCI = fROC->GetNRowUp1();
                 fNumPadRowsOROCO = fROC->GetNRowUp2();
@@ -68,23 +70,25 @@ namespace gar {
 
                 fCenterPadWidth = 0.6;
                 fXPlaneLoc = geo.TPCLength()/2.0;
-                //std::cout << "Plane loc from geometry service " << fXPlaneLoc << std::endl;
+                std::cout << "Plane loc from geometry service " << fXPlaneLoc << std::endl;
                 //float TsectorH = TMath::Tan(TMath::DegToRad()*(360/(fNumSectors*2)));
 
                 // count up channels
                 // get the xyz center for each pixel and fill pad row information -- nominal geometry, negative x side
 
 
-                for (UInt_t isector = 0; isector < fNumSectors; ++isector)
-                {
+                //for (UInt_t isector = 0; isector < fNumSectors; ++isector)
+                //{
+                    UInt_t isector = 13;
                     UInt_t ipadacc=0;
 
                     // Inner Readout Chamber
-
-                    for (UInt_t irow = 0; irow < fNumPadRowsIROC; ++irow)
+                    /*for (UInt_t irow = 0; irow < fNumPadRowsIROC; ++irow)
                     {
                         UInt_t numpads = fROC->GetNPads(isector,irow);
-                        if (isector == 0)
+                        //std::cout << "Row " << irow << " numpads " << numpads << std::endl;
+
+                        if (isector == 13)
                         {
                             fNumPadsPerRow.push_back(numpads);
                             fFirstPadInRow.push_back(ipadacc);
@@ -98,7 +102,7 @@ namespace gar {
                             fPixelCenters.emplace_back(pos[0]+fTPCCenter.x,pos[1]+fTPCCenter.y,pos[2]+fTPCCenter.z);
                             ipadacc++;
                         }
-                    }
+                    }*/
 
                     // Outer readout chamber
 
@@ -106,7 +110,8 @@ namespace gar {
                     {
 
                         UInt_t numpads = fROC->GetNPads(isector + 36,irow);
-                        if (isector == 0)
+                        //std::cout << "Row " << irow << " numpads " << numpads << std::endl;
+                        if (isector == 13)
                         {
                             fNumPadsPerRow.push_back(numpads);
                             fFirstPadInRow.push_back(ipadacc);
@@ -118,15 +123,19 @@ namespace gar {
                             pos[2] = pos[0];
                             pos[0] = -fXPlaneLoc;
                             fPixelCenters.emplace_back(pos[0]+fTPCCenter.x,pos[1]+fTPCCenter.y,pos[2]+fTPCCenter.z);
+                            // overlay with the geoemtry here I think
+                            // pos[0] is x
+                            // pos[1] is y
+                            // pos[3] is z
                             ipadacc++;
                         }
-                        if (isector == 0) fNumChansPerSector = ipadacc;
+                        if (isector == 13) fNumChansPerSector = ipadacc;
                     }
-                } // end of loop over sectors
+                //} // end of loop over sectors
 
                 // fill in the hole with a rectangular grid of pixels.   Make x,y,z=0 a pad corner.  Put pads under the cover electrode for now
 
-                fNumChansCenter = 0;
+                /*fNumChansCenter = 0;
                 float rcenter = fIROCInnerRadius - 2.0;
                 UInt_t nrowscenter = 2*TMath::Floor(rcenter/fCenterPadWidth);
                 for (UInt_t irow = 0; irow < nrowscenter; ++irow)
@@ -144,6 +153,7 @@ namespace gar {
                         fNumChansCenter++;
                     }
                 }
+                */
 
                 //done with all channels on one side
 
@@ -200,7 +210,9 @@ namespace gar {
 
                     //if (ichan == 30000 || ichan == 100000 || ichan == 230000 || ichan == 13 || ichan == 3001 || ichan == 6001 || ichan == 309000)
                     //{
-                    //std::cout << "trjc " << ichan << " " << xyz[1] << " " << xyz[2] << std::endl;
+                    std::cout << "trjc " << ichan << " " << xyz[1] << " " << xyz[2] << std::endl;
+                    std::cout << " ====================================================" << std::endl;
+                    //std::cout << "trjc " << ichan << " " << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
                     //float varxyz[3] = {0,0,0};
                     //for (float dy=-2.0; dy<2.0; dy += 0.01)
                     //	{
@@ -253,7 +265,7 @@ namespace gar {
                 if (phi<0) phi += 2.0*TMath::Pi();
                 float phisc = phi/( fPhiSectorWidth );
                 UInt_t isector = TMath::Floor(phisc); // assumes the sector boundary is at phi=0  // goes from 0 to 17
-
+                std::cout << "Isector " << isector << std::endl;
                 // rotate this back down to a single sector
 
                 float rotang = TMath::DegToRad()*( isector*360/fNumSectors + fSectorOffsetAngleDeg );
@@ -266,7 +278,7 @@ namespace gar {
                 //std::cout << "zrot, yrot, isector: " << zrot << " " << yrot << " " << isector << std::endl;
                 if (zrot>fIROCInnerRadius-0.4)
                 {
-
+                    
                     roctype = IROC;
 
                     //std::cout << "Rotation: " << rotang << " " << xyz[1] << " " << xyz[2] << " " << zrot << " " << yrot << std::endl;
@@ -296,35 +308,46 @@ namespace gar {
                     }
                     else if (rtmp < fOROCPadHeightChangeRadius)
                     {
-                        //std::cout << "in IOROC rtmp: " << rtmp << std::endl;
+                        std::cout << "in IOROC rtmp: " << rtmp << std::endl;
 
                         roctype = IOROC;
 
-                        irow =  TMath::Floor( (rtmp-(fOROCInnerRadius-0.5))/fPadHeightOROCI ) + fNumPadRowsIROC;
-                        if (irow < fNumPadRowsIROC)
-                        {
-                            nearestchannel = fGapChannelNumber;
-                            return;
-                        }
+                        //irow =  TMath::Floor( (rtmp-(fOROCInnerRadius-0.5))/fPadHeightOROCI ) + fNumPadRowsIROC;
+                        irow =  TMath::Floor( (rtmp-(fOROCInnerRadius-0.5))/fPadHeightOROCI );
+
+                        std::cout << "in IOROC irow " << irow << std::endl;
+                        //if (irow < fNumPadRowsIROC)
+                        //{
+                        //    nearestchannel = fGapChannelNumber;
+                        //    std::cout << "IOROC return " << nearestchannel << std::endl;
+                        //    return;
+                        //}
                         //std::cout << "Inner OROC row calc: " << irow << " " << fNumPadRowsIROC << std::endl;
                         padwidthloc = fPadWidthOROC;
                     }
                     else
                     {
-                        //std::cout << "in OOROC rtmp: " << rtmp << std::endl;
+                        std::cout << "in OOROC rtmp: " << rtmp << std::endl;
 
                         roctype = OOROC;
 
-                        irow = TMath::Floor( (rtmp-fOROCPadHeightChangeRadius)/fPadHeightOROCO ) + fNumPadRowsIROC + fNumPadRowsOROCI;
+                        //irow = TMath::Floor( (rtmp-fOROCPadHeightChangeRadius)/fPadHeightOROCO ) + fNumPadRowsIROC + fNumPadRowsOROCI;
+                        irow = TMath::Floor( (rtmp-fOROCPadHeightChangeRadius)/fPadHeightOROCO ) + fNumPadRowsOROCI;
+                        std::cout << "in OOROC irow " << irow << std::endl;
+
                         padwidthloc = fPadWidthOROC;
                     }
 
                     //std::cout << "irow: " << irow << std::endl;
 
-                    UInt_t totpadrows = fNumPadRowsIROC + fNumPadRowsOROCI + fNumPadRowsOROCO;
+                    //UInt_t totpadrows = fNumPadRowsIROC + fNumPadRowsOROCI + fNumPadRowsOROCO;
+                    UInt_t totpadrows = fNumPadRowsOROCI + fNumPadRowsOROCO;
+                    std::cout << "totpadrows: " << totpadrows << std::endl;
+
                     if (irow >= totpadrows)
                     {
                         nearestchannel = fGapChannelNumber;
+                        std::cout << " irow >= totpadrows nearestchannel: " << nearestchannel << std::endl;
                         return;
                     }
 
@@ -334,12 +357,15 @@ namespace gar {
                     if (ichanrowoff < 0 || (UInt_t) ichanrowoff >= fNumPadsPerRow.at(irow))
                     {
                         nearestchannel = fGapChannelNumber;
+                        std::cout << " (ichanrowoff < 0 || (UInt_t) ichanrowoff >= fNumPadsPerRow.at(irow)) nearestchannel: " << nearestchannel << std::endl;
                         return;
                     }
                     UInt_t ichansector = fFirstPadInRow.at(irow) + ichanrowoff;
+                    std::cout << "ichansector" << ichansector << std::endl;
                     //std::cout << "ichansector calc: " << yrot/padwidthloc << " " << fNumPadsPerRow.at(irow) << " " << fFirstPadInRow.at(irow) << " " << ichansector << std::endl;
 
-                    ichan = ichansector + fNumChansPerSector * isector;
+                    ichan = ichansector + fNumChansPerSector * 1;
+                    std::cout << "ichan" << ichan<< std::endl;
 
                     //if (ichan>1000000)
                     //{
@@ -378,6 +404,7 @@ namespace gar {
                         return;
                     }
                     ichan = ivar + fCenterFirstPadInRow.at(irow) + fNumSectors*fNumChansPerSector;
+                    std::cout << "Ichan" << ichan << std::endl;
                     // 	  ichan = fCenterFirstPadInRow.at(irow) + TMath::Min((UInt_t) fCenterNumPadsPerRow.at(irow)-1,
                     //						     (UInt_t) TMath::Floor(TMath::Max((float)0.0,(float) (xyz[2]/fCenterPadWidth + fCenterNumPadsPerRow.at(irow)/2))))
                     // +  fNumSectors*fNumChansPerSector;
@@ -392,10 +419,10 @@ namespace gar {
 
 		// assume positive side X for the lone readout plane if we are using just one
 
-                if (xyz[0] > fGeo->TPCXCent() || fGeo->TPCNumDriftVols() == 1) 
-		  {
-		    ichan += fNumSectors*fNumChansPerSector + fNumChansCenter;  // the opposite side of the TPC.
-		  }
+            //if (xyz[0] > fGeo->TPCXCent() || fGeo->TPCNumDriftVols() == 1) 
+		    //{
+		    //ichan += fNumSectors*fNumChansPerSector + fNumChansCenter;  // the opposite side of the TPC.
+		    //}
 
                 nearestchannel = TMath::Max(TMath::Min(ichan, (UInt_t) fPixelCenters.size() - 1), (UInt_t) 0);
                 return;
