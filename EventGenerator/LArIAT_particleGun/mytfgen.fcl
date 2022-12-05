@@ -1,0 +1,3 @@
+#include "prodtext.fcl"
+
+physics.producers.generator.InputFileName: "particle_list_neg60Amps.txt"
