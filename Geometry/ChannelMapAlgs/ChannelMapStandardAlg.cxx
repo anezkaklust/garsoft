@@ -33,7 +33,7 @@ namespace gar {
                 //std::string driftvolname = geo.GetGArTPCVolumeName();
 
                 fTPCCenter.x = geo.TPCXCent();
-                fTPCCenter.y = geo.TPCYCent();
+                fTPCCenter.y = geo.TPCYCent() + 200;
                 fTPCCenter.z = geo.TPCZCent();
                 // Initialize at 0,0,0
             
@@ -70,7 +70,7 @@ namespace gar {
 
                 fCenterPadWidth = 0.6;
                 fXPlaneLoc = geo.TPCLength()/2.0;
-                std::cout << "Plane loc from geometry service " << fXPlaneLoc << std::endl;
+                //std::cout << "Plane loc from geometry service " << fXPlaneLoc << std::endl;
                 //float TsectorH = TMath::Tan(TMath::DegToRad()*(360/(fNumSectors*2)));
 
                 // count up channels
@@ -189,7 +189,7 @@ namespace gar {
 
             void ChannelMapStandardAlg::CheckPositions()
             {
-                std::cout << "gar::ChannelMapStandardAlg::CheckPositions -- checking positions" << std::endl;
+                //std::cout << "gar::ChannelMapStandardAlg::CheckPositions -- checking positions" << std::endl;
 
                 UInt_t numchans = Nchannels();
                 float xyz[3] = {0, 0, 0};
@@ -211,7 +211,7 @@ namespace gar {
                     //if (ichan == 30000 || ichan == 100000 || ichan == 230000 || ichan == 13 || ichan == 3001 || ichan == 6001 || ichan == 309000)
                     //{
                     std::cout << "trjc " << ichan << " " << xyz[1] << " " << xyz[2] << std::endl;
-                    std::cout << " ====================================================" << std::endl;
+                    //std::cout << " ====================================================" << std::endl;
                     //std::cout << "trjc " << ichan << " " << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
                     //float varxyz[3] = {0,0,0};
                     //for (float dy=-2.0; dy<2.0; dy += 0.01)
@@ -265,7 +265,8 @@ namespace gar {
                 if (phi<0) phi += 2.0*TMath::Pi();
                 float phisc = phi/( fPhiSectorWidth );
                 UInt_t isector = TMath::Floor(phisc); // assumes the sector boundary is at phi=0  // goes from 0 to 17
-                std::cout << "Isector " << isector << std::endl;
+                //std::cout << "Isector " << isector << std::endl;
+                
                 // rotate this back down to a single sector
 
                 float rotang = TMath::DegToRad()*( isector*360/fNumSectors + fSectorOffsetAngleDeg );
@@ -276,14 +277,18 @@ namespace gar {
 
 
                 //std::cout << "zrot, yrot, isector: " << zrot << " " << yrot << " " << isector << std::endl;
-                if (zrot>fIROCInnerRadius-0.4)
+                if (isector != 13){
+                    nearestchannel = fGapChannelNumber;
+                    return;
+                }
+                else if (zrot>fIROCInnerRadius-0.4)
                 {
                     
                     roctype = IROC;
 
                     //std::cout << "Rotation: " << rotang << " " << xyz[1] << " " << xyz[2] << " " << zrot << " " << yrot << std::endl;
                     // zrot is r, and yrot=0 is centered on the midplane
-
+                
                     float rtmp=zrot;
                     if (zrot > fOROCOuterRadius)
                     {
@@ -305,17 +310,21 @@ namespace gar {
                         }
                         // don't be this forgiving irow = TMath::Min(fNumPadRowsIROC-1,irow);
                         padwidthloc = fPadWidthIROC;
+                        
+                        nearestchannel = fGapChannelNumber;
+                        return;
+                    
                     }
                     else if (rtmp < fOROCPadHeightChangeRadius)
-                    {
-                        std::cout << "in IOROC rtmp: " << rtmp << std::endl;
+                    { //std::cout<< "isector is 13 IOROC " << std::endl;
+                        //std::cout << "in IOROC rtmp: " << rtmp << std::endl;
 
                         roctype = IOROC;
 
                         //irow =  TMath::Floor( (rtmp-(fOROCInnerRadius-0.5))/fPadHeightOROCI ) + fNumPadRowsIROC;
                         irow =  TMath::Floor( (rtmp-(fOROCInnerRadius-0.5))/fPadHeightOROCI );
 
-                        std::cout << "in IOROC irow " << irow << std::endl;
+                        //std::cout << "in IOROC irow " << irow << std::endl;
                         //if (irow < fNumPadRowsIROC)
                         //{
                         //    nearestchannel = fGapChannelNumber;
@@ -326,14 +335,14 @@ namespace gar {
                         padwidthloc = fPadWidthOROC;
                     }
                     else
-                    {
-                        std::cout << "in OOROC rtmp: " << rtmp << std::endl;
+                    { //std::cout<< "isector is 13 OOROC " << std::endl;
+                        //std::cout << "in OOROC rtmp: " << rtmp << std::endl;
 
                         roctype = OOROC;
 
                         //irow = TMath::Floor( (rtmp-fOROCPadHeightChangeRadius)/fPadHeightOROCO ) + fNumPadRowsIROC + fNumPadRowsOROCI;
                         irow = TMath::Floor( (rtmp-fOROCPadHeightChangeRadius)/fPadHeightOROCO ) + fNumPadRowsOROCI;
-                        std::cout << "in OOROC irow " << irow << std::endl;
+                        //std::cout << "in OOROC irow " << irow << std::endl;
 
                         padwidthloc = fPadWidthOROC;
                     }
@@ -342,12 +351,12 @@ namespace gar {
 
                     //UInt_t totpadrows = fNumPadRowsIROC + fNumPadRowsOROCI + fNumPadRowsOROCO;
                     UInt_t totpadrows = fNumPadRowsOROCI + fNumPadRowsOROCO;
-                    std::cout << "totpadrows: " << totpadrows << std::endl;
+                    //std::cout << "totpadrows: " << totpadrows << std::endl;
 
                     if (irow >= totpadrows)
                     {
                         nearestchannel = fGapChannelNumber;
-                        std::cout << " irow >= totpadrows nearestchannel: " << nearestchannel << std::endl;
+                        //std::cout << " irow >= totpadrows nearestchannel: " << nearestchannel << std::endl;
                         return;
                     }
 
@@ -357,15 +366,15 @@ namespace gar {
                     if (ichanrowoff < 0 || (UInt_t) ichanrowoff >= fNumPadsPerRow.at(irow))
                     {
                         nearestchannel = fGapChannelNumber;
-                        std::cout << " (ichanrowoff < 0 || (UInt_t) ichanrowoff >= fNumPadsPerRow.at(irow)) nearestchannel: " << nearestchannel << std::endl;
+                        //std::cout << " (ichanrowoff < 0 || (UInt_t) ichanrowoff >= fNumPadsPerRow.at(irow)) nearestchannel: " << nearestchannel << std::endl;
                         return;
                     }
                     UInt_t ichansector = fFirstPadInRow.at(irow) + ichanrowoff;
-                    std::cout << "ichansector" << ichansector << std::endl;
+                    //std::cout << "ichansector" << ichansector << std::endl;
                     //std::cout << "ichansector calc: " << yrot/padwidthloc << " " << fNumPadsPerRow.at(irow) << " " << fFirstPadInRow.at(irow) << " " << ichansector << std::endl;
 
                     ichan = ichansector + fNumChansPerSector * 1;
-                    std::cout << "ichan" << ichan<< std::endl;
+                    //std::cout << "ichan" << ichan<< std::endl;
 
                     //if (ichan>1000000)
                     //{
@@ -376,9 +385,11 @@ namespace gar {
 
                 } // end test if we are outside the inner radius of the ALICE chambers
                 else  // must be in the hole filler
-                {
+                { //std::cout<< "isector is 13 Filler " << std::endl;
                     roctype = HFILLER;
-
+                    nearestchannel = fGapChannelNumber;
+                    return;
+                    /*
                     float tvar = xyz[1]/fCenterPadWidth + fCenterNumPadsPerRow.size()/2;
                     if (tvar<0)
                     {
@@ -414,6 +425,7 @@ namespace gar {
                     //  std::cout << "Problem Channel ID, inner filler " << xyz[0] << " " << xyz[1] << " " << xyz[2] << " " << ichan << std::endl;
                     //  std::cout << irow << std::endl;
                     //}
+                    */
 
                 }
 
@@ -425,6 +437,7 @@ namespace gar {
 		    //}
 
                 nearestchannel = TMath::Max(TMath::Min(ichan, (UInt_t) fPixelCenters.size() - 1), (UInt_t) 0);
+                //std::cout << "Nearest channel " << nearestchannel << std::endl;
                 return;
             }
 
@@ -448,7 +461,9 @@ namespace gar {
                 cwn.clear();
                 unsigned int chan;
                 gar::geo::ROCType roctype;
+                //std::cout<<" NearestChannelWithROCType(xyz,roctype,chan) " << std::endl;
                 NearestChannelWithROCType(xyz,roctype,chan);   // get the nearest channel ID and add it to the list
+                //std::cout<<" ChannelToPosition(chan,xyztest); " << std::endl;
                 ChannelToPosition(chan,xyztest);
                 TVector3 xvecchan(xyztest[0],xyztest[1],xyztest[2]);
                 gar::geo::ChanWithPos centerchanwithpos = {chan, xvecchan, zerovec, roctype}; // put the direction vector in later
