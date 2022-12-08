@@ -553,7 +553,7 @@ namespace gar {
                 TPCCol->emplace_back(tpc);
             }
 
-            // And finally the sdp::CaloDepositions
+            // The sdp::CaloDeposits
             std::vector<gar::sdp::CaloDeposit> deposits = fAuxDetAction->CaloDeposits();
             if (geo->HasTrackerScDetector())
                 deposits = fAuxDetAction->TrackerScDeposits();
@@ -567,7 +567,7 @@ namespace gar {
                 ECALCol->emplace_back(hit);
             }
 
-            // And finally the sdp::CaloDepositions
+            // The sdp::CaloDeposits from the MuID system
             for(auto const& hit : fAuxDetAction->MuIDDeposits())
             {
                 MF_LOG_DEBUG("GArG4")
@@ -590,13 +590,11 @@ namespace gar {
             evt.put(std::move(TPCCol));
 
             std::string instanceName = "ECAL";
-            if(geo->HasTrackerScDetector())
-            instanceName = "TrackerSc";
+            if (geo->HasTrackerScDetector()) instanceName = "TrackerSc";
 
             evt.put(std::move(ECALCol), instanceName);
 
-            if(geo->HasMuonDetector())
-            evt.put(std::move(MuIDCol), "MuID");
+            if (geo->HasMuonDetector()) evt.put(std::move(MuIDCol), "MuID");
             
             evt.put(std::move(LArCol));
 

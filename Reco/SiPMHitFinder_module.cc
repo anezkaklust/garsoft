@@ -213,8 +213,8 @@ namespace gar {
         //----------------------------------------------------------------------------
         void SiPMHitFinder::CollectDigiHits(const art::Event &evt, const std::string &label, const std::string &instance, std::vector< art::Ptr<gar::raw::CaloRawDigit> > &hitVector)
         {
-        art::InputTag itag(label,instance);
-        auto theHits = evt.getHandle< std::vector<gar::raw::CaloRawDigit> >(itag);
+            art::InputTag itag(label,instance);
+            auto theHits = evt.getHandle< std::vector<gar::raw::CaloRawDigit> >(itag);
             if (!theHits) return;
 
             for (unsigned int i = 0; i < theHits->size(); ++i)
