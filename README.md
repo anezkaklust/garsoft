@@ -1,23 +1,4 @@
-# garsoft: Software for ND-GAr
-
-## Quick-Start: Using pre-installed GArSoft in CVMFS
-
-If your computer has CVMFS installed and running, you can type
-
-```
-source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
-setup garsoft v02_16_00 -q e20:prof
-```
-
-and then proceed to the section below on running a sample of GArSoft events.  
-The version in the setup command above will go out of date. To see what versions are available, type
-
-```
-ups list -aK+ garsoft
-```
-
-after sourcing the setup script. This list is not expected to be sorted.
-
+# garsoft: Software for ND-GAr and TOAD
 
 ## Building GArSoft from Source -- all other dependencies in CVMFS
 
@@ -59,50 +40,37 @@ Note: mrbsetenv sets up a build environment, and environment variables will poin
 
 Some examples from dunetpc on how to work with git, check out code, develop on branches, and pushing code: [dunetpc git/mrb tutorial](https://cdcvs.fnal.gov/redmine/projects/dunetpc/wiki/_Tutorial_)
 
-## Run a sample 1000-event 
+## Run a 2 sample events for TOAD
 
-
-
-
-
-job after building or setting up code:
+Job after building or setting up code:
 
 ```
-art -n 1000 -c prodgenie.fcl
-art -c readoutsimjob.fcl genie_gen.root
-art -c recojob.fcl readoutsim.root         (sim_readout.root for older checkouts of the fcl files)
-art -c evd.fcl reco.root
+# event generation
+art -n 2 -c toadtfgen.fcl
+# readout simulation
+art -c readoutsimjob.fcl text_gen.root 
+# event display
+art -c evd3D.fcl readoutsim.root
 ```
 
-or, insetead of the last line, use
+Reconstrution job for TOAD is not yet utilized. For ND-GAr, this can be run as:
 
 ```
-art -c evd3D.fcl reco.root
+art -c recojob.fcl readoutsim.root   
 ```
 
-for a nice eve-based event display Eldwan provided. Note that the prodgenie.fcl job requires flux files. Currently the location of those flux files is set to a pnfs directory at FNAL. (If you are running somewhere other than the FNAL cluster, you might want to try prodsingle.fcl instead, or you will need to edit the search path and copy method in the prodgenie.fcl file. The fcl files are in $FHICL_FILE_PATH.)  In order for art to find the flux files, you need a grid proxy or an unexpired Kerberos ticket from which ifdh can make a grid proxy.  setup_fnal_security (in duneutil) also gives you a grid proxy based on your Kerberos ticket.
-
-You can now make an analysis root tree with
-
+An analysis root tree with can be made
 ```
 art -c anajob.fcl reco.root
 ```
 
 There is an example root macro that reads the anatree.root file made by anajob.fcl. It's in garsoft/Ana/ExampleAnalysisScripts/garana.C and garana.h. There's no CMakeLists.txt file in there so the script doesn't get installed anywhere by default, so it just lives in the git repository. Copy it to your working directory along with the header file and run it to make some plots.
 
-## Tips, tricks, and gotchas
-
-During development, testing and debugging, it is good to have three login sessions up on your screen simultaneously.
-
-* A session used for editing code. No special environment is needed for this
-* A session for compiling code. Use the setup instructions above and use mrbsetenv to set up the build environment.
-* A session used for running code. Use the setup instructions above and use mrbslp to set up the run environment.
 
 ## Event Display tips
-The event display starts a ROOT TApplication, and reads rootlogon.C. Users may have a rootlogon.C which is incompatible with the event display -- the symptom is a segfault starting up the event display. It works fine with a blank rootlogon.C, which you can put in the directory you're running the event display from so as not to clobber your regular rootlogon.C.
+The event display starts a ROOT TApplication, and reads rootlogon.C. Users may have a rootlogon.C which is incompatible with the event display -- the symptom is a segfault starting up the event display. It works fine with a blank rootlogon.C, which you can put in the directory you're running the event display from so as not to clobber your regular rootlogon.C. 
 
-## Debugger tips
-The forge_tools debugger from arm (setup forge_tools to get it) comes with customized versions of gdb and several system libraries, like libGL.so. The system library replacements, probably libGL.so, interfere with EVE, so you have to unsetup forge_tools in order to get evd3D.fcl to work (or any other EVE-based event display for that matter). I like to have a separate login session set up with the same running environment as the one the debugger is running in so I can search for source code that ddt cannot find automatically. You may have to use UPS-defined environment variables to find source code in CVMFS.
+For graphics visualization, one can set up VNC port.
 
 ## Computing tips
 Lots of computing how-to information is here: https://wiki.dunescience.org/wiki/DUNE_Computing/Computing_How-To_Documentation
