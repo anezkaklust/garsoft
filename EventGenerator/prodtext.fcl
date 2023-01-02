@@ -6,7 +6,6 @@
 #include "DetectorClocks.fcl"
 #include "DetectorProperties.fcl"
 #include "GArProperties.fcl"
-#include "ECALProperties.fcl"
 #include "Geometry.fcl"
 #include "RunHistory.fcl"
 
@@ -23,13 +22,13 @@ services:
  TimeTracker:            {}
  RandomNumberGenerator:  {} #ART native random number generator
  #See Geometry.fcl for the list of geometries available
- GeometryGAr:            @local::nd_hall_mpd_only_SPYv3_geo
+ GeometryGAr:            @local::toad_geo
  GeometryGArConfigurationWriter: {}
  ExptGeoHelperInterface: @local::standard_geometry_helper
  DetectorClocks:         @local::standard_clocks
  DetectorProperties:     @local::standard_detproperties
  GArProperties:          @local::standard_garproperties
- ECALProperties:         @local::standard_ecalproperties
+ #ECALProperties:         @local::standard_ecalproperties
  NuRandomService:        @local::standard_NuRandomService
  MagneticField:          @local::standard_mag_garsoft 
  #RunHistory:             @local::standard_runhistory
