@@ -922,6 +922,7 @@
     <volume name="Gas_Endcaps_vol">
       <materialref ref="HP_ArCH4"/>
       <solidref ref="Gas_Endcaps_subtract_inner_barrel"/>
+      <auxiliary auxtype="SensDet" auxvalue="Gas_Endcaps_vol"/>
     </volume>
     <volume name="vol_PV_Endcap">
       <materialref ref="Steel"/>
