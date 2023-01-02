@@ -300,6 +300,7 @@ namespace gar{
                 fEvtDisplayUtil = std::make_unique<evd3d::EventDisplay3DUtils>();
 
                 fGeoManager = fGeometry->ROOTGeoManager();
+                fGeoManager->SetVisLevel(5); //By default, TGeoVolume::Draw() paints the content of a given volume three levels down.
                 fGeoManager->DefaultColors();
             }
 
@@ -636,24 +637,28 @@ namespace gar{
 
                                 std::string daugh_nodename = daugh_node->GetName();
                                 std::cout << daugh_nodename << std::endl;
-                                //std::cout << "anezkak hi" << std::endl;
 
                                 if(nodename.find("volGArTPC") != std::string::npos)
                                 {
-                                    daugh_fakeShape->SetMainColor(kBlue);
-                                    daugh_fakeShape->SetMainTransparency(90);
-
-                                     // visualize the pressure vessel
-                                    if (daugh_nodename == "volPV_Barrel" || daugh_nodename == "vol_PV_Endcap")
-                                    {
-                                        daugh_fakeShape->SetMainColor(kGray);
-                                        daugh_fakeShape->SetMainTransparency(0);
-                                    }
+                                    daugh_fakeShape->SetMainColor(1+idaugh);
+                                    daugh_fakeShape->SetMainTransparency(100);
                                 }
                                 
-    
+                                if(daugh_nodename.find("volPV_Barrel") != std::string::npos)
+                                {
+                                        daugh_fakeShape->SetMainColor(kGray);
+                                        daugh_fakeShape->SetMainTransparency(80);
+                                }
 
-                                if (daugh_nodename == "volTPCChamber"){
+                                if(daugh_nodename.find("vol_PV_Endcap") != std::string::npos)
+                                {
+                                        daugh_fakeShape->SetMainColor(kGray);
+                                        daugh_fakeShape->SetMainTransparency(80);
+                                }
+
+                                if (daugh_nodename.find("volTPCChamber") != std::string::npos)
+                                {
+                                    std::cout<<daugh_node->GetNdaughters()<<std::endl;
                                     for(int idaugh2 = 0; idaugh2 < daugh_node->GetNdaughters(); idaugh2++)
                                     {
                                         const TGeoNode *daugh_node2 = daugh_node->GetDaughter(idaugh2);
@@ -665,43 +670,106 @@ namespace gar{
                                         TEveGeoShape *daugh_fakeShape2 = new TEveGeoShape(daugh_shape2->GetName());
                                         daugh_fakeShape2->SetShape(daugh_clonedShape2);
 
-                                        if (daugh_nodename2 == "Cathodecathode_vol")
+                                        if(daugh_nodename.find("volTPCChamber") != std::string::npos)
+                                        {
+                                            daugh_fakeShape2->SetMainColor(1+idaugh);
+                                            daugh_fakeShape2->SetMainTransparency(100);
+                                        }
+
+                                        if(daugh_nodename2.find("Cathodecathode_vol") != std::string::npos)
                                         {
                                             daugh_fakeShape2->SetMainColor(kRed);
-                                            daugh_fakeShape2->SetMainTransparency(0);
+                                            daugh_fakeShape2->SetMainTransparency(90);
                                         }
 
-                                        if (daugh_nodename2 == "Cathodecathode_holder_vol_0")
+                                        if (daugh_nodename2.find("Cathodecathode_holder_vol")!= std::string::npos)
                                         {
                                             daugh_fakeShape2->SetMainColor(kRed);
-                                            daugh_fakeShape2->SetMainTransparency(0);
-                                        }
-
-                                        if (daugh_nodename2 == "FC_ringN_0field_cage_vol_0")
-                                        {
-                                            daugh_fakeShape2->SetMainColor(kViolet);
-                                            daugh_fakeShape2->SetMainTransparency(80);
-                                        }
-                                        if (daugh_nodename2 == "FC_ringN_1field_cage_vol_0")
-                                        {
-                                            daugh_fakeShape2->SetMainColor(kViolet);
-                                            daugh_fakeShape2->SetMainTransparency(80);
-                                        }
-                                        if (daugh_nodename2 == "FC_ringN_2field_cage_vol_0")
-                                        {
-                                            daugh_fakeShape2->SetMainColor(kViolet);
-                                            daugh_fakeShape2->SetMainTransparency(80);
-                                        }
-                                        if (daugh_nodename2 == "FC_ringN_3field_cage_vol_0")
-                                        {
-                                            daugh_fakeShape2->SetMainColor(kViolet);
                                             daugh_fakeShape2->SetMainTransparency(80);
                                         }
 
+                                        if (daugh_nodename2.find("FC_ringN_0field_cage_vol_0")!= std::string::npos)
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kRed);
+                                            daugh_fakeShape2->SetMainTransparency(80);
+                                        }
+                                        if (daugh_nodename2.find("FC_ringN_1field_cage_vol_0")!= std::string::npos)
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kRed);
+                                            daugh_fakeShape2->SetMainTransparency(80);
+                                        }
+                                        if (daugh_nodename2.find("FC_ringN_2field_cage_vol_0")!= std::string::npos)
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kRed);
+                                            daugh_fakeShape2->SetMainTransparency(80);
+                                        }
+                                        if (daugh_nodename2.find("FC_ringN_3field_cage_vol_0")!= std::string::npos)
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kRed);
+                                            daugh_fakeShape2->SetMainTransparency(80);
+                                        }
+                                        if (daugh_nodename2.find("FC_ringN_4field_cage_vol_0")!= std::string::npos)
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kRed);
+                                            daugh_fakeShape2->SetMainTransparency(80);
+                                        }
+                                        if (daugh_nodename2.find("FC_ringN_5field_cage_vol_0")!= std::string::npos)
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kRed);
+                                            daugh_fakeShape2->SetMainTransparency(80);
+                                        }
+                                        if (daugh_nodename2.find("FC_ringN_6field_cage_vol_0")!= std::string::npos)
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kRed);
+                                            daugh_fakeShape2->SetMainTransparency(80);
+                                        }
+                                        if (daugh_nodename2.find("FC_ringN_7field_cage_vol_0")!= std::string::npos)
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kRed);
+                                            daugh_fakeShape2->SetMainTransparency(80);
+                                        }
+                                        if (daugh_nodename2.find("OROC_alu_main_OROC_main_vol_0")!= std::string::npos)
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kGray);
+                                            daugh_fakeShape2->SetMainTransparency(50);
+                                        }
+                                        if (daugh_nodename2.find("OROC_alu_frame_OROC_frame_vol_0")!= std::string::npos)
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kGray);
+                                            daugh_fakeShape2->SetMainTransparency(50);
+                                        }
+                                        if (daugh_nodename2.find("Terminator_holderterminator_holder_vol_0")!= std::string::npos)
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kOrange);
+                                            daugh_fakeShape2->SetMainTransparency(70);
+                                        }
+                                        if (daugh_nodename2.find("Terminator_bottom_terminator_vol_1_0")!= std::string::npos)
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kGray);
+                                            daugh_fakeShape2->SetMainTransparency(70);
+                                        }
+                                        if (daugh_nodename2.find("Terminator_left_terminato_vol_2_0")!= std::string::npos)
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kGray);
+                                            daugh_fakeShape2->SetMainTransparency(70);
+                                        }
+                                        if (daugh_nodename2.find("Terminator_right_terminator_vol_3_0")!= std::string::npos)
+                                        {
+                                            daugh_fakeShape2->SetMainColor(kGray);
+                                            daugh_fakeShape2->SetMainTransparency(70);
+                                        }
                                         
+                                        TGeoMatrix* currMat = daugh_node2->GetMatrix();
+                                        TGeoMatrix* mat = currMat->MakeClone();
+                                        TGeoHMatrix *m = new TGeoHMatrix(*mat);
+                                        m->MultiplyLeft(topECal);
+                                        // m->MultiplyLeft(topND2);
+                                        m->MultiplyLeft(topND);
+                                        if(hasEnclosure) m->MultiplyLeft(topEnclosure);
+                                        if(hasHall) m->MultiplyLeft(topHall);
+                                        daugh_fakeShape2->SetTransMatrix(*m);
 
-                                    
-
+                                        list->AddElement(daugh_fakeShape2);
                                     }
 
                                 }
@@ -1724,7 +1792,7 @@ namespace gar{
 
                 //Final char
                 char annotation[2560];
-                sprintf(annotation, "DUNE ND HPgTPC\n%s%s%s%s", runbuff, eventbuff, datebuff, timebuff);
+                sprintf(annotation, "TOAD \n%s%s%s%s", runbuff, eventbuff, datebuff, timebuff);
                 ann->SetText(annotation);
                 ann->SetRole(TGLOverlayElement::kViewer);
                 ann->SetUseColorSet(true);
