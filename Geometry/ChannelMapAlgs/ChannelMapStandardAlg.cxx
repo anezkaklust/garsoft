@@ -32,14 +32,6 @@ namespace gar {
 
                 //std::string driftvolname = geo.GetGArTPCVolumeName();
 
-                fTPCCenter.x = geo.TPCXCent();
-                fTPCCenter.y = geo.TPCYCent() + 200;
-                fTPCCenter.z = geo.TPCZCent();
-                // Initialize at 0,0,0
-            
-
-                std::cout << "Initializing TPC channel standard map alg with TPC Center:  " << fTPCCenter.x << " " << fTPCCenter.y << " " << fTPCCenter.z << std::endl;
-
                 // get these from the geometry?
                 // all dimensions are in cm
 
@@ -69,9 +61,24 @@ namespace gar {
                 fGapChannelNumber = 10000000;
 
                 fCenterPadWidth = 0.6;
-                fXPlaneLoc = geo.TPCLength()/2.0;
-                //std::cout << "Plane loc from geometry service " << fXPlaneLoc << std::endl;
+                //fXPlaneLoc = geo.TPCLength()/2.0; // in cm
+                fXPlaneLoc = 62.5/2 - 28.4 + 1.0; // hardcoded, should probably write some methods to acess these
+                // Note: OROC Main is at distance
+                // offset_z = self.RailLength/2 - self.TerminatorOffset + self.TerminatorOROCoffset + self.orocThickness_dy1/2
+                // ignore thickness, place it on the face of the OROC main
+                // Q("625mm") - Q("284mm") +  Q("10mm")
+                std::cout << "Channel map location in the drift direction " << fXPlaneLoc << " cm" << std::endl;
                 //float TsectorH = TMath::Tan(TMath::DegToRad()*(360/(fNumSectors*2)));
+
+                fTPCCenter.x = geo.TPCXCent();
+                fTPCCenter.y = geo.TPCYCent() + fOROCInnerRadius + (fOROCOuterRadius - fOROCInnerRadius)/2 + 7.75 ;
+                fTPCCenter.z = geo.TPCZCent();
+                // Initialize at 0,0+ offset in y,0
+                // Offset in y is fOROCInnerRadius to make top of the OROC at 0, 0, 0
+                // To make it centered at 0, 0, 0, must add (fOROCOuterRadius - fOROCInnerRadius)/2
+                // To make it overlap with the geometry, must add y offset from gdml file -> OROC frame position in y 77.5 millimeter
+    
+                std::cout << "Initializing TPC channel standard map alg with TPC Center:  " << fTPCCenter.x << " " << fTPCCenter.y << " " << fTPCCenter.z << std::endl;
 
                 // count up channels
                 // get the xyz center for each pixel and fill pad row information -- nominal geometry, negative x side
