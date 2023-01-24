@@ -45,6 +45,8 @@ The COMPILER variable above is a UPS qualifier indicating which version of which
 
 The BUILDTYPE variable above is either "prof" or "debug". Both kinds of builds include debug symbols, but "prof" turns on optimization, which can make using a debugger more challenging, but will make the code run faster.
 
+The -j4 argument on the mrb i command refers to the number of concurrent build processes (like g++ compiling a single source file).  A good rule of thum is to match it to the number of CPUs available on the machine you are working.  DUNE gpvms have four cores and a commensurate amount of memory, so use -j4 on those.  DUNE build nodes have 16 cores each and enough memory to support running the compiler on each one.
+
 Each time you log in and want to work with your garsoft test release, execute (or write a script), do the following to set up a build environment:
 
 ```
