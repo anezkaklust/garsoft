@@ -40,8 +40,6 @@
     <position unit="cm" name="OROC_alu_main_pos" x="0.0" y="5.6000000000000005" z="4.94"/>
     <rotation unit="degree" name="OROC_alu_frame_rot" x="270" y="0" z="0"/>
     <position unit="cm" name="OROC_alu_frame_pos" x="0.0" y="7.75" z="9.13"/>
-    <rotation unit="degree" name="TPC_Drift_rot" x="0" y="0" z="0"/>
-    <position unit="cm" name="TPC_Drift_pos" x="0.0" y="0.0" z="-13.4525"/>
     <rotation unit="degree" name="Rotation_xz" x="0" y="90" z="0"/>
     <position name="center"/>
     <rotation name="identity"/>
@@ -752,7 +750,6 @@
       <positionref ref="center"/>
       <rotationref ref="identity"/>
     </union>
-    <tube name="TPC_Driftdrift_shape" lunit="cm" aunit="radian" rmin="0.0" rmax="55.5" z="34.050000000000004" startphi="0.0" deltaphi="6.283185307179586"/>
     <box name="MPD" lunit="cm" x="1620.0" y="1620.0" z="1620.0"/>
   </solids>
   <structure>
@@ -819,12 +816,6 @@
     <volume name="OROC_alu_frame_OROC_frame_vol">
       <materialref ref="Aluminum"/>
       <solidref ref="OROC_alu_frame_OROC_frame_shape"/>
-    </volume>
-    <volume name="TPC_Driftdrift_vol">
-      <materialref ref="HP_ArCH4"/>
-      <solidref ref="TPC_Driftdrift_shape"/>
-      <auxiliary auxtype="SensDet" auxvalue="TPC_Drift"/>
-      <auxiliary auxtype="StepLimit" auxvalue="10 mm"/>
     </volume>
     <volume name="volTPCChamber">
       <materialref ref="HP_ArCH4"/>
@@ -908,11 +899,6 @@
         <volumeref ref="OROC_alu_frame_OROC_frame_vol"/>
         <positionref ref="OROC_alu_frame_pos"/>
         <rotationref ref="OROC_alu_frame_rot"/>
-      </physvol>
-      <physvol>
-        <volumeref ref="TPC_Driftdrift_vol"/>
-        <positionref ref="TPC_Drift_pos"/>
-        <rotationref ref="TPC_Drift_rot"/>
       </physvol>
     </volume>
     <volume name="volPV_Barrel">
