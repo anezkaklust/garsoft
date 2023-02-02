@@ -217,7 +217,7 @@ namespace gar {
 
                     //if (ichan == 30000 || ichan == 100000 || ichan == 230000 || ichan == 13 || ichan == 3001 || ichan == 6001 || ichan == 309000)
                     //{
-                    std::cout << "trjc " << ichan << " " << xyz[1] << " " << xyz[2] << std::endl;
+                    //std::cout << "trjc " << ichan  << " " << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
                     //std::cout << " ====================================================" << std::endl;
                     //std::cout << "trjc " << ichan << " " << xyz[0] << " " << xyz[1] << " " << xyz[2] << std::endl;
                     //float varxyz[3] = {0,0,0};
