@@ -40,7 +40,7 @@ ExptGeoHelperInterface: @local::standard_geometry_helper
 DetectorClocks:         @local::standard_clocks
 DetectorProperties:     @local::standard_detproperties
 GArProperties:          @local::standard_garproperties
-ECALProperties:         @local::standard_ecalproperties
+#ECALProperties:         @local::standard_ecalproperties
 NuRandomService:        @local::standard_NuRandomService
 MagneticField:          @local::standard_mag_garsoft
 BackTracker:            @local::standard_backtracker
