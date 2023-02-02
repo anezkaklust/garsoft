@@ -496,12 +496,12 @@ namespace gar{
                 // no cal deposition in TOAD!
 
                 //Draw raw hits
-                if(fDrawECALRawHits)
-                this->DrawRawHits(event);
+                //if(fDrawECALRawHits)
+                //this->DrawRawHits(event);
 
                 //Draw reco hits
-                if(fDrawECALRecoHits)
-                this->DrawRecoHits(event);
+                //if(fDrawECALRecoHits)
+                //this->DrawRecoHits(event);
 
                 //Draw high level reco
                 // if(fDrawECALClusters || fDrawTracks || fDrawVertices)
