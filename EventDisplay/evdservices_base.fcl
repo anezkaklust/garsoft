@@ -193,11 +193,11 @@ drawECALClusters     : false
 drawMuIDRecoHits     : false
 drawTracks           : false
 drawVertices         : false
-drawTPCClusters      : false
-drawMCTruth          : true
-drawMCCaloTruth      : true
+drawTPCClusters      : true
+drawMCTruth          : false
+drawMCCaloTruth      : false
 drawMCTPCTruth       : true
-VolumesToShow        : ["volGArTPC", "volPVBarrel", "volPVEndcap", "volBarrelECal", "volEndcapECal", "volYokeBarrel", "volYokeEndcap"]
+VolumesToShow        : ["volGArTPC"] #, "volPVBarrel", "volPVEndcap", "volBarrelECal", "volEndcapECal", "volYokeBarrel", "volYokeEndcap"]
 
 G4ModuleLabel             : "geant"
 InstanceName              : ["ECAL", "MuID"]
