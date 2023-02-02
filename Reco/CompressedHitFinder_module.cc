@@ -247,7 +247,7 @@ namespace gar {
                         }
                       else
                         {
-                          pos[0] = chanposx - driftdistance;
+                          pos[0] = chanposx + driftdistance;
                         }
 
 		      // noise hits are plentiful
