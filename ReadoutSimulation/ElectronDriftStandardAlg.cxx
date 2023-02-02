@@ -67,11 +67,18 @@ namespace gar {
       // The geometry has x = TPCXCent() at the cathode plane. Compute the drift time for a two-drift-volume
       // TPC.  If we only have one drift volume, need to get that information here.
 
-      double driftD       = std::abs(std::abs(xyz[0] - fGeo->TPCXCent()) - fGeo->TPCLength()/2.0);  // assume cathode is at x=TPXCent
-      if (fGeo->TPCNumDriftVols() == 1)
-	{
-	  driftD = std::max(0.0, fGeo->TPCLength()/2.0 - (xyz[0] - fGeo->TPCXCent()));
-	}
+      //double driftD       = std::max(0.0,26.35-xyz[0]); 
+      double driftD       = std::max(0.0,xyz[0]-3.85);  // position of the OROC is at 3.85
+      //std::cout<<"DriftD " << driftD <<std::endl;
+      if (driftD > 26.35){ // the drift region between the cathode and the OROC
+        //std::cout<< "Outside of the drift region, not drifted towards the OROC." <<std::endl;
+        return;
+      }
+      //double driftD       = std::abs(std::abs(xyz[0] - fGeo->TPCXCent()) - fGeo->TPCLength()/2.0);  // assume cathode is at x=TPXCent
+      //if (fGeo->TPCNumDriftVols() == 1)
+	//{
+	  //driftD = std::max(0.0, fGeo->TPCLength()/2.0 - (xyz[0] - fGeo->TPCXCent()));
+	//}
       double driftT       = driftD * fInverseVelocity;  // in cm
       double sqrtDriftD   = std::sqrt(driftD);
       double lifetimeCorr = std::exp(driftT / fLifetimeCorrection);
