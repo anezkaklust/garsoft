@@ -111,9 +111,6 @@ namespace gar {
     static bool lessThan_byE(std::pair<float,float> a, std::pair<float,float> b)
     {return a.first < b.first;}
 
-    // Compute T for coherent pion analysis
-    float computeT( simb::MCTruth theMCTruth );
-
     // Calculate the track PID based on reco momentum and Tom's parametrization
     std::vector< std::pair<int, float> > processPIDInfo( float p );
 
@@ -172,7 +169,6 @@ namespace gar {
 
     // Truncation parameter for dE/dx (average this fraction of the lowest readings)
     float fIonizTruncate;      ///<                               Default=1.00;
-    bool  fWriteCohInfo;       ///< MC level t for coherent pi+.  Default=false
 
     // the analysis tree
     TTree *fTree;
@@ -215,7 +211,6 @@ namespace gar {
     std::vector<Float_t>            fX;
     std::vector<Float_t>            fY;
     std::vector<Float_t>            fTheta;
-    std::vector<Float_t>            fT;
     std::vector<Float_t>            fMCVertexX;
     std::vector<Float_t>            fMCVertexY;
     std::vector<Float_t>            fMCVertexZ;
@@ -582,7 +577,8 @@ gar::anatree::anatree(fhicl::ParameterSet const & p)
   fWriteMatchedTracks       = p.get<bool>("WriteMatchedTracks",true);
 
   fIonizTruncate            = p.get<float>("IonizTruncate",    0.70);
-  fWriteCohInfo             = p.get<bool> ("WriteCohInfo",     false);
+
+
 
   if (usegenlabels) {
     for (size_t i=0; i<fGeneratorLabels.size(); ++i) {
@@ -689,7 +685,7 @@ void gar::anatree::beginJob() {
     fTree->Branch("MC_X",        &fX);
     fTree->Branch("MC_Y",        &fY);
     fTree->Branch("MC_Theta",    &fTheta);
-    if (fWriteCohInfo) fTree->Branch("MC_T", &fT);
+
     fTree->Branch("MCVertX",     &fMCVertexX);
     fTree->Branch("MCVertY",     &fMCVertexY);
     fTree->Branch("MCVertZ",     &fMCVertexZ);
@@ -1120,7 +1116,6 @@ void gar::anatree::ClearVectors() {
     fX.clear();
     fY.clear();
     fTheta.clear();
-    if (fWriteCohInfo) fT.clear();
     fMCVertexX.clear();
     fMCVertexY.clear();
     fMCVertexZ.clear();
@@ -1475,10 +1470,6 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
         fX.push_back(nuw.X());
         fY.push_back(nuw.Y());
         fTheta.push_back(nuw.Theta());
-        if (fWriteCohInfo) {
-          double getT = computeT(mct);
-          fT.push_back( static_cast<Float_t>(getT) );
-        }
         fMCVertexX.push_back(nuw.Nu().EndX());
         fMCVertexY.push_back(nuw.Nu().EndY());
         fMCVertexZ.push_back(nuw.Nu().EndZ());
@@ -2425,64 +2416,6 @@ float gar::anatree::processOneDirection(std::vector<std::pair<float,float>> SigD
   }
   returnvalue /= goUpTo;
   return returnvalue;
-}
-
-
-
-//==============================================================================
-//==============================================================================
-//==============================================================================
-// Coherent pion analysis specific code
-float gar::anatree::computeT( simb::MCTruth theMCTruth ) {
-  // Warning.  You probably want the absolute value of t, not t.
-  int nPart = theMCTruth.NParticles();
-  enum { nu, mu, pi};
-  float E[3], Px[3], Py[3], Pz[3];
-  E[nu] = E[mu] = E[pi] = -1e42;
-
-  for (int i=0; i<3;++i) {
-    Px[i] = 0;
-    Py[i] = 0;
-    Pz[i] = 0;
-    E[i]  = 0;
-  }
-  // Find t from the MCParticles via the
-  for (int iPart=0; iPart<nPart; iPart++) {
-    simb::MCParticle Part = theMCTruth.GetParticle(iPart);
-    int code = Part.PdgCode();
-    int mom  = Part.Mother();
-
-    // get the neutrino
-    if ( abs(code) == 12 || abs(code) == 14 || abs(code) == 16 ) {
-      if (mom == -1) {
-        E[nu] = Part.E();   Px[nu] = Part.Px();   Py[nu] = Part.Py();   Pz[nu] = Part.Pz();
-      }
-    }
-
-    // get the lepton
-    if ( abs(code) == 11 || abs(code) == 13 || abs(code) == 15 ) {
-      if (mom == 0) {
-        E[mu] = Part.E();   Px[mu] = Part.Px();   Py[mu] = Part.Py();   Pz[mu] = Part.Pz();
-      }
-    }
-
-    // get the pion
-    if ( code==111 || abs(code)==211 ) {
-      if (mom == 1) {
-        E[pi] = Part.E();   Px[pi] = Part.Px();   Py[pi] = Part.Py();   Pz[pi] = Part.Pz();
-      }
-    }
-
-    // get outa here
-    if ( E[nu]!=0 && E[mu]!=0 && E[pi]!=0) break;
-
-  }
-
-  // Compute t; reuse nu 4-vector to get first q, then t.
-  E[nu] -= E[mu];   Px[nu] -= Px[mu];   Py[nu] -= Py[mu];   Pz[nu] -= Pz[mu];
-  E[nu] -= E[pi];   Px[nu] -= Px[pi];   Py[nu] -= Py[pi];   Pz[nu] -= Pz[pi];
-  float t = E[nu]*E[nu] -Px[nu]*Px[nu] -Py[nu]*Py[nu] -Pz[nu]*Pz[nu];
-  return t;
 }
 
 

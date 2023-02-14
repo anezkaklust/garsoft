@@ -94,7 +94,12 @@ int gar::rec::fitVertex(std::vector<TrackPar> &tracks,
       vsum += IMVVT*p.at(itrack);
     }
   double det;
-  A.Invert(&det);
+  try {
+      A.Invert(&det);
+  } catch (...) {
+      // Uninvertible matrix some other how
+      return (1);
+  }
   if (det == 0) return(1);
   TVectorF xyzsol = A*vsum;
   xyz.at(0) = xyzsol[0];

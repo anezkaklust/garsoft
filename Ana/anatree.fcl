@@ -146,12 +146,6 @@ standard_anatree_spyv3_edep:
  WriteCaloHits:             true
  WriteCaloClusters:         true
  WriteMatchedTracks:        true
-
-# dE/dx algorithms are still here in the analysis code; hence the IonizeTruncate
-# parameter.  Coherent pion analysis has some code here as well.  WriteCohInfo
-# also needs WriteMCinfo.
- IonizTruncate:             1.00
- WriteCohInfo:              false
 }
 
 
