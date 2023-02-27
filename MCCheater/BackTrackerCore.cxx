@@ -158,7 +158,7 @@ namespace gar{
                 // Walk up the ParticleList not the event store so someday somebody can
                 // change the ParticleList and this will still work.
                int mommaTID = fParticleList[walker->TrackId()]->Mother();
-               if (mommaTID == 0) {
+               if (mommaTID == 0 || mommaTID == -1) {		// -1 convention for edep-sim
                     // you are at the top of the tree
                     break;
                 }
@@ -188,7 +188,7 @@ namespace gar{
                 // Walk up the ParticleList not the event store so someday somebody can
                 // change the ParticleList and this will still work.
                 int momma = fParticleList[walker]->Mother();
-                if (momma == 0) {
+                if (momma == 0 || momma == -1) {		// -1 convention for edep-sim
                     return false;
                 } else {
                     walker = momma;
