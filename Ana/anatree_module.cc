@@ -242,7 +242,7 @@ namespace gar {
     std::vector<Float_t>            fGPartMass;
 
     // MCParticle data
-    std::vector<Int_t>              fMCTrkID;
+    std::vector<Int_t>              fMCPTrkID;
     std::vector<Int_t>              fMCPDG;
     std::vector<Int_t>              fMCMotherIndex;
     std::vector<Int_t>              fMCMotherTrkID;
@@ -715,7 +715,7 @@ void gar::anatree::beginJob() {
     fTree->Branch("GPartE",         &fGPartE);
     fTree->Branch("GPartMass",      &fGPartMass);
 
-    fTree->Branch("MCTrkID",     &fMCTrkID);
+    fTree->Branch("MCPTrkID",    &fMCPTrkID);
     fTree->Branch("PDG",         &fMCPDG);
     fTree->Branch("MotherIndex", &fMCMotherIndex);    // Index into these vector branches
     fTree->Branch("MotherTrkID", &fMCMotherTrkID);    // trackid of the mother
@@ -1144,7 +1144,7 @@ void gar::anatree::ClearVectors() {
     fGPartE.clear();
     fGPartMass.clear();
 
-    fMCTrkID.clear();
+    fMCPTrkID.clear();
     fMCPDG.clear();
     fMCMotherIndex.clear();
     fMCMotherTrkID.clear();
@@ -1536,7 +1536,7 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
   }
 
   for ( auto const& mcp : (*MCPHandle) ) {
-    fMCTrkID.push_back(mcp.TrackId());
+    fMCPTrkID.push_back(mcp.TrackId());
     fMCPDG.push_back(mcp.PdgCode());
 
     // If mcp.Mother() == 0, particle is from initial vertex;
@@ -1637,17 +1637,17 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
 
   if (fWriteMCPTrajectory) {
     // It's in the MCParticle table
-    Int_t mcpIndex = 0;
+    Int_t mcpIndex = -1;
+    const TDatabasePDG* databasePDG = TDatabasePDG::Instance();
     for ( auto const& mcp : (*MCPHandle) ) {
-      const TDatabasePDG* databasePDG = TDatabasePDG::Instance();
+      mcpIndex++;
       const TParticlePDG* definition = databasePDG->GetParticle( mcp.PdgCode() );
       //No charge don't store the trajectory
       // this test fails for alpha particles because they aren't in databasePDG
       // so skip it in this case.
-      if (mcp.PdgCode() != 1000020040)
-        {
-	  if (definition==nullptr || definition->Charge() == 0) continue;
-	}
+      if (mcp.PdgCode() != 1000020040) {
+        if (definition==nullptr || definition->Charge() == 0) continue;
+      }
       //TrackID of the mcp to keep track to which mcp this trajectory is
       int trackId = mcp.TrackId();
       for(uint iTraj=0; iTraj < mcp.Trajectory().size(); iTraj++) {
@@ -1672,8 +1672,7 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
         fTrajMCPIndex.push_back(mcpIndex);
         fTrajMCPTrackID.push_back(trackId);
       }
-      mcpIndex++;
-    }
+   }
   }
 
   // Get handles for MCCaloInfo
