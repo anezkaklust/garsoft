@@ -71,10 +71,8 @@ standard_anatree_spyv3:
  WriteMatchedTracks:        true
 
 # dE/dx algorithms are still here in the analysis code; hence the IonizeTruncate
-# parameter.  Coherent pion analysis has some code here as well.  WriteCohInfo
-# also needs WriteMCinfo.
+# parameter.
  IonizTruncate:             1.00
- WriteCohInfo:              false
 }
 
 
@@ -219,10 +217,8 @@ standard_anatree_dayone:
  WriteMatchedTracks:        false
 
 # dE/dx algorithms are still here in the analysis code; hence the IonizeTruncate
-# parameter.  Coherent pion analysis has some code here as well.  WriteCohInfo
-# also needs WriteMCinfo.
+# parameter.
  IonizTruncate:             1.00
- WriteCohInfo:              false
 }
 
 
@@ -296,10 +292,8 @@ standard_anatree_dayone_edep:
  WriteMatchedTracks:        false
 
 # dE/dx algorithms are still here in the analysis code; hence the IonizeTruncate
-# parameter.  Coherent pion analysis has some code here as well.  WriteCohInfo
-# also needs WriteMCinfo.
+# parameter.
  IonizTruncate:             1.00
- WriteCohInfo:              false
 }
 
 

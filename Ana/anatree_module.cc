@@ -284,6 +284,7 @@ namespace gar {
     std::vector<Float_t>            fSimHitTime;
     std::vector<Float_t>            fSimHitEnergy;
     std::vector<Int_t>              fSimHitTrackID;
+    std::vector<Int_t>              fSimHitLayer;
     std::vector<ULong64_t>          fSimHitCellID;     // ULong64_t is size_t on 64 bit machines
     Float_t                         fSimEnergySum;
 
@@ -295,6 +296,7 @@ namespace gar {
     std::vector<Float_t>            fSimHitTime_MuID;
     std::vector<Float_t>            fSimHitEnergy_MuID;
     std::vector<Int_t>              fSimHitTrackID_MuID;
+    std::vector<Int_t>              fSimHitLayer_MuID;
     std::vector<ULong64_t>          fSimHitCellID_MuID;     // ULong64_t is size_t on 64 bit machines
     Float_t                         fSimEnergySum_MuID;
 
@@ -411,6 +413,7 @@ namespace gar {
     std::vector<Float_t>            fDigiHitZ;
     std::vector<Float_t>            fDigiHitTime;
     std::vector<UInt_t>             fDigiHitADC;              // UInt_t is unsigned 32 bit integer
+    std::vector<Int_t>              fDigiHitLayer;
     std::vector<ULong64_t>          fDigiHitCellID;
 
     //Muon system raw hits
@@ -420,6 +423,7 @@ namespace gar {
     std::vector<Float_t>            fDigiHitZ_MuID;
     std::vector<Float_t>            fDigiHitTime_MuID;
     std::vector<UInt_t>             fDigiHitADC_MuID;         // UInt_t is unsigned 32 bit integer
+    std::vector<Int_t>              fDigiHitLayer_MuID;
     std::vector<ULong64_t>          fDigiHitCellID_MuID;
 
     // reco calo hit data
@@ -776,6 +780,7 @@ void gar::anatree::beginJob() {
       fTree->Branch("SimHitTime",   &fSimHitTime);
       fTree->Branch("SimHitEnergy", &fSimHitEnergy);
       fTree->Branch("SimHitTrkID",  &fSimHitTrackID);
+      fTree->Branch("SimHitLayer",  &fSimHitLayer);
       fTree->Branch("SimHitCellID", &fSimHitCellID);
       fTree->Branch("SimEnergySum", &fSimEnergySum);
 
@@ -787,6 +792,7 @@ void gar::anatree::beginJob() {
         fTree->Branch("SimHitTime_MuID",   &fSimHitTime_MuID);
         fTree->Branch("SimHitEnergy_MuID", &fSimHitEnergy_MuID);
         fTree->Branch("SimHitTrkID_MuID",  &fSimHitTrackID_MuID);
+        fTree->Branch("SimHitLayer_MuID",  &fSimHitLayer_MuID);
         fTree->Branch("SimHitCellID_MuID", &fSimHitCellID_MuID);
         fTree->Branch("SimEnergySum_MuID", &fSimEnergySum_MuID);
       }
@@ -931,6 +937,7 @@ void gar::anatree::beginJob() {
     fTree->Branch("DigiHitTime",      &fDigiHitTime);
     fTree->Branch("DigiHitADC",       &fDigiHitADC);
     fTree->Branch("DigiHitCellID",    &fDigiHitCellID);
+    fTree->Branch("DigiHitLayer",     &fDigiHitLayer);
 
     if(fGeo->HasMuonDetector()) {
       fTree->Branch("DiginHits_MuID",        &fDiginHits_MuID);
@@ -940,6 +947,7 @@ void gar::anatree::beginJob() {
       fTree->Branch("DigiHitTime_MuID",      &fDigiHitTime_MuID);
       fTree->Branch("DigiHitADC_MuID",       &fDigiHitADC_MuID);
       fTree->Branch("DigiHitCellID_MuID",    &fDigiHitCellID_MuID);
+      fTree->Branch("DigiHitLayer_MuID",     &fDigiHitLayer_MuID);
     }
   }
 
@@ -1190,6 +1198,7 @@ void gar::anatree::ClearVectors() {
     fSimHitTime.clear();
     fSimHitEnergy.clear();
     fSimHitTrackID.clear();
+    fSimHitLayer.clear();
     fSimHitCellID.clear();
     fSimEnergySum = 0.;
 
@@ -1201,6 +1210,7 @@ void gar::anatree::ClearVectors() {
       fSimHitTime_MuID.clear();
       fSimHitEnergy_MuID.clear();
       fSimHitTrackID_MuID.clear();
+      fSimHitLayer_MuID.clear();
       fSimHitCellID_MuID.clear();
       fSimEnergySum_MuID = 0.;
     }
@@ -1322,6 +1332,7 @@ void gar::anatree::ClearVectors() {
     fDigiHitZ.clear();
     fDigiHitTime.clear();
     fDigiHitADC.clear();
+    fDigiHitLayer.clear();
     fDigiHitCellID.clear();
 
     if(fGeo->HasMuonDetector() && fWriteMuID) {
@@ -1331,6 +1342,7 @@ void gar::anatree::ClearVectors() {
       fDigiHitZ_MuID.clear();
       fDigiHitTime_MuID.clear();
       fDigiHitADC_MuID.clear();
+      fDigiHitLayer_MuID.clear();
       fDigiHitCellID_MuID.clear();
     }
   }
@@ -1694,6 +1706,7 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
       fSimHitTime.push_back(SimHit.Time());
       fSimHitEnergy.push_back(SimHit.Energy());
       fSimHitTrackID.push_back(SimHit.TrackID());
+      fSimHitLayer.push_back(fFieldDecoder_ECAL->get(SimHit.CellID(),"layer"));
       fSimHitCellID.push_back(SimHit.CellID());
       fSimEnergySum += SimHit.Energy();
     }
@@ -1719,6 +1732,7 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
         fSimHitTime_MuID.push_back(SimHit.Time());
         fSimHitEnergy_MuID.push_back(SimHit.Energy());
         fSimHitTrackID_MuID.push_back(SimHit.TrackID());
+        fSimHitLayer_MuID.push_back(fFieldDecoder_ECAL->get(SimHit.CellID(), "layer"));
         fSimHitCellID_MuID.push_back(SimHit.CellID());
         fSimEnergySum_MuID += SimHit.Energy();
       }
