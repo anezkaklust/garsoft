@@ -179,7 +179,10 @@ namespace gar {
                         pos[0] = strip_pos[0];
                         pos[1] = strip_pos[1];
                         pos[2] = strip_pos[2];
-                        time = std::make_pair( this->CorrectStripHitTime(pos[0], pos[1], pos[2], hitTime, cellID), 0. );
+                        // Use uncorrected position here to prevent roundoff from causing the geometry 
+                        // to pull the wrong strip length because the position isn't actually in a strip
+                        // time = std::make_pair( this->CorrectStripHitTime(pos[0], pos[1], pos[2], hitTime, cellID), 0. );
+                        time = std::make_pair( this->CorrectStripHitTime(x,y,z, hitTime, cellID), 0. );
                     } else {
                         pos[0] = x;
                         pos[1] = y;

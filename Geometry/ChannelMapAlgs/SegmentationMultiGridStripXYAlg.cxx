@@ -10,6 +10,7 @@
 #include <sstream>
 #include <iostream>
 #include <cmath>
+#include <cassert>
 
 namespace gar {
     namespace geo {
@@ -96,34 +97,33 @@ namespace gar {
                 std::array<double, 3> cellPosition;
 
                 //Need to differentiate case tile and strips based on layer and slice
-                bool isTile = this->isTile(cID);
+                bool isTile   = this->isTile(cID);
                 bool isBarrel = this->isBarrel(cID);
 
-                if(isTile) {
+                if (isTile) {
                     //Need to check if the tile is at the edge of the layer!
                     cellPosition[0] = binToPosition(_decoder->get(cID, _xId), _gridSizeX, _offsetX);
                     cellPosition[1] = binToPosition(_decoder->get(cID, _yId), _gridSizeY, _offsetY);
                     cellPosition[2] = 0.;
 
-                    if( isBarrel ) {
+                    if (isBarrel) {
 
-                        //Check if the position is outside of the layer size
+                        // Check if the position is outside of the layer size.  _layer_dim_X = dodecagon side, 
+                        // _layer_dim_y = 1/2 length of full barrel.
                         if( std::fabs(cellPosition[0]) > _layer_dim_X/2. ) {
-
                             cellPosition[0] = cellPosition[0] / std::fabs(cellPosition[0]) * ( _layer_dim_X - _frac ) / 2.;
                         }
 
                         if(std::fabs(cellPosition[1]) > _layer_dim_Y/2. ) {
-
                             cellPosition[1] = cellPosition[1] / std::fabs(cellPosition[1]) * ( _layer_dim_Y - _frac ) / 2.;
                         }
                     }
 
-                    //TODO
-                    //Problem here is that the full layer is the endcap stave, no "layer shape"
-                    //the problem will occur for hits that are at the limit
-                    //checking if x or y are over the layer dim does not work (as the stave is not a square/rectangle)
-                    if( not isBarrel ) {
+                    // TODO
+                    // Problem here is that the full layer is the endcap stave, no "layer shape"
+                    // the problem will occur for hits that are at the limit
+                    // checking if x or y are over the layer dim does not work (as the stave is not a square/rectangle)
+                    if (!isBarrel) {
 
                         float r_point = std::sqrt( cellPosition[0]*cellPosition[0] + cellPosition[1]*cellPosition[1] );
 
@@ -143,47 +143,66 @@ namespace gar {
                                 }
 
                             } else if ( std::fabs(cellPosition[0]) > _EndcapSideLength / 2. && std::fabs(cellPosition[1]) > _EndcapSideLength / 2. ) {
-                                //Complicated part //do NOTHING the hit will be dropped
+                                ;    //Complicated part.  Do NOTHING & the hit will be dropped
                             }
                         }
                     }
-                }
-                else
-                {
+                } else {
+                    // In the strips
                     int cellIndexX = _decoder->get(cID,_xId);
                     int cellIndexY = _decoder->get(cID,_yId);
 
-                    if( (_OnSameLayer && _decoder->get(cID, _sliceId) == _active_slice) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 == 0) )
-                    {
+                    if ((_OnSameLayer && _decoder->get(cID,_sliceId) == _active_slice) || (not _OnSameLayer && _decoder->get(cID,_layerId)%2 == 0)) {
+
                         //Segmentation in Y
                         int nCellsX = 1;
                         // int nCellsY = int(_layer_dim_Y / _stripSizeY);
 
-                        if(isBarrel) {
+                        if (isBarrel) {
+                            // cellIndexX or Y is 2's complement binary & can be a negative integer.  Origin of strip coordinate @ "middle of layer"
                             cellPosition[0] = ( cellIndexX + 0.5 ) * (_layer_dim_X / nCellsX ) - (_layer_dim_X / 2.);
                             cellPosition[1] = ( cellIndexY + 0.5 ) * _stripSizeY;
                             cellPosition[2] = 0.;
-                        }
-                        else {
+                        } else {
                             cellPosition[1] = ( cellIndexY + 0.5 ) * _stripSizeY;
                             cellPosition[0] = ( cellIndexX + 0.5 ) * ( _layer_dim_X / nCellsX );
-                            if( cellPosition[1] > _EndcapSideLength / 2.) {
-                                //Correct for the endcap
-                                float angle = _InnerAngle - M_PI/2;
-                                int n = std::round( ( cellPosition[1] - ( _EndcapSideLength / 2. ) ) / _stripSizeX );
-                                cellPosition[0] -= n * ( _stripSizeX / std::tan(angle) ) / 2.;
+                            double excess = cellPosition[1] - _EndcapSideLength/2.0;
+                            if (excess > 0) {
+                                // Correct for the endcap polygonal boundaries.  Must infer shape from _InnerAngle as have no
+                                // fGeo to ->GetECALSymmetry or ->GetMuIDSymmetry from.
+                                int   nSym  = std::round( (2.0*M_PI)/(M_PI - _InnerAngle) );
+                                assert(nSym==8 || nSym==12);    
+                                double angle = M_PI - _InnerAngle;    // angle between centers of 2 adjacent sides of polyhedron
+                                if (nSym==8) {
+                                     // Ignore that_EndcapSideLength/2.0 need not be an integer multiple of _stripSizeY. 
+                                     int n = excess / _stripSizeY;    // Truncate down
+                                     // Divide by 2 here because center of strip moves 1/2 as far as the end
+                                     cellPosition[0] -= (n +0.5) * ( _stripSizeY * std::tan(angle) ) / 2.0;
+                                } else {
+                                    if (excess < _EndcapSideLength * std::cos(angle)) {
+                                        int n = excess / _stripSizeY;
+                                        cellPosition[0] -= (n +0.5) * ( excess * std::tan(angle) ) / 2.0;
+                                    } else {
+                                        excess          -= _EndcapSideLength * std::cos(angle);
+                                        cellPosition[0] -= _EndcapSideLength * std::sin(angle) / 2.0;
+                                        angle += angle;
+                                        int n = excess / _stripSizeY;
+                                        cellPosition[0] -= (n +0.5) * ( _stripSizeY * std::tan(angle) ) / 2.0;
+                                    }
+                                }
                             }
                             cellPosition[2] = 0.;
                         }
                     }
 
-                    if( (_OnSameLayer && _decoder->get(cID, _sliceId) == _active_slice+1) || (not _OnSameLayer && _decoder->get(cID, _layerId)%2 != 0) )
-                    {
+                    if ((_OnSameLayer && _decoder->get(cID,_sliceId) == _active_slice+1) || (not _OnSameLayer && _decoder->get(cID,_layerId)%2 != 0)) {
+
                         //Segmentation in X
                         // int nCellsX = int(_layer_dim_X / _stripSizeX);
                         int nCellsY = 1;
 
-                        if(isBarrel) {
+                        if (isBarrel) {
+                            // cellIndexX or Y is 2's complement binary & can be a negative integer.  Where is origin of strip coordinate?
                             cellPosition[0] = ( cellIndexX + 0.5 ) * _stripSizeX;
                             cellPosition[1] = ( cellIndexY + 0.5 ) * (_layer_dim_Y / nCellsY ) - (_layer_dim_Y / 2.);
                             cellPosition[2] = 0.;
@@ -191,13 +210,32 @@ namespace gar {
                         else {
                             cellPosition[0] = ( cellIndexX + 0.5 ) * _stripSizeX;
                             cellPosition[1] = ( cellIndexY + 0.5 ) * ( _layer_dim_Y / nCellsY );
-                            if( cellPosition[0] > _EndcapSideLength / 2.) {
-                                //Correct for the endcap
-                                float angle = _InnerAngle - M_PI/2;
-                                int n = std::round( ( cellPosition[0] - ( _EndcapSideLength / 2. ) ) / _stripSizeY );
-                                cellPosition[1] -= n * ( _stripSizeY / std::tan(angle) ) / 2.;
+
+                            double excess = cellPosition[0] - _EndcapSideLength/2.0;
+                            if (excess > 0) {
+                                // Correct for the endcap polygonal boundaries.  Must infer shape from _InnerAngle as have no
+                                // fGeo to ->GetECALSymmetry or ->GetMuIDSymmetry from.
+                                int   nSym  = std::round( (2.0*M_PI)/(M_PI - _InnerAngle) );
+                                assert(nSym==8 || nSym==12);    
+                                double angle = M_PI - _InnerAngle;    // angle between centers of 2 adjacent sides of polyhedron
+                                if (nSym==8) {
+                                     // Ignore that_EndcapSideLength/2.0 need not be an integer multiple of _stripSizeX. 
+                                     int n = excess / _stripSizeX;    // Truncate down
+                                     // Divide by 2 here because center of strip moves 1/2 as far as the end
+                                     cellPosition[1] -= (n +0.5) * ( _stripSizeX * std::tan(angle) ) / 2.0;
+                                } else {
+                                    if (excess < _EndcapSideLength * std::cos(angle)) {
+                                        int n = excess / _stripSizeX;
+                                        cellPosition[1] -= (n +0.5) * ( excess * std::tan(angle) ) / 2.0;
+                                    } else {
+                                        excess          -= _EndcapSideLength * std::cos(angle);
+                                        cellPosition[1] -= _EndcapSideLength * std::sin(angle) / 2.0;
+                                        angle += angle;
+                                        int n = excess / _stripSizeX;
+                                        cellPosition[1] -= (n +0.5) * ( _stripSizeX * std::tan(angle) ) / 2.0;
+                                    }
+                                }
                             }
-                            cellPosition[2] = 0.;
                         }
                     }
                 }

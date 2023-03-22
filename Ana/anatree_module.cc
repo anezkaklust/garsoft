@@ -127,48 +127,48 @@ namespace gar {
     std::string fInstanceLabelCalo; ///< Instance name for ECAL
     std::string fInstanceLabelMuID; ///< Instance name for MuID
         
-    std::string fGeantLabel; ///< module label for geant4 simulated hits
+    std::string fGeantLabel;        ///< module label for geant4 simulated hits
 
-    std::string fHitLabel; ///< module label for reco TPC hits rec::Hit
-    std::string fTPCClusterLabel; ///< module label for TPC Clusters rec::TPCCluster
-    std::string fTrackLabel; ///< module label for TPC Tracks rec:Track
-    std::string fTrackTrajectoryLabel; ///< module label for TPC Track Trajectories rec:TrackTrajectory
-    std::string fVertexLabel; ///< module label for vertexes rec:Vertex
-    std::string fVeeLabel; ///< module label for conversion/decay vertexes rec:Vee
+    std::string fHitLabel;          ///< module label for reco TPC hits rec::Hit
+    std::string fTPCClusterLabel;   ///< module label for TPC Clusters rec::TPCCluster
+    std::string fTrackLabel;        ///< module label for TPC Tracks rec:Track
+    std::string fTrackTragedyLabel; ///< module label for TPC Track Trajectories rec:TrackTrajectory
+    std::string fVertexLabel;       ///< module label for vertexes rec:Vertex
+    std::string fVeeLabel;          ///< module label for conversion/decay vertexes rec:Vee
 
-    std::string fRawCaloHitLabel; ///< module label for digitized calo hits raw::CaloRawDigit
+    std::string fRawCaloHitLabel;   ///< module label for digitized calo hits raw::CaloRawDigit
     std::string fRawMuIDHitLabel;
 
-    std::string fCaloHitLabel; ///< module label for reco calo hits rec::CaloHit
+    std::string fCaloHitLabel;      ///< module label for reco calo hits rec::CaloHit
     std::string fMuIDHitLabel;
 
-    std::string fClusterLabel; ///< module label for calo clusters rec::Cluster
-    std::string fClusterMuIDLabel; ///< module label for calo clusters rec::Cluster in MuID
-    std::string fPFLabel; ///< module label for reco particles rec::PFParticle
-    std::string fECALAssnLabel; ///< module label for track-clusters associations
+    std::string fClusterLabel;      ///< module label for calo clusters rec::Cluster
+    std::string fClusterMuIDLabel;  ///< module label for calo clusters rec::Cluster in MuID
+    std::string fPFLabel;           ///< module label for reco particles rec::PFParticle
+    std::string fECALAssnLabel;     ///< module label for track-clusters associations
 
     // Optionally keep/drop parts of the analysis tree
-    bool  fWriteMCinfo;        ///< Info from MCTruth, GTruth     Default=true
-    bool  fWriteMCPTrajectory; ///< Write MCP Trajectory                Default=true
-    bool  fWriteMCPTrajMomenta; ///< Write Momenta associated with MCP Trajectory  Default=false
-    bool  fWriteMCCaloInfo;    ///< Write MC info for calorimeter Default=true
-    float fMatchMCPtoVertDist; ///< MCParticle to MC vertex match Default=roundoff
+    bool  fWriteMCinfo;             ///< Info from MCTruth, GTruth     Default=true
+    bool  fWriteMCPTrajectory;      ///< Write MCP Trajectory                Default=true
+    bool  fWriteMCPTrajMomenta;     ///< Write Momenta associated with MCP Trajectory  Default=false
+    bool  fWriteMCCaloInfo;         ///< Write MC info for calorimeter Default=true
+    float fMatchMCPtoVertDist;      ///< MCParticle to MC vertex match Default=roundoff
 
-    bool  fWriteHits;          ///< Write info about TPC Hits     Default=false
-    bool  fWriteTPCClusters;   ///< Write TPCClusters info        Default=true
-    bool  fWriteTracks;        ///< Start/end X, P for tracks     Default=true
-    bool  fWriteTrackTrajectories;        ///< Point traj of reco tracks     Default=false
-    bool  fWriteVertices;      ///< Reco vertexes & their tracks  Default=true
-    bool  fWriteVees;          ///< Reco vees & their tracks      Default=true
+    bool  fWriteHits;               ///< Write info about TPC Hits     Default=false
+    bool  fWriteTPCClusters;        ///< Write TPCClusters info        Default=true
+    bool  fWriteTracks;             ///< Start/end X, P for tracks     Default=true
+    bool  fWriteTrackTrajectories;  ///< Point traj of reco tracks     Default=false
+    bool  fWriteVertices;           ///< Reco vertexes & their tracks  Default=true
+    bool  fWriteVees;               ///< Reco vees & their tracks      Default=true
 
     bool  fWriteMuID;
-    bool  fWriteCaloDigits;    ///< Raw digits for calorimetry.   Default=false
-    bool  fWriteCaloHits;      ///< Write ECAL hits.              Default=true
-    bool  fWriteCaloClusters;  ///< Write ECAL clusters.          Default=true
-    bool  fWriteMatchedTracks; ///< Write ECAL-track Assns        Default=true
+    bool  fWriteCaloDigits;         ///< Raw digits for calorimetry.   Default=false
+    bool  fWriteCaloHits;           ///< Write ECAL hits.              Default=true
+    bool  fWriteCaloClusters;       ///< Write ECAL clusters.          Default=true
+    bool  fWriteMatchedTracks;      ///< Write ECAL-track Assns        Default=true
 
     // Truncation parameter for dE/dx (average this fraction of the lowest readings)
-    float fIonizTruncate;      ///<                               Default=1.00;
+    float fIonizTruncate;           ///<                               Default=1.00;
 
     // the analysis tree
     TTree *fTree;
@@ -544,7 +544,7 @@ gar::anatree::anatree(fhicl::ParameterSet const & p)
   fHitLabel          = p.get<std::string>("HitLabel","hit");
   fTPCClusterLabel   = p.get<std::string>("TPCClusterLabel","tpccluster");
   fTrackLabel        = p.get<std::string>("TrackLabel","track");
-  fTrackTrajectoryLabel  = p.get<std::string>("TrackTrajectoryLabel","track");
+  fTrackTragedyLabel  = p.get<std::string>("TrackTrajectoryLabel","track");
   fVertexLabel       = p.get<std::string>("VertexLabel","vertex");
   fVeeLabel          = p.get<std::string>("VeeLabel","veefinder1");
 
@@ -610,7 +610,7 @@ gar::anatree::anatree(fhicl::ParameterSet const & p)
   consumes<art::Assns<rec::Track, rec::TPCCluster> >(fTPCClusterLabel);
   consumes<std::vector<rec::Hit> >(fHitLabel);
   consumes<std::vector<rec::Track> >(fTrackLabel);
-  consumes<std::vector<rec::TrackTrajectory> >(fTrackTrajectoryLabel);
+  consumes<std::vector<rec::TrackTrajectory> >(fTrackTragedyLabel);
   consumes<std::vector<rec::Vertex> >(fVertexLabel);
   consumes<art::Assns<rec::Track, rec::Vertex> >(fVertexLabel);
   consumes<std::vector<rec::Vee> >(fVeeLabel);
@@ -784,7 +784,7 @@ void gar::anatree::beginJob() {
       fTree->Branch("SimHitCellID", &fSimHitCellID);
       fTree->Branch("SimEnergySum", &fSimEnergySum);
 
-      if(fGeo->HasMuonDetector() && fWriteMuID) {
+      if (fGeo->HasMuonDetector() && fWriteMuID) {
         fTree->Branch("SimnHits_MuID",     &fSimnHits_MuID);
         fTree->Branch("SimHitX_MuID",      &fSimHitX_MuID);
         fTree->Branch("SimHitY_MuID",      &fSimHitY_MuID);
@@ -964,7 +964,7 @@ void gar::anatree::beginJob() {
     fTree->Branch("RecoHitLayer",     &fRecoHitLayer);
     fTree->Branch("RecoEnergySum",    &fRecoEnergySum);
 
-    if(fGeo->HasMuonDetector() && fWriteMuID) {
+    if (fGeo->HasMuonDetector() && fWriteMuID) {
       fTree->Branch("ReconHits_MuID",         &fReconHits_MuID);
       fTree->Branch("ReconHitIDNumber_MuID",    &fReconHitIDNumber_MuID);
       fTree->Branch("RecoHitX_MuID",          &fRecoHitX_MuID);
@@ -1001,7 +1001,7 @@ void gar::anatree::beginJob() {
 
     fTree->Branch("ClusterAssn_RecoHitIDNumber", &fClusterAssn_RecoHitIDNumber);
 
-    if(fGeo->HasMuonDetector() && fWriteMuID) {
+    if (fGeo->HasMuonDetector() && fWriteMuID) {
       fTree->Branch("nCluster_MuID",                   &fnCluster_MuID);
       fTree->Branch("ClusterIDNumber_MuID",            &fClusterIDNumber_MuID);
       fTree->Branch("ClusterNhits_MuID",               &fClusterNhits_MuID);
@@ -1202,7 +1202,7 @@ void gar::anatree::ClearVectors() {
     fSimHitCellID.clear();
     fSimEnergySum = 0.;
 
-    if(fGeo->HasMuonDetector() && fWriteMuID) {
+    if (fGeo->HasMuonDetector() && fWriteMuID) {
       fSimnHits_MuID = 0;
       fSimHitX_MuID.clear();
       fSimHitY_MuID.clear();
@@ -1335,7 +1335,7 @@ void gar::anatree::ClearVectors() {
     fDigiHitLayer.clear();
     fDigiHitCellID.clear();
 
-    if(fGeo->HasMuonDetector() && fWriteMuID) {
+    if (fGeo->HasMuonDetector() && fWriteMuID) {
       fDiginHits_MuID = 0;
       fDigiHitX_MuID.clear();
       fDigiHitY_MuID.clear();
@@ -1359,7 +1359,7 @@ void gar::anatree::ClearVectors() {
     fRecoHitLayer.clear();
     fRecoEnergySum = 0.;
 
-    if(fGeo->HasMuonDetector() && fWriteMuID) {
+    if (fGeo->HasMuonDetector() && fWriteMuID) {
       fReconHits_MuID = 0;
       fReconHitIDNumber_MuID.clear();
       fRecoHitX_MuID.clear();
@@ -1395,7 +1395,7 @@ void gar::anatree::ClearVectors() {
 
     fClusterAssn_RecoHitIDNumber.clear();
 
-    if(fGeo->HasMuonDetector() && fWriteMuID) {
+    if (fGeo->HasMuonDetector() && fWriteMuID) {
       fnCluster_MuID = 0;
       fClusterIDNumber_MuID.clear();
       fClusterNhits_MuID.clear();
@@ -1693,7 +1693,7 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
     art::InputTag ecalgeanttag(fGeantLabel, fInstanceLabelCalo);
     auto SimHitHandle = e.getHandle<std::vector<gar::sdp::CaloDeposit> >(ecalgeanttag);
     if (!SimHitHandle) {
-      throw cet::exception("anatree") << " No gar::sdp::CaloDeposit branch."
+      throw cet::exception("anatree") << " No gar::sdp::CaloDeposit branch for ECAL"
                                       << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
     }
 
@@ -1711,14 +1711,14 @@ void gar::anatree::FillGeneratorMonteCarloInfo(art::Event const & e) {
       fSimEnergySum += SimHit.Energy();
     }
 
-    if(fWriteMuID) {
+    if (fWriteMuID) {
       art::InputTag muidgeanttag(fGeantLabel, fInstanceLabelMuID);
       art::Handle< std::vector<gar::sdp::CaloDeposit> > MuIDSimHitHandle;
       if (fGeo->HasMuonDetector())
         {
           MuIDSimHitHandle = e.getHandle< std::vector<gar::sdp::CaloDeposit> >(muidgeanttag);
           if (!MuIDSimHitHandle) {
-            throw cet::exception("anatree") << " No gar::sdp::CaloDeposit branch."
+            throw cet::exception("anatree") << " No gar::sdp::CaloDeposit branch for MuID"
                                             << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
           }
         }
@@ -1751,7 +1751,7 @@ void gar::anatree::FillRawInfo(art::Event const & e) {
   art::InputTag ecalrawtag(fRawCaloHitLabel, fInstanceLabelCalo);
   auto RawHitHandle = e.getHandle<std::vector<gar::raw::CaloRawDigit> >(ecalrawtag);
   if (!RawHitHandle) {
-    throw cet::exception("anatree") << " No :raw::CaloRawDigit branch."
+    throw cet::exception("anatree") << " No :raw::CaloRawDigit branch for ECAL"
                                     << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
   }
   for ( auto const& DigiHit : (*RawHitHandle) ) {
@@ -1765,13 +1765,13 @@ void gar::anatree::FillRawInfo(art::Event const & e) {
   }
 
   // save muon system raw digits info
-  if(fWriteMuID) {
+  if (fWriteMuID) {
     art::InputTag muidrawtag(fRawMuIDHitLabel, fInstanceLabelMuID);
     art::Handle<std::vector<gar::raw::CaloRawDigit> > MuIDRawHitHandle;
     if (fGeo->HasMuonDetector()) {
       MuIDRawHitHandle = e.getHandle<std::vector<gar::raw::CaloRawDigit> >(muidrawtag);
       if (!MuIDRawHitHandle) {
-        throw cet::exception("anatree") << " No :raw::CaloRawDigit branch."
+        throw cet::exception("anatree") << " No :raw::CaloRawDigit branch for MuID"
                                         << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
       }
     }
@@ -1818,7 +1818,7 @@ void gar::anatree::FillRecoInfo(art::Event const & e) {
     art::InputTag ecalrecotag(fCaloHitLabel, fInstanceLabelCalo);
     auto RecoHitHandle = e.getHandle<std::vector<rec::CaloHit> >(ecalrecotag);
     if (!RecoHitHandle) {
-      throw cet::exception("anatree") << " No rec::CaloHit branch."
+      throw cet::exception("anatree") << " No rec::CaloHit branch for ECAL"
                                       << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
     }
     // save reco'd Calorimetry hits
@@ -1835,13 +1835,13 @@ void gar::anatree::FillRecoInfo(art::Event const & e) {
       fRecoEnergySum += Hit.Energy();
     }
 
-    if(fWriteMuID) {
+    if (fWriteMuID) {
       art::InputTag muirecotag(fMuIDHitLabel, fInstanceLabelMuID);
       art::Handle<std::vector<rec::CaloHit> > MuIDRecoHitHandle;
       if (fGeo->HasMuonDetector()) {
         MuIDRecoHitHandle = e.getHandle<std::vector<rec::CaloHit> >(muirecotag);
         if (!MuIDRecoHitHandle) {
-          throw cet::exception("anatree") << " No rec::CaloHit branch."
+          throw cet::exception("anatree") << " No rec::CaloHit branch for MuID"
                                           << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
       }
@@ -1901,7 +1901,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
     findIonization      = new art::FindOneP<rec::TrackIoniz>(TrackHandle,e,fTrackLabel);
 
     if(fWriteTrackTrajectories) {
-      TrackTrajHandle = e.getHandle< std::vector<rec::TrackTrajectory> >(fTrackTrajectoryLabel);
+      TrackTrajHandle = e.getHandle< std::vector<rec::TrackTrajectory> >(fTrackTragedyLabel);
       if (!TrackTrajHandle) {
         throw cet::exception("anatree") << " No rec::TrackTrajectory branch."
                                         << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
@@ -1945,15 +1945,15 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
   if (fWriteCaloClusters) {
     RecoClusterHandle = e.getHandle< std::vector<rec::Cluster> >(ecalclustertag);
     if (!RecoClusterHandle) {
-      throw cet::exception("anatree") << " No rec::Cluster branch."
+      throw cet::exception("anatree") << " No rec::Cluster branch for ECAL"
                                       << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
     }
 
-    if(fWriteMuID) {
+    if (fWriteMuID) {
       if (fGeo->HasMuonDetector()){
         RecoClusterMuIDHandle = e.getHandle< std::vector<rec::Cluster> >(muidclustertag);
         if (!RecoClusterMuIDHandle) {
-          throw cet::exception("anatree") << " No rec::Cluster (MuID) branch."
+          throw cet::exception("anatree") << " No rec::Cluster branch for MuID"
                                           << " Line " << __LINE__ << " in file " << __FILE__ << std::endl;
         }
       }
@@ -2289,7 +2289,7 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
       iCluster++;
     }
 
-    if(fGeo->HasMuonDetector() && fWriteMuID) {
+    if (fGeo->HasMuonDetector() && fWriteMuID) {
       size_t iCluster_local = 0;
       for ( auto const& cluster : (*RecoClusterMuIDHandle) ) {
         fnCluster_MuID++;
@@ -2321,22 +2321,19 @@ void gar::anatree::FillHighLevelRecoInfo(art::Event const & e) {
 
         fClusterMuIDAssn_MuIDHitIDNumber.push_back(fVecHitIDs);
 
-        /*** TO DO ***/
         // Matching MCParticle info
-        // std::vector<std::pair<simb::MCParticle*,float>> trakt;
-        // trakt = BackTrack->ClusterToMCParticles( const_cast<rec::Cluster*>(&cluster) );
-        // int eileen = -1;
-        // if (trakt.size()>0 && TrackIdToIndex.size()!=0) {
-        //     eileen = TrackIdToIndex[trakt[0].first->TrackId()];
-        // }
-        // fClusterMCindex_MuID.push_back(eileen);
-        // if (eileen > -1) {
-        //     fClusterMCfrac_MuID.push_back(trakt[0].second);
-        // } else {
-        //     fClusterMCfrac_MuID.push_back(0.0);
-        // }
-        fClusterMCindex_MuID.push_back(0);
-        fClusterMCfrac_MuID.push_back(0.0);
+        std::vector<std::pair<simb::MCParticle*,float>> traktMu;
+        traktMu = BackTrack->ClusterToMCParticles( const_cast<rec::Cluster*>(&cluster) );
+        int eileen = -1;
+        if (traktMu.size()>0 && TrackIdToIndex.size()!=0) {
+        	eileen = TrackIdToIndex[traktMu[0].first->TrackId()];
+        }
+        fClusterMCindex_MuID.push_back(eileen);
+        if (eileen > -1) {
+        	fClusterMCfrac_MuID.push_back(traktMu[0].second);
+        } else {
+        	fClusterMCfrac_MuID.push_back(0.0);
+        }
         iCluster_local++;
       }
     }

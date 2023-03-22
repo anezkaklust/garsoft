@@ -40,7 +40,8 @@ standard_anatree_spyv3:
 # What to save? ==============================================
 # MC info is: (a) MCTruth, GTruth, MCParticle if WriteMCinfo; (b) MCPtrajectory if
 # (WriteMCPTrajectory && WriteMCinfo); and (c) MC info in calorimeter if
-# (WriteMCCaloInfo && WriteMCinfo).
+# (WriteMCCaloInfo && WriteMCinfo).  MuID info will be written in addition to ECAL
+# info if WriteMuID && geometry has a MuID.
 # Write momenta associated with MC trajectories only if the trajectory is also written
  WriteMCinfo:               true
  WriteMCPTrajectory:        false
@@ -61,9 +62,11 @@ standard_anatree_spyv3:
  WriteVertices:             true
  WriteVees:                 true
 
-# Calorimetry info is: (a) calorimeter digits if WriteCaloDigits; (b) hits if
+# Calorimetry info is: (a) digits if WriteCaloDigits; (b) hits if
 # WriteCaloHits; (c) clusters if WriteCaloClusters (d) associations to tracks if
-# (WriteMatchedTracks && WriteCaloClusters && WriteTracks).
+# (WriteMatchedTracks && WriteCaloClusters && WriteTracks); (e) corresponding info
+# for MuID in addition to ECAL if WriteMuID && geometry has a MuID, except that
+# tracks are not matched (yet) to MuID clusters.
  WriteMuID:                 true
  WriteCaloDigits:           false
  WriteCaloHits:             true

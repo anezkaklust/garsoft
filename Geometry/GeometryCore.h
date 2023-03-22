@@ -1032,6 +1032,10 @@ namespace gar {
 
         bool PointInECALEndcap(TVector3 const& point) const;
 
+        bool PointInMuIDBarrel(TVector3 const& point) const;
+
+        bool PointInMuIDEndcap(TVector3 const& point) const;
+
         float GetSensVolumeThickness(const TVector3& point) const;
 
         const std::array<double, 3> FindShapeSize(const TGeoNode *node) const;

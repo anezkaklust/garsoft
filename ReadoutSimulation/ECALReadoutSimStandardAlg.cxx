@@ -251,6 +251,7 @@ namespace gar {
             std::array<double, 3> point = {x, y, z};
             TGeoNode *node = fGeo->FindNode(point);//Node in cm...
             std::string nodename = node->GetName();
+
             std::array<double, 3> pointLocal;
             gar::geo::LocalTransformation<TGeoHMatrix> trans;
             fGeo->WorldToLocal(point, pointLocal, trans);
