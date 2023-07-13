@@ -61,13 +61,9 @@ Note: mrbsetenv sets up a build environment, and environment variables will poin
 
 Some examples from dunetpc on how to work with git, check out code, develop on branches, and pushing code: [dunetpc git/mrb tutorial](https://cdcvs.fnal.gov/redmine/projects/dunetpc/wiki/_Tutorial_)
 
-## Run a sample 1000-event 
+## Run a 1000-event MC sample 
 
-
-
-
-
-job after building or setting up code:
+After building or setting up code:
 
 ```
 art -n 1000 -c prodgenie.fcl
