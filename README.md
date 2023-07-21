@@ -97,7 +97,7 @@ During development, testing and debugging, it is good to have three login sessio
 * A session used for running code. Use the setup instructions above and use mrbslp to set up the run environment.
 
 ## Event Display tips
-The event display starts a ROOT TApplication, and reads rootlogon.C. Users may have a rootlogon.C which is incompatible with the event display -- the symptom is a segfault starting up the event display. It works fine with a blank rootlogon.C, which you can put in the directory you're running the event display from so as not to clobber your regular rootlogon.C.
+The event display starts a ROOT TApplication, and reads rootlogon.C. Users may have a rootlogon.C which is incompatible with the event display -- the symptom is a segfault starting up the event display. It works fine with a blank rootlogon.C, which you can put in the directory you're running the event display from so as not to clobber your regular rootlogon.C. 
 
 ## Debugger tips
 The forge_tools debugger from arm (setup forge_tools to get it) comes with customized versions of gdb and several system libraries, like libGL.so. The system library replacements, probably libGL.so, interfere with EVE, so you have to unsetup forge_tools in order to get evd3D.fcl to work (or any other EVE-based event display for that matter). I like to have a separate login session set up with the same running environment as the one the debugger is running in so I can search for source code that ddt cannot find automatically. You may have to use UPS-defined environment variables to find source code in CVMFS.
