@@ -59,7 +59,7 @@ mrbsetenv
 
 Note: mrbsetenv sets up a build environment, and environment variables will point to the build directory. mrbslp will set up installed local products for running. Sometimes this makes a difference -- if a build fails, the build directory can have an incomplete set of things in it. It may also be missing some items (pandora XML files is a common one in far detector sim/reco that only get picked up with mrbslp).
 
-Some examples from dunetpc on how to work with git, check out code, develop on branches, and pushing code: [dunetpc git/mrb tutorial](https://cdcvs.fnal.gov/redmine/projects/dunetpc/wiki/_Tutorial_)
+See the DUNE computing [training](https://dune.github.io/computing-basics/) for a tutorial on how to develop software.  Some older examples from dunetpc on how to work with git, check out code, develop on branches, and pushing code: [dunetpc git/mrb tutorial](https://cdcvs.fnal.gov/redmine/projects/dunetpc/wiki/_Tutorial_)
 
 ## Run a 1000-event MC sample 
 
@@ -97,7 +97,7 @@ During development, testing and debugging, it is good to have three login sessio
 * A session used for running code. Use the setup instructions above and use mrbslp to set up the run environment.
 
 ## Event Display tips
-The event display starts a ROOT TApplication, and reads rootlogon.C. Users may have a rootlogon.C which is incompatible with the event display -- the symptom is a segfault starting up the event display. It works fine with a blank rootlogon.C, which you can put in the directory you're running the event display from so as not to clobber your regular rootlogon.C. 
+The event display starts a ROOT TApplication, and reads rootlogon.C. Users may have a rootlogon.C which is incompatible with the event display -- the symptom is a segfault starting up the event display. It works fine with a blank rootlogon.C, which you can put in the directory you're running the event display from so as not to clobber your regular rootlogon.C.
 
 ## Debugger tips
 The forge_tools debugger from arm (setup forge_tools to get it) comes with customized versions of gdb and several system libraries, like libGL.so. The system library replacements, probably libGL.so, interfere with EVE, so you have to unsetup forge_tools in order to get evd3D.fcl to work (or any other EVE-based event display for that matter). I like to have a separate login session set up with the same running environment as the one the debugger is running in so I can search for source code that ddt cannot find automatically. You may have to use UPS-defined environment variables to find source code in CVMFS.
