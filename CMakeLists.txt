@@ -107,6 +107,7 @@ add_subdirectory (RecoAlg)
 add_subdirectory (Ana)
 add_subdirectory (Filters)
 add_subdirectory (StandardRecord)
+add_subdirectory (Prototypes)
 
 message(STATUS "GSL_FQ_DIR is $ENV{GSL_FQ_DIR}")
 
