@@ -1,0 +1,39 @@
+#include "TOADInput.fcl"
+
+services:
+{
+  TimeTracker:  {}
+  TFileService: 
+  {
+    fileName: "TOADRawDecoderTFile.root"
+  } 
+# define the TOAD channel map service
+}
+
+physics:
+{
+# empty path for now -- the input source does all the work
+  producers:
+  {
+  }
+
+  produce: [  ] 
+  output: [ out1 ]
+  trigger_paths : [ produce ]
+  end_paths: [ output ]
+} 	     
+
+outputs:
+{
+  out1:
+  {
+    compressionLevel: 1
+    module_type: RootOutput
+    fileName: "%ifb_decode.root"
+  }
+}
+
+source: @local::TOADRawInputSourceDefaults
+
+process_name: runTOADRawDecoder
+
