@@ -22,6 +22,8 @@
 
 #include "TGeoManager.h"
 
+#include "canvas/Persistency/Common/Ptr.h"
+
 namespace gar {
     namespace rosim{
 

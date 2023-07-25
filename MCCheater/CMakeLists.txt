@@ -1,5 +1,6 @@
 
 include_directories( $ENV{NUTOOLS_DIR}/include )
+link_directories( $ENV{NUG4_FQ_DIR}/lib )
 
 art_make_library( LIBRARY_NAME MCCheater
                   SOURCE       BackTrackerCore.cxx

@@ -266,7 +266,12 @@ namespace gar {
 
 //==============================================================================
 // constructor
-gar::HNLAnalysis::HNLAnalysis(fhicl::ParameterSet const & p) : EDAnalyzer(p), fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "Seed")) {
+gar::HNLAnalysis::HNLAnalysis(fhicl::ParameterSet const & p) : EDAnalyzer(p),
+							       	fEngine(art::ServiceHandle<rndm::NuRandomService>()->registerAndSeedEngine(createEngine(0),
+                                                                                 p,
+                                                                                 "Seed"))
+							       
+{
 
   fGeantLabel        = p.get<std::string>("GEANTLabel",   "geant");
   //fGeantInstanceCalo = p.get<std::string>("GEANTInstanceCalo","ECAL");

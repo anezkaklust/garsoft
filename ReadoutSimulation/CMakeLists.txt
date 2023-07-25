@@ -1,6 +1,7 @@
 include_directories( $ENV{GEANT4_FQ_DIR}/include )
 include_directories( $ENV{NUTOOLS_DIR}/include   )
 include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
+link_directories( $ENV{NUG4_FQ_DIR}/lib )
 
 set(G4LIBS ${G4FR}
            ${G4GMOCREN}

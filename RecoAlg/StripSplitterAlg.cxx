@@ -13,6 +13,7 @@
 #include "CoreUtils/ServiceUtil.h"
 #include "Geometry/LocalTransformation.h"
 
+#include "canvas/Persistency/Common/Ptr.h"
 #include <algorithm>
 #include <array>
 #include <functional>

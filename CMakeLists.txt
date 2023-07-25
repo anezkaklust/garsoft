@@ -17,7 +17,7 @@
 # use cmake 2.8 or later
 cmake_minimum_required (VERSION 3.19 FATAL_ERROR)
 
-project(garsoft VERSION 02.18.00)
+project(garsoft VERSION 02.19.00)
 
 find_package( cetbuildtools REQUIRED)
 
@@ -49,7 +49,8 @@ find_package(cetlib_except REQUIRED EXPORT)
 find_package(fhiclcpp REQUIRED EXPORT)
 find_package(messagefacility REQUIRED EXPORT)
 
-find_package(nug4 REQUIRED EXPORT)
+#find_package(nug4  REQUIRED EXPORT)
+find_ups_product( nug4 )
 find_package(nugen REQUIRED EXPORT)
 find_package(nurandom REQUIRED EXPORT)
 find_package(nusimdata REQUIRED EXPORT)
@@ -68,6 +69,11 @@ find_package(Range-v3 REQUIRED EXPORT)
 find_package(SQLite3 REQUIRED EXPORT)
 find_package(ifdhc REQUIRED EXPORT)
 find_package(log4cpp REQUIRED EXPORT)
+find_ups_product( nlohmann_json )
+find_package(HDF5 REQUIRED EXPORT)
+find_ups_product( highfive )
+find_ups_product( dunedaqdataformats )
+find_ups_product( dunedetdataformats )
 
 # find_package( GSL REQUIRED EXPORT )
 find_ups_product( GSL )

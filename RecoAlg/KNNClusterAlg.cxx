@@ -14,6 +14,8 @@
 #include "CoreUtils/ServiceUtil.h"
 #include <algorithm>
 
+#include "canvas/Persistency/Common/Ptr.h"
+
 namespace gar {
     namespace rec{
         namespace alg{

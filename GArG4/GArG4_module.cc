@@ -218,7 +218,9 @@ namespace gar {
         , fMaxStepSize           (pset.get< std::vector< float > >("MaxStepSize", {}  )                   )//in mm
         , fProductionCut         (pset.get< float             >("ProductionCut",    0.05)                 )//in mm
         , fKeepParticlesInVolumes(pset.get< std::vector< std::string > >("KeepParticlesInVolumes", {})    )
-        , fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, pset, "GEANTSeed")     )
+	, fEngine(art::ServiceHandle<rndm::NuRandomService>()->registerAndSeedEngine(createEngine(0),
+                                                                                 pset,
+                                                                                 "GEANTSeed"))
         {
             geo = providerFrom<geo::GeometryGAr>();
 

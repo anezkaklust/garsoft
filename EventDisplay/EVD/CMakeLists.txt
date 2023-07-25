@@ -1,5 +1,6 @@
 
 include(CetRootCint)
+link_directories( $ENV{NUG4_FQ_DIR}/lib )
 
 set( PACKAGE EventDisplay )
 FILE( GLOB src_files *.cxx )

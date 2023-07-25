@@ -515,7 +515,10 @@ namespace gar {
 // constructor
 gar::anatree::anatree(fhicl::ParameterSet const & p)
   : EDAnalyzer(p),
-    fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "Seed")) {
+    fEngine(art::ServiceHandle<rndm::NuRandomService>()->registerAndSeedEngine(createEngine(0),
+                                                                                 p,
+                                                                                 "Seed"))
+{
   fGeo     = gar::providerFrom<geo::GeometryGAr>();
 
   fECALEncoding = fGeo->GetECALCellIDEncoding();

@@ -101,8 +101,10 @@ namespace gar {
     };
 
     dayoneconverter::dayoneconverter(fhicl::ParameterSet const& p)
-      : EDProducer{p}
-      , fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,p,"Seed"))
+      : EDProducer{p},
+	fEngine(art::ServiceHandle<rndm::NuRandomService>()->registerAndSeedEngine(createEngine(0),
+                                                                                 p,
+                                                                                 "Seed"))
         // More initializers here.
       {
         // Call appropriate produces<>() functions here.

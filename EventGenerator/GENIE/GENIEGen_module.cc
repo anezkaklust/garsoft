@@ -286,7 +286,7 @@ namespace gar {
             // grab the geometry object to see what geometry we are using
             auto geo = gar::providerFrom<geo::GeometryGAr>();
             std::unique_ptr<sumdata::RunData> runcol(new sumdata::RunData(geo->DetectorName()));
-            run.put(std::move(runcol));
+            run.put(std::move(runcol),art::fullRun());
             return;
         }
 
@@ -296,7 +296,7 @@ namespace gar {
             std::unique_ptr<sumdata::POTSummary> p(new sumdata::POTSummary());
             p->totpot     = fGENIEHelp->TotalExposure();
             p->totgoodpot = fGENIEHelp->TotalExposure();
-            run.put(std::move(p));
+            run.put(std::move(p), art::fullRun());
             return;
         }
 

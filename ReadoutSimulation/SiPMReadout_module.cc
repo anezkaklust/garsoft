@@ -96,7 +96,9 @@ namespace gar {
     // Constructor
     SiPMReadout::SiPMReadout(fhicl::ParameterSet const& pset)
       : art::EDProducer{pset},
-      fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,pset,"Seed"))
+      fEngine(art::ServiceHandle<rndm::NuRandomService>()->registerAndSeedEngine(createEngine(0),
+                                                                                 pset,
+                                                                                 "Seed"))
       {
         fGeo = gar::providerFrom<geo::GeometryGAr>();
 

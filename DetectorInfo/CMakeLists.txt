@@ -1,4 +1,5 @@
 include_directories($ENV{GEANT4_FQ_DIR}/include)
+link_directories( $ENV{NUG4_FQ_DIR}/lib )
 
 art_make( NO_PLUGINS
           LIB_LIBRARIES Geometry
@@ -12,7 +13,7 @@ art_make( NO_PLUGINS
                     ROOT::Tree              
                         ${Boost_SYSTEM_LIBRARY}
                         art_Utilities canvas
-                        nug4_MagneticFieldServices_MagneticFieldServiceStandard_service
+			nug4_MagneticFieldServices_MagneticFieldServiceStandard_service
                         ${ART_FRAMEWORK_SERVICES_REGISTRY}
                         ${MF_MESSAGELOGGER}
                         ${CETLIB_EXCEPT}
