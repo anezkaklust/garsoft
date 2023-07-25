@@ -25,7 +25,7 @@ gar::TOADInputDetail::TOADInputDetail(
   void gar::TOADInputDetail::readFile(
 				      std::string const & filename, art::FileBlock*& fb) {
 
-    // open the input file with the dunedaq class and hand the ownership off to the rawFileServie
+    // open the input file with the dunedaq class
 
     fRawDataFilePtr = std::make_unique<dunedaq::hdf5libs::HDF5RawDataFile>(filename);
 
@@ -193,8 +193,8 @@ bool gar::TOADInputDetail::readNext(art::RunPrincipal const* const inR,
           auto subdetector_string = dunedaq::detdataformats::DetID::subdetector_to_string(detidenum);
 	  if (fLogLevel > 1)
 	    {
-	      std::cout << "TOADInputSource Tool subdetector string: " << subdetector_string << std::endl;
-	      std::cout << "TOADInputSource Tool looking for subdet: " << " Put string here.  ND_LAr?" << std::endl;
+	      std::cout << "TOADInputSource subdetector string: " << subdetector_string << std::endl;
+	      std::cout << "TOADInputSource looking for subdet: " << " Put string here.  ND_LAr?" << std::endl;
 	    }
 	  // I stopped copying code here ... Need to check the subdetector string and unpack the data.
 	}
