@@ -69,9 +69,14 @@ find_package(Range-v3 REQUIRED EXPORT)
 find_package(SQLite3 REQUIRED EXPORT)
 find_package(ifdhc REQUIRED EXPORT)
 find_package(log4cpp REQUIRED EXPORT)
-find_ups_product( nlohmann_json )
+find_package(nlohmann_json REQUIRED EXPORT)
 find_package(HDF5 REQUIRED EXPORT)
-find_ups_product( highfive )
+
+# Issue with capitalization here.  UPS product is called highfive and the package is called HighFive
+# the product itself has a mixture
+find_package( HighFive )
+include_directories( $ENV{HIGHFIVE_INC} )
+
 find_ups_product( dunedaqdataformats )
 find_ups_product( dunedetdataformats )
 
