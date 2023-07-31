@@ -49,8 +49,9 @@ find_package(cetlib_except REQUIRED EXPORT)
 find_package(fhiclcpp REQUIRED EXPORT)
 find_package(messagefacility REQUIRED EXPORT)
 
-#find_package(nug4  REQUIRED EXPORT)
-find_ups_product( nug4 )
+find_package(nug4  REQUIRED EXPORT)
+include_directories( $ENV{NUG4_INC} )
+
 find_package(nugen REQUIRED EXPORT)
 find_package(nurandom REQUIRED EXPORT)
 find_package(nusimdata REQUIRED EXPORT)
