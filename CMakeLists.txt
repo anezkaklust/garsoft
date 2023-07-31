@@ -79,8 +79,10 @@ find_package(HDF5 REQUIRED EXPORT)
 find_package( HighFive )
 include_directories( $ENV{HIGHFIVE_INC} )
 
-find_ups_product( dunedaqdataformats )
-find_ups_product( dunedetdataformats )
+find_package( dunedaqdataformats )
+include_directories( $ENV{DUNEDAQDATAFORMATS_INC} )
+find_package( dunedetdataformats )
+include_directories( $ENV{DUNEDETDATAFORMATS_INC} )
 
 # find_package( GSL REQUIRED EXPORT )
 find_ups_product( GSL )
