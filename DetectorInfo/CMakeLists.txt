@@ -1,5 +1,4 @@
 include_directories($ENV{GEANT4_FQ_DIR}/include)
-link_directories( $ENV{NUG4_FQ_DIR}/lib )
 
 art_make( NO_PLUGINS
           LIB_LIBRARIES Geometry

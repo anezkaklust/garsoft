@@ -51,6 +51,7 @@ find_package(messagefacility REQUIRED EXPORT)
 
 find_package(nug4  REQUIRED EXPORT)
 include_directories( $ENV{NUG4_INC} )
+link_directories( $ENV{NUG4_FQ_DIR}/lib )
 
 find_package(nugen REQUIRED EXPORT)
 find_package(nurandom REQUIRED EXPORT)

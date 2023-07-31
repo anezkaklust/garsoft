@@ -1,7 +1,6 @@
 include_directories( $ENV{NUTOOLS_DIR}/include   )
 include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
 include_directories( $ENV{GSL_INC}     )
-link_directories( $ENV{NUG4_FQ_DIR}/lib )
 
 art_make(BASENAME_ONLY
         LIBRARY_NAME   GArRecoAlg

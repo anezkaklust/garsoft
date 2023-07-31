@@ -3,8 +3,6 @@ set( PACKAGE EventDisplay3D )
 FILE( GLOB src_files *.cxx )
 cet_rootcint( ${PACKAGE} )
 
-link_directories( $ENV{NUG4_FQ_DIR}/lib )
-
 art_make_library(SOURCE    ${src_files} ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE}Cint.cc
                  LIBRARIES SimulationDataProducts
  			   RawDataProducts
