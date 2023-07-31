@@ -1,4 +1,3 @@
-include_directories ( $ENV{NUSIMDATA_INC} )
 
 cet_make_exec(makeDST.exe
   SOURCE makeDST.cxx

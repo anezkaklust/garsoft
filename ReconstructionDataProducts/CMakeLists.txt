@@ -1,7 +1,3 @@
-include_directories( $ENV{GEANT4_FQ_DIR}/include )
-include_directories( $ENV{NUTOOLS_DIR}/include   )
-include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
-include_directories( $ENV{GSL_FQ_DIR}/include     )
 
 cet_make( LIBRARIES
                        Geometry

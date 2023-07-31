@@ -42,6 +42,8 @@ cet_set_compiler_flags(DIAGS CAUTIOUS
 cet_report_compiler_flags()
 
 find_package(art REQUIRED EXPORT)
+include_directories( $ENV{ART_INC} )
+
 find_package(art_root_io REQUIRED EXPORT)
 find_package(canvas_root_io REQUIRED)
 find_package(cetlib REQUIRED EXPORT)
@@ -54,6 +56,7 @@ include_directories( $ENV{NUG4_INC} )
 link_directories( $ENV{NUG4_FQ_DIR}/lib )
 
 find_package(nugen REQUIRED EXPORT)
+include_directories( $ENV{NUGEN_INC} )
 find_package(nurandom REQUIRED EXPORT)
 find_package(nusimdata REQUIRED EXPORT)
 find_package(nutools REQUIRED EXPORT)
@@ -63,7 +66,11 @@ find_package(Boost REQUIRED COMPONENTS headers math_tr1 REQUIRED EXPORT) # boost
 find_package(CLHEP COMPONENTS Evaluator Geometry Random Vector REQUIRED EXPORT)
 find_package(CRY REQUIRED EXPORT) # find module in nutools
 find_package(GENIE REQUIRED EXPORT) # find module in nugen
+include_directories( $ENV{GENIE_INC}/GENIE )
+include_directories( $ENV{GENIE_INC} )
+
 find_package(Geant4 REQUIRED EXPORT)
+include_directories( $ENV{GEANT4_FQ_DIR}/include )
 find_package(LibXml2 REQUIRED EXPORT)
 find_package(PostgreSQL REQUIRED EXPORT)
 find_package(ROOT COMPONENTS Core EG GenVector Geom Gpad Hist MathCore Matrix Physics RIO RooFitCore Tree REQUIRED EXPORT)

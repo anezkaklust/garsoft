@@ -1,5 +1,3 @@
-include_directories( $ENV{CLHEP_INCLUDE_DIR} )
-include_directories( $ENV{ART_INC} )
 
 art_make( LIB_LIBRARIES     ${MF_MESSAGELOGGER}
                             ${FHICLCPP}

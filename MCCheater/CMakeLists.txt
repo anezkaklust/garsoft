@@ -1,4 +1,3 @@
-include_directories( $ENV{NUTOOLS_DIR}/include )
 
 art_make_library( LIBRARY_NAME MCCheater
                   SOURCE       BackTrackerCore.cxx
