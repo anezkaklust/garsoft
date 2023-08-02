@@ -54,7 +54,7 @@ art -c readoutsimjob.fcl text_gen.root
 art -c evd3D.fcl readoutsim.root
 ```
 
-Reconstrution job for TOAD is not yet utilized. For ND-GAr, this can be run as:
+Reconstrution job for TOAD consisting of hit clustering can be run as:
 
 ```
 art -c recojob.fcl readoutsim.root   
