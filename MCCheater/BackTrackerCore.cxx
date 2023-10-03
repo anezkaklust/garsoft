@@ -142,11 +142,11 @@ namespace gar{
                 // Stopping for neutrons?
                 if (walker->PdgCode()==neutronPDG && fDontChaseNeutrons) break;
 
-				// Stop in TPC
+                // Stop in TPC
                 TVector3 verty(walker->Vx(),walker->Vy(),walker->Vz());
-				if (fGeo->PointInGArTPC(verty)) break;
+                if (fGeo->PointInGArTPC(verty)) break;
 
-				// Walk up the ParticleList not the event store so someday somebody can
+                // Walk up the ParticleList not the event store so someday somebody can
                 // change the ParticleList and this will still work.
                  int mommaTID = fParticleList[walker->TrackId()]->Mother();
                  // Stop at top of tree!
@@ -193,13 +193,13 @@ namespace gar{
                 // Stopping for neutrons?
                 if (walker->PdgCode()==neutronPDG && fDontChaseNeutrons) break;
 
-				// Stop in ECAL or TPC
+                // Stop in ECAL or TPC
                 TVector3 verty(walker->Vx(),walker->Vy(),walker->Vz());
-				if (fGeo->PointInGArTPC(verty)) break;
-				if (fGeo->PointInECALBarrel(verty)) break;
-				if (fGeo->PointInECALEndcap(verty)) break;
+                if (fGeo->PointInGArTPC(verty)) break;
+                if (fGeo->PointInECALBarrel(verty)) break;
+                if (fGeo->PointInECALEndcap(verty)) break;
 
-				// Walk up the ParticleList not the event store so someday somebody can
+                // Walk up the ParticleList not the event store so someday somebody can
                 // change the ParticleList and this will still work.
                 int mommaTID = fParticleList[walker->TrackId()]->Mother();
                  // Stop at top of tree!
@@ -229,7 +229,7 @@ namespace gar{
                 // Walk up the ParticleList not the event store so someday somebody can
                 // change the ParticleList and this will still work.
                 int momma = fParticleList[walker]->Mother();
-                if (momma == 0 || momma == -1) {		// -1 convention for edep-sim
+                if (momma == 0 || momma == -1) {        // -1 convention for edep-sim
                     return false;
                 } else {
                     walker = momma;
@@ -646,9 +646,9 @@ namespace gar{
             float start = time -fECALtimeResolution;
             float stop  = time +fECALtimeResolution;
 
-			TVector3 verty(hit.Position());
-			bool inYoke = ( fGeo->PointInMuIDBarrel(verty) ||
-				            fGeo->PointInMuIDEndcap(verty) );
+            TVector3 verty(hit.Position());
+            bool inYoke = ( fGeo->PointInMuIDBarrel(verty) ||
+                            fGeo->PointInMuIDEndcap(verty) );
 
             double totalEallTracks = 0.0;
             for (auto const& edep : cellEDeps) {
@@ -990,9 +990,9 @@ namespace gar{
                 hitIDECol.insert(hitIDECol.end(), IDEsThisHit.begin(),IDEsThisHit.end());
             }
 
-			TVector3 verty(c->Position());
-			bool inYoke = ( fGeo->PointInMuIDBarrel(verty) ||
-				            fGeo->PointInMuIDEndcap(verty) );
+            TVector3 verty(c->Position());
+            bool inYoke = ( fGeo->PointInMuIDBarrel(verty) ||
+                            fGeo->PointInMuIDEndcap(verty) );
 
             // A tree is a good way to accumulate the info we need
             std::map<int,float> lClusterIdToEnergy;
