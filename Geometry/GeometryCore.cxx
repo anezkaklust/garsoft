@@ -1460,23 +1460,14 @@ namespace gar {
       // not, then dig a bit deeper
       std::vector<TGeoNode const*> path = this->FindVolumePath("TPCChamber_vol");
       if(path.size() == 0)
-<<<<<<< HEAD
 	path = this->FindVolumePath("volTPCChamber");
-=======
-        path = this->FindVolumePath("volTPCGas");
->>>>>>> develop
       if(path.size() == 0)
         return false;
 
       const TGeoNode *GArTPC_node = path.at(path.size()-1);
       if(GArTPC_node == nullptr) {
-<<<<<<< HEAD
 	std::cout << "Cannot find node TPCChamber_vol_0/TPCChamber_vol_0" << std::endl;
 	return false;
-=======
-        std::cout << "Cannot find node TPCGas_vol_0/TPCGas_vol_0" << std::endl;
-        return false;
->>>>>>> develop
       }
 
       TGeoMatrix *mat = GArTPC_node->GetMatrix();

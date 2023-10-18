@@ -1,27 +1,4 @@
-<<<<<<< HEAD
 # garsoft: Software for ND-GAr and TOAD
-=======
-# garsoft: Software for ND-GAr
-
-## Quick-Start: Using pre-installed GArSoft in CVMFS
-
-If your computer has CVMFS installed and running, you can type
-
-```
-source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
-setup garsoft v02_17_01 -q e20:prof
-```
-
-and then proceed to the section below on running a sample of GArSoft events.  
-The version in the setup command above will go out of date. To see what versions are available, type
-
-```
-ups list -aK+ garsoft
-```
-
-after sourcing the setup script. This list is not expected to be sorted.
-
->>>>>>> develop
 
 ## Building GArSoft from Source -- all other dependencies in CVMFS
 
@@ -66,15 +43,9 @@ Note: mrbsetenv sets up a build environment, and environment variables will poin
 
 See the DUNE computing [training](https://dune.github.io/computing-basics/) for a tutorial on how to develop software.  Some older examples from dunetpc on how to work with git, check out code, develop on branches, and pushing code: [dunetpc git/mrb tutorial](https://cdcvs.fnal.gov/redmine/projects/dunetpc/wiki/_Tutorial_)
 
-<<<<<<< HEAD
 ## Run a 2 sample events for TOAD
 
 Job after building or setting up code:
-=======
-## Run a 1000-event MC sample 
-
-After building or setting up code:
->>>>>>> develop
 
 ```
 # event generation
