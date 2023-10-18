@@ -5,6 +5,7 @@
 #include "art/Framework/Principal/Event.h"
 #include "fhiclcpp/make_ParameterSet.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
+#include "canvas/Persistency/Common/Ptr.h" 
 
 //-----------------------------------------------------------------------------------------
 gar::detinfo::DetectorClocksServiceStandardGAr::DetectorClocksServiceStandardGAr(fhicl::ParameterSet   const& pset,

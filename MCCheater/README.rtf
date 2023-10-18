@@ -1,12 +1,12 @@
-{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf600
-{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fmodern\fcharset0 Courier;\f2\froman\fcharset0 Palatino-Italic;
+{\rtf1\ansi\ansicpg1252\cocoartf2639
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fmodern\fcharset0 Courier;\f2\froman\fcharset0 Palatino-Italic;
 \f3\fswiss\fcharset0 Helvetica-Oblique;}
-{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
-{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
-\margl1440\margr1440\vieww22560\viewh17620\viewkind0
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red255\green255\blue255;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\csgray\c100000;}
+\margl1440\margr1440\vieww20640\viewh8780\viewkind0
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
 
-\f0\fs24 \cf2 The BackTracker service must be, as of the ides of April 2020, instantiated with a const_cast:\
+\f0\fs24 \cf2 The BackTracker service must be, as of the Ides of March 2023, instantiated with a const_cast:\
 \
 
 \f1 	cheat::BackTrackerCore const* const_bt = gar::providerFrom<cheat::BackTracker>();\
@@ -62,45 +62,43 @@ explicit BackTrackerCore(fhicl::ParameterSet const& pset);
 void AdoptEveIdCalculator(sim::EveIdCalculator* ec);
 \f0 				One of the functions of the 
 \f1 ParticleList
-\f0  class is to find Eve, the mother of all\
+\f0  class is to find Eve, the mother of\
 												
 \f1 		
-\f0 mother particles.  The algorithm for determining Eve is declared with this\
+\f0 all mother particles.  The algorithm for determining Eve is declared with this\
 												
 \f1 		
-\f0 method; the only algorithm that exists now is the nutools 
-\f1 EmEveIdCalculator
-\f0 \
+\f0 method; the only algorithm that exists now is the nutools \
+										
+\f1 				EmEveIdCalculator 
+\f0 which moves up the tree until it finds a particle not \
 										
 \f1 				
-\f0 which moves up the tree until it finds a particle not produced by one of the\
-										
-\f1 				
-\f0 GEANT processes \{
+\f0 produced by one of the GEANT processes \{
 \f1 conv
 \f0 , 
 \f1 LowEnConversion
 \f0 , 
 \f1 Pair
-\f0 , 
+\f0 , \
+														
 \f1 compt
 \f0 , 
 \f1 Compt
 \f0 , 
 \f1 Brem
-\f0 ,\
-										
-\f1 				phot
+\f0 , 
+\f1 phot
 \f0 , 
 \f1 Photo
 \f0 , 
 \f1 Ion
 \f0 , 
 \f1 Annihil
-\f0 \}.  Other functions of 
+\f0 \}.  Other functions of\
+														
 \f1 ParticleList
-\f0  are less useful\
-														for us.\
+\f0  are less useful for us.\
 \
 \
 \
@@ -119,7 +117,7 @@ void AdoptEveIdCalculator(sim::EveIdCalculator* ec);
 sim::ParticleList* GetParticleList() const;						
 \f0 The backtracker uses the nutools 
 \f1 ParticleList
-\f0  class (more recently, in nug4)\
+\f0  class (recently, in nug4)\
 												
 \f1 		
 \f0 as an augmentation of 
@@ -127,20 +125,20 @@ sim::ParticleList* GetParticleList() const;
 \f0 , where the int\
 												
 \f1 		
-\f0 is the GEANT trackID.  This method returns a pointer to the instance of the 
-\f1 ParticleList
-\f0  \
-														class which is in 
+\f0 is the GEANT trackID.  This method returns a pointer to the instance of the  \
+														
+\f1 ParticleList 
+\f0 class which is in 
 \f1 BackTrackerCore
-\f0  and is filled by the 
+\f0  and is filled by the\
+														
 \f1 RebuildNoSC
 \f0  method.
 \f1 \
 
 \f0 \
 
-\f1 simb::MCParticle* const\
-	TrackIDToParticle(int const& id) const;						
+\f1 simb::MCParticle* TrackIDToParticle(int const& id) const;			
 \f0 From a GEANT TrackID to an 
 \f1 MCParticle
 \f0 .  The reverse process is just \
@@ -152,8 +150,7 @@ sim::ParticleList* GetParticleList() const;
 \f0  on error condition.\
 \
 
-\f1 simb::MCParticle* const\
-	FindMother(simb::MCParticle* const p) const;					
+\f1 simb::MCParticle* FindMother(simb::MCParticle* const p) const;		
 \f0 From an 
 \f1 MCParticle
 \f0  to its mother particle.  The 
@@ -168,71 +165,103 @@ sim::ParticleList* GetParticleList() const;
 
 \f0 \
 
-\f1 simb::MCParticle* const\
-	FindEve(simb::MCParticle* const p) const;					
+\f1 simb::MCParticle* FindEve(simb::MCParticle* const p) const;			
 \f0 From an 
 \f1 MCParticle
 \f0  to its Eve 
 \f1 MCParticle
-\f0 , using the adopted 
+\f0 , using the adopted\
+														
 \f1 EveIdCalculator
-\f0 .\
-														Will return 
+\f0 .  Will return 
 \f1 nullptr
-\f0  on error condition in 
+\f0  on error condition in\
+														
 \f1 TrackIDToParticle
 \f0 .\
 \
 
-\f1 simb::MCParticle* const										
+\f1 simb::MCParticle* FindTPCEve(simb::MCParticle* const p);			
 \f0 From an 
 \f1 MCParticle
 \f0  to the progenitor 
 \f1 MCParticle
-\f0  which exited the TPC or is a primary.
-\f1 \
-	FindTPCEve(simb::MCParticle* const p);
-\f0 						Uses the 
+\f0  which exited the TPC or\
+														is a primary.  Uses the 
 \f1 GeometryCore::PointInMPD
-\f0  to find if one end of the particle is in the TPC and \
-														the other is not.  Will return 
+\f0  to find if one end of the\
+														particle is in the TPC and the other is not.  Will return 
 \f1 nullptr
-\f0  on error condition in 
+\f0  on error \
+														condition in 
 \f1 TrackIDToParticle
 \f0 .\
 
-\f1 simb::MCParticle* const										
+\f1 simb::MCParticle* FindTPCEve(int const trackID);
+\f0 	
+\f1 				
 \f0 Signature using 
 \f1 trackID
 \f0  mostly for call in 
 \f1 CellIDToCalIDEs
-\f0  but may as well make it
-\f1 \
-	FindTPCEve(int const trackID);
-\f0 							public.  This is the method that prevents 
+\f0  but may as \
+														well make it
+\f1  
+\f0 public.  This is the method that prevents 
 \f1 BackTrackerCore
-\f0  from being 
+\f0  from\
+														being 
 \f1 const
-\f0 .\
+\f0 .  If 
+\f1 DontChaseNeutrons
+\f0  in 
+\f1 BackTracker.fcl
+\f0  is 
+\f1 true
+\f0 , which\
+														is the default, a shower outside the TPC from a neutron will be traced back to\
+														that neutron even if it did not originate In the gas.   The flag\
+														
+\f1 DontChaseNeutrons
+\f0  in 
+\f1 BackTracker.fcl
+\f0 ,with default value true, will\
+														cause 
+\f1 FoundTPCEve
+\f0  to stop chasing shower MCParticles up the\
+                                                                                                                                                       tree if a neutron is found, regardless of the neutron\'92s location in the detector.\
 \
 
-\f1 bool IsForebearOf(simb::MCParticle* const p, simb::MCParticle* const c) const;
+\f1 simb::MCParticle* FindECALEve(simb::MCParticle* const p);			
+\f0 Similar to 
+\f1 FindTPCEve
+\f0 , but looks for the progenitor which exited the ECAL or \
+
+\f1 simb::MCParticle* FindECALEve(int const trackID);
+\f0 	
+\f1 				
+\f0 TPC; this is intended for use with particles in the magnet yoke, i.e. the MuID.\
+\
+\
+
+\f1 bool IsForebearOf(simb::MCParticle* const forebear, simb::MCParticle* const afterbear) const;
 \f0 \
 														Is 
-\f1 MCParticle c
+\f1 MCParticle afterbear
 \f0  in the descent tree of 
-\f1 MCParticle p
-\f0 ? Does NOT use the\
-														adopted 
+\f1 MCParticle\
+														forebear
+\f0 ? Does NOT use the adopted 
 \f1 EveIdCalculator
-\f0 ; just walks up the tree.  MCParticle equality is \
-														tested by comparison of the 
+\f0 ; just walks up\
+														the tree.  MCParticle equality is tested by comparison of the\
+														
 \f1 MCParticle::TrackID()
 \f0  fields.  Returns 
-\f1 true
-\f0 \
-														if 
-\f1 p==c
+\f1 true 
+\f0 if \
+														
+\f1 forebear == afterbear
 \f0 .\
 \
 
@@ -261,6 +290,49 @@ sim::ParticleList* GetParticleList() const;
 \f3\i  between them 
 \f0\i0 -------------------------------
 \f1 \
+
+\f3\i \
+\
+\
+First we\'92ll need to define 
+\f1\i0 HitsIDE:\
+struct HitIDE \{\
+      int   trackID;               ///< Geant4 supplied trackID\
+ \cb3      float energyFrac;            ///< fraction of CaloRawDigit energy from the particle with this trackID\
+      TLorentzVector position;     ///< deposited energy-weighted mean true 4-position [cm, ns]\
+      TLorentzVector momentum;     ///< deposited energy-weighted mean true 4-momentum [GeV/c, GeV]\
+\
+\cb1       HitIDE() \{\}\
+      HitIDE(int id, float ef, float e, const TLorentzVector& pos, const TLorentzVector& mom,)\
+          : trackID(id), energyFrac(ef), energyTot(e), position(pos), momentum(mom) \{\}\
+      bool operator == (HitIDE const& hitr) const \{\'85\}\
+      bool operator <  (HitIDE const& hitr) const \{\'85\}\
+\};\
+
+\f0 														The 
+\f1 position
+\f0  and 
+\f1 momentum
+\f0  quantities in HitIDE hold the energy deposit \
+														(i.e. the ionization) weighted position and momentum of the track.  This is filled\
+														in 
+\f1 ChannelToHitIDEs
+\f0  and is needed by 
+\f1 GArAna
+\f0 .  If 
+\f1 SplitEDeps
+\f0  is\
+														
+\f1 true
+\f0  (which is the default) in 
+\f1 BackTracker.fcl
+\f0 , pad response functions\
+														Functions should be used to subdivide the energy deposit into different\
+														channels.
+\f1 \
+\
+\
+\
 std::vector<HitIDE>\
 	HitToHitIDEs(art::Ptr<rec::Hit> const& hit) const;
 \f0 			This is the 
@@ -288,40 +360,40 @@ std::vector<HitIDE>\
 
 \f1 \
 std::vector<art::Ptr<rec::Hit>> const
-\f0 							Returns all the TPC hits that have some energy from a particle.  If you want to find the
-\f1 \
-	ParticleToHits(simb::MCParticle* const p,
-\f0 					fraction of the energy in a hit from that particle, you need a 
+\f0 							Returns all the TPC hits that have some energy from a particle.  If you want to 
+\f1 	ParticleToHits(simb::MCParticle* const p,
+\f0 					find the fraction of the energy in a hit from that particle, you need a 
 \f1 HitIDE
-\f0 , found with
+\f0 ,
 \f1 \
-				  std::vector<art::Ptr<rec::Hit>> const& allhits,
-\f0 	
+				std::vector<art::Ptr<rec::Hit>> const& allhits,
+\f0 	found with 
 \f1 HitToHitIDEs
-\f0 , above and this method only returns hits with that fraction over
-\f1 \
-				  checkNeutrals=false) const;
-\f0 					the value given by fMinHitEnergyFraction, which is specified in 
+\f0 , above and this method only returns hits with that\
+
+\f1 				checkNeutrals=false) const;					
+\f0 fraction over the value given by fMinHitEnergyFraction, which is specified in\
+														
 \f1 BackTracker.fcl
-\f0 ;\
-														the default value of 0.1 is probably fine.  I guess.  If 
+\f0 ; the default value of 0.1 is probably fine.  I guess.  If\
+														
 \f1 checkNeutrals==false
-\f0 , will\
-														return immediately for input particle is a photon, neutron, pi0 or either a mu or e\
-														neutrino thereby returning an empty vector promptly.\
+\f0 , will return immediately for input particle is a\
+														photon, neutron, pi0 or either a mu or e neutrino thereby returning an empty\
+														vector promptly.\
 
 \f1 \
 std::vector<HitIDE>\
 	ChannelToHitIDEs(raw::Channel_t const& channel,				
-\f0 The above 3 public methods are wrappers to this private one.  It works by looping
-\f1 \
-				  double const start, double const stop) const);	
-\f0 through all the 
+\f0 The above 3 public methods are wrappers to this private one.  It works by\
+
+\f1 				  double const start, double const stop) const);	
+\f0 looping hrough all the 
 \f1 EnergyDeposits
-\f0  for the channel as given by 
-\f1 fChannelToEDepCol
-\f0 ,\
-														which in turn is filled by 
+\f0  for the channel as given by
+\f1 \
+														fChannelToEDepCol
+\f0 , which in turn is filled by 
 \f1 RebuildNoSC
 \f0 .\
 
@@ -329,45 +401,50 @@ std::vector<HitIDE>\
 std::pair<double,double>
 \f0 										Input is a single 
 \f1 MCParticle
-\f0  and a collection of hits in the TPC; the return value is
+\f0  and a collection of hits in the TPC; the return
 \f1 \
 	HitPurity(simb::MCParticle* const p,
-\f0 						the fraction, and the binomial error on the fraction, of the hits that are from the 
-\f1 MCParticle
-\f0 .\
+\f0 						value is the fraction, and the binomial error on the fraction, of the hits that are\
 
 \f1               std::vector<art::Ptr<rec::Hit>> const& hits,
-\f0 			Warning: the standard binomial error formula is dubious when used with weights.
+\f0 			from the 
+\f1 MCParticle
+\f0 .  Warning: the standard binomial error formula is 
 \f1 \
-              bool weightByCharge=false) const;\
+              bool weightByCharge=false) const;					
+\f0 dubious when used with weights.
+\f1 \
 \
 std::pair<double,double>
 \f0 										Input is a single 
 \f1 MCParticle
 \f0  and two collections of hits in the TPC.  The 
-\f1 allhits\
+\f1 \
 	HitEfficiency(simb::MCParticle* const p,
-\f0 					collection should be all the hits in the event, or maybe all the plausible hits in the event.
+\f0 					
+\f1 allhits 
+\f0 collection should be all the hits in the event, or maybe all the 
 \f1 \
                   std::vector<art::Ptr<rec::Hit>> const& hits,
-\f0 		The intent is that 
+\f0 		plausible hits in the event.  The intent is that 
 \f1 allhits
-\f0  is all the hits that 
+\f0  is all the hits that \
+			      
+\f1 std::vector<art::Ptr<rec::Hit>> const& allhits,
+\f0 		
 \f1 MCParticle
 \f0  created.  The 
 \f1 hits
-\f0  collection\
-				  
-\f1 std::vector<art::Ptr<rec::Hit>> const& allhits,
-\f0 	might be, say, all the hits in a reconstructed track from that 
-\f1 MCParticle
-\f0 .  The returned
+\f0  collection might be, say, all the hits in a 
 \f1 \
                   bool weightByCharge=false) const;
-\f0 				pair of doubles is the efficiency of track reconstruction and the binomial uncertainty.  Again,
+\f0 				reconstructed track from that 
+\f1 MCParticle
+\f0 .  The returned pair of doubles
 \f1 \
 														
-\f0 the standard binomial error formula is dubious when used with weights.
+\f0  is the efficiency of track reconstruction and the binomial uncertainty.  Again,\
+														the standard binomial error formula is dubious when used with weights.
 \f1 \
 \
 
@@ -381,24 +458,25 @@ std::pair<double,double>
 \f1\i0 CaloRawDigit
 \f3\i  and  
 \f1\i0 CaloDeposit
-\f3\i  data products in the event, with an 
+\f3\i  data products for the ECAL in the event, with an 
 \f1\i0 art::Assns
 \f3\i  between them 
-\f0\i0 ---------------------------
+\f0\i0 ---------  
 \f3\i \
+\'93Calorimeter\'94 means the combination of the ECAL and any MuID; the muon ID software is a 2nd instance of the ECAL art modules, run on a different geometry.  The data for\
+both are handled as one in the BackTracker.\
 \
 \
-\
-First we\'92ll need to define an analog to 
-\f1\i0 HitsIDE:\
+First we\'92ll need to define 
+\f1\i0 CalIDE:\
 struct CalIDE \{\
-      int   trackID;      ///< Geant4 supplied trackID\
-      float energyFrac;   ///< fraction of CaloRawDigit energy from the particle with this trackID\
-      CalIDE()\
-      \{\}\
-      CalIDE(int id, float ef)\
-      : trackID(id), energyFrac(ef)\
-      \{\}\
+      int   trackID;               ///< Geant4 supplied trackID\
+ \cb3      float energyFrac;            ///< fraction of CaloRawDigit energy from the particle with this trackID\
+      float energyTot              ///< total energy for this trackID.  In units of probably-GeV.\
+\
+\cb1       CalIDE() \{\}\
+      CalIDE(int id, float ef, float e)\
+          : trackID(id), energyFrac(ef) \{\}\
 \};\
 \
 \
@@ -410,8 +488,8 @@ struct CalIDE \{\
 \f1\i0 long long int
 \f3\i .  It\'92s in 
 \f1\i0 CaloRawDigit.h
-\f3\i .  Including this is a small but ugly addition to our dependencies.  We should collect\
-all these typedefs in one place.  I\'92ve put that on the task list.
+\f3\i .  Including this is a small but ugly addition to our dependencies.  We should\
+collect all these typedefs in one place.  I\'92ve put that on the task list.
 \f1\i0 \
 \
 \
@@ -420,42 +498,44 @@ std::vector<CalIDE>
 \f0 Similar to 
 \f1 TPCHitToHitIDEs
 \f0  except that the 
-\f1 CaloDeposit::TrackID
-\f0  should be the
-\f1 \
+\f1 CaloDeposit::TrackID\
 	CaloHitToCalIDEs(art::Ptr<rec::CaloHit> const& hit); 			
-\f0 track ID of the particle coming into the calorimeter.  That chase up the tree has to be done in
+\f0 should be the track ID of the particle coming into the calorimeter.  That chase 
 \f1 \
 std::vector<CalIDE>
-\f0 											
+\f0 											up the tree has to be done in 
 \f1 CellIDToCalIDEs
-\f0 .  There is reportedly a similar functionality in 
+\f0 .  There is reportedly a \
+
+\f1 	CaloHitToCalIDEs(         rec::CaloHit  const& hit);			similar 
+\f0 functionality in 
 \f1 edepsim
 \f0 .\
-
-\f1 	CaloHitToCalIDEs(         rec::CaloHit  const& hit);
-\f0 \
 				\
 \
 
 \f1 std::vector<art::Ptr<rec::CaloHit>>
-\f0 							Returns all the calorimeter hits that have some energy from TPC-leaving particle (see\
+\f0 							Returns all the calorimeter hits that have some energy from TPC-leaving \
 
-\f1 	ParticleToCaloHits(simb::MCParticle* const p					FindTPCEve
+\f1 	ParticleToCaloHits(simb::MCParticle* const p					
+\f0 particle (see 
+\f1 FindTPCEve
 \f0 ).  Input 
 \f1 allhits
-\f0  is all plausible hits in the ECAL calorimeter that
+\f0  is all plausible hits in the ECAL 
 \f1 \
-				    std::vector<art::Ptr<rec::CaloHit>> const& allhits) const;
-\f0 \
-														this method will search through.\
+		std::vector<art::Ptr<rec::CaloHit>> const& allhits) const;
+\f0 	calorimeter that this method will search through.\
 \
 
 \f1 std::vector<CalIDE>&										
-\f0 The above 3 methods are wrappers to this private one.  Works by looping through all the 
-\f1 \
-	CellIDToCalIDEs(raw::CellID_t const& cellID, float const time);	CaloDeposit
-\f0 s for the CellID as given by 
+\f0 The above 3 methods are wrappers to this private one.  Works by looping\
+
+\f1 	CellIDToCalIDEs(gar::rec::CaloHit);						
+\f0 through all the 
+\f1 CaloDeposit
+\f0 s for the CellID as given by\
+														
 \f1 fCellIDToCaloDepCol
 \f0 .  Uses 
 \f1 FindTPCEve
@@ -478,10 +558,10 @@ std::vector<CalIDE>
 std::pair<double,double>
 \f0 										Corresponding to 
 \f1 HitCollectionEfficiency
-\f0 , except on the calorimeter side.
-\f1 \
-	CaloHitEfficiency(simb::MCParticle* const p,
-\f0 					\
+\f0 , except on the calorimeter\
+
+\f1 	CaloHitEfficiency(simb::MCParticle* const p,
+\f0 					side.\
 
 \f1 				   vector<art::Ptr<rec::CaloHit>> const& hits,
 \f0 \
@@ -516,6 +596,45 @@ std::vector<art::Ptr<rec::Hit>> const
 \f0 \
 \
 
+\f1 std::vector<art::Ptr<rec::Hit>> const
+\f0 							A wrapper to the 
+\f1 unordered_map
+\f0  which is private in 
+\f1 BackTrackerCore
+\f0  and	
+\f1 TPCClusterToHits(rec::TPCCluster* const clust);
+\f0 				filled by 
+\f1 BackTracker_service.cc
+\f0  to get a collection of 
+\f1 rec::Hit
+\f0  for this \
+														
+\f1 TPCCluster
+\f0 .\
+
+\f1 \
+std::vector<art::Ptr<rec::TPCCluster>> const
+\f0 						A wrapper to the 
+\f1 unordered_map
+\f0  which is private in 
+\f1 BackTrackerCore
+\f0  and \
+	
+\f1 TrackToTPCCluster(rec::Track* const t);
+\f0 						filled by 
+\f1 BackTracker_service.cc
+\f0  to get a collection of 
+\f1 rec::Hit
+\f0  for this\
+														
+\f1 Track
+\f0 .\
+\
+
+\f1 double TrackToTotalEnergy(rec::Track* const t)
+\f0 					Maybe not the best name - it actually gives the total ionization from HitIDEs.\
+\
+
 \f1 std::vector<std::pair<simb::MCParticle*,float>
 \f0 >					Uses 
 \f1 TrackToHits
@@ -526,17 +645,17 @@ std::vector<art::Ptr<rec::Hit>> const
 	TrackToMCParticles(rec::Track* const t);
 \f0  					
 \f1 MCParticle
-\f0  that might match the track; and returns that list of candidate 
+\f0  that might match the track; and returns that list of candidate \
+														
+\f1 MCParticles 
+\f0 sorted by their contribution.  Electrons that have parents that \
+														are one of the other candidate 
 \f1 MCParticles
-\f0 \
-														sorted by their contribution.  Electrons that have parents that are one of the other \
-														candidate 
-\f1 MCParticles
-\f0  get their ionization included in with that parent.  The float\
-														in the returned vector is the fraction of the reconstructed 
+\f0  get their ionization included in \
+														with that parent.  The floatin the returned vector is the fraction of the\
+														reconstructed 
 \f1 track
-\f0 \'92s energy attributed to\
-														each 
+\f0 \'92s energy attributed to each 
 \f1 MCParticle
 \f0 .\
 \
@@ -544,21 +663,21 @@ std::vector<art::Ptr<rec::Hit>> const
 \f1 vector<art::Ptr<rec::Track>>
 \f0 									The inverse operation to 
 \f1 TrackToMCParticles
-\f0 .  Just loops over the input array of
+\f0 .  Just loops over the input 
 \f1 \
 	MCParticleToTracks(simb::MCParticle* const p,
-\f0 				reconstructed tracks and see which tracks have more than 
-\f1 fTrackFracMCP
-\f0  of their
+\f0 				array ofreconstructed tracks and see which tracks have more than 
 \f1 \
 				    vector<art::Ptr<rec::Track>> const& tracks);
-\f0 	ionization energy from the input 
+\f0 	
+\f1 fTrackFracMCP
+\f0  of their ionization energy from the input 
 \f1 MCParticle
-\f0 .  However, because of the merging\
-														of electrons in 
+\f0 .  \
+														However, because of the merging of electrons in 
 \f1 TrackToMCParticles
-\f0 , will return a zero-length vector if the argument \
-														is one of those electrons.\
+\f0 , will \
+														return a zero-length vector if the argument is one of those electrons.\
 
 \f1 \
 \
@@ -572,37 +691,40 @@ std::vector<art::Ptr<rec::Hit>> const
 \f3\i  back to the 
 \f1\i0 CaloHits
 \f3\i  
-\f0\i0 ---------------------------
-\f1 \
+\f0\i0 ---------------------------\
+
+\f3\i Again, \'93calorimeter\'94 means the combination of the ECAL and any MuID; the muon ID software is a 2nd instance of the ECAL art modules, run on a different geometry.  The\
+data for both are handled as one in the BackTracker.\
+
+\f1\i0 \
 std::vector<art::Ptr<rec::CaloHit>> const
 \f0 						Uses the chained associations to get a collection of 
 \f1 CaloHits
 \f0  for this 
-\f1 Cluster
-\f0 .
-\f1 	ClusterToCaloHits(rec::Cluster* const c);
-\f0 \
+\f1 	ClusterToCaloHits(rec::Cluster* const c);					Cluster
+\f0 .\
 \
 
 \f1 std::vector<std::pair<simb::MCParticle*,float>
 \f0 >					Uses 
-\f1 ClusterToHits
+\f1 ClusterToMCParticles
 \f0  and then 
 \f1 CaloHitToCalIDEs
-\f0  to get energy fractions for each  \
+\f0  to get energy \
 
 \f1 	ClusterToMCParticles(rec::Cluster* const c);
-\f0 					
+\f0 					fractions for each 
 \f1 MCParticle
-\f0  that might match the cluster; and returns that list of candidate 
+\f0  that might match the cluster; and returns that \
+														list of candidate 
 \f1 MCParticles
-\f0 \
-														sorted by their contribution.    Gets the 
-\f1 MCParticle
-\f0  entering the calorimeter using\
+\f0  sorted by their contribution.    Gets the \
 														
-\f1 FoundTPCEve
+\f1 MCParticle
+\f0  entering the calorimeter using 
+\f1 FindTPCEve
 \f0 .\
+\
 
 \f1 vector<art::Ptr<rec::Cluster>>\
 	MCParticleToClusters(simb::MCParticle* const p,
@@ -617,17 +739,17 @@ bool ClusterCreatedMCParticle(simb::MCParticle* const p,
 \f1 MCPartsInCluster
 \f0  to get a collection of 
 \f1 MCParticle
-\f0 s in the cluster.  Then uses 
+\f0 s in the cluster.  
 \f1 \
                               rec::Cluster* const c);
-\f0 				
-\f1 IsDescendedFrom
+\f0 				Then uses 
+\f1 IsForebearOf
 \f0  to see if 
 \f1 MCParticle p
-\f0  is descended from any of those 
+\f0  is descended from any of \
+														those 
 \f1 MCParticle
-\f0 s.\
-														If 
+\f0 s.  If 
 \f1 p
 \f0 \'92s ionization created 
 \f1 c
@@ -640,36 +762,38 @@ bool MCParticleCreatedCluster(simb::MCParticle* const p,
 \f1 MCPartsInCluster
 \f0  to get a collection of 
 \f1 MCParticle
-\f0 s in the cluster.  Then uses 
-\f1 \
-                              rec::Cluster* const c);
-\f0 				
-\f1 IsDescendedFrom
+\f0 s in the cluster.\
+
+\f1                               rec::Cluster* const c);
+\f0 				Then uses 
+\f1 IsForebearOf
 \f0  to see if any of those 
 \f1 MCParticle
-\f0 s are descended from 
+\f0 s are \
+														descended from 
 \f1 MCParticle p
-\f0 .\
-														If 
+\f0 .  If 
 \f1 p
 \f0 \'92s ionization created 
 \f1 c
-\f0 , then the answer is yes!\
+\f0 , then the answer\
+														is yes!\
  \
 
 \f1 std::vector<simb::MCParticle*> MCPartsInCluster(rec::Cluster* const c);\
 														A private method used by ClusterCreatedMCParticle
-\f0  and 
-\f1 MCParticleCreatedCluster\
-														to use ClusterToCaloHits
-\f0 , 
+\f0  and \
+														
+\f1 MCParticleCreatedCluster to use ClusterToCaloHits
+\f0 ,\
+														
 \f1 CaloHitToCalIDEs
 \f0  and 
 \f1 TrackIDToParticle
-\f0  to get a collection 
+\f0  to get a collection of
 \f1 \
                     						
-\f0 				of 
+\f0 				
 \f1 MCParticle
 \f0 s in the cluster.\
 }

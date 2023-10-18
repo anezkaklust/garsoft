@@ -1,5 +1,3 @@
-include_directories( $ENV{NUTOOLS_DIR}/include   )
-include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
 
 art_make(
   LIB_LIBRARIES

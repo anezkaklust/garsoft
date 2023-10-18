@@ -22,10 +22,10 @@
 //		scalarFromTree<int> readRun(Oak,"Run",&iEntry);
 //		vectorFromTree<int> readVertN(Oak,"VertN",&iEntry);
 //		vectorFromTree<int> readVertQ(Oak,"VertQ",&iEntry);
-//		Int_t Run    = readRun();	// cuz' you initialized iEntry to 0
+//		Int_t Run    = readRun.getData();	// cuz' you initialized iEntry to 0
 //		Int_t nEntry = Oak->GetEntries();
 //		for (iEntry=0; iEntry<nEntry; ++iEntry) {
-//			vector<int> VertN = readVertN();
+//			vector<int> VertN = readVertN.getData();
 //			size_t nVertInEvent = VertN.size();
 //			vector<int> TwoTrackVerts = readVertN.findIndices(2);
 //			for (auto aTwoTrackVertIndex : TwoTrackVerts) {
@@ -45,7 +45,6 @@
 using std::string;
 #include <vector>
 using std::vector;
-//#include <algorithm>
 
 #include "Rtypes.h"
 #include "TTree.h"
@@ -154,10 +153,16 @@ public:
 
 	// Get something from that vector!  Get that! ==============================
 	// This is the preferred signature
+	T operator()(size_t i) {
+		return getDataVector().at(i);
+	}
 	T operator()(int i) {
 		return getDataVector().at(i);
 	}
 	// This signature deprecated but is nicer than (*vectorFromTree)(i)
+	T getData(size_t i) {
+		return getDataVector().at(i);
+	}
 	T getData(int i) {
 		return getDataVector().at(i);
 	}
@@ -165,6 +170,7 @@ public:
 
 
 	// Get that vector's size!  Get him! =======================================
+	// ints can be promoted to size_t, not the other way round.
 	int size() {
 		return getDataVector().size();
 	}
@@ -172,10 +178,11 @@ public:
 
 
 	// Construct a vector with all indices where data matches searchval ========
+	// ints can be promoted to size_t, not the other way round.
 	vector<int> findIndices(T searchval) {
 		vector<int> retval;
-		int nData = getDataVector().size();
-		for (int iDatum=0; iDatum<nData; ++iDatum) {
+		size_t nData = getDataVector().size();
+		for (size_t iDatum=0; iDatum<nData; ++iDatum) {
 			if ( getDataVector().at(iDatum)==searchval ) retval.push_back(iDatum);
 		}
 		return retval;

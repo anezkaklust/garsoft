@@ -17,6 +17,8 @@
 #include "RawDataProducts/RawDigit.h"
 #include "DetectorInfo/DetectorProperties.h"
 
+#include <unordered_set>
+
 namespace fhicl {
   class ParameterSet;
 }

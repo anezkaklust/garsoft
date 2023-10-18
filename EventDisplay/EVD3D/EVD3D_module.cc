@@ -93,6 +93,7 @@
 #include "TEveProjectionAxes.h"
 #include "TEveProjectionManager.h"
 #include "TEveWindow.h"
+#include "TEveGeoShape.h"
 #include "TGLViewer.h"
 #include "TGLCameraOverlay.h"
 #include "TGTab.h"

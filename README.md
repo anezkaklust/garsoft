@@ -1,4 +1,27 @@
+<<<<<<< HEAD
 # garsoft: Software for ND-GAr and TOAD
+=======
+# garsoft: Software for ND-GAr
+
+## Quick-Start: Using pre-installed GArSoft in CVMFS
+
+If your computer has CVMFS installed and running, you can type
+
+```
+source /cvmfs/dune.opensciencegrid.org/products/dune/setup_dune.sh
+setup garsoft v02_17_01 -q e20:prof
+```
+
+and then proceed to the section below on running a sample of GArSoft events.  
+The version in the setup command above will go out of date. To see what versions are available, type
+
+```
+ups list -aK+ garsoft
+```
+
+after sourcing the setup script. This list is not expected to be sorted.
+
+>>>>>>> develop
 
 ## Building GArSoft from Source -- all other dependencies in CVMFS
 
@@ -23,9 +46,11 @@ mrb i -j4
 mrbslp
 ```
 
-The COMPILER variable above is a UPS qualifier indicating which version of which compiler to use. The head of develop has been upgraded to art v3_06_03, which uses a compiler qualifier "e20" corresponds to GCC v9.3.0: https://cdcvs.fnal.gov/redmine/projects/cet-is-public/wiki/AboutQualifiers
+The COMPILER variable above is a UPS qualifier indicating which version of which compiler to use. The head of develop has been upgraded to art v3_09_03, which uses a compiler qualifier "e20", which corresponds to GCC v9.3.0: https://cdcvs.fnal.gov/redmine/projects/cet-is-public/wiki/AboutQualifiers
 
 The BUILDTYPE variable above is either "prof" or "debug". Both kinds of builds include debug symbols, but "prof" turns on optimization, which can make using a debugger more challenging, but will make the code run faster.
+
+The -j4 argument on the mrb i command refers to the number of concurrent build processes (like g++ compiling a single source file).  A good rule of thum is to match it to the number of CPUs available on the machine you are working.  DUNE gpvms have four cores and a commensurate amount of memory, so use -j4 on those.  DUNE build nodes have 16 cores each and enough memory to support running the compiler on each one.
 
 Each time you log in and want to work with your garsoft test release, execute (or write a script), do the following to set up a build environment:
 
@@ -39,11 +64,17 @@ mrbsetenv
 
 Note: mrbsetenv sets up a build environment, and environment variables will point to the build directory. mrbslp will set up installed local products for running. Sometimes this makes a difference -- if a build fails, the build directory can have an incomplete set of things in it. It may also be missing some items (pandora XML files is a common one in far detector sim/reco that only get picked up with mrbslp).
 
-Some examples from dunetpc on how to work with git, check out code, develop on branches, and pushing code: [dunetpc git/mrb tutorial](https://cdcvs.fnal.gov/redmine/projects/dunetpc/wiki/_Tutorial_)
+See the DUNE computing [training](https://dune.github.io/computing-basics/) for a tutorial on how to develop software.  Some older examples from dunetpc on how to work with git, check out code, develop on branches, and pushing code: [dunetpc git/mrb tutorial](https://cdcvs.fnal.gov/redmine/projects/dunetpc/wiki/_Tutorial_)
 
+<<<<<<< HEAD
 ## Run a 2 sample events for TOAD
 
 Job after building or setting up code:
+=======
+## Run a 1000-event MC sample 
+
+After building or setting up code:
+>>>>>>> develop
 
 ```
 # event generation
@@ -75,3 +106,21 @@ For graphics visualization, one can set up VNC port.
 
 ## Computing tips
 Lots of computing how-to information is here: https://wiki.dunescience.org/wiki/DUNE_Computing/Computing_How-To_Documentation
+
+## Copyright and Licensing
+Copyright © 2023 FERMI NATIONAL ACCELERATOR LABORATORY for the benefit of the DUNE Collaboration.
+
+This repository, and all software contained within, except where noted within the individual source files, is licensed under
+the Apache License, Version 2.0 (the "License"); you may not use this
+file except in compliance with the License. You may obtain a copy of
+the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Copyright is granted to FERMI NATIONAL ACCELERATOR LABORATORY on behalf
+of the Deep Underground Neutrino Experiment (DUNE). Unless required by
+applicable law or agreed to in writing, software distributed under the
+License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for
+the specific language governing permissions and limitations under the
+License.

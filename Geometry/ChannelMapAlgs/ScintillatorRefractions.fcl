@@ -1,0 +1,10 @@
+BEGIN_PROLOG
+
+standard_indexrefraction:
+{
+ECALindex:    1.59   # Polystrene, ranges 1.55 to 1.59 on the internet
+MuIDindex:    1.59
+Minervaindex: 1.59
+}
+
+END_PROLOG

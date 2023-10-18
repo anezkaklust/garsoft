@@ -313,7 +313,7 @@ namespace util {
     void ConvertEdep2Art::beginRun(::art::Run& run) {
         //Get RunData
         std::unique_ptr<gar::sumdata::RunData> runcol(new gar::sumdata::RunData(fGeo->DetectorName()));
-        run.put(std::move(runcol));
+        run.put(std::move(runcol),art::fullRun());
 
         //Get POT
         if(fHasGHEP) 
@@ -330,7 +330,7 @@ namespace util {
         p->totgoodpot = fTotGoodPOT;
         p->totspills = fSpills;
         p->goodspills = fGoodSpills;
-        run.put(std::move(p));
+        run.put(std::move(p),art::fullRun());
 
         return;
     }

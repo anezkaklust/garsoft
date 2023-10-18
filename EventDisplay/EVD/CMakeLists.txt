@@ -1,4 +1,3 @@
-
 include(CetRootCint)
 
 set( PACKAGE EventDisplay )

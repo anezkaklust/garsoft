@@ -1,9 +1,4 @@
 
-include_directories( $ENV{GEANT4_FQ_DIR}/include )
-include_directories( $ENV{NUTOOLS_DIR}/include   )
-include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
-include_directories( $ENV{NUG4_INC} )
-
 set(G4LIBS 
              Geant4::G4digits_hits
   Geant4::G4event

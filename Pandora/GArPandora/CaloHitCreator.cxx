@@ -8,6 +8,8 @@
 #include "CoreUtils/ServiceUtil.h"
 #include "messagefacility/MessageLogger/MessageLogger.h"
 
+#include "canvas/Persistency/Common/Ptr.h"
+
 namespace gar {
   namespace gar_pandora {
 

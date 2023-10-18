@@ -3,8 +3,8 @@
 # Testing
 #
 # ======================================================================
-include_directories ( $ENV{ART_INC} )
 include_directories ( $ENV{CETLIB_INC} )
+
 cet_test( printBacktrace_test
           LIBRARIES CoreUtils
   )

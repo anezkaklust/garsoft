@@ -124,8 +124,7 @@ namespace gar{
         delete fCRYHelp;
         fCRYHelp = 0;
       }
-
-      CLHEP::HepRandomEngine &engine = art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,p,"Seed");
+      CLHEP::HepRandomEngine &engine = art::ServiceHandle<rndm::NuRandomService>()->registerAndSeedEngine(createEngine(0),p,"Seed");
 
       auto geo = gar::providerFrom<gar::geo::GeometryGAr>();
 
@@ -176,7 +175,7 @@ namespace gar{
 
       std::unique_ptr<gar::sumdata::RunData> runcol(new gar::sumdata::RunData(geo->DetectorName()));
 
-      run.put(std::move(runcol));
+      run.put(std::move(runcol), art::fullRun());
 
       return;
     }

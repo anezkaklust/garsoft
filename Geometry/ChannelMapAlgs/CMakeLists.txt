@@ -1,4 +1,3 @@
-include_directories( $ENV{CLHEP_INCLUDE_DIR}     )
 
 art_make( BASENAME_ONLY
           LIBRARY_NAME      GArChannelMapAlg

@@ -1,6 +1,6 @@
 # The parent line must be the first non-comment line in the file
 # This line defines the product name and version 
-parent	garsoft	v02_17_01
+parent	garsoft	v02_19_00
 defaultqual	e20
 
 # These optional lines define the installed directories where
@@ -22,31 +22,35 @@ fwdir   product_dir  fw
 bindir  fq_dir       bin
 
 product         version
-nugen           v1_15_07
-nutools         v3_12_03
-nusystematics   v01_00_11
-nuevdb          v1_06_03
-nug4            v1_12_02
-nurandom        v1_08_01
-genie_xsec     	v3_00_04a
-genie_phyopt    v3_00_04
-gallery         v1_18_04
-dune_pardata    v01_79_01
-duneutil        v09_48_01d00
-pandora         v03_16_00f
-edepsim         v3_0_1c
-garana          v00_01_00 
+nugen           v1_19_02
+nutools         v3_15_03
+nusystematics   v01_03_07
+nuevdb          v1_08_01
+nug4            v1_15_01
+nurandom        v1_10_01
+genie_xsec     	v3_04_00
+genie_phyopt    v3_04_00
+gallery         v1_20_02
+dune_pardata    v01_84_00
+duneutil        v09_75_00d00
+pandora         v03_16_00h
+edepsim         v3_2_0b
+garana          v00_02_00
+dunedetdataformats  v3_6_1
+dunedaqdataformats  v3_4_1
+nlohmann_json       v3_10_4_1
+highfive            v2_4_1_2
 cetbuildtools	v8_20_00	-	only_for_build
 end_product_list
 
 # define allowed qualifiers and the corresponding qualifiers for the depdencies.
 # e15  - with gcc 6.4.0 and -std=c++14
 
-qualifier  nutools    genie_xsec              genie_phyopt  gallery    dune_pardata  nusystematics  nuevdb     nug4       nurandom   duneutil   pandora   edepsim   garana    nugen
-e20:debug  e20:debug  G1810a0211a:e1000:k250 	dkcharmtau 	  e20:debug  -nq-      e20:debug    e20:debug  e20:debug  e20:debug  e20:debug  e20:debug e20:debug e20:debug e20:debug 
-e20:prof   e20:prof   G1810a0211a:e1000:k250 	dkcharmtau	  e20:prof   -nq-      e20:prof     e20:prof   e20:prof   e20:prof   e20:prof   e20:prof  e20:prof  e20:prof  e20:prof  
-c7:debug   c7:debug   G1810a0211a:e1000:k250 	dkcharmtau	  c7:debug   -nq-	c7:debug    c7:debug   c7:debug   c7:debug   c7:debug   c7:debug  c7:debug  c7:debug  c7:debug  
-c7:prof    c7:prof    G1810a0211a:e1000:k250 	dkcharmtau	  c7:prof    -nq-	c7:prof     c7:prof    c7:prof    c7:prof    c7:prof    c7:prof   c7:prof   c7:prof   c7:prof   
+qualifier  nutools    genie_xsec              genie_phyopt  gallery    dune_pardata  nusystematics  nuevdb     nug4       nurandom   duneutil   pandora   edepsim   garana    nugen       nlohmann_json  highfive   dunedetdataformats   dunedaqdataformats
+e20:debug  e20:debug  G1810a0211a:e1000:k250 	dkcharmtau 	  e20:debug  -nq-      e20:debug    e20:debug  e20:debug  e20:debug  e20:debug  e20:debug e20:debug e20:debug e20:debug   e20:debug       e20:debug    -nq-                -nq-            
+e20:prof   e20:prof   G1810a0211a:e1000:k250 	dkcharmtau	  e20:prof   -nq-      e20:prof     e20:prof   e20:prof   e20:prof   e20:prof   e20:prof  e20:prof  e20:prof  e20:prof    e20:prof        e20:prof     -nq-                -nq-            
+c7:debug   c7:debug   G1810a0211a:e1000:k250 	dkcharmtau	  c7:debug   -nq-	c7:debug    c7:debug   c7:debug   c7:debug   c7:debug   c7:debug  c7:debug  c7:debug  c7:debug    c7:debug        c7:debug     -nq-                -nq-            
+c7:prof    c7:prof    G1810a0211a:e1000:k250 	dkcharmtau	  c7:prof    -nq-	c7:prof     c7:prof    c7:prof    c7:prof    c7:prof    c7:prof   c7:prof   c7:prof   c7:prof     c7:prof         c7:prof      -nq-                -nq-            
 end_qualifier_list
 
 # table fragment to set FW_SEARCH_PATH needed

@@ -149,11 +149,10 @@ namespace gar{
             }
 
             simb::MCParticle*  FindEve(simb::MCParticle* const p) const;
-
-            // FindTPCEve is not a const method because it saves result of previous
-            // calls in `this' for efficiency.  2nd signature mostly for internal use.
             simb::MCParticle*  FindTPCEve(simb::MCParticle* const p) const;
             simb::MCParticle*  FindTPCEve(int const trackId) const;
+            simb::MCParticle*  FindECALEve(simb::MCParticle* const p) const;
+            simb::MCParticle*  FindECALEve(int trackID) const;
 
             bool IsForebearOf(simb::MCParticle* const forebear,
                               simb::MCParticle* const afterbear) const;
@@ -233,7 +232,7 @@ namespace gar{
             std::vector<art::Ptr<rec::Hit>> const TPCClusterToHits(rec::TPCCluster* const clust);
 
             //std::vector<art::Ptr<rec::TPCCluster>> const TrackToClusters(rec::Track* const t);
-            std::vector<const rec::TPCCluster*> const TrackToClusters(rec::Track* const t);
+            std::vector<const rec::TPCCluster*> const TrackToTPCClusters(rec::Track* const t);
 
             std::vector<std::pair<simb::MCParticle*,float>> TrackToMCParticles(rec::Track* const t);
 
@@ -272,12 +271,13 @@ namespace gar{
                              double const start, double const stop) const;
 
             std::vector<CalIDE>
-            CellIDToCalIDEs(raw::CellID_t const& cellID, float const time) const;
+            CellIDToCalIDEs(rec::CaloHit hit) const;
 
             std::vector<simb::MCParticle*>
             MCPartsInCluster(rec::Cluster* const c);
 
-  	    TLorentzVector EnergyDepositToMomentum(const int& trackID, const TLorentzVector& position, size_t& startTrajIndex) const;
+            TLorentzVector EnergyDepositToMomentum(const int& trackID, const TLorentzVector& position,
+                                                   size_t& startTrajIndex) const;
 
 
         protected:
@@ -290,27 +290,33 @@ namespace gar{
             bool                                                fDisableRebuild;        ///< for switching off backtracker's rebuild of the MCParticle tables
             std::string                                         fG4ModuleLabel;         ///< label for geant4 module
             std::string                                         fRawTPCDataLabel;       ///< label for TPC readout module
-            std::string                                         fRawCaloDataLabel;      ///< label for ECAL readout module
-            std::string                                         fRawCaloDataECALInstance; ///< instance name for the ECAL raw hits
+            std::string                                         fRawECALDataLabel;      ///< label for ECAL readout module
+            std::string                                         fRawECALDataInstance;   ///< instance name for the ECAL raw hits
+            std::string                                         fRawMuIDDataLabel;      ///< label for MuID readout module
+            std::string                                         fRawMuIDDataInstance;   ///< instance name for the MuID raw hits
             double                                              fECALtimeResolution;    ///< time resolution for hits in ECAL, nsec.
             double                                              fMinHitEnergyFraction;  ///< min frac of ionization a track has to count in a TPC hit
             double                                              fMinCaloHitEnergyFrac;  ///< min frac of ionization a track has to count in a CaloHit
             std::string                                         fTrackLabel;            ///< label for final track producing module
             std::string                                         fTPCClusterLabel;       ///< label for TPCCluster producing module
             double                                              fTrackFracMCP;          ///< min frac of ionization in a track for matching to an MCParticle
-            std::string                                         fClusterLabel;          ///< label for ECAL cluster producing module
+            std::string                                         fECALClusterLabel;      ///< label for ECAL cluster producing module
             std::string                                         fClusterECALInstance;   ///< instance name for the ECAL clusters
-            double                                              fClusterFracMCP;        ///< min frac of ionization in a cluster for matching to an MCParticle
+            std::string                                         fMuIDClusterLabel;      ///< label for MuID cluster producing module
+            std::string                                         fClusterMuIDInstance;   ///< instance name for the MuID clusters
+            double                                              fClusterFracMCP;        ///< min frac of ionization in ECAL or MuID cluster for matching
+                                                                                        ///< FROM an MCParticle
 
             sim::ParticleList                                   fParticleList;          ///< Maps MCParticle::TrackId() to same MCParticle
             std::vector<art::Ptr<simb::MCTruth>>                fMCTruthList;           ///< all the MCTruths for the event
             std::unordered_map<int, int>                        fTrackIDToMCTruthIndex; ///< map of track ids to MCTruthList entry.  Track Ids from MCParticle
                                                                                         ///< table in event store (no track ID <0)
-            std::unordered_map<int, int>*                       fECALTrackToTPCTrack;   ///< results of previous FindTPCEve calls
+            std::unordered_map<int, int>*                       fOdetTrackToIdetTrack;   ///< results of previous FindTPCEve calls
 
             double                                              fInverseVelocity;       ///< inverse drift velocity
             double                                              fLongDiffConst;         ///< longitudinal diffusion constant
-            bool                                                fSplitEDeps;            ///< use weights from PRFs to break true energy deposits into channel specific contributions
+            bool                                                fSplitEDeps;            ///< use weights from Pad Response Functions to break true energy deposits into channel specific contributions
+            bool                                                fDontChaseNeutrons;     ///< stop chasing backtracked shower particles up the particle tree if it finds a neutron.
 
             // vector gives a fast lookup and is only 677864*24 = 16Mbytes.
             std::vector<std::vector<std::pair<const sdp::EnergyDeposit*, float const>>> fChannelToEDepCol;      ///< convenience collections of EnergyDeposits for each channel
@@ -322,15 +328,12 @@ namespace gar{
             // Mapping final reco products to their constituents
             std::unordered_map< rec::IDNumber, std::vector<art::Ptr<rec::Hit>> >
                                                                 fTrackIDToHits;         ///< Reco track ID to track's hits
-            // Mapping final reco products to their constituents
-            //std::unordered_map< rec::IDNumber, std::vector<art::Ptr<rec::TPCCluster>> >
+
             std::unordered_map< rec::IDNumber, std::vector<const rec::TPCCluster*> >
-                                                                fTrackIDToClusters;         ///< Reco track ID to track's clusters
+                                                                fTrackIDToTPCClusters;  ///< Reco track ID to track's clusters
 
-
-            // Mapping final reco products to their constituents
             std::unordered_map< rec::IDNumber, std::vector<art::Ptr<rec::Hit>> >
-                                                                fTPCClusterIDToHits;         ///< Reco TPC cluster ID to cluster's hits
+                                                                fTPCClusterIDToHits;    ///< Reco TPC cluster ID to cluster's hits
 
             std::unordered_map< rec::IDNumber, std::vector<art::Ptr<rec::CaloHit>> >
                                                                 fClusterIDToCaloHits;   ///< Reco ECAL cluster ID to CaloHits

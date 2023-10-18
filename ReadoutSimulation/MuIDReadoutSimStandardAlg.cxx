@@ -22,6 +22,8 @@
 
 #include "TGeoManager.h"
 
+#include "canvas/Persistency/Common/Ptr.h"
+
 namespace gar {
     namespace rosim{
 
@@ -88,7 +90,7 @@ namespace gar {
         {
             MF_LOG_DEBUG("MuIDReadoutSimStandardAlg") << "DoDigitization()";
 
-            //Treating tiled hits
+            // Only strips, no tiles in MuID
             for(auto const &it : m_SimCaloHitVec)
             {
                 float energy = it->Energy();

@@ -1,6 +1,4 @@
 
-include_directories( $ENV{NUSIMDATA_INC} )
-
 cet_make( LIBRARIES canvas
                     MF_MessageLogger
                     cetlib cetlib_except

@@ -1,0 +1,10 @@
+/dune/dat*/users/bellanto/NUE/anatree_*.root
+end
+
+
+1st line is "signal" 2nd is "backgrounds"
+If 2nd line is "end" only the "signal" is analyzed.
+3rd line and later are ignored - these are comments.
+
+Example line using dCache would be 
+dCache withoutOverlays/FullAnatuples22Aug/anatree_*.root

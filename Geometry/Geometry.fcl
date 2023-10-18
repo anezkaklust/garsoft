@@ -1,8 +1,10 @@
 #include "SegmentationAlgs.fcl"
+#include "ScintillatorRefractions.fcl"
+
 
 BEGIN_PROLOG
 
-## Old standalone ND-GAr for back compactibility
+## Old standalone ND-GAr for back compatibility
 
 standard_geo:
 {
@@ -13,6 +15,7 @@ standard_geo:
   PixelPitch:      0.333333 # cm
  }
  SegmentationAlgPars: @local::standard_mpd_segals
+ IndsOfRefract:       @local::standard_indexrefraction
  RelativePath:      ""
  GDML:              "MPD_Standalone/MPD_ECalOctagon_60l_UniformMagnet.gdml"
  ROOT:              "MPD_Standalone/MPD_ECalOctagon_60l_UniformMagnet.gdml"
@@ -52,6 +55,7 @@ standalone_mpd_SPYv3_geo:
   PixelPitch:      0.333333 # cm
  }
  SegmentationAlgPars: @local::standard_mpd_spyv3_segals
+ IndsOfRefract:       @local::standard_indexrefraction
  RelativePath:      ""
  GDML:              "MPD_Standalone/ND-GAr_ECal12sides_42l_SPY_v3_wMuID.gdml"
  ROOT:              "MPD_Standalone/ND-GAr_ECal12sides_42l_SPY_v3_wMuID.gdml"
@@ -81,6 +85,7 @@ nd_hall_mpd_only_SPYv2_geo:
   PixelPitch:      0.333333 # cm
  }
  SegmentationAlgPars: @local::standard_mpd_spyv2_segals
+ IndsOfRefract:       @local::standard_indexrefraction
  RelativePath:      ""
  GDML:              "nd_hall_mpd_only/nd_hall_mpd_only_ECalOctagon_60l_SPY_v2_wMuID.gdml"
  ROOT:              "nd_hall_mpd_only/nd_hall_mpd_only_ECalOctagon_60l_SPY_v2_wMuID.gdml"
@@ -110,6 +115,7 @@ nd_hall_mpd_only_SPYv3_geo:
   PixelPitch:      0.333333 # cm
  }
  SegmentationAlgPars: @local::standard_mpd_spyv3_segals
+ IndsOfRefract:       @local::standard_indexrefraction
  RelativePath:      ""
  GDML:              "nd_hall_mpd_only/nd_hall_mpd_only_ECal12sides_42l_SPY_v3_wMuID.gdml"
  ROOT:              "nd_hall_mpd_only/nd_hall_mpd_only_ECal12sides_42l_SPY_v3_wMuID.gdml"
@@ -139,6 +145,7 @@ dayone_geo:
   PixelPitch:      0.333333 # cm
  }
  SegmentationAlgPars: @local::standard_dayone
+ IndsOfRefract:       @local::standard_indexrefraction
  RelativePath:      ""
  GDML:              "MPD_Standalone/DayOne_SPY_v2_wMuID.gdml"
  ROOT:              "MPD_Standalone/DayOne_SPY_v2_wMuID.gdml"
@@ -168,6 +175,7 @@ nd_hall_mpd_only_dayone_geo:
   PixelPitch:      0.333333 # cm
  }
  SegmentationAlgPars: @local::standard_dayone_spyv3_segals
+ IndsOfRefract:       @local::standard_indexrefraction
  RelativePath:      ""
  GDML:              "nd_hall_mpd_only/nd_hall_mpd_only_DayOne_SPY_v3_wMuID.gdml"
  ROOT:              "nd_hall_mpd_only/nd_hall_mpd_only_DayOne_SPY_v3_wMuID.gdml"
@@ -197,6 +205,7 @@ nd_hall_mpd_lar_dayone_geo:
   PixelPitch:      0.333333 # cm
  }
  SegmentationAlgPars: @local::standard_dayone_spyv3_segals
+ IndsOfRefract:       @local::standard_indexrefraction
  RelativePath:      ""
  GDML:              "nd_hall_mpd_lar_only/nd_hall_mpd_lar_DayOne_SPY_v3_wMuID.gdml"
  ROOT:              "nd_hall_mpd_lar_only/nd_hall_mpd_lar_DayOne_SPY_v3_wMuID.gdml"
@@ -225,6 +234,7 @@ nd_hall_garlite_lar_6plane_geo:
   PixelPitch:      0.333333 # cm
  }
  SegmentationAlgPars: @local::standard_dayone_spyv3_segals
+ IndsOfRefract:       @local::standard_indexrefraction
  RelativePath:      ""
  GDML:              "nd_hall_mpd_lar_only/nd_hall_garlite_lar_SPY_v3_wMuID_6plane.gdml"
  ROOT:              "nd_hall_mpd_lar_only/nd_hall_garlite_lar_SPY_v3_wMuID_6plane.gdml"
@@ -254,6 +264,7 @@ nd_hall_mpd_only_cdr_geo:
   PixelPitch:      0.333333 # cm
  }
  SegmentationAlgPars: @local::standard_mpd_segals
+ IndsOfRefract:       @local::standard_indexrefraction
  RelativePath:      ""
  GDML:              "nd_hall_mpd_only/nd_hall_mpd_only_ECalOctagon_60l_UniformMagnet.gdml"
  ROOT:              "nd_hall_mpd_only/nd_hall_mpd_only_ECalOctagon_60l_UniformMagnet.gdml"

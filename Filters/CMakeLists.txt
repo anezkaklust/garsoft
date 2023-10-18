@@ -1,4 +1,3 @@
-include_directories( $ENV{NUTOOLS_DIR}/include   )
 
 art_make(LIB_LIBRARIES
            nusimdata_SimulationBase

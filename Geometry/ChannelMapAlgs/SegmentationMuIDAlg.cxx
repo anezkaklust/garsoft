@@ -180,8 +180,8 @@ namespace gar {
                 double stripLength = 0.;
                 int layer = _decoder->get(cID, "layer");
 
-                if(layer == 1 || layer == 3) stripLength = _layer_dim_X;
-                if(layer == 2) stripLength = _layer_dim_Y;
+                if(layer == 1 || layer == 3) stripLength = _layer_dim_Y;
+                if(layer == 2) stripLength = _layer_dim_X;
 
                 return stripLength;
             }
@@ -195,19 +195,19 @@ namespace gar {
                 TVector3 stripEnd2(0., 0., 0.);
 
                 if(layer == 1 || layer == 3) {
-                    stripEnd1.SetX(-_layer_dim_X/2.);
-                    stripEnd2.SetX(_layer_dim_X/2.);
-                    stripEnd1.SetY(local[1]);
-                    stripEnd2.SetY(local[1]);
+                    stripEnd1.SetY(-_layer_dim_Y/2.);
+                    stripEnd2.SetY(_layer_dim_Y/2.);
+                    stripEnd1.SetX(local[0]);
+                    stripEnd2.SetX(local[0]);
                     stripEnd1.SetZ(local[2]);
                     stripEnd2.SetZ(local[2]);
                 }
 
                 if(layer == 2) {
-                    stripEnd1.SetY(-_layer_dim_Y/2.);
-                    stripEnd2.SetY(_layer_dim_Y/2.);
-                    stripEnd1.SetX(local[0]);
-                    stripEnd2.SetX(local[0]);
+                    stripEnd1.SetX(-_layer_dim_X/2.);
+                    stripEnd2.SetX(_layer_dim_X/2.);
+                    stripEnd1.SetY(local[1]);
+                    stripEnd2.SetY(local[1]);
                     stripEnd1.SetZ(local[2]);
                     stripEnd2.SetZ(local[2]);
                 }
@@ -217,9 +217,10 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            std::pair<float, float> SegmentationMuIDAlg::CalculateLightPropagation(const gar::geo::GeometryCore& , const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
+            std::pair<float, float> SegmentationMuIDAlg::CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& cID) const
             {
                 float c = (CLHEP::c_light * CLHEP::mm / CLHEP::ns) / CLHEP::cm; // in cm/ns
+                c /= geo.getIofRMuID();  // Better use another algorithm for the ECAL!
                 //time1 is left SiPM
                 float time1 = 0.;
                 //time2 is right SiPM
@@ -228,13 +229,13 @@ namespace gar {
                 int layer = _decoder->get(cID, "layer");
 
                 if(layer == 1 || layer == 3) {
-                    time1 = ( _layer_dim_X / 2 + local[0] ) / c;
-                    time2 = ( _layer_dim_X / 2 - local[0] ) / c;
+                    time1 = ( _layer_dim_Y / 2 + local[1] ) / c;
+                    time2 = ( _layer_dim_Y / 2 - local[1] ) / c;
                 }
 
                 if(layer == 2) {
-                    time1 = ( _layer_dim_Y / 2 + local[1] ) / c;
-                    time2 = ( _layer_dim_Y / 2 - local[1] ) / c;
+                    time1 = ( _layer_dim_X / 2 + local[0] ) / c;
+                    time2 = ( _layer_dim_X / 2 - local[0] ) / c;
                 }
 
                 return std::make_pair(time1, time2);
@@ -254,11 +255,11 @@ namespace gar {
                 if( std::abs(pos) > stripLength / 2. ) pos = (pos > 0) ? stripLength / 2. : -stripLength / 2.;
 
                 if(layer == 1 || layer == 3) {
-                    newlocal = {pos, local[1], local[2]};
+                    newlocal = {local[0], pos, local[2]};
                 }
 
                 if(layer == 2) {
-                    newlocal = {local[0], pos, local[2]};
+                    newlocal = {pos, local[1], local[2]};
                 }
 
                 return newlocal;

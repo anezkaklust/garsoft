@@ -135,7 +135,7 @@ namespace gar {
     auto geo = gar::providerFrom<geo::GeometryGAr>();
     std::unique_ptr<gar::sumdata::RunData> runcol(new gar::sumdata::RunData(geo->DetectorName()));
     
-    run.put(std::move(runcol));
+    run.put(std::move(runcol), art::fullRun());
     
     return;
   }

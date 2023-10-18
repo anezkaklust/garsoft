@@ -15,7 +15,7 @@ standard_structuredtree:
 
  HitLabel:                 "hit"
 
- CaloHitLabel:             "sscalohit"
+ CaloHitLabel:             "sipmhit"
  CaloHitInstanceCalo:      ""
  MuIDHitLabel:             "sipmhit"
  CaloHitInstanceMuID:      "MuID"

@@ -1,5 +1,3 @@
-include_directories( $ENV{NUGEN_INC} )
-
 art_make(MODULE_LIBRARIES Geometry
                            Geometry_GeometryGAr_service
                            SummaryDataProducts

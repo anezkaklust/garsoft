@@ -274,7 +274,9 @@ namespace gar {
 // constructor
 gar::StructuredTree::StructuredTree(fhicl::ParameterSet const & p)
   : EDAnalyzer(p),
-    fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "Seed"))
+    fEngine(art::ServiceHandle<rndm::NuRandomService>()->registerAndSeedEngine(createEngine(0),
+                                                                                 p,
+                                                                                 "Seed"))
 {
   fGeo     = providerFrom<geo::GeometryGAr>();
 

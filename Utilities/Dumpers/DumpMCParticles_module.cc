@@ -166,12 +166,11 @@ namespace {
     
     template <typename T>
     art::InputTag fetchTag(art::Ptr<T> const& ptr)
-      {
-        art::Handle<std::vector<T>> handle;
-        return fEvent.get(ptr.id(), handle)
-          ? handle.provenance()->inputTag()
-          : art::InputTag{}
-          ;
+        {
+          if (auto provenance = fEvent.getProductProvenance(ptr.id())) {
+  	    return provenance->inputTag();
+        }
+        return {};
       }
     
     template <typename T>

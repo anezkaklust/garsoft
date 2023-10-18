@@ -44,7 +44,6 @@ namespace gar{
             // the constructor registers PreProcessEvent.  See the art::ActivityRegistry class.
             // art wants to see a ScheduleContext in the argument, but we don't need that.
             void Rebuild(art::Event const& evt, art::ScheduleContext);
-            void RebuildNoSC(art::Event const& evt);
 
 
 

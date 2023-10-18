@@ -192,7 +192,7 @@ namespace gar {
 
                 unsigned int seed;
                 if (!GENIEconfig.has_key("Seed"))
-                seed = ::art::ServiceHandle<rndm::NuRandomService>()->getSeed();
+                    seed = ::art::ServiceHandle<rndm::NuRandomService>()->getSeed();
 
                 // The seed is not passed to RandomNumberGenerator,
                 // since GENIE uses a TRandom generator that is owned by the GENIEHelper.
@@ -200,10 +200,12 @@ namespace gar {
                 GENIEconfig.put("RandomSeed", seed);
             } // if no RandomSeed present
 
+
             fGENIEHelp = new evgb::GENIEHelper(GENIEconfig,
-            geo->ROOTGeoManager(),
-            geo->ROOTFile(),
-            geo->TotalMass(pset.get< std::string>("TopVolume").c_str()));
+                                               geo->ROOTGeoManager(),
+                                               geo->ROOTFile(),
+                                               geo->TotalMass(pset.get< std::string>("TopVolume").c_str()));
+
 
         }
 
@@ -284,7 +286,7 @@ namespace gar {
             // grab the geometry object to see what geometry we are using
             auto geo = gar::providerFrom<geo::GeometryGAr>();
             std::unique_ptr<sumdata::RunData> runcol(new sumdata::RunData(geo->DetectorName()));
-            run.put(std::move(runcol));
+            run.put(std::move(runcol),art::fullRun());
             return;
         }
 
@@ -294,7 +296,7 @@ namespace gar {
             std::unique_ptr<sumdata::POTSummary> p(new sumdata::POTSummary());
             p->totpot     = fGENIEHelp->TotalExposure();
             p->totgoodpot = fGENIEHelp->TotalExposure();
-            run.put(std::move(p));
+            run.put(std::move(p), art::fullRun());
             return;
         }
 
@@ -313,9 +315,9 @@ namespace gar {
                 unsigned int_idx = 0;
                 while(!fGENIEHelp->Stop())
                 {
-                    simb::MCTruth truth;
-                    simb::MCFlux  flux;
-                    simb::GTruth  gTruth;
+                    simb::MCTruth truth;        // These variables - well, truth in particular - need to have their constructor
+                    simb::MCFlux  flux;         // called directly prior to the invocation of GENIEHelper::Sample.  It's the
+                    simb::GTruth  gTruth;       // fNeutrinoSet field of MCTruth that's a problem, if not others as well
 
                     // GENIEHelper returns a false in the sample method if
                     // either no neutrino was generated, or the interaction

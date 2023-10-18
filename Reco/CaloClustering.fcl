@@ -3,7 +3,7 @@
 standard_CaloClustering:
 {
 module_type:        CaloClustering
-CaloHitLabel:       "sscalohit"
+CaloHitLabel:       "sipmhit"
 InstanceLabelName:  "ECAL"
 TrackLabel:         "track"
 ClusterAlgPars:     @local::knnclusteralg
@@ -12,7 +12,7 @@ ClusterAlgPars:     @local::knnclusteralg
 standard_CaloClustering_MuID:
 {
 module_type:        CaloClustering
-CaloHitLabel:       "sscalohitmuid"
+CaloHitLabel:       "sipmhitmuid"
 InstanceLabelName:  "MuID"
 TrackLabel:         "track"
 ClusterAlgPars:     @local::knnclusteralg_muid

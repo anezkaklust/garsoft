@@ -1032,6 +1032,10 @@ namespace gar {
 
         bool PointInECALEndcap(TVector3 const& point) const;
 
+        bool PointInMuIDBarrel(TVector3 const& point) const;
+
+        bool PointInMuIDEndcap(TVector3 const& point) const;
+
         float GetSensVolumeThickness(const TVector3& point) const;
 
         const std::array<double, 3> FindShapeSize(const TGeoNode *node) const;
@@ -1053,6 +1057,12 @@ namespace gar {
         double getTileSize(const std::array<double, 3>& point) const;
 
         double getStripLength(const std::array<double, 3>& point, const gar::raw::CellID_t &cID) const;
+
+        double getIofRECAL() const { return fIofRECAL; }
+
+        double getIofRMuID() const { return fIofRMuID; }
+
+        double getIofRMinerva() const { return fIofRMinerva; }
 
         std::pair<TVector3, TVector3> GetStripEnds(const std::array<double, 3>& point, const gar::raw::CellID_t &cID) const;
 
@@ -1242,6 +1252,13 @@ namespace gar {
         bool fHasGasTPCDetector;
         bool fHasECALDetector;
         bool fHasTrackerScDetector;
+
+        // Indicies of refraction in scintillators.  Placed here because gdml won't have it.
+        // Costructed as a separate parameter set in Geometry.fcl
+        fhicl::ParameterSet fIndsOfRefract;
+        float               fIofRECAL;
+        float               fIofRMuID;
+        float               fIofRMinerva;
 
         //Related to the ECAL
         float fECALRinner;              ///< Minimum radius of the ECAL inner barrel

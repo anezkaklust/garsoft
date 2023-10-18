@@ -76,7 +76,7 @@ namespace gar {
       size_t ticksafter = ticksafter_in;
       if (adcsize < ticksafter_in) ticksafter = adcsize;
 
-      gar::raw::ADCvector_t zerosuppressed(adcsize);
+      gar::raw::ADCvector_t zerosuppressed;
       std::vector<int> inablock(adcsize,0);  // flags to include this tick in a block or not
       std::vector<int> blockbegin;
       std::vector<int> blocksize;
@@ -116,30 +116,30 @@ namespace gar {
         }
 
       size_t nblocks = blockbegin.size();
+      zerosuppressed.push_back(adcsize);  //fill first entry in compressed output with length of uncompressed vector
+      zerosuppressed.push_back(nblocks);  //second entry is the number of blocks
 
-      adc[0] = adcsize; //fill first entry in adc with length of uncompressed vector
-      adc[1] = nblocks;
-    
+
+      // then list all the block beginning locations
       for(size_t i = 0; i < nblocks; ++i)
-        adc[i+2] = blockbegin[i];
+        zerosuppressed.push_back(blockbegin.at(i));
 
+      // and all the block sizes
       for(size_t i = 0; i < nblocks; ++i)
-        adc[i+nblocks+2] = blocksize[i];
+	zerosuppressed.push_back(blocksize.at(i));
 
-      size_t zsi = 0;
       for(size_t i = 0; i < nblocks; ++i)
         {
-          for (int j=0; j < blocksize[i]; ++j)
+          for (int j=0; j < blocksize.at(i); ++j)
             {
-              zerosuppressed[zsi] = adc[blockbegin[i]+j];
-              ++zsi;
+              zerosuppressed.push_back(adc.at(blockbegin.at(i)+j));
             }
         }
 
-      adc.resize(2+nblocks+nblocks+zsi);
-      for (size_t i=0; i<zsi; ++i)
+      adc.resize(zerosuppressed.size());
+      for (size_t i=0; i<zerosuppressed.size(); ++i)
         {
-          adc[i+nblocks+nblocks+2] = zerosuppressed[i];
+          adc.at(i) = zerosuppressed.at(i);
         }
 
       return nblocks;  // for use in discarding rawdigit in case it's all zero

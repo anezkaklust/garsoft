@@ -6,7 +6,7 @@ standard_colordrawingopt:
                               # the following parameters assume the first entry in the arrays
                               # is for induction planes, the second for collection planes
  RawDiv:             100      # number of divisions to use for the color scale
- RawQLow:	     -20.     # minimum raw ADC value used in determining colors
+ RawQLow:	         -20.     # minimum raw ADC value used in determining colors
  RawQHigh:            60.     # maximum raw ADC value used in determining colors
  RecoDiv:            100      # number of divisions to use for the color scale
  RecoQLow:           -20.     # minimum calibrated ADC value used in determining colors
@@ -43,7 +43,7 @@ standard_recodrawingopt:
  HitModuleLabels:           ["hit"]    # list of module labels in which to look for gar::rec::Hits
  TPCClusterModuleLabels:    ["tpccluster"]       # list of module labels in which to look for gar::rec::TPCClusters
  CaloClusterModuleLabels:   ["calocluster:ECAL"] # list of module labels in which to look for gar::rec::Clusters
- CaloHitModuleLabels:       ["sipmhit:ECAL", "sscalohit:ECAL" ]   # list of module labels in which to look for gar::rec::Clusters
+ CaloHitModuleLabels:       ["sipmhit:ECAL", "sipmhit:ECAL" ]    # list of module labels in which to look for gar::rec::Clusters
  TrackModuleLabels:         ["track"]  # list of module labels in which to look for gar::rec::Tracks
  ShowerModuleLabels:        ["shower"] # list of module labels in which to look for gar::rec::Showers
  VecHitModuleLabels:        ["vechit"] # list of module labels in which to look for gar::rec::VecHits
@@ -202,7 +202,7 @@ VolumesToShow        : ["volGArTPC"] #, "volPVBarrel", "volPVEndcap", "volBarrel
 G4ModuleLabel             : "geant"
 InstanceName              : ["ECAL", "MuID"]
 RawHitModuleLabels        : ["daqsipm"]
-RecoECALHitModuleLabels   : ["sscalohit"]
+RecoECALHitModuleLabels   : ["sipmhit"]
 RecoMuIDHitModuleLabels   : ["sipmhit"]
 CaloClusterModuleLabels   : ["calocluster"]
 TrackModuleLabels         : ["track"]

@@ -30,10 +30,10 @@ namespace gar {
         // Constructor.
         GeometryGAr::GeometryGAr(fhicl::ParameterSet const& pset, ::art::ActivityRegistry &reg)
         : GeometryCore(pset)
-        , fRelPath          (pset.get< std::string       >("RelativePath",     ""   ))
-        , fNonFatalConfCheck(pset.get< bool              >("SkipConfigurationCheck", false))
-        , fSortingParameters(pset.get<fhicl::ParameterSet>("SortingParameters", fhicl::ParameterSet() ))
-        , fSegParameters(pset.get<fhicl::ParameterSet>("SegmentationAlgPars", fhicl::ParameterSet() ))
+        , fRelPath          (pset.get< std::string       >("RelativePath",                          "" ))
+        , fNonFatalConfCheck(pset.get< bool              >("SkipConfigurationCheck",             false ))
+        , fSortingParameters(pset.get<fhicl::ParameterSet>("SortingParameters",  fhicl::ParameterSet() ))
+        , fSegParameters    (pset.get<fhicl::ParameterSet>("SegmentationAlgPars",fhicl::ParameterSet() ))
         {
             // add a final directory separator ("/") to fRelPath if not already there
             if (!fRelPath.empty() && (fRelPath.back() != '/')) fRelPath += '/';

@@ -136,7 +136,9 @@ namespace gar {
     
     //____________________________________________________________________________
     RadioGen::RadioGen(fhicl::ParameterSet const& pset) : EDProducer{pset},
-      fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this,pset,"Seed"))
+      fEngine(art::ServiceHandle<rndm::NuRandomService>()->registerAndSeedEngine(createEngine(0),
+                                                                                 pset,
+                                                                                 "Seed"))
     {
       
       this->reconfigure(pset);
@@ -198,7 +200,7 @@ namespace gar {
       
       auto geo = gar::providerFrom<geo::GeometryGAr>();
       std::unique_ptr<sumdata::RunData> runcol(new sumdata::RunData(geo->DetectorName()));
-      run.put(std::move(runcol));
+      run.put(std::move(runcol),art::fullRun());
       
       return;
     }

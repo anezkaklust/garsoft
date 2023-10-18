@@ -32,29 +32,34 @@ namespace gar{
             fClocks = gar::providerFrom<detinfo::DetectorClocksServiceGAr>();
             fGeo    = gar::providerFrom<geo::GeometryGAr>();
 
-            fDisableRebuild       = pset.get<bool       >("DisableRebuild",           false);
+            fDisableRebuild           = pset.get<bool       >("DisableRebuild",       false);
 
-            fG4ModuleLabel        = pset.get<std::string>("G4ModuleLabel",           "geant");
+            fG4ModuleLabel            = pset.get<std::string>("G4ModuleLabel",       "geant");
 
-            fRawTPCDataLabel      = pset.get<std::string>("RawTPCDataLabel",         "daq");
+            fRawTPCDataLabel          = pset.get<std::string>("RawTPCDataLabel",     "daq");
 
-            fRawCaloDataLabel         = pset.get<std::string>("RawCaloDataLabel",        "daqsipm");
-            fRawCaloDataECALInstance  = pset.get<std::string>("RawCaloDataECALInstance", "ECAL"  );
-            fECALtimeResolution       = pset.get<double     >("ECALtimeResolution",       1.0);
-            fMinHitEnergyFraction     = pset.get<double     >("MinHitEnergyFraction",     0.1);
-            fMinCaloHitEnergyFrac     = pset.get<double     >("MinCaloHitEnergyFrac",     0.1);
+            fRawECALDataLabel         = pset.get<std::string>("RawECALDataLabel",    "daqsipm");
+            fRawECALDataInstance      = pset.get<std::string>("RawECALDataInstance", "ECAL"  );
+            fRawMuIDDataLabel         = pset.get<std::string>("RawMuIDDataLabel",    "daqsipmmuid");
+            fRawMuIDDataInstance      = pset.get<std::string>("RawMuIDDataInstance", "MuID"  );
+            fECALtimeResolution       = pset.get<double     >("ECALtimeResolution",   1.0);
+            fMinHitEnergyFraction     = pset.get<double     >("MinHitEnergyFraction", 0.1);
+            fMinCaloHitEnergyFrac     = pset.get<double     >("MinCaloHitEnergyFrac", 0.1);
 
-            fTrackLabel           = pset.get<std::string>("TrackLabel",              "track");
-            fTPCClusterLabel      = pset.get<std::string>("TPCClusterLabel",         "tpccluster");
-            fTrackFracMCP         = pset.get<double     >("TrackFracMCP",             0.8);
+            fTrackLabel               = pset.get<std::string>("TrackLabel",          "track");
+            fTPCClusterLabel          = pset.get<std::string>("TPCClusterLabel",     "tpccluster");
+            fTrackFracMCP             = pset.get<double     >("TrackFracMCP",         0.8);
 
-            fClusterLabel         = pset.get<std::string>("ClusterLabel",            "calocluster");
-            fClusterECALInstance  = pset.get<std::string>("ClusterECALInstance",     "ECAL"  );
-            fClusterFracMCP       = pset.get<double     >("ClusterFracMCP",           0.8);
+            fECALClusterLabel         = pset.get<std::string>("ECALClusterLabel",    "calocluster");
+            fClusterECALInstance      = pset.get<std::string>("ClusterECALInstance", "ECAL"  );
+            fMuIDClusterLabel         = pset.get<std::string>("MuIDClusterLabel",    "caloclustermuid");
+            fClusterMuIDInstance      = pset.get<std::string>("ClusterMuIDInstance", "MuID"  );
+            fClusterFracMCP           = pset.get<double     >("ClusterFracMCP",       0.8);
 
-            fSplitEDeps           = pset.get<bool       >("SplitEDeps",               true);
+            fSplitEDeps               = pset.get<bool       >("SplitEDeps",           true);
+            fDontChaseNeutrons        = pset.get<bool       >("DontChaseNeutrons",    true);
 
-            fECALTrackToTPCTrack  = new std::unordered_map<int, int>;
+            fOdetTrackToIdetTrack      = new std::unordered_map<int, int>;
             return;
         }
 
@@ -106,67 +111,103 @@ namespace gar{
 
         //----------------------------------------------------------------------
         simb::MCParticle*  BackTrackerCore::FindTPCEve(simb::MCParticle* const p) const {
-            if (!fHasMC) {
-                throw cet::exception("BackTrackerCore::FindTPCEve")
-                    << "Attempting to backtrack without MC truth information";
-            }
 
-            // If I had ever been here before I would probably know just what to do / Don't you?
-            int dejaVu = p->TrackId();
-            if ( fECALTrackToTPCTrack->find(dejaVu) != fECALTrackToTPCTrack->end() ) {
-                return TrackIDToParticle( fECALTrackToTPCTrack->at(dejaVu) );
-            }
-
-            simb::MCParticle* walker  = p;
-            if (walker==nullptr) return nullptr;
-            while ( walker != nullptr &&
-                !fGeo->PointInGArTPC( TVector3(walker->Vx(),walker->Vy(),walker->Vz()) ) ) {
-                // Walk up the ParticleList not the event store so someday somebody can
-                // change the ParticleList and this will still work.
-                int mommaTID = fParticleList[walker->TrackId()]->Mother();
-                if (mommaTID == 0) {
-                    // you are at the top of the tree
-                    break;
-                }
-                simb::MCParticle* momma = TrackIDToParticle( mommaTID );
-                walker = momma;
-            }
-            (*fECALTrackToTPCTrack)[dejaVu] = walker->TrackId();
-            return walker;
-         }
+            return FindTPCEve(p->TrackId());
+        }
 
 
 
         //----------------------------------------------------------------------
-        simb::MCParticle*  BackTrackerCore::FindTPCEve(int trackID) const {
+        simb::MCParticle*  BackTrackerCore::FindTPCEve(int const trackID) const {
             if (!fHasMC) {
                 throw cet::exception("BackTrackerCore::FindTPCEve")
                     << "Attempting to backtrack without MC truth information";
             }
 
+            int const neutronPDG = 2112;
+
             // If I had ever been here before I would probably know just what to do / Don't you?
-            if ( fECALTrackToTPCTrack->find(trackID) != fECALTrackToTPCTrack->end() ) {
-                return TrackIDToParticle( fECALTrackToTPCTrack->at(trackID) );
+            if ( fOdetTrackToIdetTrack->find(trackID) != fOdetTrackToIdetTrack->end() ) {
+                return TrackIDToParticle( fOdetTrackToIdetTrack->at(trackID) );
             }
 
             // Negative track ID, as found in EnergyDeposit or CaloEnergyDeposit,
             // gets turned into positve track ID corresponding to parent of EM
             // that created that particular EnergyDeposit or CaloEnergyDeposit
             simb::MCParticle* walker  = TrackIDToParticle(trackID);
-            while ( walker != nullptr &&
-                !fGeo->PointInGArTPC( TVector3(walker->Vx(),walker->Vy(),walker->Vz()) ) ) {
+
+           if (walker==nullptr) return nullptr;
+            while ( walker != nullptr ) {
+
+                // Stopping for neutrons?
+                if (walker->PdgCode()==neutronPDG && fDontChaseNeutrons) break;
+
+                // Stop in TPC
+                TVector3 verty(walker->Vx(),walker->Vy(),walker->Vz());
+                if (fGeo->PointInGArTPC(verty)) break;
+
                 // Walk up the ParticleList not the event store so someday somebody can
                 // change the ParticleList and this will still work.
-               int mommaTID = fParticleList[walker->TrackId()]->Mother();
-               if (mommaTID == 0) {
-                    // you are at the top of the tree
-                    break;
-                }
-                simb::MCParticle* momma = TrackIDToParticle( mommaTID );
-                walker = momma;
+                 int mommaTID = fParticleList[walker->TrackId()]->Mother();
+                 // Stop at top of tree!
+                if (mommaTID == 0) break;
+
+                walker = TrackIDToParticle(mommaTID);
+            }
+            (*fOdetTrackToIdetTrack)[trackID] = walker->TrackId();
+            return walker;
+         }
+
+
+
+        //----------------------------------------------------------------------
+        simb::MCParticle*  BackTrackerCore::FindECALEve(simb::MCParticle* const p) const {
+
+            return FindECALEve(p->TrackId());
+        }
+
+
+
+        //----------------------------------------------------------------------
+        simb::MCParticle*  BackTrackerCore::FindECALEve(int const trackID) const {
+            if (!fHasMC) {
+                throw cet::exception("BackTrackerCore::FindECALEve")
+                    << "Attempting to backtrack without MC truth information";
             }
 
-            (*fECALTrackToTPCTrack)[trackID] = walker->TrackId();
+            int const neutronPDG = 2112;
+
+            // If I had ever been here before I would probably know just what to do / Don't you?
+            if ( fOdetTrackToIdetTrack->find(trackID) != fOdetTrackToIdetTrack->end() ) {
+                return TrackIDToParticle( fOdetTrackToIdetTrack->at(trackID) );
+            }
+
+            // Negative track ID, as found in EnergyDeposit or CaloEnergyDeposit,
+            // gets turned into positve track ID corresponding to parent of EM
+            // that created that particular EnergyDeposit or CaloEnergyDeposit
+            simb::MCParticle* walker  = TrackIDToParticle(trackID);
+
+            if (walker==nullptr) return nullptr;
+            while ( walker != nullptr ) {
+
+                // Stopping for neutrons?
+                if (walker->PdgCode()==neutronPDG && fDontChaseNeutrons) break;
+
+                // Stop in ECAL or TPC
+                TVector3 verty(walker->Vx(),walker->Vy(),walker->Vz());
+                if (fGeo->PointInGArTPC(verty)) break;
+                if (fGeo->PointInECALBarrel(verty)) break;
+                if (fGeo->PointInECALEndcap(verty)) break;
+
+                // Walk up the ParticleList not the event store so someday somebody can
+                // change the ParticleList and this will still work.
+                int mommaTID = fParticleList[walker->TrackId()]->Mother();
+                 // Stop at top of tree!
+                if (mommaTID == 0) break;
+
+                walker = TrackIDToParticle(mommaTID);
+            }
+            (*fOdetTrackToIdetTrack)[trackID] = walker->TrackId();
             return walker;
          }
 
@@ -188,7 +229,7 @@ namespace gar{
                 // Walk up the ParticleList not the event store so someday somebody can
                 // change the ParticleList and this will still work.
                 int momma = fParticleList[walker]->Mother();
-                if (momma == 0) {
+                if (momma == 0 || momma == -1) {        // -1 convention for edep-sim
                     return false;
                 } else {
                     walker = momma;
@@ -374,12 +415,6 @@ namespace gar{
                 }
             }
 
-            /* DEB hits without edeps
-            std::cout << "Channel " << channel << ", at (z,y) = (" << chanpos[2] << ", "
-                << chanpos[1] << ") has " << chanEDeps.size() << " edeps, and " <<
-                hitIDEs.size() << " are in-time between " << start << " and " << stop
-                << std::endl; */
-
             // loop over the hitIDEs to set the fractional energy for each TrackID
             for (size_t i = 0; i < hitIDEs.size(); ++i) {
                 hitIDEs[i].energyFrac = hitIDEs[i].energyTot / totalEallTracks;
@@ -516,7 +551,7 @@ namespace gar{
 
             // Cut on Time for this hit +/- ECAL time resolution given in BackTracker.fcl
             std::vector<CalIDE> ides;
-            ides = this->CellIDToCalIDEs(hit->CellID(),hit->Time().first);
+            ides = this->CellIDToCalIDEs(*hit);
             return ides;
         }
 
@@ -530,7 +565,7 @@ namespace gar{
 
             // Cut on Time for this hit +/- ECALtimeResolution given in BackTracker.fcl
             std::vector<CalIDE> ides;
-            ides = this->CellIDToCalIDEs(hit.CellID(),hit.Time().first);
+            ides = this->CellIDToCalIDEs(hit);
             return ides;
         }
 
@@ -555,7 +590,7 @@ namespace gar{
             for (auto hit : allhits) {
                 calhids.clear();
 
-                calhids = this->CellIDToCalIDEs(hit->CellID(),hit->Time().first);
+                calhids = this->CellIDToCalIDEs(*hit);
 
                 for (auto const& hid : calhids) {
                     if ( hid.trackID==tkID && hid.energyFrac>fMinCaloHitEnergyFrac ) {
@@ -570,20 +605,36 @@ namespace gar{
 
         //----------------------------------------------------------------------
         std::vector<CalIDE>
-        BackTrackerCore::CellIDToCalIDEs(raw::CellID_t const& cell,
-                                         float const time) const {
+        BackTrackerCore::CellIDToCalIDEs(rec::CaloHit hit) const {
 
             // loop over the energy deposits in the channel and grab those in time window
 
-            std::vector<CalIDE> calIDEs;
+            raw::CellID_t hitCell = hit.CellID();
+            std::pair<float, float> hitTime = hit.Time();   // need time corrected for strip length
+            float time;
+            if (hitTime.second==0) {
+                time = hitTime.first;
+            } else {
+                std::array<double, 3> point = {hit.Position()[0], hit.Position()[1], hit.Position()[2]};
+                double stripLength = fGeo->getStripLength(point, hit.CellID()); // in cm
+                float c = (CLHEP::c_light * CLHEP::mm / CLHEP::ns) / CLHEP::cm; // in cm/ns
+                TVector3 whereBe(hit.Position()[0], hit.Position()[1], hit.Position()[2]);    // C++ & ROOT at their finest
+                if ( fGeo->PointInECALBarrel(whereBe) || fGeo->PointInECALEndcap(whereBe) ) {
+                    c /= fGeo->getIofRECAL();
+                } else {
+                    c /= fGeo->getIofRMuID();
+                }
+                time = (hitTime.first + hitTime.second) / 2. - (stripLength / (2 * c));
+            }
 
+            std::vector<CalIDE> calIDEs;
             std::vector<const sdp::CaloDeposit*>  cellEDeps;
             try {
-                cellEDeps = fCellIDToEDepCol.at(cell);
+                cellEDeps = fCellIDToEDepCol.at(hitCell);
             }
             catch (std::out_of_range &) {
                 MF_LOG_WARNING("BackTrackerCore::CellIDToCalIDEs")
-                    << "No sdp::EnergyDeposits for selected ECAL cell: " << cell
+                    << "No sdp::EnergyDeposits for selected ECAL cell: " << hitCell
                     << ". There is no way to backtrack the given calorimeter hit,"
                     << " returning an empty vector.";
                 return calIDEs;
@@ -595,8 +646,13 @@ namespace gar{
             float start = time -fECALtimeResolution;
             float stop  = time +fECALtimeResolution;
 
+            TVector3 verty(hit.Position());
+            bool inYoke = ( fGeo->PointInMuIDBarrel(verty) ||
+                            fGeo->PointInMuIDEndcap(verty) );
+
             double totalEallTracks = 0.0;
             for (auto const& edep : cellEDeps) {
+
                 if (edep->TrackID() == sdp::NoParticleId) continue;
 
                 if ( start<=edep->Time() && edep->Time()<=stop) {
@@ -606,17 +662,18 @@ namespace gar{
                     // Chase the tid up to the parent which started in the gas.
                     // tid < 0 is possible here, but FindTPCEve calls
                     // TrackIDToParticle, which fixes that little issue.
-                    simb::MCParticle* TPCEve = FindTPCEve(tid);
-                    int tidTPC;
-                    if (TPCEve!=nullptr) {
-                        tidTPC = TPCEve->TrackId();
+                    simb::MCParticle* DETEve;
+                    DETEve = inYoke ? FindECALEve(tid) : FindTPCEve(tid);
+                    int tidDET;
+                    if (DETEve!=nullptr) {
+                        tidDET = DETEve->TrackId();
                     } else {
-                        tidTPC = tid;
+                        tidDET = tid;
                     }
-                    auto tidmapiter = tidmap.find(tidTPC);
+                    auto tidmapiter = tidmap.find(tidDET);
                     if (tidmapiter == tidmap.end()) {
-                        calIDEs.emplace_back(tidTPC, 0.0, energy);
-                        tidmap[tidTPC] = calIDEs.size()-1;
+                        calIDEs.emplace_back(tidDET, 0.0, energy);
+                        tidmap[tidDET] = calIDEs.size()-1;
                     } else {
                         calIDEs.at(tidmapiter->second).energyTot += energy;
                     }
@@ -741,21 +798,14 @@ namespace gar{
         std::vector<art::Ptr<rec::Hit>> const
         BackTrackerCore::TrackToHits(rec::Track* const t) {
 
-            //std::cout << "BT:TrackToHits called, read map with " << fTrackIDToHits.size() << " entries" << std::endl;
+            MF_LOG_DEBUG("BackTrackerCore::TrackToHits") << "BT:TrackToHits called, read map with " << 
+                fTrackIDToHits.size() << " entries" << std::endl;
 
             // Evidently, use of std::unordered_map keeps this method from being const
             std::vector<art::Ptr<gar::rec::Hit>> retval;
             if ( !fTrackIDToHits.empty() ) {
                 retval = fTrackIDToHits[ t->getIDNumber() ];
             }
-            // useful for debugging, but reduces performance 
-            /*size_t nduplicate = 0;
-            for(size_t i=0; i<retval.size(); i++) {
-              for(size_t j=i+1; j<retval.size(); j++) {
-                if(*retval[i]==*retval[j]) nduplicate++;
-              }
-            }
-            if(nduplicate!=0) std::cout << nduplicate << " duplicate hits matched to track" << std::endl;*/
             return retval;
         }
         //-----------------------------------------------------------------------
@@ -773,13 +823,13 @@ namespace gar{
         //-----------------------------------------------------------------------
         //std::vector<art::Ptr<rec::TPCCluster>> const 
         std::vector<const rec::TPCCluster*> const
-        BackTrackerCore::TrackToClusters(rec::Track* const t) {
+        BackTrackerCore::TrackToTPCClusters(rec::Track* const t) {
 
             // Evidently, use of std::unordered_map keeps this method from being const
             //std::vector<art::Ptr<gar::rec::TPCCluster>> retval;
             std::vector<const gar::rec::TPCCluster*> retval;
-            if ( !fTrackIDToClusters.empty() ) {
-                retval = fTrackIDToClusters[ t->getIDNumber() ];
+            if ( !fTrackIDToTPCClusters.empty() ) {
+                retval = fTrackIDToTPCClusters[ t->getIDNumber() ];
             }
             return retval;     
         }
@@ -931,7 +981,7 @@ namespace gar{
         //----------------------------------------------------------------------
         std::vector<std::pair<simb::MCParticle*,float>>
         BackTrackerCore::ClusterToMCParticles(rec::Cluster* const c) {
-            // Can't be const because it uses TrackToHits
+            // Can't be const because it uses ClusterToCaloHits
 
             std::vector<art::Ptr<gar::rec::CaloHit>> const hitCol = ClusterToCaloHits(c);
             std::vector<CalIDE> hitIDECol;
@@ -940,11 +990,16 @@ namespace gar{
                 hitIDECol.insert(hitIDECol.end(), IDEsThisHit.begin(),IDEsThisHit.end());
             }
 
+            TVector3 verty(c->Position());
+            bool inYoke = ( fGeo->PointInMuIDBarrel(verty) ||
+                            fGeo->PointInMuIDEndcap(verty) );
+
             // A tree is a good way to accumulate the info we need
             std::map<int,float> lClusterIdToEnergy;
             for (auto calIDE : hitIDECol) {
                 simb::MCParticle* thisTrack     = TrackIDToParticle(calIDE.trackID);
-                simb::MCParticle* incomingTrack = FindTPCEve(thisTrack);
+                simb::MCParticle* incomingTrack;
+                incomingTrack = inYoke ? FindECALEve(thisTrack) : FindTPCEve(thisTrack);
                 int iTrackID = incomingTrack->TrackId();
                 lClusterIdToEnergy[iTrackID] += calIDE.energyFrac * calIDE.energyTot;
             }
@@ -1079,7 +1134,7 @@ namespace gar{
                     dr = (position - mcp->Position(startTrajIndex)).Vect().Mag();
                     dt = abs((position - mcp->Position(startTrajIndex)).T());
                 } else {
-		            break;
+                    break;
                 }
 
             } // for trajectory points

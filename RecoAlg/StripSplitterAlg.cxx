@@ -13,6 +13,7 @@
 #include "CoreUtils/ServiceUtil.h"
 #include "Geometry/LocalTransformation.h"
 
+#include "canvas/Persistency/Common/Ptr.h"
 #include <algorithm>
 #include <array>
 #include <functional>
@@ -182,8 +183,8 @@ namespace gar {
 
                         // split the hits
                         std::vector <const gar::rec::CaloHit*> virtualhits;
-                        bool isBarrel = (det_id == 0 || det_id == 4) ? true : false;
-                        /* DEBLEO: Should it be bool isBarrel = (det_id == 1); */
+                        // As of Sep 2022, only barrel of yoke is instrumented so MuID is all barrel
+                        bool isBarrel = (det_id == 1 || det_id == 4) ? true : false;
                         getVirtualHits(hit, orientation, isBarrel, virtualhits);
 
                         // add (new) hits to collections
@@ -292,20 +293,20 @@ namespace gar {
                     {
                         const gar::rec::CaloHit *hit2 = splitter->at(i);
 
-                        int detid2 = fFieldDecoder->get(hit2->CellID(), "system");
+                        int detid2  = fFieldDecoder->get(hit2->CellID(), "system");
                         int layer2  = hit2->Layer();
                         int module2 = fFieldDecoder->get(hit2->CellID(), "module");
                         int stave2  = fFieldDecoder->get(hit2->CellID(), "stave");
 
-                        int ddetid = std::abs(detid2 - detid);
-                        int dlayer = std::abs(layer2 - layer);
-                        int dstave = std::abs(stave2 - stave);
+                        int ddetid  = std::abs(detid2 - detid);
+                        int dlayer  = std::abs(layer2 - layer);
+                        int dstave  = std::abs(stave2 - stave);
                         int dmodule = std::abs(module2 - module);
 
                         TVector3 point2(hit2->Position()[0], hit2->Position()[1], hit2->Position()[2]);
 
                         //if they are in different part of the det, ignore
-                        if(ddetid != 0) continue;
+                        if (ddetid != 0) continue;
 
                         //TODO CHECK!
                         // are the two hits close enough to look at further?
@@ -315,18 +316,20 @@ namespace gar {
                         if (isBarrel)
                         {
                             dstave = std::min( dstave, fInnerSymmetry - dstave);
-                            if ( dstave == 0 && dmodule > 1 ) continue; // allow same stave and +- 1 module
-                            if ( dmodule == 0 && dstave > 1 ) continue; // or same module +- 1 stave
-                            if ( dstave == 0 && dlayer > 1) continue;   // if in same stave, require dlayer==1
+                            // Leo Asks: Maybe we should just split inside a single stave & module
+                            if (dstave  == 0 && dmodule > 1) continue; // allow same stave and +- 1 module
+                            if (dmodule == 0 && dstave  > 1) continue; // or same module +- 1 stave
+                            // Leo Asks: Maybe we should just require dlayer == 1 always?
+                            if (dstave  == 0 && dlayer  > 1) continue; // if in same stave, require dlayer==1
                         }
                         else
                         {
-                            //module == 0 or 6 for endcap
+                            //TODO CHECK!
+                            //module == 0 or 6 for endcap in hexagonal ECALs.  But not in dodecagonal ones.
                             //stave is from 1 to 4
-                            //TODO Check this!
-                            //endcap
                             dstave = std::min( dstave, 4 - dstave);
                             if (dmodule != 0) continue; // different endcap
+                            // Leo Asks: Maybe we should just split inside a single stave & module
                             if (dstave > 1) continue;   // more than 1 stave (=quarter endcap) apart
                             if (dlayer > 1) continue;   // more than 1 layer apart
                         }

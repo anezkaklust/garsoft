@@ -207,6 +207,12 @@ namespace gar {
 
             //Calculate the position of the hit based on the corrected time along the strip
             float c = (CLHEP::c_light * CLHEP::mm / CLHEP::ns) / CLHEP::cm; // in cm/ns
+            TVector3 whereBe(x,y,z);
+            if ( fGeo->PointInECALBarrel(whereBe) || fGeo->PointInECALEndcap(whereBe) ) {
+            	c /= fGeo->getIofRECAL();
+            } else {
+            	c /= fGeo->getIofRMuID();
+            }
             float xlocal = c * ( time.first - time.second ) / 2.;
 
             std::array<double, 3> local_back = fGeo->ReconstructStripHitPosition(point, pointLocal, xlocal, cID);
@@ -223,6 +229,12 @@ namespace gar {
             double stripLength = fGeo->getStripLength(point, cID); // in cm
 
             float c = (CLHEP::c_light * CLHEP::mm / CLHEP::ns) / CLHEP::cm; // in cm/ns
+            TVector3 whereBe(x,y,z);
+            if ( fGeo->PointInECALBarrel(whereBe) || fGeo->PointInECALEndcap(whereBe) ) {
+            	c /= fGeo->getIofRECAL();
+            } else {
+            	c /= fGeo->getIofRMuID();
+            }
             float time = (hitTime.first + hitTime.second) / 2. - (stripLength / (2 * c));
 
             return time;

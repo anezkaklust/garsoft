@@ -356,7 +356,7 @@ void BackTrackerAna::analyze(art::Event const& e)
     for(auto track : *TrackHandle ) {
 
         // ------- TPC track -> clusters -------------------------
-        for(auto const& clust : fBt->TrackToClusters(&track) ) {
+        for(auto const& clust : fBt->TrackToTPCClusters(&track) ) {
             if(tpcclustcounts.find(clust->getIDNumber())==tpcclustcounts.end()) {
                 //if(warnTrackHitNotFound){
                 cout << "TPCCluster associated to track not found in cluster list" << endl;

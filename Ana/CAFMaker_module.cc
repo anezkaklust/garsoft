@@ -198,7 +198,9 @@ namespace gar {
 // constructor
 gar::CAFMaker::CAFMaker(fhicl::ParameterSet const & p)
   : EDAnalyzer(p),
-    fEngine(art::ServiceHandle<rndm::NuRandomService>()->createEngine(*this, p, "Seed")) {
+    fEngine(art::ServiceHandle<rndm::NuRandomService>()->registerAndSeedEngine(createEngine(0),
+                                                                                 p,
+                                                                                 "Seed")) {
   fGeo     = gar::providerFrom<geo::GeometryGAr>();
 
   bool usegenlabels =

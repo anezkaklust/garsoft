@@ -1,8 +1,8 @@
 #include <list>
 
-#include "globbing.h"
-#include "treeReader.h"
-#include "includeROOT.h"
+#include "tools/globbing.h"
+#include "tools/treeReader.h"
+#include "tools/includeROOT.h"
 
 #include "nusimdata/SimulationBase/MCNeutrino.h"
 #include "ReconstructionDataProducts/Track.h"
@@ -28,8 +28,8 @@ bool inFiducial(double x, double y, double z) {
 //==============================================================================
 #define writeECAL         true
 #define killNoRecoVerts   true
-bool  viaXrootd = true;
-float  PmagCut = 0.150;		// In GeV.
+bool   viaXrootd = true;
+float  PmagCut   = 0.150;		// In GeV.
 
 
 
@@ -133,9 +133,11 @@ int main(int argc , const char* argv[]){
  		fileList  = globbing(SearchDir +LookFor);
 		nFiles = (int)fileList.size();
    }
-    cout << ( nFiles = (int)fileList.size() ) << " total files found.\n";
-    if (nFiles==0) exit(1);
-
+    cout << ( nFiles = (int)fileList.size() ) << " total files found\n";
+    if (nFiles==0) {
+		cout << "(globbing for " << SearchDir+LookFor << ")" << endl;
+		exit(1);
+	}
     if ( maxNfiles>0 && maxNfiles<nFiles) {
         nFiles = maxNfiles;
     }
@@ -285,9 +287,9 @@ void TransMogrifyTree(int fileNumber, bool firstCall) {
     vector<Float_t>            fMCNuPz;
 	if (firstCall) outTree->Branch("MCNuPz",&fMCNuPz);
 
-    vectorFromTree<Float_t>     MC_T(inTree,"MC_T",&iEntry);
-    vector<Float_t>            fMC_T;
-	if (firstCall) outTree->Branch("MC_T",&fMC_T);
+    vectorFromTree<Float_t>     GT_T(inTree,"GT_T",&iEntry);
+    vector<Float_t>            fGT_T;
+	if (firstCall) outTree->Branch("GT_T",&fGT_T);
 
 
 
@@ -523,7 +525,7 @@ void TransMogrifyTree(int fileNumber, bool firstCall) {
 		fMCNuPx                 = MCNuPx.getDataVector();
 		fMCNuPy                 = MCNuPy.getDataVector();
 		fMCNuPz                 = MCNuPz.getDataVector();
-		fMC_T                   = MC_T.getDataVector();
+		fGT_T                   = GT_T.getDataVector();
 
 		fPDG                    = PDG.getDataVector();
 		fPDGMother              = PDGMother.getDataVector();

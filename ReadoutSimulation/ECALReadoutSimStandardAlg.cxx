@@ -22,6 +22,8 @@
 
 #include "TGeoManager.h"
 
+#include "canvas/Persistency/Common/Ptr.h"
+
 namespace gar {
     namespace rosim{
 
@@ -127,7 +129,7 @@ namespace gar {
             if(fTimeSmearing)
                 new_time = this->DoTimeSmearing(time);
 
-            //Calculate the position of the strip
+            //Calculate the position of the tile
             std::pair< std::array<double, 3>, bool > calc_pos = this->CalculatePosition(x, y, z, cID);
             //Check if need to drop the hit
             if ( calc_pos.second ) {
@@ -251,6 +253,7 @@ namespace gar {
             std::array<double, 3> point = {x, y, z};
             TGeoNode *node = fGeo->FindNode(point);//Node in cm...
             std::string nodename = node->GetName();
+
             std::array<double, 3> pointLocal;
             gar::geo::LocalTransformation<TGeoHMatrix> trans;
             fGeo->WorldToLocal(point, pointLocal, trans);

@@ -166,9 +166,11 @@ namespace gar {
             }
 
             //----------------------------------------------------------------------------
-            std::pair<float, float> SegmentationStripYAlg::CalculateLightPropagation(const gar::geo::GeometryCore& , const std::array<double, 3> &local, const gar::raw::CellID_t& ) const
+            std::pair<float, float> SegmentationStripYAlg::CalculateLightPropagation(const gar::geo::GeometryCore& geo, const std::array<double, 3> &local, const gar::raw::CellID_t& ) const
             {
                 float c = (CLHEP::c_light * CLHEP::mm / CLHEP::ns) / CLHEP::cm; // in cm/ns
+                c /= geo.getIofRMuID();  // Better use another algorithm for the ECAL!
+
                 //time1 is left SiPM
                 float time1 = 0.;
                 //time2 is right SiPM

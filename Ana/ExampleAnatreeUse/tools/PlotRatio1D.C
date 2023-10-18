@@ -30,7 +30,7 @@ using namespace std;
 class PlotRatio1D {
 public:
 	PlotRatio1D() {
-		ratioCanvas = new TCanvas("ratioCanvas","ratioCanvas",600,900);
+		ratioCanvas = new TCanvas("ratioCanvas","ratioCanvas",50,50,600,900);
 		ratioCanvas->ToggleEventStatus();
 		minYaxis = maxYaxis = 0;
 	};
