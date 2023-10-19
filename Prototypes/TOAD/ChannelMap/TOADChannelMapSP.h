@@ -67,7 +67,7 @@ private:
   {
   if (offlineChannel >= (fNChans*2) && offlineChannel <= 9983)
     {      
-      throw std::range_error("TOADChannelMapSP offline Channel out of range"); 
+      //throw std::range_error("TOADChannelMapSP offline Channel out of range"); 
     }
   };
 
